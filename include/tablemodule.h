@@ -23,7 +23,8 @@
 
 #ifdef __TABLE_MODULE
 
-typedef struct {
+typedef struct
+{
     PyObject_HEAD
     int size;
     double samplingRate;
@@ -32,9 +33,9 @@ typedef struct {
 } TableStream;
 
 
-#define MAKE_NEW_TABLESTREAM(self, type, rt_error)	\
-(self) = (TableStream *)(type)->tp_alloc((type), 0);	\
-if ((self) == rt_error) { return rt_error; }	\
+#define MAKE_NEW_TABLESTREAM(self, type, rt_error)  \
+(self) = (TableStream *)(type)->tp_alloc((type), 0);    \
+if ((self) == rt_error) { return rt_error; }    \
 \
 (self)->size = 0
 

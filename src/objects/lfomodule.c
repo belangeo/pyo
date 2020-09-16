@@ -27,7 +27,8 @@
 #include "servermodule.h"
 #include "dummymodule.h"
 
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     PyObject *freq;
     Stream *freq_stream;
@@ -47,19 +48,22 @@ typedef struct {
 } LFO;
 
 static void
-LFO_generates_ii(LFO *self) {
+LFO_generates_ii(LFO *self)
+{
     MYFLT val, inc, freq, sharp, pointer, numh;
     MYFLT v1, v2, inc2, fade;
     MYFLT sharp2 = 0.0;
     int i, maxHarms;
 
     freq = PyFloat_AS_DOUBLE(self->freq);
+
     if (freq < 0.00001)
         freq = 0.00001;
     else if (freq > self->srOverFour)
         freq = self->srOverFour;
 
     sharp = PyFloat_AS_DOUBLE(self->sharp);
+
     if (sharp < 0.0)
         sharp = 0.0;
     else if (sharp > 1.0)
@@ -67,164 +71,227 @@ LFO_generates_ii(LFO *self) {
 
     inc = freq * self->oneOverSr;
 
-    switch (self->wavetype) {
+    switch (self->wavetype)
+    {
         case 0: /* Saw up */
-            maxHarms = (int)(self->srOverFour/freq);
+            maxHarms = (int)(self->srOverFour / freq);
             numh = sharp * 46.0 + 4.0;
+
             if (numh > maxHarms)
                 numh = maxHarms;
-            for (i=0; i<self->bufsize; i++) {
+
+            for (i = 0; i < self->bufsize; i++)
+            {
                 pointer = self->pointerPos + 0.5;
+
                 if (pointer >= 1.0)
                     pointer -= 1.0;
+
                 pointer = pointer * 2.0 - 1.0;
                 val = pointer - MYTANH(numh * pointer) / MYTANH(numh);
                 self->data[i] = val;
                 self->pointerPos += inc;
+
                 if (self->pointerPos < 0)
                     self->pointerPos += 1.0;
                 else if (self->pointerPos >= 1)
                     self->pointerPos -= 1.0;
             }
+
             break;
+
         case 1: /* Saw down */
-            maxHarms = (int)(self->srOverFour/freq);
+            maxHarms = (int)(self->srOverFour / freq);
             numh = sharp * 46.0 + 4.0;
+
             if (numh > maxHarms)
                 numh = maxHarms;
-            for (i=0; i<self->bufsize; i++) {
+
+            for (i = 0; i < self->bufsize; i++)
+            {
                 pointer = self->pointerPos + 0.5;
+
                 if (pointer >= 1.0)
                     pointer -= 1.0;
+
                 pointer = pointer * 2.0 - 1.0;
                 val = -(pointer - MYTANH(numh * pointer) / MYTANH(numh));
                 self->data[i] = val;
                 self->pointerPos += inc;
+
                 if (self->pointerPos < 0)
                     self->pointerPos += 1.0;
                 else if (self->pointerPos >= 1)
                     self->pointerPos -= 1.0;
             }
+
             break;
+
         case 2: /* Square */
-            maxHarms = (int)(self->srOverEight/freq);
+            maxHarms = (int)(self->srOverEight / freq);
             numh = sharp * 46.0 + 4.0;
+
             if (numh > maxHarms)
                 numh = maxHarms;
-            for (i=0; i<self->bufsize; i++) {
-                val = MYATAN(numh * MYSIN(TWOPI*self->pointerPos));
+
+            for (i = 0; i < self->bufsize; i++)
+            {
+                val = MYATAN(numh * MYSIN(TWOPI * self->pointerPos));
                 self->data[i] = val * self->oneOverPiOverTwo;
                 self->pointerPos += inc;
+
                 if (self->pointerPos < 0)
                     self->pointerPos += 1.0;
                 else if (self->pointerPos >= 1)
                     self->pointerPos -= 1.0;
             }
+
             break;
+
         case 3: /* Triangle */
-            maxHarms = (int)(self->srOverFour/freq);
+            maxHarms = (int)(self->srOverFour / freq);
+
             if ((sharp * 36.0) > maxHarms)
                 numh = (MYFLT)(maxHarms / 36.0);
             else
                 numh = sharp;
-            for (i=0; i<self->bufsize; i++) {
-                v1 = MYTAN(MYSIN(TWOPI*self->pointerPos)) * self->oneOverPiOverTwo;
+
+            for (i = 0; i < self->bufsize; i++)
+            {
+                v1 = MYTAN(MYSIN(TWOPI * self->pointerPos)) * self->oneOverPiOverTwo;
                 pointer = self->pointerPos + 0.25;
+
                 if (pointer > 1.0)
                     pointer -= 1.0;
+
                 v2 = 4.0 * (0.5 - MYFABS(pointer - 0.5)) - 1.0;
                 val = v1 * (1 - numh) + v2 * numh;
                 self->data[i] = val;
                 self->pointerPos += inc;
+
                 if (self->pointerPos < 0)
                     self->pointerPos += 1.0;
                 else if (self->pointerPos >= 1)
                     self->pointerPos -= 1.0;
             }
+
             break;
+
         case 4: /* Pulse */
-            maxHarms = (int)(self->srOverEight/freq);
+            maxHarms = (int)(self->srOverEight / freq);
             numh = MYFLOOR(sharp * 46.0 + 4.0);
+
             if (numh > maxHarms)
                 numh = maxHarms;
+
             if (MYFMOD(numh, 2.0) == 0.0)
                 numh += 1.0;
-            for (i=0; i<self->bufsize; i++) {
-                val = MYTAN(MYPOW(MYFABS(MYSIN(TWOPI*self->pointerPos)), numh));
+
+            for (i = 0; i < self->bufsize; i++)
+            {
+                val = MYTAN(MYPOW(MYFABS(MYSIN(TWOPI * self->pointerPos)), numh));
                 self->data[i] = val * self->oneOverPiOverTwo;
                 self->pointerPos += inc;
+
                 if (self->pointerPos < 0)
                     self->pointerPos += 1.0;
                 else if (self->pointerPos >= 1)
                     self->pointerPos -= 1.0;
             }
+
             break;
+
         case 5: /* Bi-Pulse */
-            maxHarms = (int)(self->srOverEight/freq);
+            maxHarms = (int)(self->srOverEight / freq);
             numh = MYFLOOR(sharp * 46.0 + 4.0);
+
             if (numh > maxHarms)
                 numh = maxHarms;
+
             if (MYFMOD(numh, 2.0) == 0.0)
                 numh += 1.0;
-            for (i=0; i<self->bufsize; i++) {
-                val = MYTAN(MYPOW(MYSIN(TWOPI*self->pointerPos), numh));
+
+            for (i = 0; i < self->bufsize; i++)
+            {
+                val = MYTAN(MYPOW(MYSIN(TWOPI * self->pointerPos), numh));
                 self->data[i] = val * self->oneOverPiOverTwo;
                 self->pointerPos += inc;
+
                 if (self->pointerPos < 0)
                     self->pointerPos += 1.0;
                 else if (self->pointerPos >= 1)
                     self->pointerPos -= 1.0;
             }
+
             break;
+
         case 6: /* SAH */
             numh = 1.0 - sharp;
             inc2 = 1.0 / (int)(1.0 / inc * numh);
-            for (i=0; i<self->bufsize; i++) {
+
+            for (i = 0; i < self->bufsize; i++)
+            {
                 self->pointerPos += inc;
+
                 if (self->pointerPos < 0)
                     self->pointerPos += 1.0;
-                else if (self->pointerPos >= 1) {
+                else if (self->pointerPos >= 1)
+                {
                     self->pointerPos -= 1.0;
                     self->sahPointerPos = 0.0;
                     self->sahLastValue = self->sahCurrentValue;
                     self->sahCurrentValue = RANDOM_UNIFORM * 2.0 - 1.0;
                 }
-                if (self->sahPointerPos < 1.0) {
-                    fade = 0.5 * MYSIN(PI * (self->sahPointerPos+0.5)) + 0.5;
+
+                if (self->sahPointerPos < 1.0)
+                {
+                    fade = 0.5 * MYSIN(PI * (self->sahPointerPos + 0.5)) + 0.5;
                     val = self->sahCurrentValue * (1.0 - fade) + self->sahLastValue * fade;
                     self->sahPointerPos += inc2;
                 }
-                else {
+                else
+                {
                     val = self->sahCurrentValue;
                 }
+
                 self->data[i] = val;
             }
+
             break;
+
         case 7: /* Sine-mod */
             inc2 = inc * sharp * 0.99;
             sharp2 = sharp * 0.5;
-            for (i=0; i<self->bufsize; i++) {
+
+            for (i = 0; i < self->bufsize; i++)
+            {
                 self->modPointerPos += inc2;
+
                 if (self->modPointerPos < 0)
                     self->modPointerPos += 1.0;
                 else if (self->modPointerPos >= 1)
                     self->modPointerPos -= 1.0;
-                val = ((sharp2 * MYCOS(TWOPI*self->modPointerPos) + sharp2) + (1.0 - sharp)) * MYSIN(TWOPI*self->pointerPos);
+
+                val = ((sharp2 * MYCOS(TWOPI * self->modPointerPos) + sharp2) + (1.0 - sharp)) * MYSIN(TWOPI * self->pointerPos);
                 self->data[i] = val;
                 self->pointerPos += inc;
+
                 if (self->pointerPos < 0)
                     self->pointerPos += 1.0;
                 else if (self->pointerPos >= 1)
                     self->pointerPos -= 1.0;
             }
+
             break;
+
         default:
             break;
     }
 }
 
 static void
-LFO_generates_ai(LFO *self) {
+LFO_generates_ai(LFO *self)
+{
     MYFLT val, inc, freq, sharp, pointer, numh;
     MYFLT v1, v2, inc2, fade;
     MYFLT sharp2 = 0.0;
@@ -232,429 +299,593 @@ LFO_generates_ai(LFO *self) {
 
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
     sharp = PyFloat_AS_DOUBLE(self->sharp);
+
     if (sharp < 0.0)
         sharp = 0.0;
     else if (sharp > 1.0)
         sharp = 1.0;
 
-    switch (self->wavetype) {
+    switch (self->wavetype)
+    {
         case 0: /* Saw up */
-            for (i=0; i<self->bufsize; i++) {
+            for (i = 0; i < self->bufsize; i++)
+            {
                 freq = fr[i];
+
                 if (freq < 0.00001)
                     freq = 0.00001;
                 else if (freq > self->srOverFour)
                     freq = self->srOverFour;
+
                 inc = freq * self->oneOverSr;
-                maxHarms = (int)(self->srOverFour/freq);
+                maxHarms = (int)(self->srOverFour / freq);
                 numh = sharp * 46.0 + 4.0;
+
                 if (numh > maxHarms)
                     numh = maxHarms;
+
                 pointer = self->pointerPos + 0.5;
+
                 if (pointer >= 1.0)
                     pointer -= 1.0;
+
                 pointer = pointer * 2.0 - 1.0;
                 val = pointer - MYTANH(numh * pointer) / MYTANH(numh);
                 self->data[i] = val;
                 self->pointerPos += inc;
+
                 if (self->pointerPos < 0)
                     self->pointerPos += 1.0;
                 else if (self->pointerPos >= 1)
                     self->pointerPos -= 1.0;
             }
+
             break;
+
         case 1: /* Saw down */
-            for (i=0; i<self->bufsize; i++) {
+            for (i = 0; i < self->bufsize; i++)
+            {
                 freq = fr[i];
+
                 if (freq < 0.00001)
                     freq = 0.00001;
                 else if (freq > self->srOverFour)
                     freq = self->srOverFour;
+
                 inc = freq * self->oneOverSr;
-                maxHarms = (int)(self->srOverFour/freq);
+                maxHarms = (int)(self->srOverFour / freq);
                 numh = sharp * 46.0 + 4.0;
+
                 if (numh > maxHarms)
                     numh = maxHarms;
+
                 pointer = self->pointerPos + 0.5;
+
                 if (pointer >= 1.0)
                     pointer -= 1.0;
+
                 pointer = pointer * 2.0 - 1.0;
                 val = -(pointer - MYTANH(numh * pointer) / MYTANH(numh));
                 self->data[i] = val;
                 self->pointerPos += inc;
+
                 if (self->pointerPos < 0)
                     self->pointerPos += 1.0;
                 else if (self->pointerPos >= 1)
                     self->pointerPos -= 1.0;
             }
+
             break;
+
         case 2: /* Square */
-            for (i=0; i<self->bufsize; i++) {
+            for (i = 0; i < self->bufsize; i++)
+            {
                 freq = fr[i];
+
                 if (freq < 0.00001)
                     freq = 0.00001;
                 else if (freq > self->srOverFour)
                     freq = self->srOverFour;
+
                 inc = freq * self->oneOverSr;
-                maxHarms = (int)(self->srOverEight/freq);
+                maxHarms = (int)(self->srOverEight / freq);
                 numh = sharp * 46.0 + 4.0;
+
                 if (numh > maxHarms)
                     numh = maxHarms;
-                val = MYATAN(numh * MYSIN(TWOPI*self->pointerPos));
+
+                val = MYATAN(numh * MYSIN(TWOPI * self->pointerPos));
                 self->data[i] = val * self->oneOverPiOverTwo;
                 self->pointerPos += inc;
+
                 if (self->pointerPos < 0)
                     self->pointerPos += 1.0;
                 else if (self->pointerPos >= 1)
                     self->pointerPos -= 1.0;
             }
+
             break;
+
         case 3: /* Triangle */
-            for (i=0; i<self->bufsize; i++) {
+            for (i = 0; i < self->bufsize; i++)
+            {
                 freq = fr[i];
+
                 if (freq < 0.00001)
                     freq = 0.00001;
                 else if (freq > self->srOverFour)
                     freq = self->srOverFour;
+
                 inc = freq * self->oneOverSr;
-                maxHarms = (int)(self->srOverFour/freq);
+                maxHarms = (int)(self->srOverFour / freq);
+
                 if ((sharp * 36.0) > maxHarms)
                     numh = (MYFLT)(maxHarms / 36.0);
                 else
                     numh = sharp;
-                v1 = MYTAN(MYSIN(TWOPI*self->pointerPos)) * self->oneOverPiOverTwo;
+
+                v1 = MYTAN(MYSIN(TWOPI * self->pointerPos)) * self->oneOverPiOverTwo;
                 pointer = self->pointerPos + 0.25;
+
                 if (pointer > 1.0)
                     pointer -= 1.0;
+
                 v2 = 4.0 * (0.5 - MYFABS(pointer - 0.5)) - 1.0;
                 val = v1 * (1 - numh) + v2 * numh;
                 self->data[i] = val;
                 self->pointerPos += inc;
+
                 if (self->pointerPos < 0)
                     self->pointerPos += 1.0;
                 else if (self->pointerPos >= 1)
                     self->pointerPos -= 1.0;
             }
+
             break;
+
         case 4: /* Pulse */
-            for (i=0; i<self->bufsize; i++) {
+            for (i = 0; i < self->bufsize; i++)
+            {
                 freq = fr[i];
+
                 if (freq < 0.00001)
                     freq = 0.00001;
                 else if (freq > self->srOverFour)
                     freq = self->srOverFour;
+
                 inc = freq * self->oneOverSr;
-                maxHarms = (int)(self->srOverEight/freq);
+                maxHarms = (int)(self->srOverEight / freq);
                 numh = MYFLOOR(sharp * 46.0 + 4.0);
+
                 if (numh > maxHarms)
                     numh = maxHarms;
+
                 if (MYFMOD(numh, 2.0) == 0.0)
                     numh += 1.0;
-                val = MYTAN(MYPOW(MYFABS(MYSIN(TWOPI*self->pointerPos)), numh));
+
+                val = MYTAN(MYPOW(MYFABS(MYSIN(TWOPI * self->pointerPos)), numh));
                 self->data[i] = val * self->oneOverPiOverTwo;
                 self->pointerPos += inc;
+
                 if (self->pointerPos < 0)
                     self->pointerPos += 1.0;
                 else if (self->pointerPos >= 1)
                     self->pointerPos -= 1.0;
             }
+
             break;
+
         case 5: /* Bi-Pulse */
-            for (i=0; i<self->bufsize; i++) {
+            for (i = 0; i < self->bufsize; i++)
+            {
                 freq = fr[i];
+
                 if (freq < 0.00001)
                     freq = 0.00001;
                 else if (freq > self->srOverFour)
                     freq = self->srOverFour;
+
                 inc = freq * self->oneOverSr;
-                maxHarms = (int)(self->srOverEight/freq);
+                maxHarms = (int)(self->srOverEight / freq);
                 numh = MYFLOOR(sharp * 46.0 + 4.0);
+
                 if (numh > maxHarms)
                     numh = maxHarms;
+
                 if (MYFMOD(numh, 2.0) == 0.0)
                     numh += 1.0;
-                val = MYTAN(MYPOW(MYSIN(TWOPI*self->pointerPos), numh));
+
+                val = MYTAN(MYPOW(MYSIN(TWOPI * self->pointerPos), numh));
                 self->data[i] = val * self->oneOverPiOverTwo;
                 self->pointerPos += inc;
+
                 if (self->pointerPos < 0)
                     self->pointerPos += 1.0;
                 else if (self->pointerPos >= 1)
                     self->pointerPos -= 1.0;
             }
+
             break;
+
         case 6: /* SAH */
             numh = 1.0 - sharp;
-            for (i=0; i<self->bufsize; i++) {
+
+            for (i = 0; i < self->bufsize; i++)
+            {
                 freq = fr[i];
+
                 if (freq < 0.00001)
                     freq = 0.00001;
                 else if (freq > self->srOverFour)
                     freq = self->srOverFour;
+
                 inc = freq * self->oneOverSr;
                 inc2 = 1.0 / (int)(1.0 / inc * numh);
                 self->pointerPos += inc;
+
                 if (self->pointerPos < 0)
                     self->pointerPos += 1.0;
-                else if (self->pointerPos >= 1) {
+                else if (self->pointerPos >= 1)
+                {
                     self->pointerPos -= 1.0;
                     self->sahPointerPos = 0.0;
                     self->sahLastValue = self->sahCurrentValue;
                     self->sahCurrentValue = RANDOM_UNIFORM * 2.0 - 1.0;
                 }
-                if (self->sahPointerPos < 1.0) {
-                    fade = 0.5 * MYSIN(PI * (self->sahPointerPos+0.5)) + 0.5;
+
+                if (self->sahPointerPos < 1.0)
+                {
+                    fade = 0.5 * MYSIN(PI * (self->sahPointerPos + 0.5)) + 0.5;
                     val = self->sahCurrentValue * (1.0 - fade) + self->sahLastValue * fade;
                     self->sahPointerPos += inc2;
                 }
-                else {
+                else
+                {
                     val = self->sahCurrentValue;
                 }
+
                 self->data[i] = val;
             }
+
             break;
+
         case 7: /* Sine-mod */
             sharp2 = sharp * 0.5;
-            for (i=0; i<self->bufsize; i++) {
+
+            for (i = 0; i < self->bufsize; i++)
+            {
                 freq = fr[i];
+
                 if (freq < 0.00001)
                     freq = 0.00001;
                 else if (freq > self->srOverFour)
                     freq = self->srOverFour;
+
                 inc = freq * self->oneOverSr;
                 inc2 = inc * sharp * 0.99;
                 self->modPointerPos += inc2;
+
                 if (self->modPointerPos < 0)
                     self->modPointerPos += 1.0;
                 else if (self->modPointerPos >= 1)
                     self->modPointerPos -= 1.0;
-                val = ((sharp2 * MYCOS(TWOPI*self->modPointerPos) + sharp2) + (1.0 - sharp)) * MYSIN(TWOPI*self->pointerPos);
+
+                val = ((sharp2 * MYCOS(TWOPI * self->modPointerPos) + sharp2) + (1.0 - sharp)) * MYSIN(TWOPI * self->pointerPos);
                 self->data[i] = val;
                 self->pointerPos += inc;
+
                 if (self->pointerPos < 0)
                     self->pointerPos += 1.0;
                 else if (self->pointerPos >= 1)
                     self->pointerPos -= 1.0;
             }
+
             break;
+
         default:
             break;
     }
 }
 
 static void
-LFO_generates_ia(LFO *self) {
+LFO_generates_ia(LFO *self)
+{
     MYFLT val, inc, freq, sharp, pointer, numh;
     MYFLT v1, v2, inc2, fade;
     MYFLT sharp2 = 0.0;
     int i, maxHarms;
 
     freq = PyFloat_AS_DOUBLE(self->freq);
+
     if (freq < 0.00001)
         freq = 0.00001;
     else if (freq > self->srOverFour)
         freq = self->srOverFour;
+
     inc = freq * self->oneOverSr;
 
     MYFLT *sh = Stream_getData((Stream *)self->sharp_stream);
 
-    switch (self->wavetype) {
+    switch (self->wavetype)
+    {
         case 0: /* Saw up */
-            maxHarms = (int)(self->srOverFour/freq);
-            for (i=0; i<self->bufsize; i++) {
+            maxHarms = (int)(self->srOverFour / freq);
+
+            for (i = 0; i < self->bufsize; i++)
+            {
                 sharp = sh[i];
+
                 if (sharp < 0.0)
                     sharp = 0.0;
                 else if (sharp > 1.0)
                     sharp = 1.0;
+
                 numh = sharp * 46.0 + 4.0;
+
                 if (numh > maxHarms)
                     numh = maxHarms;
+
                 pointer = self->pointerPos + 0.5;
+
                 if (pointer >= 1.0)
                     pointer -= 1.0;
+
                 pointer = pointer * 2.0 - 1.0;
                 val = pointer - MYTANH(numh * pointer) / MYTANH(numh);
                 self->data[i] = val;
                 self->pointerPos += inc;
+
                 if (self->pointerPos < 0)
                     self->pointerPos += 1.0;
                 else if (self->pointerPos >= 1)
                     self->pointerPos -= 1.0;
             }
+
             break;
+
         case 1: /* Saw down */
-            maxHarms = (int)(self->srOverFour/freq);
-            for (i=0; i<self->bufsize; i++) {
+            maxHarms = (int)(self->srOverFour / freq);
+
+            for (i = 0; i < self->bufsize; i++)
+            {
                 sharp = sh[i];
+
                 if (sharp < 0.0)
                     sharp = 0.0;
                 else if (sharp > 1.0)
                     sharp = 1.0;
+
                 numh = sharp * 46.0 + 4.0;
+
                 if (numh > maxHarms)
                     numh = maxHarms;
+
                 pointer = self->pointerPos + 0.5;
+
                 if (pointer >= 1.0)
                     pointer -= 1.0;
+
                 pointer = pointer * 2.0 - 1.0;
                 val = -(pointer - MYTANH(numh * pointer) / MYTANH(numh));
                 self->data[i] = val;
                 self->pointerPos += inc;
+
                 if (self->pointerPos < 0)
                     self->pointerPos += 1.0;
                 else if (self->pointerPos >= 1)
                     self->pointerPos -= 1.0;
             }
+
             break;
+
         case 2: /* Square */
-            maxHarms = (int)(self->srOverEight/freq);
-            for (i=0; i<self->bufsize; i++) {
+            maxHarms = (int)(self->srOverEight / freq);
+
+            for (i = 0; i < self->bufsize; i++)
+            {
                 sharp = sh[i];
+
                 if (sharp < 0.0)
                     sharp = 0.0;
                 else if (sharp > 1.0)
                     sharp = 1.0;
+
                 numh = sharp * 46.0 + 4.0;
+
                 if (numh > maxHarms)
                     numh = maxHarms;
-                val = MYATAN(numh * MYSIN(TWOPI*self->pointerPos));
+
+                val = MYATAN(numh * MYSIN(TWOPI * self->pointerPos));
                 self->data[i] = val * self->oneOverPiOverTwo;
                 self->pointerPos += inc;
+
                 if (self->pointerPos < 0)
                     self->pointerPos += 1.0;
                 else if (self->pointerPos >= 1)
                     self->pointerPos -= 1.0;
             }
+
             break;
+
         case 3: /* Triangle */
-            maxHarms = (int)(self->srOverFour/freq);
-            for (i=0; i<self->bufsize; i++) {
+            maxHarms = (int)(self->srOverFour / freq);
+
+            for (i = 0; i < self->bufsize; i++)
+            {
                 sharp = sh[i];
+
                 if (sharp < 0.0)
                     sharp = 0.0;
                 else if (sharp > 1.0)
                     sharp = 1.0;
+
                 if ((sharp * 36.0) > maxHarms)
                     numh = (MYFLT)(maxHarms / 36.0);
                 else
                     numh = sharp;
-                v1 = MYTAN(MYSIN(TWOPI*self->pointerPos)) * self->oneOverPiOverTwo;
+
+                v1 = MYTAN(MYSIN(TWOPI * self->pointerPos)) * self->oneOverPiOverTwo;
                 pointer = self->pointerPos + 0.25;
+
                 if (pointer > 1.0)
                     pointer -= 1.0;
+
                 v2 = 4.0 * (0.5 - MYFABS(pointer - 0.5)) - 1.0;
                 val = v1 * (1 - numh) + v2 * numh;
                 self->data[i] = val;
                 self->pointerPos += inc;
+
                 if (self->pointerPos < 0)
                     self->pointerPos += 1.0;
                 else if (self->pointerPos >= 1)
                     self->pointerPos -= 1.0;
             }
+
             break;
+
         case 4: /* Pulse */
-            maxHarms = (int)(self->srOverEight/freq);
-            for (i=0; i<self->bufsize; i++) {
+            maxHarms = (int)(self->srOverEight / freq);
+
+            for (i = 0; i < self->bufsize; i++)
+            {
                 sharp = sh[i];
+
                 if (sharp < 0.0)
                     sharp = 0.0;
                 else if (sharp > 1.0)
                     sharp = 1.0;
+
                 numh = MYFLOOR(sharp * 46.0 + 4.0);
+
                 if (numh > maxHarms)
                     numh = maxHarms;
+
                 if (MYFMOD(numh, 2.0) == 0.0)
                     numh += 1.0;
-                val = MYTAN(MYPOW(MYFABS(MYSIN(TWOPI*self->pointerPos)), numh));
+
+                val = MYTAN(MYPOW(MYFABS(MYSIN(TWOPI * self->pointerPos)), numh));
                 self->data[i] = val * self->oneOverPiOverTwo;
                 self->pointerPos += inc;
+
                 if (self->pointerPos < 0)
                     self->pointerPos += 1.0;
                 else if (self->pointerPos >= 1)
                     self->pointerPos -= 1.0;
             }
+
             break;
+
         case 5: /* Bi-Pulse */
-            maxHarms = (int)(self->srOverEight/freq);
-            for (i=0; i<self->bufsize; i++) {
+            maxHarms = (int)(self->srOverEight / freq);
+
+            for (i = 0; i < self->bufsize; i++)
+            {
                 sharp = sh[i];
+
                 if (sharp < 0.0)
                     sharp = 0.0;
                 else if (sharp > 1.0)
                     sharp = 1.0;
+
                 numh = MYFLOOR(sharp * 46.0 + 4.0);
+
                 if (numh > maxHarms)
                     numh = maxHarms;
+
                 if (MYFMOD(numh, 2.0) == 0.0)
                     numh += 1.0;
-                val = MYTAN(MYPOW(MYSIN(TWOPI*self->pointerPos), numh));
+
+                val = MYTAN(MYPOW(MYSIN(TWOPI * self->pointerPos), numh));
                 self->data[i] = val * self->oneOverPiOverTwo;
                 self->pointerPos += inc;
+
                 if (self->pointerPos < 0)
                     self->pointerPos += 1.0;
                 else if (self->pointerPos >= 1)
                     self->pointerPos -= 1.0;
             }
+
             break;
+
         case 6: /* SAH */
-            for (i=0; i<self->bufsize; i++) {
+            for (i = 0; i < self->bufsize; i++)
+            {
                 sharp = sh[i];
+
                 if (sharp < 0.0)
                     sharp = 0.0;
                 else if (sharp > 1.0)
                     sharp = 1.0;
+
                 numh = 1.0 - sharp;
                 inc2 = 1.0 / (int)(1.0 / inc * numh);
                 self->pointerPos += inc;
+
                 if (self->pointerPos < 0)
                     self->pointerPos += 1.0;
-                else if (self->pointerPos >= 1) {
+                else if (self->pointerPos >= 1)
+                {
                     self->pointerPos -= 1.0;
                     self->sahPointerPos = 0.0;
                     self->sahLastValue = self->sahCurrentValue;
                     self->sahCurrentValue = RANDOM_UNIFORM * 2.0 - 1.0;
                 }
-                if (self->sahPointerPos < 1.0) {
-                    fade = 0.5 * MYSIN(PI * (self->sahPointerPos+0.5)) + 0.5;
+
+                if (self->sahPointerPos < 1.0)
+                {
+                    fade = 0.5 * MYSIN(PI * (self->sahPointerPos + 0.5)) + 0.5;
                     val = self->sahCurrentValue * (1.0 - fade) + self->sahLastValue * fade;
                     self->sahPointerPos += inc2;
                 }
-                else {
+                else
+                {
                     val = self->sahCurrentValue;
                 }
+
                 self->data[i] = val;
             }
+
             break;
+
         case 7: /* Sine-mod */
-            for (i=0; i<self->bufsize; i++) {
+            for (i = 0; i < self->bufsize; i++)
+            {
                 sharp = sh[i];
+
                 if (sharp < 0.0)
                     sharp = 0.0;
                 else if (sharp > 1.0)
                     sharp = 1.0;
+
                 inc2 = inc * sharp * 0.99;
                 sharp2 = sharp * 0.5;
                 self->modPointerPos += inc2;
+
                 if (self->modPointerPos < 0)
                     self->modPointerPos += 1.0;
                 else if (self->modPointerPos >= 1)
                     self->modPointerPos -= 1.0;
-                val = ((sharp2 * MYCOS(TWOPI*self->modPointerPos) + sharp2) + (1.0 - sharp)) * MYSIN(TWOPI*self->pointerPos);
+
+                val = ((sharp2 * MYCOS(TWOPI * self->modPointerPos) + sharp2) + (1.0 - sharp)) * MYSIN(TWOPI * self->pointerPos);
                 self->data[i] = val;
                 self->pointerPos += inc;
+
                 if (self->pointerPos < 0)
                     self->pointerPos += 1.0;
                 else if (self->pointerPos >= 1)
                     self->pointerPos -= 1.0;
             }
+
             break;
+
         default:
             break;
     }
 }
 
 static void
-LFO_generates_aa(LFO *self) {
+LFO_generates_aa(LFO *self)
+{
     MYFLT val, inc, freq, sharp, pointer, numh;
     MYFLT v1, v2, inc2, fade;
     MYFLT sharp2 = 0.0;
@@ -663,245 +894,337 @@ LFO_generates_aa(LFO *self) {
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
     MYFLT *sh = Stream_getData((Stream *)self->sharp_stream);
 
-    switch (self->wavetype) {
+    switch (self->wavetype)
+    {
         case 0: /* Saw up */
-            for (i=0; i<self->bufsize; i++) {
+            for (i = 0; i < self->bufsize; i++)
+            {
                 sharp = sh[i];
+
                 if (sharp < 0.0)
                     sharp = 0.0;
                 else if (sharp > 1.0)
                     sharp = 1.0;
+
                 freq = fr[i];
+
                 if (freq < 0.00001)
                     freq = 0.00001;
                 else if (freq > self->srOverFour)
                     freq = self->srOverFour;
+
                 inc = freq * self->oneOverSr;
-                maxHarms = (int)(self->srOverFour/freq);
+                maxHarms = (int)(self->srOverFour / freq);
                 numh = sharp * 46.0 + 4.0;
+
                 if (numh > maxHarms)
                     numh = maxHarms;
+
                 pointer = self->pointerPos + 0.5;
+
                 if (pointer >= 1.0)
                     pointer -= 1.0;
+
                 pointer = pointer * 2.0 - 1.0;
                 val = pointer - MYTANH(numh * pointer) / MYTANH(numh);
                 self->data[i] = val;
                 self->pointerPos += inc;
+
                 if (self->pointerPos < 0)
                     self->pointerPos += 1.0;
                 else if (self->pointerPos >= 1)
                     self->pointerPos -= 1.0;
             }
+
             break;
+
         case 1: /* Saw down */
-            for (i=0; i<self->bufsize; i++) {
+            for (i = 0; i < self->bufsize; i++)
+            {
                 sharp = sh[i];
+
                 if (sharp < 0.0)
                     sharp = 0.0;
                 else if (sharp > 1.0)
                     sharp = 1.0;
+
                 freq = fr[i];
+
                 if (freq < 0.00001)
                     freq = 0.00001;
                 else if (freq > self->srOverFour)
                     freq = self->srOverFour;
+
                 inc = freq * self->oneOverSr;
-                maxHarms = (int)(self->srOverFour/freq);
+                maxHarms = (int)(self->srOverFour / freq);
                 numh = sharp * 46.0 + 4.0;
+
                 if (numh > maxHarms)
                     numh = maxHarms;
+
                 pointer = self->pointerPos + 0.5;
+
                 if (pointer >= 1.0)
                     pointer -= 1.0;
+
                 pointer = pointer * 2.0 - 1.0;
                 val = -(pointer - MYTANH(numh * pointer) / MYTANH(numh));
                 self->data[i] = val;
                 self->pointerPos += inc;
+
                 if (self->pointerPos < 0)
                     self->pointerPos += 1.0;
                 else if (self->pointerPos >= 1)
                     self->pointerPos -= 1.0;
             }
+
             break;
+
         case 2: /* Square */
-            for (i=0; i<self->bufsize; i++) {
+            for (i = 0; i < self->bufsize; i++)
+            {
                 sharp = sh[i];
+
                 if (sharp < 0.0)
                     sharp = 0.0;
                 else if (sharp > 1.0)
                     sharp = 1.0;
+
                 freq = fr[i];
+
                 if (freq < 0.00001)
                     freq = 0.00001;
                 else if (freq > self->srOverFour)
                     freq = self->srOverFour;
+
                 inc = freq * self->oneOverSr;
-                maxHarms = (int)(self->srOverEight/freq);
+                maxHarms = (int)(self->srOverEight / freq);
                 numh = sharp * 46.0 + 4.0;
+
                 if (numh > maxHarms)
                     numh = maxHarms;
-                val = MYATAN(numh * MYSIN(TWOPI*self->pointerPos));
+
+                val = MYATAN(numh * MYSIN(TWOPI * self->pointerPos));
                 self->data[i] = val * self->oneOverPiOverTwo;
                 self->pointerPos += inc;
+
                 if (self->pointerPos < 0)
                     self->pointerPos += 1.0;
                 else if (self->pointerPos >= 1)
                     self->pointerPos -= 1.0;
             }
+
             break;
+
         case 3: /* Triangle */
-            for (i=0; i<self->bufsize; i++) {
+            for (i = 0; i < self->bufsize; i++)
+            {
                 sharp = sh[i];
+
                 if (sharp < 0.0)
                     sharp = 0.0;
                 else if (sharp > 1.0)
                     sharp = 1.0;
+
                 freq = fr[i];
+
                 if (freq < 0.00001)
                     freq = 0.00001;
                 else if (freq > self->srOverFour)
                     freq = self->srOverFour;
+
                 inc = freq * self->oneOverSr;
-                maxHarms = (int)(self->srOverFour/freq);
+                maxHarms = (int)(self->srOverFour / freq);
+
                 if ((sharp * 36.0) > maxHarms)
                     numh = (MYFLT)(maxHarms / 36.0);
                 else
                     numh = sharp;
-                v1 = MYTAN(MYSIN(TWOPI*self->pointerPos)) * self->oneOverPiOverTwo;
+
+                v1 = MYTAN(MYSIN(TWOPI * self->pointerPos)) * self->oneOverPiOverTwo;
                 pointer = self->pointerPos + 0.25;
+
                 if (pointer > 1.0)
                     pointer -= 1.0;
+
                 v2 = 4.0 * (0.5 - MYFABS(pointer - 0.5)) - 1.0;
                 val = v1 * (1 - numh) + v2 * numh;
                 self->data[i] = val;
                 self->pointerPos += inc;
+
                 if (self->pointerPos < 0)
                     self->pointerPos += 1.0;
                 else if (self->pointerPos >= 1)
                     self->pointerPos -= 1.0;
             }
+
             break;
+
         case 4: /* Pulse */
-            for (i=0; i<self->bufsize; i++) {
+            for (i = 0; i < self->bufsize; i++)
+            {
                 sharp = sh[i];
+
                 if (sharp < 0.0)
                     sharp = 0.0;
                 else if (sharp > 1.0)
                     sharp = 1.0;
+
                 freq = fr[i];
+
                 if (freq < 0.00001)
                     freq = 0.00001;
                 else if (freq > self->srOverFour)
                     freq = self->srOverFour;
+
                 inc = freq * self->oneOverSr;
-                maxHarms = (int)(self->srOverEight/freq);
+                maxHarms = (int)(self->srOverEight / freq);
                 numh = MYFLOOR(sharp * 46.0 + 4.0);
+
                 if (numh > maxHarms)
                     numh = maxHarms;
+
                 if (MYFMOD(numh, 2.0) == 0.0)
                     numh += 1.0;
-                val = MYTAN(MYPOW(MYFABS(MYSIN(TWOPI*self->pointerPos)), numh));
+
+                val = MYTAN(MYPOW(MYFABS(MYSIN(TWOPI * self->pointerPos)), numh));
                 self->data[i] = val * self->oneOverPiOverTwo;
                 self->pointerPos += inc;
+
                 if (self->pointerPos < 0)
                     self->pointerPos += 1.0;
                 else if (self->pointerPos >= 1)
                     self->pointerPos -= 1.0;
             }
+
             break;
+
         case 5: /* Bi-Pulse */
-            for (i=0; i<self->bufsize; i++) {
+            for (i = 0; i < self->bufsize; i++)
+            {
                 sharp = sh[i];
+
                 if (sharp < 0.0)
                     sharp = 0.0;
                 else if (sharp > 1.0)
                     sharp = 1.0;
+
                 freq = fr[i];
+
                 if (freq < 0.00001)
                     freq = 0.00001;
                 else if (freq > self->srOverFour)
                     freq = self->srOverFour;
+
                 inc = freq * self->oneOverSr;
-                maxHarms = (int)(self->srOverEight/freq);
+                maxHarms = (int)(self->srOverEight / freq);
                 numh = MYFLOOR(sharp * 46.0 + 4.0);
+
                 if (numh > maxHarms)
                     numh = maxHarms;
+
                 if (MYFMOD(numh, 2.0) == 0.0)
                     numh += 1.0;
-                val = MYTAN(MYPOW(MYSIN(TWOPI*self->pointerPos), numh));
+
+                val = MYTAN(MYPOW(MYSIN(TWOPI * self->pointerPos), numh));
                 self->data[i] = val * self->oneOverPiOverTwo;
                 self->pointerPos += inc;
+
                 if (self->pointerPos < 0)
                     self->pointerPos += 1.0;
                 else if (self->pointerPos >= 1)
                     self->pointerPos -= 1.0;
             }
+
             break;
+
         case 6: /* SAH */
-            for (i=0; i<self->bufsize; i++) {
+            for (i = 0; i < self->bufsize; i++)
+            {
                 sharp = sh[i];
+
                 if (sharp < 0.0)
                     sharp = 0.0;
                 else if (sharp > 1.0)
                     sharp = 1.0;
+
                 numh = 1.0 - sharp;
                 freq = fr[i];
+
                 if (freq < 0.00001)
                     freq = 0.00001;
                 else if (freq > self->srOverFour)
                     freq = self->srOverFour;
+
                 inc = freq * self->oneOverSr;
                 inc2 = 1.0 / (int)(1.0 / inc * numh);
                 self->pointerPos += inc;
+
                 if (self->pointerPos < 0)
                     self->pointerPos += 1.0;
-                else if (self->pointerPos >= 1) {
+                else if (self->pointerPos >= 1)
+                {
                     self->pointerPos -= 1.0;
                     self->sahPointerPos = 0.0;
                     self->sahLastValue = self->sahCurrentValue;
                     self->sahCurrentValue = RANDOM_UNIFORM * 2.0 - 1.0;
                 }
-                if (self->sahPointerPos < 1.0) {
-                    fade = 0.5 * MYSIN(PI * (self->sahPointerPos+0.5)) + 0.5;
+
+                if (self->sahPointerPos < 1.0)
+                {
+                    fade = 0.5 * MYSIN(PI * (self->sahPointerPos + 0.5)) + 0.5;
                     val = self->sahCurrentValue * (1.0 - fade) + self->sahLastValue * fade;
                     self->sahPointerPos += inc2;
                 }
-                else {
+                else
+                {
                     val = self->sahCurrentValue;
                 }
+
                 self->data[i] = val;
             }
+
             break;
+
         case 7: /* Sine-mod */
-            for (i=0; i<self->bufsize; i++) {
+            for (i = 0; i < self->bufsize; i++)
+            {
                 sharp = sh[i];
+
                 if (sharp < 0.0)
                     sharp = 0.0;
                 else if (sharp > 1.0)
                     sharp = 1.0;
+
                 freq = fr[i];
+
                 if (freq < 0.00001)
                     freq = 0.00001;
                 else if (freq > self->srOverFour)
                     freq = self->srOverFour;
+
                 inc = freq * self->oneOverSr;
                 inc2 = inc * sharp * 0.99;
                 sharp2 = sharp * 0.5;
                 self->modPointerPos += inc2;
+
                 if (self->modPointerPos < 0)
                     self->modPointerPos += 1.0;
                 else if (self->modPointerPos >= 1)
                     self->modPointerPos -= 1.0;
-                val = ((sharp2 * MYCOS(TWOPI*self->modPointerPos) + sharp2) + (1.0 - sharp)) * MYSIN(TWOPI*self->pointerPos);
+
+                val = ((sharp2 * MYCOS(TWOPI * self->modPointerPos) + sharp2) + (1.0 - sharp)) * MYSIN(TWOPI * self->pointerPos);
                 self->data[i] = val;
                 self->pointerPos += inc;
+
                 if (self->pointerPos < 0)
                     self->pointerPos += 1.0;
                 else if (self->pointerPos >= 1)
                     self->pointerPos -= 1.0;
             }
+
             break;
+
         default:
             break;
     }
@@ -924,45 +1247,59 @@ LFO_setProcMode(LFO *self)
     procmode = self->modebuffer[2] + self->modebuffer[3] * 10;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-	switch (procmode) {
+    switch (procmode)
+    {
         case 0:
             self->proc_func_ptr = LFO_generates_ii;
             break;
+
         case 1:
             self->proc_func_ptr = LFO_generates_ai;
             break;
+
         case 10:
             self->proc_func_ptr = LFO_generates_ia;
             break;
+
         case 11:
             self->proc_func_ptr = LFO_generates_aa;
             break;
     }
-	switch (muladdmode) {
+
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = LFO_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = LFO_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = LFO_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = LFO_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = LFO_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = LFO_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = LFO_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = LFO_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = LFO_postprocessing_revareva;
             break;
@@ -1010,7 +1347,7 @@ static PyObject *
 LFO_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *freqtmp=NULL, *sharptmp=NULL, *multmp=NULL, *addtmp=NULL;
+    PyObject *freqtmp = NULL, *sharptmp = NULL, *multmp = NULL, *addtmp = NULL;
     LFO *self;
     self = (LFO *)type->tp_alloc(type, 0);
 
@@ -1021,10 +1358,10 @@ LFO_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->pointerPos = 0.0;
     self->sahPointerPos = 0.0;
     self->modPointerPos = 0.0;
-	self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
-	self->modebuffer[2] = 0;
-	self->modebuffer[3] = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
+    self->modebuffer[2] = 0;
+    self->modebuffer[3] = 0;
 
     INIT_OBJECT_COMMON
 
@@ -1039,19 +1376,23 @@ LFO_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOiOO", kwlist, &freqtmp, &sharptmp, &self->wavetype, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    if (freqtmp) {
+    if (freqtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
     }
 
-    if (sharptmp) {
+    if (sharptmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setSharp", "O", sharptmp);
     }
 
-    if (multmp) {
+    if (multmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
 
-    if (addtmp) {
+    if (addtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
 
@@ -1089,63 +1430,69 @@ static PyObject * LFO_inplace_div(LFO *self, PyObject *arg) { INPLACE_DIV };
 static PyObject *
 LFO_setFreq(LFO *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->freq);
-	if (isNumber == 1) {
-		self->freq = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->freq);
+
+    if (isNumber == 1)
+    {
+        self->freq = PyNumber_Float(tmp);
         self->modebuffer[2] = 0;
-	}
-	else {
-		self->freq = tmp;
+    }
+    else
+    {
+        self->freq = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->freq_stream);
         self->freq_stream = (Stream *)streamtmp;
-		self->modebuffer[2] = 1;
-	}
+        self->modebuffer[2] = 1;
+    }
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 LFO_setSharp(LFO *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->sharp);
-	if (isNumber == 1) {
-		self->sharp = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->sharp);
+
+    if (isNumber == 1)
+    {
+        self->sharp = PyNumber_Float(tmp);
         self->modebuffer[3] = 0;
-	}
-	else {
-		self->sharp = tmp;
+    }
+    else
+    {
+        self->sharp = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->sharp, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->sharp_stream);
         self->sharp_stream = (Stream *)streamtmp;
-		self->modebuffer[3] = 1;
-	}
+        self->modebuffer[3] = 1;
+    }
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
@@ -1155,18 +1502,20 @@ LFO_setType(LFO *self, PyObject *arg)
 
     ASSERT_ARG_NOT_NULL
 
-	int isInt = PyInt_Check(arg);
+    int isInt = PyInt_Check(arg);
 
-	if (isInt == 1) {
-		tmp = PyInt_AsLong(arg);
+    if (isInt == 1)
+    {
+        tmp = PyInt_AsLong(arg);
+
         if (tmp >= 0 && tmp < 8)
             self->wavetype = tmp;
-	}
+    }
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
@@ -1179,7 +1528,8 @@ LFO_reset(LFO *self)
     return Py_None;
 }
 
-static PyMemberDef LFO_members[] = {
+static PyMemberDef LFO_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(LFO, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(LFO, stream), 0, "Stream object."},
     {"freq", T_OBJECT_EX, offsetof(LFO, freq), 0, "Cutoff frequency in cycle per second."},
@@ -1189,24 +1539,26 @@ static PyMemberDef LFO_members[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef LFO_methods[] = {
+static PyMethodDef LFO_methods[] =
+{
     {"getServer", (PyCFunction)LFO_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)LFO_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)LFO_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)LFO_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)LFO_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
-	{"setFreq", (PyCFunction)LFO_setFreq, METH_O, "Sets oscillator frequency in cycle per second."},
+    {"play", (PyCFunction)LFO_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)LFO_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)LFO_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"setFreq", (PyCFunction)LFO_setFreq, METH_O, "Sets oscillator frequency in cycle per second."},
     {"setSharp", (PyCFunction)LFO_setSharp, METH_O, "Sets the sharpness factor."},
     {"setType", (PyCFunction)LFO_setType, METH_O, "Sets waveform type."},
     {"reset", (PyCFunction)LFO_reset, METH_NOARGS, "Resets pointer position to 0."},
-	{"setMul", (PyCFunction)LFO_setMul, METH_O, "Sets oscillator mul factor."},
-	{"setAdd", (PyCFunction)LFO_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setMul", (PyCFunction)LFO_setMul, METH_O, "Sets oscillator mul factor."},
+    {"setAdd", (PyCFunction)LFO_setAdd, METH_O, "Sets oscillator add factor."},
     {"setSub", (PyCFunction)LFO_setSub, METH_O, "Sets inverse add factor."},
     {"setDiv", (PyCFunction)LFO_setDiv, METH_O, "Sets inverse mul factor."},
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods LFO_as_number = {
+static PyNumberMethods LFO_as_number =
+{
     (binaryfunc)LFO_add,                         /*nb_add*/
     (binaryfunc)LFO_sub,                         /*nb_subtract*/
     (binaryfunc)LFO_multiply,                    /*nb_multiply*/
@@ -1248,7 +1600,8 @@ static PyNumberMethods LFO_as_number = {
     0,                                              /* nb_index */
 };
 
-PyTypeObject LFOType = {
+PyTypeObject LFOType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.LFO_base",                                   /*tp_name*/
     sizeof(LFO),                                 /*tp_basicsize*/

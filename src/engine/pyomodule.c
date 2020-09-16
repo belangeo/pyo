@@ -259,64 +259,85 @@ MIDI devices:\n\
 
 /****** Libsndfile utilities ******/
 static int
-libsndfile_get_format(int fileformat, int sampletype) {
+libsndfile_get_format(int fileformat, int sampletype)
+{
     int format = 0;
-    switch (fileformat) {
+
+    switch (fileformat)
+    {
         case 0:
             format = SF_FORMAT_WAV;
             break;
+
         case 1:
             format = SF_FORMAT_AIFF;
             break;
+
         case 2:
             format = SF_FORMAT_AU;
             break;
+
         case 3:
             format = SF_FORMAT_RAW;
             break;
+
         case 4:
             format = SF_FORMAT_SD2;
             break;
+
         case 5:
             format = SF_FORMAT_FLAC;
             break;
+
         case 6:
             format = SF_FORMAT_CAF;
             break;
+
         case 7:
             format = SF_FORMAT_OGG | SF_FORMAT_VORBIS;
             break;
     }
-    if (fileformat != 7) {
-        switch (sampletype) {
+
+    if (fileformat != 7)
+    {
+        switch (sampletype)
+        {
             case 0:
                 format = format | SF_FORMAT_PCM_16;
                 break;
+
             case 1:
                 format = format | SF_FORMAT_PCM_24;
                 break;
+
             case 2:
                 format = format | SF_FORMAT_PCM_32;
                 break;
+
             case 3:
                 format = format | SF_FORMAT_FLOAT;
                 break;
+
             case 4:
                 format = format | SF_FORMAT_DOUBLE;
                 break;
+
             case 5:
                 format = format | SF_FORMAT_ULAW;
                 break;
+
             case 6:
                 format = format | SF_FORMAT_ALAW;
                 break;
         }
     }
+
     return format;
 }
 
 static PyObject *
-p_sndinfo(PyObject *self, PyObject *args, PyObject *kwds) {
+p_sndinfo(PyObject *self, PyObject *args, PyObject *kwds)
+{
     SNDFILE *sf;
     SF_INFO info;
     char *path;
@@ -327,7 +348,8 @@ p_sndinfo(PyObject *self, PyObject *args, PyObject *kwds) {
 
     static char *kwlist[] = {"path", "print", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "s#|i", kwlist, &path, &psize, &print)) {
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "s#|i", kwlist, &path, &psize, &print))
+    {
         PySys_WriteStderr("Pyo error: sndinfo called with wrong arguments.\n");
         Py_RETURN_NONE;
     }
@@ -335,13 +357,16 @@ p_sndinfo(PyObject *self, PyObject *args, PyObject *kwds) {
     /* Open the sound file. */
     info.format = 0;
     sf = sf_open(path, SFM_READ, &info);
-    if (sf == NULL) {
+
+    if (sf == NULL)
+    {
         Py_RETURN_NONE;
     }
 
     /* Retrieve file format */
     format = (int)info.format & SF_FORMAT_TYPEMASK;
     subformat = (int)info.format & SF_FORMAT_SUBMASK;
+
     if (format == SF_FORMAT_WAV)
         strcpy(fileformat, "WAVE");
     else if (format == SF_FORMAT_AIFF)
@@ -389,17 +414,19 @@ p_sndinfo(PyObject *self, PyObject *args, PyObject *kwds) {
 
     if (print)
         PySys_WriteStdout("name: %s\nnumber of frames: %i\nduration: %.4f sec\nsr: %.2f\nchannels: %i\nformat: %s\nsample type: %s\n",
-                          path, (int)info.frames, ((float)info.frames / info.samplerate), (float)info.samplerate, (int)info.channels, 
+                          path, (int)info.frames, ((float)info.frames / info.samplerate), (float)info.samplerate, (int)info.channels,
                           fileformat, sampletype);
+
     PyObject *sndinfos = PyTuple_Pack(6, PyInt_FromLong(info.frames), PyFloat_FromDouble((float)info.frames / info.samplerate),
-                                        PyFloat_FromDouble(info.samplerate), PyInt_FromLong(info.channels), 
-                                        PyUnicode_FromString(fileformat), PyUnicode_FromString(sampletype));
+                                      PyFloat_FromDouble(info.samplerate), PyInt_FromLong(info.channels),
+                                      PyUnicode_FromString(fileformat), PyUnicode_FromString(sampletype));
     sf_close(sf);
     return sndinfos;
 }
 
 static PyObject *
-p_savefile(PyObject *self, PyObject *args, PyObject *kwds) {
+p_savefile(PyObject *self, PyObject *args, PyObject *kwds)
+{
     int i, j, size;
     char *recpath;
     PyObject *samples;
@@ -421,33 +448,45 @@ p_savefile(PyObject *self, PyObject *args, PyObject *kwds) {
     recinfo.channels = channels;
     recinfo.format = libsndfile_get_format(fileformat, sampletype);
 
-    if (channels == 1) {
+    if (channels == 1)
+    {
         size = PyList_Size(samples);
         sampsarray = (MYFLT *)malloc(size * sizeof(MYFLT));
-        for (i=0; i<size; i++) {
+
+        for (i = 0; i < size; i++)
+        {
             sampsarray[i] = PyFloat_AsDouble(PyList_GET_ITEM(samples, i));
         }
     }
-    else {
-        if (PyList_Size(samples) != channels) {
+    else
+    {
+        if (PyList_Size(samples) != channels)
+        {
             PySys_WriteStdout("Pyo error: savefile's samples list size and channels number must be the same!\n");
             return PyInt_FromLong(-1);
         }
+
         size = PyList_Size(PyList_GET_ITEM(samples, 0)) * channels;
         sampsarray = (MYFLT *)malloc(size * sizeof(MYFLT));
-        for (i=0; i<(size/channels); i++) {
-            for (j=0; j<channels; j++) {
-                sampsarray[i*channels+j] = PyFloat_AsDouble(PyList_GET_ITEM(PyList_GET_ITEM(samples, j), i));
+
+        for (i = 0; i < (size / channels); i++)
+        {
+            for (j = 0; j < channels; j++)
+            {
+                sampsarray[i * channels + j] = PyFloat_AsDouble(PyList_GET_ITEM(PyList_GET_ITEM(samples, j), i));
             }
         }
     }
-    if (! (recfile = sf_open(recpath, SFM_WRITE, &recinfo))) {
+
+    if (! (recfile = sf_open(recpath, SFM_WRITE, &recinfo)))
+    {
         PySys_WriteStdout("Pyo error: savefile failed to open output file %s.\n", recpath);
         return PyInt_FromLong(-1);
     }
 
     // Sets the encoding quality for FLAC and OGG compressed formats
-    if (fileformat == 5 || fileformat == 7) {
+    if (fileformat == 5 || fileformat == 7)
+    {
         sf_command(recfile, SFC_SET_VBR_ENCODING_QUALITY, &quality, sizeof(double));
     }
 
@@ -459,7 +498,8 @@ p_savefile(PyObject *self, PyObject *args, PyObject *kwds) {
 }
 
 static PyObject *
-p_savefileFromTable(PyObject *self, PyObject *args, PyObject *kwds) {
+p_savefileFromTable(PyObject *self, PyObject *args, PyObject *kwds)
+{
     int i, j, size;
     char *recpath;
     PyObject *table;
@@ -484,9 +524,12 @@ p_savefileFromTable(PyObject *self, PyObject *args, PyObject *kwds) {
     base_objs = PyObject_GetAttrString(table, "_base_objs");
     channels = PyList_Size(base_objs);
     tablestreamlist = PyList_New(channels);
-    for (i=0; i<channels; i++) {
+
+    for (i = 0; i < channels; i++)
+    {
         PyList_SET_ITEM(tablestreamlist, i, PyObject_CallMethod(PyList_GetItem(base_objs, i), "getTableStream", NULL));
     }
+
     sr = (int)TableStream_getSamplingRate((PyObject *)PyList_GetItem(tablestreamlist, 0));
     size = TableStream_getSize((PyObject *)PyList_GetItem(tablestreamlist, 0));
 
@@ -494,7 +537,8 @@ p_savefileFromTable(PyObject *self, PyObject *args, PyObject *kwds) {
     recinfo.channels = channels;
     recinfo.format = libsndfile_get_format(fileformat, sampletype);
 
-    if (! (recfile = sf_open(recpath, SFM_WRITE, &recinfo))) {
+    if (! (recfile = sf_open(recpath, SFM_WRITE, &recinfo)))
+    {
         PySys_WriteStdout("Pyo error: savefileFromTable failed to open output file %s.\n", recpath);
         Py_XDECREF(base_objs);
         Py_XDECREF(tablestreamlist);
@@ -502,65 +546,99 @@ p_savefileFromTable(PyObject *self, PyObject *args, PyObject *kwds) {
     }
 
     // Sets the encoding quality for FLAC and OGG compressed formats
-    if (fileformat == 5 || fileformat == 7) {
+    if (fileformat == 5 || fileformat == 7)
+    {
         sf_command(recfile, SFC_SET_VBR_ENCODING_QUALITY, &quality, sizeof(double));
     }
 
-    if (channels == 1) {
+    if (channels == 1)
+    {
         MYFLT *data;
-        if (size < (sr * 60)) {
+
+        if (size < (sr * 60))
+        {
             data = TableStream_getData((PyObject *)PyList_GetItem(tablestreamlist, 0));
             sampsarray = (MYFLT *)malloc(size * sizeof(MYFLT));
-            for (i=0; i<size; i++) {
+
+            for (i = 0; i < size; i++)
+            {
                 sampsarray[i] = data[i];
             }
+
             SF_WRITE(recfile, sampsarray, size);
         }
-        else {
+        else
+        {
             data = TableStream_getData((PyObject *)PyList_GetItem(tablestreamlist, 0));
             num_items = sr * 30;
             sampsarray = (MYFLT *)malloc(num_items * sizeof(MYFLT));
-            do {
+
+            do
+            {
                 if ((size - count) < num_items)
                     num_items = size - count;
-                for (i=0; i<num_items; i++) {
+
+                for (i = 0; i < num_items; i++)
+                {
                     sampsarray[i] = data[count++];
                 }
+
                 SF_WRITE(recfile, sampsarray, num_items);
-            } while (num_items == (sr * 30));
+            }
+            while (num_items == (sr * 30));
         }
     }
-    else {
+    else
+    {
         MYFLT *data[channels];
-        if (size < (sr * 60)) {
-            for (j=0; j<channels; j++) {
+
+        if (size < (sr * 60))
+        {
+            for (j = 0; j < channels; j++)
+            {
                 data[j] = TableStream_getData((PyObject *)PyList_GetItem(tablestreamlist, j));
             }
+
             sampsarray = (MYFLT *)malloc(size * channels * sizeof(MYFLT));
-            for (i=0; i<size; i++) {
-                for (j=0; j<channels; j++) {
-                    sampsarray[i*channels+j] = data[j][i];
+
+            for (i = 0; i < size; i++)
+            {
+                for (j = 0; j < channels; j++)
+                {
+                    sampsarray[i * channels + j] = data[j][i];
                 }
             }
+
             SF_WRITE(recfile, sampsarray, size * channels);
         }
-        else {
-            for (j=0; j<channels; j++) {
+        else
+        {
+            for (j = 0; j < channels; j++)
+            {
                 data[j] = TableStream_getData((PyObject *)PyList_GetItem(tablestreamlist, j));
             }
+
             num_items = sr * 30;
             sampsarray = (MYFLT *)malloc(num_items * channels * sizeof(MYFLT));
-            do {
+
+            do
+            {
                 if ((size - count) < num_items)
                     num_items = size - count;
-                for (i=0; i<num_items; i++) {
-                    for (j=0; j<channels; j++) {
-                        sampsarray[i*channels+j] = data[j][count];
+
+                for (i = 0; i < num_items; i++)
+                {
+                    for (j = 0; j < channels; j++)
+                    {
+                        sampsarray[i * channels + j] = data[j][count];
                     }
+
                     count++;
                 }
+
                 SF_WRITE(recfile, sampsarray, num_items * channels);
-            } while (num_items == (sr * 30));
+            }
+            while (num_items == (sr * 30));
         }
     }
 
@@ -582,7 +660,8 @@ MYFLT HALF_BLACKMAN[513] = {5.999999848427251e-05, 6.0518785176100209e-05, 6.214
  freq is the cutoff frequency in radians.
 */
 static void
-gen_lp_impulse(MYFLT *array, int size, float freq) {
+gen_lp_impulse(MYFLT *array, int size, float freq)
+{
     int i, ppi;
     MYFLT pp, ppf, env, scl, invSum, val;
     int half = size / 2;
@@ -590,26 +669,32 @@ gen_lp_impulse(MYFLT *array, int size, float freq) {
     MYFLT envPointerScaling = 1.0 / (size + 1) * 1024.0;
     MYFLT sincScaling = (MYFLT)half;
 
-    for (i=0; i<half; i++) {
+    for (i = 0; i < half; i++)
+    {
         pp = i * envPointerScaling;
         ppi = (int)pp;
         ppf = pp - ppi;
-        env = HALF_BLACKMAN[ppi] + (HALF_BLACKMAN[ppi+1] - HALF_BLACKMAN[ppi]) * ppf;
+        env = HALF_BLACKMAN[ppi] + (HALF_BLACKMAN[ppi + 1] - HALF_BLACKMAN[ppi]) * ppf;
         scl = i - sincScaling;
         val = MYSIN(freq * scl) / scl * env;
         array[i] = val;
         vsum += val;
     }
+
     vsum *= 2.0;
     vsum += freq;
     invSum = 1.0 / vsum;
     val = freq * invSum;
     array[half] = val;
-    for (i=0; i<half; i++) {
+
+    for (i = 0; i < half; i++)
+    {
         array[i] *= invSum;
     }
-    for (i=1; i<half; i++) {
-        array[half+i] = array[half-i];
+
+    for (i = 1; i < half; i++)
+    {
+        array[half + i] = array[half - i];
     }
 }
 
@@ -622,26 +707,36 @@ gen_lp_impulse(MYFLT *array, int size, float freq) {
  gain is the gain of the filter.
 */
 static void
-lp_conv(MYFLT *samples, MYFLT *impulse, int num_samps, int size, int gain) {
+lp_conv(MYFLT *samples, MYFLT *impulse, int num_samps, int size, int gain)
+{
     int i, j, count, tmp_count;
     MYFLT val;
     MYFLT intmp[size];
 
-    for (i=0; i<size; i++) {
+    for (i = 0; i < size; i++)
+    {
         intmp[i] = 0.0;
     }
+
     count = 0;
-    for (i=0; i<num_samps; i++) {
+
+    for (i = 0; i < num_samps; i++)
+    {
         val = 0.0;
         tmp_count = count;
-        for (j=0; j<size; j++) {
+
+        for (j = 0; j < size; j++)
+        {
             if (tmp_count < 0)
                 tmp_count += size;
+
             val += intmp[tmp_count] * impulse[j] * gain;
             tmp_count--;
         }
+
         if (++count == size)
             count = 0;
+
         intmp[count] = samples[i];
         samples[i] = val;
     }
@@ -671,10 +766,13 @@ p_upsamp(PyObject *self, PyObject *args, PyObject *kwds)
     /* opening input soundfile */
     info.format = 0;
     sf = sf_open(inpath, SFM_READ, &info);
-    if (sf == NULL) {
+
+    if (sf == NULL)
+    {
         PySys_WriteStdout("Pyo error: upsamp failed to open the input file %s.\n", inpath);
         return PyInt_FromLong(-1);
     }
+
     snd_size = info.frames;
     snd_sr = info.samplerate;
     snd_chnls = info.channels;
@@ -684,53 +782,71 @@ p_upsamp(PyObject *self, PyObject *args, PyObject *kwds)
     SF_READ(sf, tmp, num_items);
     sf_close(sf);
     samples = (MYFLT **)malloc(snd_chnls * sizeof(MYFLT *));
-    for(i=0; i<snd_chnls; i++)
+
+    for(i = 0; i < snd_chnls; i++)
         samples[i] = (MYFLT *)malloc(snd_size * sizeof(MYFLT));
 
-    for (i=0; i<num_items; i++)
-        samples[i%snd_chnls][(int)(i/snd_chnls)] = tmp[i];
+    for (i = 0; i < num_items; i++)
+        samples[i % snd_chnls][(int)(i / snd_chnls)] = tmp[i];
+
     free(tmp);
 
     /* upsampling */
     upsamples = (MYFLT **)malloc(snd_chnls * sizeof(MYFLT *));
-    for(i=0; i<snd_chnls; i++)
+
+    for(i = 0; i < snd_chnls; i++)
         upsamples[i] = (MYFLT *)malloc(snd_size * up * sizeof(MYFLT));
 
-    for (i=0; i<snd_size; i++) {
-        for (j=0; j<snd_chnls; j++) {
-            upsamples[j][i*up] = samples[j][i];
-            for (k=1; k<up; k++) {
-                upsamples[j][i*up+k] = 0.0;
+    for (i = 0; i < snd_size; i++)
+    {
+        for (j = 0; j < snd_chnls; j++)
+        {
+            upsamples[j][i * up] = samples[j][i];
+
+            for (k = 1; k < up; k++)
+            {
+                upsamples[j][i * up + k] = 0.0;
             }
         }
     }
 
-    if (order > 2) {
+    if (order > 2)
+    {
         /* apply lowpass filter */
         sincfunc = (MYFLT *)malloc(order * sizeof(MYFLT));
-        gen_lp_impulse(sincfunc, order, PI/up);
-        for (i=0; i<snd_chnls; i++) {
-            lp_conv(upsamples[i], sincfunc, snd_size*up, order, up);
+        gen_lp_impulse(sincfunc, order, PI / up);
+
+        for (i = 0; i < snd_chnls; i++)
+        {
+            lp_conv(upsamples[i], sincfunc, snd_size * up, order, up);
         }
+
         free(sincfunc);
     }
 
     /* save upsampled file */
     info.samplerate = snd_sr * up;
     tmp = (MYFLT *)malloc(num_items * up * sizeof(MYFLT));
-    for (i=0; i<(snd_size*up); i++) {
-        for (j=0; j<snd_chnls; j++) {
-            tmp[i*snd_chnls+j] = upsamples[j][i];
+
+    for (i = 0; i < (snd_size * up); i++)
+    {
+        for (j = 0; j < snd_chnls; j++)
+        {
+            tmp[i * snd_chnls + j] = upsamples[j][i];
         }
     }
 
-    if (! (sf = sf_open(outpath, SFM_WRITE, &info))) {
+    if (! (sf = sf_open(outpath, SFM_WRITE, &info)))
+    {
         PySys_WriteStdout("Pyo error: upsamp failed to open output file %s.\n", outpath);
         free(tmp);
-        for (i=0; i<snd_chnls; i++) {
+
+        for (i = 0; i < snd_chnls; i++)
+        {
             free(samples[i]);
             free(upsamples[i]);
         }
+
         free(samples);
         free(upsamples);
         return PyInt_FromLong(-1);
@@ -741,10 +857,13 @@ p_upsamp(PyObject *self, PyObject *args, PyObject *kwds)
 
     /* clean-up */
     free(tmp);
-    for (i=0; i<snd_chnls; i++) {
+
+    for (i = 0; i < snd_chnls; i++)
+    {
         free(samples[i]);
         free(upsamples[i]);
     }
+
     free(samples);
     free(upsamples);
 
@@ -775,10 +894,13 @@ p_downsamp(PyObject *self, PyObject *args, PyObject *kwds)
     /* opening input soundfile */
     info.format = 0;
     sf = sf_open(inpath, SFM_READ, &info);
-    if (sf == NULL) {
+
+    if (sf == NULL)
+    {
         PySys_WriteStdout("Pyo error: downsamp failed to open the input file %s.\n", inpath);
         return PyInt_FromLong(-1);
     }
+
     snd_size = info.frames;
     snd_sr = info.samplerate;
     snd_chnls = info.channels;
@@ -788,37 +910,49 @@ p_downsamp(PyObject *self, PyObject *args, PyObject *kwds)
     SF_READ(sf, tmp, num_items);
     sf_close(sf);
     samples = (MYFLT **)malloc(snd_chnls * sizeof(MYFLT *));
-    for(i=0; i<snd_chnls; i++)
+
+    for(i = 0; i < snd_chnls; i++)
         samples[i] = (MYFLT *)malloc(snd_size * sizeof(MYFLT));
 
-    for (i=0; i<num_items; i++)
-        samples[i%snd_chnls][(int)(i/snd_chnls)] = tmp[i];
+    for (i = 0; i < num_items; i++)
+        samples[i % snd_chnls][(int)(i / snd_chnls)] = tmp[i];
+
     free(tmp);
 
-    if (order > 2) {
+    if (order > 2)
+    {
         /* apply lowpass filter */
         sincfunc = (MYFLT *)malloc(order * sizeof(MYFLT));
-        gen_lp_impulse(sincfunc, order, PI/down);
-        for (i=0; i<snd_chnls; i++) {
+        gen_lp_impulse(sincfunc, order, PI / down);
+
+        for (i = 0; i < snd_chnls; i++)
+        {
             lp_conv(samples[i], sincfunc, snd_size, order, 1);
         }
+
         free(sincfunc);
     }
 
     /* downsampling */
     samples_per_channels = (snd_size / down) + (snd_size % down);
     downsamples = (MYFLT **)malloc(snd_chnls * sizeof(MYFLT *));
-    for(i=0; i<snd_chnls; i++) {
+
+    for(i = 0; i < snd_chnls; i++)
+    {
         downsamples[i] = (MYFLT *)malloc(samples_per_channels * sizeof(MYFLT));
-        for (j=0; j<samples_per_channels; j++) {
+
+        for (j = 0; j < samples_per_channels; j++)
+        {
             downsamples[i][j] = 0.0;
         }
     }
 
-    for (i=0; i<samples_per_channels; i++) {
-        for (j=0; j<snd_chnls; j++) {
-            if (i*down < snd_size)
-                downsamples[j][i] = samples[j][i*down];
+    for (i = 0; i < samples_per_channels; i++)
+    {
+        for (j = 0; j < snd_chnls; j++)
+        {
+            if (i * down < snd_size)
+                downsamples[j][i] = samples[j][i * down];
             else
                 downsamples[j][i] = 0.0;
         }
@@ -827,19 +961,26 @@ p_downsamp(PyObject *self, PyObject *args, PyObject *kwds)
     /* save downsampled file */
     info.samplerate = snd_sr / down;
     tmp = (MYFLT *)malloc(snd_chnls * samples_per_channels * sizeof(MYFLT));
-    for (i=0; i<samples_per_channels; i++) {
-        for (j=0; j<snd_chnls; j++) {
-            tmp[i*snd_chnls+j] = downsamples[j][i];
+
+    for (i = 0; i < samples_per_channels; i++)
+    {
+        for (j = 0; j < snd_chnls; j++)
+        {
+            tmp[i * snd_chnls + j] = downsamples[j][i];
         }
     }
 
-    if (! (sf = sf_open(outpath, SFM_WRITE, &info))) {
+    if (! (sf = sf_open(outpath, SFM_WRITE, &info)))
+    {
         PySys_WriteStdout("Pyo error: downsamp failed to open the output file %s.\n", outpath);
         free(tmp);
-        for (i=0; i<snd_chnls; i++) {
+
+        for (i = 0; i < snd_chnls; i++)
+        {
             free(samples[i]);
             free(downsamples[i]);
         }
+
         free(samples);
         free(downsamples);
         return PyInt_FromLong(-1);
@@ -850,10 +991,13 @@ p_downsamp(PyObject *self, PyObject *args, PyObject *kwds)
 
     /* clean-up */
     free(tmp);
-    for (i=0; i<snd_chnls; i++) {
+
+    for (i = 0; i < snd_chnls; i++)
+    {
         free(samples[i]);
         free(downsamples[i]);
     }
+
     free(samples);
     free(downsamples);
 
@@ -870,7 +1014,8 @@ A point is a tuple (or a list) of two floats, time and value. A list of points l
 pointlist: list of lists or list of tuples\n        List of points (time, value) to filter.\n    \
 tolerance: float, optional\n        Normalized distance threshold under which a point is\n        excluded from the list. Defaults to 0.02."
 
-typedef struct STACK_RECORD {
+typedef struct STACK_RECORD
+{
     int nAnchorIndex;
     int nFloaterIndex;
     struct STACK_RECORD *precPrev;
@@ -890,8 +1035,10 @@ static void StackPush( int nAnchorIndex, int nFloaterIndex )
 static int StackPop( int *pnAnchorIndex, int *pnFloaterIndex )
 {
     STACK_RECORD *precStack = m_pStack;
+
     if ( precStack == NULL )
         return 0;
+
     *pnAnchorIndex = precStack->nAnchorIndex;
     *pnFloaterIndex = precStack->nFloaterIndex;
     m_pStack = precStack->precPrev;
@@ -925,22 +1072,27 @@ reducePoints(PyObject *self, PyObject *args, PyObject *kwds)
 
     nPointsCount = PyList_Size(pointlist);
 
-	// TODO: these malloc's are never freed.
+    // TODO: these malloc's are never freed.
     pPointsX = (MYFLT *)malloc(nPointsCount * sizeof(MYFLT));
     pPointsY = (MYFLT *)malloc(nPointsCount * sizeof(MYFLT));
     pnUseFlag = (int *)malloc(nPointsCount * sizeof(int));
 
     tup = PyList_GET_ITEM(pointlist, 0);
-    if (PyTuple_Check(tup) == 1) {
-        for (i=0; i<nPointsCount; i++) {
+
+    if (PyTuple_Check(tup) == 1)
+    {
+        for (i = 0; i < nPointsCount; i++)
+        {
             tup = PyList_GET_ITEM(pointlist, i);
             pPointsX[i] = PyFloat_AsDouble(PyTuple_GET_ITEM(tup, 0));
             pPointsY[i] = PyFloat_AsDouble(PyTuple_GET_ITEM(tup, 1));
             pnUseFlag[i] = 0;
         }
     }
-    else {
-        for (i=0; i<nPointsCount; i++) {
+    else
+    {
+        for (i = 0; i < nPointsCount; i++)
+        {
             tup = PyList_GET_ITEM(pointlist, i);
             pPointsX[i] = PyFloat_AsDouble(PyList_GET_ITEM(tup, 0));
             pPointsY[i] = PyFloat_AsDouble(PyList_GET_ITEM(tup, 1));
@@ -949,77 +1101,97 @@ reducePoints(PyObject *self, PyObject *args, PyObject *kwds)
     }
 
     // rescale points between 0. and 1.
-    xMax = pPointsX[nPointsCount-1];
-    yMin = 9999999999.9; yMax = -999999.9;
-    for (i=0; i<nPointsCount; i++) {
+    xMax = pPointsX[nPointsCount - 1];
+    yMin = 9999999999.9;
+    yMax = -999999.9;
+
+    for (i = 0; i < nPointsCount; i++)
+    {
         if (pPointsY[i] < yMin)
             yMin = pPointsY[i];
         else if (pPointsY[i] > yMax)
             yMax = pPointsY[i];
     }
-    for (i=0; i<nPointsCount; i++) {
+
+    for (i = 0; i < nPointsCount; i++)
+    {
         pPointsX[i] = pPointsX[i] / xMax;
         pPointsY[i] = (pPointsY[i] - yMin) / yMax;
     }
 
     // filter...
-    pnUseFlag[0] = pnUseFlag[nPointsCount-1] = 1;
+    pnUseFlag[0] = pnUseFlag[nPointsCount - 1] = 1;
     nAnchorIndex = 0;
     nFloaterIndex = nPointsCount - 1;
     StackPush( nAnchorIndex, nFloaterIndex );
-    while ( StackPop( &nAnchorIndex, &nFloaterIndex ) ) {
+
+    while ( StackPop( &nAnchorIndex, &nFloaterIndex ) )
+    {
         // initialize line segment
         dAnchorVecX = pPointsX[ nFloaterIndex ] - pPointsX[ nAnchorIndex ];
         dAnchorVecY = pPointsY[ nFloaterIndex ] - pPointsY[ nAnchorIndex ];
         dSegmentVecLength = sqrt( dAnchorVecX * dAnchorVecX
-                                 + dAnchorVecY * dAnchorVecY );
+                                  + dAnchorVecY * dAnchorVecY );
         dAnchorUnitVecX = dAnchorVecX / dSegmentVecLength;
         dAnchorUnitVecY = dAnchorVecY / dSegmentVecLength;
         // inner loop:
         dMaxDistThisSegment = 0.0;
         nVertexIndexMaxDistance = nAnchorIndex + 1;
-        for ( nVertexIndex = nAnchorIndex + 1; nVertexIndex < nFloaterIndex; nVertexIndex++ ) {
+
+        for ( nVertexIndex = nAnchorIndex + 1; nVertexIndex < nFloaterIndex; nVertexIndex++ )
+        {
             //compare to anchor
             dVertexVecX = pPointsX[ nVertexIndex ] - pPointsX[ nAnchorIndex ];
             dVertexVecY = pPointsY[ nVertexIndex ] - pPointsY[ nAnchorIndex ];
             dVertexVecLength = sqrt( dVertexVecX * dVertexVecX
-                                    + dVertexVecY * dVertexVecY );
+                                     + dVertexVecY * dVertexVecY );
             //dot product:
             dProjScalar = dVertexVecX * dAnchorUnitVecX + dVertexVecY * dAnchorUnitVecY;
+
             if ( dProjScalar < 0.0 )
                 dVertexDistanceToSegment = dVertexVecLength;
-            else {
+            else
+            {
                 //compare to floater
                 dVertexVecX = pPointsX[ nVertexIndex ] - pPointsX[ nFloaterIndex ];
                 dVertexVecY = pPointsY[ nVertexIndex ] - pPointsY[ nFloaterIndex ];
                 dVertexVecLength = sqrt( dVertexVecX * dVertexVecX
-                                        + dVertexVecY * dVertexVecY );
+                                         + dVertexVecY * dVertexVecY );
                 //dot product:
                 dProjScalar = dVertexVecX * (-dAnchorUnitVecX) + dVertexVecY * (-dAnchorUnitVecY);
+
                 if ( dProjScalar < 0.0 )
                     dVertexDistanceToSegment = dVertexVecLength;
                 else //calculate perpendicular distance to line (pythagorean theorem):
                     dVertexDistanceToSegment =
-                    sqrt( fabs( dVertexVecLength * dVertexVecLength - dProjScalar * dProjScalar ) );
+                        sqrt( fabs( dVertexVecLength * dVertexVecLength - dProjScalar * dProjScalar ) );
             }
-            if ( dMaxDistThisSegment < dVertexDistanceToSegment ) {
+
+            if ( dMaxDistThisSegment < dVertexDistanceToSegment )
+            {
                 dMaxDistThisSegment = dVertexDistanceToSegment;
                 nVertexIndexMaxDistance = nVertexIndex;
             }
         }
-        if ( dMaxDistThisSegment <= dTolerance ) { //use line segment
+
+        if ( dMaxDistThisSegment <= dTolerance )   //use line segment
+        {
             pnUseFlag[ nAnchorIndex ] = 1;
             pnUseFlag[ nFloaterIndex ] = 1;
         }
-        else {
+        else
+        {
             StackPush( nAnchorIndex, nVertexIndexMaxDistance );
             StackPush( nVertexIndexMaxDistance, nFloaterIndex );
         }
     }
 
     pPointsOut = PyList_New(0);
-    for (i=0; i<nPointsCount; i++) {
-        if (pnUseFlag[i] == 1) {
+
+    for (i = 0; i < nPointsCount; i++)
+    {
+        if (pnUseFlag[i] == 1)
+        {
             PyList_Append(pPointsOut, PyList_GET_ITEM(pointlist, i));
         }
     }
@@ -1067,42 +1239,55 @@ distanceToSegment(PyObject *self, PyObject *args, PyObject *kwds)
     pf = PySequence_Fast(p, NULL);
     pf1 = PySequence_Fast(p1, NULL);
     pf2 = PySequence_Fast(p2, NULL);
-    if (xlog == 0) {
+
+    if (xlog == 0)
+    {
         xscale = xmax - xmin;
         xp[0] = PyFloat_AsDouble(PySequence_Fast_GET_ITEM(pf, 0)) / xscale;
         xp1[0] = PyFloat_AsDouble(PySequence_Fast_GET_ITEM(pf1, 0)) / xscale;
         xp2[0] = PyFloat_AsDouble(PySequence_Fast_GET_ITEM(pf2, 0)) / xscale;
     }
-    else {
+    else
+    {
         xscale = MYLOG10(xmax / xmin);
         xp[0] = MYLOG10(PyFloat_AsDouble(PySequence_Fast_GET_ITEM(pf, 0)) / xmin) / xscale;
         xp1[0] = MYLOG10(PyFloat_AsDouble(PySequence_Fast_GET_ITEM(pf1, 0)) / xmin) / xscale;
         xp2[0] = MYLOG10(PyFloat_AsDouble(PySequence_Fast_GET_ITEM(pf2, 0)) / xmin) / xscale;
     }
-    if (ylog == 0) {
+
+    if (ylog == 0)
+    {
         yscale = ymax - ymin;
         xp[1] = PyFloat_AsDouble(PySequence_Fast_GET_ITEM(pf, 1)) / yscale;
         xp1[1] = PyFloat_AsDouble(PySequence_Fast_GET_ITEM(pf1, 1)) / yscale;
         xp2[1] = PyFloat_AsDouble(PySequence_Fast_GET_ITEM(pf2, 1)) / yscale;
     }
-    else {
+    else
+    {
         yscale = MYLOG10(ymax / ymin);
         xp[1] = MYLOG10(PyFloat_AsDouble(PySequence_Fast_GET_ITEM(pf, 1)) / ymin) / yscale;
         xp1[1] = MYLOG10(PyFloat_AsDouble(PySequence_Fast_GET_ITEM(pf1, 1)) / ymin) / yscale;
         xp2[1] = MYLOG10(PyFloat_AsDouble(PySequence_Fast_GET_ITEM(pf2, 1)) / ymin) / yscale;
     }
 
-    xDelta = xp2[0] - xp1[0]; yDelta = xp2[1] - xp1[1];
+    xDelta = xp2[0] - xp1[0];
+    yDelta = xp2[1] - xp1[1];
     u = ((xp[0] - xp1[0]) * xDelta + (xp[1] - xp1[1]) * yDelta) / (xDelta * xDelta + yDelta * yDelta);
 
-    if (u < 0.0) {
-        closest[0] = xp1[0]; closest[1] = xp1[1];
+    if (u < 0.0)
+    {
+        closest[0] = xp1[0];
+        closest[1] = xp1[1];
     }
-    else if (u > 1.0) {
-        closest[0] = xp2[0]; closest[1] = xp2[1];
+    else if (u > 1.0)
+    {
+        closest[0] = xp2[0];
+        closest[1] = xp2[1];
     }
-    else {
-        closest[0] = xp1[0] + u * xDelta; closest[1] = xp1[1] + u * yDelta;
+    else
+    {
+        closest[0] = xp1[0] + u * xDelta;
+        closest[1] = xp1[1] + u * yDelta;
     }
 
     return PyFloat_FromDouble(MYSQRT(MYPOW(xp[0] - closest[0], 2.0) + MYPOW(xp[1] - closest[1], 2.0)));
@@ -1125,7 +1310,7 @@ log: boolean, optional\n        Set this value to True if the Y axis has a logar
 static PyObject *
 linToCosCurve(PyObject *self, PyObject *args, PyObject *kwds)
 {
-    PyObject *data, *fdata, *out, *inout, *ftup, *yrange=NULL, *fyrange=NULL;
+    PyObject *data, *fdata, *out, *inout, *ftup, *yrange = NULL, *fyrange = NULL;
     int i, j, datasize, steps;
     double tmp, x1, x2, y1, y2, mu, ydiff, log10ymin, log10ymax;
     double *xdata, *ydata, *cxdata, *cydata;
@@ -1142,11 +1327,13 @@ linToCosCurve(PyObject *self, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|Odii", kwlist, &data, &yrange, &totaldur, &num, &log))
         Py_RETURN_NONE;
 
-    if (yrange) {
+    if (yrange)
+    {
         fyrange = PySequence_Fast(yrange, NULL);
         ymin = PyFloat_AsDouble(PySequence_Fast_GET_ITEM(fyrange, 0));
         ymax = PyFloat_AsDouble(PySequence_Fast_GET_ITEM(fyrange, 1));
     }
+
     ydiff = ymax - ymin;
     log10ymin = log10(ymin);
     log10ymax = log10(ymax);
@@ -1157,8 +1344,10 @@ linToCosCurve(PyObject *self, PyObject *args, PyObject *kwds)
     ydata = (double *)malloc(datasize * sizeof(double));
 
     /* acquire data + normalization */
-    if (log == 0) {
-        for (i=0; i<datasize; i++) {
+    if (log == 0)
+    {
+        for (i = 0; i < datasize; i++)
+        {
             ftup = PySequence_Fast(PySequence_Fast_GET_ITEM(fdata, i), NULL);
             tmp = PyFloat_AsDouble(PySequence_Fast_GET_ITEM(ftup, 0));
             xdata[i] = tmp / totaldur;
@@ -1166,8 +1355,10 @@ linToCosCurve(PyObject *self, PyObject *args, PyObject *kwds)
             ydata[i] = (tmp - ymin) / ydiff;
         }
     }
-    else {
-        for (i=0; i<datasize; i++) {
+    else
+    {
+        for (i = 0; i < datasize; i++)
+        {
             ftup = PySequence_Fast(PySequence_Fast_GET_ITEM(fdata, i), NULL);
             tmp = PyFloat_AsDouble(PySequence_Fast_GET_ITEM(ftup, 0));
             xdata[i] = tmp / totaldur;
@@ -1176,36 +1367,45 @@ linToCosCurve(PyObject *self, PyObject *args, PyObject *kwds)
         }
     }
 
-    cxdata = (double *)malloc((num+5) * sizeof(double));
-    cydata = (double *)malloc((num+5) * sizeof(double));
+    cxdata = (double *)malloc((num + 5) * sizeof(double));
+    cydata = (double *)malloc((num + 5) * sizeof(double));
 
     /* generates cos interpolation */
-    for (i=0; i<(datasize-1); i++) {
+    for (i = 0; i < (datasize - 1); i++)
+    {
         x1 = xdata[i];
-        x2 = xdata[i+1];
+        x2 = xdata[i + 1];
         y1 = ydata[i];
-        y2 = ydata[i+1];
+        y2 = ydata[i + 1];
         steps = (int)((x2 - x1) * num);
+
         if (steps <= 0)
             continue;
-        for (j=0; j<steps; j++) {
+
+        for (j = 0; j < steps; j++)
+        {
             mu = (1.0 - cos(j / (float)steps * PI)) * 0.5;
             cxdata[count] = x1 + inc * j;
             cydata[count++] = y1 + (y2 - y1) * mu;
         }
     }
-    cxdata[count] = xdata[datasize-1];
-    cydata[count++] = ydata[datasize-1];
+
+    cxdata[count] = xdata[datasize - 1];
+    cydata[count++] = ydata[datasize - 1];
 
     /* denormalization */
-    if (log == 0) {
-        for (i=0; i<count; i++) {
+    if (log == 0)
+    {
+        for (i = 0; i < count; i++)
+        {
             cxdata[i] *= totaldur;
             cydata[i] = cydata[i] * ydiff + ymin;
         }
     }
-    else {
-        for (i=0; i<count; i++) {
+    else
+    {
+        for (i = 0; i < count; i++)
+        {
             cxdata[i] *= totaldur;
             cydata[i] = pow(10.0, cydata[i] * (log10ymax - log10ymin) + log10ymin);
         }
@@ -1213,7 +1413,9 @@ linToCosCurve(PyObject *self, PyObject *args, PyObject *kwds)
 
     /* output Python's list of lists */
     out = PyList_New(0);
-    for (i=0; i<count; i++) {
+
+    for (i = 0; i < count; i++)
+    {
         inout = PyList_New(0);
         PyList_Append(inout, PyFloat_FromDouble(cxdata[i]));
         PyList_Append(inout, PyFloat_FromDouble(cydata[i]));
@@ -1272,99 +1474,136 @@ rescale(PyObject *self, PyObject *args, PyObject *kwds)
         type = 0;
     else if (PyList_Check(data))
         type = 1;
-    else {
+    else
+    {
         Py_INCREF(Py_None);
         return Py_None;
     }
-    if (xlog == 0 && ylog == 0) {
+
+    if (xlog == 0 && ylog == 0)
+    {
         datascl = xmax - xmin;
         curscl = ymax - ymin;
         curscl /= datascl;
-        if (type == 0) {
+
+        if (type == 0)
+        {
             val = PyFloat_AsDouble(data);
             return Py_BuildValue("d", (val - xmin) * curscl + ymin);
         }
-        else if (type == 1) {
+        else if (type == 1)
+        {
             cnt = PyList_Size(data);
             out = PyList_New(cnt);
-            for (i=0; i<cnt; i++) {
+
+            for (i = 0; i < cnt; i++)
+            {
                 val = PyFloat_AsDouble(PyList_GET_ITEM(data, i));
                 PyList_SET_ITEM(out, i, PyFloat_FromDouble((val - xmin) * curscl + ymin));
             }
+
             return out;
         }
     }
-    else if (xlog == 0 && ylog == 1) {
+    else if (xlog == 0 && ylog == 1)
+    {
         if (xmin == 0)
             xmin = 0.000001;
+
         datascl = xmax - xmin;
         curscl = MYLOG10(ymax / ymin);
         ymin = MYLOG10(ymin);
-        if (type == 0) {
+
+        if (type == 0)
+        {
             val = PyFloat_AsDouble(data);
+
             if (val == 0)
                 val = 0.000001;
+
             val = (val - xmin) / datascl;
             return Py_BuildValue("d", MYPOW(10.0, val * curscl + ymin));
         }
-        else if (type == 1) {
+        else if (type == 1)
+        {
             cnt = PyList_Size(data);
             out = PyList_New(cnt);
-            for (i=0; i<cnt; i++) {
+
+            for (i = 0; i < cnt; i++)
+            {
                 val = PyFloat_AsDouble(PyList_GET_ITEM(data, i));
+
                 if (val == 0)
                     val = 0.000001;
+
                 val = (val - xmin) / datascl;
                 PyList_SET_ITEM(out, i, PyFloat_FromDouble(MYPOW(10.0, val * curscl + ymin)));
             }
+
             return out;
         }
     }
-    else if (xlog == 1 && ylog == 0) {
+    else if (xlog == 1 && ylog == 0)
+    {
         datascl = MYLOG10(xmax / xmin);
         curscl = ymax - ymin;
-        if (type == 0) {
+
+        if (type == 0)
+        {
             val = PyFloat_AsDouble(data);
             val = MYLOG10(val / xmin) / datascl;
             return Py_BuildValue("d", val * curscl + ymin);
         }
-        else if (type == 1) {
+        else if (type == 1)
+        {
             cnt = PyList_Size(data);
             out = PyList_New(cnt);
-            for (i=0; i<cnt; i++) {
+
+            for (i = 0; i < cnt; i++)
+            {
                 val = PyFloat_AsDouble(PyList_GET_ITEM(data, i));
                 val = MYLOG10(val / xmin) / datascl;
                 PyList_SET_ITEM(out, i, PyFloat_FromDouble(val * curscl + ymin));
             }
+
             return out;
         }
     }
-    else if (xlog == 1 && ylog == 1) {
+    else if (xlog == 1 && ylog == 1)
+    {
         datascl = MYLOG10(xmax / xmin);
         curscl = MYLOG10(ymax / ymin);
         ymin = MYLOG10(ymin);
-        if (type == 0) {
+
+        if (type == 0)
+        {
             val = PyFloat_AsDouble(data);
             val = MYLOG10(val / xmin) / datascl;
             return Py_BuildValue("d", MYPOW(10.0, val * curscl + ymin));
         }
-        else if (type == 1) {
+        else if (type == 1)
+        {
             cnt = PyList_Size(data);
             out = PyList_New(cnt);
-            for (i=0; i<cnt; i++) {
+
+            for (i = 0; i < cnt; i++)
+            {
                 val = PyFloat_AsDouble(PyList_GET_ITEM(data, i));
                 val = MYLOG10(val / xmin) / datascl;
                 PyList_SET_ITEM(out, i, PyFloat_FromDouble(MYPOW(10.0, val * curscl + ymin)));
             }
+
             return out;
         }
     }
-    else {
+    else
+    {
         Py_INCREF(Py_None);
         return Py_None;
     }
-	Py_INCREF(Py_None);
-	return Py_None;
+
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 #define floatmap_info \
@@ -1397,6 +1636,7 @@ floatmap(PyObject *self, PyObject *args, PyObject *kwds)
         x = 0.0;
     else if (x > 1.0)
         x = 1.0;
+
     if (exp != 1.0)
         x = MYPOW(x, exp);
 
@@ -1420,29 +1660,39 @@ x: int or float\n        Midi note. `x` can be a number, a list or a tuple, othe
 261.625565301\n\n"
 
 static PyObject *
-midiToHz(PyObject *self, PyObject *arg) {
+midiToHz(PyObject *self, PyObject *arg)
+{
     int count = 0;
     int i = 0;
     double x = 0.0;
     PyObject *newseq = NULL;
+
     if (PyNumber_Check(arg))
         return Py_BuildValue("d", 440.0 * MYPOW(2.0, (PyFloat_AsDouble(arg) - 69) / 12.0));
-    else if (PyList_Check(arg)) {
+    else if (PyList_Check(arg))
+    {
         count = PyList_Size(arg);
         newseq = PyList_New(count);
-        for (i=0; i<count; i++) {
+
+        for (i = 0; i < count; i++)
+        {
             x = PyFloat_AsDouble(PyList_GET_ITEM(arg, i));
             PyList_SET_ITEM(newseq, i, PyFloat_FromDouble(440.0 * MYPOW(2.0, (x - 69) / 12.0)));
         }
+
         return newseq;
     }
-    else if (PyTuple_Check(arg)) {
+    else if (PyTuple_Check(arg))
+    {
         count = PyTuple_Size(arg);
         newseq = PyTuple_New(count);
-        for (i=0; i<count; i++) {
+
+        for (i = 0; i < count; i++)
+        {
             x = PyFloat_AsDouble(PyTuple_GET_ITEM(arg, i));
             PyTuple_SET_ITEM(newseq, i, PyFloat_FromDouble(440.0 * MYPOW(2.0, (x - 69) / 12.0)));
         }
+
         return newseq;
     }
     else
@@ -1465,29 +1715,39 @@ x: float\n        Frequency in Hertz. `x` can be a number, a list or a tuple, ot
 69.0\n\n"
 
 static PyObject *
-hzToMidi(PyObject *self, PyObject *arg) {
+hzToMidi(PyObject *self, PyObject *arg)
+{
     int count = 0;
     int i = 0;
     double x = 0.0;
     PyObject *newseq = NULL;
+
     if (PyNumber_Check(arg))
         return Py_BuildValue("d", 12.0 * MYLOG2(PyFloat_AsDouble(arg) / 440.0) + 69);
-    else if (PyList_Check(arg)) {
+    else if (PyList_Check(arg))
+    {
         count = PyList_Size(arg);
         newseq = PyList_New(count);
-        for (i=0; i<count; i++) {
+
+        for (i = 0; i < count; i++)
+        {
             x = PyFloat_AsDouble(PyList_GET_ITEM(arg, i));
             PyList_SET_ITEM(newseq, i, PyFloat_FromDouble(12.0 * MYLOG2(x / 440.0) + 69));
         }
+
         return newseq;
     }
-    else if (PyTuple_Check(arg)) {
+    else if (PyTuple_Check(arg))
+    {
         count = PyTuple_Size(arg);
         newseq = PyTuple_New(count);
-        for (i=0; i<count; i++) {
+
+        for (i = 0; i < count; i++)
+        {
             x = PyFloat_AsDouble(PyTuple_GET_ITEM(arg, i));
             PyTuple_SET_ITEM(newseq, i, PyFloat_FromDouble(12.0 * MYLOG2(x / 440.0) + 69));
         }
+
         return newseq;
     }
     else
@@ -1510,29 +1770,39 @@ x: int or float\n        Midi note. `x` can be a number, a list or a tuple, othe
 1.0\n\n"
 
 static PyObject *
-midiToTranspo(PyObject *self, PyObject *arg) {
+midiToTranspo(PyObject *self, PyObject *arg)
+{
     int count = 0;
     int i = 0;
     double x = 0.0;
     PyObject *newseq = NULL;
+
     if (PyNumber_Check(arg))
-        return Py_BuildValue("d", pow(1.0594630943593, PyFloat_AsDouble(arg)-60.0));
-    else if (PyList_Check(arg)) {
+        return Py_BuildValue("d", pow(1.0594630943593, PyFloat_AsDouble(arg) - 60.0));
+    else if (PyList_Check(arg))
+    {
         count = PyList_Size(arg);
         newseq = PyList_New(count);
-        for (i=0; i<count; i++) {
+
+        for (i = 0; i < count; i++)
+        {
             x = PyFloat_AsDouble(PyList_GET_ITEM(arg, i));
-            PyList_SET_ITEM(newseq, i, PyFloat_FromDouble(pow(1.0594630943593, x-60.0)));
+            PyList_SET_ITEM(newseq, i, PyFloat_FromDouble(pow(1.0594630943593, x - 60.0)));
         }
+
         return newseq;
     }
-    else if (PyTuple_Check(arg)) {
+    else if (PyTuple_Check(arg))
+    {
         count = PyTuple_Size(arg);
         newseq = PyTuple_New(count);
-        for (i=0; i<count; i++) {
+
+        for (i = 0; i < count; i++)
+        {
             x = PyFloat_AsDouble(PyTuple_GET_ITEM(arg, i));
-            PyTuple_SET_ITEM(newseq, i, PyFloat_FromDouble(pow(1.0594630943593, x-60.0)));
+            PyTuple_SET_ITEM(newseq, i, PyFloat_FromDouble(pow(1.0594630943593, x - 60.0)));
         }
+
         return newseq;
     }
     else
@@ -1556,35 +1826,48 @@ x: int or float\n        Duration in samples. `x` can be a number, a list or a t
 0.185759637188\n\n"
 
 static PyObject *
-sampsToSec(PyObject *self, PyObject *arg) {
+sampsToSec(PyObject *self, PyObject *arg)
+{
     PyObject *server = PyServer_get_server();
-    if (server == NULL) {
+
+    if (server == NULL)
+    {
         PySys_WriteStdout("Pyo error: A Server must be booted before calling `sampsToSec` function.\n");
         Py_RETURN_NONE;
     }
+
     double sr = PyFloat_AsDouble(PyObject_CallMethod(server, "getSamplingRate", NULL));
     int count = 0;
     int i = 0;
     double x = 0.0;
     PyObject *newseq = NULL;
+
     if (PyNumber_Check(arg))
         return Py_BuildValue("d", PyFloat_AsDouble(arg) / sr);
-    else if (PyList_Check(arg)) {
+    else if (PyList_Check(arg))
+    {
         count = PyList_Size(arg);
         newseq = PyList_New(count);
-        for (i=0; i<count; i++) {
+
+        for (i = 0; i < count; i++)
+        {
             x = PyFloat_AsDouble(PyList_GET_ITEM(arg, i));
             PyList_SET_ITEM(newseq, i, PyFloat_FromDouble(x / sr));
         }
+
         return newseq;
     }
-    else if (PyTuple_Check(arg)) {
+    else if (PyTuple_Check(arg))
+    {
         count = PyTuple_Size(arg);
         newseq = PyTuple_New(count);
-        for (i=0; i<count; i++) {
+
+        for (i = 0; i < count; i++)
+        {
             x = PyFloat_AsDouble(PyTuple_GET_ITEM(arg, i));
             PyTuple_SET_ITEM(newseq, i, PyFloat_FromDouble(x / sr));
         }
+
         return newseq;
     }
     else
@@ -1608,35 +1891,48 @@ x: int or float\n        Duration in seconds. `x` can be a number, a list or a t
 110250\n\n"
 
 static PyObject *
-secToSamps(PyObject *self, PyObject *arg) {
+secToSamps(PyObject *self, PyObject *arg)
+{
     PyObject *server = PyServer_get_server();
-    if (server == NULL) {
+
+    if (server == NULL)
+    {
         PySys_WriteStdout("Pyo error: A Server must be booted before calling `secToSamps` function.\n");
         Py_RETURN_NONE;
     }
+
     double sr = PyFloat_AsDouble(PyObject_CallMethod(server, "getSamplingRate", NULL));
     int count = 0;
     int i = 0;
     double x = 0.0;
     PyObject *newseq = NULL;
+
     if (PyNumber_Check(arg))
         return Py_BuildValue("l", (long)(PyFloat_AsDouble(arg) * sr));
-    else if (PyList_Check(arg)) {
+    else if (PyList_Check(arg))
+    {
         count = PyList_Size(arg);
         newseq = PyList_New(count);
-        for (i=0; i<count; i++) {
+
+        for (i = 0; i < count; i++)
+        {
             x = PyFloat_AsDouble(PyList_GET_ITEM(arg, i));
             PyList_SET_ITEM(newseq, i, PyInt_FromLong((long)(x * sr)));
         }
+
         return newseq;
     }
-    else if (PyTuple_Check(arg)) {
+    else if (PyTuple_Check(arg))
+    {
         count = PyTuple_Size(arg);
         newseq = PyTuple_New(count);
-        for (i=0; i<count; i++) {
+
+        for (i = 0; i < count; i++)
+        {
             x = PyFloat_AsDouble(PyTuple_GET_ITEM(arg, i));
             PyTuple_SET_ITEM(newseq, i, PyInt_FromLong((long)(x * sr)));
         }
+
         return newseq;
     }
     else
@@ -1653,12 +1949,15 @@ False\n\
 True\n\n"
 
 static PyObject *
-serverCreated(PyObject *self) {
-    if (PyServer_get_server() != NULL) {
+serverCreated(PyObject *self)
+{
+    if (PyServer_get_server() != NULL)
+    {
         Py_INCREF(Py_True);
         return Py_True;
     }
-    else {
+    else
+    {
         Py_INCREF(Py_False);
         return Py_False;
     }
@@ -1674,78 +1973,87 @@ False\n\
 True\n\n"
 
 static PyObject *
-serverBooted(PyObject *self) {
+serverBooted(PyObject *self)
+{
     int boot;
     PyObject *server;
-    if (PyServer_get_server() != NULL) {
+
+    if (PyServer_get_server() != NULL)
+    {
         server = PyServer_get_server();
         boot = PyInt_AsLong(PyObject_CallMethod(server, "getIsBooted", NULL));
-        if (boot == 0) {
+
+        if (boot == 0)
+        {
             Py_INCREF(Py_False);
             return Py_False;
         }
-        else {
+        else
+        {
             Py_INCREF(Py_True);
             return Py_True;
         }
     }
-    else {
+    else
+    {
         PySys_WriteStdout("Pyo Warning: A Server must be created before calling `serverBooted` function.\n");
         Py_INCREF(Py_False);
         return Py_False;
     }
 }
 
-static PyMethodDef pyo_functions[] = {
-{"pa_get_version", (PyCFunction)portaudio_get_version, METH_NOARGS, portaudio_get_version_info},
-{"pa_get_version_text", (PyCFunction)portaudio_get_version_text, METH_NOARGS, portaudio_get_version_text_info},
-{"pa_count_devices", (PyCFunction)portaudio_count_devices, METH_NOARGS, portaudio_count_devices_info},
-{"pa_count_host_apis", (PyCFunction)portaudio_count_host_apis, METH_NOARGS, portaudio_count_host_apis_info},
-{"pa_list_devices", (PyCFunction)portaudio_list_devices, METH_NOARGS, portaudio_list_devices_info},
-{"pa_get_devices_infos", (PyCFunction)portaudio_get_devices_infos, METH_NOARGS, portaudio_get_devices_infos_info},
-{"pa_get_input_max_channels", (PyCFunction)portaudio_get_input_max_channels, METH_O, portaudio_get_input_max_channels_info},
-{"pa_get_output_max_channels", (PyCFunction)portaudio_get_output_max_channels, METH_O, portaudio_get_output_max_channels_info},
-{"pa_get_output_devices", (PyCFunction)portaudio_get_output_devices, METH_NOARGS, portaudio_get_output_devices_info},
-{"pa_get_input_devices", (PyCFunction)portaudio_get_input_devices, METH_NOARGS, portaudio_get_input_devices_info},
-{"pa_list_host_apis", (PyCFunction)portaudio_list_host_apis, METH_NOARGS, portaudio_list_host_apis_info},
-{"pa_get_default_input", (PyCFunction)portaudio_get_default_input, METH_NOARGS, portaudio_get_default_input_info},
-{"pa_get_default_host_api", (PyCFunction)portaudio_get_default_host_api, METH_NOARGS, portaudio_get_default_host_api_info},
-{"pa_get_default_output", (PyCFunction)portaudio_get_default_output, METH_NOARGS, portaudio_get_default_output_info},
-{"pm_count_devices", (PyCFunction)portmidi_count_devices, METH_NOARGS, portmidi_count_devices_info},
-{"pm_list_devices", (PyCFunction)portmidi_list_devices, METH_NOARGS, portmidi_list_devices_info},
-{"pm_get_input_devices", (PyCFunction)portmidi_get_input_devices, METH_NOARGS, portmidi_get_input_devices_info},
-{"pm_get_default_input", (PyCFunction)portmidi_get_default_input, METH_NOARGS, portmidi_get_default_input_info},
-{"pm_get_output_devices", (PyCFunction)portmidi_get_output_devices, METH_NOARGS, portmidi_get_output_devices_info},
-{"pm_get_default_output", (PyCFunction)portmidi_get_default_output, METH_NOARGS, portmidi_get_default_output_info},
-{"p_sndinfo", (PyCFunction)p_sndinfo, METH_VARARGS|METH_KEYWORDS, ""},
-{"p_savefile", (PyCFunction)p_savefile, METH_VARARGS|METH_KEYWORDS, ""},
-{"p_savefileFromTable", (PyCFunction)p_savefileFromTable, METH_VARARGS|METH_KEYWORDS, ""},
-{"p_upsamp", (PyCFunction)p_upsamp, METH_VARARGS|METH_KEYWORDS, ""},
-{"p_downsamp", (PyCFunction)p_downsamp, METH_VARARGS|METH_KEYWORDS, ""},
-{"reducePoints", (PyCFunction)reducePoints, METH_VARARGS|METH_KEYWORDS, reducePoints_info},
-{"distanceToSegment", (PyCFunction)distanceToSegment, METH_VARARGS|METH_KEYWORDS, distanceToSegment_info},
-{"rescale", (PyCFunction)rescale, METH_VARARGS|METH_KEYWORDS, rescale_info},
-{"floatmap", (PyCFunction)floatmap, METH_VARARGS|METH_KEYWORDS, floatmap_info},
-{"linToCosCurve", (PyCFunction)linToCosCurve, METH_VARARGS|METH_KEYWORDS, linToCosCurve_info},
-{"midiToHz", (PyCFunction)midiToHz, METH_O, midiToHz_info},
-{"hzToMidi", (PyCFunction)hzToMidi, METH_O, hzToMidi_info},
-{"midiToTranspo", (PyCFunction)midiToTranspo, METH_O, midiToTranspo_info},
-{"sampsToSec", (PyCFunction)sampsToSec, METH_O, sampsToSec_info},
-{"secToSamps", (PyCFunction)secToSamps, METH_O, secToSamps_info},
-{"serverCreated", (PyCFunction)serverCreated, METH_NOARGS, serverCreated_info},
-{"serverBooted", (PyCFunction)serverBooted, METH_NOARGS, serverBooted_info},
-{"withPortaudio", (PyCFunction)with_portaudio, METH_NOARGS, "Returns True if pyo is built with portaudio support."},
-{"withPortmidi", (PyCFunction)with_portmidi, METH_NOARGS, "Returns True if pyo is built with portmidi support."},
-{"withJack", (PyCFunction)with_jack, METH_NOARGS, "Returns True if pyo is built with jack support."},
-{"withCoreaudio", (PyCFunction)with_coreaudio, METH_NOARGS, "Returns True if pyo is built with coreaudio support."},
-{"withOSC", (PyCFunction)with_osc, METH_NOARGS, "Returns True if pyo is built with OSC (Open Sound Control) support."},
-{NULL, NULL, 0, NULL},
+static PyMethodDef pyo_functions[] =
+{
+    {"pa_get_version", (PyCFunction)portaudio_get_version, METH_NOARGS, portaudio_get_version_info},
+    {"pa_get_version_text", (PyCFunction)portaudio_get_version_text, METH_NOARGS, portaudio_get_version_text_info},
+    {"pa_count_devices", (PyCFunction)portaudio_count_devices, METH_NOARGS, portaudio_count_devices_info},
+    {"pa_count_host_apis", (PyCFunction)portaudio_count_host_apis, METH_NOARGS, portaudio_count_host_apis_info},
+    {"pa_list_devices", (PyCFunction)portaudio_list_devices, METH_NOARGS, portaudio_list_devices_info},
+    {"pa_get_devices_infos", (PyCFunction)portaudio_get_devices_infos, METH_NOARGS, portaudio_get_devices_infos_info},
+    {"pa_get_input_max_channels", (PyCFunction)portaudio_get_input_max_channels, METH_O, portaudio_get_input_max_channels_info},
+    {"pa_get_output_max_channels", (PyCFunction)portaudio_get_output_max_channels, METH_O, portaudio_get_output_max_channels_info},
+    {"pa_get_output_devices", (PyCFunction)portaudio_get_output_devices, METH_NOARGS, portaudio_get_output_devices_info},
+    {"pa_get_input_devices", (PyCFunction)portaudio_get_input_devices, METH_NOARGS, portaudio_get_input_devices_info},
+    {"pa_list_host_apis", (PyCFunction)portaudio_list_host_apis, METH_NOARGS, portaudio_list_host_apis_info},
+    {"pa_get_default_input", (PyCFunction)portaudio_get_default_input, METH_NOARGS, portaudio_get_default_input_info},
+    {"pa_get_default_host_api", (PyCFunction)portaudio_get_default_host_api, METH_NOARGS, portaudio_get_default_host_api_info},
+    {"pa_get_default_output", (PyCFunction)portaudio_get_default_output, METH_NOARGS, portaudio_get_default_output_info},
+    {"pm_count_devices", (PyCFunction)portmidi_count_devices, METH_NOARGS, portmidi_count_devices_info},
+    {"pm_list_devices", (PyCFunction)portmidi_list_devices, METH_NOARGS, portmidi_list_devices_info},
+    {"pm_get_input_devices", (PyCFunction)portmidi_get_input_devices, METH_NOARGS, portmidi_get_input_devices_info},
+    {"pm_get_default_input", (PyCFunction)portmidi_get_default_input, METH_NOARGS, portmidi_get_default_input_info},
+    {"pm_get_output_devices", (PyCFunction)portmidi_get_output_devices, METH_NOARGS, portmidi_get_output_devices_info},
+    {"pm_get_default_output", (PyCFunction)portmidi_get_default_output, METH_NOARGS, portmidi_get_default_output_info},
+    {"p_sndinfo", (PyCFunction)p_sndinfo, METH_VARARGS | METH_KEYWORDS, ""},
+    {"p_savefile", (PyCFunction)p_savefile, METH_VARARGS | METH_KEYWORDS, ""},
+    {"p_savefileFromTable", (PyCFunction)p_savefileFromTable, METH_VARARGS | METH_KEYWORDS, ""},
+    {"p_upsamp", (PyCFunction)p_upsamp, METH_VARARGS | METH_KEYWORDS, ""},
+    {"p_downsamp", (PyCFunction)p_downsamp, METH_VARARGS | METH_KEYWORDS, ""},
+    {"reducePoints", (PyCFunction)reducePoints, METH_VARARGS | METH_KEYWORDS, reducePoints_info},
+    {"distanceToSegment", (PyCFunction)distanceToSegment, METH_VARARGS | METH_KEYWORDS, distanceToSegment_info},
+    {"rescale", (PyCFunction)rescale, METH_VARARGS | METH_KEYWORDS, rescale_info},
+    {"floatmap", (PyCFunction)floatmap, METH_VARARGS | METH_KEYWORDS, floatmap_info},
+    {"linToCosCurve", (PyCFunction)linToCosCurve, METH_VARARGS | METH_KEYWORDS, linToCosCurve_info},
+    {"midiToHz", (PyCFunction)midiToHz, METH_O, midiToHz_info},
+    {"hzToMidi", (PyCFunction)hzToMidi, METH_O, hzToMidi_info},
+    {"midiToTranspo", (PyCFunction)midiToTranspo, METH_O, midiToTranspo_info},
+    {"sampsToSec", (PyCFunction)sampsToSec, METH_O, sampsToSec_info},
+    {"secToSamps", (PyCFunction)secToSamps, METH_O, secToSamps_info},
+    {"serverCreated", (PyCFunction)serverCreated, METH_NOARGS, serverCreated_info},
+    {"serverBooted", (PyCFunction)serverBooted, METH_NOARGS, serverBooted_info},
+    {"withPortaudio", (PyCFunction)with_portaudio, METH_NOARGS, "Returns True if pyo is built with portaudio support."},
+    {"withPortmidi", (PyCFunction)with_portmidi, METH_NOARGS, "Returns True if pyo is built with portmidi support."},
+    {"withJack", (PyCFunction)with_jack, METH_NOARGS, "Returns True if pyo is built with jack support."},
+    {"withCoreaudio", (PyCFunction)with_coreaudio, METH_NOARGS, "Returns True if pyo is built with coreaudio support."},
+    {"withOSC", (PyCFunction)with_osc, METH_NOARGS, "Returns True if pyo is built with OSC (Open Sound Control) support."},
+    {NULL, NULL, 0, NULL},
 };
 
 #if PY_MAJOR_VERSION >= 3
 // TODO: Pyo likely has a bunch of state stored in global variables right now, they should ideally be stored
 // in an interpreter specific struct as described in https://docs.python.org/3/howto/cporting.html
-static struct PyModuleDef pyo_moduledef = {
+static struct PyModuleDef pyo_moduledef =
+{
     PyModuleDef_HEAD_INIT,
     LIB_BASE_NAME,/* m_name */
     "Python digital signal processing module.",/* m_doc */
@@ -1759,9 +2067,11 @@ static struct PyModuleDef pyo_moduledef = {
 #endif
 
 static PyObject *
-module_add_object(PyObject *module, const char *name, PyTypeObject *type) {
+module_add_object(PyObject *module, const char *name, PyTypeObject *type)
+{
     if (PyType_Ready(type) < 0)
         Py_RETURN_NONE;
+
     Py_INCREF(type);
     PyModule_AddObject(module, name, (PyObject *)type);
     Py_RETURN_NONE;

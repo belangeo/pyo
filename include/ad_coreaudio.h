@@ -25,11 +25,11 @@
 #include "servermodule.h"
 
 OSStatus coreaudio_input_callback(AudioDeviceID device, const AudioTimeStamp* inNow,
-                                   const AudioBufferList* inInputData,
-                                   const AudioTimeStamp* inInputTime,
-                                   AudioBufferList* outOutputData,
-                                   const AudioTimeStamp* inOutputTime,
-                                   void* defptr);
+                                  const AudioBufferList* inInputData,
+                                  const AudioTimeStamp* inInputTime,
+                                  AudioBufferList* outOutputData,
+                                  const AudioTimeStamp* inOutputTime,
+                                  void* defptr);
 OSStatus coreaudio_output_callback(AudioDeviceID device, const AudioTimeStamp* inNow,
                                    const AudioBufferList* inInputData,
                                    const AudioTimeStamp* inInputTime,
@@ -42,5 +42,5 @@ int Server_coreaudio_deinit(Server *self);
 int Server_coreaudio_start(Server *self);
 int Server_coreaudio_stop(Server *self);
 
-#endif 
+#endif
 /* _AD_COREAUDIO_H */

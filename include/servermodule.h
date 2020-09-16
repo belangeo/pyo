@@ -31,7 +31,8 @@ extern "C" {
 #include "sndfile.h"
 #include "pyomodule.h"
 
-typedef enum {
+typedef enum
+{
     PyoPortaudio = 0,
     PyoCoreaudio = 1,
     PyoJack,
@@ -40,7 +41,8 @@ typedef enum {
     PyoEmbedded
 } PyoAudioBackendType;
 
-typedef enum {
+typedef enum
+{
     PyoPortmidi = 0,
     PyoJackMidi = 1
 } PyoMidiBackendType;
@@ -57,15 +59,17 @@ typedef long PyoMidiTimestamp;
 #define PyoMidi_MessageData1(msg) (((msg) >> 8) & 0xFF)
 #define PyoMidi_MessageData2(msg) (((msg) >> 16) & 0xFF)
 
-typedef long PyoMidiMessage; 
-typedef struct {
+typedef long PyoMidiMessage;
+typedef struct
+{
     PyoMidiMessage      message;
     PyoMidiTimestamp    timestamp;
 } PyoMidiEvent;
 
 /************************************************/
 
-typedef struct {
+typedef struct
+{
     PyObject_HEAD
     PyObject *streams;
     PyoAudioBackendType audio_be_type;
@@ -162,7 +166,7 @@ typedef struct {
 
     /* Properties */
     int verbosity; /* a sum of values to display different levels: 1 = error */
-                   /* 2 = message, 4 = warning , 8 = debug. Default 7.*/
+    /* 2 = message, 4 = warning , 8 = debug. Default 7.*/
     int globalSeed; /* initial seed for random objects. If <= 0, objects are seeded with the clock. */
     int autoStartChildren; /* if true, calls to play, out and stop propagate to children objects. */
 } Server;

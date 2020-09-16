@@ -31,22 +31,24 @@
 #define NUM_COMB         8
 #define NUM_ALLPASS      4
 
-static const MYFLT comb_delays[NUM_COMB] = {
-1116.0 / DEFAULT_SRATE,
-1188.0 / DEFAULT_SRATE,
-1277.0 / DEFAULT_SRATE,
-1356.0 / DEFAULT_SRATE,
-1422.0 / DEFAULT_SRATE,
-1491.0 / DEFAULT_SRATE,
-1557.0 / DEFAULT_SRATE,
-1617.0 / DEFAULT_SRATE
+static const MYFLT comb_delays[NUM_COMB] =
+{
+    1116.0 / DEFAULT_SRATE,
+    1188.0 / DEFAULT_SRATE,
+    1277.0 / DEFAULT_SRATE,
+    1356.0 / DEFAULT_SRATE,
+    1422.0 / DEFAULT_SRATE,
+    1491.0 / DEFAULT_SRATE,
+    1557.0 / DEFAULT_SRATE,
+    1617.0 / DEFAULT_SRATE
 };
 
-static const MYFLT allpass_delays[NUM_ALLPASS] = {
-556.0 / DEFAULT_SRATE,
-441.0 / DEFAULT_SRATE,
-341.0 / DEFAULT_SRATE,
-225.0 / DEFAULT_SRATE
+static const MYFLT allpass_delays[NUM_ALLPASS] =
+{
+    556.0 / DEFAULT_SRATE,
+    441.0 / DEFAULT_SRATE,
+    341.0 / DEFAULT_SRATE,
+    225.0 / DEFAULT_SRATE
 };
 
 static const MYFLT fixedGain   = 0.015;
@@ -55,7 +57,8 @@ static const MYFLT scaleRoom   = 0.29;
 static const MYFLT offsetRoom  = 0.7;
 static const MYFLT allPassFeedBack = 0.5;
 
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     PyObject *input;
     Stream *input_stream;
@@ -94,7 +97,8 @@ Freeverb_calc_nsamples(Freeverb *self, MYFLT delTime)
 }
 
 static void
-Freeverb_transform_iii(Freeverb *self) {
+Freeverb_transform_iii(Freeverb *self)
+{
     MYFLT x, feedback, damp, mix1, mix2;
     int i, j;
 
@@ -112,38 +116,47 @@ Freeverb_transform_iii(Freeverb *self) {
     MYFLT tmp[self->bufsize];
     memset(&tmp, 0, sizeof(tmp));
 
-    for (j=0; j<self->bufsize; j++) {
-        for (i=0; i<NUM_COMB; i++) {
+    for (j = 0; j < self->bufsize; j++)
+    {
+        for (i = 0; i < NUM_COMB; i++)
+        {
             x = self->comb_buf[i][self->comb_bufPos[i]];
             tmp[j] += x;
             self->comb_filterState[i] = x + (self->comb_filterState[i] - x) * damp;
             x = self->comb_filterState[i] * feedback + in[j];
             self->comb_buf[i][self->comb_bufPos[i]] = x;
             self->comb_bufPos[i]++;
+
             if (self->comb_bufPos[i] >= self->comb_nSamples[i])
                 self->comb_bufPos[i] = 0;
         }
     }
 
-    for (i=0; i<NUM_ALLPASS; i++) {
-        for (j=0; j<self->bufsize; j++) {
+    for (i = 0; i < NUM_ALLPASS; i++)
+    {
+        for (j = 0; j < self->bufsize; j++)
+        {
             x = self->allpass_buf[i][self->allpass_bufPos[i]] - tmp[j];
             self->allpass_buf[i][self->allpass_bufPos[i]] *= allPassFeedBack;
             self->allpass_buf[i][self->allpass_bufPos[i]] += tmp[j];
             self->allpass_bufPos[i]++;
+
             if (self->allpass_bufPos[i] >= self->allpass_nSamples[i])
                 self->allpass_bufPos[i] = 0;
+
             tmp[j] = x;
         }
     }
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->data[i] = (tmp[i] * fixedGain * mix1) + (in[i] * mix2);
     }
 }
 
 static void
-Freeverb_transform_aii(Freeverb *self) {
+Freeverb_transform_aii(Freeverb *self)
+{
     MYFLT x, feedback, damp, mix1, mix2;
     int i, j;
 
@@ -160,39 +173,49 @@ Freeverb_transform_aii(Freeverb *self) {
     MYFLT tmp[self->bufsize];
     memset(&tmp, 0, sizeof(tmp));
 
-    for (j=0; j<self->bufsize; j++) {
+    for (j = 0; j < self->bufsize; j++)
+    {
         feedback = _clip(siz[j]) * scaleRoom + offsetRoom;
-        for (i=0; i<NUM_COMB; i++) {
+
+        for (i = 0; i < NUM_COMB; i++)
+        {
             x = self->comb_buf[i][self->comb_bufPos[i]];
             tmp[j] += x;
             self->comb_filterState[i] = x + (self->comb_filterState[i] - x) * damp;
             x = self->comb_filterState[i] * feedback + in[j];
             self->comb_buf[i][self->comb_bufPos[i]] = x;
             self->comb_bufPos[i]++;
+
             if (self->comb_bufPos[i] >= self->comb_nSamples[i])
                 self->comb_bufPos[i] = 0;
         }
     }
 
-    for (i=0; i<NUM_ALLPASS; i++) {
-        for (j=0; j<self->bufsize; j++) {
+    for (i = 0; i < NUM_ALLPASS; i++)
+    {
+        for (j = 0; j < self->bufsize; j++)
+        {
             x = self->allpass_buf[i][self->allpass_bufPos[i]] - tmp[j];
             self->allpass_buf[i][self->allpass_bufPos[i]] *= allPassFeedBack;
             self->allpass_buf[i][self->allpass_bufPos[i]] += tmp[j];
             self->allpass_bufPos[i]++;
+
             if (self->allpass_bufPos[i] >= self->allpass_nSamples[i])
                 self->allpass_bufPos[i] = 0;
+
             tmp[j] = x;
         }
     }
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->data[i] = (tmp[i] * fixedGain * mix1) + (in[i] * mix2);
     }
 }
 
 static void
-Freeverb_transform_iai(Freeverb *self) {
+Freeverb_transform_iai(Freeverb *self)
+{
     MYFLT x, feedback, damp, mix1, mix2;
     int i, j;
 
@@ -209,39 +232,49 @@ Freeverb_transform_iai(Freeverb *self) {
     MYFLT tmp[self->bufsize];
     memset(&tmp, 0, sizeof(tmp));
 
-    for (j=0; j<self->bufsize; j++) {
+    for (j = 0; j < self->bufsize; j++)
+    {
         damp = _clip(dam[j]) * scaleDamp;
-        for (i=0; i<NUM_COMB; i++) {
+
+        for (i = 0; i < NUM_COMB; i++)
+        {
             x = self->comb_buf[i][self->comb_bufPos[i]];
             tmp[j] += x;
             self->comb_filterState[i] = x + (self->comb_filterState[i] - x) * damp;
             x = self->comb_filterState[i] * feedback + in[j];
             self->comb_buf[i][self->comb_bufPos[i]] = x;
             self->comb_bufPos[i]++;
+
             if (self->comb_bufPos[i] >= self->comb_nSamples[i])
                 self->comb_bufPos[i] = 0;
         }
     }
 
-    for (i=0; i<NUM_ALLPASS; i++) {
-        for (j=0; j<self->bufsize; j++) {
+    for (i = 0; i < NUM_ALLPASS; i++)
+    {
+        for (j = 0; j < self->bufsize; j++)
+        {
             x = self->allpass_buf[i][self->allpass_bufPos[i]] - tmp[j];
             self->allpass_buf[i][self->allpass_bufPos[i]] *= allPassFeedBack;
             self->allpass_buf[i][self->allpass_bufPos[i]] += tmp[j];
             self->allpass_bufPos[i]++;
+
             if (self->allpass_bufPos[i] >= self->allpass_nSamples[i])
                 self->allpass_bufPos[i] = 0;
+
             tmp[j] = x;
         }
     }
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->data[i] = (tmp[i] * fixedGain * mix1) + (in[i] * mix2);
     }
 }
 
 static void
-Freeverb_transform_aai(Freeverb *self) {
+Freeverb_transform_aai(Freeverb *self)
+{
     MYFLT x, feedback, damp, mix1, mix2;
     int i, j;
 
@@ -256,40 +289,50 @@ Freeverb_transform_aai(Freeverb *self) {
     MYFLT tmp[self->bufsize];
     memset(&tmp, 0, sizeof(tmp));
 
-    for (j=0; j<self->bufsize; j++) {
+    for (j = 0; j < self->bufsize; j++)
+    {
         feedback = _clip(siz[j]) * scaleRoom + offsetRoom;
         damp = _clip(dam[j]) * scaleDamp;
-        for (i=0; i<NUM_COMB; i++) {
+
+        for (i = 0; i < NUM_COMB; i++)
+        {
             x = self->comb_buf[i][self->comb_bufPos[i]];
             tmp[j] += x;
             self->comb_filterState[i] = x + (self->comb_filterState[i] - x) * damp;
             x = self->comb_filterState[i] * feedback + in[j];
             self->comb_buf[i][self->comb_bufPos[i]] = x;
             self->comb_bufPos[i]++;
+
             if (self->comb_bufPos[i] >= self->comb_nSamples[i])
                 self->comb_bufPos[i] = 0;
         }
     }
 
-    for (i=0; i<NUM_ALLPASS; i++) {
-        for (j=0; j<self->bufsize; j++) {
+    for (i = 0; i < NUM_ALLPASS; i++)
+    {
+        for (j = 0; j < self->bufsize; j++)
+        {
             x = self->allpass_buf[i][self->allpass_bufPos[i]] - tmp[j];
             self->allpass_buf[i][self->allpass_bufPos[i]] *= allPassFeedBack;
             self->allpass_buf[i][self->allpass_bufPos[i]] += tmp[j];
             self->allpass_bufPos[i]++;
+
             if (self->allpass_bufPos[i] >= self->allpass_nSamples[i])
                 self->allpass_bufPos[i] = 0;
+
             tmp[j] = x;
         }
     }
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->data[i] = (tmp[i] * fixedGain * mix1) + (in[i] * mix2);
     }
 }
 
 static void
-Freeverb_transform_iia(Freeverb *self) {
+Freeverb_transform_iia(Freeverb *self)
+{
     MYFLT x, feedback, damp, mix1, mix2, mixtmp;
     int i, j;
 
@@ -304,32 +347,40 @@ Freeverb_transform_iia(Freeverb *self) {
     MYFLT tmp[self->bufsize];
     memset(&tmp, 0, sizeof(tmp));
 
-    for (j=0; j<self->bufsize; j++) {
-        for (i=0; i<NUM_COMB; i++) {
+    for (j = 0; j < self->bufsize; j++)
+    {
+        for (i = 0; i < NUM_COMB; i++)
+        {
             x = self->comb_buf[i][self->comb_bufPos[i]];
             tmp[j] += x;
             self->comb_filterState[i] = x + (self->comb_filterState[i] - x) * damp;
             x = self->comb_filterState[i] * feedback + in[j];
             self->comb_buf[i][self->comb_bufPos[i]] = x;
             self->comb_bufPos[i]++;
+
             if (self->comb_bufPos[i] >= self->comb_nSamples[i])
                 self->comb_bufPos[i] = 0;
         }
     }
 
-    for (i=0; i<NUM_ALLPASS; i++) {
-        for (j=0; j<self->bufsize; j++) {
+    for (i = 0; i < NUM_ALLPASS; i++)
+    {
+        for (j = 0; j < self->bufsize; j++)
+        {
             x = self->allpass_buf[i][self->allpass_bufPos[i]] - tmp[j];
             self->allpass_buf[i][self->allpass_bufPos[i]] *= allPassFeedBack;
             self->allpass_buf[i][self->allpass_bufPos[i]] += tmp[j];
             self->allpass_bufPos[i]++;
+
             if (self->allpass_bufPos[i] >= self->allpass_nSamples[i])
                 self->allpass_bufPos[i] = 0;
+
             tmp[j] = x;
         }
     }
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         mixtmp = _clip(mix[i]);
         mix1 = MYSQRT(mixtmp);
         mix2 = MYSQRT(1.0 - mixtmp);
@@ -338,7 +389,8 @@ Freeverb_transform_iia(Freeverb *self) {
 }
 
 static void
-Freeverb_transform_aia(Freeverb *self) {
+Freeverb_transform_aia(Freeverb *self)
+{
     MYFLT x, feedback, damp, mix1, mix2, mixtmp;
     int i, j;
 
@@ -352,33 +404,42 @@ Freeverb_transform_aia(Freeverb *self) {
     MYFLT tmp[self->bufsize];
     memset(&tmp, 0, sizeof(tmp));
 
-    for (j=0; j<self->bufsize; j++) {
+    for (j = 0; j < self->bufsize; j++)
+    {
         feedback = _clip(siz[j]) * scaleRoom + offsetRoom;
-        for (i=0; i<NUM_COMB; i++) {
+
+        for (i = 0; i < NUM_COMB; i++)
+        {
             x = self->comb_buf[i][self->comb_bufPos[i]];
             tmp[j] += x;
             self->comb_filterState[i] = x + (self->comb_filterState[i] - x) * damp;
             x = self->comb_filterState[i] * feedback + in[j];
             self->comb_buf[i][self->comb_bufPos[i]] = x;
             self->comb_bufPos[i]++;
+
             if (self->comb_bufPos[i] >= self->comb_nSamples[i])
                 self->comb_bufPos[i] = 0;
         }
     }
 
-    for (i=0; i<NUM_ALLPASS; i++) {
-        for (j=0; j<self->bufsize; j++) {
+    for (i = 0; i < NUM_ALLPASS; i++)
+    {
+        for (j = 0; j < self->bufsize; j++)
+        {
             x = self->allpass_buf[i][self->allpass_bufPos[i]] - tmp[j];
             self->allpass_buf[i][self->allpass_bufPos[i]] *= allPassFeedBack;
             self->allpass_buf[i][self->allpass_bufPos[i]] += tmp[j];
             self->allpass_bufPos[i]++;
+
             if (self->allpass_bufPos[i] >= self->allpass_nSamples[i])
                 self->allpass_bufPos[i] = 0;
+
             tmp[j] = x;
         }
     }
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         mixtmp = _clip(mix[i]);
         mix1 = MYSQRT(mixtmp);
         mix2 = MYSQRT(1.0 - mixtmp);
@@ -387,7 +448,8 @@ Freeverb_transform_aia(Freeverb *self) {
 }
 
 static void
-Freeverb_transform_iaa(Freeverb *self) {
+Freeverb_transform_iaa(Freeverb *self)
+{
     MYFLT x, feedback, damp, mix1, mix2, mixtmp;
     int i, j;
 
@@ -401,33 +463,42 @@ Freeverb_transform_iaa(Freeverb *self) {
     MYFLT tmp[self->bufsize];
     memset(&tmp, 0, sizeof(tmp));
 
-    for (j=0; j<self->bufsize; j++) {
+    for (j = 0; j < self->bufsize; j++)
+    {
         damp = _clip(dam[j]) * scaleDamp;
-        for (i=0; i<NUM_COMB; i++) {
+
+        for (i = 0; i < NUM_COMB; i++)
+        {
             x = self->comb_buf[i][self->comb_bufPos[i]];
             tmp[j] += x;
             self->comb_filterState[i] = x + (self->comb_filterState[i] - x) * damp;
             x = self->comb_filterState[i] * feedback + in[j];
             self->comb_buf[i][self->comb_bufPos[i]] = x;
             self->comb_bufPos[i]++;
+
             if (self->comb_bufPos[i] >= self->comb_nSamples[i])
                 self->comb_bufPos[i] = 0;
         }
     }
 
-    for (i=0; i<NUM_ALLPASS; i++) {
-        for (j=0; j<self->bufsize; j++) {
+    for (i = 0; i < NUM_ALLPASS; i++)
+    {
+        for (j = 0; j < self->bufsize; j++)
+        {
             x = self->allpass_buf[i][self->allpass_bufPos[i]] - tmp[j];
             self->allpass_buf[i][self->allpass_bufPos[i]] *= allPassFeedBack;
             self->allpass_buf[i][self->allpass_bufPos[i]] += tmp[j];
             self->allpass_bufPos[i]++;
+
             if (self->allpass_bufPos[i] >= self->allpass_nSamples[i])
                 self->allpass_bufPos[i] = 0;
+
             tmp[j] = x;
         }
     }
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         mixtmp = _clip(mix[i]);
         mix1 = MYSQRT(mixtmp);
         mix2 = MYSQRT(1.0 - mixtmp);
@@ -436,7 +507,8 @@ Freeverb_transform_iaa(Freeverb *self) {
 }
 
 static void
-Freeverb_transform_aaa(Freeverb *self) {
+Freeverb_transform_aaa(Freeverb *self)
+{
     MYFLT x, feedback, damp, mix1, mix2, mixtmp;
     int i, j;
 
@@ -448,34 +520,43 @@ Freeverb_transform_aaa(Freeverb *self) {
     MYFLT tmp[self->bufsize];
     memset(&tmp, 0, sizeof(tmp));
 
-    for (j=0; j<self->bufsize; j++) {
+    for (j = 0; j < self->bufsize; j++)
+    {
         feedback = _clip(siz[j]) * scaleRoom + offsetRoom;
         damp = _clip(dam[j]) * scaleDamp;
-        for (i=0; i<NUM_COMB; i++) {
+
+        for (i = 0; i < NUM_COMB; i++)
+        {
             x = self->comb_buf[i][self->comb_bufPos[i]];
             tmp[j] += x;
             self->comb_filterState[i] = x + (self->comb_filterState[i] - x) * damp;
             x = self->comb_filterState[i] * feedback + in[j];
             self->comb_buf[i][self->comb_bufPos[i]] = x;
             self->comb_bufPos[i]++;
+
             if (self->comb_bufPos[i] >= self->comb_nSamples[i])
                 self->comb_bufPos[i] = 0;
         }
     }
 
-    for (i=0; i<NUM_ALLPASS; i++) {
-        for (j=0; j<self->bufsize; j++) {
+    for (i = 0; i < NUM_ALLPASS; i++)
+    {
+        for (j = 0; j < self->bufsize; j++)
+        {
             x = self->allpass_buf[i][self->allpass_bufPos[i]] - tmp[j];
             self->allpass_buf[i][self->allpass_bufPos[i]] *= allPassFeedBack;
             self->allpass_buf[i][self->allpass_bufPos[i]] += tmp[j];
             self->allpass_bufPos[i]++;
+
             if (self->allpass_bufPos[i] >= self->allpass_nSamples[i])
                 self->allpass_bufPos[i] = 0;
+
             tmp[j] = x;
         }
     }
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         mixtmp = _clip(mix[i]);
         mix1 = MYSQRT(mixtmp);
         mix2 = MYSQRT(1.0 - mixtmp);
@@ -500,57 +581,75 @@ Freeverb_setProcMode(Freeverb *self)
     procmode = self->modebuffer[2] + self->modebuffer[3] * 10 + self->modebuffer[4] * 100;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-	switch (procmode) {
+    switch (procmode)
+    {
         case 0:
             self->proc_func_ptr = Freeverb_transform_iii;
             break;
+
         case 1:
             self->proc_func_ptr = Freeverb_transform_aii;
             break;
+
         case 10:
             self->proc_func_ptr = Freeverb_transform_iai;
             break;
+
         case 11:
             self->proc_func_ptr = Freeverb_transform_aai;
             break;
+
         case 100:
             self->proc_func_ptr = Freeverb_transform_iia;
             break;
+
         case 101:
             self->proc_func_ptr = Freeverb_transform_aia;
             break;
+
         case 110:
             self->proc_func_ptr = Freeverb_transform_iaa;
             break;
+
         case 111:
             self->proc_func_ptr = Freeverb_transform_aaa;
             break;
     }
-	switch (muladdmode) {
+
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = Freeverb_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = Freeverb_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = Freeverb_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = Freeverb_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = Freeverb_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = Freeverb_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = Freeverb_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = Freeverb_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = Freeverb_postprocessing_revareva;
             break;
@@ -599,12 +698,17 @@ Freeverb_dealloc(Freeverb* self)
 {
     int i;
     pyo_DEALLOC
-    for(i=0; i<NUM_COMB; i++) {
+
+    for(i = 0; i < NUM_COMB; i++)
+    {
         free(self->comb_buf[i]);
     }
-    for(i=0; i<NUM_ALLPASS; i++) {
+
+    for(i = 0; i < NUM_ALLPASS; i++)
+    {
         free(self->allpass_buf[i]);
     }
+
     Freeverb_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -614,20 +718,20 @@ Freeverb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i, j, rndSamps;
     MYFLT nsamps;
-    PyObject *inputtmp, *input_streamtmp, *sizetmp=NULL, *damptmp=NULL, *mixtmp=NULL, *multmp=NULL, *addtmp=NULL;
+    PyObject *inputtmp, *input_streamtmp, *sizetmp = NULL, *damptmp = NULL, *mixtmp = NULL, *multmp = NULL, *addtmp = NULL;
     Freeverb *self;
     self = (Freeverb *)type->tp_alloc(type, 0);
 
     self->size = PyFloat_FromDouble(.5);
     self->damp = PyFloat_FromDouble(.5);
     self->mix = PyFloat_FromDouble(.5);
-	self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
-	self->modebuffer[2] = 0;
-	self->modebuffer[3] = 0;
-	self->modebuffer[4] = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
+    self->modebuffer[2] = 0;
+    self->modebuffer[3] = 0;
+    self->modebuffer[4] = 0;
 
-    self->srFactor = pow((DEFAULT_SRATE/self->sr), 0.8);
+    self->srFactor = pow((DEFAULT_SRATE / self->sr), 0.8);
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Freeverb_compute_next_data_frame);
@@ -640,23 +744,28 @@ Freeverb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_INPUT_STREAM
 
-    if (sizetmp) {
+    if (sizetmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setSize", "O", sizetmp);
     }
 
-    if (damptmp) {
+    if (damptmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setDamp", "O", damptmp);
     }
 
-    if (mixtmp) {
+    if (mixtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setMix", "O", mixtmp);
     }
 
-    if (multmp) {
+    if (multmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
 
-    if (addtmp) {
+    if (addtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
 
@@ -667,22 +776,30 @@ Freeverb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Server_generateSeed((Server *)self->server, FREEVERB_ID);
 
     rndSamps = (RANDOM_UNIFORM * 20 + 10) / DEFAULT_SRATE;
-    for(i=0; i<NUM_COMB; i++) {
+
+    for(i = 0; i < NUM_COMB; i++)
+    {
         nsamps = Freeverb_calc_nsamples((Freeverb *)self, comb_delays[i] + rndSamps);
-        self->comb_buf[i] = (MYFLT *)realloc(self->comb_buf[i], (nsamps+1) * sizeof(MYFLT));
+        self->comb_buf[i] = (MYFLT *)realloc(self->comb_buf[i], (nsamps + 1) * sizeof(MYFLT));
         self->comb_nSamples[i] = nsamps;
         self->comb_bufPos[i] = 0;
         self->comb_filterState[i] = 0.0;
-        for(j=0; j<nsamps; j++) {
+
+        for(j = 0; j < nsamps; j++)
+        {
             self->comb_buf[i][j] = 0.0;
         }
     }
-    for(i=0; i<NUM_ALLPASS; i++) {
+
+    for(i = 0; i < NUM_ALLPASS; i++)
+    {
         nsamps = Freeverb_calc_nsamples((Freeverb *)self, allpass_delays[i] + rndSamps);
-        self->allpass_buf[i] = (MYFLT *)realloc(self->allpass_buf[i], (nsamps+1) * sizeof(MYFLT));
+        self->allpass_buf[i] = (MYFLT *)realloc(self->allpass_buf[i], (nsamps + 1) * sizeof(MYFLT));
         self->allpass_nSamples[i] = nsamps;
         self->allpass_bufPos[i] = 0;
-        for(j=0; j<nsamps; j++) {
+
+        for(j = 0; j < nsamps; j++)
+        {
             self->allpass_buf[i][j] = 0.0;
         }
     }
@@ -714,115 +831,134 @@ static PyObject *
 Freeverb_reset(Freeverb *self)
 {
     int i, j;
-    for(i=0; i<NUM_COMB; i++) {
+
+    for(i = 0; i < NUM_COMB; i++)
+    {
         self->comb_bufPos[i] = 0;
         self->comb_filterState[i] = 0.0;
-        for(j=0; j<self->comb_nSamples[i]; j++) {
+
+        for(j = 0; j < self->comb_nSamples[i]; j++)
+        {
             self->comb_buf[i][j] = 0.0;
         }
     }
-    for(i=0; i<NUM_ALLPASS; i++) {
+
+    for(i = 0; i < NUM_ALLPASS; i++)
+    {
         self->allpass_bufPos[i] = 0;
-        for(j=0; j<self->allpass_nSamples[i]; j++) {
+
+        for(j = 0; j < self->allpass_nSamples[i]; j++)
+        {
             self->allpass_buf[i][j] = 0.0;
         }
     }
-	Py_RETURN_NONE;
+
+    Py_RETURN_NONE;
 }
 
 static PyObject *
 Freeverb_setSize(Freeverb *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->size);
-	if (isNumber == 1) {
-		self->size = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->size);
+
+    if (isNumber == 1)
+    {
+        self->size = PyNumber_Float(tmp);
         self->modebuffer[2] = 0;
-	}
-	else {
-		self->size = tmp;
+    }
+    else
+    {
+        self->size = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->size, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->size_stream);
         self->size_stream = (Stream *)streamtmp;
-		self->modebuffer[2] = 1;
-	}
+        self->modebuffer[2] = 1;
+    }
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 Freeverb_setDamp(Freeverb *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->damp);
-	if (isNumber == 1) {
-		self->damp = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->damp);
+
+    if (isNumber == 1)
+    {
+        self->damp = PyNumber_Float(tmp);
         self->modebuffer[3] = 0;
-	}
-	else {
-		self->damp = tmp;
+    }
+    else
+    {
+        self->damp = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->damp, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->damp_stream);
         self->damp_stream = (Stream *)streamtmp;
-		self->modebuffer[3] = 1;
-	}
+        self->modebuffer[3] = 1;
+    }
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 Freeverb_setMix(Freeverb *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->mix);
-	if (isNumber == 1) {
-		self->mix = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->mix);
+
+    if (isNumber == 1)
+    {
+        self->mix = PyNumber_Float(tmp);
         self->modebuffer[4] = 0;
-	}
-	else {
-		self->mix = tmp;
+    }
+    else
+    {
+        self->mix = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->mix, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->mix_stream);
         self->mix_stream = (Stream *)streamtmp;
-		self->modebuffer[4] = 1;
-	}
+        self->modebuffer[4] = 1;
+    }
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
-static PyMemberDef Freeverb_members[] = {
+static PyMemberDef Freeverb_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(Freeverb, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(Freeverb, stream), 0, "Stream object."},
     {"input", T_OBJECT_EX, offsetof(Freeverb, input), 0, "Input sound object."},
@@ -834,24 +970,26 @@ static PyMemberDef Freeverb_members[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef Freeverb_methods[] = {
+static PyMethodDef Freeverb_methods[] =
+{
     {"getServer", (PyCFunction)Freeverb_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Freeverb_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Freeverb_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)Freeverb_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Freeverb_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
+    {"play", (PyCFunction)Freeverb_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)Freeverb_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)Freeverb_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"reset", (PyCFunction)Freeverb_reset, METH_NOARGS, "Reset the delay lines."},
-	{"setSize", (PyCFunction)Freeverb_setSize, METH_O, "Sets distortion size factor (0 -> 1)."},
+    {"setSize", (PyCFunction)Freeverb_setSize, METH_O, "Sets distortion size factor (0 -> 1)."},
     {"setDamp", (PyCFunction)Freeverb_setDamp, METH_O, "Sets lowpass filter damp factor."},
     {"setMix", (PyCFunction)Freeverb_setMix, METH_O, "Sets the mix factor."},
-	{"setMul", (PyCFunction)Freeverb_setMul, METH_O, "Sets oscillator mul factor."},
-	{"setAdd", (PyCFunction)Freeverb_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setMul", (PyCFunction)Freeverb_setMul, METH_O, "Sets oscillator mul factor."},
+    {"setAdd", (PyCFunction)Freeverb_setAdd, METH_O, "Sets oscillator add factor."},
     {"setSub", (PyCFunction)Freeverb_setSub, METH_O, "Sets inverse add factor."},
     {"setDiv", (PyCFunction)Freeverb_setDiv, METH_O, "Sets inverse mul factor."},
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Freeverb_as_number = {
+static PyNumberMethods Freeverb_as_number =
+{
     (binaryfunc)Freeverb_add,                      /*nb_add*/
     (binaryfunc)Freeverb_sub,                 /*nb_subtract*/
     (binaryfunc)Freeverb_multiply,                 /*nb_multiply*/
@@ -893,7 +1031,8 @@ static PyNumberMethods Freeverb_as_number = {
     0,                     /* nb_index */
 };
 
-PyTypeObject FreeverbType = {
+PyTypeObject FreeverbType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.Freeverb_base",         /*tp_name*/
     sizeof(Freeverb),         /*tp_basicsize*/
@@ -917,10 +1056,10 @@ PyTypeObject FreeverbType = {
     "Freeverb objects. Jezar's Freeverb .",           /* tp_doc */
     (traverseproc)Freeverb_traverse,   /* tp_traverse */
     (inquiry)Freeverb_clear,           /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
     Freeverb_methods,             /* tp_methods */
     Freeverb_members,             /* tp_members */
     0,                      /* tp_getset */

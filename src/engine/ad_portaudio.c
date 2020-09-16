@@ -23,15 +23,21 @@
 
 /* Audio server's functions. */
 
-static void portaudio_assert(PaError ecode, const char* cmdName) {
-    if (ecode != paNoError) {
+static void portaudio_assert(PaError ecode, const char* cmdName)
+{
+    if (ecode != paNoError)
+    {
         const char* eText = Pa_GetErrorText(ecode);
-        if (!eText) {
+
+        if (!eText)
+        {
             eText = "???";
         }
+
         PySys_WriteStdout("Portaudio error in %s: %s\n", cmdName, eText);
 
-        if (strcmp(cmdName, "Pa_Initialize") != 0) {
+        if (strcmp(cmdName, "Pa_Initialize") != 0)
+        {
 
             Py_BEGIN_ALLOW_THREADS
             Pa_Terminate();
@@ -43,10 +49,10 @@ static void portaudio_assert(PaError ecode, const char* cmdName) {
 
 int
 pa_callback_interleaved( const void *inputBuffer, void *outputBuffer,
-                            unsigned long framesPerBuffer,
-                            const PaStreamCallbackTimeInfo* timeInfo,
-                            PaStreamCallbackFlags statusFlags,
-                            void *arg )
+                         unsigned long framesPerBuffer,
+                         const PaStreamCallbackTimeInfo* timeInfo,
+                         PaStreamCallbackFlags statusFlags,
+                         void *arg )
 {
     float *out = (float *)outputBuffer;
     Server *server = (Server *) arg;
@@ -58,34 +64,46 @@ pa_callback_interleaved( const void *inputBuffer, void *outputBuffer,
     (void) timeInfo;
     (void) statusFlags;
 
-    if (server->withPortMidi == 1) {
+    if (server->withPortMidi == 1)
+    {
         pyoGetMidiEvents(server);
     }
 
-    if (server->duplex == 1) {
+    if (server->duplex == 1)
+    {
         float *in = (float *)inputBuffer;
         bufchnls = server->ichnls + server->input_offset;
-        for (i=0; i<server->bufferSize; i++) {
+
+        for (i = 0; i < server->bufferSize; i++)
+        {
             index1 = i * server->ichnls;
             index2 = i * bufchnls + server->input_offset;
-            for (j=0; j<server->ichnls; j++) {
-                server->input_buffer[index1+j] = (MYFLT)in[index2+j];
+
+            for (j = 0; j < server->ichnls; j++)
+            {
+                server->input_buffer[index1 + j] = (MYFLT)in[index2 + j];
             }
         }
     }
 
     Server_process_buffers(server);
     bufchnls = server->nchnls + server->output_offset;
-    for (i=0; i<server->bufferSize; i++) {
+
+    for (i = 0; i < server->bufferSize; i++)
+    {
         index1 = i * server->nchnls;
         index2 = i * bufchnls + server->output_offset;
-        for (j=0; j<server->nchnls; j++) {
-            out[index2+j] = (float) server->output_buffer[index1+j];
+
+        for (j = 0; j < server->nchnls; j++)
+        {
+            out[index2 + j] = (float) server->output_buffer[index1 + j];
         }
     }
+
     server->midi_count = 0;
 
 #ifdef __APPLE__
+
     if (server->server_stopped == 1)
         return paComplete;
     else
@@ -95,10 +113,10 @@ pa_callback_interleaved( const void *inputBuffer, void *outputBuffer,
 
 int
 pa_callback_nonInterleaved( const void *inputBuffer, void *outputBuffer,
-                        unsigned long framesPerBuffer,
-                        const PaStreamCallbackTimeInfo* timeInfo,
-                        PaStreamCallbackFlags statusFlags,
-                        void *arg )
+                            unsigned long framesPerBuffer,
+                            const PaStreamCallbackTimeInfo* timeInfo,
+                            PaStreamCallbackFlags statusFlags,
+                            void *arg )
 {
     float **out = (float **)outputBuffer;
     Server *server = (Server *) arg;
@@ -110,28 +128,38 @@ pa_callback_nonInterleaved( const void *inputBuffer, void *outputBuffer,
     (void) timeInfo;
     (void) statusFlags;
 
-    if (server->withPortMidi == 1) {
+    if (server->withPortMidi == 1)
+    {
         pyoGetMidiEvents(server);
     }
 
-    if (server->duplex == 1) {
+    if (server->duplex == 1)
+    {
         float **in = (float **)inputBuffer;
-        for (i=0; i<server->bufferSize; i++) {
-            for (j=0; j<server->ichnls; j++) {
-                server->input_buffer[(i*server->ichnls)+j] = (MYFLT)in[j+server->input_offset][i];
+
+        for (i = 0; i < server->bufferSize; i++)
+        {
+            for (j = 0; j < server->ichnls; j++)
+            {
+                server->input_buffer[(i * server->ichnls) + j] = (MYFLT)in[j + server->input_offset][i];
             }
         }
     }
 
     Server_process_buffers(server);
-    for (i=0; i<server->bufferSize; i++) {
-        for (j=0; j<server->nchnls; j++) {
-            out[j+server->output_offset][i] = (float) server->output_buffer[(i*server->nchnls)+j];
+
+    for (i = 0; i < server->bufferSize; i++)
+    {
+        for (j = 0; j < server->nchnls; j++)
+        {
+            out[j + server->output_offset][i] = (float) server->output_buffer[(i * server->nchnls) + j];
         }
     }
+
     server->midi_count = 0;
 
 #ifdef __APPLE__
+
     if (server->server_stopped == 1)
         return paComplete;
     else
@@ -160,7 +188,9 @@ Server_pa_init(Server *self)
     portaudio_assert(err, "Pa_Initialize");
 
     n = Pa_GetDeviceCount();
-    if (n < 0) {
+
+    if (n < 0)
+    {
         portaudio_assert(n, "Pa_GetDeviceCount");
     }
 
@@ -171,6 +201,7 @@ Server_pa_init(Server *self)
         outDevice = Pa_GetDefaultOutputDevice(); /* default output device */
     else
         outDevice = (PaDeviceIndex) self->output; /* selected output device */
+
     if (self->input == -1)
         inDevice = Pa_GetDefaultInputDevice(); /* default input device */
     else
@@ -181,22 +212,29 @@ Server_pa_init(Server *self)
     hostIndex = deviceInfo->hostApi;
     hostInfo = Pa_GetHostApiInfo(hostIndex);
     hostId = hostInfo->type;
-    if (hostId == paASIO) {
+
+    if (hostId == paASIO)
+    {
         Server_debug(self, "Portaudio uses non-interleaved callback.\n");
         sampleFormat = paFloat32 | paNonInterleaved;
         streamCallback = pa_callback_nonInterleaved;
     }
-    else if (hostId == paALSA) {
+    else if (hostId == paALSA)
+    {
         Server_debug(self, "Portaudio uses interleaved callback.\n");
         Server_debug(self, "Using ALSA, if no input/output devices are specified, force to devices 0.\n");
-        if (self->input == -1 && self->output == -1) {
+
+        if (self->input == -1 && self->output == -1)
+        {
             self->input = self->output = 0;
             inDevice = outDevice = (PaDeviceIndex) 0;
         }
+
         sampleFormat = paFloat32;
         streamCallback = pa_callback_interleaved;
     }
-    else {
+    else
+    {
         Server_debug(self, "Portaudio uses interleaved callback.\n");
         sampleFormat = paFloat32;
         streamCallback = pa_callback_interleaved;
@@ -206,36 +244,45 @@ Server_pa_init(Server *self)
     /* setup output and input streams */
     memset(&outputParameters, 0, sizeof(outputParameters));
     outputParameters.device = outDevice;
-    if (self->nchnls + self->output_offset > Pa_GetDeviceInfo(outDevice)->maxOutputChannels) {
+
+    if (self->nchnls + self->output_offset > Pa_GetDeviceInfo(outDevice)->maxOutputChannels)
+    {
         Server_warning(self, "Portaudio output device `%s` has fewer channels (%d) than requested (%d).\n",
                        Pa_GetDeviceInfo(outDevice)->name, Pa_GetDeviceInfo(outDevice)->maxOutputChannels,
                        self->nchnls + self->output_offset);
         self->nchnls = Pa_GetDeviceInfo(outDevice)->maxOutputChannels;
         self->output_offset = 0;
     }
+
     outputParameters.channelCount = self->nchnls + self->output_offset;
     outputParameters.sampleFormat = sampleFormat;
     outputParameters.suggestedLatency = Pa_GetDeviceInfo( outputParameters.device )->defaultLowOutputLatency;
     outputParameters.hostApiSpecificStreamInfo = NULL;
 
-    if (self->duplex == 1) {
+    if (self->duplex == 1)
+    {
         memset(&inputParameters, 0, sizeof(inputParameters));
         inputParameters.device = inDevice;
-        if (self->ichnls + self->input_offset > Pa_GetDeviceInfo(inDevice)->maxInputChannels) {
+
+        if (self->ichnls + self->input_offset > Pa_GetDeviceInfo(inDevice)->maxInputChannels)
+        {
             Server_warning(self, "Portaudio input device `%s` has fewer channels (%d) than requested (%d).\n",
                            Pa_GetDeviceInfo(inDevice)->name, Pa_GetDeviceInfo(inDevice)->maxInputChannels,
                            self->ichnls + self->input_offset);
             self->ichnls = Pa_GetDeviceInfo(inDevice)->maxInputChannels;
             self->input_offset = 0;
         }
+
         inputParameters.channelCount = self->ichnls + self->input_offset;
         inputParameters.sampleFormat = sampleFormat;
         inputParameters.suggestedLatency = Pa_GetDeviceInfo( inputParameters.device )->defaultLowInputLatency;
         inputParameters.hostApiSpecificStreamInfo = NULL;
     }
 
-    if (self->input == -1 && self->output == -1) {
-        if (self->duplex == 1) {
+    if (self->input == -1 && self->output == -1)
+    {
+        if (self->duplex == 1)
+        {
 
             Py_BEGIN_ALLOW_THREADS
             err = Pa_OpenDefaultStream(&be_data->stream,
@@ -249,7 +296,8 @@ Server_pa_init(Server *self)
             Py_END_ALLOW_THREADS
 
         }
-        else {
+        else
+        {
 
             Py_BEGIN_ALLOW_THREADS
             err = Pa_OpenDefaultStream(&be_data->stream,
@@ -264,8 +312,10 @@ Server_pa_init(Server *self)
 
         }
     }
-    else {
-        if (self->duplex == 1) {
+    else
+    {
+        if (self->duplex == 1)
+        {
 
             Py_BEGIN_ALLOW_THREADS
             err = Pa_OpenStream(&be_data->stream,
@@ -279,7 +329,8 @@ Server_pa_init(Server *self)
             Py_END_ALLOW_THREADS
 
         }
-        else {
+        else
+        {
 
             Py_BEGIN_ALLOW_THREADS
             err = Pa_OpenStream(&be_data->stream,
@@ -294,11 +345,15 @@ Server_pa_init(Server *self)
 
         }
     }
+
     portaudio_assert(err, "Pa_OpenStream");
-    if (err < 0) {
+
+    if (err < 0)
+    {
         Server_error(self, "From portaudio, %s\n", Pa_GetErrorText(err));
         return -1;
     }
+
     return 0;
 }
 
@@ -312,7 +367,8 @@ Server_pa_deinit(Server *self)
     err = Pa_IsStreamStopped(be_data->stream);
     Py_END_ALLOW_THREADS
 
-    if (!err) {
+    if (!err)
+    {
         self->server_started = 0;
 
         Py_BEGIN_ALLOW_THREADS
@@ -348,7 +404,8 @@ Server_pa_start(Server *self)
     err = Pa_IsStreamStopped(be_data->stream);
     Py_END_ALLOW_THREADS
 
-    if (!err) {
+    if (!err)
+    {
 
         Py_BEGIN_ALLOW_THREADS
         err = Pa_AbortStream(be_data->stream);
@@ -376,7 +433,8 @@ Server_pa_stop(Server *self)
     err = Pa_IsStreamStopped(be_data->stream);
     Py_END_ALLOW_THREADS
 
-    if (!err) {
+    if (!err)
+    {
 #ifndef __APPLE__
 
         Py_BEGIN_ALLOW_THREADS
@@ -395,17 +453,20 @@ Server_pa_stop(Server *self)
 /* Query functions. */
 
 PyObject *
-portaudio_get_version() {
+portaudio_get_version()
+{
     return PyInt_FromLong(Pa_GetVersion());
 }
 
 PyObject *
-portaudio_get_version_text() {
+portaudio_get_version_text()
+{
     return PyUnicode_FromString(Pa_GetVersionText());
 }
 
 PyObject *
-portaudio_count_host_apis(){
+portaudio_count_host_apis()
+{
     PaError err;
     PaHostApiIndex numApis;
 
@@ -413,12 +474,15 @@ portaudio_count_host_apis(){
     err = Pa_Initialize();
     Py_END_ALLOW_THREADS
 
-    if (err != paNoError) {
+    if (err != paNoError)
+    {
         portaudio_assert(err, "Pa_Initialize");
-		Py_RETURN_NONE;
-	}
-	else {
+        Py_RETURN_NONE;
+    }
+    else
+    {
         numApis = Pa_GetHostApiCount();
+
         if( numApis < 0 )
             portaudio_assert(numApis, "Pa_GetHostApiCount");
 
@@ -431,7 +495,8 @@ portaudio_count_host_apis(){
 }
 
 PyObject *
-portaudio_list_host_apis(){
+portaudio_list_host_apis()
+{
     PaError err;
     PaHostApiIndex n, i;
 
@@ -439,23 +504,31 @@ portaudio_list_host_apis(){
     err = Pa_Initialize();
     Py_END_ALLOW_THREADS
 
-    if (err != paNoError) {
+    if (err != paNoError)
+    {
         portaudio_assert(err, "Pa_Initialize");
-	}
-    else {
+    }
+    else
+    {
         n = Pa_GetHostApiCount();
-        if (n < 0){
+
+        if (n < 0)
+        {
             portaudio_assert(n, "Pa_GetHostApiCount");
         }
-        else {
+        else
+        {
             PySys_WriteStdout("Host APIS:\n");
-            for (i=0; i < n; ++i){
+
+            for (i = 0; i < n; ++i)
+            {
                 const PaHostApiInfo *info = Pa_GetHostApiInfo(i);
                 assert(info);
-                PySys_WriteStdout("index: %i, id: %i, name: %s, num devices: %i, default in: %i, default out: %i\n", 
-                                  i, (int)info->type, info->name, (int)info->deviceCount, (int)info->defaultInputDevice, 
+                PySys_WriteStdout("index: %i, id: %i, name: %s, num devices: %i, default in: %i, default out: %i\n",
+                                  i, (int)info->type, info->name, (int)info->deviceCount, (int)info->defaultInputDevice,
                                   (int)info->defaultOutputDevice);
             }
+
             PySys_WriteStdout("\n");
         }
 
@@ -464,11 +537,13 @@ portaudio_list_host_apis(){
         Py_END_ALLOW_THREADS
 
     }
+
     Py_RETURN_NONE;
 }
 
 PyObject *
-portaudio_get_default_host_api(){
+portaudio_get_default_host_api()
+{
     PaError err;
     PaHostApiIndex i;
 
@@ -476,11 +551,13 @@ portaudio_get_default_host_api(){
     err = Pa_Initialize();
     Py_END_ALLOW_THREADS
 
-    if (err != paNoError) {
+    if (err != paNoError)
+    {
         portaudio_assert(err, "Pa_Initialize");
-		Py_RETURN_NONE;
-	}
-    else {
+        Py_RETURN_NONE;
+    }
+    else
+    {
         i = Pa_GetDefaultHostApi();
 
         Py_BEGIN_ALLOW_THREADS
@@ -492,7 +569,8 @@ portaudio_get_default_host_api(){
 }
 
 PyObject *
-portaudio_count_devices(){
+portaudio_count_devices()
+{
     PaError err;
     PaDeviceIndex numDevices;
 
@@ -500,12 +578,15 @@ portaudio_count_devices(){
     err = Pa_Initialize();
     Py_END_ALLOW_THREADS
 
-    if (err != paNoError) {
+    if (err != paNoError)
+    {
         portaudio_assert(err, "Pa_Initialize");
-		Py_RETURN_NONE;
-	}
-	else {
+        Py_RETURN_NONE;
+    }
+    else
+    {
         numDevices = Pa_GetDeviceCount();
+
         if( numDevices < 0 )
             portaudio_assert(numDevices, "Pa_GetDeviceCount");
 
@@ -519,7 +600,8 @@ portaudio_count_devices(){
 }
 
 PyObject *
-portaudio_list_devices(){
+portaudio_list_devices()
+{
     PaError err;
     PaDeviceIndex n, i;
 
@@ -527,31 +609,39 @@ portaudio_list_devices(){
     err = Pa_Initialize();
     Py_END_ALLOW_THREADS
 
-    if (err != paNoError) {
+    if (err != paNoError)
+    {
         portaudio_assert(err, "Pa_Initialize");
-		Py_RETURN_NONE;
-	}
-    else {
+        Py_RETURN_NONE;
+    }
+    else
+    {
         n = Pa_GetDeviceCount();
-        if (n < 0){
+
+        if (n < 0)
+        {
             portaudio_assert(n, "Pa_GetDeviceCount");
         }
-        else {
+        else
+        {
             PySys_WriteStdout("AUDIO devices:\n");
-            for (i=0; i < n; ++i){
+
+            for (i = 0; i < n; ++i)
+            {
                 const PaDeviceInfo *info = Pa_GetDeviceInfo(i);
                 assert(info);
 
                 if (info->maxInputChannels > 0)
-                    PySys_WriteStdout("%i: IN, name: %s, host api index: %i, default sr: %i Hz, latency: %f s\n", 
-                                      i, info->name, (int)info->hostApi, (int)info->defaultSampleRate, 
+                    PySys_WriteStdout("%i: IN, name: %s, host api index: %i, default sr: %i Hz, latency: %f s\n",
+                                      i, info->name, (int)info->hostApi, (int)info->defaultSampleRate,
                                       (float)info->defaultLowInputLatency);
 
                 if (info->maxOutputChannels > 0)
-                    PySys_WriteStdout("%i: OUT, name: %s, host api index: %i, default sr: %i Hz, latency: %f s\n", 
-                                      i, info->name, (int)info->hostApi, (int)info->defaultSampleRate, 
+                    PySys_WriteStdout("%i: OUT, name: %s, host api index: %i, default sr: %i Hz, latency: %f s\n",
+                                      i, info->name, (int)info->hostApi, (int)info->defaultSampleRate,
                                       (float)info->defaultLowOutputLatency);
             }
+
             PySys_WriteStdout("\n");
         }
 
@@ -560,11 +650,13 @@ portaudio_list_devices(){
         Py_END_ALLOW_THREADS
 
     }
+
     Py_RETURN_NONE;
 }
 
 PyObject *
-portaudio_get_devices_infos(){
+portaudio_get_devices_infos()
+{
     PaError err;
     PaDeviceIndex n, i;
     PyObject *inDict, *outDict, *tmpDict;
@@ -575,34 +667,46 @@ portaudio_get_devices_infos(){
     err = Pa_Initialize();
     Py_END_ALLOW_THREADS
 
-    if (err != paNoError) {
+    if (err != paNoError)
+    {
         portaudio_assert(err, "Pa_Initialize");
-	}
-    else {
+    }
+    else
+    {
         n = Pa_GetDeviceCount();
-        if (n < 0){
+
+        if (n < 0)
+        {
             portaudio_assert(n, "Pa_GetDeviceCount");
         }
-        else {
-            for (i=0; i < n; ++i){
+        else
+        {
+            for (i = 0; i < n; ++i)
+            {
                 const PaDeviceInfo *info = Pa_GetDeviceInfo(i);
                 assert(info);
                 tmpDict = PyDict_New();
-                if (info->maxInputChannels > 0) {
+
+                if (info->maxInputChannels > 0)
+                {
                     if (PyUnicode_FromFormat("%s", info->name) == NULL)
                         PyDict_SetItemString(tmpDict, "name", PyUnicode_FromString("???"));
                     else
                         PyDict_SetItemString(tmpDict, "name", PyUnicode_FromFormat("%s", info->name));
+
                     PyDict_SetItemString(tmpDict, "host api index", PyInt_FromLong((int)info->hostApi));
                     PyDict_SetItemString(tmpDict, "default sr", PyInt_FromLong((int)info->defaultSampleRate));
                     PyDict_SetItemString(tmpDict, "latency", PyFloat_FromDouble((float)info->defaultLowInputLatency));
                     PyDict_SetItem(inDict, PyInt_FromLong(i), PyDict_Copy(tmpDict));
                 }
-                if (info->maxOutputChannels > 0) {
+
+                if (info->maxOutputChannels > 0)
+                {
                     if (PyUnicode_FromFormat("%s", info->name) == NULL)
                         PyDict_SetItemString(tmpDict, "name", PyUnicode_FromString("???"));
                     else
                         PyDict_SetItemString(tmpDict, "name", PyUnicode_FromFormat("%s", info->name));
+
                     PyDict_SetItemString(tmpDict, "host api index", PyInt_FromLong((int)info->hostApi));
                     PyDict_SetItemString(tmpDict, "default sr", PyInt_FromLong((int)info->defaultSampleRate));
                     PyDict_SetItemString(tmpDict, "latency", PyFloat_FromDouble((float)info->defaultLowOutputLatency));
@@ -616,11 +720,13 @@ portaudio_get_devices_infos(){
         Py_END_ALLOW_THREADS
 
     }
+
     return Py_BuildValue("(OO)", inDict, outDict);
 }
 
 PyObject *
-portaudio_get_output_devices(){
+portaudio_get_output_devices()
+{
     PaError err;
     PaDeviceIndex n, i;
 
@@ -632,20 +738,29 @@ portaudio_get_output_devices(){
     err = Pa_Initialize();
     Py_END_ALLOW_THREADS
 
-    if (err != paNoError) {
+    if (err != paNoError)
+    {
         portaudio_assert(err, "Pa_Initialize");
-	}
-    else {
+    }
+    else
+    {
         n = Pa_GetDeviceCount();
-        if (n < 0){
+
+        if (n < 0)
+        {
             portaudio_assert(n, "Pa_GetDeviceCount");
         }
-        else {
-            for (i=0; i < n; ++i){
-                const PaDeviceInfo *info=Pa_GetDeviceInfo(i);
+        else
+        {
+            for (i = 0; i < n; ++i)
+            {
+                const PaDeviceInfo *info = Pa_GetDeviceInfo(i);
                 assert(info);
-                if (info->maxOutputChannels > 0) {
+
+                if (info->maxOutputChannels > 0)
+                {
                     PyList_Append(list_index, PyInt_FromLong(i));
+
                     if (PyUnicode_FromFormat("%s", info->name) == NULL)
                         PyList_Append(list, PyUnicode_FromString("???"));
                     else
@@ -659,11 +774,13 @@ portaudio_get_output_devices(){
         Py_END_ALLOW_THREADS
 
     }
+
     return Py_BuildValue("OO", list, list_index);
 }
 
 PyObject *
-portaudio_get_output_max_channels(PyObject *self, PyObject *arg){
+portaudio_get_output_max_channels(PyObject *self, PyObject *arg)
+{
     PaError err;
     PaDeviceIndex n, i = PyInt_AsLong(arg);
 
@@ -671,18 +788,23 @@ portaudio_get_output_max_channels(PyObject *self, PyObject *arg){
     err = Pa_Initialize();
     Py_END_ALLOW_THREADS
 
-    if (err != paNoError) {
+    if (err != paNoError)
+    {
         portaudio_assert(err, "Pa_Initialize");
-		Py_RETURN_NONE;
-	}
-    else {
+        Py_RETURN_NONE;
+    }
+    else
+    {
         n = Pa_GetDeviceCount();
-        if (n < 0){
+
+        if (n < 0)
+        {
             portaudio_assert(n, "Pa_GetDeviceCount");
             Py_RETURN_NONE;
         }
-        else {
-            const PaDeviceInfo *info=Pa_GetDeviceInfo(i);
+        else
+        {
+            const PaDeviceInfo *info = Pa_GetDeviceInfo(i);
 
             Py_BEGIN_ALLOW_THREADS
             Pa_Terminate();
@@ -695,7 +817,8 @@ portaudio_get_output_max_channels(PyObject *self, PyObject *arg){
 }
 
 PyObject *
-portaudio_get_input_max_channels(PyObject *self, PyObject *arg){
+portaudio_get_input_max_channels(PyObject *self, PyObject *arg)
+{
     PaError err;
     PaDeviceIndex n, i = PyInt_AsLong(arg);
 
@@ -703,18 +826,23 @@ portaudio_get_input_max_channels(PyObject *self, PyObject *arg){
     err = Pa_Initialize();
     Py_END_ALLOW_THREADS
 
-    if (err != paNoError) {
+    if (err != paNoError)
+    {
         portaudio_assert(err, "Pa_Initialize");
-		Py_RETURN_NONE;
-	}
-    else {
+        Py_RETURN_NONE;
+    }
+    else
+    {
         n = Pa_GetDeviceCount();
-        if (n < 0){
+
+        if (n < 0)
+        {
             portaudio_assert(n, "Pa_GetDeviceCount");
             Py_RETURN_NONE;
         }
-        else {
-            const PaDeviceInfo *info=Pa_GetDeviceInfo(i);
+        else
+        {
+            const PaDeviceInfo *info = Pa_GetDeviceInfo(i);
 
             Py_BEGIN_ALLOW_THREADS
             Pa_Terminate();
@@ -727,7 +855,8 @@ portaudio_get_input_max_channels(PyObject *self, PyObject *arg){
 }
 
 PyObject *
-portaudio_get_input_devices(){
+portaudio_get_input_devices()
+{
     PaError err;
     PaDeviceIndex n, i;
 
@@ -739,20 +868,29 @@ portaudio_get_input_devices(){
     err = Pa_Initialize();
     Py_END_ALLOW_THREADS
 
-    if (err != paNoError) {
+    if (err != paNoError)
+    {
         portaudio_assert(err, "Pa_Initialize");
-	}
-    else {
+    }
+    else
+    {
         n = Pa_GetDeviceCount();
-        if (n < 0){
+
+        if (n < 0)
+        {
             portaudio_assert(n, "Pa_GetDeviceCount");
         }
-        else {
-            for (i=0; i < n; ++i){
-                const PaDeviceInfo *info=Pa_GetDeviceInfo(i);
+        else
+        {
+            for (i = 0; i < n; ++i)
+            {
+                const PaDeviceInfo *info = Pa_GetDeviceInfo(i);
                 assert(info);
-                if (info->maxInputChannels > 0) {
+
+                if (info->maxInputChannels > 0)
+                {
                     PyList_Append(list_index, PyInt_FromLong(i));
+
                     if (PyUnicode_FromFormat("%s", info->name) == NULL)
                         PyList_Append(list, PyUnicode_FromString("???"));
                     else
@@ -766,11 +904,13 @@ portaudio_get_input_devices(){
         Py_END_ALLOW_THREADS
 
     }
+
     return Py_BuildValue("OO", list, list_index);
 }
 
 PyObject *
-portaudio_get_default_input(){
+portaudio_get_default_input()
+{
     PaError err;
     PaDeviceIndex i;
 
@@ -778,11 +918,13 @@ portaudio_get_default_input(){
     err = Pa_Initialize();
     Py_END_ALLOW_THREADS
 
-    if (err != paNoError) {
+    if (err != paNoError)
+    {
         portaudio_assert(err, "Pa_Initialize");
-		Py_RETURN_NONE;
-	}
-    else {
+        Py_RETURN_NONE;
+    }
+    else
+    {
         i = Pa_GetDefaultInputDevice();
 
         Py_BEGIN_ALLOW_THREADS
@@ -794,7 +936,8 @@ portaudio_get_default_input(){
 }
 
 PyObject *
-portaudio_get_default_output(){
+portaudio_get_default_output()
+{
     PaError err;
     PaDeviceIndex i;
 
@@ -802,11 +945,13 @@ portaudio_get_default_output(){
     err = Pa_Initialize();
     Py_END_ALLOW_THREADS
 
-    if (err != paNoError) {
+    if (err != paNoError)
+    {
         portaudio_assert(err, "Pa_Initialize");
-		Py_RETURN_NONE;
-	}
-    else {
+        Py_RETURN_NONE;
+    }
+    else
+    {
         i = Pa_GetDefaultOutputDevice();
 
         Py_BEGIN_ALLOW_THREADS

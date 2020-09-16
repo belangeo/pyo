@@ -26,7 +26,8 @@
 #include "servermodule.h"
 #include "dummymodule.h"
 
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     PyObject *input;
     Stream *input_stream;
@@ -36,14 +37,17 @@ typedef struct {
 } Select;
 
 static void
-Select_selector(Select *self) {
+Select_selector(Select *self)
+{
     MYFLT val, inval;
     int i;
 
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         inval = in[i];
+
         if (inval == self->value && inval != self->last_value)
             val = 1;
         else
@@ -73,31 +77,40 @@ Select_setProcMode(Select *self)
 
     self->proc_func_ptr = Select_selector;
 
-    switch (muladdmode) {
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = Select_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = Select_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = Select_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = Select_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = Select_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = Select_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = Select_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = Select_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = Select_postprocessing_revareva;
             break;
@@ -142,14 +155,14 @@ static PyObject *
 Select_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
+    PyObject *inputtmp, *input_streamtmp, *multmp = NULL, *addtmp = NULL;
     Select *self;
     self = (Select *)type->tp_alloc(type, 0);
 
     self->value = 0;
     self->last_value = -99.0;
-	self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Select_compute_next_data_frame);
@@ -162,11 +175,13 @@ Select_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_INPUT_STREAM
 
-    if (multmp) {
+    if (multmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
 
-    if (addtmp) {
+    if (addtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
 
@@ -201,36 +216,40 @@ Select_setValue(Select *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-	if (PyLong_Check(arg) || PyInt_Check(arg)) {
-		self->value = PyLong_AsLong(arg);
-	}
+    if (PyLong_Check(arg) || PyInt_Check(arg))
+    {
+        self->value = PyLong_AsLong(arg);
+    }
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
-static PyMemberDef Select_members[] = {
-{"server", T_OBJECT_EX, offsetof(Select, server), 0, "Pyo server."},
-{"stream", T_OBJECT_EX, offsetof(Select, stream), 0, "Stream object."},
-{"mul", T_OBJECT_EX, offsetof(Select, mul), 0, "Mul factor."},
-{"add", T_OBJECT_EX, offsetof(Select, add), 0, "Add factor."},
-{NULL}  /* Sentinel */
+static PyMemberDef Select_members[] =
+{
+    {"server", T_OBJECT_EX, offsetof(Select, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(Select, stream), 0, "Stream object."},
+    {"mul", T_OBJECT_EX, offsetof(Select, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(Select, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
 };
 
-static PyMethodDef Select_methods[] = {
-{"getServer", (PyCFunction)Select_getServer, METH_NOARGS, "Returns server object."},
-{"_getStream", (PyCFunction)Select_getStream, METH_NOARGS, "Returns stream object."},
-{"play", (PyCFunction)Select_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)Select_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
-{"setValue", (PyCFunction)Select_setValue, METH_O, "Sets value to select."},
-{"setMul", (PyCFunction)Select_setMul, METH_O, "Sets mul factor."},
-{"setAdd", (PyCFunction)Select_setAdd, METH_O, "Sets add factor."},
-{"setSub", (PyCFunction)Select_setSub, METH_O, "Sets inverse add factor."},
-{"setDiv", (PyCFunction)Select_setDiv, METH_O, "Sets inverse mul factor."},
-{NULL}  /* Sentinel */
+static PyMethodDef Select_methods[] =
+{
+    {"getServer", (PyCFunction)Select_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)Select_getStream, METH_NOARGS, "Returns stream object."},
+    {"play", (PyCFunction)Select_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)Select_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"setValue", (PyCFunction)Select_setValue, METH_O, "Sets value to select."},
+    {"setMul", (PyCFunction)Select_setMul, METH_O, "Sets mul factor."},
+    {"setAdd", (PyCFunction)Select_setAdd, METH_O, "Sets add factor."},
+    {"setSub", (PyCFunction)Select_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)Select_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Select_as_number = {
+static PyNumberMethods Select_as_number =
+{
     (binaryfunc)Select_add,                         /*nb_add*/
     (binaryfunc)Select_sub,                         /*nb_subtract*/
     (binaryfunc)Select_multiply,                    /*nb_multiply*/
@@ -272,48 +291,50 @@ static PyNumberMethods Select_as_number = {
     0,                                              /* nb_index */
 };
 
-PyTypeObject SelectType = {
-PyVarObject_HEAD_INIT(NULL, 0)
-"_pyo.Select_base",         /*tp_name*/
-sizeof(Select),         /*tp_basicsize*/
-0,                         /*tp_itemsize*/
-(destructor)Select_dealloc, /*tp_dealloc*/
-0,                         /*tp_print*/
-0,                         /*tp_getattr*/
-0,                         /*tp_setattr*/
-0,                         /*tp_as_async (tp_compare in Python 2)*/
-0,                         /*tp_repr*/
-&Select_as_number,             /*tp_as_number*/
-0,                         /*tp_as_sequence*/
-0,                         /*tp_as_mapping*/
-0,                         /*tp_hash */
-0,                         /*tp_call*/
-0,                         /*tp_str*/
-0,                         /*tp_getattro*/
-0,                         /*tp_setattro*/
-0,                         /*tp_as_buffer*/
-Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
-"Select objects. Watch input and send a trig on a selected value.",           /* tp_doc */
-(traverseproc)Select_traverse,   /* tp_traverse */
-(inquiry)Select_clear,           /* tp_clear */
-0,		               /* tp_richcompare */
-0,		               /* tp_weaklistoffset */
-0,		               /* tp_iter */
-0,		               /* tp_iternext */
-Select_methods,             /* tp_methods */
-Select_members,             /* tp_members */
-0,                      /* tp_getset */
-0,                         /* tp_base */
-0,                         /* tp_dict */
-0,                         /* tp_descr_get */
-0,                         /* tp_descr_set */
-0,                         /* tp_dictoffset */
-0,      /* tp_init */
-0,                         /* tp_alloc */
-Select_new,                 /* tp_new */
+PyTypeObject SelectType =
+{
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "_pyo.Select_base",         /*tp_name*/
+    sizeof(Select),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)Select_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
+    0,                         /*tp_repr*/
+    &Select_as_number,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "Select objects. Watch input and send a trig on a selected value.",           /* tp_doc */
+    (traverseproc)Select_traverse,   /* tp_traverse */
+    (inquiry)Select_clear,           /* tp_clear */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
+    Select_methods,             /* tp_methods */
+    Select_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,      /* tp_init */
+    0,                         /* tp_alloc */
+    Select_new,                 /* tp_new */
 };
 
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     PyObject *input;
     Stream *input_stream;
@@ -322,15 +343,19 @@ typedef struct {
 } Change;
 
 static void
-Change_selector(Change *self) {
+Change_selector(Change *self)
+{
     MYFLT val, inval;
     int i;
 
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         inval = in[i];
-        if (inval < (self->last_value - 0.00001) || inval > (self->last_value + 0.00001)) {
+
+        if (inval < (self->last_value - 0.00001) || inval > (self->last_value + 0.00001))
+        {
             self->last_value = inval;
             val = 1;
         }
@@ -359,31 +384,40 @@ Change_setProcMode(Change *self)
 
     self->proc_func_ptr = Change_selector;
 
-    switch (muladdmode) {
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = Change_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = Change_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = Change_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = Change_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = Change_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = Change_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = Change_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = Change_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = Change_postprocessing_revareva;
             break;
@@ -427,13 +461,13 @@ static PyObject *
 Change_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
+    PyObject *inputtmp, *input_streamtmp, *multmp = NULL, *addtmp = NULL;
     Change *self;
     self = (Change *)type->tp_alloc(type, 0);
 
     self->last_value = 0.0;
-	self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Change_compute_next_data_frame);
@@ -446,11 +480,13 @@ Change_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_INPUT_STREAM
 
-    if (multmp) {
+    if (multmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
 
-    if (addtmp) {
+    if (addtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
 
@@ -480,27 +516,30 @@ static PyObject * Change_inplace_sub(Change *self, PyObject *arg) { INPLACE_SUB 
 static PyObject * Change_div(Change *self, PyObject *arg) { DIV };
 static PyObject * Change_inplace_div(Change *self, PyObject *arg) { INPLACE_DIV };
 
-static PyMemberDef Change_members[] = {
-{"server", T_OBJECT_EX, offsetof(Change, server), 0, "Pyo server."},
-{"stream", T_OBJECT_EX, offsetof(Change, stream), 0, "Stream object."},
-{"mul", T_OBJECT_EX, offsetof(Change, mul), 0, "Mul factor."},
-{"add", T_OBJECT_EX, offsetof(Change, add), 0, "Add factor."},
-{NULL}  /* Sentinel */
+static PyMemberDef Change_members[] =
+{
+    {"server", T_OBJECT_EX, offsetof(Change, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(Change, stream), 0, "Stream object."},
+    {"mul", T_OBJECT_EX, offsetof(Change, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(Change, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
 };
 
-static PyMethodDef Change_methods[] = {
-{"getServer", (PyCFunction)Change_getServer, METH_NOARGS, "Returns server object."},
-{"_getStream", (PyCFunction)Change_getStream, METH_NOARGS, "Returns stream object."},
-{"play", (PyCFunction)Change_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)Change_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
-{"setMul", (PyCFunction)Change_setMul, METH_O, "Sets mul factor."},
-{"setAdd", (PyCFunction)Change_setAdd, METH_O, "Sets add factor."},
-{"setSub", (PyCFunction)Change_setSub, METH_O, "Sets inverse add factor."},
-{"setDiv", (PyCFunction)Change_setDiv, METH_O, "Sets inverse mul factor."},
-{NULL}  /* Sentinel */
+static PyMethodDef Change_methods[] =
+{
+    {"getServer", (PyCFunction)Change_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)Change_getStream, METH_NOARGS, "Returns stream object."},
+    {"play", (PyCFunction)Change_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)Change_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"setMul", (PyCFunction)Change_setMul, METH_O, "Sets mul factor."},
+    {"setAdd", (PyCFunction)Change_setAdd, METH_O, "Sets add factor."},
+    {"setSub", (PyCFunction)Change_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)Change_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Change_as_number = {
+static PyNumberMethods Change_as_number =
+{
     (binaryfunc)Change_add,                         /*nb_add*/
     (binaryfunc)Change_sub,                         /*nb_subtract*/
     (binaryfunc)Change_multiply,                    /*nb_multiply*/
@@ -542,43 +581,44 @@ static PyNumberMethods Change_as_number = {
     0,                                              /* nb_index */
 };
 
-PyTypeObject ChangeType = {
-PyVarObject_HEAD_INIT(NULL, 0)
-"_pyo.Change_base",         /*tp_name*/
-sizeof(Change),         /*tp_basicsize*/
-0,                         /*tp_itemsize*/
-(destructor)Change_dealloc, /*tp_dealloc*/
-0,                         /*tp_print*/
-0,                         /*tp_getattr*/
-0,                         /*tp_setattr*/
-0,                         /*tp_as_async (tp_compare in Python 2)*/
-0,                         /*tp_repr*/
-&Change_as_number,             /*tp_as_number*/
-0,                         /*tp_as_sequence*/
-0,                         /*tp_as_mapping*/
-0,                         /*tp_hash */
-0,                         /*tp_call*/
-0,                         /*tp_str*/
-0,                         /*tp_getattro*/
-0,                         /*tp_setattro*/
-0,                         /*tp_as_buffer*/
-Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
-"Change objects. Send a trig whenever input value changed.",           /* tp_doc */
-(traverseproc)Change_traverse,   /* tp_traverse */
-(inquiry)Change_clear,           /* tp_clear */
-0,		               /* tp_richcompare */
-0,		               /* tp_weaklistoffset */
-0,		               /* tp_iter */
-0,		               /* tp_iternext */
-Change_methods,             /* tp_methods */
-Change_members,             /* tp_members */
-0,                      /* tp_getset */
-0,                         /* tp_base */
-0,                         /* tp_dict */
-0,                         /* tp_descr_get */
-0,                         /* tp_descr_set */
-0,                         /* tp_dictoffset */
-0,      /* tp_init */
-0,                         /* tp_alloc */
-Change_new,                 /* tp_new */
+PyTypeObject ChangeType =
+{
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "_pyo.Change_base",         /*tp_name*/
+    sizeof(Change),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)Change_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
+    0,                         /*tp_repr*/
+    &Change_as_number,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "Change objects. Send a trig whenever input value changed.",           /* tp_doc */
+    (traverseproc)Change_traverse,   /* tp_traverse */
+    (inquiry)Change_clear,           /* tp_clear */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
+    Change_methods,             /* tp_methods */
+    Change_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,      /* tp_init */
+    0,                         /* tp_alloc */
+    Change_new,                 /* tp_new */
 };

@@ -23,7 +23,8 @@
 
 #ifdef __MATRIX_MODULE
 
-typedef struct {
+typedef struct
+{
     PyObject_HEAD
     int width;
     int height;
@@ -31,9 +32,9 @@ typedef struct {
 } MatrixStream;
 
 
-#define MAKE_NEW_MATRIXSTREAM(self, type, rt_error)	\
-(self) = (MatrixStream *)(type)->tp_alloc((type), 0);	\
-if ((self) == rt_error) { return rt_error; }	\
+#define MAKE_NEW_MATRIXSTREAM(self, type, rt_error) \
+(self) = (MatrixStream *)(type)->tp_alloc((type), 0);   \
+if ((self) == rt_error) { return rt_error; }    \
 \
 (self)->width = (self)->height = 0
 

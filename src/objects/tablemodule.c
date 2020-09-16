@@ -98,12 +98,14 @@ static Py_ssize_t TableStream_getReadBuffer(TableStream *self, Py_ssize_t index,
 static Py_ssize_t TableStream_getWriteBuffer(TableStream *self, Py_ssize_t index, const void **ptr) { TABLESTREAM_READ_WRITE_BUFFER };
 static Py_ssize_t TableStream_getSegCount(TableStream *self, Py_ssize_t *lenp) { TABLESTREAM_SEG_COUNT };
 #endif
-static int TableStream_getBuffer(PyObject *obj, Py_buffer *view, int flags) {
+static int TableStream_getBuffer(PyObject *obj, Py_buffer *view, int flags)
+{
     TableStream *self = (TableStream *)obj;
     TABLESTREAM_GET_BUFFER
 };
 
-static PyBufferProcs TableStream_as_buffer = {
+static PyBufferProcs TableStream_as_buffer =
+{
 #if PY_MAJOR_VERSION < 3
     (readbufferproc)TableStream_getReadBuffer,
     (writebufferproc)TableStream_getWriteBuffer,
@@ -114,76 +116,87 @@ static PyBufferProcs TableStream_as_buffer = {
     (releasebufferproc)NULL,
 };
 
-PyTypeObject TableStreamType = {
-PyVarObject_HEAD_INIT(NULL, 0)
-"_pyo.TableStream", /*tp_name*/
-sizeof(TableStream), /*tp_basicsize*/
-0, /*tp_itemsize*/
-(destructor)TableStream_dealloc, /*tp_dealloc*/
-0, /*tp_print*/
-0, /*tp_getattr*/
-0, /*tp_setattr*/
-0, /*tp_as_async (tp_compare in Python 2)*/
-0, /*tp_repr*/
-0, /*tp_as_number*/
-0, /*tp_as_sequence*/
-0, /*tp_as_mapping*/
-0, /*tp_hash */
-0, /*tp_call*/
-0, /*tp_str*/
-0, /*tp_getattro*/
-0, /*tp_setattro*/
-&TableStream_as_buffer,                         /*tp_as_buffer*/
-Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_NEWBUFFER, /*tp_flags*/
-"TableStream objects. For internal use only. Must never be instantiated by the user.", /* tp_doc */
-0, /* tp_traverse */
-0, /* tp_clear */
-0, /* tp_richcompare */
-0, /* tp_weaklistoffset */
-0, /* tp_iter */
-0, /* tp_iternext */
-0, /* tp_methods */
-0, /* tp_members */
-0, /* tp_getset */
-0, /* tp_base */
-0, /* tp_dict */
-0, /* tp_descr_get */
-0, /* tp_descr_set */
-0, /* tp_dictoffset */
-0, /* tp_init */
-0, /* tp_alloc */
-TableStream_new, /* tp_new */
+PyTypeObject TableStreamType =
+{
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "_pyo.TableStream", /*tp_name*/
+    sizeof(TableStream), /*tp_basicsize*/
+    0, /*tp_itemsize*/
+    (destructor)TableStream_dealloc, /*tp_dealloc*/
+    0, /*tp_print*/
+    0, /*tp_getattr*/
+    0, /*tp_setattr*/
+    0, /*tp_as_async (tp_compare in Python 2)*/
+    0, /*tp_repr*/
+    0, /*tp_as_number*/
+    0, /*tp_as_sequence*/
+    0, /*tp_as_mapping*/
+    0, /*tp_hash */
+    0, /*tp_call*/
+    0, /*tp_str*/
+    0, /*tp_getattro*/
+    0, /*tp_setattro*/
+    &TableStream_as_buffer,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_NEWBUFFER, /*tp_flags*/
+    "TableStream objects. For internal use only. Must never be instantiated by the user.", /* tp_doc */
+    0, /* tp_traverse */
+    0, /* tp_clear */
+    0, /* tp_richcompare */
+    0, /* tp_weaklistoffset */
+    0, /* tp_iter */
+    0, /* tp_iternext */
+    0, /* tp_methods */
+    0, /* tp_members */
+    0, /* tp_getset */
+    0, /* tp_base */
+    0, /* tp_dict */
+    0, /* tp_descr_get */
+    0, /* tp_descr_set */
+    0, /* tp_dictoffset */
+    0, /* tp_init */
+    0, /* tp_alloc */
+    TableStream_new, /* tp_new */
 };
 
 /***********************/
 /* HarmTable structure */
 /***********************/
-typedef struct {
+typedef struct
+{
     pyo_table_HEAD
     PyObject *amplist;
 } HarmTable;
 
 static void
-HarmTable_generate(HarmTable *self) {
+HarmTable_generate(HarmTable *self)
+{
     int i, j, ampsize;
     MYFLT factor, amplitude, val;
 
     ampsize = PyList_Size(self->amplist);
     MYFLT array[ampsize];
-    for(j=0; j<ampsize; j++) {
+
+    for(j = 0; j < ampsize; j++)
+    {
         array[j] =  PyFloat_AsDouble(PyList_GET_ITEM(self->amplist, j));
     }
 
     factor = 1. / (self->size * 0.5) * PI;
 
-    for(i=0; i<self->size; i++) {
+    for(i = 0; i < self->size; i++)
+    {
         val = 0;
-        for(j=0; j<ampsize; j++) {
+
+        for(j = 0; j < ampsize; j++)
+        {
             amplitude = array[j];
-            if (amplitude != 0.0) {
-                val += MYSIN((j+1) * i * factor) * amplitude;
+
+            if (amplitude != 0.0)
+            {
+                val += MYSIN((j + 1) * i * factor) * amplitude;
             }
         }
+
         self->data[i] = val;
     }
 
@@ -218,7 +231,7 @@ HarmTable_dealloc(HarmTable* self)
 static PyObject *
 HarmTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-    PyObject *amplist=NULL;
+    PyObject *amplist = NULL;
     HarmTable *self;
     self = (HarmTable *)type->tp_alloc(type, 0);
 
@@ -236,13 +249,14 @@ HarmTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|Oi", kwlist, &amplist, &self->size))
         Py_RETURN_NONE;
 
-    if (amplist) {
+    if (amplist)
+    {
         Py_INCREF(amplist);
         Py_DECREF(self->amplist);
         self->amplist = amplist;
     }
 
-    self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
+    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
     TableStream_setData(self->tablestream, self->data);
     HarmTable_generate(self);
@@ -282,19 +296,21 @@ static PyObject * HarmTable_mul(HarmTable *self, PyObject *arg) { TABLE_MUL };
 static PyObject *
 HarmTable_setSize(HarmTable *self, PyObject *value)
 {
-    if (value == NULL) {
+    if (value == NULL)
+    {
         PyErr_SetString(PyExc_TypeError, "Cannot delete the size attribute.");
         return PyInt_FromLong(-1);
     }
 
-    if (! PyInt_Check(value)) {
+    if (! PyInt_Check(value))
+    {
         PyErr_SetString(PyExc_TypeError, "The size attribute value must be an integer.");
         return PyInt_FromLong(-1);
     }
 
     self->size = PyInt_AsLong(value);
 
-    self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
+    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
 
     HarmTable_generate(self);
@@ -312,12 +328,14 @@ HarmTable_getSize(HarmTable *self)
 static PyObject *
 HarmTable_replace(HarmTable *self, PyObject *value)
 {
-    if (value == NULL) {
+    if (value == NULL)
+    {
         PyErr_SetString(PyExc_TypeError, "Cannot delete the list attribute.");
         return PyInt_FromLong(-1);
     }
 
-    if (! PyList_Check(value)) {
+    if (! PyList_Check(value))
+    {
         PyErr_SetString(PyExc_TypeError, "The amplitude list attribute value must be a list.");
         return PyInt_FromLong(-1);
     }
@@ -332,104 +350,113 @@ HarmTable_replace(HarmTable *self, PyObject *value)
     return Py_None;
 }
 
-static PyMemberDef HarmTable_members[] = {
-{"server", T_OBJECT_EX, offsetof(HarmTable, server), 0, "Pyo server."},
-{"tablestream", T_OBJECT_EX, offsetof(HarmTable, tablestream), 0, "Table stream object."},
-{"amplist", T_OBJECT_EX, offsetof(HarmTable, amplist), 0, "Harmonics amplitude values."},
-{NULL}  /* Sentinel */
+static PyMemberDef HarmTable_members[] =
+{
+    {"server", T_OBJECT_EX, offsetof(HarmTable, server), 0, "Pyo server."},
+    {"tablestream", T_OBJECT_EX, offsetof(HarmTable, tablestream), 0, "Table stream object."},
+    {"amplist", T_OBJECT_EX, offsetof(HarmTable, amplist), 0, "Harmonics amplitude values."},
+    {NULL}  /* Sentinel */
 };
 
-static PyMethodDef HarmTable_methods[] = {
-{"getServer", (PyCFunction)HarmTable_getServer, METH_NOARGS, "Returns server object."},
-{"setTable", (PyCFunction)HarmTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
-{"getTable", (PyCFunction)HarmTable_getTable, METH_NOARGS, "Returns a list of table samples."},
-{"getViewTable", (PyCFunction)HarmTable_getViewTable, METH_VARARGS|METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
-{"getTableStream", (PyCFunction)HarmTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
-{"normalize", (PyCFunction)HarmTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
-{"reset", (PyCFunction)HarmTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
-{"removeDC", (PyCFunction)HarmTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
-{"reverse", (PyCFunction)HarmTable_reverse, METH_NOARGS, "Reverse the table's data in time."},
-{"invert", (PyCFunction)HarmTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
-{"rectify", (PyCFunction)HarmTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
-{"bipolarGain", (PyCFunction)HarmTable_bipolarGain, METH_VARARGS|METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
-{"lowpass", (PyCFunction)HarmTable_lowpass, METH_VARARGS|METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
-{"fadein", (PyCFunction)HarmTable_fadein, METH_VARARGS|METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
-{"fadeout", (PyCFunction)HarmTable_fadeout, METH_VARARGS|METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
-{"pow", (PyCFunction)HarmTable_pow, METH_VARARGS|METH_KEYWORDS, "Apply a power function on each sample in the table."},
-{"copy", (PyCFunction)HarmTable_copy, METH_O, "Copy data from table given in argument."},
-{"copyData", (PyCFunction)HarmTable_copyData, METH_VARARGS|METH_KEYWORDS, "Copy data from table given in argument."},
-{"rotate", (PyCFunction)HarmTable_rotate, METH_VARARGS|METH_KEYWORDS, "Rotate table around position as argument."},
-{"setData", (PyCFunction)HarmTable_setData, METH_O, "Sets the table from samples in a text file."},
-{"setSize", (PyCFunction)HarmTable_setSize, METH_O, "Sets the size of the table in samples"},
-{"getSize", (PyCFunction)HarmTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
-{"put", (PyCFunction)HarmTable_put, METH_VARARGS|METH_KEYWORDS, "Puts a value at specified position in the table."},
-{"get", (PyCFunction)HarmTable_get, METH_VARARGS|METH_KEYWORDS, "Gets the value at specified position in the table."},
-{"replace", (PyCFunction)HarmTable_replace, METH_O, "Sets the harmonics amplitude list and generates a new waveform table."},
-{"add", (PyCFunction)HarmTable_add, METH_O, "Performs table addition."},
-{"sub", (PyCFunction)HarmTable_sub, METH_O, "Performs table substraction."},
-{"mul", (PyCFunction)HarmTable_mul, METH_O, "Performs table multiplication."},
-{NULL}  /* Sentinel */
+static PyMethodDef HarmTable_methods[] =
+{
+    {"getServer", (PyCFunction)HarmTable_getServer, METH_NOARGS, "Returns server object."},
+    {"setTable", (PyCFunction)HarmTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
+    {"getTable", (PyCFunction)HarmTable_getTable, METH_NOARGS, "Returns a list of table samples."},
+    {"getViewTable", (PyCFunction)HarmTable_getViewTable, METH_VARARGS | METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
+    {"getTableStream", (PyCFunction)HarmTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
+    {"normalize", (PyCFunction)HarmTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
+    {"reset", (PyCFunction)HarmTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
+    {"removeDC", (PyCFunction)HarmTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
+    {"reverse", (PyCFunction)HarmTable_reverse, METH_NOARGS, "Reverse the table's data in time."},
+    {"invert", (PyCFunction)HarmTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
+    {"rectify", (PyCFunction)HarmTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
+    {"bipolarGain", (PyCFunction)HarmTable_bipolarGain, METH_VARARGS | METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
+    {"lowpass", (PyCFunction)HarmTable_lowpass, METH_VARARGS | METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
+    {"fadein", (PyCFunction)HarmTable_fadein, METH_VARARGS | METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
+    {"fadeout", (PyCFunction)HarmTable_fadeout, METH_VARARGS | METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
+    {"pow", (PyCFunction)HarmTable_pow, METH_VARARGS | METH_KEYWORDS, "Apply a power function on each sample in the table."},
+    {"copy", (PyCFunction)HarmTable_copy, METH_O, "Copy data from table given in argument."},
+    {"copyData", (PyCFunction)HarmTable_copyData, METH_VARARGS | METH_KEYWORDS, "Copy data from table given in argument."},
+    {"rotate", (PyCFunction)HarmTable_rotate, METH_VARARGS | METH_KEYWORDS, "Rotate table around position as argument."},
+    {"setData", (PyCFunction)HarmTable_setData, METH_O, "Sets the table from samples in a text file."},
+    {"setSize", (PyCFunction)HarmTable_setSize, METH_O, "Sets the size of the table in samples"},
+    {"getSize", (PyCFunction)HarmTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
+    {"put", (PyCFunction)HarmTable_put, METH_VARARGS | METH_KEYWORDS, "Puts a value at specified position in the table."},
+    {"get", (PyCFunction)HarmTable_get, METH_VARARGS | METH_KEYWORDS, "Gets the value at specified position in the table."},
+    {"replace", (PyCFunction)HarmTable_replace, METH_O, "Sets the harmonics amplitude list and generates a new waveform table."},
+    {"add", (PyCFunction)HarmTable_add, METH_O, "Performs table addition."},
+    {"sub", (PyCFunction)HarmTable_sub, METH_O, "Performs table substraction."},
+    {"mul", (PyCFunction)HarmTable_mul, METH_O, "Performs table multiplication."},
+    {NULL}  /* Sentinel */
 };
 
-PyTypeObject HarmTableType = {
-PyVarObject_HEAD_INIT(NULL, 0)
-"_pyo.HarmTable_base",         /*tp_name*/
-sizeof(HarmTable),         /*tp_basicsize*/
-0,                         /*tp_itemsize*/
-(destructor)HarmTable_dealloc, /*tp_dealloc*/
-0,                         /*tp_print*/
-0,                         /*tp_getattr*/
-0,                         /*tp_setattr*/
-0,                         /*tp_as_async (tp_compare in Python 2)*/
-0,                         /*tp_repr*/
-0,                         /*tp_as_number*/
-0,                         /*tp_as_sequence*/
-0,                         /*tp_as_mapping*/
-0,                         /*tp_hash */
-0,                         /*tp_call*/
-0,                         /*tp_str*/
-0,                         /*tp_getattro*/
-0,                         /*tp_setattro*/
-0,                         /*tp_as_buffer*/
-Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-"HarmTable objects. Generates a table filled with a waveform whose harmonic content correspond to a given amplitude list values.",  /* tp_doc */
-(traverseproc)HarmTable_traverse,   /* tp_traverse */
-(inquiry)HarmTable_clear,           /* tp_clear */
-0,		               /* tp_richcompare */
-0,		               /* tp_weaklistoffset */
-0,		               /* tp_iter */
-0,		               /* tp_iternext */
-HarmTable_methods,             /* tp_methods */
-HarmTable_members,             /* tp_members */
-0,                      /* tp_getset */
-0,                         /* tp_base */
-0,                         /* tp_dict */
-0,                         /* tp_descr_get */
-0,                         /* tp_descr_set */
-0,                         /* tp_dictoffset */
-0,      /* tp_init */
-0,                         /* tp_alloc */
-HarmTable_new,                 /* tp_new */
+PyTypeObject HarmTableType =
+{
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "_pyo.HarmTable_base",         /*tp_name*/
+    sizeof(HarmTable),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)HarmTable_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
+    0,                         /*tp_repr*/
+    0,                         /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
+    "HarmTable objects. Generates a table filled with a waveform whose harmonic content correspond to a given amplitude list values.",  /* tp_doc */
+    (traverseproc)HarmTable_traverse,   /* tp_traverse */
+    (inquiry)HarmTable_clear,           /* tp_clear */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
+    HarmTable_methods,             /* tp_methods */
+    HarmTable_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,      /* tp_init */
+    0,                         /* tp_alloc */
+    HarmTable_new,                 /* tp_new */
 };
 
 /***********************/
 /* ChebyTable structure */
 /***********************/
-typedef struct {
+typedef struct
+{
     pyo_table_HEAD
     PyObject *amplist;
 } ChebyTable;
 
 static void
-ChebyTable_generate(ChebyTable *self) {
+ChebyTable_generate(ChebyTable *self)
+{
     int i, j, ampsize, halfsize;
     MYFLT amplitude, val, ihalfsize, index, x;
 
     ampsize = PyList_Size(self->amplist);
+
     if (ampsize > 12)
         ampsize = 12;
+
     MYFLT array[ampsize];
-    for(j=0; j<ampsize; j++) {
+
+    for(j = 0; j < ampsize; j++)
+    {
         array[j] =  PyFloat_AsDouble(PyList_GET_ITEM(self->amplist, j));
     }
 
@@ -437,55 +464,74 @@ ChebyTable_generate(ChebyTable *self) {
     ihalfsize = 1.0 / halfsize;
 
     x = 0.0;
-    for(i=0; i<self->size; i++) {
+
+    for(i = 0; i < self->size; i++)
+    {
         val = 0;
         index = (i - halfsize) * ihalfsize;
-        for(j=0; j<ampsize; j++) {
+
+        for(j = 0; j < ampsize; j++)
+        {
             amplitude = array[j];
-            switch (j) {
+
+            switch (j)
+            {
                 case 0:
                     x = index;
                     break;
+
                 case 1:
                     x = 2 * MYPOW(index, 2) - 1;
                     break;
+
                 case 2:
                     x = 4 * MYPOW(index, 3) - 3 * index;
                     break;
+
                 case 3:
                     x = 8 * MYPOW(index, 4) - 8 * MYPOW(index, 2) + 1;
                     break;
+
                 case 4:
                     x = 16 * MYPOW(index, 5) - 20 * MYPOW(index, 3) + 5 * index;
                     break;
+
                 case 5:
                     x = 32 * MYPOW(index, 6) - 48 * MYPOW(index, 4) + 18 * MYPOW(index, 2) - 1;
                     break;
+
                 case 6:
                     x = 64 * MYPOW(index, 7) - 112 * MYPOW(index, 5) + 56 * MYPOW(index, 3) - 7 * index;
                     break;
+
                 case 7:
                     x = 128 * MYPOW(index, 8) - 256 * MYPOW(index, 6) + 160 * MYPOW(index, 4) - 32 * MYPOW(index, 2) + 1;
                     break;
+
                 case 8:
                     x = 256 * MYPOW(index, 9) - 576 * MYPOW(index, 7) + 432 * MYPOW(index, 5) - 120 * MYPOW(index, 3) + 9 * index;
                     break;
+
                 case 9:
                     x = 512 * MYPOW(index, 10) - 1280 * MYPOW(index, 8) + 1120 * MYPOW(index, 6) - 400 * MYPOW(index, 4) + 50 * MYPOW(index, 2) - 1;
                     break;
+
                 case 10:
                     x = 1024 * MYPOW(index, 11) - 2816 * MYPOW(index, 9) + 2816 * MYPOW(index, 7) - 1232 * MYPOW(index, 5) + 220 * MYPOW(index, 3) - 11 * index;
                     break;
+
                 case 11:
                     x = 2048 * MYPOW(index, 12) - 6144 * MYPOW(index, 10) + 6912 * MYPOW(index, 8) - 3584 * MYPOW(index, 6) + 840 * MYPOW(index, 4) - 72 * MYPOW(index, 2) + 1;
                     break;
             }
+
             val += x * amplitude;
         }
+
         self->data[i] = val;
     }
 
-    val = self->data[self->size-1];
+    val = self->data[self->size - 1];
     self->data[self->size] = val;
 }
 
@@ -516,7 +562,7 @@ ChebyTable_dealloc(ChebyTable* self)
 static PyObject *
 ChebyTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-    PyObject *amplist=NULL;
+    PyObject *amplist = NULL;
     ChebyTable *self;
     self = (ChebyTable *)type->tp_alloc(type, 0);
 
@@ -534,13 +580,14 @@ ChebyTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|Oi", kwlist, &amplist, &self->size))
         Py_RETURN_NONE;
 
-    if (amplist) {
+    if (amplist)
+    {
         Py_INCREF(amplist);
         Py_DECREF(self->amplist);
         self->amplist = amplist;
     }
 
-    self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
+    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
     TableStream_setData(self->tablestream, self->data);
     ChebyTable_generate(self);
@@ -580,19 +627,21 @@ static PyObject * ChebyTable_mul(ChebyTable *self, PyObject *arg) { TABLE_MUL };
 static PyObject *
 ChebyTable_setSize(ChebyTable *self, PyObject *value)
 {
-    if (value == NULL) {
+    if (value == NULL)
+    {
         PyErr_SetString(PyExc_TypeError, "Cannot delete the size attribute.");
         return PyInt_FromLong(-1);
     }
 
-    if (! PyInt_Check(value)) {
+    if (! PyInt_Check(value))
+    {
         PyErr_SetString(PyExc_TypeError, "The size attribute value must be an integer.");
         return PyInt_FromLong(-1);
     }
 
     self->size = PyInt_AsLong(value);
 
-    self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
+    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
 
     ChebyTable_generate(self);
@@ -610,12 +659,14 @@ ChebyTable_getSize(ChebyTable *self)
 static PyObject *
 ChebyTable_replace(ChebyTable *self, PyObject *value)
 {
-    if (value == NULL) {
+    if (value == NULL)
+    {
         PyErr_SetString(PyExc_TypeError, "Cannot delete the list attribute.");
         return PyInt_FromLong(-1);
     }
 
-    if (! PyList_Check(value)) {
+    if (! PyList_Check(value))
+    {
         PyErr_SetString(PyExc_TypeError, "The amplitude list attribute value must be a list.");
         return PyInt_FromLong(-1);
     }
@@ -642,36 +693,52 @@ ChebyTable_getNormTable(ChebyTable *self, PyObject *value)
     MYFLT samps[halfsize];
     PyObject *samples = PyList_New(halfsize);
 
-    if (sym == 0) {
-        for (i=0; i<self->size; i++) {
+    if (sym == 0)
+    {
+        for (i = 0; i < self->size; i++)
+        {
             if (self->data[i] > maxval)
                 maxval = self->data[i];
         }
-        if (maxval > 1.0) {
-            for (i=0; i<self->size; i++) {
+
+        if (maxval > 1.0)
+        {
+            for (i = 0; i < self->size; i++)
+            {
                 self->data[i] /= maxval;
             }
         }
+
         maxval = -1;
-        for (i=0; i<halfsize; i++) {
-            val = MYFABS(self->data[halfsize+i]);
+
+        for (i = 0; i < halfsize; i++)
+        {
+            val = MYFABS(self->data[halfsize + i]);
+
             if (val > maxval)
                 maxval = val;
+
             if (maxval > 0.0)
                 samps[i] = 1. - maxval;
             else
                 samps[i] = -1.;
         }
     }
-    else {
+    else
+    {
         maxval = -1;
-        for (i=0; i<halfsize; i++) {
-            val = MYFABS(self->data[halfsize-i]);
-            val2 = MYFABS(self->data[halfsize+i]);
+
+        for (i = 0; i < halfsize; i++)
+        {
+            val = MYFABS(self->data[halfsize - i]);
+            val2 = MYFABS(self->data[halfsize + i]);
+
             if (val2 > val)
                 val = val2;
+
             if (val > maxval)
                 maxval = val;
+
             if (maxval > 0.0)
                 samps[i] = 1. / maxval;
             else
@@ -680,128 +747,144 @@ ChebyTable_getNormTable(ChebyTable *self, PyObject *value)
     }
 
     maxval = 0.0;
-    for (i=0; i<halfsize; i++) {
+
+    for (i = 0; i < halfsize; i++)
+    {
         val = samps[i];
+
         if (val > maxval)
             maxval = val;
     }
 
-    for (i=0; i<halfsize; i++) {
+    for (i = 0; i < halfsize; i++)
+    {
         val = samps[i];
+
         if (val == -1.0)
             samps[i] = maxval;
     }
 
     last = samps[0];
-    for (i=1; i<halfsize; i++) {
+
+    for (i = 1; i < halfsize; i++)
+    {
         last = samps[i] = samps[i] + (last - samps[i]) * 0.95;
     }
 
-    for (i=0; i<halfsize; i++) {
+    for (i = 0; i < halfsize; i++)
+    {
         PyList_SET_ITEM(samples, i, PyFloat_FromDouble(samps[i]));
     }
+
     return samples;
 }
 
-static PyMemberDef ChebyTable_members[] = {
-{"server", T_OBJECT_EX, offsetof(ChebyTable, server), 0, "Pyo server."},
-{"tablestream", T_OBJECT_EX, offsetof(ChebyTable, tablestream), 0, "Table stream object."},
-{"amplist", T_OBJECT_EX, offsetof(ChebyTable, amplist), 0, "Harmonics amplitude values."},
-{NULL}  /* Sentinel */
+static PyMemberDef ChebyTable_members[] =
+{
+    {"server", T_OBJECT_EX, offsetof(ChebyTable, server), 0, "Pyo server."},
+    {"tablestream", T_OBJECT_EX, offsetof(ChebyTable, tablestream), 0, "Table stream object."},
+    {"amplist", T_OBJECT_EX, offsetof(ChebyTable, amplist), 0, "Harmonics amplitude values."},
+    {NULL}  /* Sentinel */
 };
 
-static PyMethodDef ChebyTable_methods[] = {
-{"getServer", (PyCFunction)ChebyTable_getServer, METH_NOARGS, "Returns server object."},
-{"copy", (PyCFunction)ChebyTable_copy, METH_O, "Copy data from table given in argument."},
-{"copyData", (PyCFunction)ChebyTable_copyData, METH_VARARGS|METH_KEYWORDS, "Copy data from table given in argument."},
-{"rotate", (PyCFunction)ChebyTable_rotate, METH_VARARGS|METH_KEYWORDS, "Rotate table around position as argument."},
-{"setTable", (PyCFunction)ChebyTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
-{"getTable", (PyCFunction)ChebyTable_getTable, METH_NOARGS, "Returns a list of table samples."},
-{"getViewTable", (PyCFunction)ChebyTable_getViewTable, METH_VARARGS|METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
-{"getTableStream", (PyCFunction)ChebyTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
-{"setData", (PyCFunction)ChebyTable_setData, METH_O, "Sets the table from samples in a text file."},
-{"normalize", (PyCFunction)ChebyTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
-{"reset", (PyCFunction)ChebyTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
-{"removeDC", (PyCFunction)ChebyTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
-{"reverse", (PyCFunction)ChebyTable_reverse, METH_NOARGS, "Reverse the table's data."},
-{"invert", (PyCFunction)ChebyTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
-{"rectify", (PyCFunction)ChebyTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
-{"bipolarGain", (PyCFunction)ChebyTable_bipolarGain, METH_VARARGS|METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
-{"lowpass", (PyCFunction)ChebyTable_lowpass, METH_VARARGS|METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
-{"fadein", (PyCFunction)ChebyTable_fadein, METH_VARARGS|METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
-{"fadeout", (PyCFunction)ChebyTable_fadeout, METH_VARARGS|METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
-{"pow", (PyCFunction)ChebyTable_pow, METH_VARARGS|METH_KEYWORDS, "Apply a power function on each sample in the table."},
-{"setSize", (PyCFunction)ChebyTable_setSize, METH_O, "Sets the size of the table in samples"},
-{"getSize", (PyCFunction)ChebyTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
-{"put", (PyCFunction)ChebyTable_put, METH_VARARGS|METH_KEYWORDS, "Puts a value at specified position in the table."},
-{"get", (PyCFunction)ChebyTable_get, METH_VARARGS|METH_KEYWORDS, "Gets the value at specified position in the table."},
-{"replace", (PyCFunction)ChebyTable_replace, METH_O, "Sets the harmonics amplitude list and generates a new waveform table."},
-{"getNormTable", (PyCFunction)ChebyTable_getNormTable, METH_O, "Computes and returns the normalization function for the current polynomial"},
-{"add", (PyCFunction)ChebyTable_add, METH_O, "Performs table addition."},
-{"sub", (PyCFunction)ChebyTable_sub, METH_O, "Performs table substraction."},
-{"mul", (PyCFunction)ChebyTable_mul, METH_O, "Performs table multiplication."},
-{NULL}  /* Sentinel */
+static PyMethodDef ChebyTable_methods[] =
+{
+    {"getServer", (PyCFunction)ChebyTable_getServer, METH_NOARGS, "Returns server object."},
+    {"copy", (PyCFunction)ChebyTable_copy, METH_O, "Copy data from table given in argument."},
+    {"copyData", (PyCFunction)ChebyTable_copyData, METH_VARARGS | METH_KEYWORDS, "Copy data from table given in argument."},
+    {"rotate", (PyCFunction)ChebyTable_rotate, METH_VARARGS | METH_KEYWORDS, "Rotate table around position as argument."},
+    {"setTable", (PyCFunction)ChebyTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
+    {"getTable", (PyCFunction)ChebyTable_getTable, METH_NOARGS, "Returns a list of table samples."},
+    {"getViewTable", (PyCFunction)ChebyTable_getViewTable, METH_VARARGS | METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
+    {"getTableStream", (PyCFunction)ChebyTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
+    {"setData", (PyCFunction)ChebyTable_setData, METH_O, "Sets the table from samples in a text file."},
+    {"normalize", (PyCFunction)ChebyTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
+    {"reset", (PyCFunction)ChebyTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
+    {"removeDC", (PyCFunction)ChebyTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
+    {"reverse", (PyCFunction)ChebyTable_reverse, METH_NOARGS, "Reverse the table's data."},
+    {"invert", (PyCFunction)ChebyTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
+    {"rectify", (PyCFunction)ChebyTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
+    {"bipolarGain", (PyCFunction)ChebyTable_bipolarGain, METH_VARARGS | METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
+    {"lowpass", (PyCFunction)ChebyTable_lowpass, METH_VARARGS | METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
+    {"fadein", (PyCFunction)ChebyTable_fadein, METH_VARARGS | METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
+    {"fadeout", (PyCFunction)ChebyTable_fadeout, METH_VARARGS | METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
+    {"pow", (PyCFunction)ChebyTable_pow, METH_VARARGS | METH_KEYWORDS, "Apply a power function on each sample in the table."},
+    {"setSize", (PyCFunction)ChebyTable_setSize, METH_O, "Sets the size of the table in samples"},
+    {"getSize", (PyCFunction)ChebyTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
+    {"put", (PyCFunction)ChebyTable_put, METH_VARARGS | METH_KEYWORDS, "Puts a value at specified position in the table."},
+    {"get", (PyCFunction)ChebyTable_get, METH_VARARGS | METH_KEYWORDS, "Gets the value at specified position in the table."},
+    {"replace", (PyCFunction)ChebyTable_replace, METH_O, "Sets the harmonics amplitude list and generates a new waveform table."},
+    {"getNormTable", (PyCFunction)ChebyTable_getNormTable, METH_O, "Computes and returns the normalization function for the current polynomial"},
+    {"add", (PyCFunction)ChebyTable_add, METH_O, "Performs table addition."},
+    {"sub", (PyCFunction)ChebyTable_sub, METH_O, "Performs table substraction."},
+    {"mul", (PyCFunction)ChebyTable_mul, METH_O, "Performs table multiplication."},
+    {NULL}  /* Sentinel */
 };
 
-PyTypeObject ChebyTableType = {
-PyVarObject_HEAD_INIT(NULL, 0)
-"_pyo.ChebyTable_base",         /*tp_name*/
-sizeof(ChebyTable),         /*tp_basicsize*/
-0,                         /*tp_itemsize*/
-(destructor)ChebyTable_dealloc, /*tp_dealloc*/
-0,                         /*tp_print*/
-0,                         /*tp_getattr*/
-0,                         /*tp_setattr*/
-0,                         /*tp_as_async (tp_compare in Python 2)*/
-0,                         /*tp_repr*/
-0,                         /*tp_as_number*/
-0,                         /*tp_as_sequence*/
-0,                         /*tp_as_mapping*/
-0,                         /*tp_hash */
-0,                         /*tp_call*/
-0,                         /*tp_str*/
-0,                         /*tp_getattro*/
-0,                         /*tp_setattro*/
-0,                         /*tp_as_buffer*/
-Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-"ChebyTable objects. Generates a table filled with a waveform whose harmonic content correspond to a given amplitude list values.",  /* tp_doc */
-(traverseproc)ChebyTable_traverse,   /* tp_traverse */
-(inquiry)ChebyTable_clear,           /* tp_clear */
-0,		               /* tp_richcompare */
-0,		               /* tp_weaklistoffset */
-0,		               /* tp_iter */
-0,		               /* tp_iternext */
-ChebyTable_methods,             /* tp_methods */
-ChebyTable_members,             /* tp_members */
-0,                      /* tp_getset */
-0,                         /* tp_base */
-0,                         /* tp_dict */
-0,                         /* tp_descr_get */
-0,                         /* tp_descr_set */
-0,                         /* tp_dictoffset */
-0,      /* tp_init */
-0,                         /* tp_alloc */
-ChebyTable_new,                 /* tp_new */
+PyTypeObject ChebyTableType =
+{
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "_pyo.ChebyTable_base",         /*tp_name*/
+    sizeof(ChebyTable),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)ChebyTable_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
+    0,                         /*tp_repr*/
+    0,                         /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
+    "ChebyTable objects. Generates a table filled with a waveform whose harmonic content correspond to a given amplitude list values.",  /* tp_doc */
+    (traverseproc)ChebyTable_traverse,   /* tp_traverse */
+    (inquiry)ChebyTable_clear,           /* tp_clear */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
+    ChebyTable_methods,             /* tp_methods */
+    ChebyTable_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,      /* tp_init */
+    0,                         /* tp_alloc */
+    ChebyTable_new,                 /* tp_new */
 };
 
 /***********************/
 /* HannTable structure */
 /***********************/
-typedef struct {
+typedef struct
+{
     pyo_table_HEAD
 } HannTable;
 
 static void
-HannTable_generate(HannTable *self) {
+HannTable_generate(HannTable *self)
+{
     int i, halfSize;
     MYFLT val;
 
     halfSize = self->size / 2 - 1;
 
-    for(i=0; i<self->size; i++) {
+    for(i = 0; i < self->size; i++)
+    {
         val = 0.5 + (MYCOS(TWOPI * (i - halfSize) / self->size) * 0.5);
         self->data[i] = val;
     }
+
     val = self->data[0];
     self->data[self->size] = val;
 }
@@ -846,9 +929,9 @@ HannTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|i", kwlist, &self->size))
         Py_RETURN_NONE;
 
-    self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
+    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
-	TableStream_setData(self->tablestream, self->data);
+    TableStream_setData(self->tablestream, self->data);
     HannTable_generate(self);
 
     double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
@@ -886,19 +969,21 @@ static PyObject * HannTable_mul(HannTable *self, PyObject *arg) { TABLE_MUL };
 static PyObject *
 HannTable_setSize(HannTable *self, PyObject *value)
 {
-    if (value == NULL) {
+    if (value == NULL)
+    {
         PyErr_SetString(PyExc_TypeError, "Cannot delete the size attribute.");
         return PyInt_FromLong(-1);
     }
 
-    if (! PyInt_Check(value)) {
+    if (! PyInt_Check(value))
+    {
         PyErr_SetString(PyExc_TypeError, "The size attribute value must be an integer.");
         return PyInt_FromLong(-1);
     }
 
     self->size = PyInt_AsLong(value);
 
-    self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
+    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
 
     HannTable_generate(self);
@@ -913,122 +998,137 @@ HannTable_getSize(HannTable *self)
     return PyInt_FromLong(self->size);
 };
 
-static PyMemberDef HannTable_members[] = {
-{"server", T_OBJECT_EX, offsetof(HannTable, server), 0, "Pyo server."},
-{"tablestream", T_OBJECT_EX, offsetof(HannTable, tablestream), 0, "Table stream object."},
-{NULL}  /* Sentinel */
+static PyMemberDef HannTable_members[] =
+{
+    {"server", T_OBJECT_EX, offsetof(HannTable, server), 0, "Pyo server."},
+    {"tablestream", T_OBJECT_EX, offsetof(HannTable, tablestream), 0, "Table stream object."},
+    {NULL}  /* Sentinel */
 };
 
-static PyMethodDef HannTable_methods[] = {
-{"getServer", (PyCFunction)HannTable_getServer, METH_NOARGS, "Returns server object."},
-{"copy", (PyCFunction)HannTable_copy, METH_O, "Copy data from table given in argument."},
-{"copyData", (PyCFunction)HannTable_copyData, METH_VARARGS|METH_KEYWORDS, "Copy data from table given in argument."},
-{"rotate", (PyCFunction)HannTable_rotate, METH_VARARGS|METH_KEYWORDS, "Rotate table around position as argument."},
-{"setTable", (PyCFunction)HannTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
-{"getTable", (PyCFunction)HannTable_getTable, METH_NOARGS, "Returns a list of table samples."},
-{"getViewTable", (PyCFunction)HannTable_getViewTable, METH_VARARGS|METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
-{"getTableStream", (PyCFunction)HannTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
-{"setData", (PyCFunction)HannTable_setData, METH_O, "Sets the table from samples in a text file."},
-{"normalize", (PyCFunction)HannTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
-{"reset", (PyCFunction)HannTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
-{"removeDC", (PyCFunction)HannTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
-{"reverse", (PyCFunction)HannTable_reverse, METH_NOARGS, "Reverse the table's data."},
-{"invert", (PyCFunction)HannTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
-{"rectify", (PyCFunction)HannTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
-{"bipolarGain", (PyCFunction)HannTable_bipolarGain, METH_VARARGS|METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
-{"lowpass", (PyCFunction)HannTable_lowpass, METH_VARARGS|METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
-{"fadein", (PyCFunction)HannTable_fadein, METH_VARARGS|METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
-{"fadeout", (PyCFunction)HannTable_fadeout, METH_VARARGS|METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
-{"pow", (PyCFunction)HannTable_pow, METH_VARARGS|METH_KEYWORDS, "Apply a power function on each sample in the table."},
-{"setSize", (PyCFunction)HannTable_setSize, METH_O, "Sets the size of the table in samples"},
-{"getSize", (PyCFunction)HannTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
-{"put", (PyCFunction)HannTable_put, METH_VARARGS|METH_KEYWORDS, "Puts a value at specified position in the table."},
-{"get", (PyCFunction)HannTable_get, METH_VARARGS|METH_KEYWORDS, "Gets the value at specified position in the table."},
-{"add", (PyCFunction)HannTable_add, METH_O, "Performs table addition."},
-{"sub", (PyCFunction)HannTable_sub, METH_O, "Performs table substraction."},
-{"mul", (PyCFunction)HannTable_mul, METH_O, "Performs table multiplication."},
-{NULL}  /* Sentinel */
+static PyMethodDef HannTable_methods[] =
+{
+    {"getServer", (PyCFunction)HannTable_getServer, METH_NOARGS, "Returns server object."},
+    {"copy", (PyCFunction)HannTable_copy, METH_O, "Copy data from table given in argument."},
+    {"copyData", (PyCFunction)HannTable_copyData, METH_VARARGS | METH_KEYWORDS, "Copy data from table given in argument."},
+    {"rotate", (PyCFunction)HannTable_rotate, METH_VARARGS | METH_KEYWORDS, "Rotate table around position as argument."},
+    {"setTable", (PyCFunction)HannTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
+    {"getTable", (PyCFunction)HannTable_getTable, METH_NOARGS, "Returns a list of table samples."},
+    {"getViewTable", (PyCFunction)HannTable_getViewTable, METH_VARARGS | METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
+    {"getTableStream", (PyCFunction)HannTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
+    {"setData", (PyCFunction)HannTable_setData, METH_O, "Sets the table from samples in a text file."},
+    {"normalize", (PyCFunction)HannTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
+    {"reset", (PyCFunction)HannTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
+    {"removeDC", (PyCFunction)HannTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
+    {"reverse", (PyCFunction)HannTable_reverse, METH_NOARGS, "Reverse the table's data."},
+    {"invert", (PyCFunction)HannTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
+    {"rectify", (PyCFunction)HannTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
+    {"bipolarGain", (PyCFunction)HannTable_bipolarGain, METH_VARARGS | METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
+    {"lowpass", (PyCFunction)HannTable_lowpass, METH_VARARGS | METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
+    {"fadein", (PyCFunction)HannTable_fadein, METH_VARARGS | METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
+    {"fadeout", (PyCFunction)HannTable_fadeout, METH_VARARGS | METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
+    {"pow", (PyCFunction)HannTable_pow, METH_VARARGS | METH_KEYWORDS, "Apply a power function on each sample in the table."},
+    {"setSize", (PyCFunction)HannTable_setSize, METH_O, "Sets the size of the table in samples"},
+    {"getSize", (PyCFunction)HannTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
+    {"put", (PyCFunction)HannTable_put, METH_VARARGS | METH_KEYWORDS, "Puts a value at specified position in the table."},
+    {"get", (PyCFunction)HannTable_get, METH_VARARGS | METH_KEYWORDS, "Gets the value at specified position in the table."},
+    {"add", (PyCFunction)HannTable_add, METH_O, "Performs table addition."},
+    {"sub", (PyCFunction)HannTable_sub, METH_O, "Performs table substraction."},
+    {"mul", (PyCFunction)HannTable_mul, METH_O, "Performs table multiplication."},
+    {NULL}  /* Sentinel */
 };
 
-PyTypeObject HannTableType = {
-PyVarObject_HEAD_INIT(NULL, 0)
-"_pyo.HannTable_base",         /*tp_name*/
-sizeof(HannTable),         /*tp_basicsize*/
-0,                         /*tp_itemsize*/
-(destructor)HannTable_dealloc, /*tp_dealloc*/
-0,                         /*tp_print*/
-0,                         /*tp_getattr*/
-0,                         /*tp_setattr*/
-0,                         /*tp_as_async (tp_compare in Python 2)*/
-0,                         /*tp_repr*/
-0,                         /*tp_as_number*/
-0,                         /*tp_as_sequence*/
-0,                         /*tp_as_mapping*/
-0,                         /*tp_hash */
-0,                         /*tp_call*/
-0,                         /*tp_str*/
-0,                         /*tp_getattro*/
-0,                         /*tp_setattro*/
-0,                         /*tp_as_buffer*/
-Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-"HannTable objects. Generates a table filled with a hanning function.",  /* tp_doc */
-(traverseproc)HannTable_traverse,   /* tp_traverse */
-(inquiry)HannTable_clear,           /* tp_clear */
-0,		               /* tp_richcompare */
-0,		               /* tp_weaklistoffset */
-0,		               /* tp_iter */
-0,		               /* tp_iternext */
-HannTable_methods,             /* tp_methods */
-HannTable_members,             /* tp_members */
-0,                      /* tp_getset */
-0,                         /* tp_base */
-0,                         /* tp_dict */
-0,                         /* tp_descr_get */
-0,                         /* tp_descr_set */
-0,                         /* tp_dictoffset */
-0,      /* tp_init */
-0,                         /* tp_alloc */
-HannTable_new,                 /* tp_new */
+PyTypeObject HannTableType =
+{
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "_pyo.HannTable_base",         /*tp_name*/
+    sizeof(HannTable),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)HannTable_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
+    0,                         /*tp_repr*/
+    0,                         /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
+    "HannTable objects. Generates a table filled with a hanning function.",  /* tp_doc */
+    (traverseproc)HannTable_traverse,   /* tp_traverse */
+    (inquiry)HannTable_clear,           /* tp_clear */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
+    HannTable_methods,             /* tp_methods */
+    HannTable_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,      /* tp_init */
+    0,                         /* tp_alloc */
+    HannTable_new,                 /* tp_new */
 };
 
 /***********************/
 /* SincTable structure */
 /***********************/
-typedef struct {
+typedef struct
+{
     pyo_table_HEAD
     MYFLT freq;
     int windowed;
 } SincTable;
 
 static void
-SincTable_generate(SincTable *self) {
+SincTable_generate(SincTable *self)
+{
     int i, half, halfMinusOne;
     MYFLT scl, val;
 
     half = self->size / 2;
 
-    if (self->windowed) {
+    if (self->windowed)
+    {
         halfMinusOne = half - 1;
-        for(i=0; i<self->size; i++) {
+
+        for(i = 0; i < self->size; i++)
+        {
             scl = (MYFLT)(i - half) / half * self->freq;
+
             if (scl == 0.0)
                 val = 1.0;
             else
                 val = (MYSIN(scl) / scl);
+
             val *= 0.5 + (MYCOS(TWOPI * (i - halfMinusOne) / self->size) * 0.5);
             self->data[i] = val;
         }
     }
-    else {
-        for(i=0; i<self->size; i++) {
+    else
+    {
+        for(i = 0; i < self->size; i++)
+        {
             scl = (MYFLT)(i - half) / half * self->freq;
+
             if (scl == 0.0)
                 val = 1.0;
             else
                 val = (MYSIN(scl) / scl);
+
             self->data[i] = val;
         }
     }
+
     self->data[self->size] = self->data[0];
 }
 
@@ -1074,9 +1174,9 @@ SincTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__FII, kwlist, &self->freq, &self->windowed, &self->size))
         Py_RETURN_NONE;
 
-    self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
+    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
-	TableStream_setData(self->tablestream, self->data);
+    TableStream_setData(self->tablestream, self->data);
     SincTable_generate(self);
 
     double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
@@ -1115,7 +1215,8 @@ static PyObject *
 SincTable_setFreq(SincTable *self, PyObject *value)
 {
 
-    if (! PyNumber_Check(value)) {
+    if (! PyNumber_Check(value))
+    {
         PyErr_SetString(PyExc_TypeError, "The freq attribute value must be a number.");
         return PyInt_FromLong(-1);
     }
@@ -1132,7 +1233,8 @@ static PyObject *
 SincTable_setWindowed(SincTable *self, PyObject *value)
 {
 
-    if (! PyInt_Check(value)) {
+    if (! PyInt_Check(value))
+    {
         PyErr_SetString(PyExc_TypeError, "The windowed attribute value must be a boolean.");
         return PyInt_FromLong(-1);
     }
@@ -1148,19 +1250,21 @@ SincTable_setWindowed(SincTable *self, PyObject *value)
 static PyObject *
 SincTable_setSize(SincTable *self, PyObject *value)
 {
-    if (value == NULL) {
+    if (value == NULL)
+    {
         PyErr_SetString(PyExc_TypeError, "Cannot delete the size attribute.");
         return PyInt_FromLong(-1);
     }
 
-    if (! PyInt_Check(value)) {
+    if (! PyInt_Check(value))
+    {
         PyErr_SetString(PyExc_TypeError, "The size attribute value must be an integer.");
         return PyInt_FromLong(-1);
     }
 
     self->size = PyInt_AsLong(value);
 
-    self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
+    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
 
     SincTable_generate(self);
@@ -1175,20 +1279,22 @@ SincTable_getSize(SincTable *self)
     return PyInt_FromLong(self->size);
 };
 
-static PyMemberDef SincTable_members[] = {
+static PyMemberDef SincTable_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(SincTable, server), 0, "Pyo server."},
     {"tablestream", T_OBJECT_EX, offsetof(SincTable, tablestream), 0, "Table stream object."},
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef SincTable_methods[] = {
+static PyMethodDef SincTable_methods[] =
+{
     {"getServer", (PyCFunction)SincTable_getServer, METH_NOARGS, "Returns server object."},
     {"copy", (PyCFunction)SincTable_copy, METH_O, "Copy data from table given in argument."},
-    {"copyData", (PyCFunction)SincTable_copyData, METH_VARARGS|METH_KEYWORDS, "Copy data from table given in argument."},
-    {"rotate", (PyCFunction)SincTable_rotate, METH_VARARGS|METH_KEYWORDS, "Rotate table around position as argument."},
+    {"copyData", (PyCFunction)SincTable_copyData, METH_VARARGS | METH_KEYWORDS, "Copy data from table given in argument."},
+    {"rotate", (PyCFunction)SincTable_rotate, METH_VARARGS | METH_KEYWORDS, "Rotate table around position as argument."},
     {"setTable", (PyCFunction)SincTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
     {"getTable", (PyCFunction)SincTable_getTable, METH_NOARGS, "Returns a list of table samples."},
-    {"getViewTable", (PyCFunction)SincTable_getViewTable, METH_VARARGS|METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
+    {"getViewTable", (PyCFunction)SincTable_getViewTable, METH_VARARGS | METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
     {"getTableStream", (PyCFunction)SincTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
     {"setData", (PyCFunction)SincTable_setData, METH_O, "Sets the table from samples in a text file."},
     {"normalize", (PyCFunction)SincTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
@@ -1197,24 +1303,25 @@ static PyMethodDef SincTable_methods[] = {
     {"reverse", (PyCFunction)SincTable_reverse, METH_NOARGS, "Reverse the table's data."},
     {"invert", (PyCFunction)SincTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
     {"rectify", (PyCFunction)SincTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
-    {"bipolarGain", (PyCFunction)SincTable_bipolarGain, METH_VARARGS|METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
-    {"lowpass", (PyCFunction)SincTable_lowpass, METH_VARARGS|METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
-    {"fadein", (PyCFunction)SincTable_fadein, METH_VARARGS|METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
-    {"fadeout", (PyCFunction)SincTable_fadeout, METH_VARARGS|METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
-    {"pow", (PyCFunction)SincTable_pow, METH_VARARGS|METH_KEYWORDS, "Apply a power function on each sample in the table."},
+    {"bipolarGain", (PyCFunction)SincTable_bipolarGain, METH_VARARGS | METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
+    {"lowpass", (PyCFunction)SincTable_lowpass, METH_VARARGS | METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
+    {"fadein", (PyCFunction)SincTable_fadein, METH_VARARGS | METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
+    {"fadeout", (PyCFunction)SincTable_fadeout, METH_VARARGS | METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
+    {"pow", (PyCFunction)SincTable_pow, METH_VARARGS | METH_KEYWORDS, "Apply a power function on each sample in the table."},
     {"setSize", (PyCFunction)SincTable_setSize, METH_O, "Sets the size of the table in samples"},
     {"getSize", (PyCFunction)SincTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
     {"setFreq", (PyCFunction)SincTable_setFreq, METH_O, "Sets the frequency, in radians, of the sinc function."},
     {"setWindowed", (PyCFunction)SincTable_setWindowed, METH_O, "If True, an hanning window is applied on the function."},
-    {"put", (PyCFunction)SincTable_put, METH_VARARGS|METH_KEYWORDS, "Puts a value at specified position in the table."},
-    {"get", (PyCFunction)SincTable_get, METH_VARARGS|METH_KEYWORDS, "Gets the value at specified position in the table."},
+    {"put", (PyCFunction)SincTable_put, METH_VARARGS | METH_KEYWORDS, "Puts a value at specified position in the table."},
+    {"get", (PyCFunction)SincTable_get, METH_VARARGS | METH_KEYWORDS, "Gets the value at specified position in the table."},
     {"add", (PyCFunction)SincTable_add, METH_O, "Performs table addition."},
     {"sub", (PyCFunction)SincTable_sub, METH_O, "Performs table substraction."},
     {"mul", (PyCFunction)SincTable_mul, METH_O, "Performs table multiplication."},
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject SincTableType = {
+PyTypeObject SincTableType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.SincTable_base",         /*tp_name*/
     sizeof(SincTable),         /*tp_basicsize*/
@@ -1238,10 +1345,10 @@ PyTypeObject SincTableType = {
     "SincTable objects. Generates a table filled with a sinc function.",  /* tp_doc */
     (traverseproc)SincTable_traverse,   /* tp_traverse */
     (inquiry)SincTable_clear,           /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
     SincTable_methods,             /* tp_methods */
     SincTable_members,             /* tp_members */
     0,                      /* tp_getset */
@@ -1258,13 +1365,15 @@ PyTypeObject SincTableType = {
 /***********************/
 /* WinTable structure  */
 /***********************/
-typedef struct {
+typedef struct
+{
     pyo_table_HEAD
     int type;
 } WinTable;
 
 static void
-WinTable_generate(WinTable *self) {
+WinTable_generate(WinTable *self)
+{
     gen_window(self->data, self->size, self->type);
     self->data[self->size] = self->data[0];
 }
@@ -1310,9 +1419,9 @@ WinTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|ii", kwlist, &self->type, &self->size))
         Py_RETURN_NONE;
 
-    self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
+    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
-	TableStream_setData(self->tablestream, self->data);
+    TableStream_setData(self->tablestream, self->data);
     WinTable_generate(self);
 
     double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
@@ -1350,19 +1459,21 @@ static PyObject * WinTable_mul(WinTable *self, PyObject *arg) { TABLE_MUL };
 static PyObject *
 WinTable_setSize(WinTable *self, PyObject *value)
 {
-    if (value == NULL) {
+    if (value == NULL)
+    {
         PyErr_SetString(PyExc_TypeError, "Cannot delete the size attribute.");
         return PyInt_FromLong(-1);
     }
 
-    if (! PyInt_Check(value)) {
+    if (! PyInt_Check(value))
+    {
         PyErr_SetString(PyExc_TypeError, "The size attribute value must be an integer.");
         return PyInt_FromLong(-1);
     }
 
     self->size = PyInt_AsLong(value);
 
-    self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
+    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
 
     WinTable_generate(self);
@@ -1380,12 +1491,14 @@ WinTable_getSize(WinTable *self)
 static PyObject *
 WinTable_setType(WinTable *self, PyObject *value)
 {
-    if (value == NULL) {
+    if (value == NULL)
+    {
         PyErr_SetString(PyExc_TypeError, "Cannot delete the type attribute.");
         return PyInt_FromLong(-1);
     }
 
-    if (! PyInt_Check(value)) {
+    if (! PyInt_Check(value))
+    {
         PyErr_SetString(PyExc_TypeError, "The type attribute value must be an integer.");
         return PyInt_FromLong(-1);
     }
@@ -1398,94 +1511,99 @@ WinTable_setType(WinTable *self, PyObject *value)
     return Py_None;
 }
 
-static PyMemberDef WinTable_members[] = {
-{"server", T_OBJECT_EX, offsetof(WinTable, server), 0, "Pyo server."},
-{"tablestream", T_OBJECT_EX, offsetof(WinTable, tablestream), 0, "Table stream object."},
-{NULL}  /* Sentinel */
+static PyMemberDef WinTable_members[] =
+{
+    {"server", T_OBJECT_EX, offsetof(WinTable, server), 0, "Pyo server."},
+    {"tablestream", T_OBJECT_EX, offsetof(WinTable, tablestream), 0, "Table stream object."},
+    {NULL}  /* Sentinel */
 };
 
-static PyMethodDef WinTable_methods[] = {
-{"getServer", (PyCFunction)WinTable_getServer, METH_NOARGS, "Returns server object."},
-{"copy", (PyCFunction)WinTable_copy, METH_O, "Copy data from table given in argument."},
-{"copyData", (PyCFunction)WinTable_copyData, METH_VARARGS|METH_KEYWORDS, "Copy data from table given in argument."},
-{"rotate", (PyCFunction)WinTable_rotate, METH_VARARGS|METH_KEYWORDS, "Rotate table around position as argument."},
-{"setTable", (PyCFunction)WinTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
-{"getTable", (PyCFunction)WinTable_getTable, METH_NOARGS, "Returns a list of table samples."},
-{"getViewTable", (PyCFunction)WinTable_getViewTable, METH_VARARGS|METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
-{"getTableStream", (PyCFunction)WinTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
-{"setData", (PyCFunction)WinTable_setData, METH_O, "Sets the table from samples in a text file."},
-{"normalize", (PyCFunction)WinTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
-{"reset", (PyCFunction)WinTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
-{"removeDC", (PyCFunction)WinTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
-{"reverse", (PyCFunction)WinTable_reverse, METH_NOARGS, "Reverse the table's data."},
-{"invert", (PyCFunction)WinTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
-{"rectify", (PyCFunction)WinTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
-{"bipolarGain", (PyCFunction)WinTable_bipolarGain, METH_VARARGS|METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
-{"lowpass", (PyCFunction)WinTable_lowpass, METH_VARARGS|METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
-{"fadein", (PyCFunction)WinTable_fadein, METH_VARARGS|METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
-{"fadeout", (PyCFunction)WinTable_fadeout, METH_VARARGS|METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
-{"pow", (PyCFunction)WinTable_pow, METH_VARARGS|METH_KEYWORDS, "Apply a power function on each sample in the table."},
-{"setSize", (PyCFunction)WinTable_setSize, METH_O, "Sets the size of the table in samples"},
-{"getSize", (PyCFunction)WinTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
-{"setType", (PyCFunction)WinTable_setType, METH_O, "Sets the type of the table."},
-{"put", (PyCFunction)WinTable_put, METH_VARARGS|METH_KEYWORDS, "Puts a value at specified position in the table."},
-{"get", (PyCFunction)WinTable_get, METH_VARARGS|METH_KEYWORDS, "Gets the value at specified position in the table."},
-{"add", (PyCFunction)WinTable_add, METH_O, "Performs table addition."},
-{"sub", (PyCFunction)WinTable_sub, METH_O, "Performs table substraction."},
-{"mul", (PyCFunction)WinTable_mul, METH_O, "Performs table multiplication."},
-{NULL}  /* Sentinel */
+static PyMethodDef WinTable_methods[] =
+{
+    {"getServer", (PyCFunction)WinTable_getServer, METH_NOARGS, "Returns server object."},
+    {"copy", (PyCFunction)WinTable_copy, METH_O, "Copy data from table given in argument."},
+    {"copyData", (PyCFunction)WinTable_copyData, METH_VARARGS | METH_KEYWORDS, "Copy data from table given in argument."},
+    {"rotate", (PyCFunction)WinTable_rotate, METH_VARARGS | METH_KEYWORDS, "Rotate table around position as argument."},
+    {"setTable", (PyCFunction)WinTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
+    {"getTable", (PyCFunction)WinTable_getTable, METH_NOARGS, "Returns a list of table samples."},
+    {"getViewTable", (PyCFunction)WinTable_getViewTable, METH_VARARGS | METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
+    {"getTableStream", (PyCFunction)WinTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
+    {"setData", (PyCFunction)WinTable_setData, METH_O, "Sets the table from samples in a text file."},
+    {"normalize", (PyCFunction)WinTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
+    {"reset", (PyCFunction)WinTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
+    {"removeDC", (PyCFunction)WinTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
+    {"reverse", (PyCFunction)WinTable_reverse, METH_NOARGS, "Reverse the table's data."},
+    {"invert", (PyCFunction)WinTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
+    {"rectify", (PyCFunction)WinTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
+    {"bipolarGain", (PyCFunction)WinTable_bipolarGain, METH_VARARGS | METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
+    {"lowpass", (PyCFunction)WinTable_lowpass, METH_VARARGS | METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
+    {"fadein", (PyCFunction)WinTable_fadein, METH_VARARGS | METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
+    {"fadeout", (PyCFunction)WinTable_fadeout, METH_VARARGS | METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
+    {"pow", (PyCFunction)WinTable_pow, METH_VARARGS | METH_KEYWORDS, "Apply a power function on each sample in the table."},
+    {"setSize", (PyCFunction)WinTable_setSize, METH_O, "Sets the size of the table in samples"},
+    {"getSize", (PyCFunction)WinTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
+    {"setType", (PyCFunction)WinTable_setType, METH_O, "Sets the type of the table."},
+    {"put", (PyCFunction)WinTable_put, METH_VARARGS | METH_KEYWORDS, "Puts a value at specified position in the table."},
+    {"get", (PyCFunction)WinTable_get, METH_VARARGS | METH_KEYWORDS, "Gets the value at specified position in the table."},
+    {"add", (PyCFunction)WinTable_add, METH_O, "Performs table addition."},
+    {"sub", (PyCFunction)WinTable_sub, METH_O, "Performs table substraction."},
+    {"mul", (PyCFunction)WinTable_mul, METH_O, "Performs table multiplication."},
+    {NULL}  /* Sentinel */
 };
 
-PyTypeObject WinTableType = {
-PyVarObject_HEAD_INIT(NULL, 0)
-"_pyo.WinTable_base",         /*tp_name*/
-sizeof(WinTable),         /*tp_basicsize*/
-0,                         /*tp_itemsize*/
-(destructor)WinTable_dealloc, /*tp_dealloc*/
-0,                         /*tp_print*/
-0,                         /*tp_getattr*/
-0,                         /*tp_setattr*/
-0,                         /*tp_as_async (tp_compare in Python 2)*/
-0,                         /*tp_repr*/
-0,                         /*tp_as_number*/
-0,                         /*tp_as_sequence*/
-0,                         /*tp_as_mapping*/
-0,                         /*tp_hash */
-0,                         /*tp_call*/
-0,                         /*tp_str*/
-0,                         /*tp_getattro*/
-0,                         /*tp_setattro*/
-0,                         /*tp_as_buffer*/
-Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-"WinTable objects. Generates a table filled with a hanning function.",  /* tp_doc */
-(traverseproc)WinTable_traverse,   /* tp_traverse */
-(inquiry)WinTable_clear,           /* tp_clear */
-0,		               /* tp_richcompare */
-0,		               /* tp_weaklistoffset */
-0,		               /* tp_iter */
-0,		               /* tp_iternext */
-WinTable_methods,             /* tp_methods */
-WinTable_members,             /* tp_members */
-0,                      /* tp_getset */
-0,                         /* tp_base */
-0,                         /* tp_dict */
-0,                         /* tp_descr_get */
-0,                         /* tp_descr_set */
-0,                         /* tp_dictoffset */
-0,      /* tp_init */
-0,                         /* tp_alloc */
-WinTable_new,                 /* tp_new */
+PyTypeObject WinTableType =
+{
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "_pyo.WinTable_base",         /*tp_name*/
+    sizeof(WinTable),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)WinTable_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
+    0,                         /*tp_repr*/
+    0,                         /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
+    "WinTable objects. Generates a table filled with a hanning function.",  /* tp_doc */
+    (traverseproc)WinTable_traverse,   /* tp_traverse */
+    (inquiry)WinTable_clear,           /* tp_clear */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
+    WinTable_methods,             /* tp_methods */
+    WinTable_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,      /* tp_init */
+    0,                         /* tp_alloc */
+    WinTable_new,                 /* tp_new */
 };
 
 /***********************/
 /* ParaTable structure */
 /***********************/
-typedef struct {
+typedef struct
+{
     pyo_table_HEAD
 } ParaTable;
 
 static void
-ParaTable_generate(ParaTable *self) {
+ParaTable_generate(ParaTable *self)
+{
     int i, sizeMinusOne;
     MYFLT rdur, rdur2, level, slope, curve;
 
@@ -1496,7 +1614,8 @@ ParaTable_generate(ParaTable *self) {
     slope = 4.0 * (rdur - rdur2);
     curve = -8.0 * rdur2;
 
-    for(i=0; i<sizeMinusOne; i++) {
+    for(i = 0; i < sizeMinusOne; i++)
+    {
         self->data[i] = level;
         level += slope;
         slope += curve;
@@ -1546,9 +1665,9 @@ ParaTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|i", kwlist, &self->size))
         Py_RETURN_NONE;
 
-    self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
+    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
-	TableStream_setData(self->tablestream, self->data);
+    TableStream_setData(self->tablestream, self->data);
     ParaTable_generate(self);
 
     double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
@@ -1586,19 +1705,21 @@ static PyObject * ParaTable_mul(ParaTable *self, PyObject *arg) { TABLE_MUL };
 static PyObject *
 ParaTable_setSize(ParaTable *self, PyObject *value)
 {
-    if (value == NULL) {
+    if (value == NULL)
+    {
         PyErr_SetString(PyExc_TypeError, "Cannot delete the size attribute.");
         return PyInt_FromLong(-1);
     }
 
-    if (! PyInt_Check(value)) {
+    if (! PyInt_Check(value))
+    {
         PyErr_SetString(PyExc_TypeError, "The size attribute value must be an integer.");
         return PyInt_FromLong(-1);
     }
 
     self->size = PyInt_AsLong(value);
 
-    self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
+    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
 
     ParaTable_generate(self);
@@ -1613,20 +1734,22 @@ ParaTable_getSize(ParaTable *self)
     return PyInt_FromLong(self->size);
 };
 
-static PyMemberDef ParaTable_members[] = {
+static PyMemberDef ParaTable_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(ParaTable, server), 0, "Pyo server."},
     {"tablestream", T_OBJECT_EX, offsetof(ParaTable, tablestream), 0, "Table stream object."},
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef ParaTable_methods[] = {
+static PyMethodDef ParaTable_methods[] =
+{
     {"getServer", (PyCFunction)ParaTable_getServer, METH_NOARGS, "Returns server object."},
     {"copy", (PyCFunction)ParaTable_copy, METH_O, "Copy data from table given in argument."},
-    {"copyData", (PyCFunction)ParaTable_copyData, METH_VARARGS|METH_KEYWORDS, "Copy data from table given in argument."},
-    {"rotate", (PyCFunction)ParaTable_rotate, METH_VARARGS|METH_KEYWORDS, "Rotate table around position as argument."},
+    {"copyData", (PyCFunction)ParaTable_copyData, METH_VARARGS | METH_KEYWORDS, "Copy data from table given in argument."},
+    {"rotate", (PyCFunction)ParaTable_rotate, METH_VARARGS | METH_KEYWORDS, "Rotate table around position as argument."},
     {"setTable", (PyCFunction)ParaTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
     {"getTable", (PyCFunction)ParaTable_getTable, METH_NOARGS, "Returns a list of table samples."},
-    {"getViewTable", (PyCFunction)ParaTable_getViewTable, METH_VARARGS|METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
+    {"getViewTable", (PyCFunction)ParaTable_getViewTable, METH_VARARGS | METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
     {"getTableStream", (PyCFunction)ParaTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
     {"setData", (PyCFunction)ParaTable_setData, METH_O, "Sets the table from samples in a text file."},
     {"normalize", (PyCFunction)ParaTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
@@ -1635,22 +1758,23 @@ static PyMethodDef ParaTable_methods[] = {
     {"reverse", (PyCFunction)ParaTable_reverse, METH_NOARGS, "Reverse the table's data."},
     {"invert", (PyCFunction)ParaTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
     {"rectify", (PyCFunction)ParaTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
-    {"bipolarGain", (PyCFunction)ParaTable_bipolarGain, METH_VARARGS|METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
-    {"lowpass", (PyCFunction)ParaTable_lowpass, METH_VARARGS|METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
-    {"fadein", (PyCFunction)ParaTable_fadein, METH_VARARGS|METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
-    {"fadeout", (PyCFunction)ParaTable_fadeout, METH_VARARGS|METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
-    {"pow", (PyCFunction)ParaTable_pow, METH_VARARGS|METH_KEYWORDS, "Apply a power function on each sample in the table."},
+    {"bipolarGain", (PyCFunction)ParaTable_bipolarGain, METH_VARARGS | METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
+    {"lowpass", (PyCFunction)ParaTable_lowpass, METH_VARARGS | METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
+    {"fadein", (PyCFunction)ParaTable_fadein, METH_VARARGS | METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
+    {"fadeout", (PyCFunction)ParaTable_fadeout, METH_VARARGS | METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
+    {"pow", (PyCFunction)ParaTable_pow, METH_VARARGS | METH_KEYWORDS, "Apply a power function on each sample in the table."},
     {"setSize", (PyCFunction)ParaTable_setSize, METH_O, "Sets the size of the table in samples"},
     {"getSize", (PyCFunction)ParaTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
-    {"put", (PyCFunction)ParaTable_put, METH_VARARGS|METH_KEYWORDS, "Puts a value at specified position in the table."},
-    {"get", (PyCFunction)ParaTable_get, METH_VARARGS|METH_KEYWORDS, "Gets the value at specified position in the table."},
+    {"put", (PyCFunction)ParaTable_put, METH_VARARGS | METH_KEYWORDS, "Puts a value at specified position in the table."},
+    {"get", (PyCFunction)ParaTable_get, METH_VARARGS | METH_KEYWORDS, "Gets the value at specified position in the table."},
     {"add", (PyCFunction)ParaTable_add, METH_O, "Performs table addition."},
     {"sub", (PyCFunction)ParaTable_sub, METH_O, "Performs table substraction."},
     {"mul", (PyCFunction)ParaTable_mul, METH_O, "Performs table multiplication."},
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject ParaTableType = {
+PyTypeObject ParaTableType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.ParaTable_base",         /*tp_name*/
     sizeof(ParaTable),         /*tp_basicsize*/
@@ -1674,10 +1798,10 @@ PyTypeObject ParaTableType = {
     "ParaTable objects. Generates a parabola table.",  /* tp_doc */
     (traverseproc)ParaTable_traverse,   /* tp_traverse */
     (inquiry)ParaTable_clear,           /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
     ParaTable_methods,             /* tp_methods */
     ParaTable_members,             /* tp_members */
     0,                      /* tp_getset */
@@ -1694,13 +1818,15 @@ PyTypeObject ParaTableType = {
 /***********************/
 /* LinTable structure */
 /***********************/
-typedef struct {
+typedef struct
+{
     pyo_table_HEAD
     PyObject *pointslist;
 } LinTable;
 
 static void
-LinTable_generate(LinTable *self) {
+LinTable_generate(LinTable *self)
+{
     Py_ssize_t i, j, steps;
     Py_ssize_t listsize;
     PyObject *tup, *tup2;
@@ -1712,39 +1838,51 @@ LinTable_generate(LinTable *self) {
 
     listsize = PyList_Size(self->pointslist);
 
-    if (listsize < 2) {
+    if (listsize < 2)
+    {
         PySys_WriteStderr("LinTable error: There should be at least two points in a LinTable.\n");
         return;
     }
 
-    for(i=0; i<(listsize-1); i++) {
+    for(i = 0; i < (listsize - 1); i++)
+    {
         tup = PyList_GET_ITEM(self->pointslist, i);
         x1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
         x2 = PyFloat_AsDouble(PyTuple_GET_ITEM(tup, 1));
-        tup2 = PyList_GET_ITEM(self->pointslist, i+1);
+        tup2 = PyList_GET_ITEM(self->pointslist, i + 1);
         y1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup2, 0)));
         y2 = PyFloat_AsDouble(PyTuple_GET_ITEM(tup2, 1));
 
         steps = y1 - x1;
-        if (steps <= 0) {
+
+        if (steps <= 0)
+        {
             PySys_WriteStderr("LinTable error: point position smaller than previous one.\n");
             return;
         }
 
         diff = (y2 - x2) / steps;
-        for(j=0; j<steps; j++) {
-            self->data[x1+j] = x2 + diff * j;
+
+        for(j = 0; j < steps; j++)
+        {
+            self->data[x1 + j] = x2 + diff * j;
         }
     }
-    if (y1 < (self->size-1)) {
+
+    if (y1 < (self->size - 1))
+    {
         self->data[y1] = y2;
-        for (i=y1; i<self->size; i++) {
-            self->data[i+1] = 0.0;
+
+        for (i = y1; i < self->size; i++)
+        {
+            self->data[i + 1] = 0.0;
         }
+
         self->data[self->size] = 0.0;
     }
-    else {
-        self->data[self->size-1] = y2;
+    else
+    {
+        self->data[self->size - 1] = y2;
         self->data[self->size] = y2;
     }
 }
@@ -1776,7 +1914,7 @@ LinTable_dealloc(LinTable* self)
 static PyObject *
 LinTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-    PyObject *pointslist=NULL;
+    PyObject *pointslist = NULL;
     LinTable *self;
     self = (LinTable *)type->tp_alloc(type, 0);
 
@@ -1793,17 +1931,19 @@ LinTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|Oi", kwlist, &pointslist, &self->size))
         Py_RETURN_NONE;
 
-    if (pointslist) {
+    if (pointslist)
+    {
         Py_INCREF(pointslist);
         Py_DECREF(self->pointslist);
         self->pointslist = pointslist;
     }
-    else {
+    else
+    {
         PyList_Append(self->pointslist, PyTuple_Pack(2, PyInt_FromLong(0), PyFloat_FromDouble(0.)));
         PyList_Append(self->pointslist, PyTuple_Pack(2, PyInt_FromLong(self->size), PyFloat_FromDouble(1.)));
     }
 
-    self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
+    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
     TableStream_setData(self->tablestream, self->data);
     LinTable_generate(self);
@@ -1848,12 +1988,14 @@ LinTable_setSize(LinTable *self, PyObject *value)
     int old_size, x1;
     MYFLT factor;
 
-    if (value == NULL) {
+    if (value == NULL)
+    {
         PyErr_SetString(PyExc_TypeError, "Cannot delete the size attribute.");
         return PyInt_FromLong(-1);
     }
 
-    if (! PyInt_Check(value)) {
+    if (! PyInt_Check(value))
+    {
         PyErr_SetString(PyExc_TypeError, "The size attribute value must be an integer.");
         return PyInt_FromLong(-1);
     }
@@ -1863,18 +2005,19 @@ LinTable_setSize(LinTable *self, PyObject *value)
 
     factor = (MYFLT)(self->size) / old_size;
 
-    self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
+    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
 
     Py_ssize_t listsize = PyList_Size(self->pointslist);
 
     PyObject *listtemp = PyList_New(0);
 
-    for(i=0; i<(listsize); i++) {
+    for(i = 0; i < (listsize); i++)
+    {
         tup = PyList_GET_ITEM(self->pointslist, i);
         x1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
         x2 = PyNumber_Float(PyTuple_GET_ITEM(tup, 1));
-        PyList_Append(listtemp, PyTuple_Pack(2, PyInt_FromLong((int)(x1*factor)), x2));
+        PyList_Append(listtemp, PyTuple_Pack(2, PyInt_FromLong((int)(x1 * factor)), x2));
     }
 
     Py_INCREF(listtemp);
@@ -1903,12 +2046,14 @@ LinTable_getPoints(LinTable *self)
 static PyObject *
 LinTable_replace(LinTable *self, PyObject *value)
 {
-    if (value == NULL) {
+    if (value == NULL)
+    {
         PyErr_SetString(PyExc_TypeError, "Cannot delete the list attribute.");
         return PyInt_FromLong(-1);
     }
 
-    if (! PyList_Check(value)) {
+    if (! PyList_Check(value))
+    {
         PyErr_SetString(PyExc_TypeError, "The amplitude list attribute value must be a list of tuples.");
         return PyInt_FromLong(-1);
     }
@@ -1923,97 +2068,102 @@ LinTable_replace(LinTable *self, PyObject *value)
     return Py_None;
 }
 
-static PyMemberDef LinTable_members[] = {
-{"server", T_OBJECT_EX, offsetof(LinTable, server), 0, "Pyo server."},
-{"tablestream", T_OBJECT_EX, offsetof(LinTable, tablestream), 0, "Table stream object."},
-{"pointslist", T_OBJECT_EX, offsetof(LinTable, pointslist), 0, "Harmonics amplitude values."},
-{NULL}  /* Sentinel */
+static PyMemberDef LinTable_members[] =
+{
+    {"server", T_OBJECT_EX, offsetof(LinTable, server), 0, "Pyo server."},
+    {"tablestream", T_OBJECT_EX, offsetof(LinTable, tablestream), 0, "Table stream object."},
+    {"pointslist", T_OBJECT_EX, offsetof(LinTable, pointslist), 0, "Harmonics amplitude values."},
+    {NULL}  /* Sentinel */
 };
 
-static PyMethodDef LinTable_methods[] = {
-{"getServer", (PyCFunction)LinTable_getServer, METH_NOARGS, "Returns server object."},
-{"copy", (PyCFunction)LinTable_copy, METH_O, "Copy data from table given in argument."},
-{"copyData", (PyCFunction)LinTable_copyData, METH_VARARGS|METH_KEYWORDS, "Copy data from table given in argument."},
-{"rotate", (PyCFunction)LinTable_rotate, METH_VARARGS|METH_KEYWORDS, "Rotate table around position as argument."},
-{"setTable", (PyCFunction)LinTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
-{"getTable", (PyCFunction)LinTable_getTable, METH_NOARGS, "Returns a list of table samples."},
-{"getViewTable", (PyCFunction)LinTable_getViewTable, METH_VARARGS|METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
-{"getTableStream", (PyCFunction)LinTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
-{"setData", (PyCFunction)LinTable_setData, METH_O, "Sets the table from samples in a text file."},
-{"normalize", (PyCFunction)LinTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
-{"reset", (PyCFunction)LinTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
-{"removeDC", (PyCFunction)LinTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
-{"reverse", (PyCFunction)LinTable_reverse, METH_NOARGS, "Reverse the table's data."},
-{"invert", (PyCFunction)LinTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
-{"rectify", (PyCFunction)LinTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
-{"bipolarGain", (PyCFunction)LinTable_bipolarGain, METH_VARARGS|METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
-{"lowpass", (PyCFunction)LinTable_lowpass, METH_VARARGS|METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
-{"fadein", (PyCFunction)LinTable_fadein, METH_VARARGS|METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
-{"fadeout", (PyCFunction)LinTable_fadeout, METH_VARARGS|METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
-{"pow", (PyCFunction)LinTable_pow, METH_VARARGS|METH_KEYWORDS, "Apply a power function on each sample in the table."},
-{"setSize", (PyCFunction)LinTable_setSize, METH_O, "Sets the size of the table in samples"},
-{"getSize", (PyCFunction)LinTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
-{"put", (PyCFunction)LinTable_put, METH_VARARGS|METH_KEYWORDS, "Puts a value at specified position in the table."},
-{"get", (PyCFunction)LinTable_get, METH_VARARGS|METH_KEYWORDS, "Gets the value at specified position in the table."},
-{"getPoints", (PyCFunction)LinTable_getPoints, METH_NOARGS, "Return the list of points."},
-{"replace", (PyCFunction)LinTable_replace, METH_O, "Sets the harmonics amplitude list and generates a new waveform table."},
-{"add", (PyCFunction)LinTable_add, METH_O, "Performs table addition."},
-{"sub", (PyCFunction)LinTable_sub, METH_O, "Performs table substraction."},
-{"mul", (PyCFunction)LinTable_mul, METH_O, "Performs table multiplication."},
-{NULL}  /* Sentinel */
+static PyMethodDef LinTable_methods[] =
+{
+    {"getServer", (PyCFunction)LinTable_getServer, METH_NOARGS, "Returns server object."},
+    {"copy", (PyCFunction)LinTable_copy, METH_O, "Copy data from table given in argument."},
+    {"copyData", (PyCFunction)LinTable_copyData, METH_VARARGS | METH_KEYWORDS, "Copy data from table given in argument."},
+    {"rotate", (PyCFunction)LinTable_rotate, METH_VARARGS | METH_KEYWORDS, "Rotate table around position as argument."},
+    {"setTable", (PyCFunction)LinTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
+    {"getTable", (PyCFunction)LinTable_getTable, METH_NOARGS, "Returns a list of table samples."},
+    {"getViewTable", (PyCFunction)LinTable_getViewTable, METH_VARARGS | METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
+    {"getTableStream", (PyCFunction)LinTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
+    {"setData", (PyCFunction)LinTable_setData, METH_O, "Sets the table from samples in a text file."},
+    {"normalize", (PyCFunction)LinTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
+    {"reset", (PyCFunction)LinTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
+    {"removeDC", (PyCFunction)LinTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
+    {"reverse", (PyCFunction)LinTable_reverse, METH_NOARGS, "Reverse the table's data."},
+    {"invert", (PyCFunction)LinTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
+    {"rectify", (PyCFunction)LinTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
+    {"bipolarGain", (PyCFunction)LinTable_bipolarGain, METH_VARARGS | METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
+    {"lowpass", (PyCFunction)LinTable_lowpass, METH_VARARGS | METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
+    {"fadein", (PyCFunction)LinTable_fadein, METH_VARARGS | METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
+    {"fadeout", (PyCFunction)LinTable_fadeout, METH_VARARGS | METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
+    {"pow", (PyCFunction)LinTable_pow, METH_VARARGS | METH_KEYWORDS, "Apply a power function on each sample in the table."},
+    {"setSize", (PyCFunction)LinTable_setSize, METH_O, "Sets the size of the table in samples"},
+    {"getSize", (PyCFunction)LinTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
+    {"put", (PyCFunction)LinTable_put, METH_VARARGS | METH_KEYWORDS, "Puts a value at specified position in the table."},
+    {"get", (PyCFunction)LinTable_get, METH_VARARGS | METH_KEYWORDS, "Gets the value at specified position in the table."},
+    {"getPoints", (PyCFunction)LinTable_getPoints, METH_NOARGS, "Return the list of points."},
+    {"replace", (PyCFunction)LinTable_replace, METH_O, "Sets the harmonics amplitude list and generates a new waveform table."},
+    {"add", (PyCFunction)LinTable_add, METH_O, "Performs table addition."},
+    {"sub", (PyCFunction)LinTable_sub, METH_O, "Performs table substraction."},
+    {"mul", (PyCFunction)LinTable_mul, METH_O, "Performs table multiplication."},
+    {NULL}  /* Sentinel */
 };
 
-PyTypeObject LinTableType = {
-PyVarObject_HEAD_INIT(NULL, 0)
-"_pyo.LinTable_base",         /*tp_name*/
-sizeof(LinTable),         /*tp_basicsize*/
-0,                         /*tp_itemsize*/
-(destructor)LinTable_dealloc, /*tp_dealloc*/
-0,                         /*tp_print*/
-0,                         /*tp_getattr*/
-0,                         /*tp_setattr*/
-0,                         /*tp_as_async (tp_compare in Python 2)*/
-0,                         /*tp_repr*/
-0,                         /*tp_as_number*/
-0,                         /*tp_as_sequence*/
-0,                         /*tp_as_mapping*/
-0,                         /*tp_hash */
-0,                         /*tp_call*/
-0,                         /*tp_str*/
-0,                         /*tp_getattro*/
-0,                         /*tp_setattro*/
-0,                         /*tp_as_buffer*/
-Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-"LinTable objects. Generates a table filled with one or more straight lines.",  /* tp_doc */
-(traverseproc)LinTable_traverse,   /* tp_traverse */
-(inquiry)LinTable_clear,           /* tp_clear */
-0,		               /* tp_richcompare */
-0,		               /* tp_weaklistoffset */
-0,		               /* tp_iter */
-0,		               /* tp_iternext */
-LinTable_methods,             /* tp_methods */
-LinTable_members,             /* tp_members */
-0,                      /* tp_getset */
-0,                         /* tp_base */
-0,                         /* tp_dict */
-0,                         /* tp_descr_get */
-0,                         /* tp_descr_set */
-0,                         /* tp_dictoffset */
-0,      /* tp_init */
-0,                         /* tp_alloc */
-LinTable_new,                 /* tp_new */
+PyTypeObject LinTableType =
+{
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "_pyo.LinTable_base",         /*tp_name*/
+    sizeof(LinTable),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)LinTable_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
+    0,                         /*tp_repr*/
+    0,                         /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
+    "LinTable objects. Generates a table filled with one or more straight lines.",  /* tp_doc */
+    (traverseproc)LinTable_traverse,   /* tp_traverse */
+    (inquiry)LinTable_clear,           /* tp_clear */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
+    LinTable_methods,             /* tp_methods */
+    LinTable_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,      /* tp_init */
+    0,                         /* tp_alloc */
+    LinTable_new,                 /* tp_new */
 };
 
 /***********************/
 /* LogTable structure */
 /***********************/
-typedef struct {
+typedef struct
+{
     pyo_table_HEAD
     PyObject *pointslist;
 } LogTable;
 
 static void
-LogTable_generate(LogTable *self) {
+LogTable_generate(LogTable *self)
+{
     Py_ssize_t i, j, steps;
     Py_ssize_t listsize;
     PyObject *tup, *tup2;
@@ -2025,33 +2175,42 @@ LogTable_generate(LogTable *self) {
 
     listsize = PyList_Size(self->pointslist);
 
-    if (listsize < 2) {
+    if (listsize < 2)
+    {
         PySys_WriteStderr("LogTable error: There should be at least two points in a LogTable.\n");
         return;
     }
 
-    for(i=0; i<(listsize-1); i++) {
+    for(i = 0; i < (listsize - 1); i++)
+    {
         tup = PyList_GET_ITEM(self->pointslist, i);
         x1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
         x2 = PyFloat_AsDouble(PyTuple_GET_ITEM(tup, 1));
-        tup2 = PyList_GET_ITEM(self->pointslist, i+1);
+        tup2 = PyList_GET_ITEM(self->pointslist, i + 1);
         y1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup2, 0)));
         y2 = PyFloat_AsDouble(PyTuple_GET_ITEM(tup2, 1));
+
         if (x2 <= 0)
             x2 = 0.000001;
+
         if (y2 <= 0)
             y2 = 0.000001;
-        if (x2 > y2) {
+
+        if (x2 > y2)
+        {
             low = y2;
             high = x2;
         }
-        else {
+        else
+        {
             low = x2;
             high = y2;
         }
 
         steps = y1 - x1;
-        if (steps <= 0) {
+
+        if (steps <= 0)
+        {
             PySys_WriteStderr("LogTable error: point position smaller than previous one.\n");
             return;
         }
@@ -2059,28 +2218,40 @@ LogTable_generate(LogTable *self) {
         range = high - low;
         logrange = MYLOG10(high) - MYLOG10(low);
         logmin = MYLOG10(low);
-        if (range == 0) {
-            for(j=0; j<steps; j++) {
-                self->data[x1+j] = x2;
+
+        if (range == 0)
+        {
+            for(j = 0; j < steps; j++)
+            {
+                self->data[x1 + j] = x2;
             }
         }
-        else {
+        else
+        {
             diff = (y2 - x2) / steps;
-            for(j=0; j<steps; j++) {
+
+            for(j = 0; j < steps; j++)
+            {
                 ratio = ((x2 + diff * j) - low) / range;
-                self->data[x1+j] = MYPOW(10, ratio * logrange + logmin);
+                self->data[x1 + j] = MYPOW(10, ratio * logrange + logmin);
             }
         }
     }
-    if (y1 < (self->size-1)) {
+
+    if (y1 < (self->size - 1))
+    {
         self->data[y1] = y2;
-        for (i=y1; i<self->size; i++) {
-            self->data[i+1] = 0.0;
+
+        for (i = y1; i < self->size; i++)
+        {
+            self->data[i + 1] = 0.0;
         }
+
         self->data[self->size] = 0.0;
     }
-    else {
-        self->data[self->size-1] = y2;
+    else
+    {
+        self->data[self->size - 1] = y2;
         self->data[self->size] = y2;
     }
 }
@@ -2112,7 +2283,7 @@ LogTable_dealloc(LogTable* self)
 static PyObject *
 LogTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-    PyObject *pointslist=NULL;
+    PyObject *pointslist = NULL;
     LogTable *self;
     self = (LogTable *)type->tp_alloc(type, 0);
 
@@ -2129,17 +2300,19 @@ LogTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|Oi", kwlist, &pointslist, &self->size))
         Py_RETURN_NONE;
 
-    if (pointslist) {
+    if (pointslist)
+    {
         Py_INCREF(pointslist);
         Py_DECREF(self->pointslist);
         self->pointslist = pointslist;
     }
-    else {
+    else
+    {
         PyList_Append(self->pointslist, PyTuple_Pack(2, PyInt_FromLong(0), PyFloat_FromDouble(0.)));
         PyList_Append(self->pointslist, PyTuple_Pack(2, PyInt_FromLong(self->size), PyFloat_FromDouble(1.)));
     }
 
-    self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
+    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
     TableStream_setData(self->tablestream, self->data);
     LogTable_generate(self);
@@ -2184,12 +2357,14 @@ LogTable_setSize(LogTable *self, PyObject *value)
     int old_size, x1;
     MYFLT factor;
 
-    if (value == NULL) {
+    if (value == NULL)
+    {
         PyErr_SetString(PyExc_TypeError, "Cannot delete the size attribute.");
         return PyInt_FromLong(-1);
     }
 
-    if (! PyInt_Check(value)) {
+    if (! PyInt_Check(value))
+    {
         PyErr_SetString(PyExc_TypeError, "The size attribute value must be an integer.");
         return PyInt_FromLong(-1);
     }
@@ -2199,18 +2374,19 @@ LogTable_setSize(LogTable *self, PyObject *value)
 
     factor = (MYFLT)(self->size) / old_size;
 
-    self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
+    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
 
     Py_ssize_t listsize = PyList_Size(self->pointslist);
 
     PyObject *listtemp = PyList_New(0);
 
-    for(i=0; i<(listsize); i++) {
+    for(i = 0; i < (listsize); i++)
+    {
         tup = PyList_GET_ITEM(self->pointslist, i);
         x1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
         x2 = PyNumber_Float(PyTuple_GET_ITEM(tup, 1));
-        PyList_Append(listtemp, PyTuple_Pack(2, PyInt_FromLong((int)(x1*factor)), x2));
+        PyList_Append(listtemp, PyTuple_Pack(2, PyInt_FromLong((int)(x1 * factor)), x2));
     }
 
     Py_INCREF(listtemp);
@@ -2239,12 +2415,14 @@ LogTable_getPoints(LogTable *self)
 static PyObject *
 LogTable_replace(LogTable *self, PyObject *value)
 {
-    if (value == NULL) {
+    if (value == NULL)
+    {
         PyErr_SetString(PyExc_TypeError, "Cannot delete the list attribute.");
         return PyInt_FromLong(-1);
     }
 
-    if (! PyList_Check(value)) {
+    if (! PyList_Check(value))
+    {
         PyErr_SetString(PyExc_TypeError, "The amplitude list attribute value must be a list of tuples.");
         return PyInt_FromLong(-1);
     }
@@ -2259,21 +2437,23 @@ LogTable_replace(LogTable *self, PyObject *value)
     return Py_None;
 }
 
-static PyMemberDef LogTable_members[] = {
+static PyMemberDef LogTable_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(LogTable, server), 0, "Pyo server."},
     {"tablestream", T_OBJECT_EX, offsetof(LogTable, tablestream), 0, "Table stream object."},
     {"pointslist", T_OBJECT_EX, offsetof(LogTable, pointslist), 0, "Harmonics amplitude values."},
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef LogTable_methods[] = {
+static PyMethodDef LogTable_methods[] =
+{
     {"getServer", (PyCFunction)LogTable_getServer, METH_NOARGS, "Returns server object."},
     {"copy", (PyCFunction)LogTable_copy, METH_O, "Copy data from table given in argument."},
-    {"copyData", (PyCFunction)LogTable_copyData, METH_VARARGS|METH_KEYWORDS, "Copy data from table given in argument."},
-    {"rotate", (PyCFunction)LogTable_rotate, METH_VARARGS|METH_KEYWORDS, "Rotate table around position as argument."},
+    {"copyData", (PyCFunction)LogTable_copyData, METH_VARARGS | METH_KEYWORDS, "Copy data from table given in argument."},
+    {"rotate", (PyCFunction)LogTable_rotate, METH_VARARGS | METH_KEYWORDS, "Rotate table around position as argument."},
     {"setTable", (PyCFunction)LogTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
     {"getTable", (PyCFunction)LogTable_getTable, METH_NOARGS, "Returns a list of table samples."},
-    {"getViewTable", (PyCFunction)LogTable_getViewTable, METH_VARARGS|METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
+    {"getViewTable", (PyCFunction)LogTable_getViewTable, METH_VARARGS | METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
     {"getTableStream", (PyCFunction)LogTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
     {"setData", (PyCFunction)LogTable_setData, METH_O, "Sets the table from samples in a text file."},
     {"normalize", (PyCFunction)LogTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
@@ -2282,15 +2462,15 @@ static PyMethodDef LogTable_methods[] = {
     {"reverse", (PyCFunction)LogTable_reverse, METH_NOARGS, "Reverse the table's data."},
     {"invert", (PyCFunction)LogTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
     {"rectify", (PyCFunction)LogTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
-    {"bipolarGain", (PyCFunction)LogTable_bipolarGain, METH_VARARGS|METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
-    {"lowpass", (PyCFunction)LogTable_lowpass, METH_VARARGS|METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
-    {"fadein", (PyCFunction)LogTable_fadein, METH_VARARGS|METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
-    {"fadeout", (PyCFunction)LogTable_fadeout, METH_VARARGS|METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
-    {"pow", (PyCFunction)LogTable_pow, METH_VARARGS|METH_KEYWORDS, "Apply a power function on each sample in the table."},
+    {"bipolarGain", (PyCFunction)LogTable_bipolarGain, METH_VARARGS | METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
+    {"lowpass", (PyCFunction)LogTable_lowpass, METH_VARARGS | METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
+    {"fadein", (PyCFunction)LogTable_fadein, METH_VARARGS | METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
+    {"fadeout", (PyCFunction)LogTable_fadeout, METH_VARARGS | METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
+    {"pow", (PyCFunction)LogTable_pow, METH_VARARGS | METH_KEYWORDS, "Apply a power function on each sample in the table."},
     {"setSize", (PyCFunction)LogTable_setSize, METH_O, "Sets the size of the table in samples"},
     {"getSize", (PyCFunction)LogTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
-    {"put", (PyCFunction)LogTable_put, METH_VARARGS|METH_KEYWORDS, "Puts a value at specified position in the table."},
-    {"get", (PyCFunction)LogTable_get, METH_VARARGS|METH_KEYWORDS, "Gets the value at specified position in the table."},
+    {"put", (PyCFunction)LogTable_put, METH_VARARGS | METH_KEYWORDS, "Puts a value at specified position in the table."},
+    {"get", (PyCFunction)LogTable_get, METH_VARARGS | METH_KEYWORDS, "Gets the value at specified position in the table."},
     {"getPoints", (PyCFunction)LogTable_getPoints, METH_NOARGS, "Return the list of points."},
     {"replace", (PyCFunction)LogTable_replace, METH_O, "Sets the harmonics amplitude list and generates a new waveform table."},
     {"add", (PyCFunction)LogTable_add, METH_O, "Performs table addition."},
@@ -2299,7 +2479,8 @@ static PyMethodDef LogTable_methods[] = {
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject LogTableType = {
+PyTypeObject LogTableType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.LogTable_base",         /*tp_name*/
     sizeof(LogTable),         /*tp_basicsize*/
@@ -2323,10 +2504,10 @@ PyTypeObject LogTableType = {
     "LogTable objects. Generates a table filled with one or more logarothmic lines.",  /* tp_doc */
     (traverseproc)LogTable_traverse,   /* tp_traverse */
     (inquiry)LogTable_clear,           /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
     LogTable_methods,             /* tp_methods */
     LogTable_members,             /* tp_members */
     0,                      /* tp_getset */
@@ -2343,13 +2524,15 @@ PyTypeObject LogTableType = {
 /***********************/
 /* CosTable structure */
 /***********************/
-typedef struct {
+typedef struct
+{
     pyo_table_HEAD
     PyObject *pointslist;
 } CosTable;
 
 static void
-CosTable_generate(CosTable *self) {
+CosTable_generate(CosTable *self)
+{
     Py_ssize_t i, j, steps;
     Py_ssize_t listsize;
     PyObject *tup, *tup2;
@@ -2361,40 +2544,51 @@ CosTable_generate(CosTable *self) {
 
     listsize = PyList_Size(self->pointslist);
 
-    if (listsize < 2) {
+    if (listsize < 2)
+    {
         PySys_WriteStderr("CosTable error: There should be at least two points in a CosTable.\n");
         return;
     }
 
-    for(i=0; i<(listsize-1); i++) {
+    for(i = 0; i < (listsize - 1); i++)
+    {
         tup = PyList_GET_ITEM(self->pointslist, i);
         x1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
         x2 = PyFloat_AsDouble(PyTuple_GET_ITEM(tup, 1));
-        tup2 = PyList_GET_ITEM(self->pointslist, i+1);
+        tup2 = PyList_GET_ITEM(self->pointslist, i + 1);
         y1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup2, 0)));
         y2 = PyFloat_AsDouble(PyTuple_GET_ITEM(tup2, 1));
 
         steps = y1 - x1;
-        if (steps <= 0) {
+
+        if (steps <= 0)
+        {
             PySys_WriteStderr("CosTable error: point position smaller than previous one.\n");
             return;
         }
 
-        for(j=0; j<steps; j++) {
+        for(j = 0; j < steps; j++)
+        {
             mu = (MYFLT)j / steps;
-            mu2 = (1.0-MYCOS(mu*PI))/2.0;
-            self->data[x1+j] = x2 *(1.0-mu2) + y2*mu2;
+            mu2 = (1.0 - MYCOS(mu * PI)) / 2.0;
+            self->data[x1 + j] = x2 * (1.0 - mu2) + y2 * mu2;
         }
     }
-    if (y1 < (self->size-1)) {
+
+    if (y1 < (self->size - 1))
+    {
         self->data[y1] = y2;
-        for (i=y1; i<self->size; i++) {
-            self->data[i+1] = 0.0;
+
+        for (i = y1; i < self->size; i++)
+        {
+            self->data[i + 1] = 0.0;
         }
+
         self->data[self->size] = 0.0;
     }
-    else {
-        self->data[self->size-1] = y2;
+    else
+    {
+        self->data[self->size - 1] = y2;
         self->data[self->size] = y2;
     }
 }
@@ -2426,7 +2620,7 @@ CosTable_dealloc(CosTable* self)
 static PyObject *
 CosTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-    PyObject *pointslist=NULL;
+    PyObject *pointslist = NULL;
     CosTable *self;
     self = (CosTable *)type->tp_alloc(type, 0);
 
@@ -2443,17 +2637,19 @@ CosTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|Oi", kwlist, &pointslist, &self->size))
         Py_RETURN_NONE;
 
-    if (pointslist) {
+    if (pointslist)
+    {
         Py_INCREF(pointslist);
         Py_DECREF(self->pointslist);
         self->pointslist = pointslist;
     }
-    else {
+    else
+    {
         PyList_Append(self->pointslist, PyTuple_Pack(2, PyInt_FromLong(0), PyFloat_FromDouble(0.)));
         PyList_Append(self->pointslist, PyTuple_Pack(2, PyInt_FromLong(self->size), PyFloat_FromDouble(1.)));
     }
 
-    self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
+    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
     TableStream_setData(self->tablestream, self->data);
     CosTable_generate(self);
@@ -2498,12 +2694,14 @@ CosTable_setSize(CosTable *self, PyObject *value)
     int old_size, x1;
     MYFLT factor;
 
-    if (value == NULL) {
+    if (value == NULL)
+    {
         PyErr_SetString(PyExc_TypeError, "Cannot delete the size attribute.");
         return PyInt_FromLong(-1);
     }
 
-    if (! PyInt_Check(value)) {
+    if (! PyInt_Check(value))
+    {
         PyErr_SetString(PyExc_TypeError, "The size attribute value must be an integer.");
         return PyInt_FromLong(-1);
     }
@@ -2513,18 +2711,19 @@ CosTable_setSize(CosTable *self, PyObject *value)
 
     factor = (MYFLT)(self->size) / old_size;
 
-    self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
+    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
 
     Py_ssize_t listsize = PyList_Size(self->pointslist);
 
     PyObject *listtemp = PyList_New(0);
 
-    for(i=0; i<(listsize); i++) {
+    for(i = 0; i < (listsize); i++)
+    {
         tup = PyList_GET_ITEM(self->pointslist, i);
         x1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
         x2 = PyNumber_Float(PyTuple_GET_ITEM(tup, 1));
-        PyList_Append(listtemp, PyTuple_Pack(2, PyInt_FromLong((int)(x1*factor)), x2));
+        PyList_Append(listtemp, PyTuple_Pack(2, PyInt_FromLong((int)(x1 * factor)), x2));
     }
 
     Py_INCREF(listtemp);
@@ -2553,12 +2752,14 @@ CosTable_getPoints(CosTable *self)
 static PyObject *
 CosTable_replace(CosTable *self, PyObject *value)
 {
-    if (value == NULL) {
+    if (value == NULL)
+    {
         PyErr_SetString(PyExc_TypeError, "Cannot delete the list attribute.");
         return PyInt_FromLong(-1);
     }
 
-    if (! PyList_Check(value)) {
+    if (! PyList_Check(value))
+    {
         PyErr_SetString(PyExc_TypeError, "The amplitude list attribute value must be a list of tuples.");
         return PyInt_FromLong(-1);
     }
@@ -2573,97 +2774,102 @@ CosTable_replace(CosTable *self, PyObject *value)
     return Py_None;
 }
 
-static PyMemberDef CosTable_members[] = {
-{"server", T_OBJECT_EX, offsetof(CosTable, server), 0, "Pyo server."},
-{"tablestream", T_OBJECT_EX, offsetof(CosTable, tablestream), 0, "Table stream object."},
-{"pointslist", T_OBJECT_EX, offsetof(CosTable, pointslist), 0, "Harmonics amplitude values."},
-{NULL}  /* Sentinel */
+static PyMemberDef CosTable_members[] =
+{
+    {"server", T_OBJECT_EX, offsetof(CosTable, server), 0, "Pyo server."},
+    {"tablestream", T_OBJECT_EX, offsetof(CosTable, tablestream), 0, "Table stream object."},
+    {"pointslist", T_OBJECT_EX, offsetof(CosTable, pointslist), 0, "Harmonics amplitude values."},
+    {NULL}  /* Sentinel */
 };
 
-static PyMethodDef CosTable_methods[] = {
-{"getServer", (PyCFunction)CosTable_getServer, METH_NOARGS, "Returns server object."},
-{"copy", (PyCFunction)CosTable_copy, METH_O, "Copy data from table given in argument."},
-{"copyData", (PyCFunction)CosTable_copyData, METH_VARARGS|METH_KEYWORDS, "Copy data from table given in argument."},
-{"rotate", (PyCFunction)CosTable_rotate, METH_VARARGS|METH_KEYWORDS, "Rotate table around position as argument."},
-{"setTable", (PyCFunction)CosTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
-{"getTable", (PyCFunction)CosTable_getTable, METH_NOARGS, "Returns a list of table samples."},
-{"getViewTable", (PyCFunction)CosTable_getViewTable, METH_VARARGS|METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
-{"getTableStream", (PyCFunction)CosTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
-{"setData", (PyCFunction)CosTable_setData, METH_O, "Sets the table from samples in a text file."},
-{"normalize", (PyCFunction)CosTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
-{"reset", (PyCFunction)CosTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
-{"removeDC", (PyCFunction)CosTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
-{"reverse", (PyCFunction)CosTable_reverse, METH_NOARGS, "Reverse the table's data."},
-{"invert", (PyCFunction)CosTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
-{"rectify", (PyCFunction)CosTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
-{"bipolarGain", (PyCFunction)CosTable_bipolarGain, METH_VARARGS|METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
-{"lowpass", (PyCFunction)CosTable_lowpass, METH_VARARGS|METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
-{"fadein", (PyCFunction)CosTable_fadein, METH_VARARGS|METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
-{"fadeout", (PyCFunction)CosTable_fadeout, METH_VARARGS|METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
-{"pow", (PyCFunction)CosTable_pow, METH_VARARGS|METH_KEYWORDS, "Apply a power function on each sample in the table."},
-{"setSize", (PyCFunction)CosTable_setSize, METH_O, "Sets the size of the table in samples"},
-{"getSize", (PyCFunction)CosTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
-{"put", (PyCFunction)CosTable_put, METH_VARARGS|METH_KEYWORDS, "Puts a value at specified position in the table."},
-{"get", (PyCFunction)CosTable_get, METH_VARARGS|METH_KEYWORDS, "Gets the value at specified position in the table."},
-{"getPoints", (PyCFunction)CosTable_getPoints, METH_NOARGS, "Return the list of points."},
-{"replace", (PyCFunction)CosTable_replace, METH_O, "Sets the harmonics amplitude list and generates a new waveform table."},
-{"add", (PyCFunction)CosTable_add, METH_O, "Performs table addition."},
-{"sub", (PyCFunction)CosTable_sub, METH_O, "Performs table substraction."},
-{"mul", (PyCFunction)CosTable_mul, METH_O, "Performs table multiplication."},
-{NULL}  /* Sentinel */
+static PyMethodDef CosTable_methods[] =
+{
+    {"getServer", (PyCFunction)CosTable_getServer, METH_NOARGS, "Returns server object."},
+    {"copy", (PyCFunction)CosTable_copy, METH_O, "Copy data from table given in argument."},
+    {"copyData", (PyCFunction)CosTable_copyData, METH_VARARGS | METH_KEYWORDS, "Copy data from table given in argument."},
+    {"rotate", (PyCFunction)CosTable_rotate, METH_VARARGS | METH_KEYWORDS, "Rotate table around position as argument."},
+    {"setTable", (PyCFunction)CosTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
+    {"getTable", (PyCFunction)CosTable_getTable, METH_NOARGS, "Returns a list of table samples."},
+    {"getViewTable", (PyCFunction)CosTable_getViewTable, METH_VARARGS | METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
+    {"getTableStream", (PyCFunction)CosTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
+    {"setData", (PyCFunction)CosTable_setData, METH_O, "Sets the table from samples in a text file."},
+    {"normalize", (PyCFunction)CosTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
+    {"reset", (PyCFunction)CosTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
+    {"removeDC", (PyCFunction)CosTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
+    {"reverse", (PyCFunction)CosTable_reverse, METH_NOARGS, "Reverse the table's data."},
+    {"invert", (PyCFunction)CosTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
+    {"rectify", (PyCFunction)CosTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
+    {"bipolarGain", (PyCFunction)CosTable_bipolarGain, METH_VARARGS | METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
+    {"lowpass", (PyCFunction)CosTable_lowpass, METH_VARARGS | METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
+    {"fadein", (PyCFunction)CosTable_fadein, METH_VARARGS | METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
+    {"fadeout", (PyCFunction)CosTable_fadeout, METH_VARARGS | METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
+    {"pow", (PyCFunction)CosTable_pow, METH_VARARGS | METH_KEYWORDS, "Apply a power function on each sample in the table."},
+    {"setSize", (PyCFunction)CosTable_setSize, METH_O, "Sets the size of the table in samples"},
+    {"getSize", (PyCFunction)CosTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
+    {"put", (PyCFunction)CosTable_put, METH_VARARGS | METH_KEYWORDS, "Puts a value at specified position in the table."},
+    {"get", (PyCFunction)CosTable_get, METH_VARARGS | METH_KEYWORDS, "Gets the value at specified position in the table."},
+    {"getPoints", (PyCFunction)CosTable_getPoints, METH_NOARGS, "Return the list of points."},
+    {"replace", (PyCFunction)CosTable_replace, METH_O, "Sets the harmonics amplitude list and generates a new waveform table."},
+    {"add", (PyCFunction)CosTable_add, METH_O, "Performs table addition."},
+    {"sub", (PyCFunction)CosTable_sub, METH_O, "Performs table substraction."},
+    {"mul", (PyCFunction)CosTable_mul, METH_O, "Performs table multiplication."},
+    {NULL}  /* Sentinel */
 };
 
-PyTypeObject CosTableType = {
-PyVarObject_HEAD_INIT(NULL, 0)
-"_pyo.CosTable_base",         /*tp_name*/
-sizeof(CosTable),         /*tp_basicsize*/
-0,                         /*tp_itemsize*/
-(destructor)CosTable_dealloc, /*tp_dealloc*/
-0,                         /*tp_print*/
-0,                         /*tp_getattr*/
-0,                         /*tp_setattr*/
-0,                         /*tp_as_async (tp_compare in Python 2)*/
-0,                         /*tp_repr*/
-0,                         /*tp_as_number*/
-0,                         /*tp_as_sequence*/
-0,                         /*tp_as_mapping*/
-0,                         /*tp_hash */
-0,                         /*tp_call*/
-0,                         /*tp_str*/
-0,                         /*tp_getattro*/
-0,                         /*tp_setattro*/
-0,                         /*tp_as_buffer*/
-Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-"CosTable objects. Generates a table filled with one or more straight lines.",  /* tp_doc */
-(traverseproc)CosTable_traverse,   /* tp_traverse */
-(inquiry)CosTable_clear,           /* tp_clear */
-0,		               /* tp_richcompare */
-0,		               /* tp_weaklistoffset */
-0,		               /* tp_iter */
-0,		               /* tp_iternext */
-CosTable_methods,             /* tp_methods */
-CosTable_members,             /* tp_members */
-0,                      /* tp_getset */
-0,                         /* tp_base */
-0,                         /* tp_dict */
-0,                         /* tp_descr_get */
-0,                         /* tp_descr_set */
-0,                         /* tp_dictoffset */
-0,      /* tp_init */
-0,                         /* tp_alloc */
-CosTable_new,                 /* tp_new */
+PyTypeObject CosTableType =
+{
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "_pyo.CosTable_base",         /*tp_name*/
+    sizeof(CosTable),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)CosTable_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
+    0,                         /*tp_repr*/
+    0,                         /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
+    "CosTable objects. Generates a table filled with one or more straight lines.",  /* tp_doc */
+    (traverseproc)CosTable_traverse,   /* tp_traverse */
+    (inquiry)CosTable_clear,           /* tp_clear */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
+    CosTable_methods,             /* tp_methods */
+    CosTable_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,      /* tp_init */
+    0,                         /* tp_alloc */
+    CosTable_new,                 /* tp_new */
 };
 
 /***********************/
 /* CosLogTable structure */
 /***********************/
-typedef struct {
+typedef struct
+{
     pyo_table_HEAD
     PyObject *pointslist;
 } CosLogTable;
 
 static void
-CosLogTable_generate(CosLogTable *self) {
+CosLogTable_generate(CosLogTable *self)
+{
     Py_ssize_t i, j, steps;
     Py_ssize_t listsize;
     PyObject *tup, *tup2;
@@ -2675,33 +2881,42 @@ CosLogTable_generate(CosLogTable *self) {
 
     listsize = PyList_Size(self->pointslist);
 
-    if (listsize < 2) {
+    if (listsize < 2)
+    {
         PySys_WriteStderr("CosLogTable error: There should be at least two points in a CosLogTable.\n");
         return;
     }
 
-    for(i=0; i<(listsize-1); i++) {
+    for(i = 0; i < (listsize - 1); i++)
+    {
         tup = PyList_GET_ITEM(self->pointslist, i);
         x1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
         x2 = PyFloat_AsDouble(PyTuple_GET_ITEM(tup, 1));
-        tup2 = PyList_GET_ITEM(self->pointslist, i+1);
+        tup2 = PyList_GET_ITEM(self->pointslist, i + 1);
         y1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup2, 0)));
         y2 = PyFloat_AsDouble(PyTuple_GET_ITEM(tup2, 1));
+
         if (x2 <= 0)
             x2 = 0.000001;
+
         if (y2 <= 0)
             y2 = 0.000001;
-        if (x2 > y2) {
+
+        if (x2 > y2)
+        {
             low = y2;
             high = x2;
         }
-        else {
+        else
+        {
             low = x2;
             high = y2;
         }
 
         steps = y1 - x1;
-        if (steps <= 0) {
+
+        if (steps <= 0)
+        {
             PySys_WriteStderr("CosLogTable error: point position smaller than previous one.\n");
             return;
         }
@@ -2709,30 +2924,41 @@ CosLogTable_generate(CosLogTable *self) {
         range = high - low;
         logrange = MYLOG10(high) - MYLOG10(low);
         logmin = MYLOG10(low);
-        if (range == 0) {
-            for(j=0; j<steps; j++) {
-                self->data[x1+j] = x2;
+
+        if (range == 0)
+        {
+            for(j = 0; j < steps; j++)
+            {
+                self->data[x1 + j] = x2;
             }
         }
-        else {
-            for(j=0; j<steps; j++) {
+        else
+        {
+            for(j = 0; j < steps; j++)
+            {
                 mu = (MYFLT)j / steps;
-                mu = (1.0-MYCOS(mu*PI))*0.5;
-                mu = x2 *(1.0-mu) + y2*mu;
+                mu = (1.0 - MYCOS(mu * PI)) * 0.5;
+                mu = x2 * (1.0 - mu) + y2 * mu;
                 ratio = (mu - low) / range;
-                self->data[x1+j] = MYPOW(10, ratio * logrange + logmin);
+                self->data[x1 + j] = MYPOW(10, ratio * logrange + logmin);
             }
         }
     }
-    if (y1 < (self->size-1)) {
+
+    if (y1 < (self->size - 1))
+    {
         self->data[y1] = y2;
-        for (i=y1; i<self->size; i++) {
-            self->data[i+1] = 0.0;
+
+        for (i = y1; i < self->size; i++)
+        {
+            self->data[i + 1] = 0.0;
         }
+
         self->data[self->size] = 0.0;
     }
-    else {
-        self->data[self->size-1] = y2;
+    else
+    {
+        self->data[self->size - 1] = y2;
         self->data[self->size] = y2;
     }
 }
@@ -2764,7 +2990,7 @@ CosLogTable_dealloc(CosLogTable* self)
 static PyObject *
 CosLogTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-    PyObject *pointslist=NULL;
+    PyObject *pointslist = NULL;
     CosLogTable *self;
     self = (CosLogTable *)type->tp_alloc(type, 0);
 
@@ -2781,17 +3007,19 @@ CosLogTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|Oi", kwlist, &pointslist, &self->size))
         Py_RETURN_NONE;
 
-    if (pointslist) {
+    if (pointslist)
+    {
         Py_INCREF(pointslist);
         Py_DECREF(self->pointslist);
         self->pointslist = pointslist;
     }
-    else {
+    else
+    {
         PyList_Append(self->pointslist, PyTuple_Pack(2, PyInt_FromLong(0), PyFloat_FromDouble(0.)));
         PyList_Append(self->pointslist, PyTuple_Pack(2, PyInt_FromLong(self->size), PyFloat_FromDouble(1.)));
     }
 
-    self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
+    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
     TableStream_setData(self->tablestream, self->data);
     CosLogTable_generate(self);
@@ -2836,12 +3064,14 @@ CosLogTable_setSize(CosLogTable *self, PyObject *value)
     int old_size, x1;
     MYFLT factor;
 
-    if (value == NULL) {
+    if (value == NULL)
+    {
         PyErr_SetString(PyExc_TypeError, "Cannot delete the size attribute.");
         return PyInt_FromLong(-1);
     }
 
-    if (! PyInt_Check(value)) {
+    if (! PyInt_Check(value))
+    {
         PyErr_SetString(PyExc_TypeError, "The size attribute value must be an integer.");
         return PyInt_FromLong(-1);
     }
@@ -2851,18 +3081,19 @@ CosLogTable_setSize(CosLogTable *self, PyObject *value)
 
     factor = (MYFLT)(self->size) / old_size;
 
-    self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
+    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
 
     Py_ssize_t listsize = PyList_Size(self->pointslist);
 
     PyObject *listtemp = PyList_New(0);
 
-    for(i=0; i<(listsize); i++) {
+    for(i = 0; i < (listsize); i++)
+    {
         tup = PyList_GET_ITEM(self->pointslist, i);
         x1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
         x2 = PyNumber_Float(PyTuple_GET_ITEM(tup, 1));
-        PyList_Append(listtemp, PyTuple_Pack(2, PyInt_FromLong((int)(x1*factor)), x2));
+        PyList_Append(listtemp, PyTuple_Pack(2, PyInt_FromLong((int)(x1 * factor)), x2));
     }
 
     Py_INCREF(listtemp);
@@ -2891,12 +3122,14 @@ CosLogTable_getPoints(CosLogTable *self)
 static PyObject *
 CosLogTable_replace(CosLogTable *self, PyObject *value)
 {
-    if (value == NULL) {
+    if (value == NULL)
+    {
         PyErr_SetString(PyExc_TypeError, "Cannot delete the list attribute.");
         return PyInt_FromLong(-1);
     }
 
-    if (! PyList_Check(value)) {
+    if (! PyList_Check(value))
+    {
         PyErr_SetString(PyExc_TypeError, "The amplitude list attribute value must be a list of tuples.");
         return PyInt_FromLong(-1);
     }
@@ -2911,21 +3144,23 @@ CosLogTable_replace(CosLogTable *self, PyObject *value)
     return Py_None;
 }
 
-static PyMemberDef CosLogTable_members[] = {
+static PyMemberDef CosLogTable_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(CosLogTable, server), 0, "Pyo server."},
     {"tablestream", T_OBJECT_EX, offsetof(CosLogTable, tablestream), 0, "Table stream object."},
     {"pointslist", T_OBJECT_EX, offsetof(CosLogTable, pointslist), 0, "Harmonics amplitude values."},
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef CosLogTable_methods[] = {
+static PyMethodDef CosLogTable_methods[] =
+{
     {"getServer", (PyCFunction)CosLogTable_getServer, METH_NOARGS, "Returns server object."},
     {"copy", (PyCFunction)CosLogTable_copy, METH_O, "Copy data from table given in argument."},
-    {"copyData", (PyCFunction)CosLogTable_copyData, METH_VARARGS|METH_KEYWORDS, "Copy data from table given in argument."},
-    {"rotate", (PyCFunction)CosLogTable_rotate, METH_VARARGS|METH_KEYWORDS, "Rotate table around position as argument."},
+    {"copyData", (PyCFunction)CosLogTable_copyData, METH_VARARGS | METH_KEYWORDS, "Copy data from table given in argument."},
+    {"rotate", (PyCFunction)CosLogTable_rotate, METH_VARARGS | METH_KEYWORDS, "Rotate table around position as argument."},
     {"setTable", (PyCFunction)CosLogTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
     {"getTable", (PyCFunction)CosLogTable_getTable, METH_NOARGS, "Returns a list of table samples."},
-    {"getViewTable", (PyCFunction)CosLogTable_getViewTable, METH_VARARGS|METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
+    {"getViewTable", (PyCFunction)CosLogTable_getViewTable, METH_VARARGS | METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
     {"getTableStream", (PyCFunction)CosLogTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
     {"setData", (PyCFunction)CosLogTable_setData, METH_O, "Sets the table from samples in a text file."},
     {"normalize", (PyCFunction)CosLogTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
@@ -2934,15 +3169,15 @@ static PyMethodDef CosLogTable_methods[] = {
     {"reverse", (PyCFunction)CosLogTable_reverse, METH_NOARGS, "Reverse the table's data."},
     {"invert", (PyCFunction)CosLogTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
     {"rectify", (PyCFunction)CosLogTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
-    {"bipolarGain", (PyCFunction)CosLogTable_bipolarGain, METH_VARARGS|METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
-    {"lowpass", (PyCFunction)CosLogTable_lowpass, METH_VARARGS|METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
-    {"fadein", (PyCFunction)CosLogTable_fadein, METH_VARARGS|METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
-    {"fadeout", (PyCFunction)CosLogTable_fadeout, METH_VARARGS|METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
-    {"pow", (PyCFunction)CosLogTable_pow, METH_VARARGS|METH_KEYWORDS, "Apply a power function on each sample in the table."},
+    {"bipolarGain", (PyCFunction)CosLogTable_bipolarGain, METH_VARARGS | METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
+    {"lowpass", (PyCFunction)CosLogTable_lowpass, METH_VARARGS | METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
+    {"fadein", (PyCFunction)CosLogTable_fadein, METH_VARARGS | METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
+    {"fadeout", (PyCFunction)CosLogTable_fadeout, METH_VARARGS | METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
+    {"pow", (PyCFunction)CosLogTable_pow, METH_VARARGS | METH_KEYWORDS, "Apply a power function on each sample in the table."},
     {"setSize", (PyCFunction)CosLogTable_setSize, METH_O, "Sets the size of the table in samples"},
     {"getSize", (PyCFunction)CosLogTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
-    {"put", (PyCFunction)CosLogTable_put, METH_VARARGS|METH_KEYWORDS, "Puts a value at specified position in the table."},
-    {"get", (PyCFunction)CosLogTable_get, METH_VARARGS|METH_KEYWORDS, "Gets the value at specified position in the table."},
+    {"put", (PyCFunction)CosLogTable_put, METH_VARARGS | METH_KEYWORDS, "Puts a value at specified position in the table."},
+    {"get", (PyCFunction)CosLogTable_get, METH_VARARGS | METH_KEYWORDS, "Gets the value at specified position in the table."},
     {"getPoints", (PyCFunction)CosLogTable_getPoints, METH_NOARGS, "Return the list of points."},
     {"replace", (PyCFunction)CosLogTable_replace, METH_O, "Sets the harmonics amplitude list and generates a new waveform table."},
     {"add", (PyCFunction)CosLogTable_add, METH_O, "Performs table addition."},
@@ -2951,7 +3186,8 @@ static PyMethodDef CosLogTable_methods[] = {
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject CosLogTableType = {
+PyTypeObject CosLogTableType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.CosLogTable_base",         /*tp_name*/
     sizeof(CosLogTable),         /*tp_basicsize*/
@@ -2975,10 +3211,10 @@ PyTypeObject CosLogTableType = {
     "CosLogTable objects. Generates a table filled with one or more Cosine-logarithmic lines.",  /* tp_doc */
     (traverseproc)CosLogTable_traverse,   /* tp_traverse */
     (inquiry)CosLogTable_clear,           /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
     CosLogTable_methods,             /* tp_methods */
     CosLogTable_members,             /* tp_members */
     0,                      /* tp_getset */
@@ -2995,7 +3231,8 @@ PyTypeObject CosLogTableType = {
 /***********************/
 /* CurveTable structure */
 /***********************/
-typedef struct {
+typedef struct
+{
     pyo_table_HEAD
     PyObject *pointslist;
     MYFLT tension;
@@ -3003,7 +3240,8 @@ typedef struct {
 } CurveTable;
 
 static void
-CurveTable_generate(CurveTable *self) {
+CurveTable_generate(CurveTable *self)
+{
     Py_ssize_t i, j, steps;
     Py_ssize_t listsize;
     PyObject *tup;
@@ -3012,69 +3250,81 @@ CurveTable_generate(CurveTable *self) {
     MYFLT m0, m1, mu, mu2, mu3;
     MYFLT a0, a1, a2, a3;
 
-    for (i=0; i<self->size; i++) {
+    for (i = 0; i < self->size; i++)
+    {
         self->data[i] = 0.0;
     }
 
     listsize = PyList_Size(self->pointslist);
 
-    if (listsize < 2) {
+    if (listsize < 2)
+    {
         PySys_WriteStderr("CurveTable error: There should be at least two points in a CurveTable.\n");
         return;
     }
 
-    int times[listsize+2];
-    MYFLT values[listsize+2];
+    int times[listsize + 2];
+    MYFLT values[listsize + 2];
 
-    for (i=0; i<listsize; i++) {
+    for (i = 0; i < listsize; i++)
+    {
         tup = PyList_GET_ITEM(self->pointslist, i);
-        times[i+1] = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
-        values[i+1] = PyFloat_AsDouble(PyTuple_GET_ITEM(tup, 1));
+        times[i + 1] = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
+        values[i + 1] = PyFloat_AsDouble(PyTuple_GET_ITEM(tup, 1));
     }
 
     // sets imaginary points
     times[0] = times[1] - times[2];
+
     if (values[1] < values[2])
         values[0] = values[1] - values[2];
     else
         values[0] = values[1] + values[2];
 
-    int endP = listsize+1;
-    times[endP] = times[endP-2] - times[endP-1];
-    if (values[endP-2] < values[endP-1])
-        values[endP] = values[endP-1] + values[endP-2];
-    else
-        values[endP] = values[endP-1] - values[endP-2];
+    int endP = listsize + 1;
+    times[endP] = times[endP - 2] - times[endP - 1];
 
-    for(i=1; i<listsize; i++) {
+    if (values[endP - 2] < values[endP - 1])
+        values[endP] = values[endP - 1] + values[endP - 2];
+    else
+        values[endP] = values[endP - 1] - values[endP - 2];
+
+    for(i = 1; i < listsize; i++)
+    {
         x1 = times[i];
-        x2 = times[i+1];
-        y0 = values[i-1]; y1 = values[i]; y2 = values[i+1]; y3 = values[i+2];
+        x2 = times[i + 1];
+        y0 = values[i - 1];
+        y1 = values[i];
+        y2 = values[i + 1];
+        y3 = values[i + 2];
 
         steps = x2 - x1;
-        if (steps <= 0) {
+
+        if (steps <= 0)
+        {
             PySys_WriteStderr("CurveTable error: point position smaller than previous one.\n");
             return;
         }
 
-        for(j=0; j<steps; j++) {
+        for(j = 0; j < steps; j++)
+        {
             mu = (MYFLT)j / steps;
             mu2 = mu * mu;
             mu3 = mu2 * mu;
-            m0 = (y1-y0)*(1.0+self->bias)*(1.0-self->tension)/2.0;
-            m0 += (y2-y1)*(1.0-self->bias)*(1.0-self->tension)/2.0;
-            m1 = (y2-y1)*(1.0+self->bias)*(1.0-self->tension)/2.0;
-            m1 += (y3-y2)*(1.0-self->bias)*(1.0-self->tension)/2.0;
-            a0 = 2.0*mu3 - 3.0*mu2 + 1.0;
-            a1 = mu3 - 2.0*mu2 + mu;
+            m0 = (y1 - y0) * (1.0 + self->bias) * (1.0 - self->tension) / 2.0;
+            m0 += (y2 - y1) * (1.0 - self->bias) * (1.0 - self->tension) / 2.0;
+            m1 = (y2 - y1) * (1.0 + self->bias) * (1.0 - self->tension) / 2.0;
+            m1 += (y3 - y2) * (1.0 - self->bias) * (1.0 - self->tension) / 2.0;
+            a0 = 2.0 * mu3 - 3.0 * mu2 + 1.0;
+            a1 = mu3 - 2.0 * mu2 + mu;
             a2 = mu3 - mu2;
-            a3 = -2.0*mu3 + 3.0*mu2;
+            a3 = -2.0 * mu3 + 3.0 * mu2;
 
-            self->data[x1+j] = (a0*y1 + a1*m0 + a2*m1 + a3*y2);
+            self->data[x1 + j] = (a0 * y1 + a1 * m0 + a2 * m1 + a3 * y2);
         }
     }
 
-    self->data[self->size] = self->data[self->size-1];
+    self->data[self->size] = self->data[self->size - 1];
 }
 
 static int
@@ -3104,7 +3354,7 @@ CurveTable_dealloc(CurveTable* self)
 static PyObject *
 CurveTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-    PyObject *pointslist=NULL;
+    PyObject *pointslist = NULL;
     CurveTable *self;
     self = (CurveTable *)type->tp_alloc(type, 0);
 
@@ -3123,17 +3373,19 @@ CurveTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__OFFI, kwlist, &pointslist, &self->tension, &self->bias, &self->size))
         Py_RETURN_NONE;
 
-    if (pointslist) {
+    if (pointslist)
+    {
         Py_INCREF(pointslist);
         Py_DECREF(self->pointslist);
         self->pointslist = pointslist;
     }
-    else {
+    else
+    {
         PyList_Append(self->pointslist, PyTuple_Pack(2, PyInt_FromLong(0), PyFloat_FromDouble(0.)));
         PyList_Append(self->pointslist, PyTuple_Pack(2, PyInt_FromLong(self->size), PyFloat_FromDouble(1.)));
     }
 
-    self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
+    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
     TableStream_setData(self->tablestream, self->data);
     CurveTable_generate(self);
@@ -3173,12 +3425,14 @@ static PyObject * CurveTable_mul(CurveTable *self, PyObject *arg) { TABLE_MUL };
 static PyObject *
 CurveTable_setTension(CurveTable *self, PyObject *value)
 {
-    if (value == NULL) {
+    if (value == NULL)
+    {
         PyErr_SetString(PyExc_TypeError, "Cannot delete the tension attribute.");
         return PyInt_FromLong(-1);
     }
 
-    if (! PyNumber_Check(value)) {
+    if (! PyNumber_Check(value))
+    {
         PyErr_SetString(PyExc_TypeError, "The tension attribute value must be a float.");
         return PyInt_FromLong(-1);
     }
@@ -3194,12 +3448,14 @@ CurveTable_setTension(CurveTable *self, PyObject *value)
 static PyObject *
 CurveTable_setBias(CurveTable *self, PyObject *value)
 {
-    if (value == NULL) {
+    if (value == NULL)
+    {
         PyErr_SetString(PyExc_TypeError, "Cannot delete the bias attribute.");
         return PyInt_FromLong(-1);
     }
 
-    if (! PyNumber_Check(value)) {
+    if (! PyNumber_Check(value))
+    {
         PyErr_SetString(PyExc_TypeError, "The bias attribute value must be a float.");
         return PyInt_FromLong(-1);
     }
@@ -3220,12 +3476,14 @@ CurveTable_setSize(CurveTable *self, PyObject *value)
     int old_size, x1;
     MYFLT factor;
 
-    if (value == NULL) {
+    if (value == NULL)
+    {
         PyErr_SetString(PyExc_TypeError, "Cannot delete the size attribute.");
         return PyInt_FromLong(-1);
     }
 
-    if (! PyInt_Check(value)) {
+    if (! PyInt_Check(value))
+    {
         PyErr_SetString(PyExc_TypeError, "The size attribute value must be an integer.");
         return PyInt_FromLong(-1);
     }
@@ -3235,18 +3493,19 @@ CurveTable_setSize(CurveTable *self, PyObject *value)
 
     factor = (MYFLT)(self->size) / old_size;
 
-    self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
+    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
 
     Py_ssize_t listsize = PyList_Size(self->pointslist);
 
     PyObject *listtemp = PyList_New(0);
 
-    for(i=0; i<(listsize); i++) {
+    for(i = 0; i < (listsize); i++)
+    {
         tup = PyList_GET_ITEM(self->pointslist, i);
         x1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
         x2 = PyNumber_Float(PyTuple_GET_ITEM(tup, 1));
-        PyList_Append(listtemp, PyTuple_Pack(2, PyInt_FromLong((int)(x1*factor)), x2));
+        PyList_Append(listtemp, PyTuple_Pack(2, PyInt_FromLong((int)(x1 * factor)), x2));
     }
 
     Py_INCREF(listtemp);
@@ -3275,12 +3534,14 @@ CurveTable_getPoints(CurveTable *self)
 static PyObject *
 CurveTable_replace(CurveTable *self, PyObject *value)
 {
-    if (value == NULL) {
+    if (value == NULL)
+    {
         PyErr_SetString(PyExc_TypeError, "Cannot delete the list attribute.");
         return PyInt_FromLong(-1);
     }
 
-    if (! PyList_Check(value)) {
+    if (! PyList_Check(value))
+    {
         PyErr_SetString(PyExc_TypeError, "The amplitude list attribute value must be a list of tuples.");
         return PyInt_FromLong(-1);
     }
@@ -3295,93 +3556,97 @@ CurveTable_replace(CurveTable *self, PyObject *value)
     return Py_None;
 }
 
-static PyMemberDef CurveTable_members[] = {
-{"server", T_OBJECT_EX, offsetof(CurveTable, server), 0, "Pyo server."},
-{"tablestream", T_OBJECT_EX, offsetof(CurveTable, tablestream), 0, "Table stream object."},
-{"pointslist", T_OBJECT_EX, offsetof(CurveTable, pointslist), 0, "Harmonics amplitude values."},
-{NULL}  /* Sentinel */
+static PyMemberDef CurveTable_members[] =
+{
+    {"server", T_OBJECT_EX, offsetof(CurveTable, server), 0, "Pyo server."},
+    {"tablestream", T_OBJECT_EX, offsetof(CurveTable, tablestream), 0, "Table stream object."},
+    {"pointslist", T_OBJECT_EX, offsetof(CurveTable, pointslist), 0, "Harmonics amplitude values."},
+    {NULL}  /* Sentinel */
 };
 
-static PyMethodDef CurveTable_methods[] = {
-{"getServer", (PyCFunction)CurveTable_getServer, METH_NOARGS, "Returns server object."},
-{"copy", (PyCFunction)CurveTable_copy, METH_O, "Copy data from table given in argument."},
-{"copyData", (PyCFunction)CurveTable_copyData, METH_VARARGS|METH_KEYWORDS, "Copy data from table given in argument."},
-{"rotate", (PyCFunction)CurveTable_rotate, METH_VARARGS|METH_KEYWORDS, "Rotate table around position as argument."},
-{"setTable", (PyCFunction)CurveTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
-{"getTable", (PyCFunction)CurveTable_getTable, METH_NOARGS, "Returns a list of table samples."},
-{"getViewTable", (PyCFunction)CurveTable_getViewTable, METH_VARARGS|METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
-{"getTableStream", (PyCFunction)CurveTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
-{"setData", (PyCFunction)CurveTable_setData, METH_O, "Sets the table from samples in a text file."},
-{"setSize", (PyCFunction)CurveTable_setSize, METH_O, "Sets the size of the table in samples"},
-{"getSize", (PyCFunction)CurveTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
-{"put", (PyCFunction)CurveTable_put, METH_VARARGS|METH_KEYWORDS, "Puts a value at specified position in the table."},
-{"get", (PyCFunction)CurveTable_get, METH_VARARGS|METH_KEYWORDS, "Gets the value at specified position in the table."},
-{"getPoints", (PyCFunction)CurveTable_getPoints, METH_NOARGS, "Return the list of points."},
-{"setTension", (PyCFunction)CurveTable_setTension, METH_O, "Sets the curvature tension."},
-{"setBias", (PyCFunction)CurveTable_setBias, METH_O, "Sets the curve bias."},
-{"replace", (PyCFunction)CurveTable_replace, METH_O, "Sets the harmonics amplitude list and generates a new waveform table."},
-{"normalize", (PyCFunction)CurveTable_normalize, METH_NOARGS, "Normalize table between -1 and 1."},
-{"reset", (PyCFunction)CurveTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
-{"removeDC", (PyCFunction)CurveTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
-{"reverse", (PyCFunction)CurveTable_reverse, METH_NOARGS, "Reverse the table's data."},
-{"invert", (PyCFunction)CurveTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
-{"rectify", (PyCFunction)CurveTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
-{"bipolarGain", (PyCFunction)CurveTable_bipolarGain, METH_VARARGS|METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
-{"lowpass", (PyCFunction)CurveTable_lowpass, METH_VARARGS|METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
-{"fadein", (PyCFunction)CurveTable_fadein, METH_VARARGS|METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
-{"fadeout", (PyCFunction)CurveTable_fadeout, METH_VARARGS|METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
-{"pow", (PyCFunction)CurveTable_pow, METH_VARARGS|METH_KEYWORDS, "Apply a power function on each sample in the table."},
-{"add", (PyCFunction)CurveTable_add, METH_O, "Performs table addition."},
-{"sub", (PyCFunction)CurveTable_sub, METH_O, "Performs table substraction."},
-{"mul", (PyCFunction)CurveTable_mul, METH_O, "Performs table multiplication."},
-{NULL}  /* Sentinel */
+static PyMethodDef CurveTable_methods[] =
+{
+    {"getServer", (PyCFunction)CurveTable_getServer, METH_NOARGS, "Returns server object."},
+    {"copy", (PyCFunction)CurveTable_copy, METH_O, "Copy data from table given in argument."},
+    {"copyData", (PyCFunction)CurveTable_copyData, METH_VARARGS | METH_KEYWORDS, "Copy data from table given in argument."},
+    {"rotate", (PyCFunction)CurveTable_rotate, METH_VARARGS | METH_KEYWORDS, "Rotate table around position as argument."},
+    {"setTable", (PyCFunction)CurveTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
+    {"getTable", (PyCFunction)CurveTable_getTable, METH_NOARGS, "Returns a list of table samples."},
+    {"getViewTable", (PyCFunction)CurveTable_getViewTable, METH_VARARGS | METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
+    {"getTableStream", (PyCFunction)CurveTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
+    {"setData", (PyCFunction)CurveTable_setData, METH_O, "Sets the table from samples in a text file."},
+    {"setSize", (PyCFunction)CurveTable_setSize, METH_O, "Sets the size of the table in samples"},
+    {"getSize", (PyCFunction)CurveTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
+    {"put", (PyCFunction)CurveTable_put, METH_VARARGS | METH_KEYWORDS, "Puts a value at specified position in the table."},
+    {"get", (PyCFunction)CurveTable_get, METH_VARARGS | METH_KEYWORDS, "Gets the value at specified position in the table."},
+    {"getPoints", (PyCFunction)CurveTable_getPoints, METH_NOARGS, "Return the list of points."},
+    {"setTension", (PyCFunction)CurveTable_setTension, METH_O, "Sets the curvature tension."},
+    {"setBias", (PyCFunction)CurveTable_setBias, METH_O, "Sets the curve bias."},
+    {"replace", (PyCFunction)CurveTable_replace, METH_O, "Sets the harmonics amplitude list and generates a new waveform table."},
+    {"normalize", (PyCFunction)CurveTable_normalize, METH_NOARGS, "Normalize table between -1 and 1."},
+    {"reset", (PyCFunction)CurveTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
+    {"removeDC", (PyCFunction)CurveTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
+    {"reverse", (PyCFunction)CurveTable_reverse, METH_NOARGS, "Reverse the table's data."},
+    {"invert", (PyCFunction)CurveTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
+    {"rectify", (PyCFunction)CurveTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
+    {"bipolarGain", (PyCFunction)CurveTable_bipolarGain, METH_VARARGS | METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
+    {"lowpass", (PyCFunction)CurveTable_lowpass, METH_VARARGS | METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
+    {"fadein", (PyCFunction)CurveTable_fadein, METH_VARARGS | METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
+    {"fadeout", (PyCFunction)CurveTable_fadeout, METH_VARARGS | METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
+    {"pow", (PyCFunction)CurveTable_pow, METH_VARARGS | METH_KEYWORDS, "Apply a power function on each sample in the table."},
+    {"add", (PyCFunction)CurveTable_add, METH_O, "Performs table addition."},
+    {"sub", (PyCFunction)CurveTable_sub, METH_O, "Performs table substraction."},
+    {"mul", (PyCFunction)CurveTable_mul, METH_O, "Performs table multiplication."},
+    {NULL}  /* Sentinel */
 };
 
-PyTypeObject CurveTableType = {
-PyVarObject_HEAD_INIT(NULL, 0)
-"_pyo.CurveTable_base",         /*tp_name*/
-sizeof(CurveTable),         /*tp_basicsize*/
-0,                         /*tp_itemsize*/
-(destructor)CurveTable_dealloc, /*tp_dealloc*/
-0,                         /*tp_print*/
-0,                         /*tp_getattr*/
-0,                         /*tp_setattr*/
-0,                         /*tp_as_async (tp_compare in Python 2)*/
-0,                         /*tp_repr*/
-0,                         /*tp_as_number*/
-0,                         /*tp_as_sequence*/
-0,                         /*tp_as_mapping*/
-0,                         /*tp_hash */
-0,                         /*tp_call*/
-0,                         /*tp_str*/
-0,                         /*tp_getattro*/
-0,                         /*tp_setattro*/
-0,                         /*tp_as_buffer*/
-Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-"CurveTable objects. Generates a table filled with one or more straight lines.",  /* tp_doc */
-(traverseproc)CurveTable_traverse,   /* tp_traverse */
-(inquiry)CurveTable_clear,           /* tp_clear */
-0,		               /* tp_richcompare */
-0,		               /* tp_weaklistoffset */
-0,		               /* tp_iter */
-0,		               /* tp_iternext */
-CurveTable_methods,             /* tp_methods */
-CurveTable_members,             /* tp_members */
-0,                      /* tp_getset */
-0,                         /* tp_base */
-0,                         /* tp_dict */
-0,                         /* tp_descr_get */
-0,                         /* tp_descr_set */
-0,                         /* tp_dictoffset */
-0,      /* tp_init */
-0,                         /* tp_alloc */
-CurveTable_new,                 /* tp_new */
+PyTypeObject CurveTableType =
+{
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "_pyo.CurveTable_base",         /*tp_name*/
+    sizeof(CurveTable),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)CurveTable_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
+    0,                         /*tp_repr*/
+    0,                         /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
+    "CurveTable objects. Generates a table filled with one or more straight lines.",  /* tp_doc */
+    (traverseproc)CurveTable_traverse,   /* tp_traverse */
+    (inquiry)CurveTable_clear,           /* tp_clear */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
+    CurveTable_methods,             /* tp_methods */
+    CurveTable_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,      /* tp_init */
+    0,                         /* tp_alloc */
+    CurveTable_new,                 /* tp_new */
 };
 
 /***********************/
 /* ExpTable structure */
 /***********************/
-typedef struct {
+typedef struct
+{
     pyo_table_HEAD
     PyObject *pointslist;
     MYFLT exp;
@@ -3389,20 +3654,23 @@ typedef struct {
 } ExpTable;
 
 static void
-ExpTable_generate(ExpTable *self) {
+ExpTable_generate(ExpTable *self)
+{
     Py_ssize_t i, j, steps;
     Py_ssize_t listsize;
     PyObject *tup;
     int x1, x2;
     MYFLT y1, y2, range, inc, pointer, scl;
 
-    for (i=0; i<self->size; i++) {
+    for (i = 0; i < self->size; i++)
+    {
         self->data[i] = 0.0;
     }
 
     listsize = PyList_Size(self->pointslist);
 
-    if (listsize < 2) {
+    if (listsize < 2)
+    {
         PySys_WriteStderr("ExpTable error: There should be at least two points in a ExpTable.\n");
         return;
     }
@@ -3410,48 +3678,61 @@ ExpTable_generate(ExpTable *self) {
     int times[listsize];
     MYFLT values[listsize];
 
-    for (i=0; i<listsize; i++) {
+    for (i = 0; i < listsize; i++)
+    {
         tup = PyList_GET_ITEM(self->pointslist, i);
         times[i] = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
         values[i] = PyFloat_AsDouble(PyTuple_GET_ITEM(tup, 1));
     }
 
     y1 = y2 = 0.0;
-    for(i=0; i<(listsize-1); i++) {
+
+    for(i = 0; i < (listsize - 1); i++)
+    {
         x1 = times[i];
-        x2 = times[i+1];
+        x2 = times[i + 1];
         y1 = values[i];
-        y2 = values[i+1];
+        y2 = values[i + 1];
 
         range = y2 - y1;
         steps = x2 - x1;
-        if (steps <= 0) {
+
+        if (steps <= 0)
+        {
             PySys_WriteStderr("ExpTable error: point position smaller than previous one.\n");
             return;
         }
 
         inc = 1.0 / steps;
         pointer = 0.0;
-        if (self->inverse == 1) {
-            if (range >= 0) {
-                for(j=0; j<steps; j++) {
+
+        if (self->inverse == 1)
+        {
+            if (range >= 0)
+            {
+                for(j = 0; j < steps; j++)
+                {
                     scl = MYPOW(pointer, self->exp);
-                    self->data[x1+j] = scl * range + y1;
+                    self->data[x1 + j] = scl * range + y1;
                     pointer += inc;
                 }
             }
-            else {
-                for(j=0; j<steps; j++) {
+            else
+            {
+                for(j = 0; j < steps; j++)
+                {
                     scl = 1.0 - MYPOW(1.0 - pointer, self->exp);
-                    self->data[x1+j] = scl * range + y1;
+                    self->data[x1 + j] = scl * range + y1;
                     pointer += inc;
                 }
             }
         }
-        else {
-            for(j=0; j<steps; j++) {
+        else
+        {
+            for(j = 0; j < steps; j++)
+            {
                 scl = MYPOW(pointer, self->exp);
-                self->data[x1+j] = scl * range + y1;
+                self->data[x1 + j] = scl * range + y1;
                 pointer += inc;
             }
         }
@@ -3487,7 +3768,7 @@ ExpTable_dealloc(ExpTable* self)
 static PyObject *
 ExpTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-    PyObject *pointslist=NULL;
+    PyObject *pointslist = NULL;
     ExpTable *self;
     self = (ExpTable *)type->tp_alloc(type, 0);
 
@@ -3506,17 +3787,19 @@ ExpTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__OFII, kwlist, &pointslist, &self->exp, &self->inverse, &self->size))
         Py_RETURN_NONE;
 
-    if (pointslist) {
+    if (pointslist)
+    {
         Py_INCREF(pointslist);
         Py_DECREF(self->pointslist);
         self->pointslist = pointslist;
     }
-    else {
+    else
+    {
         PyList_Append(self->pointslist, PyTuple_Pack(2, PyInt_FromLong(0), PyFloat_FromDouble(0.)));
         PyList_Append(self->pointslist, PyTuple_Pack(2, PyInt_FromLong(self->size), PyFloat_FromDouble(1.)));
     }
 
-    self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
+    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
     TableStream_setData(self->tablestream, self->data);
     ExpTable_generate(self);
@@ -3556,12 +3839,14 @@ static PyObject * ExpTable_mul(ExpTable *self, PyObject *arg) { TABLE_MUL };
 static PyObject *
 ExpTable_setExp(ExpTable *self, PyObject *value)
 {
-    if (value == NULL) {
+    if (value == NULL)
+    {
         PyErr_SetString(PyExc_TypeError, "Cannot delete the exp attribute.");
         return PyInt_FromLong(-1);
     }
 
-    if (! PyNumber_Check(value)) {
+    if (! PyNumber_Check(value))
+    {
         PyErr_SetString(PyExc_TypeError, "The exp attribute value must be a float.");
         return PyInt_FromLong(-1);
     }
@@ -3577,12 +3862,14 @@ ExpTable_setExp(ExpTable *self, PyObject *value)
 static PyObject *
 ExpTable_setInverse(ExpTable *self, PyObject *value)
 {
-    if (value == NULL) {
+    if (value == NULL)
+    {
         PyErr_SetString(PyExc_TypeError, "Cannot delete the inverse attribute.");
         return PyInt_FromLong(-1);
     }
 
-    if (! PyInt_Check(value)) {
+    if (! PyInt_Check(value))
+    {
         PyErr_SetString(PyExc_TypeError, "The inverse attribute value must be a boolean (True or False or 0 or 1).");
         return PyInt_FromLong(-1);
     }
@@ -3603,12 +3890,14 @@ ExpTable_setSize(ExpTable *self, PyObject *value)
     int old_size, x1;
     MYFLT factor;
 
-    if (value == NULL) {
+    if (value == NULL)
+    {
         PyErr_SetString(PyExc_TypeError, "Cannot delete the size attribute.");
         return PyInt_FromLong(-1);
     }
 
-    if (! PyInt_Check(value)) {
+    if (! PyInt_Check(value))
+    {
         PyErr_SetString(PyExc_TypeError, "The size attribute value must be an integer.");
         return PyInt_FromLong(-1);
     }
@@ -3618,18 +3907,19 @@ ExpTable_setSize(ExpTable *self, PyObject *value)
 
     factor = (MYFLT)(self->size) / old_size;
 
-    self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
+    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
 
     Py_ssize_t listsize = PyList_Size(self->pointslist);
 
     PyObject *listtemp = PyList_New(0);
 
-    for(i=0; i<(listsize); i++) {
+    for(i = 0; i < (listsize); i++)
+    {
         tup = PyList_GET_ITEM(self->pointslist, i);
         x1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
         x2 = PyNumber_Float(PyTuple_GET_ITEM(tup, 1));
-        PyList_Append(listtemp, PyTuple_Pack(2, PyInt_FromLong((int)(x1*factor)), x2));
+        PyList_Append(listtemp, PyTuple_Pack(2, PyInt_FromLong((int)(x1 * factor)), x2));
     }
 
     Py_INCREF(listtemp);
@@ -3658,12 +3948,14 @@ ExpTable_getPoints(ExpTable *self)
 static PyObject *
 ExpTable_replace(ExpTable *self, PyObject *value)
 {
-    if (value == NULL) {
+    if (value == NULL)
+    {
         PyErr_SetString(PyExc_TypeError, "Cannot delete the list attribute.");
         return PyInt_FromLong(-1);
     }
 
-    if (! PyList_Check(value)) {
+    if (! PyList_Check(value))
+    {
         PyErr_SetString(PyExc_TypeError, "The amplitude list attribute value must be a list of tuples.");
         return PyInt_FromLong(-1);
     }
@@ -3678,92 +3970,96 @@ ExpTable_replace(ExpTable *self, PyObject *value)
     return Py_None;
 }
 
-static PyMemberDef ExpTable_members[] = {
-{"server", T_OBJECT_EX, offsetof(ExpTable, server), 0, "Pyo server."},
-{"tablestream", T_OBJECT_EX, offsetof(ExpTable, tablestream), 0, "Table stream object."},
-{"pointslist", T_OBJECT_EX, offsetof(ExpTable, pointslist), 0, "Harmonics amplitude values."},
-{NULL}  /* Sentinel */
+static PyMemberDef ExpTable_members[] =
+{
+    {"server", T_OBJECT_EX, offsetof(ExpTable, server), 0, "Pyo server."},
+    {"tablestream", T_OBJECT_EX, offsetof(ExpTable, tablestream), 0, "Table stream object."},
+    {"pointslist", T_OBJECT_EX, offsetof(ExpTable, pointslist), 0, "Harmonics amplitude values."},
+    {NULL}  /* Sentinel */
 };
-static PyMethodDef ExpTable_methods[] = {
-{"getServer", (PyCFunction)ExpTable_getServer, METH_NOARGS, "Returns server object."},
-{"copy", (PyCFunction)ExpTable_copy, METH_O, "Copy data from table given in argument."},
-{"copyData", (PyCFunction)ExpTable_copyData, METH_VARARGS|METH_KEYWORDS, "Copy data from table given in argument."},
-{"rotate", (PyCFunction)ExpTable_rotate, METH_VARARGS|METH_KEYWORDS, "Rotate table around position as argument."},
-{"setTable", (PyCFunction)ExpTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
-{"getTable", (PyCFunction)ExpTable_getTable, METH_NOARGS, "Returns a list of table samples."},
-{"getViewTable", (PyCFunction)ExpTable_getViewTable, METH_VARARGS|METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
-{"getTableStream", (PyCFunction)ExpTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
-{"setData", (PyCFunction)ExpTable_setData, METH_O, "Sets the table from samples in a text file."},
-{"setSize", (PyCFunction)ExpTable_setSize, METH_O, "Sets the size of the table in samples"},
-{"getSize", (PyCFunction)ExpTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
-{"put", (PyCFunction)ExpTable_put, METH_VARARGS|METH_KEYWORDS, "Puts a value at specified position in the table."},
-{"get", (PyCFunction)ExpTable_get, METH_VARARGS|METH_KEYWORDS, "Gets the value at specified position in the table."},
-{"getPoints", (PyCFunction)ExpTable_getPoints, METH_NOARGS, "Return the list of points."},
-{"setExp", (PyCFunction)ExpTable_setExp, METH_O, "Sets the exponent factor."},
-{"setInverse", (PyCFunction)ExpTable_setInverse, METH_O, "Sets the inverse factor."},
-{"replace", (PyCFunction)ExpTable_replace, METH_O, "Sets the harmonics amplitude list and generates a new waveform table."},
-{"normalize", (PyCFunction)ExpTable_normalize, METH_NOARGS, "Normalize table between -1 and 1."},
-{"reset", (PyCFunction)ExpTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
-{"removeDC", (PyCFunction)ExpTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
-{"reverse", (PyCFunction)ExpTable_reverse, METH_NOARGS, "Reverse the table's data."},
-{"invert", (PyCFunction)ExpTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
-{"rectify", (PyCFunction)ExpTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
-{"bipolarGain", (PyCFunction)ExpTable_bipolarGain, METH_VARARGS|METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
-{"lowpass", (PyCFunction)ExpTable_lowpass, METH_VARARGS|METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
-{"fadein", (PyCFunction)ExpTable_fadein, METH_VARARGS|METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
-{"fadeout", (PyCFunction)ExpTable_fadeout, METH_VARARGS|METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
-{"pow", (PyCFunction)ExpTable_pow, METH_VARARGS|METH_KEYWORDS, "Apply a power function on each sample in the table."},
-{"add", (PyCFunction)ExpTable_add, METH_O, "Performs table addition."},
-{"sub", (PyCFunction)ExpTable_sub, METH_O, "Performs table substraction."},
-{"mul", (PyCFunction)ExpTable_mul, METH_O, "Performs table multiplication."},
-{NULL}  /* Sentinel */
+static PyMethodDef ExpTable_methods[] =
+{
+    {"getServer", (PyCFunction)ExpTable_getServer, METH_NOARGS, "Returns server object."},
+    {"copy", (PyCFunction)ExpTable_copy, METH_O, "Copy data from table given in argument."},
+    {"copyData", (PyCFunction)ExpTable_copyData, METH_VARARGS | METH_KEYWORDS, "Copy data from table given in argument."},
+    {"rotate", (PyCFunction)ExpTable_rotate, METH_VARARGS | METH_KEYWORDS, "Rotate table around position as argument."},
+    {"setTable", (PyCFunction)ExpTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
+    {"getTable", (PyCFunction)ExpTable_getTable, METH_NOARGS, "Returns a list of table samples."},
+    {"getViewTable", (PyCFunction)ExpTable_getViewTable, METH_VARARGS | METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
+    {"getTableStream", (PyCFunction)ExpTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
+    {"setData", (PyCFunction)ExpTable_setData, METH_O, "Sets the table from samples in a text file."},
+    {"setSize", (PyCFunction)ExpTable_setSize, METH_O, "Sets the size of the table in samples"},
+    {"getSize", (PyCFunction)ExpTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
+    {"put", (PyCFunction)ExpTable_put, METH_VARARGS | METH_KEYWORDS, "Puts a value at specified position in the table."},
+    {"get", (PyCFunction)ExpTable_get, METH_VARARGS | METH_KEYWORDS, "Gets the value at specified position in the table."},
+    {"getPoints", (PyCFunction)ExpTable_getPoints, METH_NOARGS, "Return the list of points."},
+    {"setExp", (PyCFunction)ExpTable_setExp, METH_O, "Sets the exponent factor."},
+    {"setInverse", (PyCFunction)ExpTable_setInverse, METH_O, "Sets the inverse factor."},
+    {"replace", (PyCFunction)ExpTable_replace, METH_O, "Sets the harmonics amplitude list and generates a new waveform table."},
+    {"normalize", (PyCFunction)ExpTable_normalize, METH_NOARGS, "Normalize table between -1 and 1."},
+    {"reset", (PyCFunction)ExpTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
+    {"removeDC", (PyCFunction)ExpTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
+    {"reverse", (PyCFunction)ExpTable_reverse, METH_NOARGS, "Reverse the table's data."},
+    {"invert", (PyCFunction)ExpTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
+    {"rectify", (PyCFunction)ExpTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
+    {"bipolarGain", (PyCFunction)ExpTable_bipolarGain, METH_VARARGS | METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
+    {"lowpass", (PyCFunction)ExpTable_lowpass, METH_VARARGS | METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
+    {"fadein", (PyCFunction)ExpTable_fadein, METH_VARARGS | METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
+    {"fadeout", (PyCFunction)ExpTable_fadeout, METH_VARARGS | METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
+    {"pow", (PyCFunction)ExpTable_pow, METH_VARARGS | METH_KEYWORDS, "Apply a power function on each sample in the table."},
+    {"add", (PyCFunction)ExpTable_add, METH_O, "Performs table addition."},
+    {"sub", (PyCFunction)ExpTable_sub, METH_O, "Performs table substraction."},
+    {"mul", (PyCFunction)ExpTable_mul, METH_O, "Performs table multiplication."},
+    {NULL}  /* Sentinel */
 };
 
-PyTypeObject ExpTableType = {
-PyVarObject_HEAD_INIT(NULL, 0)
-"_pyo.ExpTable_base",         /*tp_name*/
-sizeof(ExpTable),         /*tp_basicsize*/
-0,                         /*tp_itemsize*/
-(destructor)ExpTable_dealloc, /*tp_dealloc*/
-0,                         /*tp_print*/
-0,                         /*tp_getattr*/
-0,                         /*tp_setattr*/
-0,                         /*tp_as_async (tp_compare in Python 2)*/
-0,                         /*tp_repr*/
-0,                         /*tp_as_number*/
-0,                         /*tp_as_sequence*/
-0,                         /*tp_as_mapping*/
-0,                         /*tp_hash */
-0,                         /*tp_call*/
-0,                         /*tp_str*/
-0,                         /*tp_getattro*/
-0,                         /*tp_setattro*/
-0,                         /*tp_as_buffer*/
-Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-"ExpTable objects. Generates a table filled with one or more straight lines.",  /* tp_doc */
-(traverseproc)ExpTable_traverse,   /* tp_traverse */
-(inquiry)ExpTable_clear,           /* tp_clear */
-0,		               /* tp_richcompare */
-0,		               /* tp_weaklistoffset */
-0,		               /* tp_iter */
-0,		               /* tp_iternext */
-ExpTable_methods,             /* tp_methods */
-ExpTable_members,             /* tp_members */
-0,                      /* tp_getset */
-0,                         /* tp_base */
-0,                         /* tp_dict */
-0,                         /* tp_descr_get */
-0,                         /* tp_descr_set */
-0,                         /* tp_dictoffset */
-0,      /* tp_init */
-0,                         /* tp_alloc */
-ExpTable_new,                 /* tp_new */
+PyTypeObject ExpTableType =
+{
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "_pyo.ExpTable_base",         /*tp_name*/
+    sizeof(ExpTable),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)ExpTable_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
+    0,                         /*tp_repr*/
+    0,                         /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
+    "ExpTable objects. Generates a table filled with one or more straight lines.",  /* tp_doc */
+    (traverseproc)ExpTable_traverse,   /* tp_traverse */
+    (inquiry)ExpTable_clear,           /* tp_clear */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
+    ExpTable_methods,             /* tp_methods */
+    ExpTable_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,      /* tp_init */
+    0,                         /* tp_alloc */
+    ExpTable_new,                 /* tp_new */
 };
 
 /***********************/
 /* SndTable structure */
 /***********************/
-typedef struct {
+typedef struct
+{
     pyo_table_HEAD
     char *path;
     int sndSr;
@@ -3776,7 +4072,8 @@ typedef struct {
 } SndTable;
 
 static void
-SndTable_loadSound(SndTable *self) {
+SndTable_loadSound(SndTable *self)
+{
     SNDFILE *sf;
     SF_INFO info;
     unsigned int i, num, num_items, num_chnls, snd_size, start, stop;
@@ -3785,21 +4082,23 @@ SndTable_loadSound(SndTable *self) {
 
     info.format = 0;
     sf = sf_open(self->path, SFM_READ, &info);
+
     if (sf == NULL)
     {
         PySys_WriteStdout("SndTable failed to open the file.\n");
         return;
     }
+
     snd_size = info.frames;
     self->sndSr = info.samplerate;
     num_chnls = info.channels;
 
-    if (self->stop <= 0 || self->stop <= self->start || (self->stop*self->sndSr) > snd_size)
+    if (self->stop <= 0 || self->stop <= self->start || (self->stop * self->sndSr) > snd_size)
         stop = snd_size;
     else
         stop = (unsigned int)(self->stop * self->sndSr);
 
-    if (self->start < 0 || (self->start*self->sndSr) > snd_size)
+    if (self->start < 0 || (self->start * self->sndSr) > snd_size)
         start = 0;
     else
         start = (unsigned int)(self->start * self->sndSr);
@@ -3811,29 +4110,41 @@ SndTable_loadSound(SndTable *self) {
     self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
 
     /* For sound longer than 1 minute, load 30 sec chunks. */
-    if (self->size > (int)(self->sndSr * 60 * num_chnls)) {
+    if (self->size > (int)(self->sndSr * 60 * num_chnls))
+    {
         tmp = (MYFLT *)malloc(self->sndSr * 30 * num_chnls * sizeof(MYFLT));
         sf_seek(sf, start, SEEK_SET);
         num_items = self->sndSr * 30 * num_chnls;
-        do {
+
+        do
+        {
             num = SF_READ(sf, tmp, num_items);
-            for (i=0; i<num; i++) {
-                if ((int)(i % num_chnls) == self->chnl) {
+
+            for (i = 0; i < num; i++)
+            {
+                if ((int)(i % num_chnls) == self->chnl)
+                {
                     self->data[(int)(num_count++)] = tmp[i];
                 }
             }
-        } while (num == num_items);
+        }
+        while (num == num_items);
+
         sf_close(sf);
     }
     /* For sound shorter than 1 minute, load sound in one pass. */
-    else {
+    else
+    {
         tmp = (MYFLT *)malloc(num_items * sizeof(MYFLT));
         sf_seek(sf, start, SEEK_SET);
         num = SF_READ(sf, tmp, num_items);
         sf_close(sf);
-        for (i=0; i<num_items; i++) {
-            if ((int)(i % num_chnls) == self->chnl) {
-                self->data[(int)(i/num_chnls)] = tmp[i];
+
+        for (i = 0; i < num_items; i++)
+        {
+            if ((int)(i % num_chnls) == self->chnl)
+            {
+                self->data[(int)(i / num_chnls)] = tmp[i];
             }
         }
     }
@@ -3849,7 +4160,8 @@ SndTable_loadSound(SndTable *self) {
 }
 
 static void
-SndTable_appendSound(SndTable *self) {
+SndTable_appendSound(SndTable *self)
+{
     SNDFILE *sf;
     SF_INFO info;
     unsigned int i, num_items, num_chnls, snd_size, start, stop, to_load_size, cross_in_samps, cross_point, index, real_index;
@@ -3858,21 +4170,23 @@ SndTable_appendSound(SndTable *self) {
 
     info.format = 0;
     sf = sf_open(self->path, SFM_READ, &info);
+
     if (sf == NULL)
     {
         PySys_WriteStdout("SndTable failed to open the file.\n");
         return;
     }
+
     snd_size = info.frames;
     self->sndSr = info.samplerate;
     num_chnls = info.channels;
 
-    if (self->stop <= 0 || self->stop <= self->start || (self->stop*self->sndSr) > snd_size)
+    if (self->stop <= 0 || self->stop <= self->start || (self->stop * self->sndSr) > snd_size)
         stop = snd_size;
     else
         stop = (unsigned int)(self->stop * self->sndSr);
 
-    if (self->start < 0 || (self->start*self->sndSr) > snd_size)
+    if (self->start < 0 || (self->start * self->sndSr) > snd_size)
         start = 0;
     else
         start = (unsigned int)(self->start * self->sndSr);
@@ -3880,8 +4194,10 @@ SndTable_appendSound(SndTable *self) {
     to_load_size = stop - start;
     num_items = to_load_size * num_chnls;
     cross_in_samps = (unsigned int)(self->crossfade * self->sr);
+
     if (cross_in_samps >= to_load_size)
         cross_in_samps = to_load_size - 1;
+
     if ((int)cross_in_samps >= self->size)
         cross_in_samps = self->size - 1;
 
@@ -3893,8 +4209,10 @@ SndTable_appendSound(SndTable *self) {
     SF_READ(sf, tmp, num_items);
     sf_close(sf);
 
-    if (cross_in_samps != 0) {
-        for (i=0; i<(unsigned int)self->size; i++) {
+    if (cross_in_samps != 0)
+    {
+        for (i = 0; i < (unsigned int)self->size; i++)
+        {
             tmp_data[i] = self->data[i];
         }
     }
@@ -3903,27 +4221,37 @@ SndTable_appendSound(SndTable *self) {
     self->size = self->size + to_load_size - cross_in_samps;
     self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
 
-    if (cross_in_samps != 0) {
-        for (i=0; i<cross_point; i++) {
+    if (cross_in_samps != 0)
+    {
+        for (i = 0; i < cross_point; i++)
+        {
             self->data[i] = tmp_data[i];
         }
     }
 
-    if (self->crossfade == 0.0) {
-        for (i=0; i<num_items; i++) {
-            if ((int)(i % num_chnls) == self->chnl) {
-                index = (int)(i/num_chnls);
+    if (self->crossfade == 0.0)
+    {
+        for (i = 0; i < num_items; i++)
+        {
+            if ((int)(i % num_chnls) == self->chnl)
+            {
+                index = (int)(i / num_chnls);
                 real_index = cross_point + index;
                 self->data[real_index] = tmp[i];
             }
         }
     }
-    else {
-        for (i=0; i<num_items; i++) {
-            if ((int)(i % num_chnls) == self->chnl) {
-                index = (int)(i/num_chnls);
+    else
+    {
+        for (i = 0; i < num_items; i++)
+        {
+            if ((int)(i % num_chnls) == self->chnl)
+            {
+                index = (int)(i / num_chnls);
                 real_index = cross_point + index;
-                if (index < cross_in_samps) {
+
+                if (index < cross_in_samps)
+                {
                     cross_amp = MYSQRT(index / (MYFLT)cross_in_samps);
                     self->data[real_index] = tmp[i] * cross_amp + tmp_data[real_index] * (1. - cross_amp);
                 }
@@ -3945,7 +4273,8 @@ SndTable_appendSound(SndTable *self) {
 }
 
 static void
-SndTable_prependSound(SndTable *self) {
+SndTable_prependSound(SndTable *self)
+{
     SNDFILE *sf;
     SF_INFO info;
     unsigned int i, num_items, num_chnls, snd_size, start, stop, to_load_size, cross_in_samps, cross_point;
@@ -3955,21 +4284,23 @@ SndTable_prependSound(SndTable *self) {
 
     info.format = 0;
     sf = sf_open(self->path, SFM_READ, &info);
+
     if (sf == NULL)
     {
         PySys_WriteStdout("SndTable failed to open the file.\n");
         return;
     }
+
     snd_size = info.frames;
     self->sndSr = info.samplerate;
     num_chnls = info.channels;
 
-    if (self->stop <= 0 || self->stop <= self->start || (self->stop*self->sndSr) > snd_size)
+    if (self->stop <= 0 || self->stop <= self->start || (self->stop * self->sndSr) > snd_size)
         stop = snd_size;
     else
         stop = (unsigned int)(self->stop * self->sndSr);
 
-    if (self->start < 0 || (self->start*self->sndSr) > snd_size)
+    if (self->start < 0 || (self->start * self->sndSr) > snd_size)
         start = 0;
     else
         start = (unsigned int)(self->start * self->sndSr);
@@ -3977,8 +4308,10 @@ SndTable_prependSound(SndTable *self) {
     to_load_size = stop - start;
     num_items = to_load_size * num_chnls;
     cross_in_samps = (unsigned int)(self->crossfade * self->sr);
+
     if (cross_in_samps >= to_load_size)
         cross_in_samps = to_load_size - 1;
+
     if ((int)cross_in_samps >= self->size)
         cross_in_samps = self->size - 1;
 
@@ -3990,7 +4323,8 @@ SndTable_prependSound(SndTable *self) {
     SF_READ(sf, tmp, num_items);
     sf_close(sf);
 
-    for (i=0; i<(unsigned int)self->size; i++) {
+    for (i = 0; i < (unsigned int)self->size; i++)
+    {
         tmp_data[i] = self->data[i];
     }
 
@@ -3998,21 +4332,29 @@ SndTable_prependSound(SndTable *self) {
     self->size = self->size + to_load_size - cross_in_samps;
     self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
 
-    if (self->crossfade == 0.0) {
-        for (i=0; i<num_items; i++) {
-            if ((int)(i % num_chnls) == self->chnl) {
-                index = (int)(i/num_chnls);
+    if (self->crossfade == 0.0)
+    {
+        for (i = 0; i < num_items; i++)
+        {
+            if ((int)(i % num_chnls) == self->chnl)
+            {
+                index = (int)(i / num_chnls);
                 self->data[index] = tmp[i];
             }
         }
 
     }
-    else {
-        for (i=0; i<num_items; i++) {
-            if ((int)(i % num_chnls) == self->chnl) {
-                index = (int)(i/num_chnls);
-                if (index >= cross_point) {
-                    cross_amp = MYSQRT((index-cross_point) / (MYFLT)cross_in_samps);
+    else
+    {
+        for (i = 0; i < num_items; i++)
+        {
+            if ((int)(i % num_chnls) == self->chnl)
+            {
+                index = (int)(i / num_chnls);
+
+                if (index >= cross_point)
+                {
+                    cross_amp = MYSQRT((index - cross_point) / (MYFLT)cross_in_samps);
                     self->data[index] = tmp[i] * (1. - cross_amp) + tmp_data[index - cross_point] * cross_amp;
                 }
                 else
@@ -4021,7 +4363,8 @@ SndTable_prependSound(SndTable *self) {
         }
     }
 
-    for (i=(index+1); i<(unsigned int)self->size; i++) {
+    for (i = (index + 1); i < (unsigned int)self->size; i++)
+    {
         self->data[i] = tmp_data[i - cross_point];
     }
 
@@ -4037,7 +4380,8 @@ SndTable_prependSound(SndTable *self) {
 }
 
 static void
-SndTable_insertSound(SndTable *self) {
+SndTable_insertSound(SndTable *self)
+{
     SNDFILE *sf;
     SF_INFO info;
     unsigned int i, num_items, num_chnls, snd_size, start, stop, to_load_size;
@@ -4049,21 +4393,23 @@ SndTable_insertSound(SndTable *self) {
 
     info.format = 0;
     sf = sf_open(self->path, SFM_READ, &info);
+
     if (sf == NULL)
     {
         PySys_WriteStdout("SndTable failed to open the file.\n");
         return;
     }
+
     snd_size = info.frames;
     self->sndSr = info.samplerate;
     num_chnls = info.channels;
 
-    if (self->stop <= 0 || self->stop <= self->start || (self->stop*self->sndSr) > snd_size)
+    if (self->stop <= 0 || self->stop <= self->start || (self->stop * self->sndSr) > snd_size)
         stop = snd_size;
     else
         stop = (unsigned int)(self->stop * self->sndSr);
 
-    if (self->start < 0 || (self->start*self->sndSr) > snd_size)
+    if (self->start < 0 || (self->start * self->sndSr) > snd_size)
         start = 0;
     else
         start = (unsigned int)(self->start * self->sndSr);
@@ -4072,14 +4418,18 @@ SndTable_insertSound(SndTable *self) {
     num_items = to_load_size * num_chnls;
 
     insert_point = (unsigned int)(self->insertPos * self->sr);
+
     if ((int)insert_point >= self->size)
         insert_point = self->size - 1;
 
     cross_in_samps = (unsigned int)(self->crossfade * self->sr);
-    if (cross_in_samps >= (to_load_size/2))
-        cross_in_samps = (to_load_size/2) - 5;
+
+    if (cross_in_samps >= (to_load_size / 2))
+        cross_in_samps = (to_load_size / 2) - 5;
+
     if (cross_in_samps >= insert_point)
         cross_in_samps = insert_point - 5;
+
     if (cross_in_samps >= (self->size - insert_point))
         cross_in_samps = (self->size - insert_point) - 5;
 
@@ -4091,7 +4441,8 @@ SndTable_insertSound(SndTable *self) {
     SF_READ(sf, tmp, num_items);
     sf_close(sf);
 
-    for (i=0; i<(unsigned int)self->size; i++) {
+    for (i = 0; i < (unsigned int)self->size; i++)
+    {
         tmp_data[i] = self->data[i];
     }
 
@@ -4100,31 +4451,41 @@ SndTable_insertSound(SndTable *self) {
 
     cross_point = insert_point - cross_in_samps;
 
-    for (i=0; i<cross_point; i++) {
+    for (i = 0; i < cross_point; i++)
+    {
         self->data[i] = tmp_data[i];
     }
 
-    if (self->crossfade == 0.0) {
-        for (i=0; i<num_items; i++) {
-            if ((int)(i % num_chnls) == self->chnl) {
-                index = (int)(i/num_chnls);
-                self->data[index+cross_point] = tmp[i];
+    if (self->crossfade == 0.0)
+    {
+        for (i = 0; i < num_items; i++)
+        {
+            if ((int)(i % num_chnls) == self->chnl)
+            {
+                index = (int)(i / num_chnls);
+                self->data[index + cross_point] = tmp[i];
             }
         }
 
     }
-    else {
-        for (i=0; i<num_items; i++) {
-            if ((int)(i % num_chnls) == self->chnl) {
-                index = (int)(i/num_chnls);
+    else
+    {
+        for (i = 0; i < num_items; i++)
+        {
+            if ((int)(i % num_chnls) == self->chnl)
+            {
+                index = (int)(i / num_chnls);
                 real_index = index + cross_point;
-                if (index <= cross_in_samps) {
+
+                if (index <= cross_in_samps)
+                {
                     cross_amp = MYSQRT(index / (MYFLT)cross_in_samps);
                     self->data[real_index] = tmp[i] * cross_amp + tmp_data[cross_point + index] * (1.0 - cross_amp);
                 }
-                else if (index >= (to_load_size - cross_in_samps)) {
+                else if (index >= (to_load_size - cross_in_samps))
+                {
                     cross_amp = MYSQRT((to_load_size - index) / (MYFLT)cross_in_samps);
-                    read_point = cross_in_samps - (to_load_size - index) +insert_point;
+                    read_point = cross_in_samps - (to_load_size - index) + insert_point;
                     self->data[real_index] = tmp[i] * cross_amp + tmp_data[read_point] * (1.0 - cross_amp);
                 }
                 else
@@ -4134,7 +4495,9 @@ SndTable_insertSound(SndTable *self) {
     }
 
     read_point++;
-    for (i=(real_index+1); i<(unsigned int)self->size; i++) {
+
+    for (i = (real_index + 1); i < (unsigned int)self->size; i++)
+    {
         self->data[i] = tmp_data[read_point];
         read_point++;
     }
@@ -4198,12 +4561,16 @@ SndTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_P_IFF, kwlist, &self->path, &psize, &self->chnl, &self->start, &self->stop))
         return PyInt_FromLong(-1);
 
-    if (strcmp(self->path, "") == 0) {
+    if (strcmp(self->path, "") == 0)
+    {
         self->size = (int)self->sr;
         self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
-        for (i=0; i<self->size; i++) {
+
+        for (i = 0; i < self->size; i++)
+        {
             self->data[i] = 0.0;
         }
+
         self->data[self->size] = self->data[0];
         self->start = 0.0;
         self->stop = -1.0;
@@ -4212,7 +4579,8 @@ SndTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         TableStream_setSamplingRate(self->tablestream, (int)self->sr);
         TableStream_setData(self->tablestream, self->data);
     }
-    else {
+    else
+    {
         SndTable_loadSound(self);
     }
 
@@ -4245,7 +4613,8 @@ static PyObject * SndTable_sub(SndTable *self, PyObject *arg) { TABLE_SUB };
 static PyObject * SndTable_mul(SndTable *self, PyObject *arg) { TABLE_MUL };
 
 static PyObject *
-SndTable_getViewTable(SndTable *self, PyObject *args, PyObject *kwds) {
+SndTable_getViewTable(SndTable *self, PyObject *args, PyObject *kwds)
+{
     int i, j, y, w, h, h2, step, size;
     int count = 0;
     int yOffset = 0;
@@ -4262,92 +4631,121 @@ SndTable_getViewTable(SndTable *self, PyObject *args, PyObject *kwds) {
 
     if (end <= 0.0)
         end = self->size;
-    else {
+    else
+    {
         end = end * self->sr;
+
         if (end > self->size)
             end = self->size;
     }
 
     if (begin < 0.0)
         begin = 0;
-    else {
+    else
+    {
         begin = begin * self->sr;
+
         if (begin >= end)
             begin = 0;
     }
+
     size = (int)(end - begin);
 
-    if (sizetmp) {
-        if (PyTuple_Check(sizetmp)) {
+    if (sizetmp)
+    {
+        if (PyTuple_Check(sizetmp))
+        {
             w = PyInt_AsLong(PyTuple_GET_ITEM(sizetmp, 0));
             h = PyInt_AsLong(PyTuple_GET_ITEM(sizetmp, 1));
         }
-        else if (PyList_Check(sizetmp)) {
+        else if (PyList_Check(sizetmp))
+        {
             w = PyInt_AsLong(PyList_GET_ITEM(sizetmp, 0));
             h = PyInt_AsLong(PyList_GET_ITEM(sizetmp, 1));
         }
-        else {
+        else
+        {
             w = 500;
             h = 200;
         }
     }
-    else {
+    else
+    {
         w = 500;
         h = 200;
     }
-    h2 = h/2;
-    step = (int)(size / (MYFLT)(w));
-    fstep = (MYFLT)(w) / (size-1);
 
-    if (step == 0) {
+    h2 = h / 2;
+    step = (int)(size / (MYFLT)(w));
+    fstep = (MYFLT)(w) / (size - 1);
+
+    if (step == 0)
+    {
         samples = PyList_New(size);
-        for (i=0; i<size; i++) {
+
+        for (i = 0; i < size; i++)
+        {
             tuple = PyTuple_New(2);
-            PyTuple_SetItem(tuple, 0, PyInt_FromLong((int)(i*fstep)));
-            PyTuple_SetItem(tuple, 1, PyInt_FromLong(-self->data[i+(int)(begin)]*h2+h2+yOffset));
+            PyTuple_SetItem(tuple, 0, PyInt_FromLong((int)(i * fstep)));
+            PyTuple_SetItem(tuple, 1, PyInt_FromLong(-self->data[i + (int)(begin)]*h2 + h2 + yOffset));
             PyList_SetItem(samples, i, tuple);
         }
     }
-    else if (step < 32) {
+    else if (step < 32)
+    {
         samples = PyList_New(w);
-        for(i=0; i<w; i++) {
+
+        for(i = 0; i < w; i++)
+        {
             absin = 0.0;
-            for (j=0; j<step; j++) {
-                absin += -self->data[(int)(begin)+count];
+
+            for (j = 0; j < step; j++)
+            {
+                absin += -self->data[(int)(begin) + count];
                 count++;
             }
+
             y = (int)(absin / step * h2);
             tuple = PyTuple_New(2);
             PyTuple_SetItem(tuple, 0, PyInt_FromLong(i));
-            PyTuple_SetItem(tuple, 1, PyInt_FromLong(h2+y+yOffset));
+            PyTuple_SetItem(tuple, 1, PyInt_FromLong(h2 + y + yOffset));
             PyList_SetItem(samples, i, tuple);
         }
     }
-    else {
-        samples = PyList_New(w*2);
-        for(i=0; i<w; i++) {
+    else
+    {
+        samples = PyList_New(w * 2);
+
+        for(i = 0; i < w; i++)
+        {
             absin = 0.0;
-            for (j=0; j<step; j++) {
-                if (MYFABS(self->data[(int)(begin)+count]) > absin)
-                    absin = -self->data[(int)(begin)+count];
+
+            for (j = 0; j < step; j++)
+            {
+                if (MYFABS(self->data[(int)(begin) + count]) > absin)
+                    absin = -self->data[(int)(begin) + count];
+
                 count++;
             }
+
             y = (int)(absin * h2);
             tuple = PyTuple_New(2);
             PyTuple_SetItem(tuple, 0, PyInt_FromLong(i));
-            PyTuple_SetItem(tuple, 1, PyInt_FromLong(h2-y+yOffset));
-            PyList_SetItem(samples, i*2, tuple);
+            PyTuple_SetItem(tuple, 1, PyInt_FromLong(h2 - y + yOffset));
+            PyList_SetItem(samples, i * 2, tuple);
             tuple = PyTuple_New(2);
             PyTuple_SetItem(tuple, 0, PyInt_FromLong(i));
-            PyTuple_SetItem(tuple, 1, PyInt_FromLong(h2+y+yOffset));
-            PyList_SetItem(samples, i*2+1, tuple);
+            PyTuple_SetItem(tuple, 1, PyInt_FromLong(h2 + y + yOffset));
+            PyList_SetItem(samples, i * 2 + 1, tuple);
         }
     }
+
     return samples;
 };
 
 static PyObject *
-SndTable_getEnvelope(SndTable *self, PyObject *arg) {
+SndTable_getEnvelope(SndTable *self, PyObject *arg)
+{
     int i, j, step, points;
     long count;
     MYFLT absin, last;
@@ -4355,28 +4753,36 @@ SndTable_getEnvelope(SndTable *self, PyObject *arg) {
 
     ASSERT_ARG_NOT_NULL
 
-	int isInt = PyInt_Check(arg);
+    int isInt = PyInt_Check(arg);
 
-    if (isInt) {
+    if (isInt)
+    {
         count = 0;
         points = PyInt_AsLong(arg);
         step = self->size / points;
         samples = PyList_New(points);
-        for(i=0; i<points; i++) {
+
+        for(i = 0; i < points; i++)
+        {
             last = 0.0;
             absin = 0.0;
-            for (j=0; j<step; j++) {
+
+            for (j = 0; j < step; j++)
+            {
                 if (MYFABS(self->data[count++]) > absin)
                     absin = self->data[count];
             }
+
             last = (absin + last) * 0.5;
             PyList_SetItem(samples, i, PyFloat_FromDouble(last));
         }
+
         return samples;
     }
-    else {
+    else
+    {
         Py_INCREF(Py_None);
-		return Py_None;
+        return Py_None;
     }
 };
 
@@ -4388,7 +4794,8 @@ SndTable_setSound(SndTable *self, PyObject *args, PyObject *kwds)
 
     MYFLT stoptmp = -1.0;
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_P_IFF, kwlist, &self->path, &psize, &self->chnl, &self->start, &stoptmp)) {
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_P_IFF, kwlist, &self->path, &psize, &self->chnl, &self->start, &stoptmp))
+    {
         Py_INCREF(Py_None);
         return Py_None;
     }
@@ -4409,12 +4816,14 @@ SndTable_append(SndTable *self, PyObject *args, PyObject *kwds)
     MYFLT stoptmp = -1.0;
     MYFLT crosstmp = 0.0;
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_P_FIFF, kwlist, &self->path, &psize, &crosstmp, &self->chnl, &self->start, &stoptmp)) {
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_P_FIFF, kwlist, &self->path, &psize, &crosstmp, &self->chnl, &self->start, &stoptmp))
+    {
         Py_INCREF(Py_None);
         return Py_None;
     }
 
     self->stop = stoptmp;
+
     if (crosstmp < 0.0)
         self->crossfade = 0.0;
     else
@@ -4436,12 +4845,14 @@ SndTable_insert(SndTable *self, PyObject *args, PyObject *kwds)
     MYFLT crosstmp = 0.0;
     MYFLT postmp = 0.0;
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_P_FFIFF, kwlist, &self->path, &psize, &postmp, &crosstmp, &self->chnl, &self->start, &stoptmp)) {
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_P_FFIFF, kwlist, &self->path, &psize, &postmp, &crosstmp, &self->chnl, &self->start, &stoptmp))
+    {
         Py_INCREF(Py_None);
         return Py_None;
     }
 
     self->stop = stoptmp;
+
     if (crosstmp < 0.0)
         self->crossfade = 0.0;
     else
@@ -4449,9 +4860,10 @@ SndTable_insert(SndTable *self, PyObject *args, PyObject *kwds)
 
     if (postmp <= 0.0)
         SndTable_prependSound(self);
-    else if (postmp >= ((self->size-1) / self->sndSr))
+    else if (postmp >= ((self->size - 1) / self->sndSr))
         SndTable_appendSound(self);
-    else {
+    else
+    {
         self->insertPos = postmp;
         SndTable_insertSound(self);
     }
@@ -4467,11 +4879,13 @@ SndTable_setSize(SndTable *self, PyObject *value)
 
     self->size = PyInt_AsLong(value);
 
-    self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
+    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
 
-    for(i=0; i<self->size; i++) {
+    for(i = 0; i < self->size; i++)
+    {
         self->data[i] = 0.0;
     }
+
     self->data[self->size] = 0.0;
     self->start = 0.0;
     self->stop = -1.0;
@@ -4491,105 +4905,110 @@ SndTable_getSize(SndTable *self)
 static PyObject *
 SndTable_getRate(SndTable *self)
 {
-    MYFLT sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL)); \
-    return PyFloat_FromDouble(sr * (self->sndSr/sr) / self->size);
+    MYFLT sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
+    \
+    return PyFloat_FromDouble(sr * (self->sndSr / sr) / self->size);
 };
 
-static PyMemberDef SndTable_members[] = {
-{"server", T_OBJECT_EX, offsetof(SndTable, server), 0, "Pyo server."},
-{"tablestream", T_OBJECT_EX, offsetof(SndTable, tablestream), 0, "Table stream object."},
-{NULL}  /* Sentinel */
+static PyMemberDef SndTable_members[] =
+{
+    {"server", T_OBJECT_EX, offsetof(SndTable, server), 0, "Pyo server."},
+    {"tablestream", T_OBJECT_EX, offsetof(SndTable, tablestream), 0, "Table stream object."},
+    {NULL}  /* Sentinel */
 };
 
-static PyMethodDef SndTable_methods[] = {
-{"getServer", (PyCFunction)SndTable_getServer, METH_NOARGS, "Returns server object."},
-{"copy", (PyCFunction)SndTable_copy, METH_O, "Copy data from table given in argument."},
-{"copyData", (PyCFunction)SndTable_copyData, METH_VARARGS|METH_KEYWORDS, "Copy data from table given in argument."},
-{"rotate", (PyCFunction)SndTable_rotate, METH_VARARGS|METH_KEYWORDS, "Rotate table around position as argument."},
-{"setTable", (PyCFunction)SndTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
-{"getTable", (PyCFunction)SndTable_getTable, METH_NOARGS, "Returns a list of table samples."},
-{"getViewTable", (PyCFunction)SndTable_getViewTable, METH_VARARGS|METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
-{"getTableStream", (PyCFunction)SndTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
-{"getEnvelope", (PyCFunction)SndTable_getEnvelope, METH_O, "Returns X points envelope follower of the table."},
-{"setData", (PyCFunction)SndTable_setData, METH_O, "Sets the table from samples in a text file."},
-{"normalize", (PyCFunction)SndTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
-{"reset", (PyCFunction)SndTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
-{"removeDC", (PyCFunction)SndTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
-{"reverse", (PyCFunction)SndTable_reverse, METH_NOARGS, "Reverse the table's data."},
-{"invert", (PyCFunction)SndTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
-{"rectify", (PyCFunction)SndTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
-{"bipolarGain", (PyCFunction)SndTable_bipolarGain, METH_VARARGS|METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
-{"lowpass", (PyCFunction)SndTable_lowpass, METH_VARARGS|METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
-{"fadein", (PyCFunction)SndTable_fadein, METH_VARARGS|METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
-{"fadeout", (PyCFunction)SndTable_fadeout, METH_VARARGS|METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
-{"pow", (PyCFunction)SndTable_pow, METH_VARARGS|METH_KEYWORDS, "Apply a power function on each sample in the table."},
-{"put", (PyCFunction)SndTable_put, METH_VARARGS|METH_KEYWORDS, "Puts a value at specified position in the table."},
-{"get", (PyCFunction)SndTable_get, METH_VARARGS|METH_KEYWORDS, "Gets the value at specified position in the table."},
-{"setSound", (PyCFunction)SndTable_setSound, METH_VARARGS|METH_KEYWORDS, "Load a new sound in the table."},
-{"append", (PyCFunction)SndTable_append, METH_VARARGS|METH_KEYWORDS, "Append a sound in the table."},
-{"insert", (PyCFunction)SndTable_insert, METH_VARARGS|METH_KEYWORDS, "Insert a sound in the table."},
-{"setSize", (PyCFunction)SndTable_setSize, METH_O, "Sets the size of the table in samples"},
-{"getSize", (PyCFunction)SndTable_getSize, METH_NOARGS, "Return the size of the table in samples."},
-{"getRate", (PyCFunction)SndTable_getRate, METH_NOARGS, "Return the frequency (in cps) that reads the sound without pitch transposition."},
-{"add", (PyCFunction)SndTable_add, METH_O, "Performs table addition."},
-{"sub", (PyCFunction)SndTable_sub, METH_O, "Performs table substraction."},
-{"mul", (PyCFunction)SndTable_mul, METH_O, "Performs table multiplication."},
-{NULL}  /* Sentinel */
+static PyMethodDef SndTable_methods[] =
+{
+    {"getServer", (PyCFunction)SndTable_getServer, METH_NOARGS, "Returns server object."},
+    {"copy", (PyCFunction)SndTable_copy, METH_O, "Copy data from table given in argument."},
+    {"copyData", (PyCFunction)SndTable_copyData, METH_VARARGS | METH_KEYWORDS, "Copy data from table given in argument."},
+    {"rotate", (PyCFunction)SndTable_rotate, METH_VARARGS | METH_KEYWORDS, "Rotate table around position as argument."},
+    {"setTable", (PyCFunction)SndTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
+    {"getTable", (PyCFunction)SndTable_getTable, METH_NOARGS, "Returns a list of table samples."},
+    {"getViewTable", (PyCFunction)SndTable_getViewTable, METH_VARARGS | METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
+    {"getTableStream", (PyCFunction)SndTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
+    {"getEnvelope", (PyCFunction)SndTable_getEnvelope, METH_O, "Returns X points envelope follower of the table."},
+    {"setData", (PyCFunction)SndTable_setData, METH_O, "Sets the table from samples in a text file."},
+    {"normalize", (PyCFunction)SndTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
+    {"reset", (PyCFunction)SndTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
+    {"removeDC", (PyCFunction)SndTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
+    {"reverse", (PyCFunction)SndTable_reverse, METH_NOARGS, "Reverse the table's data."},
+    {"invert", (PyCFunction)SndTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
+    {"rectify", (PyCFunction)SndTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
+    {"bipolarGain", (PyCFunction)SndTable_bipolarGain, METH_VARARGS | METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
+    {"lowpass", (PyCFunction)SndTable_lowpass, METH_VARARGS | METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
+    {"fadein", (PyCFunction)SndTable_fadein, METH_VARARGS | METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
+    {"fadeout", (PyCFunction)SndTable_fadeout, METH_VARARGS | METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
+    {"pow", (PyCFunction)SndTable_pow, METH_VARARGS | METH_KEYWORDS, "Apply a power function on each sample in the table."},
+    {"put", (PyCFunction)SndTable_put, METH_VARARGS | METH_KEYWORDS, "Puts a value at specified position in the table."},
+    {"get", (PyCFunction)SndTable_get, METH_VARARGS | METH_KEYWORDS, "Gets the value at specified position in the table."},
+    {"setSound", (PyCFunction)SndTable_setSound, METH_VARARGS | METH_KEYWORDS, "Load a new sound in the table."},
+    {"append", (PyCFunction)SndTable_append, METH_VARARGS | METH_KEYWORDS, "Append a sound in the table."},
+    {"insert", (PyCFunction)SndTable_insert, METH_VARARGS | METH_KEYWORDS, "Insert a sound in the table."},
+    {"setSize", (PyCFunction)SndTable_setSize, METH_O, "Sets the size of the table in samples"},
+    {"getSize", (PyCFunction)SndTable_getSize, METH_NOARGS, "Return the size of the table in samples."},
+    {"getRate", (PyCFunction)SndTable_getRate, METH_NOARGS, "Return the frequency (in cps) that reads the sound without pitch transposition."},
+    {"add", (PyCFunction)SndTable_add, METH_O, "Performs table addition."},
+    {"sub", (PyCFunction)SndTable_sub, METH_O, "Performs table substraction."},
+    {"mul", (PyCFunction)SndTable_mul, METH_O, "Performs table multiplication."},
+    {NULL}  /* Sentinel */
 };
 
-PyTypeObject SndTableType = {
-PyVarObject_HEAD_INIT(NULL, 0)
-"_pyo.SndTable_base",         /*tp_name*/
-sizeof(SndTable),         /*tp_basicsize*/
-0,                         /*tp_itemsize*/
-(destructor)SndTable_dealloc, /*tp_dealloc*/
-0,                         /*tp_print*/
-0,                         /*tp_getattr*/
-0,                         /*tp_setattr*/
-0,                         /*tp_as_async (tp_compare in Python 2)*/
-0,                         /*tp_repr*/
-0,                         /*tp_as_number*/
-0,                         /*tp_as_sequence*/
-0,                         /*tp_as_mapping*/
-0,                         /*tp_hash */
-0,                         /*tp_call*/
-0,                         /*tp_str*/
-0,                         /*tp_getattro*/
-0,                         /*tp_setattro*/
-0,                         /*tp_as_buffer*/
-Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-"SndTable objects. Generates a table filled with a soundfile.",  /* tp_doc */
-(traverseproc)SndTable_traverse,   /* tp_traverse */
-(inquiry)SndTable_clear,           /* tp_clear */
-0,		               /* tp_richcompare */
-0,		               /* tp_weaklistoffset */
-0,		               /* tp_iter */
-0,		               /* tp_iternext */
-SndTable_methods,             /* tp_methods */
-SndTable_members,             /* tp_members */
-0,                      /* tp_getset */
-0,                         /* tp_base */
-0,                         /* tp_dict */
-0,                         /* tp_descr_get */
-0,                         /* tp_descr_set */
-0,                         /* tp_dictoffset */
-0,      /* tp_init */
-0,                         /* tp_alloc */
-SndTable_new,                 /* tp_new */
-0,               /* tp_free */
-0,               /* tp_is_gc */
-0,               /* tp_bases */
-0,               /* tp_mro */
-0,               /* tp_cache */
-0,               /* tp_subclasses */
-0,               /* tp_weaklist */
-0,               /* tp_del */
+PyTypeObject SndTableType =
+{
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "_pyo.SndTable_base",         /*tp_name*/
+    sizeof(SndTable),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)SndTable_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
+    0,                         /*tp_repr*/
+    0,                         /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
+    "SndTable objects. Generates a table filled with a soundfile.",  /* tp_doc */
+    (traverseproc)SndTable_traverse,   /* tp_traverse */
+    (inquiry)SndTable_clear,           /* tp_clear */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
+    SndTable_methods,             /* tp_methods */
+    SndTable_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,      /* tp_init */
+    0,                         /* tp_alloc */
+    SndTable_new,                 /* tp_new */
+    0,               /* tp_free */
+    0,               /* tp_is_gc */
+    0,               /* tp_bases */
+    0,               /* tp_mro */
+    0,               /* tp_cache */
+    0,               /* tp_subclasses */
+    0,               /* tp_weaklist */
+    0,               /* tp_del */
 };
 
 /***********************/
 /* NewTable structure */
 /***********************/
-typedef struct {
+typedef struct
+{
     pyo_table_HEAD
     MYFLT length;
     MYFLT feedback;
@@ -4606,20 +5025,28 @@ NewTable_recordChunk(NewTable *self, MYFLT *data, int datasize)
 {
     int i;
 
-    if (self->feedback == 0.0) {
-        for (i=0; i<datasize; i++) {
+    if (self->feedback == 0.0)
+    {
+        for (i = 0; i < datasize; i++)
+        {
             self->data[self->pointer++] = data[i];
-            if (self->pointer == self->size) {
+
+            if (self->pointer == self->size)
+            {
                 self->pointer = 0;
                 self->data[self->size] = self->data[0];
             }
         }
     }
-    else {
-        for (i=0; i<datasize; i++) {
+    else
+    {
+        for (i = 0; i < datasize; i++)
+        {
             self->data[self->pointer] = data[i] + self->data[self->pointer] * self->feedback;
             self->pointer++;
-            if (self->pointer == self->size) {
+
+            if (self->pointer == self->size)
+            {
                 self->pointer = 0;
                 self->data[self->size] = self->data[0];
             }
@@ -4656,7 +5083,7 @@ static PyObject *
 NewTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *inittmp=NULL;
+    PyObject *inittmp = NULL;
     NewTable *self;
     self = (NewTable *)type->tp_alloc(type, 0);
 
@@ -4677,13 +5104,15 @@ NewTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->size = (int)(self->length * self->sr + 0.5);
     self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
 
-    for (i=0; i<(self->size+1); i++) {
+    for (i = 0; i < (self->size + 1); i++)
+    {
         self->data[i] = 0.;
     }
 
     TableStream_setSize(self->tablestream, self->size);
 
-    if (inittmp && inittmp != Py_None) {
+    if (inittmp && inittmp != Py_None)
+    {
         PyObject_CallMethod((PyObject *)self, "setTable", "O", inittmp);
     }
 
@@ -4719,7 +5148,8 @@ static PyObject * NewTable_sub(NewTable *self, PyObject *arg) { TABLE_SUB };
 static PyObject * NewTable_mul(NewTable *self, PyObject *arg) { TABLE_MUL };
 
 static PyObject *
-NewTable_getViewTable(NewTable *self, PyObject *args, PyObject *kwds) {
+NewTable_getViewTable(NewTable *self, PyObject *args, PyObject *kwds)
+{
     int i, j, y, w, h, h2, step, size;
     int count = 0;
     int yOffset = 0;
@@ -4736,87 +5166,115 @@ NewTable_getViewTable(NewTable *self, PyObject *args, PyObject *kwds) {
 
     if (end <= 0.0)
         end = self->size;
-    else {
+    else
+    {
         end = end * self->sr;
+
         if (end > self->size)
             end = self->size;
     }
 
     if (begin < 0.0)
         begin = 0;
-    else {
+    else
+    {
         begin = begin * self->sr;
+
         if (begin >= end)
             begin = 0;
     }
+
     size = (int)(end - begin);
 
-    if (sizetmp) {
-        if (PyTuple_Check(sizetmp)) {
+    if (sizetmp)
+    {
+        if (PyTuple_Check(sizetmp))
+        {
             w = PyInt_AsLong(PyTuple_GET_ITEM(sizetmp, 0));
             h = PyInt_AsLong(PyTuple_GET_ITEM(sizetmp, 1));
         }
-        else if (PyList_Check(sizetmp)) {
+        else if (PyList_Check(sizetmp))
+        {
             w = PyInt_AsLong(PyList_GET_ITEM(sizetmp, 0));
             h = PyInt_AsLong(PyList_GET_ITEM(sizetmp, 1));
         }
-        else {
+        else
+        {
             w = 500;
             h = 200;
         }
     }
-    else {
+    else
+    {
         w = 500;
         h = 200;
     }
-    h2 = h/2;
-    step = (int)(size / (MYFLT)(w));
-    fstep = (MYFLT)(w) / (size-1);
 
-    if (step == 0) {
+    h2 = h / 2;
+    step = (int)(size / (MYFLT)(w));
+    fstep = (MYFLT)(w) / (size - 1);
+
+    if (step == 0)
+    {
         samples = PyList_New(size);
-        for (i=0; i<size; i++) {
+
+        for (i = 0; i < size; i++)
+        {
             tuple = PyTuple_New(2);
-            PyTuple_SetItem(tuple, 0, PyInt_FromLong((int)(i*fstep)));
-            PyTuple_SetItem(tuple, 1, PyInt_FromLong(-self->data[i+(int)(begin)]*h2+h2+yOffset));
+            PyTuple_SetItem(tuple, 0, PyInt_FromLong((int)(i * fstep)));
+            PyTuple_SetItem(tuple, 1, PyInt_FromLong(-self->data[i + (int)(begin)]*h2 + h2 + yOffset));
             PyList_SetItem(samples, i, tuple);
         }
     }
-    else if (step < 32) {
+    else if (step < 32)
+    {
         samples = PyList_New(w);
-        for(i=0; i<w; i++) {
+
+        for(i = 0; i < w; i++)
+        {
             absin = 0.0;
-            for (j=0; j<step; j++) {
-                absin += -self->data[(int)(begin)+count];
+
+            for (j = 0; j < step; j++)
+            {
+                absin += -self->data[(int)(begin) + count];
                 count++;
             }
+
             y = (int)(absin / step * h2);
             tuple = PyTuple_New(2);
             PyTuple_SetItem(tuple, 0, PyInt_FromLong(i));
-            PyTuple_SetItem(tuple, 1, PyInt_FromLong(h2+y+yOffset));
+            PyTuple_SetItem(tuple, 1, PyInt_FromLong(h2 + y + yOffset));
             PyList_SetItem(samples, i, tuple);
         }
     }
-    else {
-        samples = PyList_New(w*2);
-        for(i=0; i<w; i++) {
+    else
+    {
+        samples = PyList_New(w * 2);
+
+        for(i = 0; i < w; i++)
+        {
             absin = 0.0;
-            for (j=0; j<step; j++) {
-                if (MYFABS(self->data[(int)(begin)+count]) > absin)
-                    absin = -self->data[(int)(begin)+count];
+
+            for (j = 0; j < step; j++)
+            {
+                if (MYFABS(self->data[(int)(begin) + count]) > absin)
+                    absin = -self->data[(int)(begin) + count];
+
                 count++;
             }
+
             y = (int)(absin * h2);
             tuple = PyTuple_New(2);
             PyTuple_SetItem(tuple, 0, PyInt_FromLong(i));
-            PyTuple_SetItem(tuple, 1, PyInt_FromLong(h2-y+yOffset));
-            PyList_SetItem(samples, i*2, tuple);
+            PyTuple_SetItem(tuple, 1, PyInt_FromLong(h2 - y + yOffset));
+            PyList_SetItem(samples, i * 2, tuple);
             tuple = PyTuple_New(2);
             PyTuple_SetItem(tuple, 0, PyInt_FromLong(i));
-            PyTuple_SetItem(tuple, 1, PyInt_FromLong(h2+y+yOffset));
-            PyList_SetItem(samples, i*2+1, tuple);
+            PyTuple_SetItem(tuple, 1, PyInt_FromLong(h2 + y + yOffset));
+            PyList_SetItem(samples, i * 2 + 1, tuple);
         }
     }
+
     return samples;
 };
 
@@ -4835,7 +5293,8 @@ NewTable_getLength(NewTable *self)
 static PyObject *
 NewTable_getRate(NewTable *self)
 {
-    MYFLT sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL)); \
+    MYFLT sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
+    \
     return PyFloat_FromDouble(sr / self->size);
 };
 
@@ -4844,102 +5303,109 @@ NewTable_setFeedback(NewTable *self, PyObject *value)
 {
     MYFLT feed;
 
-    if (PyNumber_Check(value)) {
+    if (PyNumber_Check(value))
+    {
         feed = PyFloat_AsDouble(value);
+
         if (feed < -1.0)
             feed = -1.0;
         else if (feed > 1.0)
             feed = 1.0;
+
         self->feedback = feed;
     }
 
     Py_RETURN_NONE;
 }
 
-static PyMemberDef NewTable_members[] = {
-{"server", T_OBJECT_EX, offsetof(NewTable, server), 0, "Pyo server."},
-{"tablestream", T_OBJECT_EX, offsetof(NewTable, tablestream), 0, "Table stream object."},
-{NULL}  /* Sentinel */
+static PyMemberDef NewTable_members[] =
+{
+    {"server", T_OBJECT_EX, offsetof(NewTable, server), 0, "Pyo server."},
+    {"tablestream", T_OBJECT_EX, offsetof(NewTable, tablestream), 0, "Table stream object."},
+    {NULL}  /* Sentinel */
 };
 
-static PyMethodDef NewTable_methods[] = {
-{"getServer", (PyCFunction)NewTable_getServer, METH_NOARGS, "Returns server object."},
-{"setTable", (PyCFunction)NewTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
-{"getTable", (PyCFunction)NewTable_getTable, METH_NOARGS, "Returns a list of table samples."},
-{"getViewTable", (PyCFunction)NewTable_getViewTable, METH_VARARGS|METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
-{"getTableStream", (PyCFunction)NewTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
-{"setFeedback", (PyCFunction)NewTable_setFeedback, METH_O, "Feedback sets the amount of old data to mix with a new recording."},
-{"setData", (PyCFunction)NewTable_setData, METH_O, "Sets the table from samples in a text file."},
-{"copy", (PyCFunction)NewTable_copy, METH_O, "Copy data from table given in argument."},
-{"copyData", (PyCFunction)NewTable_copyData, METH_VARARGS|METH_KEYWORDS, "Copy data from table given in argument."},
-{"rotate", (PyCFunction)NewTable_rotate, METH_VARARGS|METH_KEYWORDS, "Rotate table around position as argument."},
-{"normalize", (PyCFunction)NewTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
-{"reset", (PyCFunction)NewTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
-{"removeDC", (PyCFunction)NewTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
-{"reverse", (PyCFunction)NewTable_reverse, METH_NOARGS, "Reverse the table's data."},
-{"invert", (PyCFunction)NewTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
-{"rectify", (PyCFunction)NewTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
-{"bipolarGain", (PyCFunction)NewTable_bipolarGain, METH_VARARGS|METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
-{"lowpass", (PyCFunction)NewTable_lowpass, METH_VARARGS|METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
-{"fadein", (PyCFunction)NewTable_fadein, METH_VARARGS|METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
-{"fadeout", (PyCFunction)NewTable_fadeout, METH_VARARGS|METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
-{"pow", (PyCFunction)NewTable_pow, METH_VARARGS|METH_KEYWORDS, "Apply a power function on each sample in the table."},
-{"put", (PyCFunction)NewTable_put, METH_VARARGS|METH_KEYWORDS, "Puts a value at specified position in the table."},
-{"get", (PyCFunction)NewTable_get, METH_VARARGS|METH_KEYWORDS, "Gets the value at specified position in the table."},
-{"getSize", (PyCFunction)NewTable_getSize, METH_NOARGS, "Return the size of the table in samples."},
-{"getLength", (PyCFunction)NewTable_getLength, METH_NOARGS, "Return the length of the table in seconds."},
-{"getRate", (PyCFunction)NewTable_getRate, METH_NOARGS, "Return the frequency (in cps) that reads the sound without pitch transposition."},
-{"add", (PyCFunction)NewTable_add, METH_O, "Performs table addition."},
-{"sub", (PyCFunction)NewTable_sub, METH_O, "Performs table substraction."},
-{"mul", (PyCFunction)NewTable_mul, METH_O, "Performs table multiplication."},
-{NULL}  /* Sentinel */
+static PyMethodDef NewTable_methods[] =
+{
+    {"getServer", (PyCFunction)NewTable_getServer, METH_NOARGS, "Returns server object."},
+    {"setTable", (PyCFunction)NewTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
+    {"getTable", (PyCFunction)NewTable_getTable, METH_NOARGS, "Returns a list of table samples."},
+    {"getViewTable", (PyCFunction)NewTable_getViewTable, METH_VARARGS | METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
+    {"getTableStream", (PyCFunction)NewTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
+    {"setFeedback", (PyCFunction)NewTable_setFeedback, METH_O, "Feedback sets the amount of old data to mix with a new recording."},
+    {"setData", (PyCFunction)NewTable_setData, METH_O, "Sets the table from samples in a text file."},
+    {"copy", (PyCFunction)NewTable_copy, METH_O, "Copy data from table given in argument."},
+    {"copyData", (PyCFunction)NewTable_copyData, METH_VARARGS | METH_KEYWORDS, "Copy data from table given in argument."},
+    {"rotate", (PyCFunction)NewTable_rotate, METH_VARARGS | METH_KEYWORDS, "Rotate table around position as argument."},
+    {"normalize", (PyCFunction)NewTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
+    {"reset", (PyCFunction)NewTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
+    {"removeDC", (PyCFunction)NewTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
+    {"reverse", (PyCFunction)NewTable_reverse, METH_NOARGS, "Reverse the table's data."},
+    {"invert", (PyCFunction)NewTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
+    {"rectify", (PyCFunction)NewTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
+    {"bipolarGain", (PyCFunction)NewTable_bipolarGain, METH_VARARGS | METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
+    {"lowpass", (PyCFunction)NewTable_lowpass, METH_VARARGS | METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
+    {"fadein", (PyCFunction)NewTable_fadein, METH_VARARGS | METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
+    {"fadeout", (PyCFunction)NewTable_fadeout, METH_VARARGS | METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
+    {"pow", (PyCFunction)NewTable_pow, METH_VARARGS | METH_KEYWORDS, "Apply a power function on each sample in the table."},
+    {"put", (PyCFunction)NewTable_put, METH_VARARGS | METH_KEYWORDS, "Puts a value at specified position in the table."},
+    {"get", (PyCFunction)NewTable_get, METH_VARARGS | METH_KEYWORDS, "Gets the value at specified position in the table."},
+    {"getSize", (PyCFunction)NewTable_getSize, METH_NOARGS, "Return the size of the table in samples."},
+    {"getLength", (PyCFunction)NewTable_getLength, METH_NOARGS, "Return the length of the table in seconds."},
+    {"getRate", (PyCFunction)NewTable_getRate, METH_NOARGS, "Return the frequency (in cps) that reads the sound without pitch transposition."},
+    {"add", (PyCFunction)NewTable_add, METH_O, "Performs table addition."},
+    {"sub", (PyCFunction)NewTable_sub, METH_O, "Performs table substraction."},
+    {"mul", (PyCFunction)NewTable_mul, METH_O, "Performs table multiplication."},
+    {NULL}  /* Sentinel */
 };
 
-PyTypeObject NewTableType = {
-PyVarObject_HEAD_INIT(NULL, 0)
-"_pyo.NewTable_base",         /*tp_name*/
-sizeof(NewTable),         /*tp_basicsize*/
-0,                         /*tp_itemsize*/
-(destructor)NewTable_dealloc, /*tp_dealloc*/
-0,                         /*tp_print*/
-0,                         /*tp_getattr*/
-0,                         /*tp_setattr*/
-0,                         /*tp_as_async (tp_compare in Python 2)*/
-0,                         /*tp_repr*/
-0,                         /*tp_as_number*/
-0,                         /*tp_as_sequence*/
-0,                         /*tp_as_mapping*/
-0,                         /*tp_hash */
-0,                         /*tp_call*/
-0,                         /*tp_str*/
-0,                         /*tp_getattro*/
-0,                         /*tp_setattro*/
-0,                         /*tp_as_buffer*/
-Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-"NewTable objects. Generates an empty table.",  /* tp_doc */
-(traverseproc)NewTable_traverse,   /* tp_traverse */
-(inquiry)NewTable_clear,           /* tp_clear */
-0,		               /* tp_richcompare */
-0,		               /* tp_weaklistoffset */
-0,		               /* tp_iter */
-0,		               /* tp_iternext */
-NewTable_methods,             /* tp_methods */
-NewTable_members,             /* tp_members */
-0,                      /* tp_getset */
-0,                         /* tp_base */
-0,                         /* tp_dict */
-0,                         /* tp_descr_get */
-0,                         /* tp_descr_set */
-0,                         /* tp_dictoffset */
-0,      /* tp_init */
-0,                         /* tp_alloc */
-NewTable_new,                 /* tp_new */
+PyTypeObject NewTableType =
+{
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "_pyo.NewTable_base",         /*tp_name*/
+    sizeof(NewTable),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)NewTable_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
+    0,                         /*tp_repr*/
+    0,                         /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
+    "NewTable objects. Generates an empty table.",  /* tp_doc */
+    (traverseproc)NewTable_traverse,   /* tp_traverse */
+    (inquiry)NewTable_clear,           /* tp_clear */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
+    NewTable_methods,             /* tp_methods */
+    NewTable_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,      /* tp_init */
+    0,                         /* tp_alloc */
+    NewTable_new,                 /* tp_new */
 };
 
 /***********************/
 /* DataTable structure */
 /***********************/
-typedef struct {
+typedef struct
+{
     pyo_table_HEAD
 } DataTable;
 
@@ -4975,7 +5441,7 @@ static PyObject *
 DataTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *inittmp=NULL;
+    PyObject *inittmp = NULL;
     DataTable *self;
     self = (DataTable *)type->tp_alloc(type, 0);
 
@@ -4991,13 +5457,15 @@ DataTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
 
-    for (i=0; i<(self->size+1); i++) {
+    for (i = 0; i < (self->size + 1); i++)
+    {
         self->data[i] = 0.;
     }
 
     TableStream_setSize(self->tablestream, self->size);
 
-    if (inittmp) {
+    if (inittmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setTable", "O", inittmp);
     }
 
@@ -5044,24 +5512,27 @@ DataTable_getSize(DataTable *self)
 static PyObject *
 DataTable_getRate(DataTable *self)
 {
-    MYFLT sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL)); \
+    MYFLT sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
+    \
     return PyFloat_FromDouble(sr / self->size);
 };
 
-static PyMemberDef DataTable_members[] = {
+static PyMemberDef DataTable_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(DataTable, server), 0, "Pyo server."},
     {"tablestream", T_OBJECT_EX, offsetof(DataTable, tablestream), 0, "Table stream object."},
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef DataTable_methods[] = {
+static PyMethodDef DataTable_methods[] =
+{
     {"getServer", (PyCFunction)DataTable_getServer, METH_NOARGS, "Returns server object."},
     {"copy", (PyCFunction)DataTable_copy, METH_O, "Copy data from table given in argument."},
-    {"copyData", (PyCFunction)DataTable_copyData, METH_VARARGS|METH_KEYWORDS, "Copy data from table given in argument."},
-    {"rotate", (PyCFunction)DataTable_rotate, METH_VARARGS|METH_KEYWORDS, "Rotate table around position as argument."},
+    {"copyData", (PyCFunction)DataTable_copyData, METH_VARARGS | METH_KEYWORDS, "Copy data from table given in argument."},
+    {"rotate", (PyCFunction)DataTable_rotate, METH_VARARGS | METH_KEYWORDS, "Rotate table around position as argument."},
     {"setTable", (PyCFunction)DataTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
     {"getTable", (PyCFunction)DataTable_getTable, METH_NOARGS, "Returns a list of table samples."},
-    {"getViewTable", (PyCFunction)DataTable_getViewTable, METH_VARARGS|METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
+    {"getViewTable", (PyCFunction)DataTable_getViewTable, METH_VARARGS | METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
     {"getTableStream", (PyCFunction)DataTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
     {"setData", (PyCFunction)DataTable_setData, METH_O, "Sets the table from samples in a text file."},
     {"normalize", (PyCFunction)DataTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
@@ -5070,13 +5541,13 @@ static PyMethodDef DataTable_methods[] = {
     {"reverse", (PyCFunction)DataTable_reverse, METH_NOARGS, "Reverse the table's data."},
     {"invert", (PyCFunction)DataTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
     {"rectify", (PyCFunction)DataTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
-    {"bipolarGain", (PyCFunction)DataTable_bipolarGain, METH_VARARGS|METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
-    {"lowpass", (PyCFunction)DataTable_lowpass, METH_VARARGS|METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
-    {"fadein", (PyCFunction)DataTable_fadein, METH_VARARGS|METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
-    {"fadeout", (PyCFunction)DataTable_fadeout, METH_VARARGS|METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
-    {"pow", (PyCFunction)DataTable_pow, METH_VARARGS|METH_KEYWORDS, "Apply a power function on each sample in the table."},
-    {"put", (PyCFunction)DataTable_put, METH_VARARGS|METH_KEYWORDS, "Puts a value at specified position in the table."},
-    {"get", (PyCFunction)DataTable_get, METH_VARARGS|METH_KEYWORDS, "Gets the value at specified position in the table."},
+    {"bipolarGain", (PyCFunction)DataTable_bipolarGain, METH_VARARGS | METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
+    {"lowpass", (PyCFunction)DataTable_lowpass, METH_VARARGS | METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
+    {"fadein", (PyCFunction)DataTable_fadein, METH_VARARGS | METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
+    {"fadeout", (PyCFunction)DataTable_fadeout, METH_VARARGS | METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
+    {"pow", (PyCFunction)DataTable_pow, METH_VARARGS | METH_KEYWORDS, "Apply a power function on each sample in the table."},
+    {"put", (PyCFunction)DataTable_put, METH_VARARGS | METH_KEYWORDS, "Puts a value at specified position in the table."},
+    {"get", (PyCFunction)DataTable_get, METH_VARARGS | METH_KEYWORDS, "Gets the value at specified position in the table."},
     {"getSize", (PyCFunction)DataTable_getSize, METH_NOARGS, "Return the size of the table in samples."},
     {"getRate", (PyCFunction)DataTable_getRate, METH_NOARGS, "Return the frequency (in cps) that reads the sound without pitch transposition."},
     {"add", (PyCFunction)DataTable_add, METH_O, "Performs table addition."},
@@ -5085,7 +5556,8 @@ static PyMethodDef DataTable_methods[] = {
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject DataTableType = {
+PyTypeObject DataTableType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.DataTable_base",         /*tp_name*/
     sizeof(DataTable),         /*tp_basicsize*/
@@ -5109,10 +5581,10 @@ PyTypeObject DataTableType = {
     "DataTable objects. Generates an empty table.",  /* tp_doc */
     (traverseproc)DataTable_traverse,   /* tp_traverse */
     (inquiry)DataTable_clear,           /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
     DataTable_methods,             /* tp_methods */
     DataTable_members,             /* tp_members */
     0,                      /* tp_getset */
@@ -5129,13 +5601,15 @@ PyTypeObject DataTableType = {
 /***********************/
 /* AtanTable structure */
 /***********************/
-typedef struct {
+typedef struct
+{
     pyo_table_HEAD
     MYFLT slope;
 } AtanTable;
 
 static void
-AtanTable_generate(AtanTable *self) {
+AtanTable_generate(AtanTable *self)
+{
     int i, hsize;
     MYFLT drv, invhsize, val, t, fac = 0;
 
@@ -5144,11 +5618,15 @@ AtanTable_generate(AtanTable *self) {
 
     drv = 1 - self->slope;
     drv = drv * drv * drv * PI;
-    for(i=0; i<=hsize; i++) {
+
+    for(i = 0; i <= hsize; i++)
+    {
         t = i * invhsize - 1;
         val = MYATAN2(t, drv);
+
         if (i == 0)
             fac = 1.0 / -val;
+
         val = val * fac;
         self->data[i] = val;
         self->data[self->size - i] = -val;
@@ -5196,9 +5674,9 @@ AtanTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F_I, kwlist, &self->slope, &self->size))
         Py_RETURN_NONE;
 
-    self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
+    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
-	TableStream_setData(self->tablestream, self->data);
+    TableStream_setData(self->tablestream, self->data);
     AtanTable_generate(self);
 
     double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
@@ -5237,12 +5715,14 @@ static PyObject *
 AtanTable_setSlope(AtanTable *self, PyObject *value)
 {
 
-    if (! PyNumber_Check(value)) {
+    if (! PyNumber_Check(value))
+    {
         PyErr_SetString(PyExc_TypeError, "The slope attribute value must be a number.");
         return PyInt_FromLong(-1);
     }
 
     self->slope = PyFloat_AsDouble(value);
+
     if (self->slope < 0.0)
         self->slope = 0.0;
     else if (self->slope > 1.0)
@@ -5257,19 +5737,21 @@ AtanTable_setSlope(AtanTable *self, PyObject *value)
 static PyObject *
 AtanTable_setSize(AtanTable *self, PyObject *value)
 {
-    if (value == NULL) {
+    if (value == NULL)
+    {
         PyErr_SetString(PyExc_TypeError, "Cannot delete the size attribute.");
         return PyInt_FromLong(-1);
     }
 
-    if (! PyInt_Check(value)) {
+    if (! PyInt_Check(value))
+    {
         PyErr_SetString(PyExc_TypeError, "The size attribute value must be an integer.");
         return PyInt_FromLong(-1);
     }
 
     self->size = PyInt_AsLong(value);
 
-    self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
+    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
 
     AtanTable_generate(self);
@@ -5284,20 +5766,22 @@ AtanTable_getSize(AtanTable *self)
     return PyInt_FromLong(self->size);
 };
 
-static PyMemberDef AtanTable_members[] = {
+static PyMemberDef AtanTable_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(AtanTable, server), 0, "Pyo server."},
     {"tablestream", T_OBJECT_EX, offsetof(AtanTable, tablestream), 0, "Table stream object."},
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef AtanTable_methods[] = {
+static PyMethodDef AtanTable_methods[] =
+{
     {"getServer", (PyCFunction)AtanTable_getServer, METH_NOARGS, "Returns server object."},
     {"copy", (PyCFunction)AtanTable_copy, METH_O, "Copy data from table given in argument."},
-    {"copyData", (PyCFunction)AtanTable_copyData, METH_VARARGS|METH_KEYWORDS, "Copy data from table given in argument."},
-    {"rotate", (PyCFunction)AtanTable_rotate, METH_VARARGS|METH_KEYWORDS, "Rotate table around position as argument."},
+    {"copyData", (PyCFunction)AtanTable_copyData, METH_VARARGS | METH_KEYWORDS, "Copy data from table given in argument."},
+    {"rotate", (PyCFunction)AtanTable_rotate, METH_VARARGS | METH_KEYWORDS, "Rotate table around position as argument."},
     {"setTable", (PyCFunction)AtanTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
     {"getTable", (PyCFunction)AtanTable_getTable, METH_NOARGS, "Returns a list of table samples."},
-    {"getViewTable", (PyCFunction)AtanTable_getViewTable, METH_VARARGS|METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
+    {"getViewTable", (PyCFunction)AtanTable_getViewTable, METH_VARARGS | METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
     {"getTableStream", (PyCFunction)AtanTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
     {"setData", (PyCFunction)AtanTable_setData, METH_O, "Sets the table from samples in a text file."},
     {"normalize", (PyCFunction)AtanTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
@@ -5306,23 +5790,24 @@ static PyMethodDef AtanTable_methods[] = {
     {"reverse", (PyCFunction)AtanTable_reverse, METH_NOARGS, "Reverse the table's data."},
     {"invert", (PyCFunction)AtanTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
     {"rectify", (PyCFunction)AtanTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
-    {"bipolarGain", (PyCFunction)AtanTable_bipolarGain, METH_VARARGS|METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
-    {"lowpass", (PyCFunction)AtanTable_lowpass, METH_VARARGS|METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
-    {"fadein", (PyCFunction)AtanTable_fadein, METH_VARARGS|METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
-    {"fadeout", (PyCFunction)AtanTable_fadeout, METH_VARARGS|METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
-    {"pow", (PyCFunction)AtanTable_pow, METH_VARARGS|METH_KEYWORDS, "Apply a power function on each sample in the table."},
+    {"bipolarGain", (PyCFunction)AtanTable_bipolarGain, METH_VARARGS | METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
+    {"lowpass", (PyCFunction)AtanTable_lowpass, METH_VARARGS | METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
+    {"fadein", (PyCFunction)AtanTable_fadein, METH_VARARGS | METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
+    {"fadeout", (PyCFunction)AtanTable_fadeout, METH_VARARGS | METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
+    {"pow", (PyCFunction)AtanTable_pow, METH_VARARGS | METH_KEYWORDS, "Apply a power function on each sample in the table."},
     {"setSize", (PyCFunction)AtanTable_setSize, METH_O, "Sets the size of the table in samples"},
     {"getSize", (PyCFunction)AtanTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
     {"setSlope", (PyCFunction)AtanTable_setSlope, METH_O, "Sets the slope of the atan function."},
-    {"put", (PyCFunction)AtanTable_put, METH_VARARGS|METH_KEYWORDS, "Puts a value at specified position in the table."},
-    {"get", (PyCFunction)AtanTable_get, METH_VARARGS|METH_KEYWORDS, "Gets the value at specified position in the table."},
+    {"put", (PyCFunction)AtanTable_put, METH_VARARGS | METH_KEYWORDS, "Puts a value at specified position in the table."},
+    {"get", (PyCFunction)AtanTable_get, METH_VARARGS | METH_KEYWORDS, "Gets the value at specified position in the table."},
     {"add", (PyCFunction)AtanTable_add, METH_O, "Performs table addition."},
     {"sub", (PyCFunction)AtanTable_sub, METH_O, "Performs table substraction."},
     {"mul", (PyCFunction)AtanTable_mul, METH_O, "Performs table multiplication."},
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject AtanTableType = {
+PyTypeObject AtanTableType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.AtanTable_base",         /*tp_name*/
     sizeof(AtanTable),         /*tp_basicsize*/
@@ -5346,10 +5831,10 @@ PyTypeObject AtanTableType = {
     "AtanTable objects. Generates a table filled with a sinc function.",  /* tp_doc */
     (traverseproc)AtanTable_traverse,   /* tp_traverse */
     (inquiry)AtanTable_clear,           /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
     AtanTable_methods,             /* tp_methods */
     AtanTable_members,             /* tp_members */
     0,                      /* tp_getset */
@@ -5364,14 +5849,16 @@ PyTypeObject AtanTableType = {
 };
 
 static int
-isPowerOfTwo(int x) {
+isPowerOfTwo(int x)
+{
     return (x != 0) && ((x & (x - 1)) == 0);
 }
 
 /***********************/
 /* PadSynthTable structure */
 /***********************/
-typedef struct {
+typedef struct
+{
     pyo_table_HEAD
     MYFLT **twiddle;
     MYFLT basefreq;
@@ -5384,17 +5871,21 @@ typedef struct {
 } PadSynthTable;
 
 static void
-PadSynthTable_gen_twiddle(PadSynthTable *self) {
+PadSynthTable_gen_twiddle(PadSynthTable *self)
+{
     int i, n8;
     n8 = self->size >> 3;
     self->twiddle = (MYFLT **)realloc(self->twiddle, 4 * sizeof(MYFLT *));
-    for(i=0; i<4; i++)
+
+    for(i = 0; i < 4; i++)
         self->twiddle[i] = (MYFLT *)malloc(n8 * sizeof(MYFLT));
+
     fft_compute_split_twiddle(self->twiddle, self->size);
 }
 
 static void
-PadSynthTable_generate(PadSynthTable *self) {
+PadSynthTable_generate(PadSynthTable *self)
+{
     int i, nh;
     int hsize = self->size / 2;
     MYFLT bfac, i2sr, bfonsr, nhspd, bwhz, bwi, fi, gain, absv, max, x;
@@ -5406,41 +5897,52 @@ PadSynthTable_generate(PadSynthTable *self) {
     MYFLT imag[hsize];
     MYFLT inframe[self->size];
 
-    for (i=0; i<hsize; i++) {
+    for (i = 0; i < hsize; i++)
+    {
         amp[i] = 0.0;
     }
-    
+
     bfac = (MYPOW(2.0, self->bw / 1200.0) - 1.0) * self->basefreq;
     i2sr = 1.0 / (2.0 * self->sr);
     bfonsr = self->basefreq / self->sr;
     gain = self->damp;
-    for (nh=1; nh<self->nharms; nh++) {
+
+    for (nh = 1; nh < self->nharms; nh++)
+    {
         nhspd = MYPOW(nh, self->spread);
         bwhz = bfac * MYPOW(nhspd, self->bwscl);
         bwi = 1.0 / (bwhz * i2sr);
         fi = bfonsr * nhspd;
-        for (i=0; i<hsize; i++) {
+
+        for (i = 0; i < hsize; i++)
+        {
             // harmonic profile.
             x = (i * ifsize - fi) * bwi;
             x *= x;
+
             if (x < 14.71280603)
                 amp[i] += MYEXP(-x) * bwi * gain;
         }
+
         gain *= self->damp;
     }
 
-    for (i=0; i<hsize; i++) {
+    for (i = 0; i < hsize; i++)
+    {
         phase[i] = rand() * twopirndmax;
     }
 
-    for (i=0; i<hsize; i++) {
+    for (i = 0; i < hsize; i++)
+    {
         real[i] = amp[i] * MYCOS(phase[i]);
         imag[i] = amp[i] * MYSIN(phase[i]);
     }
-    
+
     inframe[0] = real[0];
     inframe[hsize] = 0.0;
-    for (i=1; i<hsize; i++) {
+
+    for (i = 1; i < hsize; i++)
+    {
         inframe[i] = real[i];
         inframe[self->size - i] = imag[i];
     }
@@ -5448,15 +5950,22 @@ PadSynthTable_generate(PadSynthTable *self) {
     irealfft_split(inframe, self->data, self->size, self->twiddle);
 
     max = 0.0;
-    for (i=0; i<self->size; i++) {
+
+    for (i = 0; i < self->size; i++)
+    {
         absv = MYFABS(self->data[i]);
+
         if (absv > max)
             max = absv;
     }
+
     if (max < 1e-5)
         max = 1e-5;
+
     max = 1.0 / (max * 1.4142);
-    for (i=0; i<self->size; i++) {
+
+    for (i = 0; i < self->size; i++)
+    {
         self->data[i] *= max;
     }
 
@@ -5481,9 +5990,12 @@ static void
 PadSynthTable_dealloc(PadSynthTable* self)
 {
     int i;
-    for(i=0; i<4; i++) {
+
+    for(i = 0; i < 4; i++)
+    {
         free(self->twiddle[i]);
     }
+
     free(self->twiddle);
     free(self->data);
     PadSynthTable_clear(self);
@@ -5515,17 +6027,20 @@ PadSynthTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
                                       &self->bwscl, &self->nharms, &self->damp, &self->size))
         Py_RETURN_NONE;
 
-    if (!isPowerOfTwo(self->size)) {
+    if (!isPowerOfTwo(self->size))
+    {
         int k = 1;
+
         while (k < self->size)
             k *= 2;
+
         self->size = k;
         PySys_WriteStdout("PadSynthTable size must be a power-of-2, using the next power-of-2 greater than size : %d\n", self->size);
     }
 
-    self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
+    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
-	TableStream_setData(self->tablestream, self->data);
+    TableStream_setData(self->tablestream, self->data);
 
     self->sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
     TableStream_setSamplingRate(self->tablestream, self->sr);
@@ -5570,6 +6085,7 @@ PadSynthTable_setBaseFreq(PadSynthTable *self, PyObject *args, PyObject *kwds)
     int generate = 1;
 
     static char *kwlist[] = {"basefreq", "generate", NULL};
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F_I, kwlist, &self->basefreq, &generate))
         Py_RETURN_NONE;
 
@@ -5585,6 +6101,7 @@ PadSynthTable_setSpread(PadSynthTable *self, PyObject *args, PyObject *kwds)
     int generate = 1;
 
     static char *kwlist[] = {"spread", "generate", NULL};
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F_I, kwlist, &self->spread, &generate))
         Py_RETURN_NONE;
 
@@ -5600,6 +6117,7 @@ PadSynthTable_setBw(PadSynthTable *self, PyObject *args, PyObject *kwds)
     int generate = 1;
 
     static char *kwlist[] = {"bw", "generate", NULL};
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F_I, kwlist, &self->bw, &generate))
         Py_RETURN_NONE;
 
@@ -5615,6 +6133,7 @@ PadSynthTable_setBwScl(PadSynthTable *self, PyObject *args, PyObject *kwds)
     int generate = 1;
 
     static char *kwlist[] = {"bwscl", "generate", NULL};
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F_I, kwlist, &self->bwscl, &generate))
         Py_RETURN_NONE;
 
@@ -5630,6 +6149,7 @@ PadSynthTable_setNharms(PadSynthTable *self, PyObject *args, PyObject *kwds)
     int generate = 1;
 
     static char *kwlist[] = {"nharms", "generate", NULL};
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "i|i", kwlist, &self->nharms, &generate))
         Py_RETURN_NONE;
 
@@ -5645,6 +6165,7 @@ PadSynthTable_setDamp(PadSynthTable *self, PyObject *args, PyObject *kwds)
     int generate = 1;
 
     static char *kwlist[] = {"damp", "generate", NULL};
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F_I, kwlist, &self->damp, &generate))
         Py_RETURN_NONE;
 
@@ -5660,18 +6181,22 @@ PadSynthTable_setSize(PadSynthTable *self, PyObject *args, PyObject *kwds)
     int generate = 1;
 
     static char *kwlist[] = {"size", "generate", NULL};
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "i|i", kwlist, &self->size, &generate))
         Py_RETURN_NONE;
 
-    if (!isPowerOfTwo(self->size)) {
+    if (!isPowerOfTwo(self->size))
+    {
         int k = 1;
+
         while (k < self->size)
             k *= 2;
+
         self->size = k;
         PySys_WriteStdout("PadSynthTable size must be a power-of-2, using the next power-of-2 greater than size : %d\n", self->size);
     }
 
-    self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
+    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
 
     if (generate)
@@ -5686,20 +6211,22 @@ PadSynthTable_getSize(PadSynthTable *self)
     return PyInt_FromLong(self->size);
 };
 
-static PyMemberDef PadSynthTable_members[] = {
+static PyMemberDef PadSynthTable_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(PadSynthTable, server), 0, "Pyo server."},
     {"tablestream", T_OBJECT_EX, offsetof(PadSynthTable, tablestream), 0, "Table stream object."},
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef PadSynthTable_methods[] = {
+static PyMethodDef PadSynthTable_methods[] =
+{
     {"getServer", (PyCFunction)PadSynthTable_getServer, METH_NOARGS, "Returns server object."},
     {"copy", (PyCFunction)PadSynthTable_copy, METH_O, "Copy data from table given in argument."},
-    {"copyData", (PyCFunction)PadSynthTable_copyData, METH_VARARGS|METH_KEYWORDS, "Copy data from table given in argument."},
-    {"rotate", (PyCFunction)PadSynthTable_rotate, METH_VARARGS|METH_KEYWORDS, "Rotate table around position as argument."},
+    {"copyData", (PyCFunction)PadSynthTable_copyData, METH_VARARGS | METH_KEYWORDS, "Copy data from table given in argument."},
+    {"rotate", (PyCFunction)PadSynthTable_rotate, METH_VARARGS | METH_KEYWORDS, "Rotate table around position as argument."},
     {"setTable", (PyCFunction)PadSynthTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
     {"getTable", (PyCFunction)PadSynthTable_getTable, METH_NOARGS, "Returns a list of table samples."},
-    {"getViewTable", (PyCFunction)PadSynthTable_getViewTable, METH_VARARGS|METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
+    {"getViewTable", (PyCFunction)PadSynthTable_getViewTable, METH_VARARGS | METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
     {"getTableStream", (PyCFunction)PadSynthTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
     {"setData", (PyCFunction)PadSynthTable_setData, METH_O, "Sets the table from samples in a text file."},
     {"normalize", (PyCFunction)PadSynthTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
@@ -5708,29 +6235,30 @@ static PyMethodDef PadSynthTable_methods[] = {
     {"reverse", (PyCFunction)PadSynthTable_reverse, METH_NOARGS, "Reverse the table's data."},
     {"invert", (PyCFunction)PadSynthTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
     {"rectify", (PyCFunction)PadSynthTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
-    {"bipolarGain", (PyCFunction)PadSynthTable_bipolarGain, METH_VARARGS|METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
-    {"lowpass", (PyCFunction)PadSynthTable_lowpass, METH_VARARGS|METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
-    {"fadein", (PyCFunction)PadSynthTable_fadein, METH_VARARGS|METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
-    {"fadeout", (PyCFunction)PadSynthTable_fadeout, METH_VARARGS|METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
-    {"pow", (PyCFunction)PadSynthTable_pow, METH_VARARGS|METH_KEYWORDS, "Apply a power function on each sample in the table."},
+    {"bipolarGain", (PyCFunction)PadSynthTable_bipolarGain, METH_VARARGS | METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
+    {"lowpass", (PyCFunction)PadSynthTable_lowpass, METH_VARARGS | METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
+    {"fadein", (PyCFunction)PadSynthTable_fadein, METH_VARARGS | METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
+    {"fadeout", (PyCFunction)PadSynthTable_fadeout, METH_VARARGS | METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
+    {"pow", (PyCFunction)PadSynthTable_pow, METH_VARARGS | METH_KEYWORDS, "Apply a power function on each sample in the table."},
     //{"setSize", (PyCFunction)PadSynthTable_setSize, METH_O, "Sets the size of the table in samples"},
     {"getSize", (PyCFunction)PadSynthTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
-    {"setBaseFreq", (PyCFunction)PadSynthTable_setBaseFreq, METH_VARARGS|METH_KEYWORDS, "Sets the base frequency in hertz."},
-    {"setSpread", (PyCFunction)PadSynthTable_setSpread, METH_VARARGS|METH_KEYWORDS, "Sets the frequency spreading factor."},
-    {"setBw", (PyCFunction)PadSynthTable_setBw, METH_VARARGS|METH_KEYWORDS, "Sets the bandwitdh of the first harmonic in cents."},
-    {"setBwScl", (PyCFunction)PadSynthTable_setBwScl, METH_VARARGS|METH_KEYWORDS, "Sets the bandwitdh scaling factor."},
-    {"setNharms", (PyCFunction)PadSynthTable_setNharms, METH_VARARGS|METH_KEYWORDS, "Sets the number of harmonics."},
-    {"setDamp", (PyCFunction)PadSynthTable_setDamp, METH_VARARGS|METH_KEYWORDS, "Sets the damping factor."},
-    {"setSize", (PyCFunction)PadSynthTable_setSize, METH_VARARGS|METH_KEYWORDS, "Sets the size of the table in samples"},
-    {"put", (PyCFunction)PadSynthTable_put, METH_VARARGS|METH_KEYWORDS, "Puts a value at specified position in the table."},
-    {"get", (PyCFunction)PadSynthTable_get, METH_VARARGS|METH_KEYWORDS, "Gets the value at specified position in the table."},
+    {"setBaseFreq", (PyCFunction)PadSynthTable_setBaseFreq, METH_VARARGS | METH_KEYWORDS, "Sets the base frequency in hertz."},
+    {"setSpread", (PyCFunction)PadSynthTable_setSpread, METH_VARARGS | METH_KEYWORDS, "Sets the frequency spreading factor."},
+    {"setBw", (PyCFunction)PadSynthTable_setBw, METH_VARARGS | METH_KEYWORDS, "Sets the bandwitdh of the first harmonic in cents."},
+    {"setBwScl", (PyCFunction)PadSynthTable_setBwScl, METH_VARARGS | METH_KEYWORDS, "Sets the bandwitdh scaling factor."},
+    {"setNharms", (PyCFunction)PadSynthTable_setNharms, METH_VARARGS | METH_KEYWORDS, "Sets the number of harmonics."},
+    {"setDamp", (PyCFunction)PadSynthTable_setDamp, METH_VARARGS | METH_KEYWORDS, "Sets the damping factor."},
+    {"setSize", (PyCFunction)PadSynthTable_setSize, METH_VARARGS | METH_KEYWORDS, "Sets the size of the table in samples"},
+    {"put", (PyCFunction)PadSynthTable_put, METH_VARARGS | METH_KEYWORDS, "Puts a value at specified position in the table."},
+    {"get", (PyCFunction)PadSynthTable_get, METH_VARARGS | METH_KEYWORDS, "Gets the value at specified position in the table."},
     {"add", (PyCFunction)PadSynthTable_add, METH_O, "Performs table addition."},
     {"sub", (PyCFunction)PadSynthTable_sub, METH_O, "Performs table substraction."},
     {"mul", (PyCFunction)PadSynthTable_mul, METH_O, "Performs table multiplication."},
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject PadSynthTableType = {
+PyTypeObject PadSynthTableType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.PadSynthTable_base",         /*tp_name*/
     sizeof(PadSynthTable),         /*tp_basicsize*/
@@ -5754,10 +6282,10 @@ PyTypeObject PadSynthTableType = {
     "PadSynthTable objects. Generates a table filled with a sinc function.",  /* tp_doc */
     (traverseproc)PadSynthTable_traverse,   /* tp_traverse */
     (inquiry)PadSynthTable_clear,           /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
     PadSynthTable_methods,             /* tp_methods */
     PadSynthTable_members,             /* tp_members */
     0,                      /* tp_getset */
@@ -5774,7 +6302,8 @@ PyTypeObject PadSynthTableType = {
 /******************************/
 /* TableRec object definition */
 /******************************/
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     PyObject *input;
     Stream *input_stream;
@@ -5796,51 +6325,66 @@ TableRec_compute_next_data_frame(TableRec *self)
     MYFLT val;
     int size = PyInt_AsLong(NewTable_getSize((NewTable *)self->table));
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->trigsBuffer[i] = 0.0;
     }
 
-    if (!self->active) {
-        for (i=0; i<self->bufsize; i++) {
+    if (!self->active)
+    {
+        for (i = 0; i < self->bufsize; i++)
+        {
             self->time_buffer_streams[i] = self->pointer;
         }
     }
 
     if ((size - self->pointer) >= self->bufsize)
         num = self->bufsize;
-    else {
+    else
+    {
         num = size - self->pointer;
-        if (self->active == 1) {
+
+        if (self->active == 1)
+        {
             if (num <= 0)
                 self->trigsBuffer[0] = 1.0;
             else
-                self->trigsBuffer[num-1] = 1.0;
+                self->trigsBuffer[num - 1] = 1.0;
+
             self->active = 0;
         }
     }
 
-    if (self->pointer < size) {
+    if (self->pointer < size)
+    {
         upBound = (int)(size - self->fadeInSample);
 
-        for (i=0; i<self->bufsize; i++) {
+        for (i = 0; i < self->bufsize; i++)
+        {
             self->buffer[i] = 0.0;
         }
+
         MYFLT *in = Stream_getData((Stream *)self->input_stream);
 
-        for (i=0; i<num; i++) {
+        for (i = 0; i < num; i++)
+        {
             if (self->pointer < self->fadeInSample)
                 val = self->pointer / self->fadeInSample;
             else if (self->pointer >= upBound)
-                val = (size - (self->pointer+1)) / self->fadeInSample;
+                val = (size - (self->pointer + 1)) / self->fadeInSample;
             else
                 val = 1.;
+
             self->buffer[i] = in[i] * val;
             self->time_buffer_streams[i] = self->pointer++;
         }
+
         NewTable_recordChunk((NewTable *)self->table, self->buffer, num);
 
-        if (num < self->bufsize) {
-            for (i=num; i<self->bufsize; i++) {
+        if (num < self->bufsize)
+        {
+            for (i = num; i < self->bufsize; i++)
+            {
                 self->time_buffer_streams[i] = self->pointer;
             }
         }
@@ -5848,7 +6392,8 @@ TableRec_compute_next_data_frame(TableRec *self)
 }
 
 static MYFLT *
-TableRec_getTimeBuffer(TableRec *self) {
+TableRec_getTimeBuffer(TableRec *self)
+{
     return self->time_buffer_streams;
 }
 
@@ -5908,10 +6453,12 @@ TableRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_INPUT_STREAM
 
-    if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 ) {
+    if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 )
+    {
         PyErr_SetString(PyExc_TypeError, "\"table\" argument of TableRec must be a PyoTableObject.\n");
         Py_RETURN_NONE;
     }
+
     Py_XDECREF(self->table);
     Py_INCREF(tabletmp);
     self->table = (NewTable *)tabletmp;
@@ -5922,7 +6469,8 @@ TableRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
     self->time_buffer_streams = (MYFLT *)realloc(self->time_buffer_streams, self->bufsize * sizeof(MYFLT));
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->buffer[i] = self->trigsBuffer[i] = self->time_buffer_streams[i] = 0.0;
     }
 
@@ -5930,8 +6478,10 @@ TableRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     TriggerStream_setData(self->trig_stream, self->trigsBuffer);
 
     int size = PyInt_AsLong(NewTable_getSize((NewTable *)self->table));
+
     if ((self->fadetime * self->sr) >= (size * 0.5))
         self->fadetime = size * 0.499 / self->sr;
+
     if (self->fadetime == 0.0)
         self->fadeInSample = 0.0;
     else
@@ -5947,16 +6497,20 @@ static PyObject * TableRec_getTriggerStream(TableRec* self) { GET_TRIGGER_STREAM
 static PyObject * TableRec_play(TableRec *self, PyObject *args, PyObject *kwds)
 {
     int j;
-    for (j=0; j<self->bufsize; j++) {
+
+    for (j = 0; j < self->bufsize; j++)
+    {
         self->time_buffer_streams[j] = 0;
     }
+
     self->pointer = 0;
     self->active = 1;
     NewTable_resetRecordingPointer((NewTable *)self->table);
     PLAY
 };
 
-static PyObject * TableRec_stop(TableRec *self, PyObject *args, PyObject *kwds) {
+static PyObject * TableRec_stop(TableRec *self, PyObject *args, PyObject *kwds)
+{
     int i, nearestBuf = 0;
     float wait = 0.0;
 
@@ -5965,20 +6519,25 @@ static PyObject * TableRec_stop(TableRec *self, PyObject *args, PyObject *kwds) 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|f", kwlist, &wait))
         return PyInt_FromLong(-1);
 
-    if (wait == 0) {
+    if (wait == 0)
+    {
         Stream_setStreamActive(self->stream, 0);
         Stream_setStreamChnl(self->stream, 0);
         Stream_setStreamToDac(self->stream, 0);
-        for (i=0; i<self->bufsize; i++) {
+
+        for (i = 0; i < self->bufsize; i++)
+        {
             self->time_buffer_streams[i] = self->pointer;
             self->data[i] = 0;
         }
     }
-    else {
+    else
+    {
         Stream_resetBufferCount(self->stream);
         nearestBuf = (int)roundf((wait * self->sr) / self->bufsize + 0.5);
         Stream_setDuration(self->stream, nearestBuf);
     }
+
     Py_INCREF(Py_None);
     return Py_None;
 };
@@ -5986,80 +6545,84 @@ static PyObject * TableRec_stop(TableRec *self, PyObject *args, PyObject *kwds) 
 static PyObject *
 TableRec_setTable(TableRec *self, PyObject *arg)
 {
-	PyObject *tmp;
+    PyObject *tmp;
 
     ASSERT_ARG_NOT_NULL
 
-	tmp = arg;
+    tmp = arg;
     Py_INCREF(tmp);
-	Py_DECREF(self->table);
+    Py_DECREF(self->table);
     self->table = (NewTable *)tmp;
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
-static PyMemberDef TableRec_members[] = {
-{"server", T_OBJECT_EX, offsetof(TableRec, server), 0, "Pyo server."},
-{"stream", T_OBJECT_EX, offsetof(TableRec, stream), 0, "Stream object."},
-{"trig_stream", T_OBJECT_EX, offsetof(TableRec, trig_stream), 0, "Trigger Stream object."},
-{"input", T_OBJECT_EX, offsetof(TableRec, input), 0, "Input sound object."},
-{"table", T_OBJECT_EX, offsetof(TableRec, table), 0, "Table to record in."},
-{NULL}  /* Sentinel */
+static PyMemberDef TableRec_members[] =
+{
+    {"server", T_OBJECT_EX, offsetof(TableRec, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(TableRec, stream), 0, "Stream object."},
+    {"trig_stream", T_OBJECT_EX, offsetof(TableRec, trig_stream), 0, "Trigger Stream object."},
+    {"input", T_OBJECT_EX, offsetof(TableRec, input), 0, "Input sound object."},
+    {"table", T_OBJECT_EX, offsetof(TableRec, table), 0, "Table to record in."},
+    {NULL}  /* Sentinel */
 };
 
-static PyMethodDef TableRec_methods[] = {
-{"getServer", (PyCFunction)TableRec_getServer, METH_NOARGS, "Returns server object."},
-{"_getStream", (PyCFunction)TableRec_getStream, METH_NOARGS, "Returns stream object."},
-{"_getTriggerStream", (PyCFunction)TableRec_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
-{"setTable", (PyCFunction)TableRec_setTable, METH_O, "Sets a new table."},
-{"play", (PyCFunction)TableRec_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)TableRec_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
-{NULL}  /* Sentinel */
+static PyMethodDef TableRec_methods[] =
+{
+    {"getServer", (PyCFunction)TableRec_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)TableRec_getStream, METH_NOARGS, "Returns stream object."},
+    {"_getTriggerStream", (PyCFunction)TableRec_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
+    {"setTable", (PyCFunction)TableRec_setTable, METH_O, "Sets a new table."},
+    {"play", (PyCFunction)TableRec_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)TableRec_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {NULL}  /* Sentinel */
 };
 
-PyTypeObject TableRecType = {
-PyVarObject_HEAD_INIT(NULL, 0)
-"_pyo.TableRec_base",         /*tp_name*/
-sizeof(TableRec),         /*tp_basicsize*/
-0,                         /*tp_itemsize*/
-(destructor)TableRec_dealloc, /*tp_dealloc*/
-0,                         /*tp_print*/
-0,                         /*tp_getattr*/
-0,                         /*tp_setattr*/
-0,                         /*tp_as_async (tp_compare in Python 2)*/
-0,                         /*tp_repr*/
-0,             /*tp_as_number*/
-0,                         /*tp_as_sequence*/
-0,                         /*tp_as_mapping*/
-0,                         /*tp_hash */
-0,                         /*tp_call*/
-0,                         /*tp_str*/
-0,                         /*tp_getattro*/
-0,                         /*tp_setattro*/
-0,                         /*tp_as_buffer*/
-Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
-"TableRec objects. Record audio input in a table object.",           /* tp_doc */
-(traverseproc)TableRec_traverse,   /* tp_traverse */
-(inquiry)TableRec_clear,           /* tp_clear */
-0,		               /* tp_richcompare */
-0,		               /* tp_weaklistoffset */
-0,		               /* tp_iter */
-0,		               /* tp_iternext */
-TableRec_methods,             /* tp_methods */
-TableRec_members,             /* tp_members */
-0,                      /* tp_getset */
-0,                         /* tp_base */
-0,                         /* tp_dict */
-0,                         /* tp_descr_get */
-0,                         /* tp_descr_set */
-0,                         /* tp_dictoffset */
-0,      /* tp_init */
-0,                         /* tp_alloc */
-TableRec_new,                 /* tp_new */
+PyTypeObject TableRecType =
+{
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "_pyo.TableRec_base",         /*tp_name*/
+    sizeof(TableRec),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)TableRec_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
+    0,                         /*tp_repr*/
+    0,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "TableRec objects. Record audio input in a table object.",           /* tp_doc */
+    (traverseproc)TableRec_traverse,   /* tp_traverse */
+    (inquiry)TableRec_clear,           /* tp_clear */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
+    TableRec_methods,             /* tp_methods */
+    TableRec_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,      /* tp_init */
+    0,                         /* tp_alloc */
+    TableRec_new,                 /* tp_new */
 };
 
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     TableRec *mainPlayer;
     int modebuffer[2];
@@ -6076,35 +6639,45 @@ static void TableRecTimeStream_postprocessing_revaa(TableRecTimeStream *self) { 
 static void TableRecTimeStream_postprocessing_revareva(TableRecTimeStream *self) { POST_PROCESSING_REVAREVA };
 
 static void
-TableRecTimeStream_setProcMode(TableRecTimeStream *self) {
+TableRecTimeStream_setProcMode(TableRecTimeStream *self)
+{
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    switch (muladdmode) {
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = TableRecTimeStream_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = TableRecTimeStream_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = TableRecTimeStream_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = TableRecTimeStream_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = TableRecTimeStream_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = TableRecTimeStream_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = TableRecTimeStream_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = TableRecTimeStream_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = TableRecTimeStream_postprocessing_revareva;
             break;
@@ -6117,9 +6690,12 @@ TableRecTimeStream_compute_next_data_frame(TableRecTimeStream *self)
     int i;
     MYFLT *tmp;
     tmp = TableRec_getTimeBuffer((TableRec *)self->mainPlayer);
-    for (i=0; i<self->bufsize; i++) {
+
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->data[i] = tmp[i];
     }
+
     (*self->muladd_func_ptr)(self);
 }
 
@@ -6151,7 +6727,7 @@ static PyObject *
 TableRecTimeStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *maintmp=NULL;
+    PyObject *maintmp = NULL;
     TableRecTimeStream *self;
     self = (TableRecTimeStream *)type->tp_alloc(type, 0);
 
@@ -6198,7 +6774,8 @@ static PyObject * TableRecTimeStream_inplace_sub(TableRecTimeStream *self, PyObj
 static PyObject * TableRecTimeStream_div(TableRecTimeStream *self, PyObject *arg) { DIV };
 static PyObject * TableRecTimeStream_inplace_div(TableRecTimeStream *self, PyObject *arg) { INPLACE_DIV };
 
-static PyMemberDef TableRecTimeStream_members[] = {
+static PyMemberDef TableRecTimeStream_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(TableRecTimeStream, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(TableRecTimeStream, stream), 0, "Stream object."},
     {"mul", T_OBJECT_EX, offsetof(TableRecTimeStream, mul), 0, "Mul factor."},
@@ -6206,12 +6783,13 @@ static PyMemberDef TableRecTimeStream_members[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef TableRecTimeStream_methods[] = {
+static PyMethodDef TableRecTimeStream_methods[] =
+{
     {"getServer", (PyCFunction)TableRecTimeStream_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)TableRecTimeStream_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)TableRecTimeStream_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)TableRecTimeStream_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)TableRecTimeStream_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
+    {"play", (PyCFunction)TableRecTimeStream_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)TableRecTimeStream_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)TableRecTimeStream_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setMul", (PyCFunction)TableRecTimeStream_setMul, METH_O, "Sets oscillator mul factor."},
     {"setAdd", (PyCFunction)TableRecTimeStream_setAdd, METH_O, "Sets oscillator add factor."},
     {"setSub", (PyCFunction)TableRecTimeStream_setSub, METH_O, "Sets inverse add factor."},
@@ -6219,7 +6797,8 @@ static PyMethodDef TableRecTimeStream_methods[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods TableRecTimeStream_as_number = {
+static PyNumberMethods TableRecTimeStream_as_number =
+{
     (binaryfunc)TableRecTimeStream_add,                         /*nb_add*/
     (binaryfunc)TableRecTimeStream_sub,                         /*nb_subtract*/
     (binaryfunc)TableRecTimeStream_multiply,                    /*nb_multiply*/
@@ -6261,7 +6840,8 @@ static PyNumberMethods TableRecTimeStream_as_number = {
     0,                                              /* nb_index */
 };
 
-PyTypeObject TableRecTimeStreamType = {
+PyTypeObject TableRecTimeStreamType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.TableRecTimeStream_base",         /*tp_name*/
     sizeof(TableRecTimeStream),         /*tp_basicsize*/
@@ -6285,10 +6865,10 @@ PyTypeObject TableRecTimeStreamType = {
     "TableRecTimeStream objects. Returns the current recording time, in samples, of a TableRec object.",           /* tp_doc */
     (traverseproc)TableRecTimeStream_traverse,   /* tp_traverse */
     (inquiry)TableRecTimeStream_clear,           /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
     TableRecTimeStream_methods,             /* tp_methods */
     TableRecTimeStream_members,             /* tp_members */
     0,                      /* tp_getset */
@@ -6305,7 +6885,8 @@ PyTypeObject TableRecTimeStreamType = {
 /******************************/
 /* TableMorph object definition */
 /******************************/
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     PyObject *input;
     Stream *input_stream;
@@ -6316,7 +6897,8 @@ typedef struct {
 } TableMorph;
 
 static MYFLT
-TableMorph_clip(MYFLT x) {
+TableMorph_clip(MYFLT x)
+{
     if (x < 0.0)
         return 0.0;
     else if (x >= 0.999999)
@@ -6332,7 +6914,9 @@ TableMorph_alloc_memories(TableMorph *self)
     size = PyInt_AsLong(NewTable_getSize((NewTable *)self->table));
     self->last_size = size;
     self->buffer = (MYFLT *)realloc(self->buffer, size * sizeof(MYFLT));
-    for (i=0; i<size; i++) {
+
+    for (i = 0; i < size; i++)
+    {
         self->buffer[i] = 0.0;
     }
 }
@@ -6364,7 +6948,8 @@ TableMorph_compute_next_data_frame(TableMorph *self)
     interp2 = interp;
 
     //MYFLT buffer[size];
-    for (i=0; i<size; i++) {
+    for (i = 0; i < size; i++)
+    {
         self->buffer[i] = tab1[i] * interp1 + tab2[i] * interp2;
     }
 
@@ -6421,10 +7006,12 @@ TableMorph_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_INPUT_STREAM
 
-    if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 ) {
+    if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 )
+    {
         PyErr_SetString(PyExc_TypeError, "\"table\" argument of TableMorph must be a PyoTableObject.\n");
         Py_RETURN_NONE;
     }
+
     Py_XDECREF(self->table);
     Py_INCREF(tabletmp);
     self->table = (PyObject *)tabletmp;
@@ -6449,17 +7036,17 @@ static PyObject * TableMorph_stop(TableMorph *self, PyObject *args, PyObject *kw
 static PyObject *
 TableMorph_setTable(TableMorph *self, PyObject *arg)
 {
-	PyObject *tmp;
+    PyObject *tmp;
 
     ASSERT_ARG_NOT_NULL
 
-	tmp = arg;
+    tmp = arg;
     Py_INCREF(tmp);
-	Py_DECREF(self->table);
+    Py_DECREF(self->table);
     self->table = (PyObject *)tmp;
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
@@ -6467,7 +7054,8 @@ TableMorph_setSources(TableMorph *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    if (! PyList_Check(arg)) {
+    if (! PyList_Check(arg))
+    {
         PyErr_SetString(PyExc_TypeError, "The amplitude list attribute value must be a list.");
         return PyInt_FromLong(-1);
     }
@@ -6476,74 +7064,78 @@ TableMorph_setSources(TableMorph *self, PyObject *arg)
     Py_DECREF(self->sources);
     self->sources = arg;
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
-static PyMemberDef TableMorph_members[] = {
-{"server", T_OBJECT_EX, offsetof(TableMorph, server), 0, "Pyo server."},
-{"stream", T_OBJECT_EX, offsetof(TableMorph, stream), 0, "Stream object."},
-{"input", T_OBJECT_EX, offsetof(TableMorph, input), 0, "Input sound object."},
-{"table", T_OBJECT_EX, offsetof(TableMorph, table), 0, "Table to record in."},
-{"sources", T_OBJECT_EX, offsetof(TableMorph, sources), 0, "list of tables to interpolate from."},
-{NULL}  /* Sentinel */
+static PyMemberDef TableMorph_members[] =
+{
+    {"server", T_OBJECT_EX, offsetof(TableMorph, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(TableMorph, stream), 0, "Stream object."},
+    {"input", T_OBJECT_EX, offsetof(TableMorph, input), 0, "Input sound object."},
+    {"table", T_OBJECT_EX, offsetof(TableMorph, table), 0, "Table to record in."},
+    {"sources", T_OBJECT_EX, offsetof(TableMorph, sources), 0, "list of tables to interpolate from."},
+    {NULL}  /* Sentinel */
 };
 
-static PyMethodDef TableMorph_methods[] = {
-{"getServer", (PyCFunction)TableMorph_getServer, METH_NOARGS, "Returns server object."},
-{"_getStream", (PyCFunction)TableMorph_getStream, METH_NOARGS, "Returns stream object."},
-{"setTable", (PyCFunction)TableMorph_setTable, METH_O, "Sets a new table."},
-{"setSources", (PyCFunction)TableMorph_setSources, METH_O, "Changes the sources tables."},
-{"play", (PyCFunction)TableMorph_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)TableMorph_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
-{NULL}  /* Sentinel */
+static PyMethodDef TableMorph_methods[] =
+{
+    {"getServer", (PyCFunction)TableMorph_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)TableMorph_getStream, METH_NOARGS, "Returns stream object."},
+    {"setTable", (PyCFunction)TableMorph_setTable, METH_O, "Sets a new table."},
+    {"setSources", (PyCFunction)TableMorph_setSources, METH_O, "Changes the sources tables."},
+    {"play", (PyCFunction)TableMorph_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)TableMorph_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {NULL}  /* Sentinel */
 };
 
-PyTypeObject TableMorphType = {
-PyVarObject_HEAD_INIT(NULL, 0)
-"_pyo.TableMorph_base",         /*tp_name*/
-sizeof(TableMorph),         /*tp_basicsize*/
-0,                         /*tp_itemsize*/
-(destructor)TableMorph_dealloc, /*tp_dealloc*/
-0,                         /*tp_print*/
-0,                         /*tp_getattr*/
-0,                         /*tp_setattr*/
-0,                         /*tp_as_async (tp_compare in Python 2)*/
-0,                         /*tp_repr*/
-0,             /*tp_as_number*/
-0,                         /*tp_as_sequence*/
-0,                         /*tp_as_mapping*/
-0,                         /*tp_hash */
-0,                         /*tp_call*/
-0,                         /*tp_str*/
-0,                         /*tp_getattro*/
-0,                         /*tp_setattro*/
-0,                         /*tp_as_buffer*/
-Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
-"TableMorph objects. Interpolation contents of different table objects.",           /* tp_doc */
-(traverseproc)TableMorph_traverse,   /* tp_traverse */
-(inquiry)TableMorph_clear,           /* tp_clear */
-0,		               /* tp_richcompare */
-0,		               /* tp_weaklistoffset */
-0,		               /* tp_iter */
-0,		               /* tp_iternext */
-TableMorph_methods,             /* tp_methods */
-TableMorph_members,             /* tp_members */
-0,                      /* tp_getset */
-0,                         /* tp_base */
-0,                         /* tp_dict */
-0,                         /* tp_descr_get */
-0,                         /* tp_descr_set */
-0,                         /* tp_dictoffset */
-0,      /* tp_init */
-0,                         /* tp_alloc */
-TableMorph_new,                 /* tp_new */
+PyTypeObject TableMorphType =
+{
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "_pyo.TableMorph_base",         /*tp_name*/
+    sizeof(TableMorph),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)TableMorph_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
+    0,                         /*tp_repr*/
+    0,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "TableMorph objects. Interpolation contents of different table objects.",           /* tp_doc */
+    (traverseproc)TableMorph_traverse,   /* tp_traverse */
+    (inquiry)TableMorph_clear,           /* tp_clear */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
+    TableMorph_methods,             /* tp_methods */
+    TableMorph_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,      /* tp_init */
+    0,                         /* tp_alloc */
+    TableMorph_new,                 /* tp_new */
 };
 
 /******************************/
 /* TrigTableRec object definition */
 /******************************/
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     PyObject *input;
     Stream *input_stream;
@@ -6569,65 +7161,86 @@ TrigTableRec_compute_next_data_frame(TrigTableRec *self)
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *trig = Stream_getData((Stream *)self->trigger_stream);
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->trigsBuffer[i] = 0.0;
     }
 
-    if (self->active == 1) {
+    if (self->active == 1)
+    {
         if ((size - self->pointer) >= self->bufsize)
             num = self->bufsize;
-        else {
+        else
+        {
             num = size - self->pointer;
-            if (self->active == 1) {
+
+            if (self->active == 1)
+            {
                 if (num <= 0)
                     self->trigsBuffer[0] = 1.0;
                 else
-                    self->trigsBuffer[num-1] = 1.0;
+                    self->trigsBuffer[num - 1] = 1.0;
+
                 self->active = 0;
             }
         }
 
-        if (self->pointer < size) {
+        if (self->pointer < size)
+        {
             upBound = size - self->fadeInSample;
 
             MYFLT buffer[num];
             memset(&buffer, 0, sizeof(buffer));
 
-            for (i=0; i<num; i++) {
+            for (i = 0; i < num; i++)
+            {
                 if (self->pointer < self->fadeInSample)
                     val = self->pointer / self->fadeInSample;
                 else if (self->pointer > upBound)
                     val = (size - self->pointer) / self->fadeInSample;
                 else
                     val = 1.;
+
                 buffer[i] = in[i] * val;
                 self->time_buffer_streams[i] = self->pointer++;
             }
+
             NewTable_recordChunk((NewTable *)self->table, buffer, num);
 
-            if (num < self->bufsize) {
-                for (i=num; i<self->bufsize; i++) {
+            if (num < self->bufsize)
+            {
+                for (i = num; i < self->bufsize; i++)
+                {
                     self->time_buffer_streams[i] = self->pointer;
                 }
             }
         }
     }
-    else {
-        for (j=0; j<self->bufsize; j++) {
+    else
+    {
+        for (j = 0; j < self->bufsize; j++)
+        {
             self->time_buffer_streams[j] = self->pointer;
-            if (trig[j] == 1.0) {
+
+            if (trig[j] == 1.0)
+            {
                 self->active = 1;
                 self->pointer = 0;
                 NewTable_resetRecordingPointer((NewTable *)self->table);
+
                 if (size >= self->bufsize)
                     num = self->bufsize - j;
-                else {
+                else
+                {
                     num = size < (self->bufsize - j) ? size : (self->bufsize - j);
-                    if (self->active == 1) {
+
+                    if (self->active == 1)
+                    {
                         if (num <= 0)
                             self->trigsBuffer[0] = 1.0;
                         else
-                            self->trigsBuffer[num-1] = 1.0;
+                            self->trigsBuffer[num - 1] = 1.0;
+
                         self->active = 0;
                     }
                 }
@@ -6637,24 +7250,31 @@ TrigTableRec_compute_next_data_frame(TrigTableRec *self)
                 MYFLT buffer[num];
                 memset(&buffer, 0, sizeof(buffer));
 
-                for (i=0; i<num; i++) {
-                    if (self->pointer < self->fadeInSample) {
+                for (i = 0; i < num; i++)
+                {
+                    if (self->pointer < self->fadeInSample)
+                    {
                         val = self->pointer / self->fadeInSample;
                     }
                     else if (self->pointer > upBound)
                         val = (size - self->pointer) / self->fadeInSample;
                     else
                         val = 1.;
-                    buffer[i] = in[i+j] * val;
-                    self->time_buffer_streams[i+j] = self->pointer++;
+
+                    buffer[i] = in[i + j] * val;
+                    self->time_buffer_streams[i + j] = self->pointer++;
                 }
+
                 NewTable_recordChunk((NewTable *)self->table, buffer, num);
 
-                if (num < (self->bufsize-j)) {
-                    for (i=num; i<(self->bufsize-j); i++) {
-                        self->time_buffer_streams[i+j] = self->pointer;
+                if (num < (self->bufsize - j))
+                {
+                    for (i = num; i < (self->bufsize - j); i++)
+                    {
+                        self->time_buffer_streams[i + j] = self->pointer;
                     }
                 }
+
                 break;
             }
         }
@@ -6662,7 +7282,8 @@ TrigTableRec_compute_next_data_frame(TrigTableRec *self)
 }
 
 static MYFLT *
-TrigTableRec_getTimeBuffer(TrigTableRec *self) {
+TrigTableRec_getTimeBuffer(TrigTableRec *self)
+{
     return self->time_buffer_streams;
 }
 
@@ -6733,10 +7354,12 @@ TrigTableRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Py_XDECREF(self->trigger_stream);
     self->trigger_stream = (Stream *)trig_streamtmp;
 
-    if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 ) {
+    if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 )
+    {
         PyErr_SetString(PyExc_TypeError, "\"table\" argument of TrigTableRec must be a PyoTableObject.\n");
         Py_RETURN_NONE;
     }
+
     Py_XDECREF(self->table);
     Py_INCREF(tabletmp);
     self->table = (NewTable *)tabletmp;
@@ -6746,7 +7369,8 @@ TrigTableRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
     self->time_buffer_streams = (MYFLT *)realloc(self->time_buffer_streams, self->bufsize * sizeof(MYFLT));
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->trigsBuffer[i] = self->time_buffer_streams[i] = 0.0;
     }
 
@@ -6754,8 +7378,10 @@ TrigTableRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     TriggerStream_setData(self->trig_stream, self->trigsBuffer);
 
     int size = PyInt_AsLong(NewTable_getSize((NewTable *)self->table));
+
     if ((self->fadetime * self->sr) >= (size * 0.5))
         self->fadetime = size * 0.499 / self->sr;
+
     if (self->fadetime == 0.0)
         self->fadeInSample = 0.0;
     else
@@ -6774,20 +7400,21 @@ static PyObject * TrigTableRec_stop(TrigTableRec *self, PyObject *args, PyObject
 static PyObject *
 TrigTableRec_setTable(TrigTableRec *self, PyObject *arg)
 {
-	PyObject *tmp;
+    PyObject *tmp;
 
     ASSERT_ARG_NOT_NULL
 
-	tmp = arg;
+    tmp = arg;
     Py_INCREF(tmp);
-	Py_DECREF(self->table);
+    Py_DECREF(self->table);
     self->table = (NewTable *)tmp;
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
-static PyMemberDef TrigTableRec_members[] = {
+static PyMemberDef TrigTableRec_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(TrigTableRec, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(TrigTableRec, stream), 0, "Stream object."},
     {"trig_stream", T_OBJECT_EX, offsetof(TrigTableRec, trig_stream), 0, "Trigger Stream object."},
@@ -6797,17 +7424,19 @@ static PyMemberDef TrigTableRec_members[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef TrigTableRec_methods[] = {
+static PyMethodDef TrigTableRec_methods[] =
+{
     {"getServer", (PyCFunction)TrigTableRec_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)TrigTableRec_getStream, METH_NOARGS, "Returns stream object."},
     {"_getTriggerStream", (PyCFunction)TrigTableRec_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
     {"setTable", (PyCFunction)TrigTableRec_setTable, METH_O, "Sets a new table."},
-    {"play", (PyCFunction)TrigTableRec_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)TrigTableRec_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
+    {"play", (PyCFunction)TrigTableRec_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)TrigTableRec_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject TrigTableRecType = {
+PyTypeObject TrigTableRecType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.TrigTableRec_base",         /*tp_name*/
     sizeof(TrigTableRec),         /*tp_basicsize*/
@@ -6831,10 +7460,10 @@ PyTypeObject TrigTableRecType = {
     "TrigTableRec objects. Record audio input in a table object.",           /* tp_doc */
     (traverseproc)TrigTableRec_traverse,   /* tp_traverse */
     (inquiry)TrigTableRec_clear,           /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
     TrigTableRec_methods,             /* tp_methods */
     TrigTableRec_members,             /* tp_members */
     0,                      /* tp_getset */
@@ -6848,7 +7477,8 @@ PyTypeObject TrigTableRecType = {
     TrigTableRec_new,                 /* tp_new */
 };
 
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     TrigTableRec *mainPlayer;
     int modebuffer[2];
@@ -6865,35 +7495,45 @@ static void TrigTableRecTimeStream_postprocessing_revaa(TrigTableRecTimeStream *
 static void TrigTableRecTimeStream_postprocessing_revareva(TrigTableRecTimeStream *self) { POST_PROCESSING_REVAREVA };
 
 static void
-TrigTableRecTimeStream_setProcMode(TrigTableRecTimeStream *self) {
+TrigTableRecTimeStream_setProcMode(TrigTableRecTimeStream *self)
+{
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    switch (muladdmode) {
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = TrigTableRecTimeStream_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = TrigTableRecTimeStream_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = TrigTableRecTimeStream_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = TrigTableRecTimeStream_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = TrigTableRecTimeStream_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = TrigTableRecTimeStream_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = TrigTableRecTimeStream_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = TrigTableRecTimeStream_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = TrigTableRecTimeStream_postprocessing_revareva;
             break;
@@ -6906,9 +7546,12 @@ TrigTableRecTimeStream_compute_next_data_frame(TrigTableRecTimeStream *self)
     int i;
     MYFLT *tmp;
     tmp = TrigTableRec_getTimeBuffer((TrigTableRec *)self->mainPlayer);
-    for (i=0; i<self->bufsize; i++) {
+
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->data[i] = tmp[i];
     }
+
     (*self->muladd_func_ptr)(self);
 }
 
@@ -6940,7 +7583,7 @@ static PyObject *
 TrigTableRecTimeStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *maintmp=NULL;
+    PyObject *maintmp = NULL;
     TrigTableRecTimeStream *self;
     self = (TrigTableRecTimeStream *)type->tp_alloc(type, 0);
 
@@ -6987,7 +7630,8 @@ static PyObject * TrigTableRecTimeStream_inplace_sub(TrigTableRecTimeStream *sel
 static PyObject * TrigTableRecTimeStream_div(TrigTableRecTimeStream *self, PyObject *arg) { DIV };
 static PyObject * TrigTableRecTimeStream_inplace_div(TrigTableRecTimeStream *self, PyObject *arg) { INPLACE_DIV };
 
-static PyMemberDef TrigTableRecTimeStream_members[] = {
+static PyMemberDef TrigTableRecTimeStream_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(TrigTableRecTimeStream, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(TrigTableRecTimeStream, stream), 0, "Stream object."},
     {"mul", T_OBJECT_EX, offsetof(TrigTableRecTimeStream, mul), 0, "Mul factor."},
@@ -6995,12 +7639,13 @@ static PyMemberDef TrigTableRecTimeStream_members[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef TrigTableRecTimeStream_methods[] = {
+static PyMethodDef TrigTableRecTimeStream_methods[] =
+{
     {"getServer", (PyCFunction)TrigTableRecTimeStream_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)TrigTableRecTimeStream_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)TrigTableRecTimeStream_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)TrigTableRecTimeStream_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)TrigTableRecTimeStream_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
+    {"play", (PyCFunction)TrigTableRecTimeStream_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)TrigTableRecTimeStream_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)TrigTableRecTimeStream_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setMul", (PyCFunction)TrigTableRecTimeStream_setMul, METH_O, "Sets oscillator mul factor."},
     {"setAdd", (PyCFunction)TrigTableRecTimeStream_setAdd, METH_O, "Sets oscillator add factor."},
     {"setSub", (PyCFunction)TrigTableRecTimeStream_setSub, METH_O, "Sets inverse add factor."},
@@ -7008,7 +7653,8 @@ static PyMethodDef TrigTableRecTimeStream_methods[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods TrigTableRecTimeStream_as_number = {
+static PyNumberMethods TrigTableRecTimeStream_as_number =
+{
     (binaryfunc)TrigTableRecTimeStream_add,                         /*nb_add*/
     (binaryfunc)TrigTableRecTimeStream_sub,                         /*nb_subtract*/
     (binaryfunc)TrigTableRecTimeStream_multiply,                    /*nb_multiply*/
@@ -7050,7 +7696,8 @@ static PyNumberMethods TrigTableRecTimeStream_as_number = {
     0,                                              /* nb_index */
 };
 
-PyTypeObject TrigTableRecTimeStreamType = {
+PyTypeObject TrigTableRecTimeStreamType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.TrigTableRecTimeStream_base",         /*tp_name*/
     sizeof(TrigTableRecTimeStream),         /*tp_basicsize*/
@@ -7074,10 +7721,10 @@ PyTypeObject TrigTableRecTimeStreamType = {
     "TrigTableRecTimeStream objects. Returns the current recording time, in samples, of a TableRec object.",           /* tp_doc */
     (traverseproc)TrigTableRecTimeStream_traverse,   /* tp_traverse */
     (inquiry)TrigTableRecTimeStream_clear,           /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
     TrigTableRecTimeStream_methods,             /* tp_methods */
     TrigTableRecTimeStream_members,             /* tp_members */
     0,                      /* tp_getset */
@@ -7094,7 +7741,8 @@ PyTypeObject TrigTableRecTimeStreamType = {
 /******************************/
 /* TablePut object definition */
 /******************************/
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     PyObject *input;
     Stream *input_stream;
@@ -7113,16 +7761,22 @@ TablePut_compute_next_data_frame(TablePut *self)
     int size = PyInt_AsLong(DataTable_getSize((DataTable *)self->table));
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->trigsBuffer[i] = 0.0;
     }
 
-    if (self->active == 1) {
-        for (i=0; i<self->bufsize; i++) {
-            if (in[i] != self->last_value) {
+    if (self->active == 1)
+    {
+        for (i = 0; i < self->bufsize; i++)
+        {
+            if (in[i] != self->last_value)
+            {
                 self->last_value = in[i];
                 DataTable_record((DataTable *)self->table, self->pointer++, self->last_value);
-                if (self->pointer >= size) {
+
+                if (self->pointer >= size)
+                {
                     self->active = 0;
                     self->trigsBuffer[i] = 1.0;
                     break;
@@ -7186,10 +7840,12 @@ TablePut_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_INPUT_STREAM
 
-    if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 ) {
+    if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 )
+    {
         PyErr_SetString(PyExc_TypeError, "\"table\" argument of TablePut must be a PyoTableObject.\n");
         Py_RETURN_NONE;
     }
+
     Py_XDECREF(self->table);
     Py_INCREF(tabletmp);
     self->table = (DataTable *)tabletmp;
@@ -7198,7 +7854,8 @@ TablePut_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->trigsBuffer[i] = 0.0;
     }
 
@@ -7224,83 +7881,87 @@ static PyObject * TablePut_stop(TablePut *self, PyObject *args, PyObject *kwds) 
 static PyObject *
 TablePut_setTable(TablePut *self, PyObject *arg)
 {
-	PyObject *tmp;
+    PyObject *tmp;
 
     ASSERT_ARG_NOT_NULL
 
-	tmp = arg;
+    tmp = arg;
     Py_INCREF(tmp);
-	Py_DECREF(self->table);
+    Py_DECREF(self->table);
     self->table = (DataTable *)tmp;
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
-static PyMemberDef TablePut_members[] = {
-{"server", T_OBJECT_EX, offsetof(TablePut, server), 0, "Pyo server."},
-{"stream", T_OBJECT_EX, offsetof(TablePut, stream), 0, "Stream object."},
-{"trig_stream", T_OBJECT_EX, offsetof(TablePut, trig_stream), 0, "Trigger Stream object."},
-{"input", T_OBJECT_EX, offsetof(TablePut, input), 0, "Input sound object."},
-{"table", T_OBJECT_EX, offsetof(TablePut, table), 0, "Table to record in."},
-{NULL}  /* Sentinel */
+static PyMemberDef TablePut_members[] =
+{
+    {"server", T_OBJECT_EX, offsetof(TablePut, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(TablePut, stream), 0, "Stream object."},
+    {"trig_stream", T_OBJECT_EX, offsetof(TablePut, trig_stream), 0, "Trigger Stream object."},
+    {"input", T_OBJECT_EX, offsetof(TablePut, input), 0, "Input sound object."},
+    {"table", T_OBJECT_EX, offsetof(TablePut, table), 0, "Table to record in."},
+    {NULL}  /* Sentinel */
 };
 
-static PyMethodDef TablePut_methods[] = {
-{"getServer", (PyCFunction)TablePut_getServer, METH_NOARGS, "Returns server object."},
-{"_getStream", (PyCFunction)TablePut_getStream, METH_NOARGS, "Returns stream object."},
-{"_getTriggerStream", (PyCFunction)TablePut_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
-{"setTable", (PyCFunction)TablePut_setTable, METH_O, "Sets a new data table."},
-{"play", (PyCFunction)TablePut_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)TablePut_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
-{NULL}  /* Sentinel */
+static PyMethodDef TablePut_methods[] =
+{
+    {"getServer", (PyCFunction)TablePut_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)TablePut_getStream, METH_NOARGS, "Returns stream object."},
+    {"_getTriggerStream", (PyCFunction)TablePut_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
+    {"setTable", (PyCFunction)TablePut_setTable, METH_O, "Sets a new data table."},
+    {"play", (PyCFunction)TablePut_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)TablePut_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {NULL}  /* Sentinel */
 };
 
-PyTypeObject TablePutType = {
-PyVarObject_HEAD_INIT(NULL, 0)
-"_pyo.TablePut_base",         /*tp_name*/
-sizeof(TablePut),         /*tp_basicsize*/
-0,                         /*tp_itemsize*/
-(destructor)TablePut_dealloc, /*tp_dealloc*/
-0,                         /*tp_print*/
-0,                         /*tp_getattr*/
-0,                         /*tp_setattr*/
-0,                         /*tp_as_async (tp_compare in Python 2)*/
-0,                         /*tp_repr*/
-0,             /*tp_as_number*/
-0,                         /*tp_as_sequence*/
-0,                         /*tp_as_mapping*/
-0,                         /*tp_hash */
-0,                         /*tp_call*/
-0,                         /*tp_str*/
-0,                         /*tp_getattro*/
-0,                         /*tp_setattro*/
-0,                         /*tp_as_buffer*/
-Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
-"TablePut objects. Record new value in input in a data table object.",           /* tp_doc */
-(traverseproc)TablePut_traverse,   /* tp_traverse */
-(inquiry)TablePut_clear,           /* tp_clear */
-0,		               /* tp_richcompare */
-0,		               /* tp_weaklistoffset */
-0,		               /* tp_iter */
-0,		               /* tp_iternext */
-TablePut_methods,             /* tp_methods */
-TablePut_members,             /* tp_members */
-0,                      /* tp_getset */
-0,                         /* tp_base */
-0,                         /* tp_dict */
-0,                         /* tp_descr_get */
-0,                         /* tp_descr_set */
-0,                         /* tp_dictoffset */
-0,      /* tp_init */
-0,                         /* tp_alloc */
-TablePut_new,                 /* tp_new */
+PyTypeObject TablePutType =
+{
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "_pyo.TablePut_base",         /*tp_name*/
+    sizeof(TablePut),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)TablePut_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
+    0,                         /*tp_repr*/
+    0,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "TablePut objects. Record new value in input in a data table object.",           /* tp_doc */
+    (traverseproc)TablePut_traverse,   /* tp_traverse */
+    (inquiry)TablePut_clear,           /* tp_clear */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
+    TablePut_methods,             /* tp_methods */
+    TablePut_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,      /* tp_init */
+    0,                         /* tp_alloc */
+    TablePut_new,                 /* tp_new */
 };
 
 /******************************/
 /* TableWrite object definition */
 /******************************/
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     PyObject *input;
     Stream *input_stream;
@@ -7330,51 +7991,71 @@ TableWrite_compute_next_data_frame(TableWrite *self)
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *pos = Stream_getData((Stream *)self->pos_stream);
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         if (self->mode == 0)
             ipos = (int)(pos[i] * size + 0.5);
         else
             ipos = (int)(pos[i] + 0.5);
-        if (ipos >= 0 && ipos < size) {
-            if (self->lastPos < 0) { /* Init case. */
+
+        if (ipos >= 0 && ipos < size)
+        {
+            if (self->lastPos < 0)   /* Init case. */
+            {
                 self->valInTable = tablelist[ipos];
                 self->count = 1;
                 self->accum = in[i];
                 tablelist[ipos] = in[i] + tablelist[ipos] * feed;
             }
-            else if (ipos == self->lastPos) { /* Same position, average inputs. */
+            else if (ipos == self->lastPos)   /* Same position, average inputs. */
+            {
                 self->count += 1;
                 self->accum += in[i];
                 tablelist[ipos] = self->accum / self->count + self->valInTable * feed;
             }
-            else { /* Position changed. */
+            else   /* Position changed. */
+            {
                 int steps, dir;
-                if (ipos > self->lastPos) { /* Move forward. */
+
+                if (ipos > self->lastPos)   /* Move forward. */
+                {
                     steps = ipos - self->lastPos;
+
                     if (steps > self->maxwindow)
                         steps = 1;
+
                     dir = 1;
                 }
-                else { /* Move backward. */
+                else   /* Move backward. */
+                {
                     steps = self->lastPos - ipos;
+
                     if (steps > self->maxwindow)
                         steps = 1;
+
                     dir = -1;
                 }
+
                 self->valInTable = tablelist[ipos];
                 self->count = 1;
                 self->accum = in[i];
-                if (steps < 2) { /* Moved one sample, no need to interpolate. */
+
+                if (steps < 2)   /* Moved one sample, no need to interpolate. */
+                {
                     tablelist[ipos] = in[i] + tablelist[ipos] * feed;
                 }
-                else { /* Interpolate between last pos and current pos. */
+                else   /* Interpolate between last pos and current pos. */
+                {
                     MYFLT inc = (in[i] - self->lastValue) / steps;
-                    for (j=1; j<=steps; j++) {
+
+                    for (j = 1; j <= steps; j++)
+                    {
                         MYFLT val = self->lastValue + inc * j;
-                        tablelist[self->lastPos+j*dir] = val + tablelist[self->lastPos+j*dir] * feed;
+                        tablelist[self->lastPos + j * dir] = val + tablelist[self->lastPos + j * dir] * feed;
                     }
                 }
             }
+
             self->lastPos = ipos;
             self->lastValue = in[i];
         }
@@ -7440,14 +8121,17 @@ TableWrite_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_INPUT_STREAM
 
-    if (postmp) {
+    if (postmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setPos", "O", postmp);
     }
 
-    if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 ) {
+    if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 )
+    {
         PyErr_SetString(PyExc_TypeError, "\"table\" argument of TableWrite must be a PyoTableObject.\n");
         Py_RETURN_NONE;
     }
+
     Py_XDECREF(self->table);
     Py_INCREF(tabletmp);
     self->table = (NewTable *)tabletmp;
@@ -7466,18 +8150,20 @@ static PyObject * TableWrite_stop(TableWrite *self, PyObject *args, PyObject *kw
 static PyObject *
 TableWrite_setPos(TableWrite *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	tmp = arg;
-	if (PyObject_HasAttrString((PyObject *)tmp, "server") == 0) {
+    tmp = arg;
+
+    if (PyObject_HasAttrString((PyObject *)tmp, "server") == 0)
+    {
         PyErr_SetString(PyExc_TypeError, "\"pos\" argument of TableWrite must be a PyoObject.\n");
         Py_RETURN_NONE;
-	}
+    }
 
-	Py_INCREF(tmp);
-	Py_XDECREF(self->pos);
+    Py_INCREF(tmp);
+    Py_XDECREF(self->pos);
 
     self->pos = tmp;
     streamtmp = PyObject_CallMethod((PyObject *)self->pos, "_getStream", NULL);
@@ -7485,90 +8171,94 @@ TableWrite_setPos(TableWrite *self, PyObject *arg)
     Py_XDECREF(self->pos_stream);
     self->pos_stream = (Stream *)streamtmp;
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 TableWrite_setTable(TableWrite *self, PyObject *arg)
 {
-	PyObject *tmp;
+    PyObject *tmp;
 
     ASSERT_ARG_NOT_NULL
 
-	tmp = arg;
+    tmp = arg;
     Py_INCREF(tmp);
-	Py_DECREF(self->table);
+    Py_DECREF(self->table);
     self->table = (NewTable *)tmp;
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
-static PyMemberDef TableWrite_members[] = {
-{"server", T_OBJECT_EX, offsetof(TableWrite, server), 0, "Pyo server."},
-{"stream", T_OBJECT_EX, offsetof(TableWrite, stream), 0, "Stream object."},
-{"input", T_OBJECT_EX, offsetof(TableWrite, input), 0, "Input sound object."},
-{"table", T_OBJECT_EX, offsetof(TableWrite, table), 0, "Table to record in."},
-{"pos", T_OBJECT_EX, offsetof(TableWrite, pos), 0, "Position in the Table to record in."},
-{NULL}  /* Sentinel */
+static PyMemberDef TableWrite_members[] =
+{
+    {"server", T_OBJECT_EX, offsetof(TableWrite, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(TableWrite, stream), 0, "Stream object."},
+    {"input", T_OBJECT_EX, offsetof(TableWrite, input), 0, "Input sound object."},
+    {"table", T_OBJECT_EX, offsetof(TableWrite, table), 0, "Table to record in."},
+    {"pos", T_OBJECT_EX, offsetof(TableWrite, pos), 0, "Position in the Table to record in."},
+    {NULL}  /* Sentinel */
 };
 
-static PyMethodDef TableWrite_methods[] = {
-{"getServer", (PyCFunction)TableWrite_getServer, METH_NOARGS, "Returns server object."},
-{"_getStream", (PyCFunction)TableWrite_getStream, METH_NOARGS, "Returns stream object."},
-{"setTable", (PyCFunction)TableWrite_setTable, METH_O, "Sets a new table."},
-{"setPos", (PyCFunction)TableWrite_setPos, METH_O, "Sets position in the sound table."},
-{"play", (PyCFunction)TableWrite_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)TableWrite_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
-{NULL}  /* Sentinel */
+static PyMethodDef TableWrite_methods[] =
+{
+    {"getServer", (PyCFunction)TableWrite_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)TableWrite_getStream, METH_NOARGS, "Returns stream object."},
+    {"setTable", (PyCFunction)TableWrite_setTable, METH_O, "Sets a new table."},
+    {"setPos", (PyCFunction)TableWrite_setPos, METH_O, "Sets position in the sound table."},
+    {"play", (PyCFunction)TableWrite_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)TableWrite_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {NULL}  /* Sentinel */
 };
 
-PyTypeObject TableWriteType = {
-PyVarObject_HEAD_INIT(NULL, 0)
-"_pyo.TableWrite_base",         /*tp_name*/
-sizeof(TableWrite),         /*tp_basicsize*/
-0,                         /*tp_itemsize*/
-(destructor)TableWrite_dealloc, /*tp_dealloc*/
-0,                         /*tp_print*/
-0,                         /*tp_getattr*/
-0,                         /*tp_setattr*/
-0,                         /*tp_as_async (tp_compare in Python 2)*/
-0,                         /*tp_repr*/
-0,             /*tp_as_number*/
-0,                         /*tp_as_sequence*/
-0,                         /*tp_as_mapping*/
-0,                         /*tp_hash */
-0,                         /*tp_call*/
-0,                         /*tp_str*/
-0,                         /*tp_getattro*/
-0,                         /*tp_setattro*/
-0,                         /*tp_as_buffer*/
-Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
-"TableWrite objects. Record audio input in a table object.",           /* tp_doc */
-(traverseproc)TableWrite_traverse,   /* tp_traverse */
-(inquiry)TableWrite_clear,           /* tp_clear */
-0,		               /* tp_richcompare */
-0,		               /* tp_weaklistoffset */
-0,		               /* tp_iter */
-0,		               /* tp_iternext */
-TableWrite_methods,             /* tp_methods */
-TableWrite_members,             /* tp_members */
-0,                      /* tp_getset */
-0,                         /* tp_base */
-0,                         /* tp_dict */
-0,                         /* tp_descr_get */
-0,                         /* tp_descr_set */
-0,                         /* tp_dictoffset */
-0,      /* tp_init */
-0,                         /* tp_alloc */
-TableWrite_new,                 /* tp_new */
+PyTypeObject TableWriteType =
+{
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "_pyo.TableWrite_base",         /*tp_name*/
+    sizeof(TableWrite),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)TableWrite_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
+    0,                         /*tp_repr*/
+    0,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "TableWrite objects. Record audio input in a table object.",           /* tp_doc */
+    (traverseproc)TableWrite_traverse,   /* tp_traverse */
+    (inquiry)TableWrite_clear,           /* tp_clear */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
+    TableWrite_methods,             /* tp_methods */
+    TableWrite_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,      /* tp_init */
+    0,                         /* tp_alloc */
+    TableWrite_new,                 /* tp_new */
 };
 
 /*************************/
 /* SharedTable structure */
 /*************************/
-typedef struct {
+typedef struct
+{
     pyo_table_HEAD
     char *name;
     int create;
@@ -7594,8 +8284,10 @@ SharedTable_dealloc(SharedTable* self)
 {
 #if !defined(_WIN32) && !defined(_WIN64)
     close(self->fd);
+
     if (self->create)
         shm_unlink(self->name);
+
 #endif
     SharedTable_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
@@ -7619,24 +8311,32 @@ SharedTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
 
 #if !defined(_WIN32) && !defined(_WIN64)
+
     /* Open shared memory object. */
-    if (self->create) {
+    if (self->create)
+    {
         self->fd = shm_open(self->name, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
-        if (self->fd == -1) {
+
+        if (self->fd == -1)
+        {
             PySys_WriteStdout("SharedTable: failed to create shared memory.\n");
             Py_RETURN_NONE;
         }
 
-        if (ftruncate(self->fd, sizeof(MYFLT) * (self->size + 1)) == -1) {
+        if (ftruncate(self->fd, sizeof(MYFLT) * (self->size + 1)) == -1)
+        {
             PySys_WriteStdout("SharedTable: failed to truncate shared memory.\n");
             close(self->fd);
             shm_unlink(self->name);
             Py_RETURN_NONE;
         }
     }
-    else {
+    else
+    {
         self->fd = shm_open(self->name, O_RDWR, 0);
-        if (self->fd == -1) {
+
+        if (self->fd == -1)
+        {
             PySys_WriteStdout("SharedTable: failed to create shared memory.\n");
             Py_RETURN_NONE;
         }
@@ -7645,20 +8345,27 @@ SharedTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     /* Map shared memory object. */
     self->data = mmap(NULL, sizeof(MYFLT) * (self->size + 1),
                       PROT_READ | PROT_WRITE, MAP_SHARED, self->fd, 0);
-    if (self->data == MAP_FAILED) {
+
+    if (self->data == MAP_FAILED)
+    {
         PySys_WriteStdout("SharedTable: failed to mmap shared memory.\n");
         close(self->fd);
+
         if (self->create)
             shm_unlink(self->name);
+
         Py_RETURN_NONE;
     }
 
     /* Initialize the memory. */
-    if (self->create) {
-        for (i=0; i<=self->size; i++) {
+    if (self->create)
+    {
+        for (i = 0; i <= self->size; i++)
+        {
             self->data[i] = 0.0;
         }
     }
+
 #endif
 
     TableStream_setSize(self->tablestream, self->size);
@@ -7705,24 +8412,27 @@ SharedTable_getSize(SharedTable *self)
 static PyObject *
 SharedTable_getRate(SharedTable *self)
 {
-    MYFLT sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL)); \
+    MYFLT sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
+    \
     return PyFloat_FromDouble(sr / self->size);
 };
 
-static PyMemberDef SharedTable_members[] = {
+static PyMemberDef SharedTable_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(SharedTable, server), 0, "Pyo server."},
     {"tablestream", T_OBJECT_EX, offsetof(SharedTable, tablestream), 0, "Table stream object."},
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef SharedTable_methods[] = {
+static PyMethodDef SharedTable_methods[] =
+{
     {"getServer", (PyCFunction)SharedTable_getServer, METH_NOARGS, "Returns server object."},
     {"copy", (PyCFunction)SharedTable_copy, METH_O, "Copy data from table given in argument."},
-    {"copyData", (PyCFunction)SharedTable_copyData, METH_VARARGS|METH_KEYWORDS, "Copy data from table given in argument."},
-    {"rotate", (PyCFunction)SharedTable_rotate, METH_VARARGS|METH_KEYWORDS, "Rotate table around position as argument."},
+    {"copyData", (PyCFunction)SharedTable_copyData, METH_VARARGS | METH_KEYWORDS, "Copy data from table given in argument."},
+    {"rotate", (PyCFunction)SharedTable_rotate, METH_VARARGS | METH_KEYWORDS, "Rotate table around position as argument."},
     {"setTable", (PyCFunction)SharedTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
     {"getTable", (PyCFunction)SharedTable_getTable, METH_NOARGS, "Returns a list of table samples."},
-    {"getViewTable", (PyCFunction)SharedTable_getViewTable, METH_VARARGS|METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
+    {"getViewTable", (PyCFunction)SharedTable_getViewTable, METH_VARARGS | METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
     {"getTableStream", (PyCFunction)SharedTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
     {"setData", (PyCFunction)SharedTable_setData, METH_O, "Sets the table from samples in a text file."},
     {"normalize", (PyCFunction)SharedTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
@@ -7731,13 +8441,13 @@ static PyMethodDef SharedTable_methods[] = {
     {"reverse", (PyCFunction)SharedTable_reverse, METH_NOARGS, "Reverse the table's data."},
     {"invert", (PyCFunction)SharedTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
     {"rectify", (PyCFunction)SharedTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
-    {"bipolarGain", (PyCFunction)SharedTable_bipolarGain, METH_VARARGS|METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
-    {"lowpass", (PyCFunction)SharedTable_lowpass, METH_VARARGS|METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
-    {"fadein", (PyCFunction)SharedTable_fadein, METH_VARARGS|METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
-    {"fadeout", (PyCFunction)SharedTable_fadeout, METH_VARARGS|METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
-    {"pow", (PyCFunction)SharedTable_pow, METH_VARARGS|METH_KEYWORDS, "Apply a power function on each sample in the table."},
-    {"put", (PyCFunction)SharedTable_put, METH_VARARGS|METH_KEYWORDS, "Puts a value at specified position in the table."},
-    {"get", (PyCFunction)SharedTable_get, METH_VARARGS|METH_KEYWORDS, "Gets the value at specified position in the table."},
+    {"bipolarGain", (PyCFunction)SharedTable_bipolarGain, METH_VARARGS | METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
+    {"lowpass", (PyCFunction)SharedTable_lowpass, METH_VARARGS | METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
+    {"fadein", (PyCFunction)SharedTable_fadein, METH_VARARGS | METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
+    {"fadeout", (PyCFunction)SharedTable_fadeout, METH_VARARGS | METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
+    {"pow", (PyCFunction)SharedTable_pow, METH_VARARGS | METH_KEYWORDS, "Apply a power function on each sample in the table."},
+    {"put", (PyCFunction)SharedTable_put, METH_VARARGS | METH_KEYWORDS, "Puts a value at specified position in the table."},
+    {"get", (PyCFunction)SharedTable_get, METH_VARARGS | METH_KEYWORDS, "Gets the value at specified position in the table."},
     {"getSize", (PyCFunction)SharedTable_getSize, METH_NOARGS, "Return the size of the table in samples."},
     {"getRate", (PyCFunction)SharedTable_getRate, METH_NOARGS, "Return the frequency (in cps) that reads the sound without pitch transposition."},
     {"add", (PyCFunction)SharedTable_add, METH_O, "Performs table addition."},
@@ -7746,7 +8456,8 @@ static PyMethodDef SharedTable_methods[] = {
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject SharedTableType = {
+PyTypeObject SharedTableType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.SharedTable_base",         /*tp_name*/
     sizeof(SharedTable),         /*tp_basicsize*/
@@ -7770,10 +8481,10 @@ PyTypeObject SharedTableType = {
     "SharedTable objects. Generates an empty table.",  /* tp_doc */
     (traverseproc)SharedTable_traverse,   /* tp_traverse */
     (inquiry)SharedTable_clear,           /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
     SharedTable_methods,             /* tp_methods */
     SharedTable_members,             /* tp_members */
     0,                      /* tp_getset */

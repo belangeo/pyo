@@ -26,7 +26,8 @@
 #include "servermodule.h"
 #include "dummymodule.h"
 
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     int modebuffer[2];
     int seed;
@@ -34,19 +35,23 @@ typedef struct {
 } Noise;
 
 static void
-Noise_generate(Noise *self) {
+Noise_generate(Noise *self)
+{
     int i;
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->data[i] = RANDOM_UNIFORM * 1.98 - 0.99;
     }
 }
 
 static void
-Noise_generate_cheap(Noise *self) {
+Noise_generate_cheap(Noise *self)
+{
     int i;
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->seed = (self->seed * 15625 + 1) & 0xFFFF;
         self->data[i] = (self->seed - 0x8000) * 3.0517578125e-05;
     }
@@ -68,39 +73,51 @@ Noise_setProcMode(Noise *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    switch (self->type) {
+    switch (self->type)
+    {
         case 0:
             self->proc_func_ptr = Noise_generate;
             break;
+
         case 1:
             self->proc_func_ptr = Noise_generate_cheap;
             break;
     }
-    switch (muladdmode) {
+
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = Noise_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = Noise_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = Noise_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = Noise_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = Noise_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = Noise_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = Noise_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = Noise_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = Noise_postprocessing_revareva;
             break;
@@ -140,7 +157,7 @@ static PyObject *
 Noise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *multmp=NULL, *addtmp=NULL;
+    PyObject *multmp = NULL, *addtmp = NULL;
     Noise *self;
     self = (Noise *)type->tp_alloc(type, 0);
 
@@ -157,11 +174,13 @@ Noise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OO", kwlist, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    if (multmp) {
+    if (multmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
 
-    if (addtmp) {
+    if (addtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
 
@@ -212,112 +231,117 @@ Noise_setType(Noise *self, PyObject *arg)
     return Py_None;
 }
 
-static PyMemberDef Noise_members[] = {
-{"server", T_OBJECT_EX, offsetof(Noise, server), 0, "Pyo server."},
-{"stream", T_OBJECT_EX, offsetof(Noise, stream), 0, "Stream object."},
-{"mul", T_OBJECT_EX, offsetof(Noise, mul), 0, "Mul factor."},
-{"add", T_OBJECT_EX, offsetof(Noise, add), 0, "Add factor."},
-{NULL}  /* Sentinel */
+static PyMemberDef Noise_members[] =
+{
+    {"server", T_OBJECT_EX, offsetof(Noise, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(Noise, stream), 0, "Stream object."},
+    {"mul", T_OBJECT_EX, offsetof(Noise, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(Noise, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
 };
 
-static PyMethodDef Noise_methods[] = {
-{"getServer", (PyCFunction)Noise_getServer, METH_NOARGS, "Returns server object."},
-{"_getStream", (PyCFunction)Noise_getStream, METH_NOARGS, "Returns stream object."},
-{"play", (PyCFunction)Noise_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"out", (PyCFunction)Noise_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-{"stop", (PyCFunction)Noise_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
-{"setType", (PyCFunction)Noise_setType, METH_O, "Sets Noise generation algorithm."},
-{"setMul", (PyCFunction)Noise_setMul, METH_O, "Sets Noise mul factor."},
-{"setAdd", (PyCFunction)Noise_setAdd, METH_O, "Sets Noise add factor."},
-{"setSub", (PyCFunction)Noise_setSub, METH_O, "Sets inverse add factor."},
-{"setDiv", (PyCFunction)Noise_setDiv, METH_O, "Sets inverse mul factor."},
-{NULL}  /* Sentinel */
+static PyMethodDef Noise_methods[] =
+{
+    {"getServer", (PyCFunction)Noise_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)Noise_getStream, METH_NOARGS, "Returns stream object."},
+    {"play", (PyCFunction)Noise_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)Noise_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)Noise_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"setType", (PyCFunction)Noise_setType, METH_O, "Sets Noise generation algorithm."},
+    {"setMul", (PyCFunction)Noise_setMul, METH_O, "Sets Noise mul factor."},
+    {"setAdd", (PyCFunction)Noise_setAdd, METH_O, "Sets Noise add factor."},
+    {"setSub", (PyCFunction)Noise_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)Noise_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Noise_as_number = {
-(binaryfunc)Noise_add,                      /*nb_add*/
-(binaryfunc)Noise_sub,                 /*nb_subtract*/
-(binaryfunc)Noise_multiply,                 /*nb_multiply*/
-INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
-0,                /*nb_remainder*/
-0,                   /*nb_divmod*/
-0,                   /*nb_power*/
-0,                  /*nb_neg*/
-0,                /*nb_pos*/
-0,                  /*(unaryfunc)array_abs,*/
-0,                    /*nb_nonzero*/
-0,                    /*nb_invert*/
-0,               /*nb_lshift*/
-0,              /*nb_rshift*/
-0,              /*nb_and*/
-0,              /*nb_xor*/
-0,               /*nb_or*/
-INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
-0,                       /*nb_int*/
-0,                      /*nb_long*/
-0,                     /*nb_float*/
-INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
-(binaryfunc)Noise_inplace_add,              /*inplace_add*/
-(binaryfunc)Noise_inplace_sub,         /*inplace_subtract*/
-(binaryfunc)Noise_inplace_multiply,         /*inplace_multiply*/
-INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
-0,        /*inplace_remainder*/
-0,           /*inplace_power*/
-0,       /*inplace_lshift*/
-0,      /*inplace_rshift*/
-0,      /*inplace_and*/
-0,      /*inplace_xor*/
-0,       /*inplace_or*/
-0,             /*nb_floor_divide*/
-(binaryfunc)Noise_div,                       /*nb_true_divide*/
-0,     /*nb_inplace_floor_divide*/
-(binaryfunc)Noise_inplace_div,                       /*nb_inplace_true_divide*/
-0,                     /* nb_index */
+static PyNumberMethods Noise_as_number =
+{
+    (binaryfunc)Noise_add,                      /*nb_add*/
+    (binaryfunc)Noise_sub,                 /*nb_subtract*/
+    (binaryfunc)Noise_multiply,                 /*nb_multiply*/
+    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
+    0,                /*nb_remainder*/
+    0,                   /*nb_divmod*/
+    0,                   /*nb_power*/
+    0,                  /*nb_neg*/
+    0,                /*nb_pos*/
+    0,                  /*(unaryfunc)array_abs,*/
+    0,                    /*nb_nonzero*/
+    0,                    /*nb_invert*/
+    0,               /*nb_lshift*/
+    0,              /*nb_rshift*/
+    0,              /*nb_and*/
+    0,              /*nb_xor*/
+    0,               /*nb_or*/
+    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
+    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
+    (binaryfunc)Noise_inplace_add,              /*inplace_add*/
+    (binaryfunc)Noise_inplace_sub,         /*inplace_subtract*/
+    (binaryfunc)Noise_inplace_multiply,         /*inplace_multiply*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
+    0,        /*inplace_remainder*/
+    0,           /*inplace_power*/
+    0,       /*inplace_lshift*/
+    0,      /*inplace_rshift*/
+    0,      /*inplace_and*/
+    0,      /*inplace_xor*/
+    0,       /*inplace_or*/
+    0,             /*nb_floor_divide*/
+    (binaryfunc)Noise_div,                       /*nb_true_divide*/
+    0,     /*nb_inplace_floor_divide*/
+    (binaryfunc)Noise_inplace_div,                       /*nb_inplace_true_divide*/
+    0,                     /* nb_index */
 };
 
-PyTypeObject NoiseType = {
-PyVarObject_HEAD_INIT(NULL, 0)
-"_pyo.Noise_base",         /*tp_name*/
-sizeof(Noise),         /*tp_basicsize*/
-0,                         /*tp_itemsize*/
-(destructor)Noise_dealloc, /*tp_dealloc*/
-0,                         /*tp_print*/
-0,                         /*tp_getattr*/
-0,                         /*tp_setattr*/
-0,                         /*tp_as_async (tp_compare in Python 2)*/
-0,                         /*tp_repr*/
-&Noise_as_number,             /*tp_as_number*/
-0,                         /*tp_as_sequence*/
-0,                         /*tp_as_mapping*/
-0,                         /*tp_hash */
-0,                         /*tp_call*/
-0,                         /*tp_str*/
-0,                         /*tp_getattro*/
-0,                         /*tp_setattro*/
-0,                         /*tp_as_buffer*/
-Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
-"Noise objects. White noise generator.",           /* tp_doc */
-(traverseproc)Noise_traverse,   /* tp_traverse */
-(inquiry)Noise_clear,           /* tp_clear */
-0,                         /* tp_richcompare */
-0,                         /* tp_weaklistoffset */
-0,                         /* tp_iter */
-0,                         /* tp_iternext */
-Noise_methods,             /* tp_methods */
-Noise_members,             /* tp_members */
-0,                      /* tp_getset */
-0,                         /* tp_base */
-0,                         /* tp_dict */
-0,                         /* tp_descr_get */
-0,                         /* tp_descr_set */
-0,                         /* tp_dictoffset */
-0,      /* tp_init */
-0,                         /* tp_alloc */
-Noise_new,                 /* tp_new */
+PyTypeObject NoiseType =
+{
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "_pyo.Noise_base",         /*tp_name*/
+    sizeof(Noise),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)Noise_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
+    0,                         /*tp_repr*/
+    &Noise_as_number,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "Noise objects. White noise generator.",           /* tp_doc */
+    (traverseproc)Noise_traverse,   /* tp_traverse */
+    (inquiry)Noise_clear,           /* tp_clear */
+    0,                         /* tp_richcompare */
+    0,                         /* tp_weaklistoffset */
+    0,                         /* tp_iter */
+    0,                         /* tp_iternext */
+    Noise_methods,             /* tp_methods */
+    Noise_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,      /* tp_init */
+    0,                         /* tp_alloc */
+    Noise_new,                 /* tp_new */
 };
 
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     int modebuffer[2];
     MYFLT c0;
@@ -330,11 +354,13 @@ typedef struct {
 } PinkNoise;
 
 static void
-PinkNoise_generate(PinkNoise *self) {
+PinkNoise_generate(PinkNoise *self)
+{
     MYFLT in, val;
     int i;
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         in = RANDOM_UNIFORM * 1.98 - 0.99;
         self->c0 = self->c0 * 0.99886 + in * 0.0555179;
         self->c1 = self->c1 * 0.99332 + in * 0.0750759;
@@ -364,31 +390,40 @@ PinkNoise_setProcMode(PinkNoise *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    switch (muladdmode) {
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = PinkNoise_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = PinkNoise_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = PinkNoise_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = PinkNoise_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = PinkNoise_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = PinkNoise_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = PinkNoise_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = PinkNoise_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = PinkNoise_postprocessing_revareva;
             break;
@@ -428,7 +463,7 @@ static PyObject *
 PinkNoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *multmp=NULL, *addtmp=NULL;
+    PyObject *multmp = NULL, *addtmp = NULL;
     PinkNoise *self;
     self = (PinkNoise *)type->tp_alloc(type, 0);
 
@@ -445,11 +480,13 @@ PinkNoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OO", kwlist, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    if (multmp) {
+    if (multmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
 
-    if (addtmp) {
+    if (addtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
 
@@ -482,7 +519,8 @@ static PyObject * PinkNoise_inplace_sub(PinkNoise *self, PyObject *arg) { INPLAC
 static PyObject * PinkNoise_div(PinkNoise *self, PyObject *arg) { DIV };
 static PyObject * PinkNoise_inplace_div(PinkNoise *self, PyObject *arg) { INPLACE_DIV };
 
-static PyMemberDef PinkNoise_members[] = {
+static PyMemberDef PinkNoise_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(PinkNoise, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(PinkNoise, stream), 0, "Stream object."},
     {"mul", T_OBJECT_EX, offsetof(PinkNoise, mul), 0, "Mul factor."},
@@ -490,12 +528,13 @@ static PyMemberDef PinkNoise_members[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef PinkNoise_methods[] = {
+static PyMethodDef PinkNoise_methods[] =
+{
     {"getServer", (PyCFunction)PinkNoise_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)PinkNoise_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)PinkNoise_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)PinkNoise_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)PinkNoise_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
+    {"play", (PyCFunction)PinkNoise_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)PinkNoise_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)PinkNoise_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setMul", (PyCFunction)PinkNoise_setMul, METH_O, "Sets PinkNoise mul factor."},
     {"setAdd", (PyCFunction)PinkNoise_setAdd, METH_O, "Sets PinkNoise add factor."},
     {"setSub", (PyCFunction)PinkNoise_setSub, METH_O, "Sets inverse add factor."},
@@ -503,7 +542,8 @@ static PyMethodDef PinkNoise_methods[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods PinkNoise_as_number = {
+static PyNumberMethods PinkNoise_as_number =
+{
     (binaryfunc)PinkNoise_add,                      /*nb_add*/
     (binaryfunc)PinkNoise_sub,                 /*nb_subtract*/
     (binaryfunc)PinkNoise_multiply,                 /*nb_multiply*/
@@ -545,7 +585,8 @@ static PyNumberMethods PinkNoise_as_number = {
     0,                     /* nb_index */
 };
 
-PyTypeObject PinkNoiseType = {
+PyTypeObject PinkNoiseType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.PinkNoise_base",         /*tp_name*/
     sizeof(PinkNoise),         /*tp_basicsize*/
@@ -586,7 +627,8 @@ PyTypeObject PinkNoiseType = {
     PinkNoise_new,                 /* tp_new */
 };
 
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     int modebuffer[2];
     MYFLT y1;
@@ -594,11 +636,13 @@ typedef struct {
 } BrownNoise;
 
 static void
-BrownNoise_generate(BrownNoise *self) {
+BrownNoise_generate(BrownNoise *self)
+{
     MYFLT rnd;
     int i;
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         rnd = RANDOM_UNIFORM * 1.98 - 0.99;
         self->y1 = rnd + (self->y1 - rnd) * self->c;
         self->data[i] = self->y1 * 20.0; /* gain compensation */
@@ -621,31 +665,40 @@ BrownNoise_setProcMode(BrownNoise *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    switch (muladdmode) {
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = BrownNoise_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = BrownNoise_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = BrownNoise_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = BrownNoise_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = BrownNoise_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = BrownNoise_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = BrownNoise_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = BrownNoise_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = BrownNoise_postprocessing_revareva;
             break;
@@ -686,7 +739,7 @@ BrownNoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
     MYFLT b;
-    PyObject *multmp=NULL, *addtmp=NULL;
+    PyObject *multmp = NULL, *addtmp = NULL;
     BrownNoise *self;
     self = (BrownNoise *)type->tp_alloc(type, 0);
 
@@ -703,11 +756,13 @@ BrownNoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OO", kwlist, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    if (multmp) {
+    if (multmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
 
-    if (addtmp) {
+    if (addtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
 
@@ -743,7 +798,8 @@ static PyObject * BrownNoise_inplace_sub(BrownNoise *self, PyObject *arg) { INPL
 static PyObject * BrownNoise_div(BrownNoise *self, PyObject *arg) { DIV };
 static PyObject * BrownNoise_inplace_div(BrownNoise *self, PyObject *arg) { INPLACE_DIV };
 
-static PyMemberDef BrownNoise_members[] = {
+static PyMemberDef BrownNoise_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(BrownNoise, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(BrownNoise, stream), 0, "Stream object."},
     {"mul", T_OBJECT_EX, offsetof(BrownNoise, mul), 0, "Mul factor."},
@@ -751,12 +807,13 @@ static PyMemberDef BrownNoise_members[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef BrownNoise_methods[] = {
+static PyMethodDef BrownNoise_methods[] =
+{
     {"getServer", (PyCFunction)BrownNoise_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)BrownNoise_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)BrownNoise_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)BrownNoise_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)BrownNoise_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
+    {"play", (PyCFunction)BrownNoise_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)BrownNoise_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)BrownNoise_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setMul", (PyCFunction)BrownNoise_setMul, METH_O, "Sets BrownNoise mul factor."},
     {"setAdd", (PyCFunction)BrownNoise_setAdd, METH_O, "Sets BrownNoise add factor."},
     {"setSub", (PyCFunction)BrownNoise_setSub, METH_O, "Sets inverse add factor."},
@@ -764,7 +821,8 @@ static PyMethodDef BrownNoise_methods[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods BrownNoise_as_number = {
+static PyNumberMethods BrownNoise_as_number =
+{
     (binaryfunc)BrownNoise_add,                      /*nb_add*/
     (binaryfunc)BrownNoise_sub,                 /*nb_subtract*/
     (binaryfunc)BrownNoise_multiply,                 /*nb_multiply*/
@@ -806,7 +864,8 @@ static PyNumberMethods BrownNoise_as_number = {
     0,                     /* nb_index */
 };
 
-PyTypeObject BrownNoiseType = {
+PyTypeObject BrownNoiseType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.BrownNoise_base",         /*tp_name*/
     sizeof(BrownNoise),         /*tp_basicsize*/

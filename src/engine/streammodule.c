@@ -117,7 +117,9 @@ void Stream_callFunction(Stream *self)
 void Stream_IncrementBufferCount(Stream *self)
 {
     self->bufferCount++;
-    if (self->bufferCount >= self->bufferCountWait) {
+
+    if (self->bufferCount >= self->bufferCountWait)
+    {
         self->active = 1;
         self->bufferCountWait = self->bufferCount = 0;
     }
@@ -126,19 +128,23 @@ void Stream_IncrementBufferCount(Stream *self)
 void Stream_IncrementDurationCount(Stream *self)
 {
     self->bufferCount++;
-    if (self->bufferCount >= self->duration) {
+
+    if (self->bufferCount >= self->duration)
+    {
         PyObject_CallMethod((PyObject *)Stream_getStreamObject(self), "stop", NULL);
         self->duration = self->bufferCount = 0;
     }
 }
 
 static PyObject *
-Stream_getValue(Stream *self) {
-    return Py_BuildValue(TYPE_F, self->data[self->bufsize-1]);
+Stream_getValue(Stream *self)
+{
+    return Py_BuildValue(TYPE_F, self->data[self->bufsize - 1]);
 }
 
 static PyObject *
-Stream_getId(Stream *self) {
+Stream_getId(Stream *self)
+{
     return Py_BuildValue("i", self->sid);
 }
 
@@ -152,11 +158,13 @@ Stream_getStreamObject(Stream *self)
 PyObject *
 Stream_isPlaying(Stream *self)
 {
-    if (self->active || self->todac) {
+    if (self->active || self->todac)
+    {
         Py_INCREF(Py_True);
         return Py_True;
     }
-    else {
+    else
+    {
         Py_INCREF(Py_False);
         return Py_False;
     }
@@ -165,26 +173,30 @@ Stream_isPlaying(Stream *self)
 PyObject *
 Stream_isOutputting(Stream *self)
 {
-    if (self->todac) {
+    if (self->todac)
+    {
         Py_INCREF(Py_True);
         return Py_True;
     }
-    else {
+    else
+    {
         Py_INCREF(Py_False);
         return Py_False;
     }
 }
 
-static PyMethodDef Stream_methods[] = {
-{"getValue", (PyCFunction)Stream_getValue, METH_NOARGS, "Returns the first sample of the current buffer."},
-{"getId", (PyCFunction)Stream_getId, METH_NOARGS, "Returns the ID of assigned to this stream."},
-{"getStreamObject", (PyCFunction)Stream_getStreamObject, METH_NOARGS, "Returns the object associated with this stream."},
-{"isPlaying", (PyCFunction)Stream_isPlaying, METH_NOARGS, "Returns True if the stream is playing, otherwise, returns False."},
-{"isOutputting", (PyCFunction)Stream_isOutputting, METH_NOARGS, "Returns True if the stream outputs to dac, otherwise, returns False."},
-{NULL}  /* Sentinel */
+static PyMethodDef Stream_methods[] =
+{
+    {"getValue", (PyCFunction)Stream_getValue, METH_NOARGS, "Returns the first sample of the current buffer."},
+    {"getId", (PyCFunction)Stream_getId, METH_NOARGS, "Returns the ID of assigned to this stream."},
+    {"getStreamObject", (PyCFunction)Stream_getStreamObject, METH_NOARGS, "Returns the object associated with this stream."},
+    {"isPlaying", (PyCFunction)Stream_isPlaying, METH_NOARGS, "Returns True if the stream is playing, otherwise, returns False."},
+    {"isOutputting", (PyCFunction)Stream_isOutputting, METH_NOARGS, "Returns True if the stream outputs to dac, otherwise, returns False."},
+    {NULL}  /* Sentinel */
 };
 
-PyTypeObject StreamType = {
+PyTypeObject StreamType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "pyo.Stream", /*tp_name*/
     sizeof(Stream), /*tp_basicsize*/
@@ -205,7 +217,7 @@ PyTypeObject StreamType = {
     0, /*tp_setattro*/
     0, /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /*tp_flags*/
-"\n\
+    "\n\
 Audio stream objects. For internal use only. \n\n\
 A Stream object must never be instantiated by the user. \n\n\
 A Stream is a mono buffer of audio samples. It is used to pass \n\
@@ -269,7 +281,8 @@ TriggerStream_setData(TriggerStream *self, MYFLT *data)
     self->data = data;
 }
 
-PyTypeObject TriggerStreamType = {
+PyTypeObject TriggerStreamType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "pyo.TriggerStream", /*tp_name*/
     sizeof(TriggerStream), /*tp_basicsize*/

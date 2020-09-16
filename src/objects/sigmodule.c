@@ -26,7 +26,8 @@
 #include "servermodule.h"
 #include "dummymodule.h"
 
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     PyObject *value;
     Stream *value_stream;
@@ -49,31 +50,40 @@ Sig_setProcMode(Sig *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-	switch (muladdmode) {
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = Sig_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = Sig_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = Sig_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = Sig_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = Sig_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = Sig_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = Sig_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = Sig_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = Sig_postprocessing_revareva;
             break;
@@ -84,18 +94,26 @@ static void
 Sig_compute_next_data_frame(Sig *self)
 {
     int i;
-    if (self->modebuffer[2] == 0) {
+
+    if (self->modebuffer[2] == 0)
+    {
         MYFLT val = PyFloat_AS_DOUBLE(self->value);
-        for (i=0; i<self->bufsize; i++) {
+
+        for (i = 0; i < self->bufsize; i++)
+        {
             self->data[i] = val;
         }
     }
-    else {
+    else
+    {
         MYFLT *vals = Stream_getData((Stream *)self->value_stream);
-        for (i=0; i<self->bufsize; i++) {
+
+        for (i = 0; i < self->bufsize; i++)
+        {
             self->data[i] = vals[i];
         }
     }
+
     (*self->muladd_func_ptr)(self);
 }
 
@@ -129,14 +147,14 @@ static PyObject *
 Sig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *valuetmp=NULL, *multmp=NULL, *addtmp=NULL;
+    PyObject *valuetmp = NULL, *multmp = NULL, *addtmp = NULL;
     Sig *self;
     self = (Sig *)type->tp_alloc(type, 0);
 
     self->value = PyFloat_FromDouble(0.0);
-	self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
-	self->modebuffer[2] = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
+    self->modebuffer[2] = 0;
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Sig_compute_next_data_frame);
@@ -147,15 +165,18 @@ Sig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &valuetmp, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    if (valuetmp) {
+    if (valuetmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setValue", "O", valuetmp);
     }
 
-    if (multmp) {
+    if (multmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
 
-    if (addtmp) {
+    if (addtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
 
@@ -171,21 +192,24 @@ Sig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static PyObject *
 Sig_setValue(Sig *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
     Py_DECREF(self->value);
-	if (isNumber == 1) {
-		self->value = PyNumber_Float(tmp);
+
+    if (isNumber == 1)
+    {
+        self->value = PyNumber_Float(tmp);
         self->modebuffer[2] = 0;
     }
-    else {
-		self->value = tmp;
+    else
+    {
+        self->value = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->value, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->value_stream);
@@ -193,8 +217,8 @@ Sig_setValue(Sig *self, PyObject *arg)
         self->modebuffer[2] = 1;
     }
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject * Sig_getServer(Sig* self) { GET_SERVER };
@@ -217,116 +241,121 @@ static PyObject * Sig_inplace_sub(Sig *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Sig_div(Sig *self, PyObject *arg) { DIV };
 static PyObject * Sig_inplace_div(Sig *self, PyObject *arg) { INPLACE_DIV };
 
-static PyMemberDef Sig_members[] = {
-{"server", T_OBJECT_EX, offsetof(Sig, server), 0, "Pyo server."},
-{"stream", T_OBJECT_EX, offsetof(Sig, stream), 0, "Stream object."},
-{"value", T_OBJECT_EX, offsetof(Sig, value), 0, "Target value."},
-{"mul", T_OBJECT_EX, offsetof(Sig, mul), 0, "Mul factor."},
-{"add", T_OBJECT_EX, offsetof(Sig, add), 0, "Add factor."},
-{NULL}  /* Sentinel */
+static PyMemberDef Sig_members[] =
+{
+    {"server", T_OBJECT_EX, offsetof(Sig, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(Sig, stream), 0, "Stream object."},
+    {"value", T_OBJECT_EX, offsetof(Sig, value), 0, "Target value."},
+    {"mul", T_OBJECT_EX, offsetof(Sig, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(Sig, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
 };
 
-static PyMethodDef Sig_methods[] = {
-{"getServer", (PyCFunction)Sig_getServer, METH_NOARGS, "Returns server object."},
-{"_getStream", (PyCFunction)Sig_getStream, METH_NOARGS, "Returns stream object."},
-{"play", (PyCFunction)Sig_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"out", (PyCFunction)Sig_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-{"stop", (PyCFunction)Sig_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
-{"setValue", (PyCFunction)Sig_setValue, METH_O, "Sets Sig value."},
-{"setMul", (PyCFunction)Sig_setMul, METH_O, "Sets Sig mul factor."},
-{"setAdd", (PyCFunction)Sig_setAdd, METH_O, "Sets Sig add factor."},
-{"setSub", (PyCFunction)Sig_setSub, METH_O, "Sets inverse add factor."},
-{"setDiv", (PyCFunction)Sig_setDiv, METH_O, "Sets inverse mul factor."},
-{NULL}  /* Sentinel */
+static PyMethodDef Sig_methods[] =
+{
+    {"getServer", (PyCFunction)Sig_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)Sig_getStream, METH_NOARGS, "Returns stream object."},
+    {"play", (PyCFunction)Sig_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)Sig_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)Sig_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"setValue", (PyCFunction)Sig_setValue, METH_O, "Sets Sig value."},
+    {"setMul", (PyCFunction)Sig_setMul, METH_O, "Sets Sig mul factor."},
+    {"setAdd", (PyCFunction)Sig_setAdd, METH_O, "Sets Sig add factor."},
+    {"setSub", (PyCFunction)Sig_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)Sig_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Sig_as_number = {
-(binaryfunc)Sig_add,                      /*nb_add*/
-(binaryfunc)Sig_sub,                 /*nb_subtract*/
-(binaryfunc)Sig_multiply,                 /*nb_multiply*/
-INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
-0,                /*nb_remainder*/
-0,                   /*nb_divmod*/
-0,                   /*nb_power*/
-0,                  /*nb_neg*/
-0,                /*nb_pos*/
-0,                  /*(unaryfunc)array_abs,*/
-0,                    /*nb_nonzero*/
-0,                    /*nb_invert*/
-0,               /*nb_lshift*/
-0,              /*nb_rshift*/
-0,              /*nb_and*/
-0,              /*nb_xor*/
-0,               /*nb_or*/
-INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
-0,                       /*nb_int*/
-0,                      /*nb_long*/
-0,                     /*nb_float*/
-INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
-(binaryfunc)Sig_inplace_add,              /*inplace_add*/
-(binaryfunc)Sig_inplace_sub,         /*inplace_subtract*/
-(binaryfunc)Sig_inplace_multiply,         /*inplace_multiply*/
-INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
-0,        /*inplace_remainder*/
-0,           /*inplace_power*/
-0,       /*inplace_lshift*/
-0,      /*inplace_rshift*/
-0,      /*inplace_and*/
-0,      /*inplace_xor*/
-0,       /*inplace_or*/
-0,             /*nb_floor_divide*/
-(binaryfunc)Sig_div,                       /*nb_true_divide*/
-0,     /*nb_inplace_floor_divide*/
-(binaryfunc)Sig_inplace_div,                       /*nb_inplace_true_divide*/
-0,                     /* nb_index */
+static PyNumberMethods Sig_as_number =
+{
+    (binaryfunc)Sig_add,                      /*nb_add*/
+    (binaryfunc)Sig_sub,                 /*nb_subtract*/
+    (binaryfunc)Sig_multiply,                 /*nb_multiply*/
+    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
+    0,                /*nb_remainder*/
+    0,                   /*nb_divmod*/
+    0,                   /*nb_power*/
+    0,                  /*nb_neg*/
+    0,                /*nb_pos*/
+    0,                  /*(unaryfunc)array_abs,*/
+    0,                    /*nb_nonzero*/
+    0,                    /*nb_invert*/
+    0,               /*nb_lshift*/
+    0,              /*nb_rshift*/
+    0,              /*nb_and*/
+    0,              /*nb_xor*/
+    0,               /*nb_or*/
+    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
+    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
+    (binaryfunc)Sig_inplace_add,              /*inplace_add*/
+    (binaryfunc)Sig_inplace_sub,         /*inplace_subtract*/
+    (binaryfunc)Sig_inplace_multiply,         /*inplace_multiply*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
+    0,        /*inplace_remainder*/
+    0,           /*inplace_power*/
+    0,       /*inplace_lshift*/
+    0,      /*inplace_rshift*/
+    0,      /*inplace_and*/
+    0,      /*inplace_xor*/
+    0,       /*inplace_or*/
+    0,             /*nb_floor_divide*/
+    (binaryfunc)Sig_div,                       /*nb_true_divide*/
+    0,     /*nb_inplace_floor_divide*/
+    (binaryfunc)Sig_inplace_div,                       /*nb_inplace_true_divide*/
+    0,                     /* nb_index */
 };
 
-PyTypeObject SigType = {
-PyVarObject_HEAD_INIT(NULL, 0)
-"_pyo.Sig_base",         /*tp_name*/
-sizeof(Sig),         /*tp_basicsize*/
-0,                         /*tp_itemsize*/
-(destructor)Sig_dealloc, /*tp_dealloc*/
-0,                         /*tp_print*/
-0,                         /*tp_getattr*/
-0,                         /*tp_setattr*/
-0,                         /*tp_as_async (tp_compare in Python 2)*/
-0,                         /*tp_repr*/
-&Sig_as_number,             /*tp_as_number*/
-0,                         /*tp_as_sequence*/
-0,                         /*tp_as_mapping*/
-0,                         /*tp_hash */
-0,                         /*tp_call*/
-0,                         /*tp_str*/
-0,                         /*tp_getattro*/
-0,                         /*tp_setattro*/
-0,                         /*tp_as_buffer*/
-Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
-"Sig objects. Converts number into a signal stream.",           /* tp_doc */
-(traverseproc)Sig_traverse,   /* tp_traverse */
-(inquiry)Sig_clear,           /* tp_clear */
-0,		               /* tp_richcompare */
-0,		               /* tp_weaklistoffset */
-0,		               /* tp_iter */
-0,		               /* tp_iternext */
-Sig_methods,             /* tp_methods */
-Sig_members,             /* tp_members */
-0,                      /* tp_getset */
-0,                         /* tp_base */
-0,                         /* tp_dict */
-0,                         /* tp_descr_get */
-0,                         /* tp_descr_set */
-0,                         /* tp_dictoffset */
-0,      /* tp_init */
-0,                         /* tp_alloc */
-Sig_new,                 /* tp_new */
+PyTypeObject SigType =
+{
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "_pyo.Sig_base",         /*tp_name*/
+    sizeof(Sig),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)Sig_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
+    0,                         /*tp_repr*/
+    &Sig_as_number,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "Sig objects. Converts number into a signal stream.",           /* tp_doc */
+    (traverseproc)Sig_traverse,   /* tp_traverse */
+    (inquiry)Sig_clear,           /* tp_clear */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
+    Sig_methods,             /* tp_methods */
+    Sig_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,      /* tp_init */
+    0,                         /* tp_alloc */
+    Sig_new,                 /* tp_new */
 };
 
 /***************************/
 /* SigTo - Sig + ramp time */
 /***************************/
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     PyObject *value;
     Stream *value_stream;
@@ -341,67 +370,94 @@ typedef struct {
 } SigTo;
 
 static void
-SigTo_generates_i(SigTo *self) {
+SigTo_generates_i(SigTo *self)
+{
     int i;
     MYFLT value, time;
 
-    if (self->modebuffer[2] == 0) {
+    if (self->modebuffer[2] == 0)
+    {
         value = PyFloat_AS_DOUBLE(self->value);
-        if (value != self->lastValue) {
+
+        if (value != self->lastValue)
+        {
             if (self->modebuffer[3] == 0)
                 time = PyFloat_AS_DOUBLE(self->time);
             else
                 time = Stream_getData((Stream *)self->time_stream)[0];
+
             self->timeCount = 0;
             self->lastValue = value;
             self->timeStep = (long)(time * self->sr);
+
             if (self->timeStep > 0)
                 self->stepVal = (value - self->currentValue) / self->timeStep;
         }
-        if (self->timeStep <= 0) {
-            for (i=0; i<self->bufsize; i++)
+
+        if (self->timeStep <= 0)
+        {
+            for (i = 0; i < self->bufsize; i++)
                 self->data[i] = self->currentValue = self->lastValue = value;
         }
-        else {
-            for (i=0; i<self->bufsize; i++) {
-                if (self->timeCount == (self->timeStep - 1)) {
+        else
+        {
+            for (i = 0; i < self->bufsize; i++)
+            {
+                if (self->timeCount == (self->timeStep - 1))
+                {
                     self->currentValue = value;
                     self->timeCount++;
                 }
-                else if (self->timeCount < self->timeStep) {
+                else if (self->timeCount < self->timeStep)
+                {
                     self->currentValue += self->stepVal;
                     self->timeCount++;
                 }
+
                 self->data[i] = self->currentValue;
             }
         }
     }
-    else { 
+    else
+    {
         MYFLT *vals = Stream_getData((Stream *)self->value_stream);
-        for (i=0; i<self->bufsize; i++) {
+
+        for (i = 0; i < self->bufsize; i++)
+        {
             value = vals[i];
-            if (value != self->lastValue) {
+
+            if (value != self->lastValue)
+            {
                 if (self->modebuffer[3] == 0)
                     time = PyFloat_AS_DOUBLE(self->time);
                 else
                     time = Stream_getData((Stream *)self->time_stream)[i];
+
                 self->timeCount = 0;
                 self->lastValue = value;
                 self->timeStep = (long)(time * self->sr);
+
                 if (self->timeStep > 0)
                     self->stepVal = (value - self->currentValue) / self->timeStep;
             }
-            if (self->timeStep <= 0) {
+
+            if (self->timeStep <= 0)
+            {
                 self->data[i] = self->currentValue = self->lastValue = value;
-            } else {
-                if (self->timeCount == (self->timeStep - 1)) {
+            }
+            else
+            {
+                if (self->timeCount == (self->timeStep - 1))
+                {
                     self->currentValue = value;
                     self->timeCount++;
                 }
-                else if (self->timeCount < self->timeStep) {
+                else if (self->timeCount < self->timeStep)
+                {
                     self->currentValue += self->stepVal;
                     self->timeCount++;
                 }
+
                 self->data[i] = self->currentValue;
             }
         }
@@ -426,31 +482,40 @@ SigTo_setProcMode(SigTo *self)
 
     self->proc_func_ptr = SigTo_generates_i;
 
-	switch (muladdmode) {
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = SigTo_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = SigTo_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = SigTo_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = SigTo_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = SigTo_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = SigTo_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = SigTo_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = SigTo_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = SigTo_postprocessing_revareva;
             break;
@@ -499,7 +564,7 @@ SigTo_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
     MYFLT inittmp = 0.0;
-    PyObject *valuetmp=NULL, *timetmp=NULL, *multmp=NULL, *addtmp=NULL;
+    PyObject *valuetmp = NULL, *timetmp = NULL, *multmp = NULL, *addtmp = NULL;
     SigTo *self;
     self = (SigTo *)type->tp_alloc(type, 0);
 
@@ -508,10 +573,10 @@ SigTo_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->timeCount = 0;
     self->stepVal = 0.0;
     self->timeStep = 0;
-	self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
-	self->modebuffer[2] = 0;
-	self->modebuffer[3] = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
+    self->modebuffer[2] = 0;
+    self->modebuffer[3] = 0;
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, SigTo_compute_next_data_frame);
@@ -522,19 +587,23 @@ SigTo_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_OFOO, kwlist, &valuetmp, &timetmp, &inittmp, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    if (valuetmp) {
+    if (valuetmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setValue", "O", valuetmp);
     }
 
-    if (timetmp) {
+    if (timetmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setTime", "O", timetmp);
     }
 
-    if (multmp) {
+    if (multmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
 
-    if (addtmp) {
+    if (addtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
 
@@ -544,7 +613,8 @@ SigTo_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     (*self->mode_func_ptr)(self);
 
-    for(i=0; i<self->bufsize; i++) {
+    for(i = 0; i < self->bufsize; i++)
+    {
         self->data[i] = self->currentValue;
     }
 
@@ -554,21 +624,24 @@ SigTo_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static PyObject *
 SigTo_setValue(SigTo *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
     Py_DECREF(self->value);
-	if (isNumber == 1) {
-		self->value = PyNumber_Float(tmp);
+
+    if (isNumber == 1)
+    {
+        self->value = PyNumber_Float(tmp);
         self->modebuffer[2] = 0;
     }
-    else {
-		self->value = tmp;
+    else
+    {
+        self->value = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->value, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->value_stream);
@@ -576,27 +649,30 @@ SigTo_setValue(SigTo *self, PyObject *arg)
         self->modebuffer[2] = 1;
     }
 
-	Py_RETURN_NONE;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
 SigTo_setTime(SigTo *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
     Py_DECREF(self->time);
-	if (isNumber == 1) {
-		self->time = PyNumber_Float(tmp);
+
+    if (isNumber == 1)
+    {
+        self->time = PyNumber_Float(tmp);
         self->modebuffer[3] = 0;
     }
-    else {
-		self->time = tmp;
+    else
+    {
+        self->time = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->time, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->time_stream);
@@ -604,7 +680,7 @@ SigTo_setTime(SigTo *self, PyObject *arg)
         self->modebuffer[3] = 1;
     }
 
-	Py_RETURN_NONE;
+    Py_RETURN_NONE;
 }
 
 static PyObject * SigTo_getServer(SigTo* self) { GET_SERVER };
@@ -626,117 +702,122 @@ static PyObject * SigTo_inplace_sub(SigTo *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * SigTo_div(SigTo *self, PyObject *arg) { DIV };
 static PyObject * SigTo_inplace_div(SigTo *self, PyObject *arg) { INPLACE_DIV };
 
-static PyMemberDef SigTo_members[] = {
-{"server", T_OBJECT_EX, offsetof(SigTo, server), 0, "Pyo server."},
-{"stream", T_OBJECT_EX, offsetof(SigTo, stream), 0, "Stream object."},
-{"value", T_OBJECT_EX, offsetof(SigTo, value), 0, "Target value."},
-{"time", T_OBJECT_EX, offsetof(SigTo, time), 0, "Ramp time."},
-{"mul", T_OBJECT_EX, offsetof(SigTo, mul), 0, "Mul factor."},
-{"add", T_OBJECT_EX, offsetof(SigTo, add), 0, "Add factor."},
-{NULL}  /* Sentinel */
+static PyMemberDef SigTo_members[] =
+{
+    {"server", T_OBJECT_EX, offsetof(SigTo, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(SigTo, stream), 0, "Stream object."},
+    {"value", T_OBJECT_EX, offsetof(SigTo, value), 0, "Target value."},
+    {"time", T_OBJECT_EX, offsetof(SigTo, time), 0, "Ramp time."},
+    {"mul", T_OBJECT_EX, offsetof(SigTo, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(SigTo, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
 };
 
-static PyMethodDef SigTo_methods[] = {
-{"getServer", (PyCFunction)SigTo_getServer, METH_NOARGS, "Returns server object."},
-{"_getStream", (PyCFunction)SigTo_getStream, METH_NOARGS, "Returns stream object."},
-{"play", (PyCFunction)SigTo_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)SigTo_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
-{"setValue", (PyCFunction)SigTo_setValue, METH_O, "Sets SigTo value."},
-{"setTime", (PyCFunction)SigTo_setTime, METH_O, "Sets ramp time in seconds."},
-{"setMul", (PyCFunction)SigTo_setMul, METH_O, "Sets SigTo mul factor."},
-{"setAdd", (PyCFunction)SigTo_setAdd, METH_O, "Sets SigTo add factor."},
-{"setSub", (PyCFunction)SigTo_setSub, METH_O, "Sets inverse add factor."},
-{"setDiv", (PyCFunction)SigTo_setDiv, METH_O, "Sets inverse mul factor."},
-{NULL}  /* Sentinel */
+static PyMethodDef SigTo_methods[] =
+{
+    {"getServer", (PyCFunction)SigTo_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)SigTo_getStream, METH_NOARGS, "Returns stream object."},
+    {"play", (PyCFunction)SigTo_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)SigTo_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"setValue", (PyCFunction)SigTo_setValue, METH_O, "Sets SigTo value."},
+    {"setTime", (PyCFunction)SigTo_setTime, METH_O, "Sets ramp time in seconds."},
+    {"setMul", (PyCFunction)SigTo_setMul, METH_O, "Sets SigTo mul factor."},
+    {"setAdd", (PyCFunction)SigTo_setAdd, METH_O, "Sets SigTo add factor."},
+    {"setSub", (PyCFunction)SigTo_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)SigTo_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods SigTo_as_number = {
-(binaryfunc)SigTo_add,                      /*nb_add*/
-(binaryfunc)SigTo_sub,                 /*nb_subtract*/
-(binaryfunc)SigTo_multiply,                 /*nb_multiply*/
-INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
-0,                /*nb_remainder*/
-0,                   /*nb_divmod*/
-0,                   /*nb_power*/
-0,                  /*nb_neg*/
-0,                /*nb_pos*/
-0,                  /*(unaryfunc)array_abs,*/
-0,                    /*nb_nonzero*/
-0,                    /*nb_invert*/
-0,               /*nb_lshift*/
-0,              /*nb_rshift*/
-0,              /*nb_and*/
-0,              /*nb_xor*/
-0,               /*nb_or*/
-INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
-0,                       /*nb_int*/
-0,                      /*nb_long*/
-0,                     /*nb_float*/
-INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
-(binaryfunc)SigTo_inplace_add,              /*inplace_add*/
-(binaryfunc)SigTo_inplace_sub,         /*inplace_subtract*/
-(binaryfunc)SigTo_inplace_multiply,         /*inplace_multiply*/
-INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
-0,        /*inplace_remainder*/
-0,           /*inplace_power*/
-0,       /*inplace_lshift*/
-0,      /*inplace_rshift*/
-0,      /*inplace_and*/
-0,      /*inplace_xor*/
-0,       /*inplace_or*/
-0,             /*nb_floor_divide*/
-(binaryfunc)SigTo_div,                       /*nb_true_divide*/
-0,     /*nb_inplace_floor_divide*/
-(binaryfunc)SigTo_inplace_div,                       /*nb_inplace_true_divide*/
-0,                     /* nb_index */
+static PyNumberMethods SigTo_as_number =
+{
+    (binaryfunc)SigTo_add,                      /*nb_add*/
+    (binaryfunc)SigTo_sub,                 /*nb_subtract*/
+    (binaryfunc)SigTo_multiply,                 /*nb_multiply*/
+    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
+    0,                /*nb_remainder*/
+    0,                   /*nb_divmod*/
+    0,                   /*nb_power*/
+    0,                  /*nb_neg*/
+    0,                /*nb_pos*/
+    0,                  /*(unaryfunc)array_abs,*/
+    0,                    /*nb_nonzero*/
+    0,                    /*nb_invert*/
+    0,               /*nb_lshift*/
+    0,              /*nb_rshift*/
+    0,              /*nb_and*/
+    0,              /*nb_xor*/
+    0,               /*nb_or*/
+    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
+    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
+    (binaryfunc)SigTo_inplace_add,              /*inplace_add*/
+    (binaryfunc)SigTo_inplace_sub,         /*inplace_subtract*/
+    (binaryfunc)SigTo_inplace_multiply,         /*inplace_multiply*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
+    0,        /*inplace_remainder*/
+    0,           /*inplace_power*/
+    0,       /*inplace_lshift*/
+    0,      /*inplace_rshift*/
+    0,      /*inplace_and*/
+    0,      /*inplace_xor*/
+    0,       /*inplace_or*/
+    0,             /*nb_floor_divide*/
+    (binaryfunc)SigTo_div,                       /*nb_true_divide*/
+    0,     /*nb_inplace_floor_divide*/
+    (binaryfunc)SigTo_inplace_div,                       /*nb_inplace_true_divide*/
+    0,                     /* nb_index */
 };
 
-PyTypeObject SigToType = {
-PyVarObject_HEAD_INIT(NULL, 0)
-"_pyo.SigTo_base",         /*tp_name*/
-sizeof(SigTo),         /*tp_basicsize*/
-0,                         /*tp_itemsize*/
-(destructor)SigTo_dealloc, /*tp_dealloc*/
-0,                         /*tp_print*/
-0,                         /*tp_getattr*/
-0,                         /*tp_setattr*/
-0,                         /*tp_as_async (tp_compare in Python 2)*/
-0,                         /*tp_repr*/
-&SigTo_as_number,             /*tp_as_number*/
-0,                         /*tp_as_sequence*/
-0,                         /*tp_as_mapping*/
-0,                         /*tp_hash */
-0,                         /*tp_call*/
-0,                         /*tp_str*/
-0,                         /*tp_getattro*/
-0,                         /*tp_setattro*/
-0,                         /*tp_as_buffer*/
-Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
-"SigTo objects. Converts number into a signal stream and apply a ramp from last value.",           /* tp_doc */
-(traverseproc)SigTo_traverse,   /* tp_traverse */
-(inquiry)SigTo_clear,           /* tp_clear */
-0,		               /* tp_richcompare */
-0,		               /* tp_weaklistoffset */
-0,		               /* tp_iter */
-0,		               /* tp_iternext */
-SigTo_methods,             /* tp_methods */
-SigTo_members,             /* tp_members */
-0,                      /* tp_getset */
-0,                         /* tp_base */
-0,                         /* tp_dict */
-0,                         /* tp_descr_get */
-0,                         /* tp_descr_set */
-0,                         /* tp_dictoffset */
-0,      /* tp_init */
-0,                         /* tp_alloc */
-SigTo_new,                 /* tp_new */
+PyTypeObject SigToType =
+{
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "_pyo.SigTo_base",         /*tp_name*/
+    sizeof(SigTo),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)SigTo_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
+    0,                         /*tp_repr*/
+    &SigTo_as_number,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "SigTo objects. Converts number into a signal stream and apply a ramp from last value.",           /* tp_doc */
+    (traverseproc)SigTo_traverse,   /* tp_traverse */
+    (inquiry)SigTo_clear,           /* tp_clear */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
+    SigTo_methods,             /* tp_methods */
+    SigTo_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,      /* tp_init */
+    0,                         /* tp_alloc */
+    SigTo_new,                 /* tp_new */
 };
 
 /***************************/
 /* VarPort - Sig + ramp time + portamento + callback */
 /***************************/
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     PyObject *callable;
     PyObject *arg;
@@ -753,22 +834,27 @@ typedef struct {
 } VarPort;
 
 static void
-VarPort_generates_i(VarPort *self) {
+VarPort_generates_i(VarPort *self)
+{
     int i;
     PyObject *tuple, *result;
 
-    if (self->value != self->lastValue) {
+    if (self->value != self->lastValue)
+    {
         self->flag = 1;
         self->timeCount = 0;
-        self->stepVal = (self->value - self->currentValue) / (self->timeStep+1);
+        self->stepVal = (self->value - self->currentValue) / (self->timeStep + 1);
         self->lastValue = self->value;
     }
 
-    if (self->flag == 1) {
-        for (i=0; i<self->bufsize; i++) {
+    if (self->flag == 1)
+    {
+        for (i = 0; i < self->bufsize; i++)
+        {
             if (self->timeCount >= self->timeStep)
                 self->currentValue = self->value;
-            else if (self->timeCount < self->timeStep) {
+            else if (self->timeCount < self->timeStep)
+            {
                 self->currentValue += self->stepVal;
             }
 
@@ -776,25 +862,34 @@ VarPort_generates_i(VarPort *self) {
             self->data[i] = self->currentValue;
         }
     }
-    else {
-        for (i=0; i<self->bufsize; i++) {
+    else
+    {
+        for (i = 0; i < self->bufsize; i++)
+        {
             self->data[i] = self->currentValue;
         }
     }
 
-    if (self->timeCount >= self->timeout && self->flag == 1) {
+    if (self->timeCount >= self->timeout && self->flag == 1)
+    {
         self->flag = 0;
-        if (self->callable != Py_None) {
-            if (self->arg != Py_None) {
+
+        if (self->callable != Py_None)
+        {
+            if (self->arg != Py_None)
+            {
                 tuple = PyTuple_New(1);
                 PyTuple_SET_ITEM(tuple, 0, self->arg);
             }
-            else {
+            else
+            {
                 tuple = PyTuple_New(0);
             }
 
             result = PyObject_Call(self->callable, tuple, NULL);
-            if (result == NULL) {
+
+            if (result == NULL)
+            {
                 PyErr_Print();
                 return;
             }
@@ -820,31 +915,40 @@ VarPort_setProcMode(VarPort *self)
 
     self->proc_func_ptr = VarPort_generates_i;
 
-	switch (muladdmode) {
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = VarPort_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = VarPort_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = VarPort_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = VarPort_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = VarPort_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = VarPort_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = VarPort_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = VarPort_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = VarPort_postprocessing_revareva;
             break;
@@ -889,7 +993,7 @@ VarPort_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
     MYFLT inittmp = 0.0;
-    PyObject *valuetmp=NULL, *timetmp=NULL, *calltmp=NULL, *argtmp=NULL, *multmp=NULL, *addtmp=NULL;
+    PyObject *valuetmp = NULL, *timetmp = NULL, *calltmp = NULL, *argtmp = NULL, *multmp = NULL, *addtmp = NULL;
     VarPort *self;
     self = (VarPort *)type->tp_alloc(type, 0);
 
@@ -899,8 +1003,8 @@ VarPort_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->timeout = (long)((self->time + 0.1) * self->sr);
     self->timeCount = 0;
     self->stepVal = 0.0;
-	self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
 
     self->callable = Py_None;
     self->arg = Py_None;
@@ -914,29 +1018,35 @@ VarPort_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_OFOOOO, kwlist, &valuetmp, &timetmp, &inittmp, &calltmp, &argtmp, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    if (valuetmp) {
+    if (valuetmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setValue", "O", valuetmp);
     }
 
-    if (timetmp) {
+    if (timetmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setTime", "O", timetmp);
     }
 
-    if (multmp) {
+    if (multmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
 
-    if (addtmp) {
+    if (addtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
 
-    if (calltmp) {
+    if (calltmp)
+    {
         Py_DECREF(self->callable);
         Py_INCREF(calltmp);
         self->callable = calltmp;
     }
 
-    if (argtmp) {
+    if (argtmp)
+    {
         Py_DECREF(self->arg);
         Py_INCREF(argtmp);
         self->arg = argtmp;
@@ -948,7 +1058,8 @@ VarPort_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     (*self->mode_func_ptr)(self);
 
-    for(i=0; i<self->bufsize; i++) {
+    for(i = 0; i < self->bufsize; i++)
+    {
         self->data[i] = self->currentValue;
     }
 
@@ -958,62 +1069,66 @@ VarPort_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static PyObject *
 VarPort_setValue(VarPort *self, PyObject *arg)
 {
-	PyObject *tmp;
+    PyObject *tmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	if (isNumber == 1)
-		self->value = PyFloat_AsDouble(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+
+    if (isNumber == 1)
+        self->value = PyFloat_AsDouble(tmp);
     else
         self->value = self->lastValue;
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 VarPort_setTime(VarPort *self, PyObject *arg)
 {
-	PyObject *tmp;
+    PyObject *tmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	if (isNumber == 1) {
-		self->time = PyFloat_AsDouble(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+
+    if (isNumber == 1)
+    {
+        self->time = PyFloat_AsDouble(tmp);
         self->timeStep = (long)(self->time * self->sr);
         self->timeout = (long)((self->time + 0.1) * self->sr);
-	}
+    }
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 VarPort_setFunction(VarPort *self, PyObject *arg)
 {
-	PyObject *tmp;
+    PyObject *tmp;
 
-	if (! PyCallable_Check(arg)) {
+    if (! PyCallable_Check(arg))
+    {
         PyErr_SetString(PyExc_TypeError, "The function attribute must be callable.");
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
 
     tmp = arg;
     Py_XDECREF(self->callable);
     Py_INCREF(tmp);
     self->callable = tmp;
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject * VarPort_getServer(VarPort* self) { GET_SERVER };
@@ -1035,7 +1150,8 @@ static PyObject * VarPort_inplace_sub(VarPort *self, PyObject *arg) { INPLACE_SU
 static PyObject * VarPort_div(VarPort *self, PyObject *arg) { DIV };
 static PyObject * VarPort_inplace_div(VarPort *self, PyObject *arg) { INPLACE_DIV };
 
-static PyMemberDef VarPort_members[] = {
+static PyMemberDef VarPort_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(VarPort, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(VarPort, stream), 0, "Stream object."},
     {"mul", T_OBJECT_EX, offsetof(VarPort, mul), 0, "Mul factor."},
@@ -1043,11 +1159,12 @@ static PyMemberDef VarPort_members[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef VarPort_methods[] = {
+static PyMethodDef VarPort_methods[] =
+{
     {"getServer", (PyCFunction)VarPort_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)VarPort_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)VarPort_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)VarPort_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
+    {"play", (PyCFunction)VarPort_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)VarPort_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setValue", (PyCFunction)VarPort_setValue, METH_O, "Sets VarPort value."},
     {"setTime", (PyCFunction)VarPort_setTime, METH_O, "Sets ramp time in seconds."},
     {"setFunction", (PyCFunction)VarPort_setFunction, METH_O, "Sets function to be called."},
@@ -1058,7 +1175,8 @@ static PyMethodDef VarPort_methods[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods VarPort_as_number = {
+static PyNumberMethods VarPort_as_number =
+{
     (binaryfunc)VarPort_add,                      /*nb_add*/
     (binaryfunc)VarPort_sub,                 /*nb_subtract*/
     (binaryfunc)VarPort_multiply,                 /*nb_multiply*/
@@ -1100,7 +1218,8 @@ static PyNumberMethods VarPort_as_number = {
     0,                     /* nb_index */
 };
 
-PyTypeObject VarPortType = {
+PyTypeObject VarPortType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.VarPort_base",         /*tp_name*/
     sizeof(VarPort),         /*tp_basicsize*/
@@ -1124,10 +1243,10 @@ PyTypeObject VarPortType = {
     "VarPort objects. Converts number into a signal stream and apply a ramp from last value.",           /* tp_doc */
     (traverseproc)VarPort_traverse,   /* tp_traverse */
     (inquiry)VarPort_clear,           /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
     VarPort_methods,             /* tp_methods */
     VarPort_members,             /* tp_members */
     0,                      /* tp_getset */

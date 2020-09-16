@@ -26,7 +26,8 @@
 #include "porttime.h"
 #include "servermodule.h"
 
-typedef struct {
+typedef struct
+{
     PmStream *midiin[64];
     PmStream *midiout[64];
 } PyoPmBackendData;

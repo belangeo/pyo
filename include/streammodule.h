@@ -21,7 +21,8 @@
 #include <Python.h>
 #include "pyomodule.h"
 
-typedef struct {
+typedef struct
+{
     PyObject_HEAD
     PyObject *streamobject;
     void (*funcptr)();
@@ -59,7 +60,8 @@ extern PyTypeObject StreamType;
   (self)->sid = (self)->chnl = (self)->todac = (self)->bufferCountWait = 0; \
   (self)->bufferCount = (self)->bufsize = (self)->duration = (self)->active = 0;
 
-typedef struct {
+typedef struct
+{
     PyObject_HEAD
     MYFLT *data;
 } TriggerStream;

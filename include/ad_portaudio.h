@@ -25,7 +25,8 @@
 #include "portaudio.h"
 #include "servermodule.h"
 
-typedef struct {
+typedef struct
+{
     PaStream *stream;
 } PyoPaBackendData;
 

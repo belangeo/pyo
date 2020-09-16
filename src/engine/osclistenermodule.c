@@ -30,7 +30,8 @@ static void error(int num, const char *msg, const char *path)
     PySys_WriteStdout("liblo server error %d in path %s: %s\n", num, path, msg);
 }
 
-typedef struct {
+typedef struct
+{
     PyObject_HEAD
     PyObject *osccallable;
     lo_server osc_server;
@@ -41,8 +42,10 @@ static PyObject *
 OscListener_get(OscListener *self)
 {
     while (lo_server_recv_noblock(self->osc_server, 0) != 0) {};
-	Py_INCREF(Py_None);
-	return Py_None;
+
+    Py_INCREF(Py_None);
+
+    return Py_None;
 }
 
 int process_osc(const char *path, const char *types, lo_arg **argv, int argc,
@@ -53,66 +56,87 @@ int process_osc(const char *path, const char *types, lo_arg **argv, int argc,
     lo_blob *blob = NULL;
     char *blobdata = NULL;
     uint32_t blobsize = 0;
-    PyObject *charlist = NULL; 
-    tup = PyTuple_New(argc+1);
+    PyObject *charlist = NULL;
+    tup = PyTuple_New(argc + 1);
     int i = 0;
     unsigned int j = 0;
 
     PyGILState_STATE s = PyGILState_Ensure();
     PyTuple_SET_ITEM(tup, 0, PyUnicode_FromString(path));
-    for (i=0; i<argc; i++) {
-        switch (types[i]) {
+
+    for (i = 0; i < argc; i++)
+    {
+        switch (types[i])
+        {
             case LO_INT32:
-                PyTuple_SET_ITEM(tup, i+1, PyInt_FromLong(argv[i]->i));
+                PyTuple_SET_ITEM(tup, i + 1, PyInt_FromLong(argv[i]->i));
                 break;
+
             case LO_INT64:
-                PyTuple_SET_ITEM(tup, i+1, PyLong_FromLong(argv[i]->h));
+                PyTuple_SET_ITEM(tup, i + 1, PyLong_FromLong(argv[i]->h));
                 break;
+
             case LO_FLOAT:
-                PyTuple_SET_ITEM(tup, i+1, PyFloat_FromDouble(argv[i]->f));
+                PyTuple_SET_ITEM(tup, i + 1, PyFloat_FromDouble(argv[i]->f));
                 break;
+
             case LO_DOUBLE:
-                PyTuple_SET_ITEM(tup, i+1, PyFloat_FromDouble(argv[i]->d));
+                PyTuple_SET_ITEM(tup, i + 1, PyFloat_FromDouble(argv[i]->d));
                 break;
+
             case LO_STRING:
-                PyTuple_SET_ITEM(tup, i+1, PyUnicode_FromString(&argv[i]->s));
+                PyTuple_SET_ITEM(tup, i + 1, PyUnicode_FromString(&argv[i]->s));
                 break;
+
             case LO_CHAR:
-                PyTuple_SET_ITEM(tup, i+1, PyUnicode_FromFormat("%c", argv[i]->c));
+                PyTuple_SET_ITEM(tup, i + 1, PyUnicode_FromFormat("%c", argv[i]->c));
                 break;
+
             case LO_BLOB:
                 blob = (lo_blob)argv[i];
                 blobsize = lo_blob_datasize(blob);
                 blobdata = lo_blob_dataptr(blob);
                 charlist = PyList_New(blobsize);
-                for (j=0; j<blobsize; j++) {
+
+                for (j = 0; j < blobsize; j++)
+                {
                     PyList_SET_ITEM(charlist, j, PyUnicode_FromFormat("%c", blobdata[j]));
                 }
-                PyTuple_SET_ITEM(tup, i+1, charlist);
+
+                PyTuple_SET_ITEM(tup, i + 1, charlist);
                 break;
+
             case LO_MIDI:
                 charlist = PyList_New(4);
-                for (j=0; j<4; j++) {
+
+                for (j = 0; j < 4; j++)
+                {
                     PyList_SET_ITEM(charlist, j, PyInt_FromLong(argv[i]->m[j]));
                 }
-                PyTuple_SET_ITEM(tup, i+1, charlist);                    
+
+                PyTuple_SET_ITEM(tup, i + 1, charlist);
                 break;
+
             case LO_NIL:
                 Py_INCREF(Py_None);
-                PyTuple_SET_ITEM(tup, i+1, Py_None);
+                PyTuple_SET_ITEM(tup, i + 1, Py_None);
                 break;
+
             case LO_TRUE:
                 Py_INCREF(Py_True);
-                PyTuple_SET_ITEM(tup, i+1, Py_True);
+                PyTuple_SET_ITEM(tup, i + 1, Py_True);
                 break;
+
             case LO_FALSE:
                 Py_INCREF(Py_False);
-                PyTuple_SET_ITEM(tup, i+1, Py_False);
+                PyTuple_SET_ITEM(tup, i + 1, Py_False);
                 break;
+
             default:
                 break;
         }
     }
+
     PyObject_Call((PyObject *)server->osccallable, tup, NULL);
     PyGILState_Release(s);
     Py_XDECREF(tup);
@@ -146,7 +170,7 @@ static PyObject *
 OscListener_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     char buf[20];
-    PyObject *osccalltmp=NULL;
+    PyObject *osccalltmp = NULL;
     OscListener *self;
 
     self = (OscListener *)type->tp_alloc(type, 0);
@@ -156,7 +180,8 @@ OscListener_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi", kwlist, &osccalltmp, &self->oscport))
         Py_RETURN_NONE;
 
-    if (osccalltmp) {
+    if (osccalltmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setOscFunction", "O", osccalltmp);
     }
 
@@ -170,39 +195,44 @@ OscListener_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static PyObject *
 OscListener_setOscFunction(OscListener *self, PyObject *arg)
 {
-	PyObject *tmp;
+    PyObject *tmp;
 
-    if (arg == Py_None) {
+    if (arg == Py_None)
+    {
         Py_INCREF(Py_None);
         return Py_None;
     }
 
-	if (! PyCallable_Check(arg)) {
+    if (! PyCallable_Check(arg))
+    {
         PyErr_SetString(PyExc_TypeError, "The callable attribute must be a valid Python function.");
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
 
     tmp = arg;
     Py_XDECREF(self->osccallable);
     Py_INCREF(tmp);
     self->osccallable = tmp;
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
-static PyMemberDef OscListener_members[] = {
+static PyMemberDef OscListener_members[] =
+{
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef OscListener_methods[] = {
+static PyMethodDef OscListener_methods[] =
+{
     {"get", (PyCFunction)OscListener_get, METH_NOARGS, "Check for new osc messages."},
     {"setOscFunction", (PyCFunction)OscListener_setOscFunction, METH_O, "Sets the function to be called."},
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject OscListenerType = {
+PyTypeObject OscListenerType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.OscListener_base",         /*tp_name*/
     sizeof(OscListener),         /*tp_basicsize*/
@@ -226,10 +256,10 @@ PyTypeObject OscListenerType = {
     "OscListener objects. Calls a function with OSC data as arguments.",           /* tp_doc */
     (traverseproc)OscListener_traverse,   /* tp_traverse */
     (inquiry)OscListener_clear,           /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
     OscListener_methods,             /* tp_methods */
     OscListener_members,             /* tp_members */
     0,                      /* tp_getset */

@@ -104,7 +104,8 @@
 // multi-output
 #define OP_OUT 200
 
-typedef struct t_expr {
+typedef struct t_expr
+{
     int type_op;
     int num;
     int *nodes;
@@ -119,7 +120,8 @@ typedef struct t_expr {
     MYFLT result2;
 } expr;
 
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     PyObject *input;
     PyObject *variables;
@@ -131,16 +133,23 @@ typedef struct {
     expr lexp[1024];
 } Exprer;
 
-void 
+void
 clearexpr(expr ex)
 {
     if (ex.nodes) { free(ex.nodes); }
+
     if (ex.vars) { free(ex.vars); }
+
     if (ex.input) { free(ex.input); }
+
     if (ex.inchnls) { free(ex.inchnls); }
+
     if (ex.output) { free(ex.output); }
+
     if (ex.outchnls) { free(ex.outchnls); }
+
     if (ex.values) { free(ex.values); }
+
     if (ex.previous) { free(ex.previous); }
 }
 
@@ -149,6 +158,7 @@ initexpr(const char *op, int size)
 {
     expr ex;
     int i, value = -1, num = 0;
+
     if      (strcmp(op, "+") == 0) { value = OP_ADD; num = 2; }
     else if (strcmp(op, "-") == 0) { value = OP_SUB; num = 2; }
     else if (strcmp(op, "*") == 0) {value = OP_MUL; num = 2; }
@@ -208,6 +218,7 @@ initexpr(const char *op, int size)
     else if (strcmp(op, "e") == 0) {value = OP_E; num = 0; }
     else if (strcmp(op, "sr") == 0) {value = OP_SR; num = 0; }
     else if (size == 1) {value = OP_CONST; num = 1; }
+
     ex.type_op = value;
     ex.num = num;
     ex.nodes = (int *)malloc(num);
@@ -218,11 +229,14 @@ initexpr(const char *op, int size)
     ex.outchnls = (int *)malloc(num);
     ex.values = (MYFLT *)malloc(num);
     ex.previous = (MYFLT *)malloc(num);
-    for (i=0; i<num; i++) {
+
+    for (i = 0; i < num; i++)
+    {
         ex.nodes[i] = ex.vars[i] = ex.inchnls[i] = ex.outchnls[i] = -1;
         ex.input[i] = ex.output[i] = 1;
         ex.values[i] = ex.previous[i] = 0.0;
     }
+
     ex.result = 0.0;
     ex.result2 = 0.0;
     return ex;
@@ -234,233 +248,331 @@ print_expr(expr ex, int node)
     int i;
     PySys_WriteStdout("=== Node # %d ===\n", node);
     PySys_WriteStdout("Operator: %d\nNodes: ", ex.type_op);
-    for (i=0; i<ex.num; i++) { PySys_WriteStdout("%d, ", ex.nodes[i]); }
+
+    for (i = 0; i < ex.num; i++) { PySys_WriteStdout("%d, ", ex.nodes[i]); }
+
     PySys_WriteStdout("\nVars: ");
-    for (i=0; i<ex.num; i++) { PySys_WriteStdout("%d, ", ex.vars[i]); }
+
+    for (i = 0; i < ex.num; i++) { PySys_WriteStdout("%d, ", ex.vars[i]); }
+
     PySys_WriteStdout("\nInputs: ");
-    for (i=0; i<ex.num; i++) { PySys_WriteStdout("%d, ", ex.input[i]); }
+
+    for (i = 0; i < ex.num; i++) { PySys_WriteStdout("%d, ", ex.input[i]); }
+
     PySys_WriteStdout("\nInput channels: ");
-    for (i=0; i<ex.num; i++) { PySys_WriteStdout("%d, ", ex.inchnls[i]); }
+
+    for (i = 0; i < ex.num; i++) { PySys_WriteStdout("%d, ", ex.inchnls[i]); }
+
     PySys_WriteStdout("\nOutputs: ");
-    for (i=0; i<ex.num; i++) { PySys_WriteStdout("%d, ", ex.output[i]); }
+
+    for (i = 0; i < ex.num; i++) { PySys_WriteStdout("%d, ", ex.output[i]); }
+
     PySys_WriteStdout("\nOutput channels: ");
-    for (i=0; i<ex.num; i++) { PySys_WriteStdout("%d, ", ex.outchnls[i]); }
+
+    for (i = 0; i < ex.num; i++) { PySys_WriteStdout("%d, ", ex.outchnls[i]); }
+
     PySys_WriteStdout("\nValues: ");
-    for (i=0; i<ex.num; i++) { PySys_WriteStdout("%f, ", ex.values[i]); }
+
+    for (i = 0; i < ex.num; i++) { PySys_WriteStdout("%f, ", ex.values[i]); }
+
     PySys_WriteStdout("\n\n");
 }
 
 static void
-Exprer_process(Exprer *self) {
+Exprer_process(Exprer *self)
+{
     int i, j, k, l, pos = 0, chnl = 0, outpos = 0;
     MYFLT tmp = 0.0, result = 0.0;
-    MYFLT nextre = 0.0, lastre = 0.0, nextim = 0.0, lastim = 0.0, coefre = 0.0, coefim = 0.0; 
+    MYFLT nextre = 0.0, lastre = 0.0, nextim = 0.0, lastim = 0.0, coefre = 0.0, coefim = 0.0;
     PyObject *stream;
     MYFLT *in;
 
     int inputsize = PyList_Size(self->input);
 
-    if (self->count == 0) {
-        for (i=0; i<self->bufsize; i++) {
+    if (self->count == 0)
+    {
+        for (i = 0; i < self->bufsize; i++)
+        {
             self->data[i] = 0.0;
         }
     }
-    else {
-        for (i=0; i<self->bufsize; i++) {
-            for (l=0; l<inputsize; l++) {
+    else
+    {
+        for (i = 0; i < self->bufsize; i++)
+        {
+            for (l = 0; l < inputsize; l++)
+            {
                 stream = PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->input, l), "_getStream", NULL);
                 in = Stream_getData((Stream *)stream);
-                self->input_buffer[l*self->bufsize+i] = in[i];
+                self->input_buffer[l * self->bufsize + i] = in[i];
             }
-            for (j=0; j<self->count; j++) {
-                for (k=0; k<self->lexp[j].num; k++) {
-                    if (self->lexp[j].nodes[k] != -1) {
+
+            for (j = 0; j < self->count; j++)
+            {
+                for (k = 0; k < self->lexp[j].num; k++)
+                {
+                    if (self->lexp[j].nodes[k] != -1)
+                    {
                         self->lexp[j].values[k] = self->lexp[self->lexp[j].nodes[k]].result;
-                        if (self->lexp[j].num == 1) { // in case let statement try to store a complex number, we save the imag part.
-                            self->lexp[j].values[k+1] = self->lexp[self->lexp[j].nodes[k]].result2;
+
+                        if (self->lexp[j].num == 1)   // in case let statement try to store a complex number, we save the imag part.
+                        {
+                            self->lexp[j].values[k + 1] = self->lexp[self->lexp[j].nodes[k]].result2;
                         }
                     }
-                    else if (self->lexp[j].vars[k] != -1) {
+                    else if (self->lexp[j].vars[k] != -1)
+                    {
                         self->lexp[j].values[k] = self->lexp[self->lexp[j].vars[k]].result;
-                        if (self->lexp[j].num == 1) { // in case let statement try to store a complex number, we save the imag part.
-                            self->lexp[j].values[k+1] = self->lexp[self->lexp[j].vars[k]].result2;
+
+                        if (self->lexp[j].num == 1)   // in case let statement try to store a complex number, we save the imag part.
+                        {
+                            self->lexp[j].values[k + 1] = self->lexp[self->lexp[j].vars[k]].result2;
                         }
                     }
-                    else if (self->lexp[j].input[k] < 1) {
+                    else if (self->lexp[j].input[k] < 1)
+                    {
                         chnl = self->lexp[j].inchnls[k];
                         pos = i + self->lexp[j].input[k];
+
                         if (pos < 0)
                             pos += self->bufsize;
+
                         self->lexp[j].values[k] = self->input_buffer[chnl * self->bufsize + pos];
                     }
-                    else if (self->lexp[j].output[k] < 0) {
+                    else if (self->lexp[j].output[k] < 0)
+                    {
                         chnl = self->lexp[j].outchnls[k];
                         pos = i + self->lexp[j].output[k];
+
                         if (pos < 0)
                             pos += self->bufsize;
+
                         self->lexp[j].values[k] = self->output_buffer[chnl * self->bufsize + pos];
                     }
                 }
-                switch (self->lexp[j].type_op) {
+
+                switch (self->lexp[j].type_op)
+                {
                     case OP_ADD:
                         self->lexp[j].result = self->lexp[j].values[0] + self->lexp[j].values[1];
                         break;
+
                     case OP_SUB:
                         self->lexp[j].result = self->lexp[j].values[0] - self->lexp[j].values[1];
                         break;
+
                     case OP_MUL:
                         self->lexp[j].result = self->lexp[j].values[0] * self->lexp[j].values[1];
                         break;
+
                     case OP_DIV:
                         self->lexp[j].result = self->lexp[j].values[0] / self->lexp[j].values[1];
                         break;
+
                     case OP_EXP:
                         self->lexp[j].result = MYPOW(self->lexp[j].values[0], self->lexp[j].values[1]);
                         break;
+
                     case OP_MOD:
                         self->lexp[j].result = MYFMOD(self->lexp[j].values[0], self->lexp[j].values[1]);
                         break;
+
                     case OP_NEG:
                         self->lexp[j].result = -self->lexp[j].values[0];
                         break;
+
                     case OP_INC:
                         self->lexp[j].result = self->lexp[j].previous[0];
                         self->lexp[j].previous[0] = MYFMOD(self->lexp[j].previous[0] + self->lexp[j].values[0], self->lexp[j].values[1]);
                         break;
+
                     case OP_DEC:
                         self->lexp[j].result -= self->lexp[j].values[0];
+
                         if (self->lexp[j].result < 0) { self->lexp[j].result += self->lexp[j].values[1]; }
+
                         break;
+
                     case OP_PHS:
                         tmp = self->lexp[j].previous[0] + self->lexp[j].values[1];
+
                         if (tmp >= 1) { tmp -= 1.0; }
+
                         self->lexp[j].result = tmp;
                         self->lexp[j].previous[0] += (self->lexp[j].values[0] * self->oneOverSr);
+
                         if (self->lexp[j].previous[0] >= 1) { self->lexp[j].previous[0] -= 1.0; }
+
                         break;
+
                     case OP_SIN:
                         self->lexp[j].result = MYSIN(self->lexp[j].values[0]);
                         break;
+
                     case OP_COS:
                         self->lexp[j].result = MYCOS(self->lexp[j].values[0]);
                         break;
+
                     case OP_TAN:
                         self->lexp[j].result = MYTAN(self->lexp[j].values[0]);
                         break;
+
                     case OP_TANH:
                         self->lexp[j].result = MYTANH(self->lexp[j].values[0]);
                         break;
+
                     case OP_ATAN:
                         self->lexp[j].result = MYATAN(self->lexp[j].values[0]);
                         break;
+
                     case OP_ATAN2:
                         self->lexp[j].result = MYATAN2(self->lexp[j].values[0], self->lexp[j].values[1]);
                         break;
+
                     case OP_LT:
                         self->lexp[j].result = self->lexp[j].values[0] < self->lexp[j].values[1] ? 1.0 : 0.0;
                         break;
+
                     case OP_LE:
                         self->lexp[j].result = self->lexp[j].values[0] <= self->lexp[j].values[1] ? 1.0 : 0.0;
                         break;
+
                     case OP_GT:
                         self->lexp[j].result = self->lexp[j].values[0] > self->lexp[j].values[1] ? 1.0 : 0.0;
                         break;
+
                     case OP_GE:
                         self->lexp[j].result = self->lexp[j].values[0] >= self->lexp[j].values[1] ? 1.0 : 0.0;
                         break;
+
                     case OP_EQ:
                         self->lexp[j].result = self->lexp[j].values[0] == self->lexp[j].values[1] ? 1.0 : 0.0;
                         break;
+
                     case OP_NE:
                         self->lexp[j].result = self->lexp[j].values[0] != self->lexp[j].values[1] ? 1.0 : 0.0;
                         break;
+
                     case OP_IF:
                         self->lexp[j].result = self->lexp[j].values[0] != 0 ? self->lexp[j].values[1] : self->lexp[j].values[2];
                         break;
+
                     case OP_AND:
                         self->lexp[j].result = self->lexp[j].values[0] != 0 && self->lexp[j].values[1] != 0 ? 1.0 : 0.0;
                         break;
+
                     case OP_OR:
                         self->lexp[j].result = self->lexp[j].values[0] != 0 || self->lexp[j].values[1] != 0 ? 1.0 : 0.0;
                         break;
+
                     case OP_SQRT:
                         self->lexp[j].result = MYSQRT(self->lexp[j].values[0]);
                         break;
+
                     case OP_LOG:
                         self->lexp[j].result = MYLOG(self->lexp[j].values[0]);
                         break;
+
                     case OP_LOG2:
                         self->lexp[j].result = MYLOG2(self->lexp[j].values[0]);
                         break;
+
                     case OP_LOG10:
                         self->lexp[j].result = MYLOG10(self->lexp[j].values[0]);
                         break;
+
                     case OP_POW:
                         self->lexp[j].result = MYPOW(self->lexp[j].values[0], self->lexp[j].values[1]);
                         break;
+
                     case OP_FABS:
                         self->lexp[j].result = MYFABS(self->lexp[j].values[0]);
                         break;
+
                     case OP_FLOOR:
                         self->lexp[j].result = MYFLOOR(self->lexp[j].values[0]);
                         break;
+
                     case OP_CEIL:
                         self->lexp[j].result = MYCEIL(self->lexp[j].values[0]);
                         break;
+
                     case OP_EEXP:
                         self->lexp[j].result = MYEXP(self->lexp[j].values[0]);
                         break;
+
                     case OP_ROUND:
                         self->lexp[j].result = MYROUND(self->lexp[j].values[0]);
                         break;
+
                     case OP_MIN:
                         self->lexp[j].result = self->lexp[j].values[0] < self->lexp[j].values[1] ? self->lexp[j].values[0] : self->lexp[j].values[1];
                         break;
+
                     case OP_MAX:
                         self->lexp[j].result = self->lexp[j].values[0] > self->lexp[j].values[1] ? self->lexp[j].values[0] : self->lexp[j].values[1];
                         break;
+
                     case OP_WRAP:
                         tmp = self->lexp[j].values[0];
+
                         while (tmp < 0.0) {tmp += 1.0; }
+
                         while (tmp >= 1.0) {tmp -= 1.0; }
+
                         self->lexp[j].result = tmp;
                         break;
+
                     case OP_RANDF:
                         self->lexp[j].result = RANDOM_UNIFORM * (self->lexp[j].values[1] - self->lexp[j].values[0]) + self->lexp[j].values[0];
                         break;
+
                     case OP_RANDI:
                         self->lexp[j].result = MYFLOOR(RANDOM_UNIFORM * (self->lexp[j].values[1] - self->lexp[j].values[0]) + self->lexp[j].values[0]);
                         break;
+
                     case OP_SAH:
                         self->lexp[j].result = self->lexp[j].values[1] < self->lexp[j].previous[1] ? self->lexp[j].values[0] : self->lexp[j].result;
                         self->lexp[j].previous[1] = self->lexp[j].values[1];
                         break;
+
                     case OP_RPOLE:
                         self->lexp[j].result = self->lexp[j].values[0] + self->lexp[j].result * self->lexp[j].values[1];
                         break;
+
                     case OP_RZERO:
                         self->lexp[j].result = self->lexp[j].values[0] - self->lexp[j].previous[0] * self->lexp[j].values[1];
                         self->lexp[j].previous[0] = self->lexp[j].values[0];
                         break;
+
                     case OP_DELAY:
                         self->lexp[j].result = self->lexp[j].previous[0];
                         self->lexp[j].previous[0] = self->lexp[j].values[0];
                         break;
+
                     case OP_CZERO:
-                        if (self->lexp[j].nodes[0] != -1) {
+                        if (self->lexp[j].nodes[0] != -1)
+                        {
                             nextre = self->lexp[self->lexp[j].nodes[0]].result;
                             nextim = self->lexp[self->lexp[j].nodes[0]].result2;
-                        } else {
+                        }
+                        else
+                        {
                             nextre = 0.0;
                             nextim = 0.0;
                         }
-                        if (self->lexp[j].nodes[1] != -1) {
+
+                        if (self->lexp[j].nodes[1] != -1)
+                        {
                             coefre = self->lexp[self->lexp[j].nodes[1]].result;
                             coefim = self->lexp[self->lexp[j].nodes[1]].result2;
-                        } else {
+                        }
+                        else
+                        {
                             coefre = 0.0;
                             coefim = 0.0;
                         }
+
                         lastre = self->lexp[j].previous[0];
                         lastim = self->lexp[j].previous[1];
                         self->lexp[j].result = nextre - lastre * coefre + lastim * coefim;
@@ -468,78 +580,115 @@ Exprer_process(Exprer *self) {
                         self->lexp[j].previous[0] = nextre;
                         self->lexp[j].previous[1] = nextim;
                         break;
+
                     case OP_CPOLE:
-                        if (self->lexp[j].nodes[0] != -1) {
+                        if (self->lexp[j].nodes[0] != -1)
+                        {
                             nextre = self->lexp[self->lexp[j].nodes[0]].result;
                             nextim = self->lexp[self->lexp[j].nodes[0]].result2;
-                        } else {
+                        }
+                        else
+                        {
                             nextre = 0.0;
                             nextim = 0.0;
                         }
-                        if (self->lexp[j].nodes[1] != -1) {
+
+                        if (self->lexp[j].nodes[1] != -1)
+                        {
                             coefre = self->lexp[self->lexp[j].nodes[1]].result;
                             coefim = self->lexp[self->lexp[j].nodes[1]].result2;
-                        } else {
+                        }
+                        else
+                        {
                             coefre = 0.0;
                             coefim = 0.0;
                         }
+
                         lastre = self->lexp[j].previous[0];
                         lastim = self->lexp[j].previous[1];
                         tmp = self->lexp[j].result = nextre + lastre * coefre - lastim * coefim;
                         self->lexp[j].previous[1] = self->lexp[j].result2 = nextim + lastre * coefim + lastim * coefre;
                         self->lexp[j].previous[0] = tmp;
                         break;
+
                     case OP_COMPLEX:
                         self->lexp[j].result = self->lexp[j].values[0];
                         self->lexp[j].result2 = self->lexp[j].values[1];
                         break;
+
                     case OP_REAL:
-                        if (self->lexp[j].nodes[0] != -1) {
+                        if (self->lexp[j].nodes[0] != -1)
+                        {
                             self->lexp[j].result = self->lexp[self->lexp[j].nodes[0]].result;
-                        } else if (self->lexp[j].vars[0] != -1) {
+                        }
+                        else if (self->lexp[j].vars[0] != -1)
+                        {
                             self->lexp[j].result = self->lexp[self->lexp[j].vars[0]].result;
-                        } else {
+                        }
+                        else
+                        {
                             self->lexp[j].result = self->lexp[j].result;
                         }
+
                         break;
+
                     case OP_IMAG:
-                        if (self->lexp[j].nodes[0] != -1) {
+                        if (self->lexp[j].nodes[0] != -1)
+                        {
                             self->lexp[j].result = self->lexp[self->lexp[j].nodes[0]].result2;
-                        } else if (self->lexp[j].vars[0] != -1) {
+                        }
+                        else if (self->lexp[j].vars[0] != -1)
+                        {
                             self->lexp[j].result = self->lexp[self->lexp[j].vars[0]].result2;
-                        } else {
+                        }
+                        else
+                        {
                             self->lexp[j].result = self->lexp[j].result2;
                         }
+
                         break;
+
                     case OP_CONST:
                         self->lexp[j].result = self->lexp[j].values[0];
                         // in case let (which becomes a const) statement try to store a complex number, we save the imag part.
                         self->lexp[j].result2 = self->lexp[j].values[1];
                         break;
+
                     case OP_PI:
                         self->lexp[j].result = PI;
                         break;
+
                     case OP_TWOPI:
                         self->lexp[j].result = TWOPI;
                         break;
+
                     case OP_E:
                         self->lexp[j].result = E;
                         break;
+
                     case OP_SR:
                         self->lexp[j].result = self->sr;
                         break;
+
                     case OP_OUT:
-                        if ((int)self->lexp[j].values[0] >= self->chnls) {
+                        if ((int)self->lexp[j].values[0] >= self->chnls)
+                        {
                             outpos = i;
-                        } else {
+                        }
+                        else
+                        {
                             outpos = (int)self->lexp[j].values[0] * self->bufsize + i;
                         }
+
                         self->output_buffer[outpos] = self->lexp[j].values[1];
                         break;
                 }
+
                 result = self->lexp[j].result;
             }
-            if (self->chnls == 1) {
+
+            if (self->chnls == 1)
+            {
                 self->output_buffer[i] = result;
             }
         }
@@ -587,9 +736,12 @@ Exprer_dealloc(Exprer* self)
 {
     int i;
     pyo_DEALLOC
-    for (i=0; i<self->count; i++) {
+
+    for (i = 0; i < self->count; i++)
+    {
         clearexpr(self->lexp[i]);
     }
+
     free(self->input_buffer);
     free(self->output_buffer);
     Exprer_clear(self);
@@ -601,7 +753,7 @@ Exprer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
     MYFLT initout = 0.0;
-    PyObject *inputtmp, *exprtmp=NULL;
+    PyObject *inputtmp, *exprtmp = NULL;
     Exprer *self;
     self = (Exprer *)type->tp_alloc(type, 0);
 
@@ -610,7 +762,7 @@ Exprer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->mode_func_ptr = Exprer_setProcMode;
 
     self->oneOverSr = 1.0 / self->sr;
-    
+
     self->variables = PyDict_New();
 
     static char *kwlist[] = {"input", "expr", "outs", "initout", NULL};
@@ -622,7 +774,8 @@ Exprer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Py_XDECREF(self->input);
     self->input = inputtmp;
 
-    if (exprtmp) {
+    if (exprtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setExpr", "O", exprtmp);
     }
 
@@ -633,10 +786,14 @@ Exprer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self->input_buffer = (MYFLT *)realloc(self->input_buffer, PyList_Size(self->input) * self->bufsize * sizeof(MYFLT));
     self->output_buffer = (MYFLT *)realloc(self->output_buffer, self->chnls * self->bufsize * sizeof(MYFLT));
-    for (i=0; i<(PyList_Size(self->input) * self->bufsize); i++) {
+
+    for (i = 0; i < (PyList_Size(self->input) * self->bufsize); i++)
+    {
         self->input_buffer[i] = 0.0;
     }
-    for (i=0; i<(self->chnls * self->bufsize); i++) {
+
+    for (i = 0; i < (self->chnls * self->bufsize); i++)
+    {
         self->output_buffer[i] = initout;
     }
 
@@ -663,91 +820,133 @@ Exprer_setExpr(Exprer *self, PyObject *arg)
     varDict = PyDict_New();
     waitingDict = PyDict_New();
 
-    if (PY_STRING_CHECK(arg)) {
+    if (PY_STRING_CHECK(arg))
+    {
         Py_INCREF(arg);
         Py_XDECREF(sentence);
         sentence = arg;
         len = PY_UNICODE_GET_SIZE(sentence);
-        if (len == 0) {
-            Py_RETURN_NONE;            
+
+        if (len == 0)
+        {
+            Py_RETURN_NONE;
         }
-        if (PyUnicode_Count(sentence, PyUnicode_FromString(")"), 0, len) != PyUnicode_Count(sentence, PyUnicode_FromString("("), 0, len)) {
+
+        if (PyUnicode_Count(sentence, PyUnicode_FromString(")"), 0, len) != PyUnicode_Count(sentence, PyUnicode_FromString("("), 0, len))
+        {
             PySys_WriteStdout("Expr: mismatched brackets, expression bypassed.\n");
-            Py_RETURN_NONE;            
+            Py_RETURN_NONE;
         }
-        for (i=0; i<self->count; i++) { 
-            clearexpr(self->lexp[i]); 
+
+        for (i = 0; i < self->count; i++)
+        {
+            clearexpr(self->lexp[i]);
         }
+
         self->count = 0;
-        while (PyUnicode_Find(sentence, PyUnicode_FromString(")"), 0, len, 1) != -1) {
+
+        while (PyUnicode_Find(sentence, PyUnicode_FromString(")"), 0, len, 1) != -1)
+        {
             end = PyUnicode_Find(sentence, PyUnicode_FromString(")"), 0, len, 1) + 1;
             start = PyUnicode_Find(sentence, PyUnicode_FromString("("), 0, end, -1);
             exp = PySequence_GetSlice(sentence, start, end);
-            if (PyUnicode_Contains(exp, PyUnicode_FromString("let ")) || PyUnicode_Contains(exp, PyUnicode_FromString("var "))) {
+
+            if (PyUnicode_Contains(exp, PyUnicode_FromString("let ")) || PyUnicode_Contains(exp, PyUnicode_FromString("var ")))
+            {
                 sentence = PyUnicode_Concat(PySequence_GetSlice(sentence, 0, start), PySequence_GetSlice(sentence, end, len));
             }
-            else {
+            else
+            {
                 sentence = PyUnicode_Replace(sentence, exp, PyUnicode_Format(PyUnicode_FromString("_%d"), PyInt_FromLong(self->count)), 1);
             }
+
             exp = PyUnicode_Replace(exp, PyUnicode_FromString("("), PyUnicode_FromString(""), -1);
             exp = PyUnicode_Replace(exp, PyUnicode_FromString(")"), PyUnicode_FromString(""), -1);
             explist = PyUnicode_Split(exp, NULL, -1);
+
             // Prepare variable from "var" function
-            if (PyUnicode_Compare(PyList_GetItem(explist, 0), PyUnicode_FromString("var")) == 0) {
+            if (PyUnicode_Compare(PyList_GetItem(explist, 0), PyUnicode_FromString("var")) == 0)
+            {
                 PyList_SetItem(explist, 0, PyUnicode_FromString("const"));
                 PyDict_SetItem(self->variables, PyList_GetItem(explist, 1), PyInt_FromLong(self->count));
                 PySequence_DelItem(explist, 1);
             }
+
             // Prepare variable from "let" function
-            if (PyUnicode_Compare(PyList_GetItem(explist, 0), PyUnicode_FromString("let")) == 0) {
+            if (PyUnicode_Compare(PyList_GetItem(explist, 0), PyUnicode_FromString("let")) == 0)
+            {
                 PyList_SetItem(explist, 0, PyUnicode_FromString("const"));
-                if (PyDict_GetItem(waitingDict, PyList_GetItem(explist, 1)) != NULL) {
+
+                if (PyDict_GetItem(waitingDict, PyList_GetItem(explist, 1)) != NULL)
+                {
                     waitingList = PyDict_GetItem(waitingDict, PyList_GetItem(explist, 1));
-                    for (j=0; j<PyList_Size(waitingList); j++) {
+
+                    for (j = 0; j < PyList_Size(waitingList); j++)
+                    {
                         count = PyInt_AsLong(PyTuple_GetItem(PyList_GetItem(waitingList, j), 0));
                         i = PyInt_AsLong(PyTuple_GetItem(PyList_GetItem(waitingList, j), 1));
                         self->lexp[count].vars[i] = self->count;
                     }
+
                     PyDict_DelItem(waitingDict, PyList_GetItem(explist, 1));
                 }
+
                 PyDict_SetItem(varDict, PyList_GetItem(explist, 1), PyInt_FromLong(self->count));
                 PySequence_DelItem(explist, 1);
             }
+
             // Initialize expression node
             self->lexp[self->count] = initexpr(PY_STRING_AS_STRING(PyList_GetItem(explist, 0)), PyList_Size(explist));
-            if (PyList_Size(explist) == 1 && self->lexp[self->count].type_op == OP_CONST) {
+
+            if (PyList_Size(explist) == 1 && self->lexp[self->count].type_op == OP_CONST)
+            {
                 PyList_Insert(explist, 0, PyUnicode_FromString("const"));
             }
-            while (PyList_Size(explist) < (self->lexp[self->count].num+1)) {
+
+            while (PyList_Size(explist) < (self->lexp[self->count].num + 1))
+            {
                 PyList_Append(explist, PyUnicode_FromString("0.0"));
             }
-            for (i=0; i<self->lexp[self->count].num; i++) {
-                if (PyUnicode_Contains(PyList_GetItem(explist, i+1), PyUnicode_FromString("_"))) {
-                    tmpstr = PyUnicode_Replace(PyList_GetItem(explist, i+1), PyUnicode_FromString("_"), PyUnicode_FromString(""), -1);
+
+            for (i = 0; i < self->lexp[self->count].num; i++)
+            {
+                if (PyUnicode_Contains(PyList_GetItem(explist, i + 1), PyUnicode_FromString("_")))
+                {
+                    tmpstr = PyUnicode_Replace(PyList_GetItem(explist, i + 1), PyUnicode_FromString("_"), PyUnicode_FromString(""), -1);
                     self->lexp[self->count].nodes[i] = PyInt_AsLong(PyInt_FromString(PY_STRING_AS_STRING(tmpstr), NULL, 0));
                 }
-                else if (PyUnicode_Contains(PyList_GetItem(explist, i+1), PyUnicode_FromString("#"))) {
-                    if (PyDict_GetItem(self->variables, PyList_GetItem(explist, i+1)) != NULL) {
-                        self->lexp[self->count].vars[i] = PyInt_AsLong(PyDict_GetItem(self->variables, PyList_GetItem(explist, i+1)));
+                else if (PyUnicode_Contains(PyList_GetItem(explist, i + 1), PyUnicode_FromString("#")))
+                {
+                    if (PyDict_GetItem(self->variables, PyList_GetItem(explist, i + 1)) != NULL)
+                    {
+                        self->lexp[self->count].vars[i] = PyInt_AsLong(PyDict_GetItem(self->variables, PyList_GetItem(explist, i + 1)));
                     }
-                    else if (PyDict_GetItem(varDict, PyList_GetItem(explist, i+1)) != NULL) {
-                        self->lexp[self->count].vars[i] = PyInt_AsLong(PyDict_GetItem(varDict, PyList_GetItem(explist, i+1)));
+                    else if (PyDict_GetItem(varDict, PyList_GetItem(explist, i + 1)) != NULL)
+                    {
+                        self->lexp[self->count].vars[i] = PyInt_AsLong(PyDict_GetItem(varDict, PyList_GetItem(explist, i + 1)));
                     }
-                    else {
-                        if (PyDict_GetItem(waitingDict, PyList_GetItem(explist, i+1)) == NULL)
+                    else
+                    {
+                        if (PyDict_GetItem(waitingDict, PyList_GetItem(explist, i + 1)) == NULL)
                             waitingList = PyList_New(0);
                         else
-                            waitingList = PyDict_GetItem(waitingDict, PyList_GetItem(explist, i+1));
+                            waitingList = PyDict_GetItem(waitingDict, PyList_GetItem(explist, i + 1));
+
                         PyList_Append(waitingList, PyTuple_Pack(2, PyInt_FromLong(self->count), PyInt_FromLong(i)));
-                        PyDict_SetItem(waitingDict, PyList_GetItem(explist, i+1), waitingList);
+                        PyDict_SetItem(waitingDict, PyList_GetItem(explist, i + 1), waitingList);
                     }
                 }
-                else if (PyUnicode_Contains(PyList_GetItem(explist, i+1), PyUnicode_FromString("$x"))) {
-                    tmpstr = PyUnicode_Replace(PyList_GetItem(explist, i+1), PyUnicode_FromString("$x"), PyUnicode_FromString(""), -1);
+                else if (PyUnicode_Contains(PyList_GetItem(explist, i + 1), PyUnicode_FromString("$x")))
+                {
+                    tmpstr = PyUnicode_Replace(PyList_GetItem(explist, i + 1), PyUnicode_FromString("$x"), PyUnicode_FromString(""), -1);
                     chpos = PyUnicode_Find(tmpstr, PyUnicode_FromString("["), 0, PY_UNICODE_GET_SIZE(tmpstr), 1);
-                    if (chpos == 0) {
+
+                    if (chpos == 0)
+                    {
                         self->lexp[self->count].inchnls[i] = 0;
-                    } else {
+                    }
+                    else
+                    {
                         tmpchnl = PyList_GetItem(PyUnicode_Split(tmpstr, PyUnicode_FromString("["), 1), 0);
                         self->lexp[self->count].inchnls[i] = PyInt_AsLong(PyInt_FromString(PY_STRING_AS_STRING(tmpchnl), NULL, 0));
                         tmpstr = PyList_GetItem(PyUnicode_Split(tmpstr, PyUnicode_FromString("["), 1), 1);
@@ -755,81 +954,109 @@ Exprer_setExpr(Exprer *self, PyObject *arg)
                         //self->lexp[self->count].inchnls[i] = PyInt_AsLong(PyInt_FromString(PY_STRING_AS_STRING(PyUnicode_Substring(tmpstr, 0, chpos)), NULL, 0));
                         //tmpstr = PyUnicode_Substring(tmpstr, chpos, PY_UNICODE_GET_SIZE(tmpstr));
                     }
+
                     tmpstr = PyUnicode_Replace(tmpstr, PyUnicode_FromString("["), PyUnicode_FromString(""), -1);
                     tmpstr = PyUnicode_Replace(tmpstr, PyUnicode_FromString("]"), PyUnicode_FromString(""), -1);
                     self->lexp[self->count].input[i] = PyInt_AsLong(PyInt_FromString(PY_STRING_AS_STRING(tmpstr), NULL, 0));
                 }
-                else if (PyUnicode_Contains(PyList_GetItem(explist, i+1), PyUnicode_FromString("$y"))) {
-                    tmpstr = PyUnicode_Replace(PyList_GetItem(explist, i+1), PyUnicode_FromString("$y"), PyUnicode_FromString(""), -1);
+                else if (PyUnicode_Contains(PyList_GetItem(explist, i + 1), PyUnicode_FromString("$y")))
+                {
+                    tmpstr = PyUnicode_Replace(PyList_GetItem(explist, i + 1), PyUnicode_FromString("$y"), PyUnicode_FromString(""), -1);
                     chpos = PyUnicode_Find(tmpstr, PyUnicode_FromString("["), 0, PY_UNICODE_GET_SIZE(tmpstr), 1);
-                    if (chpos == 0) {
+
+                    if (chpos == 0)
+                    {
                         self->lexp[self->count].outchnls[i] = 0;
-                    } else {
+                    }
+                    else
+                    {
                         tmpchnl = PyList_GetItem(PyUnicode_Split(tmpstr, PyUnicode_FromString("["), 1), 0);
                         self->lexp[self->count].outchnls[i] = PyInt_AsLong(PyInt_FromString(PY_STRING_AS_STRING(tmpchnl), NULL, 0));
                         tmpstr = PyList_GetItem(PyUnicode_Split(tmpstr, PyUnicode_FromString("["), 1), 1);
                         //self->lexp[self->count].outchnls[i] = PyInt_AsLong(PyInt_FromString(PY_STRING_AS_STRING(PyUnicode_Substring(tmpstr, 0, chpos)), NULL, 0));
                         //tmpstr = PyUnicode_Substring(tmpstr, chpos, PY_UNICODE_GET_SIZE(tmpstr));
                     }
+
                     tmpstr = PyUnicode_Replace(tmpstr, PyUnicode_FromString("["), PyUnicode_FromString(""), -1);
                     tmpstr = PyUnicode_Replace(tmpstr, PyUnicode_FromString("]"), PyUnicode_FromString(""), -1);
                     self->lexp[self->count].output[i] = PyInt_AsLong(PyInt_FromString(PY_STRING_AS_STRING(tmpstr), NULL, 0));
                 }
-                else {
-                    self->lexp[self->count].values[i] = PyFloat_AsDouble(PyFloat_FromString(PyList_GetItem(explist, i+1), NULL));
+                else
+                {
+                    self->lexp[self->count].values[i] = PyFloat_AsDouble(PyFloat_FromString(PyList_GetItem(explist, i + 1), NULL));
                 }
             }
+
             len = PY_UNICODE_GET_SIZE(sentence);
             self->count++;
         }
 
         explist = PyUnicode_Split(sentence, NULL, -1);
-        if (PyList_Size(explist) == 1) 
+
+        if (PyList_Size(explist) == 1)
             PyList_Insert(explist, 0, PyUnicode_FromString("const"));
+
         // Initialize last expression node
         self->lexp[self->count] = initexpr(PY_STRING_AS_STRING(PyList_GetItem(explist, 0)), PyList_Size(explist));
-        for (i=0; i<self->lexp[self->count].num; i++) {
-            if (PyUnicode_Contains(PyList_GetItem(explist, i+1), PyUnicode_FromString("_"))) {
-                tmpstr = PyUnicode_Replace(PyList_GetItem(explist, i+1), PyUnicode_FromString("_"), PyUnicode_FromString(""), -1);
+
+        for (i = 0; i < self->lexp[self->count].num; i++)
+        {
+            if (PyUnicode_Contains(PyList_GetItem(explist, i + 1), PyUnicode_FromString("_")))
+            {
+                tmpstr = PyUnicode_Replace(PyList_GetItem(explist, i + 1), PyUnicode_FromString("_"), PyUnicode_FromString(""), -1);
                 self->lexp[self->count].nodes[i] = PyInt_AsLong(PyInt_FromString(PY_STRING_AS_STRING(tmpstr), NULL, 0));
             }
-            else if (PyUnicode_Contains(PyList_GetItem(explist, i+1), PyUnicode_FromString("#"))) {
-                self->lexp[self->count].vars[i] = PyInt_AsLong(PyDict_GetItem(varDict, PyList_GetItem(explist, i+1)));
+            else if (PyUnicode_Contains(PyList_GetItem(explist, i + 1), PyUnicode_FromString("#")))
+            {
+                self->lexp[self->count].vars[i] = PyInt_AsLong(PyDict_GetItem(varDict, PyList_GetItem(explist, i + 1)));
             }
-            else if (PyUnicode_Contains(PyList_GetItem(explist, i+1), PyUnicode_FromString("$x"))) {
-                tmpstr = PyUnicode_Replace(PyList_GetItem(explist, i+1), PyUnicode_FromString("$x"), PyUnicode_FromString(""), -1);
+            else if (PyUnicode_Contains(PyList_GetItem(explist, i + 1), PyUnicode_FromString("$x")))
+            {
+                tmpstr = PyUnicode_Replace(PyList_GetItem(explist, i + 1), PyUnicode_FromString("$x"), PyUnicode_FromString(""), -1);
                 chpos = PyUnicode_Find(tmpstr, PyUnicode_FromString("["), 0, PY_UNICODE_GET_SIZE(tmpstr), 1);
-                if (chpos == 0) {
+
+                if (chpos == 0)
+                {
                     self->lexp[self->count].inchnls[i] = 0;
-                } else {
+                }
+                else
+                {
                     tmpchnl = PyList_GetItem(PyUnicode_Split(tmpstr, PyUnicode_FromString("["), 1), 0);
                     self->lexp[self->count].inchnls[i] = PyInt_AsLong(PyInt_FromString(PY_STRING_AS_STRING(tmpchnl), NULL, 0));
                     tmpstr = PyList_GetItem(PyUnicode_Split(tmpstr, PyUnicode_FromString("["), 1), 1);
                     //self->lexp[self->count].inchnls[i] = PyInt_AsLong(PyInt_FromString(PY_STRING_AS_STRING(PyUnicode_Substring(tmpstr, 0, chpos)), NULL, 0));
                     //tmpstr = PyUnicode_Substring(tmpstr, chpos, PY_UNICODE_GET_SIZE(tmpstr));
                 }
+
                 tmpstr = PyUnicode_Replace(tmpstr, PyUnicode_FromString("["), PyUnicode_FromString(""), -1);
                 tmpstr = PyUnicode_Replace(tmpstr, PyUnicode_FromString("]"), PyUnicode_FromString(""), -1);
                 self->lexp[self->count].input[i] = PyInt_AsLong(PyInt_FromString(PY_STRING_AS_STRING(tmpstr), NULL, 0));
             }
-            else if (PyUnicode_Contains(PyList_GetItem(explist, i+1), PyUnicode_FromString("$y"))) {
-                tmpstr = PyUnicode_Replace(PyList_GetItem(explist, i+1), PyUnicode_FromString("$y"), PyUnicode_FromString(""), -1);
+            else if (PyUnicode_Contains(PyList_GetItem(explist, i + 1), PyUnicode_FromString("$y")))
+            {
+                tmpstr = PyUnicode_Replace(PyList_GetItem(explist, i + 1), PyUnicode_FromString("$y"), PyUnicode_FromString(""), -1);
                 chpos = PyUnicode_Find(tmpstr, PyUnicode_FromString("["), 0, PY_UNICODE_GET_SIZE(tmpstr), 1);
-                if (chpos == 0) {
+
+                if (chpos == 0)
+                {
                     self->lexp[self->count].outchnls[i] = 0;
-                } else {
+                }
+                else
+                {
                     tmpchnl = PyList_GetItem(PyUnicode_Split(tmpstr, PyUnicode_FromString("["), 1), 0);
                     self->lexp[self->count].outchnls[i] = PyInt_AsLong(PyInt_FromString(PY_STRING_AS_STRING(tmpchnl), NULL, 0));
                     tmpstr = PyList_GetItem(PyUnicode_Split(tmpstr, PyUnicode_FromString("["), 1), 1);
                     //self->lexp[self->count].outchnls[i] = PyInt_AsLong(PyInt_FromString(PY_STRING_AS_STRING(PyUnicode_Substring(tmpstr, 0, chpos)), NULL, 0));
                     //tmpstr = PyUnicode_Substring(tmpstr, chpos, PY_UNICODE_GET_SIZE(tmpstr));
                 }
+
                 tmpstr = PyUnicode_Replace(tmpstr, PyUnicode_FromString("["), PyUnicode_FromString(""), -1);
                 tmpstr = PyUnicode_Replace(tmpstr, PyUnicode_FromString("]"), PyUnicode_FromString(""), -1);
                 self->lexp[self->count].output[i] = PyInt_AsLong(PyInt_FromString(PY_STRING_AS_STRING(tmpstr), NULL, 0));
             }
-            else {
-                self->lexp[self->count].values[i] = PyFloat_AsDouble(PyFloat_FromString(PyList_GetItem(explist, i+1), NULL));
+            else
+            {
+                self->lexp[self->count].values[i] = PyFloat_AsDouble(PyFloat_FromString(PyList_GetItem(explist, i + 1), NULL));
             }
         }
 
@@ -843,11 +1070,11 @@ Exprer_setExpr(Exprer *self, PyObject *arg)
     Py_XDECREF(varDict);
     Py_XDECREF(waitingDict);
     Py_XDECREF(waitingList);
-    
-	Py_RETURN_NONE;
+
+    Py_RETURN_NONE;
 }
 
-static PyObject * 
+static PyObject *
 Exprer_setVar(Exprer *self, PyObject *args, PyObject *kwds)
 {
     int index;
@@ -857,41 +1084,50 @@ Exprer_setVar(Exprer *self, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO", kwlist, &varname, &value))
         Py_RETURN_NONE;
 
-    if (PyDict_GetItem(self->variables, varname)) {
+    if (PyDict_GetItem(self->variables, varname))
+    {
         index = PyInt_AsLong(PyDict_GetItem(self->variables, varname));
         self->lexp[index].values[0] = PyFloat_AsDouble(value);
     }
-	Py_RETURN_NONE;
+
+    Py_RETURN_NONE;
 }
 
-static PyObject * 
-Exprer_printNodes(Exprer *self) {
+static PyObject *
+Exprer_printNodes(Exprer *self)
+{
     int i;
-    for (i=0; i<self->count; i++) {
+
+    for (i = 0; i < self->count; i++)
+    {
         print_expr(self->lexp[i], i);
     }
-	Py_RETURN_NONE;
+
+    Py_RETURN_NONE;
 };
 
-static PyMemberDef Exprer_members[] = {
+static PyMemberDef Exprer_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(Exprer, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(Exprer, stream), 0, "Stream object."},
     {"input", T_OBJECT_EX, offsetof(Exprer, input), 0, "Input sound object."},
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef Exprer_methods[] = {
+static PyMethodDef Exprer_methods[] =
+{
     {"getServer", (PyCFunction)Exprer_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Exprer_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Exprer_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)Exprer_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
+    {"play", (PyCFunction)Exprer_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)Exprer_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"printNodes", (PyCFunction)Exprer_printNodes, METH_NOARGS, "Print the list of nodes."},
-	{"setVar", (PyCFunction)Exprer_setVar, METH_VARARGS|METH_KEYWORDS, "Sets a variable value."},
-	{"setExpr", (PyCFunction)Exprer_setExpr, METH_O, "Sets a new expression."},
+    {"setVar", (PyCFunction)Exprer_setVar, METH_VARARGS | METH_KEYWORDS, "Sets a variable value."},
+    {"setExpr", (PyCFunction)Exprer_setExpr, METH_O, "Sets a new expression."},
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject ExprerType = {
+PyTypeObject ExprerType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.Exprer_base",         /*tp_name*/
     sizeof(Exprer),         /*tp_basicsize*/
@@ -915,10 +1151,10 @@ PyTypeObject ExprerType = {
     "Exprer objects. Resolve a prefix notation sentence at audio rate.",           /* tp_doc */
     (traverseproc)Exprer_traverse,   /* tp_traverse */
     (inquiry)Exprer_clear,           /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
     Exprer_methods,             /* tp_methods */
     Exprer_members,             /* tp_members */
     0,                      /* tp_getset */
@@ -935,7 +1171,8 @@ PyTypeObject ExprerType = {
 /************************************************************************************************/
 /* Expr streamer object */
 /************************************************************************************************/
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     Exprer *mainSplitter;
     int modebuffer[2];
@@ -958,31 +1195,40 @@ Expr_setProcMode(Expr *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-	switch (muladdmode) {
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = Expr_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = Expr_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = Expr_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = Expr_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = Expr_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = Expr_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = Expr_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = Expr_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = Expr_postprocessing_revareva;
             break;
@@ -996,9 +1242,12 @@ Expr_compute_next_data_frame(Expr *self)
     MYFLT *tmp;
     int offset = self->chnl * self->bufsize;
     tmp = Exprer_getSamplesBuffer((Exprer *)self->mainSplitter);
-    for (i=0; i<self->bufsize; i++) {
+
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->data[i] = tmp[i + offset];
     }
+
     (*self->muladd_func_ptr)(self);
 }
 
@@ -1030,12 +1279,12 @@ static PyObject *
 Expr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *maintmp=NULL, *multmp=NULL, *addtmp=NULL;
+    PyObject *maintmp = NULL, *multmp = NULL, *addtmp = NULL;
     Expr *self;
     self = (Expr *)type->tp_alloc(type, 0);
 
-	self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Expr_compute_next_data_frame);
@@ -1050,11 +1299,13 @@ Expr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Py_INCREF(maintmp);
     self->mainSplitter = (Exprer *)maintmp;
 
-    if (multmp) {
+    if (multmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
 
-    if (addtmp) {
+    if (addtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
 
@@ -1085,106 +1336,110 @@ static PyObject * Expr_inplace_sub(Expr *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Expr_div(Expr *self, PyObject *arg) { DIV };
 static PyObject * Expr_inplace_div(Expr *self, PyObject *arg) { INPLACE_DIV };
 
-static PyMemberDef Expr_members[] = {
-{"server", T_OBJECT_EX, offsetof(Expr, server), 0, "Pyo server."},
-{"stream", T_OBJECT_EX, offsetof(Expr, stream), 0, "Stream object."},
-{"mul", T_OBJECT_EX, offsetof(Expr, mul), 0, "Mul factor."},
-{"add", T_OBJECT_EX, offsetof(Expr, add), 0, "Add factor."},
-{NULL}  /* Sentinel */
+static PyMemberDef Expr_members[] =
+{
+    {"server", T_OBJECT_EX, offsetof(Expr, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(Expr, stream), 0, "Stream object."},
+    {"mul", T_OBJECT_EX, offsetof(Expr, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(Expr, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
 };
 
-static PyMethodDef Expr_methods[] = {
-{"getServer", (PyCFunction)Expr_getServer, METH_NOARGS, "Returns server object."},
-{"_getStream", (PyCFunction)Expr_getStream, METH_NOARGS, "Returns stream object."},
-{"play", (PyCFunction)Expr_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"out", (PyCFunction)Expr_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-{"stop", (PyCFunction)Expr_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
-{"setMul", (PyCFunction)Expr_setMul, METH_O, "Sets Expr mul factor."},
-{"setAdd", (PyCFunction)Expr_setAdd, METH_O, "Sets Expr add factor."},
-{"setSub", (PyCFunction)Expr_setSub, METH_O, "Sets inverse add factor."},
-{"setDiv", (PyCFunction)Expr_setDiv, METH_O, "Sets inverse mul factor."},
-{NULL}  /* Sentinel */
+static PyMethodDef Expr_methods[] =
+{
+    {"getServer", (PyCFunction)Expr_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)Expr_getStream, METH_NOARGS, "Returns stream object."},
+    {"play", (PyCFunction)Expr_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)Expr_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)Expr_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"setMul", (PyCFunction)Expr_setMul, METH_O, "Sets Expr mul factor."},
+    {"setAdd", (PyCFunction)Expr_setAdd, METH_O, "Sets Expr add factor."},
+    {"setSub", (PyCFunction)Expr_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)Expr_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Expr_as_number = {
-(binaryfunc)Expr_add,                      /*nb_add*/
-(binaryfunc)Expr_sub,                 /*nb_subtract*/
-(binaryfunc)Expr_multiply,                 /*nb_multiply*/
-INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
-0,                /*nb_remainder*/
-0,                   /*nb_divmod*/
-0,                   /*nb_power*/
-0,                  /*nb_neg*/
-0,                /*nb_pos*/
-0,                  /*(unaryfunc)array_abs,*/
-0,                    /*nb_nonzero*/
-0,                    /*nb_invert*/
-0,               /*nb_lshift*/
-0,              /*nb_rshift*/
-0,              /*nb_and*/
-0,              /*nb_xor*/
-0,               /*nb_or*/
-INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
-0,                       /*nb_int*/
-0,                      /*nb_long*/
-0,                     /*nb_float*/
-INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
-(binaryfunc)Expr_inplace_add,              /*inplace_add*/
-(binaryfunc)Expr_inplace_sub,         /*inplace_subtract*/
-(binaryfunc)Expr_inplace_multiply,         /*inplace_multiply*/
-INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
-0,        /*inplace_remainder*/
-0,           /*inplace_power*/
-0,       /*inplace_lshift*/
-0,      /*inplace_rshift*/
-0,      /*inplace_and*/
-0,      /*inplace_xor*/
-0,       /*inplace_or*/
-0,             /*nb_floor_divide*/
-(binaryfunc)Expr_div,                       /*nb_true_divide*/
-0,     /*nb_inplace_floor_divide*/
-(binaryfunc)Expr_inplace_div,                       /*nb_inplace_true_divide*/
-0,                     /* nb_index */
+static PyNumberMethods Expr_as_number =
+{
+    (binaryfunc)Expr_add,                      /*nb_add*/
+    (binaryfunc)Expr_sub,                 /*nb_subtract*/
+    (binaryfunc)Expr_multiply,                 /*nb_multiply*/
+    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
+    0,                /*nb_remainder*/
+    0,                   /*nb_divmod*/
+    0,                   /*nb_power*/
+    0,                  /*nb_neg*/
+    0,                /*nb_pos*/
+    0,                  /*(unaryfunc)array_abs,*/
+    0,                    /*nb_nonzero*/
+    0,                    /*nb_invert*/
+    0,               /*nb_lshift*/
+    0,              /*nb_rshift*/
+    0,              /*nb_and*/
+    0,              /*nb_xor*/
+    0,               /*nb_or*/
+    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
+    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
+    (binaryfunc)Expr_inplace_add,              /*inplace_add*/
+    (binaryfunc)Expr_inplace_sub,         /*inplace_subtract*/
+    (binaryfunc)Expr_inplace_multiply,         /*inplace_multiply*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
+    0,        /*inplace_remainder*/
+    0,           /*inplace_power*/
+    0,       /*inplace_lshift*/
+    0,      /*inplace_rshift*/
+    0,      /*inplace_and*/
+    0,      /*inplace_xor*/
+    0,       /*inplace_or*/
+    0,             /*nb_floor_divide*/
+    (binaryfunc)Expr_div,                       /*nb_true_divide*/
+    0,     /*nb_inplace_floor_divide*/
+    (binaryfunc)Expr_inplace_div,                       /*nb_inplace_true_divide*/
+    0,                     /* nb_index */
 };
 
-PyTypeObject ExprType = {
-PyVarObject_HEAD_INIT(NULL, 0)
-"_pyo.Expr_base",         /*tp_name*/
-sizeof(Expr),         /*tp_basicsize*/
-0,                         /*tp_itemsize*/
-(destructor)Expr_dealloc, /*tp_dealloc*/
-0,                         /*tp_print*/
-0,                         /*tp_getattr*/
-0,                         /*tp_setattr*/
-0,                         /*tp_as_async (tp_compare in Python 2)*/
-0,                         /*tp_repr*/
-&Expr_as_number,             /*tp_as_number*/
-0,                         /*tp_as_sequence*/
-0,                         /*tp_as_mapping*/
-0,                         /*tp_hash */
-0,                         /*tp_call*/
-0,                         /*tp_str*/
-0,                         /*tp_getattro*/
-0,                         /*tp_setattro*/
-0,                         /*tp_as_buffer*/
-Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
-"Expr objects. Reads one channel from a Exprer.",           /* tp_doc */
-(traverseproc)Expr_traverse,   /* tp_traverse */
-(inquiry)Expr_clear,           /* tp_clear */
-0,		               /* tp_richcompare */
-0,		               /* tp_weaklistoffset */
-0,		               /* tp_iter */
-0,		               /* tp_iternext */
-Expr_methods,             /* tp_methods */
-Expr_members,             /* tp_members */
-0,                      /* tp_getset */
-0,                         /* tp_base */
-0,                         /* tp_dict */
-0,                         /* tp_descr_get */
-0,                         /* tp_descr_set */
-0,                         /* tp_dictoffset */
-0,      /* tp_init */
-0,                         /* tp_alloc */
-Expr_new,                 /* tp_new */
+PyTypeObject ExprType =
+{
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "_pyo.Expr_base",         /*tp_name*/
+    sizeof(Expr),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)Expr_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
+    0,                         /*tp_repr*/
+    &Expr_as_number,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    "Expr objects. Reads one channel from a Exprer.",           /* tp_doc */
+    (traverseproc)Expr_traverse,   /* tp_traverse */
+    (inquiry)Expr_clear,           /* tp_clear */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
+    Expr_methods,             /* tp_methods */
+    Expr_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,      /* tp_init */
+    0,                         /* tp_alloc */
+    Expr_new,                 /* tp_new */
 };

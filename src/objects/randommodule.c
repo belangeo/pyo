@@ -27,7 +27,8 @@
 #include "servermodule.h"
 #include "dummymodule.h"
 
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     PyObject *min;
     PyObject *max;
@@ -43,7 +44,8 @@ typedef struct {
 } Randi;
 
 static void
-Randi_generate_iii(Randi *self) {
+Randi_generate_iii(Randi *self)
+{
     int i;
     MYFLT inc;
     MYFLT mi = PyFloat_AS_DOUBLE(self->min);
@@ -52,22 +54,27 @@ Randi_generate_iii(Randi *self) {
     MYFLT range = ma - mi;
     inc = fr / self->sr;
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->time += inc;
+
         if (self->time < 0.0)
             self->time += 1.0;
-        else if (self->time >= 1.0) {
+        else if (self->time >= 1.0)
+        {
             self->time -= 1.0;
             self->oldValue = self->value;
             self->value = range * RANDOM_UNIFORM + mi;
             self->diff = self->value - self->oldValue;
         }
+
         self->data[i] = self->oldValue + self->diff * self->time;
     }
 }
 
 static void
-Randi_generate_aii(Randi *self) {
+Randi_generate_aii(Randi *self)
+{
     int i;
     MYFLT inc, range;
     MYFLT *mi = Stream_getData((Stream *)self->min_stream);
@@ -75,23 +82,28 @@ Randi_generate_aii(Randi *self) {
     MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
     inc = fr / self->sr;
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         range = ma - mi[i];
         self->time += inc;
+
         if (self->time < 0.0)
             self->time += 1.0;
-        else if (self->time >= 1.0) {
+        else if (self->time >= 1.0)
+        {
             self->time -= 1.0;
             self->oldValue = self->value;
             self->value = range * RANDOM_UNIFORM + mi[i];
             self->diff = self->value - self->oldValue;
         }
+
         self->data[i] = self->oldValue + self->diff * self->time;
     }
 }
 
 static void
-Randi_generate_iai(Randi *self) {
+Randi_generate_iai(Randi *self)
+{
     int i;
     MYFLT inc, range;
     MYFLT mi = PyFloat_AS_DOUBLE(self->min);
@@ -99,23 +111,28 @@ Randi_generate_iai(Randi *self) {
     MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
     inc = fr / self->sr;
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         range = ma[i] - mi;
         self->time += inc;
+
         if (self->time < 0.0)
             self->time += 1.0;
-        else if (self->time >= 1.0) {
+        else if (self->time >= 1.0)
+        {
             self->time -= 1.0;
             self->oldValue = self->value;
             self->value = range * RANDOM_UNIFORM + mi;
             self->diff = self->value - self->oldValue;
         }
+
         self->data[i] = self->oldValue + self->diff * self->time;
     }
 }
 
 static void
-Randi_generate_aai(Randi *self) {
+Randi_generate_aai(Randi *self)
+{
     int i;
     MYFLT inc, range;
     MYFLT *mi = Stream_getData((Stream *)self->min_stream);
@@ -123,23 +140,28 @@ Randi_generate_aai(Randi *self) {
     MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
     inc = fr / self->sr;
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         range = ma[i] - mi[i];
         self->time += inc;
+
         if (self->time < 0.0)
             self->time += 1.0;
-        else if (self->time >= 1.0) {
+        else if (self->time >= 1.0)
+        {
             self->time -= 1.0;
             self->oldValue = self->value;
             self->value = range * RANDOM_UNIFORM + mi[i];
             self->diff = self->value - self->oldValue;
         }
+
         self->data[i] = self->oldValue + self->diff * self->time;
     }
 }
 
 static void
-Randi_generate_iia(Randi *self) {
+Randi_generate_iia(Randi *self)
+{
     int i;
     MYFLT inc;
     MYFLT mi = PyFloat_AS_DOUBLE(self->min);
@@ -147,89 +169,108 @@ Randi_generate_iia(Randi *self) {
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
     MYFLT range = ma - mi;
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         inc = fr[i] / self->sr;
         self->time += inc;
+
         if (self->time < 0.0)
             self->time += 1.0;
-        else if (self->time >= 1.0) {
+        else if (self->time >= 1.0)
+        {
             self->time -= 1.0;
             self->oldValue = self->value;
             self->value = range * RANDOM_UNIFORM + mi;
             self->diff = self->value - self->oldValue;
         }
+
         self->data[i] = self->oldValue + self->diff * self->time;
     }
 }
 
 static void
-Randi_generate_aia(Randi *self) {
+Randi_generate_aia(Randi *self)
+{
     int i;
     MYFLT inc, range;
     MYFLT *mi = Stream_getData((Stream *)self->min_stream);
     MYFLT ma = PyFloat_AS_DOUBLE(self->max);
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         inc = fr[i] / self->sr;
         range = ma - mi[i];
         self->time += inc;
+
         if (self->time < 0.0)
             self->time += 1.0;
-        else if (self->time >= 1.0) {
+        else if (self->time >= 1.0)
+        {
             self->time -= 1.0;
             self->oldValue = self->value;
             self->value = range * RANDOM_UNIFORM + mi[i];
             self->diff = self->value - self->oldValue;
         }
+
         self->data[i] = self->oldValue + self->diff * self->time;
     }
 }
 
 static void
-Randi_generate_iaa(Randi *self) {
+Randi_generate_iaa(Randi *self)
+{
     int i;
     MYFLT inc, range;
     MYFLT mi = PyFloat_AS_DOUBLE(self->min);
     MYFLT *ma = Stream_getData((Stream *)self->max_stream);
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         inc = fr[i] / self->sr;
         range = ma[i] - mi;
         self->time += inc;
+
         if (self->time < 0.0)
             self->time += 1.0;
-        else if (self->time >= 1.0) {
+        else if (self->time >= 1.0)
+        {
             self->time -= 1.0;
             self->oldValue = self->value;
             self->value = range * RANDOM_UNIFORM + mi;
             self->diff = self->value - self->oldValue;
         }
+
         self->data[i] = self->oldValue + self->diff * self->time;
     }
 }
 
 static void
-Randi_generate_aaa(Randi *self) {
+Randi_generate_aaa(Randi *self)
+{
     int i;
     MYFLT inc, range;
     MYFLT *mi = Stream_getData((Stream *)self->min_stream);
     MYFLT *ma = Stream_getData((Stream *)self->max_stream);
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         inc = fr[i] / self->sr;
         range = ma[i] - mi[i];
         self->time += inc;
+
         if (self->time < 0.0)
             self->time += 1.0;
-        else if (self->time >= 1.0) {
+        else if (self->time >= 1.0)
+        {
             self->time -= 1.0;
             self->oldValue = self->value;
             self->value = range * RANDOM_UNIFORM + mi[i];
             self->diff = self->value - self->oldValue;
         }
+
         self->data[i] = self->oldValue + self->diff * self->time;
     }
 }
@@ -251,57 +292,75 @@ Randi_setProcMode(Randi *self)
     procmode = self->modebuffer[2] + self->modebuffer[3] * 10 + self->modebuffer[4] * 100;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-	switch (procmode) {
+    switch (procmode)
+    {
         case 0:
             self->proc_func_ptr = Randi_generate_iii;
             break;
+
         case 1:
             self->proc_func_ptr = Randi_generate_aii;
             break;
+
         case 10:
             self->proc_func_ptr = Randi_generate_iai;
             break;
+
         case 11:
             self->proc_func_ptr = Randi_generate_aai;
             break;
+
         case 100:
             self->proc_func_ptr = Randi_generate_iia;
             break;
+
         case 101:
             self->proc_func_ptr = Randi_generate_aia;
             break;
+
         case 110:
             self->proc_func_ptr = Randi_generate_iaa;
             break;
+
         case 111:
             self->proc_func_ptr = Randi_generate_aaa;
             break;
     }
-	switch (muladdmode) {
+
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = Randi_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = Randi_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = Randi_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = Randi_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = Randi_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = Randi_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = Randi_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = Randi_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = Randi_postprocessing_revareva;
             break;
@@ -354,7 +413,7 @@ Randi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
     MYFLT mi, ma;
-    PyObject *mintmp=NULL, *maxtmp=NULL, *freqtmp=NULL, *multmp=NULL, *addtmp=NULL;
+    PyObject *mintmp = NULL, *maxtmp = NULL, *freqtmp = NULL, *multmp = NULL, *addtmp = NULL;
     Randi *self;
     self = (Randi *)type->tp_alloc(type, 0);
 
@@ -363,11 +422,11 @@ Randi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->freq = PyFloat_FromDouble(1.);
     self->value = self->oldValue = self->diff = 0.0;
     self->time = 1.0;
-	self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
-	self->modebuffer[2] = 0;
-	self->modebuffer[3] = 0;
-	self->modebuffer[4] = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
+    self->modebuffer[2] = 0;
+    self->modebuffer[3] = 0;
+    self->modebuffer[4] = 0;
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Randi_compute_next_data_frame);
@@ -378,23 +437,28 @@ Randi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOOO", kwlist, &mintmp, &maxtmp, &freqtmp, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    if (mintmp) {
+    if (mintmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setMin", "O", mintmp);
     }
 
-    if (maxtmp) {
+    if (maxtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setMax", "O", maxtmp);
     }
 
-    if (freqtmp) {
+    if (freqtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
     }
 
-    if (multmp) {
+    if (multmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
 
-    if (addtmp) {
+    if (addtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
 
@@ -406,6 +470,7 @@ Randi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         mi = PyFloat_AS_DOUBLE(self->min);
     else
         mi = Stream_getData((Stream *)self->min_stream)[0];
+
     if (self->modebuffer[3] == 0)
         ma = PyFloat_AS_DOUBLE(self->max);
     else
@@ -441,210 +506,224 @@ static PyObject * Randi_inplace_div(Randi *self, PyObject *arg) { INPLACE_DIV };
 static PyObject *
 Randi_setMin(Randi *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->min);
-	if (isNumber == 1) {
-		self->min = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->min);
+
+    if (isNumber == 1)
+    {
+        self->min = PyNumber_Float(tmp);
         self->modebuffer[2] = 0;
-	}
-	else {
-		self->min = tmp;
+    }
+    else
+    {
+        self->min = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->min, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->min_stream);
         self->min_stream = (Stream *)streamtmp;
-		self->modebuffer[2] = 1;
-	}
+        self->modebuffer[2] = 1;
+    }
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 Randi_setMax(Randi *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->max);
-	if (isNumber == 1) {
-		self->max = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->max);
+
+    if (isNumber == 1)
+    {
+        self->max = PyNumber_Float(tmp);
         self->modebuffer[3] = 0;
-	}
-	else {
-		self->max = tmp;
+    }
+    else
+    {
+        self->max = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->max, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->max_stream);
         self->max_stream = (Stream *)streamtmp;
-		self->modebuffer[3] = 1;
-	}
+        self->modebuffer[3] = 1;
+    }
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 Randi_setFreq(Randi *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->freq);
-	if (isNumber == 1) {
-		self->freq = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->freq);
+
+    if (isNumber == 1)
+    {
+        self->freq = PyNumber_Float(tmp);
         self->modebuffer[4] = 0;
-	}
-	else {
-		self->freq = tmp;
+    }
+    else
+    {
+        self->freq = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->freq_stream);
         self->freq_stream = (Stream *)streamtmp;
-		self->modebuffer[4] = 1;
-	}
+        self->modebuffer[4] = 1;
+    }
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
-static PyMemberDef Randi_members[] = {
-{"server", T_OBJECT_EX, offsetof(Randi, server), 0, "Pyo server."},
-{"stream", T_OBJECT_EX, offsetof(Randi, stream), 0, "Stream object."},
-{"min", T_OBJECT_EX, offsetof(Randi, min), 0, "Minimum possible value."},
-{"max", T_OBJECT_EX, offsetof(Randi, max), 0, "Maximum possible value."},
-{"freq", T_OBJECT_EX, offsetof(Randi, freq), 0, "Polling frequency."},
-{"mul", T_OBJECT_EX, offsetof(Randi, mul), 0, "Mul factor."},
-{"add", T_OBJECT_EX, offsetof(Randi, add), 0, "Add factor."},
-{NULL}  /* Sentinel */
+static PyMemberDef Randi_members[] =
+{
+    {"server", T_OBJECT_EX, offsetof(Randi, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(Randi, stream), 0, "Stream object."},
+    {"min", T_OBJECT_EX, offsetof(Randi, min), 0, "Minimum possible value."},
+    {"max", T_OBJECT_EX, offsetof(Randi, max), 0, "Maximum possible value."},
+    {"freq", T_OBJECT_EX, offsetof(Randi, freq), 0, "Polling frequency."},
+    {"mul", T_OBJECT_EX, offsetof(Randi, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(Randi, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
 };
 
-static PyMethodDef Randi_methods[] = {
-{"getServer", (PyCFunction)Randi_getServer, METH_NOARGS, "Returns server object."},
-{"_getStream", (PyCFunction)Randi_getStream, METH_NOARGS, "Returns stream object."},
-{"play", (PyCFunction)Randi_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"out", (PyCFunction)Randi_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-{"stop", (PyCFunction)Randi_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
-{"setMin", (PyCFunction)Randi_setMin, METH_O, "Sets minimum possible value."},
-{"setMax", (PyCFunction)Randi_setMax, METH_O, "Sets maximum possible value."},
-{"setFreq", (PyCFunction)Randi_setFreq, METH_O, "Sets polling frequency."},
-{"setMul", (PyCFunction)Randi_setMul, METH_O, "Sets oscillator mul factor."},
-{"setAdd", (PyCFunction)Randi_setAdd, METH_O, "Sets oscillator add factor."},
-{"setSub", (PyCFunction)Randi_setSub, METH_O, "Sets inverse add factor."},
-{"setDiv", (PyCFunction)Randi_setDiv, METH_O, "Sets inverse mul factor."},
-{NULL}  /* Sentinel */
+static PyMethodDef Randi_methods[] =
+{
+    {"getServer", (PyCFunction)Randi_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)Randi_getStream, METH_NOARGS, "Returns stream object."},
+    {"play", (PyCFunction)Randi_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)Randi_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)Randi_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"setMin", (PyCFunction)Randi_setMin, METH_O, "Sets minimum possible value."},
+    {"setMax", (PyCFunction)Randi_setMax, METH_O, "Sets maximum possible value."},
+    {"setFreq", (PyCFunction)Randi_setFreq, METH_O, "Sets polling frequency."},
+    {"setMul", (PyCFunction)Randi_setMul, METH_O, "Sets oscillator mul factor."},
+    {"setAdd", (PyCFunction)Randi_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)Randi_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)Randi_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Randi_as_number = {
-(binaryfunc)Randi_add,                         /*nb_add*/
-(binaryfunc)Randi_sub,                         /*nb_subtract*/
-(binaryfunc)Randi_multiply,                    /*nb_multiply*/
-INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
-0,                                              /*nb_remainder*/
-0,                                              /*nb_divmod*/
-0,                                              /*nb_power*/
-0,                                              /*nb_neg*/
-0,                                              /*nb_pos*/
-0,                                              /*(unaryfunc)array_abs,*/
-0,                                              /*nb_nonzero*/
-0,                                              /*nb_invert*/
-0,                                              /*nb_lshift*/
-0,                                              /*nb_rshift*/
-0,                                              /*nb_and*/
-0,                                              /*nb_xor*/
-0,                                              /*nb_or*/
-INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
-0,                                              /*nb_int*/
-0,                                              /*nb_long*/
-0,                                              /*nb_float*/
-INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
-(binaryfunc)Randi_inplace_add,                 /*inplace_add*/
-(binaryfunc)Randi_inplace_sub,                 /*inplace_subtract*/
-(binaryfunc)Randi_inplace_multiply,            /*inplace_multiply*/
-INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
-0,                                              /*inplace_remainder*/
-0,                                              /*inplace_power*/
-0,                                              /*inplace_lshift*/
-0,                                              /*inplace_rshift*/
-0,                                              /*inplace_and*/
-0,                                              /*inplace_xor*/
-0,                                              /*inplace_or*/
-0,                                              /*nb_floor_divide*/
-(binaryfunc)Randi_div,                       /*nb_true_divide*/
-0,                                              /*nb_inplace_floor_divide*/
-(binaryfunc)Randi_inplace_div,                       /*nb_inplace_true_divide*/
-0,                                              /* nb_index */
+static PyNumberMethods Randi_as_number =
+{
+    (binaryfunc)Randi_add,                         /*nb_add*/
+    (binaryfunc)Randi_sub,                         /*nb_subtract*/
+    (binaryfunc)Randi_multiply,                    /*nb_multiply*/
+    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
+    0,                                              /*nb_remainder*/
+    0,                                              /*nb_divmod*/
+    0,                                              /*nb_power*/
+    0,                                              /*nb_neg*/
+    0,                                              /*nb_pos*/
+    0,                                              /*(unaryfunc)array_abs,*/
+    0,                                              /*nb_nonzero*/
+    0,                                              /*nb_invert*/
+    0,                                              /*nb_lshift*/
+    0,                                              /*nb_rshift*/
+    0,                                              /*nb_and*/
+    0,                                              /*nb_xor*/
+    0,                                              /*nb_or*/
+    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
+    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
+    (binaryfunc)Randi_inplace_add,                 /*inplace_add*/
+    (binaryfunc)Randi_inplace_sub,                 /*inplace_subtract*/
+    (binaryfunc)Randi_inplace_multiply,            /*inplace_multiply*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
+    0,                                              /*inplace_remainder*/
+    0,                                              /*inplace_power*/
+    0,                                              /*inplace_lshift*/
+    0,                                              /*inplace_rshift*/
+    0,                                              /*inplace_and*/
+    0,                                              /*inplace_xor*/
+    0,                                              /*inplace_or*/
+    0,                                              /*nb_floor_divide*/
+    (binaryfunc)Randi_div,                       /*nb_true_divide*/
+    0,                                              /*nb_inplace_floor_divide*/
+    (binaryfunc)Randi_inplace_div,                       /*nb_inplace_true_divide*/
+    0,                                              /* nb_index */
 };
 
-PyTypeObject RandiType = {
-PyVarObject_HEAD_INIT(NULL, 0)
-"_pyo.Randi_base",                                   /*tp_name*/
-sizeof(Randi),                                 /*tp_basicsize*/
-0,                                              /*tp_itemsize*/
-(destructor)Randi_dealloc,                     /*tp_dealloc*/
-0,                                              /*tp_print*/
-0,                                              /*tp_getattr*/
-0,                                              /*tp_setattr*/
-0,                                              /*tp_as_async (tp_compare in Python 2)*/
-0,                                              /*tp_repr*/
-&Randi_as_number,                              /*tp_as_number*/
-0,                                              /*tp_as_sequence*/
-0,                                              /*tp_as_mapping*/
-0,                                              /*tp_hash */
-0,                                              /*tp_call*/
-0,                                              /*tp_str*/
-0,                                              /*tp_getattro*/
-0,                                              /*tp_setattro*/
-0,                                              /*tp_as_buffer*/
-Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
-"Randi objects. Periodically generates a new random value with interpolation.",           /* tp_doc */
-(traverseproc)Randi_traverse,                  /* tp_traverse */
-(inquiry)Randi_clear,                          /* tp_clear */
-0,                                              /* tp_richcompare */
-0,                                              /* tp_weaklistoffset */
-0,                                              /* tp_iter */
-0,                                              /* tp_iternext */
-Randi_methods,                                 /* tp_methods */
-Randi_members,                                 /* tp_members */
-0,                                              /* tp_getset */
-0,                                              /* tp_base */
-0,                                              /* tp_dict */
-0,                                              /* tp_descr_get */
-0,                                              /* tp_descr_set */
-0,                                              /* tp_dictoffset */
-0,                          /* tp_init */
-0,                                              /* tp_alloc */
-Randi_new,                                     /* tp_new */
+PyTypeObject RandiType =
+{
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "_pyo.Randi_base",                                   /*tp_name*/
+    sizeof(Randi),                                 /*tp_basicsize*/
+    0,                                              /*tp_itemsize*/
+    (destructor)Randi_dealloc,                     /*tp_dealloc*/
+    0,                                              /*tp_print*/
+    0,                                              /*tp_getattr*/
+    0,                                              /*tp_setattr*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
+    0,                                              /*tp_repr*/
+    &Randi_as_number,                              /*tp_as_number*/
+    0,                                              /*tp_as_sequence*/
+    0,                                              /*tp_as_mapping*/
+    0,                                              /*tp_hash */
+    0,                                              /*tp_call*/
+    0,                                              /*tp_str*/
+    0,                                              /*tp_getattro*/
+    0,                                              /*tp_setattro*/
+    0,                                              /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "Randi objects. Periodically generates a new random value with interpolation.",           /* tp_doc */
+    (traverseproc)Randi_traverse,                  /* tp_traverse */
+    (inquiry)Randi_clear,                          /* tp_clear */
+    0,                                              /* tp_richcompare */
+    0,                                              /* tp_weaklistoffset */
+    0,                                              /* tp_iter */
+    0,                                              /* tp_iternext */
+    Randi_methods,                                 /* tp_methods */
+    Randi_members,                                 /* tp_members */
+    0,                                              /* tp_getset */
+    0,                                              /* tp_base */
+    0,                                              /* tp_dict */
+    0,                                              /* tp_descr_get */
+    0,                                              /* tp_descr_set */
+    0,                                              /* tp_dictoffset */
+    0,                          /* tp_init */
+    0,                                              /* tp_alloc */
+    Randi_new,                                     /* tp_new */
 };
 
 /****************/
 /**** Randh *****/
 /****************/
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     PyObject *min;
     PyObject *max;
@@ -658,7 +737,8 @@ typedef struct {
 } Randh;
 
 static void
-Randh_generate_iii(Randh *self) {
+Randh_generate_iii(Randh *self)
+{
     int i;
     MYFLT inc;
     MYFLT mi = PyFloat_AS_DOUBLE(self->min);
@@ -667,20 +747,25 @@ Randh_generate_iii(Randh *self) {
     MYFLT range = ma - mi;
     inc = fr / self->sr;
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->time += inc;
+
         if (self->time < 0.0)
             self->time += 1.0;
-        else if (self->time >= 1.0) {
+        else if (self->time >= 1.0)
+        {
             self->time -= 1.0;
             self->value = range * RANDOM_UNIFORM + mi;
         }
+
         self->data[i] = self->value;
     }
 }
 
 static void
-Randh_generate_aii(Randh *self) {
+Randh_generate_aii(Randh *self)
+{
     int i;
     MYFLT inc, range;
     MYFLT *mi = Stream_getData((Stream *)self->min_stream);
@@ -688,21 +773,26 @@ Randh_generate_aii(Randh *self) {
     MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
     inc = fr / self->sr;
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         range = ma - mi[i];
         self->time += inc;
+
         if (self->time < 0.0)
             self->time += 1.0;
-        else if (self->time >= 1.0) {
+        else if (self->time >= 1.0)
+        {
             self->time -= 1.0;
             self->value = range * RANDOM_UNIFORM + mi[i];
         }
+
         self->data[i] = self->value;
     }
 }
 
 static void
-Randh_generate_iai(Randh *self) {
+Randh_generate_iai(Randh *self)
+{
     int i;
     MYFLT inc, range;
     MYFLT mi = PyFloat_AS_DOUBLE(self->min);
@@ -710,21 +800,26 @@ Randh_generate_iai(Randh *self) {
     MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
     inc = fr / self->sr;
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         range = ma[i] - mi;
         self->time += inc;
+
         if (self->time < 0.0)
             self->time += 1.0;
-        else if (self->time >= 1.0) {
+        else if (self->time >= 1.0)
+        {
             self->time -= 1.0;
             self->value = range * RANDOM_UNIFORM + mi;
         }
+
         self->data[i] = self->value;
     }
 }
 
 static void
-Randh_generate_aai(Randh *self) {
+Randh_generate_aai(Randh *self)
+{
     int i;
     MYFLT inc, range;
     MYFLT *mi = Stream_getData((Stream *)self->min_stream);
@@ -732,21 +827,26 @@ Randh_generate_aai(Randh *self) {
     MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
     inc = fr / self->sr;
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         range = ma[i] - mi[i];
         self->time += inc;
+
         if (self->time < 0.0)
             self->time += 1.0;
-        else if (self->time >= 1.0) {
+        else if (self->time >= 1.0)
+        {
             self->time -= 1.0;
             self->value = range * RANDOM_UNIFORM + mi[i];
         }
+
         self->data[i] = self->value;
     }
 }
 
 static void
-Randh_generate_iia(Randh *self) {
+Randh_generate_iia(Randh *self)
+{
     int i;
     MYFLT inc;
     MYFLT mi = PyFloat_AS_DOUBLE(self->min);
@@ -754,81 +854,100 @@ Randh_generate_iia(Randh *self) {
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
     MYFLT range = ma - mi;
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         inc = fr[i] / self->sr;
         self->time += inc;
+
         if (self->time < 0.0)
             self->time += 1.0;
-        else if (self->time >= 1.0) {
+        else if (self->time >= 1.0)
+        {
             self->time -= 1.0;
             self->value = range * RANDOM_UNIFORM + mi;
         }
+
         self->data[i] = self->value;
     }
 }
 
 static void
-Randh_generate_aia(Randh *self) {
+Randh_generate_aia(Randh *self)
+{
     int i;
     MYFLT inc, range;
     MYFLT *mi = Stream_getData((Stream *)self->min_stream);
     MYFLT ma = PyFloat_AS_DOUBLE(self->max);
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         inc = fr[i] / self->sr;
         range = ma - mi[i];
         self->time += inc;
+
         if (self->time < 0.0)
             self->time += 1.0;
-        else if (self->time >= 1.0) {
+        else if (self->time >= 1.0)
+        {
             self->time -= 1.0;
             self->value = range * RANDOM_UNIFORM + mi[i];
         }
+
         self->data[i] = self->value;
     }
 }
 
 static void
-Randh_generate_iaa(Randh *self) {
+Randh_generate_iaa(Randh *self)
+{
     int i;
     MYFLT inc, range;
     MYFLT mi = PyFloat_AS_DOUBLE(self->min);
     MYFLT *ma = Stream_getData((Stream *)self->max_stream);
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         inc = fr[i] / self->sr;
         range = ma[i] - mi;
         self->time += inc;
+
         if (self->time < 0.0)
             self->time += 1.0;
-        else if (self->time >= 1.0) {
+        else if (self->time >= 1.0)
+        {
             self->time -= 1.0;
             self->value = range * RANDOM_UNIFORM + mi;
         }
+
         self->data[i] = self->value;
     }
 }
 
 static void
-Randh_generate_aaa(Randh *self) {
+Randh_generate_aaa(Randh *self)
+{
     int i;
     MYFLT inc, range;
     MYFLT *mi = Stream_getData((Stream *)self->min_stream);
     MYFLT *ma = Stream_getData((Stream *)self->max_stream);
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         inc = fr[i] / self->sr;
         range = ma[i] - mi[i];
         self->time += inc;
+
         if (self->time < 0.0)
             self->time += 1.0;
-        else if (self->time >= 1.0) {
+        else if (self->time >= 1.0)
+        {
             self->time -= 1.0;
             self->value = range * RANDOM_UNIFORM + mi[i];
         }
+
         self->data[i] = self->value;
     }
 }
@@ -850,57 +969,75 @@ Randh_setProcMode(Randh *self)
     procmode = self->modebuffer[2] + self->modebuffer[3] * 10 + self->modebuffer[4] * 100;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-	switch (procmode) {
+    switch (procmode)
+    {
         case 0:
             self->proc_func_ptr = Randh_generate_iii;
             break;
+
         case 1:
             self->proc_func_ptr = Randh_generate_aii;
             break;
+
         case 10:
             self->proc_func_ptr = Randh_generate_iai;
             break;
+
         case 11:
             self->proc_func_ptr = Randh_generate_aai;
             break;
+
         case 100:
             self->proc_func_ptr = Randh_generate_iia;
             break;
+
         case 101:
             self->proc_func_ptr = Randh_generate_aia;
             break;
+
         case 110:
             self->proc_func_ptr = Randh_generate_iaa;
             break;
+
         case 111:
             self->proc_func_ptr = Randh_generate_aaa;
             break;
     }
-	switch (muladdmode) {
+
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = Randh_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = Randh_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = Randh_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = Randh_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = Randh_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = Randh_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = Randh_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = Randh_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = Randh_postprocessing_revareva;
             break;
@@ -953,7 +1090,7 @@ Randh_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
     MYFLT mi, ma;
-    PyObject *mintmp=NULL, *maxtmp=NULL, *freqtmp=NULL, *multmp=NULL, *addtmp=NULL;
+    PyObject *mintmp = NULL, *maxtmp = NULL, *freqtmp = NULL, *multmp = NULL, *addtmp = NULL;
     Randh *self;
     self = (Randh *)type->tp_alloc(type, 0);
 
@@ -962,11 +1099,11 @@ Randh_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->freq = PyFloat_FromDouble(1.);
     self->value = 0.0;
     self->time = 1.0;
-	self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
-	self->modebuffer[2] = 0;
-	self->modebuffer[3] = 0;
-	self->modebuffer[4] = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
+    self->modebuffer[2] = 0;
+    self->modebuffer[3] = 0;
+    self->modebuffer[4] = 0;
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Randh_compute_next_data_frame);
@@ -977,23 +1114,28 @@ Randh_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOOO", kwlist, &mintmp, &maxtmp, &freqtmp, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    if (mintmp) {
+    if (mintmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setMin", "O", mintmp);
     }
 
-    if (maxtmp) {
+    if (maxtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setMax", "O", maxtmp);
     }
 
-    if (freqtmp) {
+    if (freqtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
     }
 
-    if (multmp) {
+    if (multmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
 
-    if (addtmp) {
+    if (addtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
 
@@ -1005,6 +1147,7 @@ Randh_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         mi = PyFloat_AS_DOUBLE(self->min);
     else
         mi = Stream_getData((Stream *)self->min_stream)[0];
+
     if (self->modebuffer[3] == 0)
         ma = PyFloat_AS_DOUBLE(self->max);
     else
@@ -1040,210 +1183,224 @@ static PyObject * Randh_inplace_div(Randh *self, PyObject *arg) { INPLACE_DIV };
 static PyObject *
 Randh_setMin(Randh *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->min);
-	if (isNumber == 1) {
-		self->min = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->min);
+
+    if (isNumber == 1)
+    {
+        self->min = PyNumber_Float(tmp);
         self->modebuffer[2] = 0;
-	}
-	else {
-		self->min = tmp;
+    }
+    else
+    {
+        self->min = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->min, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->min_stream);
         self->min_stream = (Stream *)streamtmp;
-		self->modebuffer[2] = 1;
-	}
+        self->modebuffer[2] = 1;
+    }
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 Randh_setMax(Randh *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->max);
-	if (isNumber == 1) {
-		self->max = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->max);
+
+    if (isNumber == 1)
+    {
+        self->max = PyNumber_Float(tmp);
         self->modebuffer[3] = 0;
-	}
-	else {
-		self->max = tmp;
+    }
+    else
+    {
+        self->max = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->max, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->max_stream);
         self->max_stream = (Stream *)streamtmp;
-		self->modebuffer[3] = 1;
-	}
+        self->modebuffer[3] = 1;
+    }
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 Randh_setFreq(Randh *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->freq);
-	if (isNumber == 1) {
-		self->freq = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->freq);
+
+    if (isNumber == 1)
+    {
+        self->freq = PyNumber_Float(tmp);
         self->modebuffer[4] = 0;
-	}
-	else {
-		self->freq = tmp;
+    }
+    else
+    {
+        self->freq = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->freq_stream);
         self->freq_stream = (Stream *)streamtmp;
-		self->modebuffer[4] = 1;
-	}
+        self->modebuffer[4] = 1;
+    }
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
-static PyMemberDef Randh_members[] = {
-{"server", T_OBJECT_EX, offsetof(Randh, server), 0, "Pyo server."},
-{"stream", T_OBJECT_EX, offsetof(Randh, stream), 0, "Stream object."},
-{"min", T_OBJECT_EX, offsetof(Randh, min), 0, "Minimum possible value."},
-{"max", T_OBJECT_EX, offsetof(Randh, max), 0, "Maximum possible value."},
-{"freq", T_OBJECT_EX, offsetof(Randh, freq), 0, "Polling frequency."},
-{"mul", T_OBJECT_EX, offsetof(Randh, mul), 0, "Mul factor."},
-{"add", T_OBJECT_EX, offsetof(Randh, add), 0, "Add factor."},
-{NULL}  /* Sentinel */
+static PyMemberDef Randh_members[] =
+{
+    {"server", T_OBJECT_EX, offsetof(Randh, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(Randh, stream), 0, "Stream object."},
+    {"min", T_OBJECT_EX, offsetof(Randh, min), 0, "Minimum possible value."},
+    {"max", T_OBJECT_EX, offsetof(Randh, max), 0, "Maximum possible value."},
+    {"freq", T_OBJECT_EX, offsetof(Randh, freq), 0, "Polling frequency."},
+    {"mul", T_OBJECT_EX, offsetof(Randh, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(Randh, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
 };
 
-static PyMethodDef Randh_methods[] = {
-{"getServer", (PyCFunction)Randh_getServer, METH_NOARGS, "Returns server object."},
-{"_getStream", (PyCFunction)Randh_getStream, METH_NOARGS, "Returns stream object."},
-{"play", (PyCFunction)Randh_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"out", (PyCFunction)Randh_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-{"stop", (PyCFunction)Randh_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
-{"setMin", (PyCFunction)Randh_setMin, METH_O, "Sets minimum possible value."},
-{"setMax", (PyCFunction)Randh_setMax, METH_O, "Sets maximum possible value."},
-{"setFreq", (PyCFunction)Randh_setFreq, METH_O, "Sets polling frequency."},
-{"setMul", (PyCFunction)Randh_setMul, METH_O, "Sets oscillator mul factor."},
-{"setAdd", (PyCFunction)Randh_setAdd, METH_O, "Sets oscillator add factor."},
-{"setSub", (PyCFunction)Randh_setSub, METH_O, "Sets inverse add factor."},
-{"setDiv", (PyCFunction)Randh_setDiv, METH_O, "Sets inverse mul factor."},
-{NULL}  /* Sentinel */
+static PyMethodDef Randh_methods[] =
+{
+    {"getServer", (PyCFunction)Randh_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)Randh_getStream, METH_NOARGS, "Returns stream object."},
+    {"play", (PyCFunction)Randh_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)Randh_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)Randh_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"setMin", (PyCFunction)Randh_setMin, METH_O, "Sets minimum possible value."},
+    {"setMax", (PyCFunction)Randh_setMax, METH_O, "Sets maximum possible value."},
+    {"setFreq", (PyCFunction)Randh_setFreq, METH_O, "Sets polling frequency."},
+    {"setMul", (PyCFunction)Randh_setMul, METH_O, "Sets oscillator mul factor."},
+    {"setAdd", (PyCFunction)Randh_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)Randh_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)Randh_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Randh_as_number = {
-(binaryfunc)Randh_add,                         /*nb_add*/
-(binaryfunc)Randh_sub,                         /*nb_subtract*/
-(binaryfunc)Randh_multiply,                    /*nb_multiply*/
-INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
-0,                                              /*nb_remainder*/
-0,                                              /*nb_divmod*/
-0,                                              /*nb_power*/
-0,                                              /*nb_neg*/
-0,                                              /*nb_pos*/
-0,                                              /*(unaryfunc)array_abs,*/
-0,                                              /*nb_nonzero*/
-0,                                              /*nb_invert*/
-0,                                              /*nb_lshift*/
-0,                                              /*nb_rshift*/
-0,                                              /*nb_and*/
-0,                                              /*nb_xor*/
-0,                                              /*nb_or*/
-INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
-0,                                              /*nb_int*/
-0,                                              /*nb_long*/
-0,                                              /*nb_float*/
-INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
-(binaryfunc)Randh_inplace_add,                 /*inplace_add*/
-(binaryfunc)Randh_inplace_sub,                 /*inplace_subtract*/
-(binaryfunc)Randh_inplace_multiply,            /*inplace_multiply*/
-INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
-0,                                              /*inplace_remainder*/
-0,                                              /*inplace_power*/
-0,                                              /*inplace_lshift*/
-0,                                              /*inplace_rshift*/
-0,                                              /*inplace_and*/
-0,                                              /*inplace_xor*/
-0,                                              /*inplace_or*/
-0,                                              /*nb_floor_divide*/
-(binaryfunc)Randh_div,                       /*nb_true_divide*/
-0,                                              /*nb_inplace_floor_divide*/
-(binaryfunc)Randh_inplace_div,                       /*nb_inplace_true_divide*/
-0,                                              /* nb_index */
+static PyNumberMethods Randh_as_number =
+{
+    (binaryfunc)Randh_add,                         /*nb_add*/
+    (binaryfunc)Randh_sub,                         /*nb_subtract*/
+    (binaryfunc)Randh_multiply,                    /*nb_multiply*/
+    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
+    0,                                              /*nb_remainder*/
+    0,                                              /*nb_divmod*/
+    0,                                              /*nb_power*/
+    0,                                              /*nb_neg*/
+    0,                                              /*nb_pos*/
+    0,                                              /*(unaryfunc)array_abs,*/
+    0,                                              /*nb_nonzero*/
+    0,                                              /*nb_invert*/
+    0,                                              /*nb_lshift*/
+    0,                                              /*nb_rshift*/
+    0,                                              /*nb_and*/
+    0,                                              /*nb_xor*/
+    0,                                              /*nb_or*/
+    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
+    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
+    (binaryfunc)Randh_inplace_add,                 /*inplace_add*/
+    (binaryfunc)Randh_inplace_sub,                 /*inplace_subtract*/
+    (binaryfunc)Randh_inplace_multiply,            /*inplace_multiply*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
+    0,                                              /*inplace_remainder*/
+    0,                                              /*inplace_power*/
+    0,                                              /*inplace_lshift*/
+    0,                                              /*inplace_rshift*/
+    0,                                              /*inplace_and*/
+    0,                                              /*inplace_xor*/
+    0,                                              /*inplace_or*/
+    0,                                              /*nb_floor_divide*/
+    (binaryfunc)Randh_div,                       /*nb_true_divide*/
+    0,                                              /*nb_inplace_floor_divide*/
+    (binaryfunc)Randh_inplace_div,                       /*nb_inplace_true_divide*/
+    0,                                              /* nb_index */
 };
 
-PyTypeObject RandhType = {
-PyVarObject_HEAD_INIT(NULL, 0)
-"_pyo.Randh_base",                                   /*tp_name*/
-sizeof(Randh),                                 /*tp_basicsize*/
-0,                                              /*tp_itemsize*/
-(destructor)Randh_dealloc,                     /*tp_dealloc*/
-0,                                              /*tp_print*/
-0,                                              /*tp_getattr*/
-0,                                              /*tp_setattr*/
-0,                                              /*tp_as_async (tp_compare in Python 2)*/
-0,                                              /*tp_repr*/
-&Randh_as_number,                              /*tp_as_number*/
-0,                                              /*tp_as_sequence*/
-0,                                              /*tp_as_mapping*/
-0,                                              /*tp_hash */
-0,                                              /*tp_call*/
-0,                                              /*tp_str*/
-0,                                              /*tp_getattro*/
-0,                                              /*tp_setattro*/
-0,                                              /*tp_as_buffer*/
-Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
-"Randh objects. Periodically generates a new random value.",           /* tp_doc */
-(traverseproc)Randh_traverse,                  /* tp_traverse */
-(inquiry)Randh_clear,                          /* tp_clear */
-0,                                              /* tp_richcompare */
-0,                                              /* tp_weaklistoffset */
-0,                                              /* tp_iter */
-0,                                              /* tp_iternext */
-Randh_methods,                                 /* tp_methods */
-Randh_members,                                 /* tp_members */
-0,                                              /* tp_getset */
-0,                                              /* tp_base */
-0,                                              /* tp_dict */
-0,                                              /* tp_descr_get */
-0,                                              /* tp_descr_set */
-0,                                              /* tp_dictoffset */
-0,                          /* tp_init */
-0,                                              /* tp_alloc */
-Randh_new,                                     /* tp_new */
+PyTypeObject RandhType =
+{
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "_pyo.Randh_base",                                   /*tp_name*/
+    sizeof(Randh),                                 /*tp_basicsize*/
+    0,                                              /*tp_itemsize*/
+    (destructor)Randh_dealloc,                     /*tp_dealloc*/
+    0,                                              /*tp_print*/
+    0,                                              /*tp_getattr*/
+    0,                                              /*tp_setattr*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
+    0,                                              /*tp_repr*/
+    &Randh_as_number,                              /*tp_as_number*/
+    0,                                              /*tp_as_sequence*/
+    0,                                              /*tp_as_mapping*/
+    0,                                              /*tp_hash */
+    0,                                              /*tp_call*/
+    0,                                              /*tp_str*/
+    0,                                              /*tp_getattro*/
+    0,                                              /*tp_setattro*/
+    0,                                              /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "Randh objects. Periodically generates a new random value.",           /* tp_doc */
+    (traverseproc)Randh_traverse,                  /* tp_traverse */
+    (inquiry)Randh_clear,                          /* tp_clear */
+    0,                                              /* tp_richcompare */
+    0,                                              /* tp_weaklistoffset */
+    0,                                              /* tp_iter */
+    0,                                              /* tp_iternext */
+    Randh_methods,                                 /* tp_methods */
+    Randh_members,                                 /* tp_members */
+    0,                                              /* tp_getset */
+    0,                                              /* tp_base */
+    0,                                              /* tp_dict */
+    0,                                              /* tp_descr_get */
+    0,                                              /* tp_descr_set */
+    0,                                              /* tp_dictoffset */
+    0,                          /* tp_init */
+    0,                                              /* tp_alloc */
+    Randh_new,                                     /* tp_new */
 };
 
 /****************/
 /**** Choice *****/
 /****************/
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     PyObject *freq;
     Stream *freq_stream;
@@ -1255,39 +1412,49 @@ typedef struct {
 } Choice;
 
 static void
-Choice_generate_i(Choice *self) {
+Choice_generate_i(Choice *self)
+{
     int i;
     MYFLT inc;
     MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
     inc = fr / self->sr;
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->time += inc;
+
         if (self->time < 0.0)
             self->time += 1.0;
-        else if (self->time >= 1.0) {
+        else if (self->time >= 1.0)
+        {
             self->time -= 1.0;
             self->value = self->choice[(int)(RANDOM_UNIFORM * self->chSize)];
         }
+
         self->data[i] = self->value;
     }
 }
 
 static void
-Choice_generate_a(Choice *self) {
+Choice_generate_a(Choice *self)
+{
     int i;
     MYFLT inc;
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         inc = fr[i] / self->sr;
         self->time += inc;
+
         if (self->time < 0.0)
             self->time += 1.0;
-        else if (self->time >= 1.0) {
+        else if (self->time >= 1.0)
+        {
             self->time -= 1.0;
             self->value = self->choice[(int)(RANDOM_UNIFORM * self->chSize)];
         }
+
         self->data[i] = self->value;
     }
 }
@@ -1309,39 +1476,51 @@ Choice_setProcMode(Choice *self)
     procmode = self->modebuffer[2];
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-	switch (procmode) {
+    switch (procmode)
+    {
         case 0:
             self->proc_func_ptr = Choice_generate_i;
             break;
+
         case 1:
             self->proc_func_ptr = Choice_generate_a;
             break;
     }
-	switch (muladdmode) {
+
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = Choice_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = Choice_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = Choice_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = Choice_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = Choice_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = Choice_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = Choice_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = Choice_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = Choice_postprocessing_revareva;
             break;
@@ -1386,16 +1565,16 @@ static PyObject *
 Choice_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *choicetmp=NULL, *freqtmp=NULL, *multmp=NULL, *addtmp=NULL;
+    PyObject *choicetmp = NULL, *freqtmp = NULL, *multmp = NULL, *addtmp = NULL;
     Choice *self;
     self = (Choice *)type->tp_alloc(type, 0);
 
     self->freq = PyFloat_FromDouble(1.);
     self->value = 0.0;
     self->time = 1.0;
-	self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
-	self->modebuffer[2] = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
+    self->modebuffer[2] = 0;
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Choice_compute_next_data_frame);
@@ -1406,19 +1585,23 @@ Choice_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &choicetmp, &freqtmp, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    if (choicetmp) {
+    if (choicetmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setChoice", "O", choicetmp);
     }
 
-    if (freqtmp) {
+    if (freqtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
     }
 
-    if (multmp) {
+    if (multmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
 
-    if (addtmp) {
+    if (addtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
 
@@ -1455,169 +1638,180 @@ static PyObject *
 Choice_setChoice(Choice *self, PyObject *arg)
 {
     int i;
-	PyObject *tmp;
+    PyObject *tmp;
 
-	if (! PyList_Check(arg)) {
+    if (! PyList_Check(arg))
+    {
         PyErr_SetString(PyExc_TypeError, "The choice attribute must be a list.");
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
 
     tmp = arg;
     self->chSize = PyList_Size(tmp);
     self->choice = (MYFLT *)realloc(self->choice, self->chSize * sizeof(MYFLT));
-    for (i=0; i<self->chSize; i++) {
+
+    for (i = 0; i < self->chSize; i++)
+    {
         self->choice[i] = PyFloat_AsDouble(PyList_GET_ITEM(tmp, i));
     }
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 Choice_setFreq(Choice *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->freq);
-	if (isNumber == 1) {
-		self->freq = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->freq);
+
+    if (isNumber == 1)
+    {
+        self->freq = PyNumber_Float(tmp);
         self->modebuffer[2] = 0;
-	}
-	else {
-		self->freq = tmp;
+    }
+    else
+    {
+        self->freq = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->freq_stream);
         self->freq_stream = (Stream *)streamtmp;
-		self->modebuffer[2] = 1;
-	}
+        self->modebuffer[2] = 1;
+    }
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
-static PyMemberDef Choice_members[] = {
-{"server", T_OBJECT_EX, offsetof(Choice, server), 0, "Pyo server."},
-{"stream", T_OBJECT_EX, offsetof(Choice, stream), 0, "Stream object."},
-{"freq", T_OBJECT_EX, offsetof(Choice, freq), 0, "Polling frequency."},
-{"mul", T_OBJECT_EX, offsetof(Choice, mul), 0, "Mul factor."},
-{"add", T_OBJECT_EX, offsetof(Choice, add), 0, "Add factor."},
-{NULL}  /* Sentinel */
+static PyMemberDef Choice_members[] =
+{
+    {"server", T_OBJECT_EX, offsetof(Choice, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(Choice, stream), 0, "Stream object."},
+    {"freq", T_OBJECT_EX, offsetof(Choice, freq), 0, "Polling frequency."},
+    {"mul", T_OBJECT_EX, offsetof(Choice, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(Choice, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
 };
 
-static PyMethodDef Choice_methods[] = {
-{"getServer", (PyCFunction)Choice_getServer, METH_NOARGS, "Returns server object."},
-{"_getStream", (PyCFunction)Choice_getStream, METH_NOARGS, "Returns stream object."},
-{"play", (PyCFunction)Choice_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"out", (PyCFunction)Choice_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-{"stop", (PyCFunction)Choice_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
-{"setChoice", (PyCFunction)Choice_setChoice, METH_O, "Sets list of possible floats."},
-{"setFreq", (PyCFunction)Choice_setFreq, METH_O, "Sets polling frequency."},
-{"setMul", (PyCFunction)Choice_setMul, METH_O, "Sets oscillator mul factor."},
-{"setAdd", (PyCFunction)Choice_setAdd, METH_O, "Sets oscillator add factor."},
-{"setSub", (PyCFunction)Choice_setSub, METH_O, "Sets inverse add factor."},
-{"setDiv", (PyCFunction)Choice_setDiv, METH_O, "Sets inverse mul factor."},
-{NULL}  /* Sentinel */
+static PyMethodDef Choice_methods[] =
+{
+    {"getServer", (PyCFunction)Choice_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)Choice_getStream, METH_NOARGS, "Returns stream object."},
+    {"play", (PyCFunction)Choice_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)Choice_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)Choice_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"setChoice", (PyCFunction)Choice_setChoice, METH_O, "Sets list of possible floats."},
+    {"setFreq", (PyCFunction)Choice_setFreq, METH_O, "Sets polling frequency."},
+    {"setMul", (PyCFunction)Choice_setMul, METH_O, "Sets oscillator mul factor."},
+    {"setAdd", (PyCFunction)Choice_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)Choice_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)Choice_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Choice_as_number = {
-(binaryfunc)Choice_add,                         /*nb_add*/
-(binaryfunc)Choice_sub,                         /*nb_subtract*/
-(binaryfunc)Choice_multiply,                    /*nb_multiply*/
-INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
-0,                                              /*nb_remainder*/
-0,                                              /*nb_divmod*/
-0,                                              /*nb_power*/
-0,                                              /*nb_neg*/
-0,                                              /*nb_pos*/
-0,                                              /*(unaryfunc)array_abs,*/
-0,                                              /*nb_nonzero*/
-0,                                              /*nb_invert*/
-0,                                              /*nb_lshift*/
-0,                                              /*nb_rshift*/
-0,                                              /*nb_and*/
-0,                                              /*nb_xor*/
-0,                                              /*nb_or*/
-INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
-0,                                              /*nb_int*/
-0,                                              /*nb_long*/
-0,                                              /*nb_float*/
-INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
-(binaryfunc)Choice_inplace_add,                 /*inplace_add*/
-(binaryfunc)Choice_inplace_sub,                 /*inplace_subtract*/
-(binaryfunc)Choice_inplace_multiply,            /*inplace_multiply*/
-INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
-0,                                              /*inplace_remainder*/
-0,                                              /*inplace_power*/
-0,                                              /*inplace_lshift*/
-0,                                              /*inplace_rshift*/
-0,                                              /*inplace_and*/
-0,                                              /*inplace_xor*/
-0,                                              /*inplace_or*/
-0,                                              /*nb_floor_divide*/
-(binaryfunc)Choice_div,                       /*nb_true_divide*/
-0,                                              /*nb_inplace_floor_divide*/
-(binaryfunc)Choice_inplace_div,                       /*nb_inplace_true_divide*/
-0,                                              /* nb_index */
+static PyNumberMethods Choice_as_number =
+{
+    (binaryfunc)Choice_add,                         /*nb_add*/
+    (binaryfunc)Choice_sub,                         /*nb_subtract*/
+    (binaryfunc)Choice_multiply,                    /*nb_multiply*/
+    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
+    0,                                              /*nb_remainder*/
+    0,                                              /*nb_divmod*/
+    0,                                              /*nb_power*/
+    0,                                              /*nb_neg*/
+    0,                                              /*nb_pos*/
+    0,                                              /*(unaryfunc)array_abs,*/
+    0,                                              /*nb_nonzero*/
+    0,                                              /*nb_invert*/
+    0,                                              /*nb_lshift*/
+    0,                                              /*nb_rshift*/
+    0,                                              /*nb_and*/
+    0,                                              /*nb_xor*/
+    0,                                              /*nb_or*/
+    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
+    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
+    (binaryfunc)Choice_inplace_add,                 /*inplace_add*/
+    (binaryfunc)Choice_inplace_sub,                 /*inplace_subtract*/
+    (binaryfunc)Choice_inplace_multiply,            /*inplace_multiply*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
+    0,                                              /*inplace_remainder*/
+    0,                                              /*inplace_power*/
+    0,                                              /*inplace_lshift*/
+    0,                                              /*inplace_rshift*/
+    0,                                              /*inplace_and*/
+    0,                                              /*inplace_xor*/
+    0,                                              /*inplace_or*/
+    0,                                              /*nb_floor_divide*/
+    (binaryfunc)Choice_div,                       /*nb_true_divide*/
+    0,                                              /*nb_inplace_floor_divide*/
+    (binaryfunc)Choice_inplace_div,                       /*nb_inplace_true_divide*/
+    0,                                              /* nb_index */
 };
 
-PyTypeObject ChoiceType = {
-PyVarObject_HEAD_INIT(NULL, 0)
-"_pyo.Choice_base",                                   /*tp_name*/
-sizeof(Choice),                                 /*tp_basicsize*/
-0,                                              /*tp_itemsize*/
-(destructor)Choice_dealloc,                     /*tp_dealloc*/
-0,                                              /*tp_print*/
-0,                                              /*tp_getattr*/
-0,                                              /*tp_setattr*/
-0,                                              /*tp_as_async (tp_compare in Python 2)*/
-0,                                              /*tp_repr*/
-&Choice_as_number,                              /*tp_as_number*/
-0,                                              /*tp_as_sequence*/
-0,                                              /*tp_as_mapping*/
-0,                                              /*tp_hash */
-0,                                              /*tp_call*/
-0,                                              /*tp_str*/
-0,                                              /*tp_getattro*/
-0,                                              /*tp_setattro*/
-0,                                              /*tp_as_buffer*/
-Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
-"Choice objects. Periodically generates a new random value from a list.",           /* tp_doc */
-(traverseproc)Choice_traverse,                  /* tp_traverse */
-(inquiry)Choice_clear,                          /* tp_clear */
-0,                                              /* tp_richcompare */
-0,                                              /* tp_weaklistoffset */
-0,                                              /* tp_iter */
-0,                                              /* tp_iternext */
-Choice_methods,                                 /* tp_methods */
-Choice_members,                                 /* tp_members */
-0,                                              /* tp_getset */
-0,                                              /* tp_base */
-0,                                              /* tp_dict */
-0,                                              /* tp_descr_get */
-0,                                              /* tp_descr_set */
-0,                                              /* tp_dictoffset */
-0,                          /* tp_init */
-0,                                              /* tp_alloc */
-Choice_new,                                     /* tp_new */
+PyTypeObject ChoiceType =
+{
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "_pyo.Choice_base",                                   /*tp_name*/
+    sizeof(Choice),                                 /*tp_basicsize*/
+    0,                                              /*tp_itemsize*/
+    (destructor)Choice_dealloc,                     /*tp_dealloc*/
+    0,                                              /*tp_print*/
+    0,                                              /*tp_getattr*/
+    0,                                              /*tp_setattr*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
+    0,                                              /*tp_repr*/
+    &Choice_as_number,                              /*tp_as_number*/
+    0,                                              /*tp_as_sequence*/
+    0,                                              /*tp_as_mapping*/
+    0,                                              /*tp_hash */
+    0,                                              /*tp_call*/
+    0,                                              /*tp_str*/
+    0,                                              /*tp_getattro*/
+    0,                                              /*tp_setattro*/
+    0,                                              /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "Choice objects. Periodically generates a new random value from a list.",           /* tp_doc */
+    (traverseproc)Choice_traverse,                  /* tp_traverse */
+    (inquiry)Choice_clear,                          /* tp_clear */
+    0,                                              /* tp_richcompare */
+    0,                                              /* tp_weaklistoffset */
+    0,                                              /* tp_iter */
+    0,                                              /* tp_iternext */
+    Choice_methods,                                 /* tp_methods */
+    Choice_members,                                 /* tp_members */
+    0,                                              /* tp_getset */
+    0,                                              /* tp_base */
+    0,                                              /* tp_dict */
+    0,                                              /* tp_descr_get */
+    0,                                              /* tp_descr_set */
+    0,                                              /* tp_dictoffset */
+    0,                          /* tp_init */
+    0,                                              /* tp_alloc */
+    Choice_new,                                     /* tp_new */
 };
 
 /****************/
 /**** RandInt ***/
 /****************/
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     PyObject *max;
     PyObject *freq;
@@ -1629,81 +1823,101 @@ typedef struct {
 } RandInt;
 
 static void
-RandInt_generate_ii(RandInt *self) {
+RandInt_generate_ii(RandInt *self)
+{
     int i;
     MYFLT inc;
     MYFLT ma = PyFloat_AS_DOUBLE(self->max);
     MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
     inc = fr / self->sr;
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->time += inc;
+
         if (self->time < 0.0)
             self->time += 1.0;
-        else if (self->time >= 1.0) {
+        else if (self->time >= 1.0)
+        {
             self->time -= 1.0;
             self->value = (MYFLT)((int)(RANDOM_UNIFORM * ma));
         }
+
         self->data[i] = self->value;
     }
 }
 
 static void
-RandInt_generate_ai(RandInt *self) {
+RandInt_generate_ai(RandInt *self)
+{
     int i;
     MYFLT inc;
     MYFLT *ma = Stream_getData((Stream *)self->max_stream);
     MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
     inc = fr / self->sr;
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->time += inc;
+
         if (self->time < 0.0)
             self->time += 1.0;
-        else if (self->time >= 1.0) {
+        else if (self->time >= 1.0)
+        {
             self->time -= 1.0;
             self->value = (MYFLT)((int)(RANDOM_UNIFORM * ma[i]));
         }
+
         self->data[i] = self->value;
     }
 }
 
 static void
-RandInt_generate_ia(RandInt *self) {
+RandInt_generate_ia(RandInt *self)
+{
     int i;
     MYFLT inc;
     MYFLT ma = PyFloat_AS_DOUBLE(self->max);
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         inc = fr[i] / self->sr;
         self->time += inc;
+
         if (self->time < 0.0)
             self->time += 1.0;
-        else if (self->time >= 1.0) {
+        else if (self->time >= 1.0)
+        {
             self->time -= 1.0;
             self->value = (MYFLT)((int)(RANDOM_UNIFORM * ma));
         }
+
         self->data[i] = self->value;
     }
 }
 
 static void
-RandInt_generate_aa(RandInt *self) {
+RandInt_generate_aa(RandInt *self)
+{
     int i;
     MYFLT inc;
     MYFLT *ma = Stream_getData((Stream *)self->max_stream);
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         inc = fr[i] / self->sr;
         self->time += inc;
+
         if (self->time < 0.0)
             self->time += 1.0;
-        else if (self->time >= 1.0) {
+        else if (self->time >= 1.0)
+        {
             self->time -= 1.0;
             self->value = (MYFLT)((int)(RANDOM_UNIFORM * ma[i]));
         }
+
         self->data[i] = self->value;
     }
 }
@@ -1725,45 +1939,59 @@ RandInt_setProcMode(RandInt *self)
     procmode = self->modebuffer[2] + self->modebuffer[3] * 10;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-	switch (procmode) {
+    switch (procmode)
+    {
         case 0:
             self->proc_func_ptr = RandInt_generate_ii;
             break;
+
         case 1:
             self->proc_func_ptr = RandInt_generate_ai;
             break;
+
         case 10:
             self->proc_func_ptr = RandInt_generate_ia;
             break;
+
         case 11:
             self->proc_func_ptr = RandInt_generate_aa;
             break;
     }
-	switch (muladdmode) {
+
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = RandInt_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = RandInt_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = RandInt_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = RandInt_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = RandInt_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = RandInt_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = RandInt_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = RandInt_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = RandInt_postprocessing_revareva;
             break;
@@ -1811,7 +2039,7 @@ static PyObject *
 RandInt_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *maxtmp=NULL, *freqtmp=NULL, *multmp=NULL, *addtmp=NULL;
+    PyObject *maxtmp = NULL, *freqtmp = NULL, *multmp = NULL, *addtmp = NULL;
     RandInt *self;
     self = (RandInt *)type->tp_alloc(type, 0);
 
@@ -1819,10 +2047,10 @@ RandInt_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->freq = PyFloat_FromDouble(1.);
     self->value = 0.0;
     self->time = 1.0;
-	self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
-	self->modebuffer[2] = 0;
-	self->modebuffer[3] = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
+    self->modebuffer[2] = 0;
+    self->modebuffer[3] = 0;
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, RandInt_compute_next_data_frame);
@@ -1833,19 +2061,23 @@ RandInt_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOO", kwlist, &maxtmp, &freqtmp, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    if (maxtmp) {
+    if (maxtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setMax", "O", maxtmp);
     }
 
-    if (freqtmp) {
+    if (freqtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
     }
 
-    if (multmp) {
+    if (multmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
 
-    if (addtmp) {
+    if (addtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
 
@@ -1881,177 +2113,188 @@ static PyObject * RandInt_inplace_div(RandInt *self, PyObject *arg) { INPLACE_DI
 static PyObject *
 RandInt_setMax(RandInt *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->max);
-	if (isNumber == 1) {
-		self->max = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->max);
+
+    if (isNumber == 1)
+    {
+        self->max = PyNumber_Float(tmp);
         self->modebuffer[2] = 0;
-	}
-	else {
-		self->max = tmp;
+    }
+    else
+    {
+        self->max = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->max, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->max_stream);
         self->max_stream = (Stream *)streamtmp;
-		self->modebuffer[2] = 1;
-	}
+        self->modebuffer[2] = 1;
+    }
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 RandInt_setFreq(RandInt *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->freq);
-	if (isNumber == 1) {
-		self->freq = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->freq);
+
+    if (isNumber == 1)
+    {
+        self->freq = PyNumber_Float(tmp);
         self->modebuffer[3] = 0;
-	}
-	else {
-		self->freq = tmp;
+    }
+    else
+    {
+        self->freq = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->freq_stream);
         self->freq_stream = (Stream *)streamtmp;
-		self->modebuffer[3] = 1;
-	}
+        self->modebuffer[3] = 1;
+    }
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
-static PyMemberDef RandInt_members[] = {
-{"server", T_OBJECT_EX, offsetof(RandInt, server), 0, "Pyo server."},
-{"stream", T_OBJECT_EX, offsetof(RandInt, stream), 0, "Stream object."},
-{"max", T_OBJECT_EX, offsetof(RandInt, max), 0, "Maximum possible value."},
-{"freq", T_OBJECT_EX, offsetof(RandInt, freq), 0, "Polling frequency."},
-{"mul", T_OBJECT_EX, offsetof(RandInt, mul), 0, "Mul factor."},
-{"add", T_OBJECT_EX, offsetof(RandInt, add), 0, "Add factor."},
-{NULL}  /* Sentinel */
+static PyMemberDef RandInt_members[] =
+{
+    {"server", T_OBJECT_EX, offsetof(RandInt, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(RandInt, stream), 0, "Stream object."},
+    {"max", T_OBJECT_EX, offsetof(RandInt, max), 0, "Maximum possible value."},
+    {"freq", T_OBJECT_EX, offsetof(RandInt, freq), 0, "Polling frequency."},
+    {"mul", T_OBJECT_EX, offsetof(RandInt, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(RandInt, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
 };
 
-static PyMethodDef RandInt_methods[] = {
-{"getServer", (PyCFunction)RandInt_getServer, METH_NOARGS, "Returns server object."},
-{"_getStream", (PyCFunction)RandInt_getStream, METH_NOARGS, "Returns stream object."},
-{"play", (PyCFunction)RandInt_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"out", (PyCFunction)RandInt_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-{"stop", (PyCFunction)RandInt_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
-{"setMax", (PyCFunction)RandInt_setMax, METH_O, "Sets maximum possible value."},
-{"setFreq", (PyCFunction)RandInt_setFreq, METH_O, "Sets polling frequency."},
-{"setMul", (PyCFunction)RandInt_setMul, METH_O, "Sets oscillator mul factor."},
-{"setAdd", (PyCFunction)RandInt_setAdd, METH_O, "Sets oscillator add factor."},
-{"setSub", (PyCFunction)RandInt_setSub, METH_O, "Sets inverse add factor."},
-{"setDiv", (PyCFunction)RandInt_setDiv, METH_O, "Sets inverse mul factor."},
-{NULL}  /* Sentinel */
+static PyMethodDef RandInt_methods[] =
+{
+    {"getServer", (PyCFunction)RandInt_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)RandInt_getStream, METH_NOARGS, "Returns stream object."},
+    {"play", (PyCFunction)RandInt_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)RandInt_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)RandInt_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"setMax", (PyCFunction)RandInt_setMax, METH_O, "Sets maximum possible value."},
+    {"setFreq", (PyCFunction)RandInt_setFreq, METH_O, "Sets polling frequency."},
+    {"setMul", (PyCFunction)RandInt_setMul, METH_O, "Sets oscillator mul factor."},
+    {"setAdd", (PyCFunction)RandInt_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)RandInt_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)RandInt_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods RandInt_as_number = {
-(binaryfunc)RandInt_add,                         /*nb_add*/
-(binaryfunc)RandInt_sub,                         /*nb_subtract*/
-(binaryfunc)RandInt_multiply,                    /*nb_multiply*/
-INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
-0,                                              /*nb_remainder*/
-0,                                              /*nb_divmod*/
-0,                                              /*nb_power*/
-0,                                              /*nb_neg*/
-0,                                              /*nb_pos*/
-0,                                              /*(unaryfunc)array_abs,*/
-0,                                              /*nb_nonzero*/
-0,                                              /*nb_invert*/
-0,                                              /*nb_lshift*/
-0,                                              /*nb_rshift*/
-0,                                              /*nb_and*/
-0,                                              /*nb_xor*/
-0,                                              /*nb_or*/
-INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
-0,                                              /*nb_int*/
-0,                                              /*nb_long*/
-0,                                              /*nb_float*/
-INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
-(binaryfunc)RandInt_inplace_add,                 /*inplace_add*/
-(binaryfunc)RandInt_inplace_sub,                 /*inplace_subtract*/
-(binaryfunc)RandInt_inplace_multiply,            /*inplace_multiply*/
-INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
-0,                                              /*inplace_remainder*/
-0,                                              /*inplace_power*/
-0,                                              /*inplace_lshift*/
-0,                                              /*inplace_rshift*/
-0,                                              /*inplace_and*/
-0,                                              /*inplace_xor*/
-0,                                              /*inplace_or*/
-0,                                              /*nb_floor_divide*/
-(binaryfunc)RandInt_div,                       /*nb_true_divide*/
-0,                                              /*nb_inplace_floor_divide*/
-(binaryfunc)RandInt_inplace_div,                       /*nb_inplace_true_divide*/
-0,                                              /* nb_index */
+static PyNumberMethods RandInt_as_number =
+{
+    (binaryfunc)RandInt_add,                         /*nb_add*/
+    (binaryfunc)RandInt_sub,                         /*nb_subtract*/
+    (binaryfunc)RandInt_multiply,                    /*nb_multiply*/
+    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
+    0,                                              /*nb_remainder*/
+    0,                                              /*nb_divmod*/
+    0,                                              /*nb_power*/
+    0,                                              /*nb_neg*/
+    0,                                              /*nb_pos*/
+    0,                                              /*(unaryfunc)array_abs,*/
+    0,                                              /*nb_nonzero*/
+    0,                                              /*nb_invert*/
+    0,                                              /*nb_lshift*/
+    0,                                              /*nb_rshift*/
+    0,                                              /*nb_and*/
+    0,                                              /*nb_xor*/
+    0,                                              /*nb_or*/
+    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
+    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
+    (binaryfunc)RandInt_inplace_add,                 /*inplace_add*/
+    (binaryfunc)RandInt_inplace_sub,                 /*inplace_subtract*/
+    (binaryfunc)RandInt_inplace_multiply,            /*inplace_multiply*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
+    0,                                              /*inplace_remainder*/
+    0,                                              /*inplace_power*/
+    0,                                              /*inplace_lshift*/
+    0,                                              /*inplace_rshift*/
+    0,                                              /*inplace_and*/
+    0,                                              /*inplace_xor*/
+    0,                                              /*inplace_or*/
+    0,                                              /*nb_floor_divide*/
+    (binaryfunc)RandInt_div,                       /*nb_true_divide*/
+    0,                                              /*nb_inplace_floor_divide*/
+    (binaryfunc)RandInt_inplace_div,                       /*nb_inplace_true_divide*/
+    0,                                              /* nb_index */
 };
 
-PyTypeObject RandIntType = {
-PyVarObject_HEAD_INIT(NULL, 0)
-"_pyo.RandInt_base",                                   /*tp_name*/
-sizeof(RandInt),                                 /*tp_basicsize*/
-0,                                              /*tp_itemsize*/
-(destructor)RandInt_dealloc,                     /*tp_dealloc*/
-0,                                              /*tp_print*/
-0,                                              /*tp_getattr*/
-0,                                              /*tp_setattr*/
-0,                                              /*tp_as_async (tp_compare in Python 2)*/
-0,                                              /*tp_repr*/
-&RandInt_as_number,                              /*tp_as_number*/
-0,                                              /*tp_as_sequence*/
-0,                                              /*tp_as_mapping*/
-0,                                              /*tp_hash */
-0,                                              /*tp_call*/
-0,                                              /*tp_str*/
-0,                                              /*tp_getattro*/
-0,                                              /*tp_setattro*/
-0,                                              /*tp_as_buffer*/
-Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
-"RandInt objects. Periodically generates a new integer random value.",           /* tp_doc */
-(traverseproc)RandInt_traverse,                  /* tp_traverse */
-(inquiry)RandInt_clear,                          /* tp_clear */
-0,                                              /* tp_richcompare */
-0,                                              /* tp_weaklistoffset */
-0,                                              /* tp_iter */
-0,                                              /* tp_iternext */
-RandInt_methods,                                 /* tp_methods */
-RandInt_members,                                 /* tp_members */
-0,                                              /* tp_getset */
-0,                                              /* tp_base */
-0,                                              /* tp_dict */
-0,                                              /* tp_descr_get */
-0,                                              /* tp_descr_set */
-0,                                              /* tp_dictoffset */
-0,                          /* tp_init */
-0,                                              /* tp_alloc */
-RandInt_new,                                     /* tp_new */
+PyTypeObject RandIntType =
+{
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "_pyo.RandInt_base",                                   /*tp_name*/
+    sizeof(RandInt),                                 /*tp_basicsize*/
+    0,                                              /*tp_itemsize*/
+    (destructor)RandInt_dealloc,                     /*tp_dealloc*/
+    0,                                              /*tp_print*/
+    0,                                              /*tp_getattr*/
+    0,                                              /*tp_setattr*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
+    0,                                              /*tp_repr*/
+    &RandInt_as_number,                              /*tp_as_number*/
+    0,                                              /*tp_as_sequence*/
+    0,                                              /*tp_as_mapping*/
+    0,                                              /*tp_hash */
+    0,                                              /*tp_call*/
+    0,                                              /*tp_str*/
+    0,                                              /*tp_getattro*/
+    0,                                              /*tp_setattro*/
+    0,                                              /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "RandInt objects. Periodically generates a new integer random value.",           /* tp_doc */
+    (traverseproc)RandInt_traverse,                  /* tp_traverse */
+    (inquiry)RandInt_clear,                          /* tp_clear */
+    0,                                              /* tp_richcompare */
+    0,                                              /* tp_weaklistoffset */
+    0,                                              /* tp_iter */
+    0,                                              /* tp_iternext */
+    RandInt_methods,                                 /* tp_methods */
+    RandInt_members,                                 /* tp_members */
+    0,                                              /* tp_getset */
+    0,                                              /* tp_base */
+    0,                                              /* tp_dict */
+    0,                                              /* tp_descr_get */
+    0,                                              /* tp_descr_set */
+    0,                                              /* tp_dictoffset */
+    0,                          /* tp_init */
+    0,                                              /* tp_alloc */
+    RandInt_new,                                     /* tp_new */
 };
 
 /*****************/
 /**** RandDur ****/
 /*****************/
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     PyObject *min;
     PyObject *max;
@@ -2064,103 +2307,139 @@ typedef struct {
 } RandDur;
 
 static void
-RandDur_generate_ii(RandDur *self) {
+RandDur_generate_ii(RandDur *self)
+{
     int i;
     MYFLT range;
     MYFLT mi = PyFloat_AS_DOUBLE(self->min);
     MYFLT ma = PyFloat_AS_DOUBLE(self->max);
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->time += self->inc;
+
         if (self->time < 0.0)
             self->time += 1.0;
-        else if (self->time >= 1.0) {
+        else if (self->time >= 1.0)
+        {
             self->time -= 1.0;
+
             if (mi < 0.0)
                 mi = 0.0;
+
             range = ma - mi;
+
             if (range < 0.0)
                 range = 0.0;
+
             self->value = range * RANDOM_UNIFORM + mi;
             self->inc = (1.0 / self->value) / self->sr;
         }
+
         self->data[i] = self->value;
     }
 }
 
 static void
-RandDur_generate_ai(RandDur *self) {
+RandDur_generate_ai(RandDur *self)
+{
     int i;
     MYFLT range, mi;
     MYFLT *min = Stream_getData((Stream *)self->min_stream);
     MYFLT ma = PyFloat_AS_DOUBLE(self->max);
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->time += self->inc;
+
         if (self->time < 0.0)
             self->time += 1.0;
-        else if (self->time >= 1.0) {
+        else if (self->time >= 1.0)
+        {
             self->time -= 1.0;
             mi = min[i];
+
             if (mi < 0.0)
                 mi = 0.0;
+
             range = ma - mi;
+
             if (range < 0.0)
                 range = 0.0;
+
             self->value = range * RANDOM_UNIFORM + mi;
             self->inc = (1.0 / self->value) / self->sr;
         }
+
         self->data[i] = self->value;
     }
 }
 
 static void
-RandDur_generate_ia(RandDur *self) {
+RandDur_generate_ia(RandDur *self)
+{
     int i;
     MYFLT range;
     MYFLT mi = PyFloat_AS_DOUBLE(self->min);
     MYFLT *ma = Stream_getData((Stream *)self->max_stream);
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->time += self->inc;
+
         if (self->time < 0.0)
             self->time += 1.0;
-        else if (self->time >= 1.0) {
+        else if (self->time >= 1.0)
+        {
             self->time -= 1.0;
+
             if (mi < 0.0)
                 mi = 0.0;
+
             range = ma[i] - mi;
+
             if (range < 0.0)
                 range = 0.0;
+
             self->value = range * RANDOM_UNIFORM + mi;
             self->inc = (1.0 / self->value) / self->sr;
         }
+
         self->data[i] = self->value;
     }
 }
 
 static void
-RandDur_generate_aa(RandDur *self) {
+RandDur_generate_aa(RandDur *self)
+{
     int i;
     MYFLT range, mi;
     MYFLT *min = Stream_getData((Stream *)self->min_stream);
     MYFLT *ma = Stream_getData((Stream *)self->max_stream);
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->time += self->inc;
+
         if (self->time < 0.0)
             self->time += 1.0;
-        else if (self->time >= 1.0) {
+        else if (self->time >= 1.0)
+        {
             self->time -= 1.0;
             mi = min[i];
+
             if (mi < 0.0)
                 mi = 0.0;
+
             range = ma[i] - mi;
+
             if (range < 0.0)
                 range = 0.0;
+
             self->value = range * RANDOM_UNIFORM + mi;
             self->inc = (1.0 / self->value) / self->sr;
         }
+
         self->data[i] = self->value;
     }
 }
@@ -2182,45 +2461,59 @@ RandDur_setProcMode(RandDur *self)
     procmode = self->modebuffer[2] + self->modebuffer[3] * 10;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-	switch (procmode) {
+    switch (procmode)
+    {
         case 0:
             self->proc_func_ptr = RandDur_generate_ii;
             break;
+
         case 1:
             self->proc_func_ptr = RandDur_generate_ai;
             break;
+
         case 10:
             self->proc_func_ptr = RandDur_generate_ia;
             break;
+
         case 11:
             self->proc_func_ptr = RandDur_generate_aa;
             break;
     }
-	switch (muladdmode) {
+
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = RandDur_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = RandDur_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = RandDur_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = RandDur_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = RandDur_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = RandDur_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = RandDur_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = RandDur_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = RandDur_postprocessing_revareva;
             break;
@@ -2269,7 +2562,7 @@ RandDur_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
     MYFLT mi, ma;
-    PyObject *mintmp=NULL, *maxtmp=NULL, *multmp=NULL, *addtmp=NULL;
+    PyObject *mintmp = NULL, *maxtmp = NULL, *multmp = NULL, *addtmp = NULL;
     RandDur *self;
     self = (RandDur *)type->tp_alloc(type, 0);
 
@@ -2277,10 +2570,10 @@ RandDur_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->max = PyFloat_FromDouble(1.);
     self->value = self->inc = 0.0;
     self->time = 1.0;
-	self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
-	self->modebuffer[2] = 0;
-	self->modebuffer[3] = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
+    self->modebuffer[2] = 0;
+    self->modebuffer[3] = 0;
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, RandDur_compute_next_data_frame);
@@ -2291,19 +2584,23 @@ RandDur_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOO", kwlist, &mintmp, &maxtmp, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    if (mintmp) {
+    if (mintmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setMin", "O", mintmp);
     }
 
-    if (maxtmp) {
+    if (maxtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setMax", "O", maxtmp);
     }
 
-    if (multmp) {
+    if (multmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
 
-    if (addtmp) {
+    if (addtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
 
@@ -2315,12 +2612,14 @@ RandDur_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         mi = PyFloat_AS_DOUBLE(self->min);
     else
         mi = Stream_getData((Stream *)self->min_stream)[0];
+
     if (self->modebuffer[3] == 0)
         ma = PyFloat_AS_DOUBLE(self->max);
     else
         ma = Stream_getData((Stream *)self->max_stream)[0];
 
     self->value = (mi + ma) * 0.5;
+
     if (self->value == 0.0)
         self->inc = 0.0;
     else
@@ -2354,66 +2653,73 @@ static PyObject * RandDur_inplace_div(RandDur *self, PyObject *arg) { INPLACE_DI
 static PyObject *
 RandDur_setMin(RandDur *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->min);
-	if (isNumber == 1) {
-		self->min = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->min);
+
+    if (isNumber == 1)
+    {
+        self->min = PyNumber_Float(tmp);
         self->modebuffer[2] = 0;
-	}
-	else {
-		self->min = tmp;
+    }
+    else
+    {
+        self->min = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->min, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->min_stream);
         self->min_stream = (Stream *)streamtmp;
-		self->modebuffer[2] = 1;
-	}
+        self->modebuffer[2] = 1;
+    }
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 RandDur_setMax(RandDur *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->max);
-	if (isNumber == 1) {
-		self->max = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->max);
+
+    if (isNumber == 1)
+    {
+        self->max = PyNumber_Float(tmp);
         self->modebuffer[3] = 0;
-	}
-	else {
-		self->max = tmp;
+    }
+    else
+    {
+        self->max = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->max, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->max_stream);
         self->max_stream = (Stream *)streamtmp;
-		self->modebuffer[3] = 1;
-	}
+        self->modebuffer[3] = 1;
+    }
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
-static PyMemberDef RandDur_members[] = {
+static PyMemberDef RandDur_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(RandDur, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(RandDur, stream), 0, "Stream object."},
     {"min", T_OBJECT_EX, offsetof(RandDur, min), 0, "Minimum possible value."},
@@ -2423,12 +2729,13 @@ static PyMemberDef RandDur_members[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef RandDur_methods[] = {
+static PyMethodDef RandDur_methods[] =
+{
     {"getServer", (PyCFunction)RandDur_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)RandDur_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)RandDur_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)RandDur_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)RandDur_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
+    {"play", (PyCFunction)RandDur_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)RandDur_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)RandDur_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setMin", (PyCFunction)RandDur_setMin, METH_O, "Sets minimum possible value."},
     {"setMax", (PyCFunction)RandDur_setMax, METH_O, "Sets maximum possible value."},
     {"setMul", (PyCFunction)RandDur_setMul, METH_O, "Sets oscillator mul factor."},
@@ -2438,7 +2745,8 @@ static PyMethodDef RandDur_methods[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods RandDur_as_number = {
+static PyNumberMethods RandDur_as_number =
+{
     (binaryfunc)RandDur_add,                         /*nb_add*/
     (binaryfunc)RandDur_sub,                         /*nb_subtract*/
     (binaryfunc)RandDur_multiply,                    /*nb_multiply*/
@@ -2480,7 +2788,8 @@ static PyNumberMethods RandDur_as_number = {
     0,                                              /* nb_index */
 };
 
-PyTypeObject RandDurType = {
+PyTypeObject RandDurType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.RandDur_base",                                   /*tp_name*/
     sizeof(RandDur),                                 /*tp_basicsize*/
@@ -2524,7 +2833,8 @@ PyTypeObject RandDurType = {
 /****************/
 /**** Xnoise *****/
 /****************/
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     PyObject *x1;
     PyObject *x2;
@@ -2554,28 +2864,34 @@ typedef struct {
 
 // no parameter
 static MYFLT
-Xnoise_uniform(Xnoise *self) {
+Xnoise_uniform(Xnoise *self)
+{
     return RANDOM_UNIFORM;
 }
 
 static MYFLT
-Xnoise_linear_min(Xnoise *self) {
+Xnoise_linear_min(Xnoise *self)
+{
     MYFLT a = RANDOM_UNIFORM;
     MYFLT b = RANDOM_UNIFORM;
+
     if (a < b) return a;
     else return b;
 }
 
 static MYFLT
-Xnoise_linear_max(Xnoise *self) {
+Xnoise_linear_max(Xnoise *self)
+{
     MYFLT a = RANDOM_UNIFORM;
     MYFLT b = RANDOM_UNIFORM;
+
     if (a > b) return a;
     else return b;
 }
 
 static MYFLT
-Xnoise_triangle(Xnoise *self) {
+Xnoise_triangle(Xnoise *self)
+{
     MYFLT a = RANDOM_UNIFORM;
     MYFLT b = RANDOM_UNIFORM;
     return ((a + b) * 0.5);
@@ -2583,18 +2899,24 @@ Xnoise_triangle(Xnoise *self) {
 
 // x1 = slope
 static MYFLT
-Xnoise_expon_min(Xnoise *self) {
+Xnoise_expon_min(Xnoise *self)
+{
     if (self->xx1 <= 0.0) self->xx1 = 0.00001;
+
     MYFLT val = -MYLOG(RANDOM_UNIFORM) / self->xx1;
+
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
     else return val;
 }
 
 static MYFLT
-Xnoise_expon_max(Xnoise *self) {
+Xnoise_expon_max(Xnoise *self)
+{
     if (self->xx1 <= 0.0) self->xx1 = 0.00001;
+
     MYFLT val = 1.0 - (-MYLOG(RANDOM_UNIFORM) / self->xx1);
+
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
     else return val;
@@ -2602,12 +2924,16 @@ Xnoise_expon_max(Xnoise *self) {
 
 // x1 = bandwidth
 static MYFLT
-Xnoise_biexpon(Xnoise *self) {
+Xnoise_biexpon(Xnoise *self)
+{
     MYFLT polar, val;
+
     if (self->xx1 <= 0.0) self->xx1 = 0.00001;
+
     MYFLT sum = RANDOM_UNIFORM * 2.0;
 
-    if (sum > 1.0) {
+    if (sum > 1.0)
+    {
         polar = -1;
         sum = 2.0 - sum;
     }
@@ -2622,9 +2948,12 @@ Xnoise_biexpon(Xnoise *self) {
 }
 
 static MYFLT
-Xnoise_cauchy(Xnoise *self) {
+Xnoise_cauchy(Xnoise *self)
+{
     MYFLT rnd, val, dir;
-    do {
+
+    do
+    {
         rnd = RANDOM_UNIFORM;
     }
     while (rnd == 0.5);
@@ -2643,8 +2972,10 @@ Xnoise_cauchy(Xnoise *self) {
 
 // x1 = locator, x2 = shape
 static MYFLT
-Xnoise_weibull(Xnoise *self) {
+Xnoise_weibull(Xnoise *self)
+{
     MYFLT rnd, val;
+
     if (self->xx2 <= 0.0) self->xx2 = 0.00001;
 
     rnd = 1.0 / (1.0 - RANDOM_UNIFORM);
@@ -2657,7 +2988,8 @@ Xnoise_weibull(Xnoise *self) {
 
 // x1 = locator, x2 = bandwidth
 static MYFLT
-Xnoise_gaussian(Xnoise *self) {
+Xnoise_gaussian(Xnoise *self)
+{
     MYFLT rnd, val;
 
     rnd = (RANDOM_UNIFORM + RANDOM_UNIFORM + RANDOM_UNIFORM + RANDOM_UNIFORM + RANDOM_UNIFORM + RANDOM_UNIFORM);
@@ -2670,26 +3002,35 @@ Xnoise_gaussian(Xnoise *self) {
 
 // x1 = gravity center, x2 = compress/expand
 static MYFLT
-Xnoise_poisson(Xnoise *self) {
+Xnoise_poisson(Xnoise *self)
+{
     int i, j, factorial;
     long tot;
     MYFLT val;
+
     if (self->xx1 < 0.1) self->xx1 = 0.1;
+
     if (self->xx2 < 0.1) self->xx2 = 0.1;
 
-    if (self->xx1 != self->lastPoissonX1) {
+    if (self->xx1 != self->lastPoissonX1)
+    {
         self->lastPoissonX1 = self->xx1;
         self->poisson_tab = 0;
         factorial = 1;
-        for (i=1; i<12; i++) {
+
+        for (i = 1; i < 12; i++)
+        {
             factorial *= i;
             tot = (long)(1000.0 * (MYPOW(2.7182818, -self->xx1) * MYPOW(self->xx1, i) / factorial));
-            for (j=0; j<tot; j++) {
+
+            for (j = 0; j < tot; j++)
+            {
                 self->poisson_buffer[self->poisson_tab] = i;
                 self->poisson_tab++;
             }
         }
     }
+
     val = self->poisson_buffer[pyorand() % self->poisson_tab] / 12.0 * self->xx2;
 
     if (val < 0.0) return 0.0;
@@ -2699,7 +3040,8 @@ Xnoise_poisson(Xnoise *self) {
 
 // x1 = max value, x2 = max step
 static MYFLT
-Xnoise_walker(Xnoise *self) {
+Xnoise_walker(Xnoise *self)
+{
     unsigned int modulo, dir;
 
     if (self->xx2 < 0.002) self->xx2 = 0.002;
@@ -2722,10 +3064,12 @@ Xnoise_walker(Xnoise *self) {
 
 // x1 = max value, x2 = max step
 static MYFLT
-Xnoise_loopseg(Xnoise *self) {
+Xnoise_loopseg(Xnoise *self)
+{
     unsigned int modulo, dir;
 
-    if (self->loopChoice == 0) {
+    if (self->loopChoice == 0)
+    {
 
         self->loopCountPlay = self->loopTime = 0;
 
@@ -2748,24 +3092,28 @@ Xnoise_loopseg(Xnoise *self) {
 
         if (self->loopCountRec < self->loopLen)
             self->loopChoice = 0;
-        else {
+        else
+        {
             self->loopChoice = 1;
             self->loopStop = (pyorand() % 4) + 1;
         }
     }
-    else {
+    else
+    {
         self->loopCountRec = 0;
 
         self->walkerValue = self->loop_buffer[self->loopCountPlay++];
 
         if (self->loopCountPlay < self->loopLen)
             self->loopChoice = 1;
-        else {
+        else
+        {
             self->loopCountPlay = 0;
             self->loopTime++;
         }
 
-        if (self->loopTime == self->loopStop) {
+        if (self->loopTime == self->loopStop)
+        {
             self->loopChoice = 0;
             self->loopLen = (pyorand() % 10) + 3;
         }
@@ -2775,7 +3123,8 @@ Xnoise_loopseg(Xnoise *self) {
 }
 
 static void
-Xnoise_generate_iii(Xnoise *self) {
+Xnoise_generate_iii(Xnoise *self)
+{
     int i;
     MYFLT inc;
     self->xx1 = PyFloat_AS_DOUBLE(self->x1);
@@ -2783,20 +3132,25 @@ Xnoise_generate_iii(Xnoise *self) {
     MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
     inc = fr / self->sr;
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->time += inc;
+
         if (self->time < 0.0)
             self->time += 1.0;
-        else if (self->time >= 1.0) {
+        else if (self->time >= 1.0)
+        {
             self->time -= 1.0;
             self->value = (*self->type_func_ptr)(self);
         }
+
         self->data[i] = self->value;
     }
 }
 
 static void
-Xnoise_generate_aii(Xnoise *self) {
+Xnoise_generate_aii(Xnoise *self)
+{
     int i;
     MYFLT inc;
     MYFLT *x1 = Stream_getData((Stream *)self->x1_stream);
@@ -2804,21 +3158,26 @@ Xnoise_generate_aii(Xnoise *self) {
     MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
     inc = fr / self->sr;
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->time += inc;
+
         if (self->time < 0.0)
             self->time += 1.0;
-        else if (self->time >= 1.0) {
+        else if (self->time >= 1.0)
+        {
             self->time -= 1.0;
             self->xx1 = x1[i];
             self->value = (*self->type_func_ptr)(self);
         }
+
         self->data[i] = self->value;
     }
 }
 
 static void
-Xnoise_generate_iai(Xnoise *self) {
+Xnoise_generate_iai(Xnoise *self)
+{
     int i;
     MYFLT inc;
     self->xx1 = PyFloat_AS_DOUBLE(self->x1);
@@ -2826,21 +3185,26 @@ Xnoise_generate_iai(Xnoise *self) {
     MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
     inc = fr / self->sr;
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->time += inc;
+
         if (self->time < 0.0)
             self->time += 1.0;
-        else if (self->time >= 1.0) {
+        else if (self->time >= 1.0)
+        {
             self->time -= 1.0;
             self->xx2 = x2[i];
             self->value = (*self->type_func_ptr)(self);
         }
+
         self->data[i] = self->value;
     }
 }
 
 static void
-Xnoise_generate_aai(Xnoise *self) {
+Xnoise_generate_aai(Xnoise *self)
+{
     int i;
     MYFLT inc;
     MYFLT *x1 = Stream_getData((Stream *)self->x1_stream);
@@ -2848,104 +3212,128 @@ Xnoise_generate_aai(Xnoise *self) {
     MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
     inc = fr / self->sr;
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->time += inc;
+
         if (self->time < 0.0)
             self->time += 1.0;
-        else if (self->time >= 1.0) {
+        else if (self->time >= 1.0)
+        {
             self->time -= 1.0;
             self->xx1 = x1[i];
             self->xx2 = x2[i];
             self->value = (*self->type_func_ptr)(self);
         }
+
         self->data[i] = self->value;
     }
 }
 
 static void
-Xnoise_generate_iia(Xnoise *self) {
+Xnoise_generate_iia(Xnoise *self)
+{
     int i;
     MYFLT inc;
     self->xx1 = PyFloat_AS_DOUBLE(self->x1);
     self->xx2 = PyFloat_AS_DOUBLE(self->x2);
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         inc = fr[i] / self->sr;
         self->time += inc;
+
         if (self->time < 0.0)
             self->time += 1.0;
-        else if (self->time >= 1.0) {
+        else if (self->time >= 1.0)
+        {
             self->time -= 1.0;
             self->value = (*self->type_func_ptr)(self);
         }
+
         self->data[i] = self->value;
     }
 }
 
 static void
-Xnoise_generate_aia(Xnoise *self) {
+Xnoise_generate_aia(Xnoise *self)
+{
     int i;
     MYFLT inc;
     MYFLT *x1 = Stream_getData((Stream *)self->x1_stream);
     self->xx2 = PyFloat_AS_DOUBLE(self->x2);
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         inc = fr[i] / self->sr;
         self->time += inc;
+
         if (self->time < 0.0)
             self->time += 1.0;
-        else if (self->time >= 1.0) {
+        else if (self->time >= 1.0)
+        {
             self->time -= 1.0;
             self->xx1 = x1[i];
             self->value = (*self->type_func_ptr)(self);
         }
+
         self->data[i] = self->value;
     }
 }
 
 static void
-Xnoise_generate_iaa(Xnoise *self) {
+Xnoise_generate_iaa(Xnoise *self)
+{
     int i;
     MYFLT inc;
     self->xx1 = PyFloat_AS_DOUBLE(self->x1);
     MYFLT *x2 = Stream_getData((Stream *)self->x2_stream);
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         inc = fr[i] / self->sr;
         self->time += inc;
+
         if (self->time < 0.0)
             self->time += 1.0;
-        else if (self->time >= 1.0) {
+        else if (self->time >= 1.0)
+        {
             self->time -= 1.0;
             self->xx2 = x2[i];
             self->value = (*self->type_func_ptr)(self);
         }
+
         self->data[i] = self->value;
     }
 }
 
 static void
-Xnoise_generate_aaa(Xnoise *self) {
+Xnoise_generate_aaa(Xnoise *self)
+{
     int i;
     MYFLT inc;
     MYFLT *x1 = Stream_getData((Stream *)self->x1_stream);
     MYFLT *x2 = Stream_getData((Stream *)self->x2_stream);
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         inc = fr[i] / self->sr;
         self->time += inc;
+
         if (self->time < 0.0)
             self->time += 1.0;
-        else if (self->time >= 1.0) {
+        else if (self->time >= 1.0)
+        {
             self->time -= 1.0;
             self->xx1 = x1[i];
             self->xx2 = x2[i];
             self->value = (*self->type_func_ptr)(self);
         }
+
         self->data[i] = self->value;
     }
 }
@@ -2964,43 +3352,56 @@ static void
 Xnoise_setRandomType(Xnoise *self)
 {
 
-    switch (self->type) {
+    switch (self->type)
+    {
         case 0:
             self->type_func_ptr = Xnoise_uniform;
             break;
+
         case 1:
             self->type_func_ptr = Xnoise_linear_min;
             break;
+
         case 2:
             self->type_func_ptr = Xnoise_linear_max;
             break;
+
         case 3:
             self->type_func_ptr = Xnoise_triangle;
             break;
+
         case 4:
             self->type_func_ptr = Xnoise_expon_min;
             break;
+
         case 5:
             self->type_func_ptr = Xnoise_expon_max;
             break;
+
         case 6:
             self->type_func_ptr = Xnoise_biexpon;
             break;
+
         case 7:
             self->type_func_ptr = Xnoise_cauchy;
             break;
+
         case 8:
             self->type_func_ptr = Xnoise_weibull;
             break;
+
         case 9:
             self->type_func_ptr = Xnoise_gaussian;
             break;
+
         case 10:
             self->type_func_ptr = Xnoise_poisson;
             break;
+
         case 11:
             self->type_func_ptr = Xnoise_walker;
             break;
+
         case 12:
             self->type_func_ptr = Xnoise_loopseg;
             break;
@@ -3014,57 +3415,75 @@ Xnoise_setProcMode(Xnoise *self)
     procmode = self->modebuffer[2] + self->modebuffer[3] * 10 + self->modebuffer[4] * 100;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-	switch (procmode) {
+    switch (procmode)
+    {
         case 0:
             self->proc_func_ptr = Xnoise_generate_iii;
             break;
+
         case 1:
             self->proc_func_ptr = Xnoise_generate_aii;
             break;
+
         case 10:
             self->proc_func_ptr = Xnoise_generate_iai;
             break;
+
         case 11:
             self->proc_func_ptr = Xnoise_generate_aai;
             break;
+
         case 100:
             self->proc_func_ptr = Xnoise_generate_iia;
             break;
+
         case 101:
             self->proc_func_ptr = Xnoise_generate_aia;
             break;
+
         case 110:
             self->proc_func_ptr = Xnoise_generate_iaa;
             break;
+
         case 111:
             self->proc_func_ptr = Xnoise_generate_aaa;
             break;
     }
-	switch (muladdmode) {
+
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = Xnoise_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = Xnoise_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = Xnoise_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = Xnoise_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = Xnoise_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = Xnoise_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = Xnoise_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = Xnoise_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = Xnoise_postprocessing_revareva;
             break;
@@ -3116,7 +3535,7 @@ static PyObject *
 Xnoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *freqtmp=NULL, *x1tmp=NULL, *x2tmp=NULL, *multmp=NULL, *addtmp=NULL;
+    PyObject *freqtmp = NULL, *x1tmp = NULL, *x2tmp = NULL, *multmp = NULL, *addtmp = NULL;
     Xnoise *self;
     self = (Xnoise *)type->tp_alloc(type, 0);
 
@@ -3126,11 +3545,11 @@ Xnoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->xx1 = self->xx2 = self->walkerValue = 0.5;
     self->value = 0.0;
     self->time = 1.0;
-	self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
-	self->modebuffer[2] = 0;
-	self->modebuffer[3] = 0;
-	self->modebuffer[4] = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
+    self->modebuffer[2] = 0;
+    self->modebuffer[3] = 0;
+    self->modebuffer[4] = 0;
 
     INIT_OBJECT_COMMON
 
@@ -3138,12 +3557,17 @@ Xnoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self->poisson_tab = 0;
     self->lastPoissonX1 = -99.0;
-    for (i=0; i<2000; i++) {
+
+    for (i = 0; i < 2000; i++)
+    {
         self->poisson_buffer[i] = 0.0;
     }
-    for (i=0; i<15; i++) {
+
+    for (i = 0; i < 15; i++)
+    {
         self->loop_buffer[i] = 0.0;
     }
+
     self->loopChoice = self->loopCountPlay = self->loopTime = self->loopCountRec = self->loopStop = 0;
     self->loopLen = (pyorand() % 10) + 3;
 
@@ -3155,23 +3579,28 @@ Xnoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|iOOOOO", kwlist, &self->type, &freqtmp, &x1tmp, &x2tmp, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    if (x1tmp) {
+    if (x1tmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setX1", "O", x1tmp);
     }
 
-    if (x2tmp) {
+    if (x2tmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setX2", "O", x2tmp);
     }
 
-    if (freqtmp) {
+    if (freqtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
     }
 
-    if (multmp) {
+    if (multmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
 
-    if (addtmp) {
+    if (addtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
 
@@ -3209,111 +3638,122 @@ Xnoise_setType(Xnoise *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyInt_Check(arg);
+    int isNumber = PyInt_Check(arg);
 
-	if (isNumber == 1) {
-		self->type = PyInt_AsLong(arg);
+    if (isNumber == 1)
+    {
+        self->type = PyInt_AsLong(arg);
         Xnoise_setRandomType(self);
-	}
+    }
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 Xnoise_setX1(Xnoise *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->x1);
-	if (isNumber == 1) {
-		self->x1 = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->x1);
+
+    if (isNumber == 1)
+    {
+        self->x1 = PyNumber_Float(tmp);
         self->modebuffer[2] = 0;
-	}
-	else {
-		self->x1 = tmp;
+    }
+    else
+    {
+        self->x1 = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->x1, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->x1_stream);
         self->x1_stream = (Stream *)streamtmp;
-		self->modebuffer[2] = 1;
-	}
+        self->modebuffer[2] = 1;
+    }
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 Xnoise_setX2(Xnoise *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->x2);
-	if (isNumber == 1) {
-		self->x2 = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->x2);
+
+    if (isNumber == 1)
+    {
+        self->x2 = PyNumber_Float(tmp);
         self->modebuffer[3] = 0;
-	}
-	else {
-		self->x2 = tmp;
+    }
+    else
+    {
+        self->x2 = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->x2, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->x2_stream);
         self->x2_stream = (Stream *)streamtmp;
-		self->modebuffer[3] = 1;
-	}
+        self->modebuffer[3] = 1;
+    }
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 Xnoise_setFreq(Xnoise *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->freq);
-	if (isNumber == 1) {
-		self->freq = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->freq);
+
+    if (isNumber == 1)
+    {
+        self->freq = PyNumber_Float(tmp);
         self->modebuffer[4] = 0;
-	}
-	else {
-		self->freq = tmp;
+    }
+    else
+    {
+        self->freq = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->freq_stream);
         self->freq_stream = (Stream *)streamtmp;
-		self->modebuffer[4] = 1;
-	}
+        self->modebuffer[4] = 1;
+    }
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
-static PyMemberDef Xnoise_members[] = {
+static PyMemberDef Xnoise_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(Xnoise, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(Xnoise, stream), 0, "Stream object."},
     {"x1", T_OBJECT_EX, offsetof(Xnoise, x1), 0, "first param."},
@@ -3324,12 +3764,13 @@ static PyMemberDef Xnoise_members[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef Xnoise_methods[] = {
+static PyMethodDef Xnoise_methods[] =
+{
     {"getServer", (PyCFunction)Xnoise_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Xnoise_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Xnoise_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)Xnoise_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Xnoise_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
+    {"play", (PyCFunction)Xnoise_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)Xnoise_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)Xnoise_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setType", (PyCFunction)Xnoise_setType, METH_O, "Sets distribution type."},
     {"setX1", (PyCFunction)Xnoise_setX1, METH_O, "Sets first param."},
     {"setX2", (PyCFunction)Xnoise_setX2, METH_O, "Sets second param."},
@@ -3341,7 +3782,8 @@ static PyMethodDef Xnoise_methods[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Xnoise_as_number = {
+static PyNumberMethods Xnoise_as_number =
+{
     (binaryfunc)Xnoise_add,                         /*nb_add*/
     (binaryfunc)Xnoise_sub,                         /*nb_subtract*/
     (binaryfunc)Xnoise_multiply,                    /*nb_multiply*/
@@ -3383,7 +3825,8 @@ static PyNumberMethods Xnoise_as_number = {
     0,                                              /* nb_index */
 };
 
-PyTypeObject XnoiseType = {
+PyTypeObject XnoiseType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.Xnoise_base",                                   /*tp_name*/
     sizeof(Xnoise),                                 /*tp_basicsize*/
@@ -3427,7 +3870,8 @@ PyTypeObject XnoiseType = {
 /****************/
 /**** XnoiseMidi *****/
 /****************/
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     PyObject *x1;
     PyObject *x2;
@@ -3460,11 +3904,12 @@ typedef struct {
 } XnoiseMidi;
 
 static MYFLT
-XnoiseMidi_convert(XnoiseMidi *self) {
+XnoiseMidi_convert(XnoiseMidi *self)
+{
     int midival;
     MYFLT val;
 
-    midival = (int)((self->value * (self->range_max-self->range_min)) + self->range_min);
+    midival = (int)((self->value * (self->range_max - self->range_min)) + self->range_min);
 
     if (midival < 0)
         midival = 0;
@@ -3485,28 +3930,34 @@ XnoiseMidi_convert(XnoiseMidi *self) {
 
 // no parameter
 static MYFLT
-XnoiseMidi_uniform(XnoiseMidi *self) {
+XnoiseMidi_uniform(XnoiseMidi *self)
+{
     return RANDOM_UNIFORM;
 }
 
 static MYFLT
-XnoiseMidi_linear_min(XnoiseMidi *self) {
+XnoiseMidi_linear_min(XnoiseMidi *self)
+{
     MYFLT a = RANDOM_UNIFORM;
     MYFLT b = RANDOM_UNIFORM;
+
     if (a < b) return a;
     else return b;
 }
 
 static MYFLT
-XnoiseMidi_linear_max(XnoiseMidi *self) {
+XnoiseMidi_linear_max(XnoiseMidi *self)
+{
     MYFLT a = RANDOM_UNIFORM;
     MYFLT b = RANDOM_UNIFORM;
+
     if (a > b) return a;
     else return b;
 }
 
 static MYFLT
-XnoiseMidi_triangle(XnoiseMidi *self) {
+XnoiseMidi_triangle(XnoiseMidi *self)
+{
     MYFLT a = RANDOM_UNIFORM;
     MYFLT b = RANDOM_UNIFORM;
     return ((a + b) * 0.5);
@@ -3514,18 +3965,24 @@ XnoiseMidi_triangle(XnoiseMidi *self) {
 
 // x1 = slope
 static MYFLT
-XnoiseMidi_expon_min(XnoiseMidi *self) {
+XnoiseMidi_expon_min(XnoiseMidi *self)
+{
     if (self->xx1 <= 0.0) self->xx1 = 0.00001;
+
     MYFLT val = -MYLOG(RANDOM_UNIFORM) / self->xx1;
+
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
     else return val;
 }
 
 static MYFLT
-XnoiseMidi_expon_max(XnoiseMidi *self) {
+XnoiseMidi_expon_max(XnoiseMidi *self)
+{
     if (self->xx1 <= 0.0) self->xx1 = 0.00001;
+
     MYFLT val = 1.0 - (-MYLOG(RANDOM_UNIFORM) / self->xx1);
+
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
     else return val;
@@ -3533,12 +3990,16 @@ XnoiseMidi_expon_max(XnoiseMidi *self) {
 
 // x1 = bandwidth
 static MYFLT
-XnoiseMidi_biexpon(XnoiseMidi *self) {
+XnoiseMidi_biexpon(XnoiseMidi *self)
+{
     MYFLT polar, val;
+
     if (self->xx1 <= 0.0) self->xx1 = 0.00001;
+
     MYFLT sum = RANDOM_UNIFORM * 2.0;
 
-    if (sum > 1.0) {
+    if (sum > 1.0)
+    {
         polar = -1;
         sum = 2.0 - sum;
     }
@@ -3553,9 +4014,12 @@ XnoiseMidi_biexpon(XnoiseMidi *self) {
 }
 
 static MYFLT
-XnoiseMidi_cauchy(XnoiseMidi *self) {
+XnoiseMidi_cauchy(XnoiseMidi *self)
+{
     MYFLT rnd, val, dir;
-    do {
+
+    do
+    {
         rnd = RANDOM_UNIFORM;
     }
     while (rnd == 0.5);
@@ -3574,8 +4038,10 @@ XnoiseMidi_cauchy(XnoiseMidi *self) {
 
 // x1 = locator, x2 = shape
 static MYFLT
-XnoiseMidi_weibull(XnoiseMidi *self) {
+XnoiseMidi_weibull(XnoiseMidi *self)
+{
     MYFLT rnd, val;
+
     if (self->xx2 <= 0.0) self->xx2 = 0.00001;
 
     rnd = 1.0 / (1.0 - RANDOM_UNIFORM);
@@ -3588,7 +4054,8 @@ XnoiseMidi_weibull(XnoiseMidi *self) {
 
 // x1 = locator, x2 = bandwidth
 static MYFLT
-XnoiseMidi_gaussian(XnoiseMidi *self) {
+XnoiseMidi_gaussian(XnoiseMidi *self)
+{
     MYFLT rnd, val;
 
     rnd = (RANDOM_UNIFORM + RANDOM_UNIFORM + RANDOM_UNIFORM + RANDOM_UNIFORM + RANDOM_UNIFORM + RANDOM_UNIFORM);
@@ -3601,26 +4068,35 @@ XnoiseMidi_gaussian(XnoiseMidi *self) {
 
 // x1 = gravity center, x2 = compress/expand
 static MYFLT
-XnoiseMidi_poisson(XnoiseMidi *self) {
+XnoiseMidi_poisson(XnoiseMidi *self)
+{
     int i, j, factorial;
     long tot;
     MYFLT val;
+
     if (self->xx1 < 0.1) self->xx1 = 0.1;
+
     if (self->xx2 < 0.1) self->xx2 = 0.1;
 
-    if (self->xx1 != self->lastPoissonX1) {
+    if (self->xx1 != self->lastPoissonX1)
+    {
         self->lastPoissonX1 = self->xx1;
         self->poisson_tab = 0;
         factorial = 1;
-        for (i=1; i<12; i++) {
+
+        for (i = 1; i < 12; i++)
+        {
             factorial *= i;
             tot = (long)(1000.0 * (MYPOW(2.7182818, -self->xx1) * MYPOW(self->xx1, i) / factorial));
-            for (j=0; j<tot; j++) {
+
+            for (j = 0; j < tot; j++)
+            {
                 self->poisson_buffer[self->poisson_tab] = i;
                 self->poisson_tab++;
             }
         }
     }
+
     val = self->poisson_buffer[pyorand() % self->poisson_tab] / 12.0 * self->xx2;
 
     if (val < 0.0) return 0.0;
@@ -3630,7 +4106,8 @@ XnoiseMidi_poisson(XnoiseMidi *self) {
 
 // x1 = max value, x2 = max step
 static MYFLT
-XnoiseMidi_walker(XnoiseMidi *self) {
+XnoiseMidi_walker(XnoiseMidi *self)
+{
     unsigned int modulo, dir;
 
     if (self->xx2 < 0.002) self->xx2 = 0.002;
@@ -3653,10 +4130,12 @@ XnoiseMidi_walker(XnoiseMidi *self) {
 
 // x1 = max value, x2 = max step
 static MYFLT
-XnoiseMidi_loopseg(XnoiseMidi *self) {
+XnoiseMidi_loopseg(XnoiseMidi *self)
+{
     unsigned int modulo, dir;
 
-    if (self->loopChoice == 0) {
+    if (self->loopChoice == 0)
+    {
 
         self->loopCountPlay = self->loopTime = 0;
 
@@ -3679,24 +4158,28 @@ XnoiseMidi_loopseg(XnoiseMidi *self) {
 
         if (self->loopCountRec < self->loopLen)
             self->loopChoice = 0;
-        else {
+        else
+        {
             self->loopChoice = 1;
             self->loopStop = (pyorand() % 4) + 1;
         }
     }
-    else {
+    else
+    {
         self->loopCountRec = 0;
 
         self->walkerValue = self->loop_buffer[self->loopCountPlay++];
 
         if (self->loopCountPlay < self->loopLen)
             self->loopChoice = 1;
-        else {
+        else
+        {
             self->loopCountPlay = 0;
             self->loopTime++;
         }
 
-        if (self->loopTime == self->loopStop) {
+        if (self->loopTime == self->loopStop)
+        {
             self->loopChoice = 0;
             self->loopLen = (pyorand() % 10) + 3;
         }
@@ -3706,7 +4189,8 @@ XnoiseMidi_loopseg(XnoiseMidi *self) {
 }
 
 static void
-XnoiseMidi_generate_iii(XnoiseMidi *self) {
+XnoiseMidi_generate_iii(XnoiseMidi *self)
+{
     int i;
     MYFLT inc;
     self->xx1 = PyFloat_AS_DOUBLE(self->x1);
@@ -3714,21 +4198,26 @@ XnoiseMidi_generate_iii(XnoiseMidi *self) {
     MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
     inc = fr / self->sr;
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->time += inc;
+
         if (self->time < 0.0)
             self->time += 1.0;
-        else if (self->time >= 1.0) {
+        else if (self->time >= 1.0)
+        {
             self->time -= 1.0;
             self->value = (*self->type_func_ptr)(self);
             self->value = XnoiseMidi_convert(self);
         }
+
         self->data[i] = self->value;
     }
 }
 
 static void
-XnoiseMidi_generate_aii(XnoiseMidi *self) {
+XnoiseMidi_generate_aii(XnoiseMidi *self)
+{
     int i;
     MYFLT inc;
     MYFLT *x1 = Stream_getData((Stream *)self->x1_stream);
@@ -3736,22 +4225,27 @@ XnoiseMidi_generate_aii(XnoiseMidi *self) {
     MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
     inc = fr / self->sr;
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->time += inc;
+
         if (self->time < 0.0)
             self->time += 1.0;
-        else if (self->time >= 1.0) {
+        else if (self->time >= 1.0)
+        {
             self->time -= 1.0;
             self->xx1 = x1[i];
             self->value = (*self->type_func_ptr)(self);
             self->value = XnoiseMidi_convert(self);
         }
+
         self->data[i] = self->value;
     }
 }
 
 static void
-XnoiseMidi_generate_iai(XnoiseMidi *self) {
+XnoiseMidi_generate_iai(XnoiseMidi *self)
+{
     int i;
     MYFLT inc;
     self->xx1 = PyFloat_AS_DOUBLE(self->x1);
@@ -3759,22 +4253,27 @@ XnoiseMidi_generate_iai(XnoiseMidi *self) {
     MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
     inc = fr / self->sr;
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->time += inc;
+
         if (self->time < 0.0)
             self->time += 1.0;
-        else if (self->time >= 1.0) {
+        else if (self->time >= 1.0)
+        {
             self->time -= 1.0;
             self->xx2 = x2[i];
             self->value = (*self->type_func_ptr)(self);
             self->value = XnoiseMidi_convert(self);
         }
+
         self->data[i] = self->value;
     }
 }
 
 static void
-XnoiseMidi_generate_aai(XnoiseMidi *self) {
+XnoiseMidi_generate_aai(XnoiseMidi *self)
+{
     int i;
     MYFLT inc;
     MYFLT *x1 = Stream_getData((Stream *)self->x1_stream);
@@ -3782,109 +4281,133 @@ XnoiseMidi_generate_aai(XnoiseMidi *self) {
     MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
     inc = fr / self->sr;
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->time += inc;
+
         if (self->time < 0.0)
             self->time += 1.0;
-        else if (self->time >= 1.0) {
+        else if (self->time >= 1.0)
+        {
             self->time -= 1.0;
             self->xx1 = x1[i];
             self->xx2 = x2[i];
             self->value = (*self->type_func_ptr)(self);
             self->value = XnoiseMidi_convert(self);
         }
+
         self->data[i] = self->value;
     }
 }
 
 static void
-XnoiseMidi_generate_iia(XnoiseMidi *self) {
+XnoiseMidi_generate_iia(XnoiseMidi *self)
+{
     int i;
     MYFLT inc;
     self->xx1 = PyFloat_AS_DOUBLE(self->x1);
     self->xx2 = PyFloat_AS_DOUBLE(self->x2);
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         inc = fr[i] / self->sr;
         self->time += inc;
+
         if (self->time < 0.0)
             self->time += 1.0;
-        else if (self->time >= 1.0) {
+        else if (self->time >= 1.0)
+        {
             self->time -= 1.0;
             self->value = (*self->type_func_ptr)(self);
             self->value = XnoiseMidi_convert(self);
         }
+
         self->data[i] = self->value;
     }
 }
 
 static void
-XnoiseMidi_generate_aia(XnoiseMidi *self) {
+XnoiseMidi_generate_aia(XnoiseMidi *self)
+{
     int i;
     MYFLT inc;
     MYFLT *x1 = Stream_getData((Stream *)self->x1_stream);
     self->xx2 = PyFloat_AS_DOUBLE(self->x2);
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         inc = fr[i] / self->sr;
         self->time += inc;
+
         if (self->time < 0.0)
             self->time += 1.0;
-        else if (self->time >= 1.0) {
+        else if (self->time >= 1.0)
+        {
             self->time -= 1.0;
             self->xx1 = x1[i];
             self->value = (*self->type_func_ptr)(self);
             self->value = XnoiseMidi_convert(self);
         }
+
         self->data[i] = self->value;
     }
 }
 
 static void
-XnoiseMidi_generate_iaa(XnoiseMidi *self) {
+XnoiseMidi_generate_iaa(XnoiseMidi *self)
+{
     int i;
     MYFLT inc;
     self->xx1 = PyFloat_AS_DOUBLE(self->x1);
     MYFLT *x2 = Stream_getData((Stream *)self->x2_stream);
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         inc = fr[i] / self->sr;
         self->time += inc;
+
         if (self->time < 0.0)
             self->time += 1.0;
-        else if (self->time >= 1.0) {
+        else if (self->time >= 1.0)
+        {
             self->time -= 1.0;
             self->xx2 = x2[i];
             self->value = (*self->type_func_ptr)(self);
             self->value = XnoiseMidi_convert(self);
         }
+
         self->data[i] = self->value;
     }
 }
 
 static void
-XnoiseMidi_generate_aaa(XnoiseMidi *self) {
+XnoiseMidi_generate_aaa(XnoiseMidi *self)
+{
     int i;
     MYFLT inc;
     MYFLT *x1 = Stream_getData((Stream *)self->x1_stream);
     MYFLT *x2 = Stream_getData((Stream *)self->x2_stream);
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         inc = fr[i] / self->sr;
         self->time += inc;
+
         if (self->time < 0.0)
             self->time += 1.0;
-        else if (self->time >= 1.0) {
+        else if (self->time >= 1.0)
+        {
             self->time -= 1.0;
             self->xx1 = x1[i];
             self->xx2 = x2[i];
             self->value = (*self->type_func_ptr)(self);
             self->value = XnoiseMidi_convert(self);
         }
+
         self->data[i] = self->value;
     }
 }
@@ -3903,43 +4426,56 @@ static void
 XnoiseMidi_setRandomType(XnoiseMidi *self)
 {
 
-    switch (self->type) {
+    switch (self->type)
+    {
         case 0:
             self->type_func_ptr = XnoiseMidi_uniform;
             break;
+
         case 1:
             self->type_func_ptr = XnoiseMidi_linear_min;
             break;
+
         case 2:
             self->type_func_ptr = XnoiseMidi_linear_max;
             break;
+
         case 3:
             self->type_func_ptr = XnoiseMidi_triangle;
             break;
+
         case 4:
             self->type_func_ptr = XnoiseMidi_expon_min;
             break;
+
         case 5:
             self->type_func_ptr = XnoiseMidi_expon_max;
             break;
+
         case 6:
             self->type_func_ptr = XnoiseMidi_biexpon;
             break;
+
         case 7:
             self->type_func_ptr = XnoiseMidi_cauchy;
             break;
+
         case 8:
             self->type_func_ptr = XnoiseMidi_weibull;
             break;
+
         case 9:
             self->type_func_ptr = XnoiseMidi_gaussian;
             break;
+
         case 10:
             self->type_func_ptr = XnoiseMidi_poisson;
             break;
+
         case 11:
             self->type_func_ptr = XnoiseMidi_walker;
             break;
+
         case 12:
             self->type_func_ptr = XnoiseMidi_loopseg;
             break;
@@ -3953,57 +4489,75 @@ XnoiseMidi_setProcMode(XnoiseMidi *self)
     procmode = self->modebuffer[2] + self->modebuffer[3] * 10 + self->modebuffer[4] * 100;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-	switch (procmode) {
+    switch (procmode)
+    {
         case 0:
             self->proc_func_ptr = XnoiseMidi_generate_iii;
             break;
+
         case 1:
             self->proc_func_ptr = XnoiseMidi_generate_aii;
             break;
+
         case 10:
             self->proc_func_ptr = XnoiseMidi_generate_iai;
             break;
+
         case 11:
             self->proc_func_ptr = XnoiseMidi_generate_aai;
             break;
+
         case 100:
             self->proc_func_ptr = XnoiseMidi_generate_iia;
             break;
+
         case 101:
             self->proc_func_ptr = XnoiseMidi_generate_aia;
             break;
+
         case 110:
             self->proc_func_ptr = XnoiseMidi_generate_iaa;
             break;
+
         case 111:
             self->proc_func_ptr = XnoiseMidi_generate_aaa;
             break;
     }
-	switch (muladdmode) {
+
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = XnoiseMidi_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = XnoiseMidi_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = XnoiseMidi_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = XnoiseMidi_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = XnoiseMidi_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = XnoiseMidi_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = XnoiseMidi_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = XnoiseMidi_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = XnoiseMidi_postprocessing_revareva;
             break;
@@ -4055,7 +4609,7 @@ static PyObject *
 XnoiseMidi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *freqtmp=NULL, *x1tmp=NULL, *x2tmp=NULL, *rangetmp=NULL, *multmp=NULL, *addtmp=NULL;
+    PyObject *freqtmp = NULL, *x1tmp = NULL, *x2tmp = NULL, *rangetmp = NULL, *multmp = NULL, *addtmp = NULL;
     XnoiseMidi *self;
     self = (XnoiseMidi *)type->tp_alloc(type, 0);
 
@@ -4069,11 +4623,11 @@ XnoiseMidi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->range_min = 0;
     self->range_max = 127;
     self->centralkey = 64;
-	self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
-	self->modebuffer[2] = 0;
-	self->modebuffer[3] = 0;
-	self->modebuffer[4] = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
+    self->modebuffer[2] = 0;
+    self->modebuffer[3] = 0;
+    self->modebuffer[4] = 0;
 
     INIT_OBJECT_COMMON
 
@@ -4081,12 +4635,17 @@ XnoiseMidi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self->poisson_tab = 0;
     self->lastPoissonX1 = -99.0;
-    for (i=0; i<2000; i++) {
+
+    for (i = 0; i < 2000; i++)
+    {
         self->poisson_buffer[i] = 0.0;
     }
-    for (i=0; i<15; i++) {
+
+    for (i = 0; i < 15; i++)
+    {
         self->loop_buffer[i] = 0.0;
     }
+
     self->loopChoice = self->loopCountPlay = self->loopTime = self->loopCountRec = self->loopStop = 0;
     self->loopLen = (pyorand() % 10) + 3;
 
@@ -4098,27 +4657,33 @@ XnoiseMidi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|iOOOiOOO", kwlist, &self->type, &freqtmp, &x1tmp, &x2tmp, &self->scale, &rangetmp, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    if (x1tmp) {
+    if (x1tmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setX1", "O", x1tmp);
     }
 
-    if (x2tmp) {
+    if (x2tmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setX2", "O", x2tmp);
     }
 
-    if (freqtmp) {
+    if (freqtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
     }
 
-    if (rangetmp) {
+    if (rangetmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setRange", "O", rangetmp);
     }
 
-    if (multmp) {
+    if (multmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
 
-    if (addtmp) {
+    if (addtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
 
@@ -4156,15 +4721,16 @@ XnoiseMidi_setType(XnoiseMidi *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyInt_Check(arg);
+    int isNumber = PyInt_Check(arg);
 
-	if (isNumber == 1) {
-		self->type = PyInt_AsLong(arg);
+    if (isNumber == 1)
+    {
+        self->type = PyInt_AsLong(arg);
         XnoiseMidi_setRandomType(self);
-	}
+    }
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
@@ -4174,134 +4740,148 @@ XnoiseMidi_setScale(XnoiseMidi *self, PyObject *arg)
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyInt_Check(arg);
+    int isNumber = PyInt_Check(arg);
 
-	if (isNumber == 1) {
-		tmp = PyInt_AsLong(arg);
+    if (isNumber == 1)
+    {
+        tmp = PyInt_AsLong(arg);
+
         if (tmp >= 0 && tmp <= 2)
             self->scale = tmp;
         else
             PySys_WriteStdout("XnoiseMidi: scale attribute must be an integer {0, 1, 2}\n");
-	}
+    }
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 XnoiseMidi_setRange(XnoiseMidi *self, PyObject *args)
 {
-	if (args == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    if (args == NULL)
+    {
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
 
-	int isTuple = PyTuple_Check(args);
+    int isTuple = PyTuple_Check(args);
 
-	if (isTuple == 1) {
+    if (isTuple == 1)
+    {
         self->range_min = PyInt_AsLong(PyTuple_GET_ITEM(args, 0));
         self->range_max = PyInt_AsLong(PyTuple_GET_ITEM(args, 1));
         self->centralkey = (int)((self->range_max + self->range_min) / 2);
-	}
+    }
 
     Py_INCREF(Py_None);
-	return Py_None;
+    return Py_None;
 }
 
 static PyObject *
 XnoiseMidi_setX1(XnoiseMidi *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->x1);
-	if (isNumber == 1) {
-		self->x1 = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->x1);
+
+    if (isNumber == 1)
+    {
+        self->x1 = PyNumber_Float(tmp);
         self->modebuffer[2] = 0;
-	}
-	else {
-		self->x1 = tmp;
+    }
+    else
+    {
+        self->x1 = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->x1, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->x1_stream);
         self->x1_stream = (Stream *)streamtmp;
-		self->modebuffer[2] = 1;
-	}
+        self->modebuffer[2] = 1;
+    }
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 XnoiseMidi_setX2(XnoiseMidi *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->x2);
-	if (isNumber == 1) {
-		self->x2 = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->x2);
+
+    if (isNumber == 1)
+    {
+        self->x2 = PyNumber_Float(tmp);
         self->modebuffer[3] = 0;
-	}
-	else {
-		self->x2 = tmp;
+    }
+    else
+    {
+        self->x2 = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->x2, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->x2_stream);
         self->x2_stream = (Stream *)streamtmp;
-		self->modebuffer[3] = 1;
-	}
+        self->modebuffer[3] = 1;
+    }
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 XnoiseMidi_setFreq(XnoiseMidi *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->freq);
-	if (isNumber == 1) {
-		self->freq = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->freq);
+
+    if (isNumber == 1)
+    {
+        self->freq = PyNumber_Float(tmp);
         self->modebuffer[4] = 0;
-	}
-	else {
-		self->freq = tmp;
+    }
+    else
+    {
+        self->freq = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->freq_stream);
         self->freq_stream = (Stream *)streamtmp;
-		self->modebuffer[4] = 1;
-	}
+        self->modebuffer[4] = 1;
+    }
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
-static PyMemberDef XnoiseMidi_members[] = {
+static PyMemberDef XnoiseMidi_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(XnoiseMidi, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(XnoiseMidi, stream), 0, "Stream object."},
     {"x1", T_OBJECT_EX, offsetof(XnoiseMidi, x1), 0, "first param."},
@@ -4312,12 +4892,13 @@ static PyMemberDef XnoiseMidi_members[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef XnoiseMidi_methods[] = {
+static PyMethodDef XnoiseMidi_methods[] =
+{
     {"getServer", (PyCFunction)XnoiseMidi_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)XnoiseMidi_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)XnoiseMidi_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)XnoiseMidi_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)XnoiseMidi_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
+    {"play", (PyCFunction)XnoiseMidi_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)XnoiseMidi_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)XnoiseMidi_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setType", (PyCFunction)XnoiseMidi_setType, METH_O, "Sets distribution type."},
     {"setScale", (PyCFunction)XnoiseMidi_setScale, METH_O, "Sets output scale."},
     {"setRange", (PyCFunction)XnoiseMidi_setRange, METH_VARARGS, "Sets range in midi notes (min, max)."},
@@ -4331,7 +4912,8 @@ static PyMethodDef XnoiseMidi_methods[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods XnoiseMidi_as_number = {
+static PyNumberMethods XnoiseMidi_as_number =
+{
     (binaryfunc)XnoiseMidi_add,                         /*nb_add*/
     (binaryfunc)XnoiseMidi_sub,                         /*nb_subtract*/
     (binaryfunc)XnoiseMidi_multiply,                    /*nb_multiply*/
@@ -4373,7 +4955,8 @@ static PyNumberMethods XnoiseMidi_as_number = {
     0,                                              /* nb_index */
 };
 
-PyTypeObject XnoiseMidiType = {
+PyTypeObject XnoiseMidiType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.XnoiseMidi_base",                                   /*tp_name*/
     sizeof(XnoiseMidi),                                 /*tp_basicsize*/
@@ -4417,7 +5000,8 @@ PyTypeObject XnoiseMidiType = {
 /****************/
 /**** XnoiseDur *****/
 /****************/
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     PyObject *x1;
     PyObject *x2;
@@ -4450,28 +5034,34 @@ typedef struct {
 
 // no parameter
 static MYFLT
-XnoiseDur_uniform(XnoiseDur *self) {
+XnoiseDur_uniform(XnoiseDur *self)
+{
     return RANDOM_UNIFORM;
 }
 
 static MYFLT
-XnoiseDur_linear_min(XnoiseDur *self) {
+XnoiseDur_linear_min(XnoiseDur *self)
+{
     MYFLT a = RANDOM_UNIFORM;
     MYFLT b = RANDOM_UNIFORM;
+
     if (a < b) return a;
     else return b;
 }
 
 static MYFLT
-XnoiseDur_linear_max(XnoiseDur *self) {
+XnoiseDur_linear_max(XnoiseDur *self)
+{
     MYFLT a = RANDOM_UNIFORM;
     MYFLT b = RANDOM_UNIFORM;
+
     if (a > b) return a;
     else return b;
 }
 
 static MYFLT
-XnoiseDur_triangle(XnoiseDur *self) {
+XnoiseDur_triangle(XnoiseDur *self)
+{
     MYFLT a = RANDOM_UNIFORM;
     MYFLT b = RANDOM_UNIFORM;
     return ((a + b) * 0.5);
@@ -4479,18 +5069,24 @@ XnoiseDur_triangle(XnoiseDur *self) {
 
 // x1 = slope
 static MYFLT
-XnoiseDur_expon_min(XnoiseDur *self) {
+XnoiseDur_expon_min(XnoiseDur *self)
+{
     if (self->xx1 <= 0.0) self->xx1 = 0.00001;
+
     MYFLT val = -MYLOG(RANDOM_UNIFORM) / self->xx1;
+
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
     else return val;
 }
 
 static MYFLT
-XnoiseDur_expon_max(XnoiseDur *self) {
+XnoiseDur_expon_max(XnoiseDur *self)
+{
     if (self->xx1 <= 0.0) self->xx1 = 0.00001;
+
     MYFLT val = 1.0 - (-MYLOG(RANDOM_UNIFORM) / self->xx1);
+
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
     else return val;
@@ -4498,12 +5094,16 @@ XnoiseDur_expon_max(XnoiseDur *self) {
 
 // x1 = bandwidth
 static MYFLT
-XnoiseDur_biexpon(XnoiseDur *self) {
+XnoiseDur_biexpon(XnoiseDur *self)
+{
     MYFLT polar, val;
+
     if (self->xx1 <= 0.0) self->xx1 = 0.00001;
+
     MYFLT sum = RANDOM_UNIFORM * 2.0;
 
-    if (sum > 1.0) {
+    if (sum > 1.0)
+    {
         polar = -1;
         sum = 2.0 - sum;
     }
@@ -4518,9 +5118,12 @@ XnoiseDur_biexpon(XnoiseDur *self) {
 }
 
 static MYFLT
-XnoiseDur_cauchy(XnoiseDur *self) {
+XnoiseDur_cauchy(XnoiseDur *self)
+{
     MYFLT rnd, val, dir;
-    do {
+
+    do
+    {
         rnd = RANDOM_UNIFORM;
     }
     while (rnd == 0.5);
@@ -4539,8 +5142,10 @@ XnoiseDur_cauchy(XnoiseDur *self) {
 
 // x1 = locator, x2 = shape
 static MYFLT
-XnoiseDur_weibull(XnoiseDur *self) {
+XnoiseDur_weibull(XnoiseDur *self)
+{
     MYFLT rnd, val;
+
     if (self->xx2 <= 0.0) self->xx2 = 0.00001;
 
     rnd = 1.0 / (1.0 - RANDOM_UNIFORM);
@@ -4553,7 +5158,8 @@ XnoiseDur_weibull(XnoiseDur *self) {
 
 // x1 = locator, x2 = bandwidth
 static MYFLT
-XnoiseDur_gaussian(XnoiseDur *self) {
+XnoiseDur_gaussian(XnoiseDur *self)
+{
     MYFLT rnd, val;
 
     rnd = (RANDOM_UNIFORM + RANDOM_UNIFORM + RANDOM_UNIFORM + RANDOM_UNIFORM + RANDOM_UNIFORM + RANDOM_UNIFORM);
@@ -4566,26 +5172,35 @@ XnoiseDur_gaussian(XnoiseDur *self) {
 
 // x1 = gravity center, x2 = compress/expand
 static MYFLT
-XnoiseDur_poisson(XnoiseDur *self) {
+XnoiseDur_poisson(XnoiseDur *self)
+{
     int i, j, factorial;
     long tot;
     MYFLT val;
+
     if (self->xx1 < 0.1) self->xx1 = 0.1;
+
     if (self->xx2 < 0.1) self->xx2 = 0.1;
 
-    if (self->xx1 != self->lastPoissonX1) {
+    if (self->xx1 != self->lastPoissonX1)
+    {
         self->lastPoissonX1 = self->xx1;
         self->poisson_tab = 0;
         factorial = 1;
-        for (i=1; i<12; i++) {
+
+        for (i = 1; i < 12; i++)
+        {
             factorial *= i;
             tot = (long)(1000.0 * (MYPOW(2.7182818, -self->xx1) * MYPOW(self->xx1, i) / factorial));
-            for (j=0; j<tot; j++) {
+
+            for (j = 0; j < tot; j++)
+            {
                 self->poisson_buffer[self->poisson_tab] = i;
                 self->poisson_tab++;
             }
         }
     }
+
     val = self->poisson_buffer[pyorand() % self->poisson_tab] / 12.0 * self->xx2;
 
     if (val < 0.0) return 0.0;
@@ -4595,7 +5210,8 @@ XnoiseDur_poisson(XnoiseDur *self) {
 
 // x1 = max value, x2 = max step
 static MYFLT
-XnoiseDur_walker(XnoiseDur *self) {
+XnoiseDur_walker(XnoiseDur *self)
+{
     unsigned int modulo, dir;
 
     if (self->xx2 < 0.002) self->xx2 = 0.002;
@@ -4618,10 +5234,12 @@ XnoiseDur_walker(XnoiseDur *self) {
 
 // x1 = max value, x2 = max step
 static MYFLT
-XnoiseDur_loopseg(XnoiseDur *self) {
+XnoiseDur_loopseg(XnoiseDur *self)
+{
     unsigned int modulo, dir;
 
-    if (self->loopChoice == 0) {
+    if (self->loopChoice == 0)
+    {
 
         self->loopCountPlay = self->loopTime = 0;
 
@@ -4644,24 +5262,28 @@ XnoiseDur_loopseg(XnoiseDur *self) {
 
         if (self->loopCountRec < self->loopLen)
             self->loopChoice = 0;
-        else {
+        else
+        {
             self->loopChoice = 1;
             self->loopStop = (pyorand() % 4) + 1;
         }
     }
-    else {
+    else
+    {
         self->loopCountRec = 0;
 
         self->walkerValue = self->loop_buffer[self->loopCountPlay++];
 
         if (self->loopCountPlay < self->loopLen)
             self->loopChoice = 1;
-        else {
+        else
+        {
             self->loopCountPlay = 0;
             self->loopTime++;
         }
 
-        if (self->loopTime == self->loopStop) {
+        if (self->loopTime == self->loopStop)
+        {
             self->loopChoice = 0;
             self->loopLen = (pyorand() % 10) + 3;
         }
@@ -4671,40 +5293,52 @@ XnoiseDur_loopseg(XnoiseDur *self) {
 }
 
 static void
-XnoiseDur_generate(XnoiseDur *self) {
+XnoiseDur_generate(XnoiseDur *self)
+{
     int i;
     MYFLT min, max;
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->time += self->inc;
+
         if (self->time < 0.0)
             self->time += 1.0;
-        else if (self->time >= 1.0) {
+        else if (self->time >= 1.0)
+        {
             self->time -= 1.0;
+
             if (self->modebuffer[2] == 0)
                 self->xx1 = PyFloat_AS_DOUBLE(self->x1);
             else
                 self->xx1 = Stream_getData((Stream *)self->x1_stream)[i];
+
             if (self->modebuffer[3] == 0)
                 self->xx2 = PyFloat_AS_DOUBLE(self->x2);
             else
                 self->xx2 = Stream_getData((Stream *)self->x2_stream)[i];
+
             if (self->modebuffer[4] == 0)
                 min = PyFloat_AS_DOUBLE(self->min);
             else
                 min = Stream_getData((Stream *)self->min_stream)[i];
+
             if (self->modebuffer[5] == 0)
                 max = PyFloat_AS_DOUBLE(self->max);
             else
                 max = Stream_getData((Stream *)self->max_stream)[i];
+
             if (min > max)
                 max = min;
+
             self->value = (*self->type_func_ptr)(self) * (max - min) + min;
+
             if (self->value == 0.0)
                 self->inc = 0.0;
             else
                 self->inc = (1.0 / self->value) / self->sr;
         }
+
         self->data[i] = self->value;
     }
 }
@@ -4723,43 +5357,56 @@ static void
 XnoiseDur_setRandomType(XnoiseDur *self)
 {
 
-    switch (self->type) {
+    switch (self->type)
+    {
         case 0:
             self->type_func_ptr = XnoiseDur_uniform;
             break;
+
         case 1:
             self->type_func_ptr = XnoiseDur_linear_min;
             break;
+
         case 2:
             self->type_func_ptr = XnoiseDur_linear_max;
             break;
+
         case 3:
             self->type_func_ptr = XnoiseDur_triangle;
             break;
+
         case 4:
             self->type_func_ptr = XnoiseDur_expon_min;
             break;
+
         case 5:
             self->type_func_ptr = XnoiseDur_expon_max;
             break;
+
         case 6:
             self->type_func_ptr = XnoiseDur_biexpon;
             break;
+
         case 7:
             self->type_func_ptr = XnoiseDur_cauchy;
             break;
+
         case 8:
             self->type_func_ptr = XnoiseDur_weibull;
             break;
+
         case 9:
             self->type_func_ptr = XnoiseDur_gaussian;
             break;
+
         case 10:
             self->type_func_ptr = XnoiseDur_poisson;
             break;
+
         case 11:
             self->type_func_ptr = XnoiseDur_walker;
             break;
+
         case 12:
             self->type_func_ptr = XnoiseDur_loopseg;
             break;
@@ -4774,31 +5421,40 @@ XnoiseDur_setProcMode(XnoiseDur *self)
 
     self->proc_func_ptr = XnoiseDur_generate;
 
-	switch (muladdmode) {
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = XnoiseDur_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = XnoiseDur_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = XnoiseDur_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = XnoiseDur_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = XnoiseDur_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = XnoiseDur_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = XnoiseDur_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = XnoiseDur_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = XnoiseDur_postprocessing_revareva;
             break;
@@ -4855,7 +5511,7 @@ XnoiseDur_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
     MYFLT mi, ma;
-    PyObject *mintmp=NULL, *maxtmp=NULL, *x1tmp=NULL, *x2tmp=NULL, *multmp=NULL, *addtmp=NULL;
+    PyObject *mintmp = NULL, *maxtmp = NULL, *x1tmp = NULL, *x2tmp = NULL, *multmp = NULL, *addtmp = NULL;
     XnoiseDur *self;
     self = (XnoiseDur *)type->tp_alloc(type, 0);
 
@@ -4865,12 +5521,12 @@ XnoiseDur_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->max = PyFloat_FromDouble(1.0);
     self->xx1 = self->xx2 = self->walkerValue = 0.5;
     self->time = 1.0;
-	self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
-	self->modebuffer[2] = 0;
-	self->modebuffer[3] = 0;
-	self->modebuffer[4] = 0;
-	self->modebuffer[5] = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
+    self->modebuffer[2] = 0;
+    self->modebuffer[3] = 0;
+    self->modebuffer[4] = 0;
+    self->modebuffer[5] = 0;
 
     INIT_OBJECT_COMMON
 
@@ -4878,12 +5534,17 @@ XnoiseDur_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self->poisson_tab = 0;
     self->lastPoissonX1 = -99.0;
-    for (i=0; i<2000; i++) {
+
+    for (i = 0; i < 2000; i++)
+    {
         self->poisson_buffer[i] = 0.0;
     }
-    for (i=0; i<15; i++) {
+
+    for (i = 0; i < 15; i++)
+    {
         self->loop_buffer[i] = 0.0;
     }
+
     self->loopChoice = self->loopCountPlay = self->loopTime = self->loopCountRec = self->loopStop = 0;
     self->loopLen = (pyorand() % 10) + 3;
 
@@ -4895,27 +5556,33 @@ XnoiseDur_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|iOOOOOO", kwlist, &self->type, &mintmp, &maxtmp, &x1tmp, &x2tmp, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    if (x1tmp) {
+    if (x1tmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setX1", "O", x1tmp);
     }
 
-    if (x2tmp) {
+    if (x2tmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setX2", "O", x2tmp);
     }
 
-    if (mintmp) {
+    if (mintmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setMin", "O", mintmp);
     }
 
-    if (maxtmp) {
+    if (maxtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setMax", "O", maxtmp);
     }
 
-    if (multmp) {
+    if (multmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
 
-    if (addtmp) {
+    if (addtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
 
@@ -4925,12 +5592,14 @@ XnoiseDur_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         mi = PyFloat_AS_DOUBLE(self->min);
     else
         mi = Stream_getData((Stream *)self->min_stream)[0];
+
     if (self->modebuffer[3] == 0)
         ma = PyFloat_AS_DOUBLE(self->max);
     else
         ma = Stream_getData((Stream *)self->max_stream)[0];
 
     self->value = (mi + ma) * 0.5;
+
     if (self->value == 0.0)
         self->inc = 0.0;
     else
@@ -4968,142 +5637,156 @@ XnoiseDur_setType(XnoiseDur *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyInt_Check(arg);
+    int isNumber = PyInt_Check(arg);
 
-	if (isNumber == 1) {
-		self->type = PyInt_AsLong(arg);
+    if (isNumber == 1)
+    {
+        self->type = PyInt_AsLong(arg);
         XnoiseDur_setRandomType(self);
-	}
+    }
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 XnoiseDur_setX1(XnoiseDur *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->x1);
-	if (isNumber == 1) {
-		self->x1 = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->x1);
+
+    if (isNumber == 1)
+    {
+        self->x1 = PyNumber_Float(tmp);
         self->modebuffer[2] = 0;
-	}
-	else {
-		self->x1 = tmp;
+    }
+    else
+    {
+        self->x1 = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->x1, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->x1_stream);
         self->x1_stream = (Stream *)streamtmp;
-		self->modebuffer[2] = 1;
-	}
+        self->modebuffer[2] = 1;
+    }
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 XnoiseDur_setX2(XnoiseDur *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->x2);
-	if (isNumber == 1) {
-		self->x2 = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->x2);
+
+    if (isNumber == 1)
+    {
+        self->x2 = PyNumber_Float(tmp);
         self->modebuffer[3] = 0;
-	}
-	else {
-		self->x2 = tmp;
+    }
+    else
+    {
+        self->x2 = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->x2, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->x2_stream);
         self->x2_stream = (Stream *)streamtmp;
-		self->modebuffer[3] = 1;
-	}
+        self->modebuffer[3] = 1;
+    }
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 XnoiseDur_setMin(XnoiseDur *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->min);
-	if (isNumber == 1) {
-		self->min = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->min);
+
+    if (isNumber == 1)
+    {
+        self->min = PyNumber_Float(tmp);
         self->modebuffer[4] = 0;
-	}
-	else {
-		self->min = tmp;
+    }
+    else
+    {
+        self->min = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->min, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->min_stream);
         self->min_stream = (Stream *)streamtmp;
-		self->modebuffer[4] = 1;
-	}
+        self->modebuffer[4] = 1;
+    }
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 XnoiseDur_setMax(XnoiseDur *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->max);
-	if (isNumber == 1) {
-		self->max = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->max);
+
+    if (isNumber == 1)
+    {
+        self->max = PyNumber_Float(tmp);
         self->modebuffer[5] = 0;
-	}
-	else {
-		self->max = tmp;
+    }
+    else
+    {
+        self->max = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->max, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->max_stream);
         self->max_stream = (Stream *)streamtmp;
-		self->modebuffer[5] = 1;
-	}
+        self->modebuffer[5] = 1;
+    }
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
-static PyMemberDef XnoiseDur_members[] = {
+static PyMemberDef XnoiseDur_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(XnoiseDur, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(XnoiseDur, stream), 0, "Stream object."},
     {"x1", T_OBJECT_EX, offsetof(XnoiseDur, x1), 0, "first param."},
@@ -5115,12 +5798,13 @@ static PyMemberDef XnoiseDur_members[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef XnoiseDur_methods[] = {
+static PyMethodDef XnoiseDur_methods[] =
+{
     {"getServer", (PyCFunction)XnoiseDur_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)XnoiseDur_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)XnoiseDur_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)XnoiseDur_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)XnoiseDur_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
+    {"play", (PyCFunction)XnoiseDur_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)XnoiseDur_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)XnoiseDur_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setType", (PyCFunction)XnoiseDur_setType, METH_O, "Sets distribution type."},
     {"setX1", (PyCFunction)XnoiseDur_setX1, METH_O, "Sets first param."},
     {"setX2", (PyCFunction)XnoiseDur_setX2, METH_O, "Sets second param."},
@@ -5133,7 +5817,8 @@ static PyMethodDef XnoiseDur_methods[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods XnoiseDur_as_number = {
+static PyNumberMethods XnoiseDur_as_number =
+{
     (binaryfunc)XnoiseDur_add,                         /*nb_add*/
     (binaryfunc)XnoiseDur_sub,                         /*nb_subtract*/
     (binaryfunc)XnoiseDur_multiply,                    /*nb_multiply*/
@@ -5175,7 +5860,8 @@ static PyNumberMethods XnoiseDur_as_number = {
     0,                                              /* nb_index */
 };
 
-PyTypeObject XnoiseDurType = {
+PyTypeObject XnoiseDurType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.XnoiseDur_base",                                   /*tp_name*/
     sizeof(XnoiseDur),                                 /*tp_basicsize*/
@@ -5219,7 +5905,8 @@ PyTypeObject XnoiseDurType = {
 /****************/
 /****** Urn *****/
 /****************/
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     PyObject *freq;
     Stream *freq_stream;
@@ -5235,27 +5922,33 @@ typedef struct {
 } Urn;
 
 static void
-Urn_reset(Urn *self) {
+Urn_reset(Urn *self)
+{
     int i;
     self->lastvalue = (int)self->value;
     self->length = self->max;
     self->list = (int *)realloc(self->list, self->max * sizeof(int));
-    for (i=0; i<self->max; i++) {
+
+    for (i = 0; i < self->max; i++)
+    {
         self->list[i] = i;
     }
 }
 
 static int
-Urn_choose(Urn *self) {
+Urn_choose(Urn *self)
+{
     int x = 0;
     int value = 0;
     int i, pick;
 
     pick = pyorand() % self->length;
+
     while (pick == self->lastvalue)
         pick = pyorand() % self->length;
 
-    for (i=0; i<self->length; i++) {
+    for (i = 0; i < self->length; i++)
+    {
         if (i != pick)
             self->list[x++] = self->list[i];
         else
@@ -5269,48 +5962,62 @@ Urn_choose(Urn *self) {
 }
 
 static void
-Urn_generate_i(Urn *self) {
+Urn_generate_i(Urn *self)
+{
     int i;
     MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
     MYFLT inc = fr / self->sr;
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->trigsBuffer[i] = 0.0;
         self->time += inc;
+
         if (self->time < 0.0)
             self->time += 1.0;
-        else if (self->time >= 1.0) {
+        else if (self->time >= 1.0)
+        {
             self->time -= 1.0;
             self->value = (MYFLT)Urn_choose(self);
-            if (self->length == 0) {
+
+            if (self->length == 0)
+            {
                 self->trigsBuffer[i] = 1.0;
                 Urn_reset(self);
             }
         }
+
         self->data[i] = self->value;
     }
 }
 
 static void
-Urn_generate_a(Urn *self) {
+Urn_generate_a(Urn *self)
+{
     int i;
     MYFLT inc;
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->trigsBuffer[i] = 0.0;
         inc = fr[i] / self->sr;
         self->time += inc;
+
         if (self->time < 0.0)
             self->time += 1.0;
-        else if (self->time >= 1.0) {
+        else if (self->time >= 1.0)
+        {
             self->time -= 1.0;
             self->value = (MYFLT)Urn_choose(self);
-            if (self->length == 0) {
+
+            if (self->length == 0)
+            {
                 self->trigsBuffer[i] = 1.0;
                 Urn_reset(self);
             }
         }
+
         self->data[i] = self->value;
     }
 }
@@ -5332,39 +6039,51 @@ Urn_setProcMode(Urn *self)
     procmode = self->modebuffer[2];
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-	switch (procmode) {
+    switch (procmode)
+    {
         case 0:
             self->proc_func_ptr = Urn_generate_i;
             break;
+
         case 1:
             self->proc_func_ptr = Urn_generate_a;
             break;
     }
-	switch (muladdmode) {
+
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = Urn_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = Urn_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = Urn_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = Urn_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = Urn_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = Urn_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = Urn_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = Urn_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = Urn_postprocessing_revareva;
             break;
@@ -5412,7 +6131,7 @@ static PyObject *
 Urn_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *freqtmp=NULL, *multmp=NULL, *addtmp=NULL;
+    PyObject *freqtmp = NULL, *multmp = NULL, *addtmp = NULL;
     Urn *self;
     self = (Urn *)type->tp_alloc(type, 0);
 
@@ -5422,9 +6141,9 @@ Urn_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->lastvalue = -1;
     self->value = 0.0;
     self->time = 1.0;
-	self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
-	self->modebuffer[2] = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
+    self->modebuffer[2] = 0;
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Urn_compute_next_data_frame);
@@ -5435,15 +6154,18 @@ Urn_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|iOOO", kwlist, &self->max, &freqtmp, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    if (freqtmp) {
+    if (freqtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
     }
 
-    if (multmp) {
+    if (multmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
 
-    if (addtmp) {
+    if (addtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
 
@@ -5451,7 +6173,8 @@ Urn_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->trigsBuffer[i] = 0.0;
     }
 
@@ -5491,159 +6214,167 @@ static PyObject * Urn_inplace_div(Urn *self, PyObject *arg) { INPLACE_DIV };
 static PyObject *
 Urn_setMax(Urn *self, PyObject *arg)
 {
-	if (PyNumber_Check(arg) == 1)
-		self->max = PyInt_AsLong(arg);
+    if (PyNumber_Check(arg) == 1)
+        self->max = PyInt_AsLong(arg);
 
     Urn_reset(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 Urn_setFreq(Urn *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->freq);
-	if (isNumber == 1) {
-		self->freq = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->freq);
+
+    if (isNumber == 1)
+    {
+        self->freq = PyNumber_Float(tmp);
         self->modebuffer[2] = 0;
-	}
-	else {
-		self->freq = tmp;
+    }
+    else
+    {
+        self->freq = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->freq_stream);
         self->freq_stream = (Stream *)streamtmp;
-		self->modebuffer[2] = 1;
-	}
+        self->modebuffer[2] = 1;
+    }
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
-static PyMemberDef Urn_members[] = {
-{"server", T_OBJECT_EX, offsetof(Urn, server), 0, "Pyo server."},
-{"stream", T_OBJECT_EX, offsetof(Urn, stream), 0, "Stream object."},
-{"trig_stream", T_OBJECT_EX, offsetof(Urn, trig_stream), 0, "Trigger Stream object."},
-{"freq", T_OBJECT_EX, offsetof(Urn, freq), 0, "Polling frequency."},
-{"mul", T_OBJECT_EX, offsetof(Urn, mul), 0, "Mul factor."},
-{"add", T_OBJECT_EX, offsetof(Urn, add), 0, "Add factor."},
-{NULL}  /* Sentinel */
+static PyMemberDef Urn_members[] =
+{
+    {"server", T_OBJECT_EX, offsetof(Urn, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(Urn, stream), 0, "Stream object."},
+    {"trig_stream", T_OBJECT_EX, offsetof(Urn, trig_stream), 0, "Trigger Stream object."},
+    {"freq", T_OBJECT_EX, offsetof(Urn, freq), 0, "Polling frequency."},
+    {"mul", T_OBJECT_EX, offsetof(Urn, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(Urn, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
 };
 
-static PyMethodDef Urn_methods[] = {
-{"getServer", (PyCFunction)Urn_getServer, METH_NOARGS, "Returns server object."},
-{"_getStream", (PyCFunction)Urn_getStream, METH_NOARGS, "Returns stream object."},
-{"_getTriggerStream", (PyCFunction)Urn_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
-{"play", (PyCFunction)Urn_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"out", (PyCFunction)Urn_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-{"stop", (PyCFunction)Urn_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
-{"setMax", (PyCFunction)Urn_setMax, METH_O, "Sets maximum possible value."},
-{"setFreq", (PyCFunction)Urn_setFreq, METH_O, "Sets polling frequency."},
-{"setMul", (PyCFunction)Urn_setMul, METH_O, "Sets oscillator mul factor."},
-{"setAdd", (PyCFunction)Urn_setAdd, METH_O, "Sets oscillator add factor."},
-{"setSub", (PyCFunction)Urn_setSub, METH_O, "Sets inverse add factor."},
-{"setDiv", (PyCFunction)Urn_setDiv, METH_O, "Sets inverse mul factor."},
-{NULL}  /* Sentinel */
+static PyMethodDef Urn_methods[] =
+{
+    {"getServer", (PyCFunction)Urn_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)Urn_getStream, METH_NOARGS, "Returns stream object."},
+    {"_getTriggerStream", (PyCFunction)Urn_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
+    {"play", (PyCFunction)Urn_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)Urn_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)Urn_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"setMax", (PyCFunction)Urn_setMax, METH_O, "Sets maximum possible value."},
+    {"setFreq", (PyCFunction)Urn_setFreq, METH_O, "Sets polling frequency."},
+    {"setMul", (PyCFunction)Urn_setMul, METH_O, "Sets oscillator mul factor."},
+    {"setAdd", (PyCFunction)Urn_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)Urn_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)Urn_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Urn_as_number = {
-(binaryfunc)Urn_add,                         /*nb_add*/
-(binaryfunc)Urn_sub,                         /*nb_subtract*/
-(binaryfunc)Urn_multiply,                    /*nb_multiply*/
-INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
-0,                                              /*nb_remainder*/
-0,                                              /*nb_divmod*/
-0,                                              /*nb_power*/
-0,                                              /*nb_neg*/
-0,                                              /*nb_pos*/
-0,                                              /*(unaryfunc)array_abs,*/
-0,                                              /*nb_nonzero*/
-0,                                              /*nb_invert*/
-0,                                              /*nb_lshift*/
-0,                                              /*nb_rshift*/
-0,                                              /*nb_and*/
-0,                                              /*nb_xor*/
-0,                                              /*nb_or*/
-INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
-0,                                              /*nb_int*/
-0,                                              /*nb_long*/
-0,                                              /*nb_float*/
-INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
-(binaryfunc)Urn_inplace_add,                 /*inplace_add*/
-(binaryfunc)Urn_inplace_sub,                 /*inplace_subtract*/
-(binaryfunc)Urn_inplace_multiply,            /*inplace_multiply*/
-INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
-0,                                              /*inplace_remainder*/
-0,                                              /*inplace_power*/
-0,                                              /*inplace_lshift*/
-0,                                              /*inplace_rshift*/
-0,                                              /*inplace_and*/
-0,                                              /*inplace_xor*/
-0,                                              /*inplace_or*/
-0,                                              /*nb_floor_divide*/
-(binaryfunc)Urn_div,                       /*nb_true_divide*/
-0,                                              /*nb_inplace_floor_divide*/
-(binaryfunc)Urn_inplace_div,                       /*nb_inplace_true_divide*/
-0,                                              /* nb_index */
+static PyNumberMethods Urn_as_number =
+{
+    (binaryfunc)Urn_add,                         /*nb_add*/
+    (binaryfunc)Urn_sub,                         /*nb_subtract*/
+    (binaryfunc)Urn_multiply,                    /*nb_multiply*/
+    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
+    0,                                              /*nb_remainder*/
+    0,                                              /*nb_divmod*/
+    0,                                              /*nb_power*/
+    0,                                              /*nb_neg*/
+    0,                                              /*nb_pos*/
+    0,                                              /*(unaryfunc)array_abs,*/
+    0,                                              /*nb_nonzero*/
+    0,                                              /*nb_invert*/
+    0,                                              /*nb_lshift*/
+    0,                                              /*nb_rshift*/
+    0,                                              /*nb_and*/
+    0,                                              /*nb_xor*/
+    0,                                              /*nb_or*/
+    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
+    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
+    (binaryfunc)Urn_inplace_add,                 /*inplace_add*/
+    (binaryfunc)Urn_inplace_sub,                 /*inplace_subtract*/
+    (binaryfunc)Urn_inplace_multiply,            /*inplace_multiply*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
+    0,                                              /*inplace_remainder*/
+    0,                                              /*inplace_power*/
+    0,                                              /*inplace_lshift*/
+    0,                                              /*inplace_rshift*/
+    0,                                              /*inplace_and*/
+    0,                                              /*inplace_xor*/
+    0,                                              /*inplace_or*/
+    0,                                              /*nb_floor_divide*/
+    (binaryfunc)Urn_div,                       /*nb_true_divide*/
+    0,                                              /*nb_inplace_floor_divide*/
+    (binaryfunc)Urn_inplace_div,                       /*nb_inplace_true_divide*/
+    0,                                              /* nb_index */
 };
 
-PyTypeObject UrnType = {
-PyVarObject_HEAD_INIT(NULL, 0)
-"_pyo.Urn_base",                                   /*tp_name*/
-sizeof(Urn),                                 /*tp_basicsize*/
-0,                                              /*tp_itemsize*/
-(destructor)Urn_dealloc,                     /*tp_dealloc*/
-0,                                              /*tp_print*/
-0,                                              /*tp_getattr*/
-0,                                              /*tp_setattr*/
-0,                                              /*tp_as_async (tp_compare in Python 2)*/
-0,                                              /*tp_repr*/
-&Urn_as_number,                              /*tp_as_number*/
-0,                                              /*tp_as_sequence*/
-0,                                              /*tp_as_mapping*/
-0,                                              /*tp_hash */
-0,                                              /*tp_call*/
-0,                                              /*tp_str*/
-0,                                              /*tp_getattro*/
-0,                                              /*tp_setattro*/
-0,                                              /*tp_as_buffer*/
-Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
-"Urn objects. Periodically generates a new integer random value without repetition.",           /* tp_doc */
-(traverseproc)Urn_traverse,                  /* tp_traverse */
-(inquiry)Urn_clear,                          /* tp_clear */
-0,                                              /* tp_richcompare */
-0,                                              /* tp_weaklistoffset */
-0,                                              /* tp_iter */
-0,                                              /* tp_iternext */
-Urn_methods,                                 /* tp_methods */
-Urn_members,                                 /* tp_members */
-0,                                              /* tp_getset */
-0,                                              /* tp_base */
-0,                                              /* tp_dict */
-0,                                              /* tp_descr_get */
-0,                                              /* tp_descr_set */
-0,                                              /* tp_dictoffset */
-0,                          /* tp_init */
-0,                                              /* tp_alloc */
-Urn_new,                                     /* tp_new */
+PyTypeObject UrnType =
+{
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "_pyo.Urn_base",                                   /*tp_name*/
+    sizeof(Urn),                                 /*tp_basicsize*/
+    0,                                              /*tp_itemsize*/
+    (destructor)Urn_dealloc,                     /*tp_dealloc*/
+    0,                                              /*tp_print*/
+    0,                                              /*tp_getattr*/
+    0,                                              /*tp_setattr*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
+    0,                                              /*tp_repr*/
+    &Urn_as_number,                              /*tp_as_number*/
+    0,                                              /*tp_as_sequence*/
+    0,                                              /*tp_as_mapping*/
+    0,                                              /*tp_hash */
+    0,                                              /*tp_call*/
+    0,                                              /*tp_str*/
+    0,                                              /*tp_getattro*/
+    0,                                              /*tp_setattro*/
+    0,                                              /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "Urn objects. Periodically generates a new integer random value without repetition.",           /* tp_doc */
+    (traverseproc)Urn_traverse,                  /* tp_traverse */
+    (inquiry)Urn_clear,                          /* tp_clear */
+    0,                                              /* tp_richcompare */
+    0,                                              /* tp_weaklistoffset */
+    0,                                              /* tp_iter */
+    0,                                              /* tp_iternext */
+    Urn_methods,                                 /* tp_methods */
+    Urn_members,                                 /* tp_members */
+    0,                                              /* tp_getset */
+    0,                                              /* tp_base */
+    0,                                              /* tp_dict */
+    0,                                              /* tp_descr_get */
+    0,                                              /* tp_descr_set */
+    0,                                              /* tp_dictoffset */
+    0,                          /* tp_init */
+    0,                                              /* tp_alloc */
+    Urn_new,                                     /* tp_new */
 };
 
 /****************/
 /**** LogiMap ***/
 /****************/
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     PyObject *chaos;
     PyObject *freq;
@@ -5656,7 +6387,8 @@ typedef struct {
 } LogiMap;
 
 static void
-LogiMap_generate_ii(LogiMap *self) {
+LogiMap_generate_ii(LogiMap *self)
+{
     int i;
     MYFLT inc;
     MYFLT ch = PyFloat_AS_DOUBLE(self->chaos);
@@ -5668,41 +6400,53 @@ LogiMap_generate_ii(LogiMap *self) {
     else if (ch >= 1.0)
         ch = 0.999;
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->time += inc;
-        if (self->time >= 1.0) {
+
+        if (self->time >= 1.0)
+        {
             self->time -= 1.0;
             self->value = (ch + 3) * self->value * (1.0 - self->value);
         }
+
         self->data[i] = self->value;
     }
 }
 
 static void
-LogiMap_generate_ai(LogiMap *self) {
+LogiMap_generate_ai(LogiMap *self)
+{
     int i;
     MYFLT inc, ch = 0.0;
     MYFLT *chaos = Stream_getData((Stream *)self->chaos_stream);
     MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
     inc = fr / self->sr;
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->time += inc;
-        if (self->time >= 1.0) {
+
+        if (self->time >= 1.0)
+        {
             self->time -= 1.0;
             ch = chaos[i];
+
             if (ch <= 0.0)
                 ch = 0.001;
             else if (ch >= 1.0)
                 ch = 0.999;
+
             self->value = (ch + 3) * self->value * (1.0 - self->value);
         }
+
         self->data[i] = self->value;
     }
 }
 
 static void
-LogiMap_generate_ia(LogiMap *self) {
+LogiMap_generate_ia(LogiMap *self)
+{
     int i;
     MYFLT inc;
     MYFLT ch = PyFloat_AS_DOUBLE(self->chaos);
@@ -5713,36 +6457,47 @@ LogiMap_generate_ia(LogiMap *self) {
     else if (ch >= 1.0)
         ch = 0.999;
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         inc = fr[i] / self->sr;
         self->time += inc;
-        if (self->time >= 1.0) {
+
+        if (self->time >= 1.0)
+        {
             self->time -= 1.0;
             self->value = (ch + 3) * self->value * (1.0 - self->value);
         }
+
         self->data[i] = self->value;
     }
 }
 
 static void
-LogiMap_generate_aa(LogiMap *self) {
+LogiMap_generate_aa(LogiMap *self)
+{
     int i;
     MYFLT inc, ch = 0.0;
     MYFLT *chaos = Stream_getData((Stream *)self->chaos_stream);
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         inc = fr[i] / self->sr;
         self->time += inc;
-        if (self->time >= 1.0) {
+
+        if (self->time >= 1.0)
+        {
             self->time -= 1.0;
             ch = chaos[i];
+
             if (ch <= 0.0)
                 ch = 0.001;
             else if (ch >= 1.0)
                 ch = 0.999;
+
             self->value = (ch + 3) * self->value * (1.0 - self->value);
         }
+
         self->data[i] = self->value;
     }
 }
@@ -5764,45 +6519,59 @@ LogiMap_setProcMode(LogiMap *self)
     procmode = self->modebuffer[2] + self->modebuffer[3] * 10;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-	switch (procmode) {
+    switch (procmode)
+    {
         case 0:
             self->proc_func_ptr = LogiMap_generate_ii;
             break;
+
         case 1:
             self->proc_func_ptr = LogiMap_generate_ai;
             break;
+
         case 10:
             self->proc_func_ptr = LogiMap_generate_ia;
             break;
+
         case 11:
             self->proc_func_ptr = LogiMap_generate_aa;
             break;
     }
-	switch (muladdmode) {
+
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = LogiMap_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = LogiMap_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = LogiMap_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = LogiMap_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = LogiMap_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = LogiMap_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = LogiMap_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = LogiMap_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = LogiMap_postprocessing_revareva;
             break;
@@ -5851,17 +6620,17 @@ LogiMap_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
     MYFLT init;
-    PyObject *chaostmp=NULL, *freqtmp=NULL, *multmp=NULL, *addtmp=NULL;
+    PyObject *chaostmp = NULL, *freqtmp = NULL, *multmp = NULL, *addtmp = NULL;
     LogiMap *self;
     self = (LogiMap *)type->tp_alloc(type, 0);
 
     self->chaos = PyFloat_FromDouble(0.6);
     self->freq = PyFloat_FromDouble(1.);
     self->time = 1.0;
-	self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
-	self->modebuffer[2] = 0;
-	self->modebuffer[3] = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
+    self->modebuffer[2] = 0;
+    self->modebuffer[3] = 0;
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, LogiMap_compute_next_data_frame);
@@ -5872,19 +6641,23 @@ LogiMap_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__OOFOO, kwlist, &chaostmp, &freqtmp, &init, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    if (chaostmp) {
+    if (chaostmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setChaos", "O", chaostmp);
     }
 
-    if (freqtmp) {
+    if (freqtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
     }
 
-    if (multmp) {
+    if (multmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
 
-    if (addtmp) {
+    if (addtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
 
@@ -5894,6 +6667,7 @@ LogiMap_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         init = 0.001;
     else if (init >= 1.0)
         init = 0.999;
+
     self->value = self->init = init;
 
     (*self->mode_func_ptr)(self);
@@ -5908,9 +6682,10 @@ static PyObject * LogiMap_setAdd(LogiMap *self, PyObject *arg) { SET_ADD };
 static PyObject * LogiMap_setSub(LogiMap *self, PyObject *arg) { SET_SUB };
 static PyObject * LogiMap_setDiv(LogiMap *self, PyObject *arg) { SET_DIV };
 
-static PyObject * LogiMap_play(LogiMap *self, PyObject *args, PyObject *kwds) { 
+static PyObject * LogiMap_play(LogiMap *self, PyObject *args, PyObject *kwds)
+{
     self->value = self->init;
-    PLAY 
+    PLAY
 };
 static PyObject * LogiMap_out(LogiMap *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * LogiMap_stop(LogiMap *self, PyObject *args, PyObject *kwds) { STOP };
@@ -5927,169 +6702,179 @@ static PyObject * LogiMap_inplace_div(LogiMap *self, PyObject *arg) { INPLACE_DI
 static PyObject *
 LogiMap_setChaos(LogiMap *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->chaos);
-	if (isNumber == 1) {
-		self->chaos = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->chaos);
+
+    if (isNumber == 1)
+    {
+        self->chaos = PyNumber_Float(tmp);
         self->modebuffer[2] = 0;
-	}
-	else {
-		self->chaos = tmp;
+    }
+    else
+    {
+        self->chaos = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->chaos, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->chaos_stream);
         self->chaos_stream = (Stream *)streamtmp;
-		self->modebuffer[2] = 1;
-	}
+        self->modebuffer[2] = 1;
+    }
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 LogiMap_setFreq(LogiMap *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->freq);
-	if (isNumber == 1) {
-		self->freq = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->freq);
+
+    if (isNumber == 1)
+    {
+        self->freq = PyNumber_Float(tmp);
         self->modebuffer[3] = 0;
-	}
-	else {
-		self->freq = tmp;
+    }
+    else
+    {
+        self->freq = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->freq_stream);
         self->freq_stream = (Stream *)streamtmp;
-		self->modebuffer[3] = 1;
-	}
+        self->modebuffer[3] = 1;
+    }
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
-static PyMemberDef LogiMap_members[] = {
-{"server", T_OBJECT_EX, offsetof(LogiMap, server), 0, "Pyo server."},
-{"stream", T_OBJECT_EX, offsetof(LogiMap, stream), 0, "Stream object."},
-{"chaos", T_OBJECT_EX, offsetof(LogiMap, chaos), 0, "chaosimum possible value."},
-{"freq", T_OBJECT_EX, offsetof(LogiMap, freq), 0, "Polling frequency."},
-{"mul", T_OBJECT_EX, offsetof(LogiMap, mul), 0, "Mul factor."},
-{"add", T_OBJECT_EX, offsetof(LogiMap, add), 0, "Add factor."},
-{NULL}  /* Sentinel */
+static PyMemberDef LogiMap_members[] =
+{
+    {"server", T_OBJECT_EX, offsetof(LogiMap, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(LogiMap, stream), 0, "Stream object."},
+    {"chaos", T_OBJECT_EX, offsetof(LogiMap, chaos), 0, "chaosimum possible value."},
+    {"freq", T_OBJECT_EX, offsetof(LogiMap, freq), 0, "Polling frequency."},
+    {"mul", T_OBJECT_EX, offsetof(LogiMap, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(LogiMap, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
 };
 
-static PyMethodDef LogiMap_methods[] = {
-{"getServer", (PyCFunction)LogiMap_getServer, METH_NOARGS, "Returns server object."},
-{"_getStream", (PyCFunction)LogiMap_getStream, METH_NOARGS, "Returns stream object."},
-{"play", (PyCFunction)LogiMap_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"out", (PyCFunction)LogiMap_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-{"stop", (PyCFunction)LogiMap_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
-{"setChaos", (PyCFunction)LogiMap_setChaos, METH_O, "Sets the randomization degree."},
-{"setFreq", (PyCFunction)LogiMap_setFreq, METH_O, "Sets polling frequency."},
-{"setMul", (PyCFunction)LogiMap_setMul, METH_O, "Sets oscillator mul factor."},
-{"setAdd", (PyCFunction)LogiMap_setAdd, METH_O, "Sets oscillator add factor."},
-{"setSub", (PyCFunction)LogiMap_setSub, METH_O, "Sets inverse add factor."},
-{"setDiv", (PyCFunction)LogiMap_setDiv, METH_O, "Sets inverse mul factor."},
-{NULL}  /* Sentinel */
+static PyMethodDef LogiMap_methods[] =
+{
+    {"getServer", (PyCFunction)LogiMap_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)LogiMap_getStream, METH_NOARGS, "Returns stream object."},
+    {"play", (PyCFunction)LogiMap_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)LogiMap_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)LogiMap_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"setChaos", (PyCFunction)LogiMap_setChaos, METH_O, "Sets the randomization degree."},
+    {"setFreq", (PyCFunction)LogiMap_setFreq, METH_O, "Sets polling frequency."},
+    {"setMul", (PyCFunction)LogiMap_setMul, METH_O, "Sets oscillator mul factor."},
+    {"setAdd", (PyCFunction)LogiMap_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)LogiMap_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)LogiMap_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods LogiMap_as_number = {
-(binaryfunc)LogiMap_add,                         /*nb_add*/
-(binaryfunc)LogiMap_sub,                         /*nb_subtract*/
-(binaryfunc)LogiMap_multiply,                    /*nb_multiply*/
-INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
-0,                                              /*nb_remainder*/
-0,                                              /*nb_divmod*/
-0,                                              /*nb_power*/
-0,                                              /*nb_neg*/
-0,                                              /*nb_pos*/
-0,                                              /*(unaryfunc)array_abs,*/
-0,                                              /*nb_nonzero*/
-0,                                              /*nb_invert*/
-0,                                              /*nb_lshift*/
-0,                                              /*nb_rshift*/
-0,                                              /*nb_and*/
-0,                                              /*nb_xor*/
-0,                                              /*nb_or*/
-INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
-0,                                              /*nb_int*/
-0,                                              /*nb_long*/
-0,                                              /*nb_float*/
-INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
-(binaryfunc)LogiMap_inplace_add,                 /*inplace_add*/
-(binaryfunc)LogiMap_inplace_sub,                 /*inplace_subtract*/
-(binaryfunc)LogiMap_inplace_multiply,            /*inplace_multiply*/
-INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
-0,                                              /*inplace_remainder*/
-0,                                              /*inplace_power*/
-0,                                              /*inplace_lshift*/
-0,                                              /*inplace_rshift*/
-0,                                              /*inplace_and*/
-0,                                              /*inplace_xor*/
-0,                                              /*inplace_or*/
-0,                                              /*nb_floor_divide*/
-(binaryfunc)LogiMap_div,                       /*nb_true_divide*/
-0,                                              /*nb_inplace_floor_divide*/
-(binaryfunc)LogiMap_inplace_div,                       /*nb_inplace_true_divide*/
-0,                                              /* nb_index */
+static PyNumberMethods LogiMap_as_number =
+{
+    (binaryfunc)LogiMap_add,                         /*nb_add*/
+    (binaryfunc)LogiMap_sub,                         /*nb_subtract*/
+    (binaryfunc)LogiMap_multiply,                    /*nb_multiply*/
+    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
+    0,                                              /*nb_remainder*/
+    0,                                              /*nb_divmod*/
+    0,                                              /*nb_power*/
+    0,                                              /*nb_neg*/
+    0,                                              /*nb_pos*/
+    0,                                              /*(unaryfunc)array_abs,*/
+    0,                                              /*nb_nonzero*/
+    0,                                              /*nb_invert*/
+    0,                                              /*nb_lshift*/
+    0,                                              /*nb_rshift*/
+    0,                                              /*nb_and*/
+    0,                                              /*nb_xor*/
+    0,                                              /*nb_or*/
+    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
+    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
+    (binaryfunc)LogiMap_inplace_add,                 /*inplace_add*/
+    (binaryfunc)LogiMap_inplace_sub,                 /*inplace_subtract*/
+    (binaryfunc)LogiMap_inplace_multiply,            /*inplace_multiply*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
+    0,                                              /*inplace_remainder*/
+    0,                                              /*inplace_power*/
+    0,                                              /*inplace_lshift*/
+    0,                                              /*inplace_rshift*/
+    0,                                              /*inplace_and*/
+    0,                                              /*inplace_xor*/
+    0,                                              /*inplace_or*/
+    0,                                              /*nb_floor_divide*/
+    (binaryfunc)LogiMap_div,                       /*nb_true_divide*/
+    0,                                              /*nb_inplace_floor_divide*/
+    (binaryfunc)LogiMap_inplace_div,                       /*nb_inplace_true_divide*/
+    0,                                              /* nb_index */
 };
 
-PyTypeObject LogiMapType = {
-PyVarObject_HEAD_INIT(NULL, 0)
-"_pyo.LogiMap_base",                                   /*tp_name*/
-sizeof(LogiMap),                                 /*tp_basicsize*/
-0,                                              /*tp_itemsize*/
-(destructor)LogiMap_dealloc,                     /*tp_dealloc*/
-0,                                              /*tp_print*/
-0,                                              /*tp_getattr*/
-0,                                              /*tp_setattr*/
-0,                                              /*tp_as_async (tp_compare in Python 2)*/
-0,                                              /*tp_repr*/
-&LogiMap_as_number,                              /*tp_as_number*/
-0,                                              /*tp_as_sequence*/
-0,                                              /*tp_as_mapping*/
-0,                                              /*tp_hash */
-0,                                              /*tp_call*/
-0,                                              /*tp_str*/
-0,                                              /*tp_getattro*/
-0,                                              /*tp_setattro*/
-0,                                              /*tp_as_buffer*/
-Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
-"LogiMap objects. Random generator based on the logistic equation.",           /* tp_doc */
-(traverseproc)LogiMap_traverse,                  /* tp_traverse */
-(inquiry)LogiMap_clear,                          /* tp_clear */
-0,                                              /* tp_richcompare */
-0,                                              /* tp_weaklistoffset */
-0,                                              /* tp_iter */
-0,                                              /* tp_iternext */
-LogiMap_methods,                                 /* tp_methods */
-LogiMap_members,                                 /* tp_members */
-0,                                              /* tp_getset */
-0,                                              /* tp_base */
-0,                                              /* tp_dict */
-0,                                              /* tp_descr_get */
-0,                                              /* tp_descr_set */
-0,                                              /* tp_dictoffset */
-0,                          /* tp_init */
-0,                                              /* tp_alloc */
-LogiMap_new,                                     /* tp_new */
+PyTypeObject LogiMapType =
+{
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "_pyo.LogiMap_base",                                   /*tp_name*/
+    sizeof(LogiMap),                                 /*tp_basicsize*/
+    0,                                              /*tp_itemsize*/
+    (destructor)LogiMap_dealloc,                     /*tp_dealloc*/
+    0,                                              /*tp_print*/
+    0,                                              /*tp_getattr*/
+    0,                                              /*tp_setattr*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
+    0,                                              /*tp_repr*/
+    &LogiMap_as_number,                              /*tp_as_number*/
+    0,                                              /*tp_as_sequence*/
+    0,                                              /*tp_as_mapping*/
+    0,                                              /*tp_hash */
+    0,                                              /*tp_call*/
+    0,                                              /*tp_str*/
+    0,                                              /*tp_getattro*/
+    0,                                              /*tp_setattro*/
+    0,                                              /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "LogiMap objects. Random generator based on the logistic equation.",           /* tp_doc */
+    (traverseproc)LogiMap_traverse,                  /* tp_traverse */
+    (inquiry)LogiMap_clear,                          /* tp_clear */
+    0,                                              /* tp_richcompare */
+    0,                                              /* tp_weaklistoffset */
+    0,                                              /* tp_iter */
+    0,                                              /* tp_iternext */
+    LogiMap_methods,                                 /* tp_methods */
+    LogiMap_members,                                 /* tp_members */
+    0,                                              /* tp_getset */
+    0,                                              /* tp_base */
+    0,                                              /* tp_dict */
+    0,                                              /* tp_descr_get */
+    0,                                              /* tp_descr_set */
+    0,                                              /* tp_dictoffset */
+    0,                          /* tp_init */
+    0,                                              /* tp_alloc */
+    LogiMap_new,                                     /* tp_new */
 };

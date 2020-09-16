@@ -97,7 +97,8 @@ PVStream_setCount(PVStream *self, int *data)
     self->count = data;
 }
 
-PyTypeObject PVStreamType = {
+PyTypeObject PVStreamType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "pyo.PVStream", /*tp_name*/
     sizeof(PVStream), /*tp_basicsize*/

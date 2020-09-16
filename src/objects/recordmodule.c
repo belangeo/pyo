@@ -31,7 +31,8 @@
 /************/
 /* Record */
 /************/
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     PyObject *input_list;
     PyObject *input_stream_list;
@@ -46,28 +47,36 @@ typedef struct {
 } Record;
 
 static void
-Record_process(Record *self) {
+Record_process(Record *self)
+{
     int i, j, chnl, offset, totlen;
     MYFLT *in;
 
-    totlen = self->chnls*self->bufsize*self->buffering;
+    totlen = self->chnls * self->bufsize * self->buffering;
 
-    if (self->count == self->buffering) {
+    if (self->count == self->buffering)
+    {
         self->count = 0;
-        for (i=0; i<totlen; i++) {
+
+        for (i = 0; i < totlen; i++)
+        {
             self->buffer[i] = 0.0;
         }
     }
 
     offset = self->bufsize * self->chnls * self->count;
 
-    for (j=0; j<self->listlen; j++) {
+    for (j = 0; j < self->listlen; j++)
+    {
         chnl = j % self->chnls;
         in = Stream_getData((Stream *)PyList_GET_ITEM(self->input_stream_list, j));
-        for (i=0; i<self->bufsize; i++) {
-            self->buffer[i*self->chnls+chnl+offset] += in[i];
+
+        for (i = 0; i < self->bufsize; i++)
+        {
+            self->buffer[i * self->chnls + chnl + offset] += in[i];
         }
     }
+
     self->count++;
 
     if (self->count == self->buffering)
@@ -109,6 +118,7 @@ Record_dealloc(Record* self)
 {
     if (Stream_getStreamActive(self->stream))
         PyObject_CallMethod((PyObject *)self, "stop", NULL);
+
     pyo_DEALLOC
     free(self->buffer);
     Record_clear(self);
@@ -144,7 +154,9 @@ Record_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->input_list = input_listtmp;
     self->listlen = PyList_Size(self->input_list);
     self->input_stream_list = PyList_New(self->listlen);
-    for (i=0; i<self->listlen; i++) {
+
+    for (i = 0; i < self->listlen; i++)
+    {
         PyList_SET_ITEM(self->input_stream_list, i, PyObject_CallMethod(PyList_GET_ITEM(self->input_list, i), "_getStream", NULL));
     }
 
@@ -152,52 +164,69 @@ Record_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->recinfo.samplerate = (int)self->sr;
     self->recinfo.channels = self->chnls;
 
-    switch (fileformat) {
+    switch (fileformat)
+    {
         case 0:
             self->recinfo.format = SF_FORMAT_WAV;
             break;
+
         case 1:
             self->recinfo.format = SF_FORMAT_AIFF;
             break;
+
         case 2:
             self->recinfo.format = SF_FORMAT_AU;
             break;
+
         case 3:
             self->recinfo.format = SF_FORMAT_RAW;
             break;
+
         case 4:
             self->recinfo.format = SF_FORMAT_SD2;
             break;
+
         case 5:
             self->recinfo.format = SF_FORMAT_FLAC;
             break;
+
         case 6:
             self->recinfo.format = SF_FORMAT_CAF;
             break;
+
         case 7:
             self->recinfo.format = SF_FORMAT_OGG | SF_FORMAT_VORBIS;
             break;
     }
-    if (fileformat != 7) {
-        switch (sampletype) {
+
+    if (fileformat != 7)
+    {
+        switch (sampletype)
+        {
             case 0:
                 self->recinfo.format = self->recinfo.format | SF_FORMAT_PCM_16;
                 break;
+
             case 1:
                 self->recinfo.format = self->recinfo.format | SF_FORMAT_PCM_24;
                 break;
+
             case 2:
                 self->recinfo.format = self->recinfo.format | SF_FORMAT_PCM_32;
                 break;
+
             case 3:
                 self->recinfo.format = self->recinfo.format | SF_FORMAT_FLOAT;
                 break;
+
             case 4:
                 self->recinfo.format = self->recinfo.format | SF_FORMAT_DOUBLE;
                 break;
+
             case 5:
                 self->recinfo.format = self->recinfo.format | SF_FORMAT_ULAW;
                 break;
+
             case 6:
                 self->recinfo.format = self->recinfo.format | SF_FORMAT_ALAW;
                 break;
@@ -205,19 +234,23 @@ Record_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     }
 
     /* Open the output file. */
-    if (! (self->recfile = sf_open(self->recpath, SFM_WRITE, &self->recinfo))) {
+    if (! (self->recfile = sf_open(self->recpath, SFM_WRITE, &self->recinfo)))
+    {
         PySys_WriteStdout("Record: not able to open output file %s.\n", self->recpath);
         Py_RETURN_NONE;
     }
 
     // Sets the encoding quality for FLAC and OGG compressed formats
-    if (fileformat == 5 || fileformat == 7) {
+    if (fileformat == 5 || fileformat == 7)
+    {
         sf_command(self->recfile, SFC_SET_VBR_ENCODING_QUALITY, &quality, sizeof(double));
     }
 
     buflen = self->bufsize * self->chnls * self->buffering;
     self->buffer = (MYFLT *)realloc(self->buffer, buflen * sizeof(MYFLT));
-    for (i=0; i<buflen; i++) {
+
+    for (i = 0; i < buflen; i++)
+    {
         self->buffer[i] = 0.;
     }
 
@@ -242,84 +275,93 @@ static PyObject * Record_stop(Record *self, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|f", kwlist, &wait))
         return PyInt_FromLong(-1);
 
-    if (wait == 0) {
+    if (wait == 0)
+    {
         sf_close(self->recfile);
         Stream_setStreamActive(self->stream, 0);
         Stream_setStreamChnl(self->stream, 0);
         Stream_setStreamToDac(self->stream, 0);
-        for (i=0; i<self->bufsize; i++) {
+
+        for (i = 0; i < self->bufsize; i++)
+        {
             self->data[i] = 0;
         }
     }
-    else {
+    else
+    {
         Stream_resetBufferCount(self->stream);
         nearestBuf = (int)roundf((wait * self->sr) / self->bufsize + 0.5);
         Stream_setDuration(self->stream, nearestBuf);
     }
+
     Py_INCREF(Py_None);
     return Py_None;
 };
 
-static PyMemberDef Record_members[] = {
-{"server", T_OBJECT_EX, offsetof(Record, server), 0, "Pyo server."},
-{"stream", T_OBJECT_EX, offsetof(Record, stream), 0, "Stream object."},
-{"input", T_OBJECT_EX, offsetof(Record, input_list), 0, "Input sound base object list."},
-{NULL}  /* Sentinel */
+static PyMemberDef Record_members[] =
+{
+    {"server", T_OBJECT_EX, offsetof(Record, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(Record, stream), 0, "Stream object."},
+    {"input", T_OBJECT_EX, offsetof(Record, input_list), 0, "Input sound base object list."},
+    {NULL}  /* Sentinel */
 };
 
-static PyMethodDef Record_methods[] = {
-{"getServer", (PyCFunction)Record_getServer, METH_NOARGS, "Returns server object."},
-{"_getStream", (PyCFunction)Record_getStream, METH_NOARGS, "Returns stream object."},
-{"play", (PyCFunction)Record_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)Record_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
-{NULL}  /* Sentinel */
+static PyMethodDef Record_methods[] =
+{
+    {"getServer", (PyCFunction)Record_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)Record_getStream, METH_NOARGS, "Returns stream object."},
+    {"play", (PyCFunction)Record_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)Record_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {NULL}  /* Sentinel */
 };
 
-PyTypeObject RecordType = {
-PyVarObject_HEAD_INIT(NULL, 0)
-"_pyo.Record_base",                                   /*tp_name*/
-sizeof(Record),                                 /*tp_basicsize*/
-0,                                              /*tp_itemsize*/
-(destructor)Record_dealloc,                     /*tp_dealloc*/
-0,                                              /*tp_print*/
-0,                                              /*tp_getattr*/
-0,                                              /*tp_setattr*/
-0,                                              /*tp_as_async (tp_compare in Python 2)*/
-0,                                              /*tp_repr*/
-0,												/*tp_as_number*/
-0,                                              /*tp_as_sequence*/
-0,                                              /*tp_as_mapping*/
-0,                                              /*tp_hash */
-0,                                              /*tp_call*/
-0,                                              /*tp_str*/
-0,                                              /*tp_getattro*/
-0,                                              /*tp_setattro*/
-0,                                              /*tp_as_buffer*/
-Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
-"Record objects. Records its audio input in a file.",           /* tp_doc */
-(traverseproc)Record_traverse,                  /* tp_traverse */
-(inquiry)Record_clear,                          /* tp_clear */
-0,                                              /* tp_richcompare */
-0,                                              /* tp_weaklistoffset */
-0,                                              /* tp_iter */
-0,                                              /* tp_iternext */
-Record_methods,                                 /* tp_methods */
-Record_members,                                 /* tp_members */
-0,                                              /* tp_getset */
-0,                                              /* tp_base */
-0,                                              /* tp_dict */
-0,                                              /* tp_descr_get */
-0,                                              /* tp_descr_set */
-0,                                              /* tp_dictoffset */
-0,                          /* tp_init */
-0,                                              /* tp_alloc */
-Record_new,                                     /* tp_new */
+PyTypeObject RecordType =
+{
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "_pyo.Record_base",                                   /*tp_name*/
+    sizeof(Record),                                 /*tp_basicsize*/
+    0,                                              /*tp_itemsize*/
+    (destructor)Record_dealloc,                     /*tp_dealloc*/
+    0,                                              /*tp_print*/
+    0,                                              /*tp_getattr*/
+    0,                                              /*tp_setattr*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
+    0,                                              /*tp_repr*/
+    0,                                              /*tp_as_number*/
+    0,                                              /*tp_as_sequence*/
+    0,                                              /*tp_as_mapping*/
+    0,                                              /*tp_hash */
+    0,                                              /*tp_call*/
+    0,                                              /*tp_str*/
+    0,                                              /*tp_getattro*/
+    0,                                              /*tp_setattro*/
+    0,                                              /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "Record objects. Records its audio input in a file.",           /* tp_doc */
+    (traverseproc)Record_traverse,                  /* tp_traverse */
+    (inquiry)Record_clear,                          /* tp_clear */
+    0,                                              /* tp_richcompare */
+    0,                                              /* tp_weaklistoffset */
+    0,                                              /* tp_iter */
+    0,                                              /* tp_iternext */
+    Record_methods,                                 /* tp_methods */
+    Record_members,                                 /* tp_members */
+    0,                                              /* tp_getset */
+    0,                                              /* tp_base */
+    0,                                              /* tp_dict */
+    0,                                              /* tp_descr_get */
+    0,                                              /* tp_descr_set */
+    0,                                              /* tp_dictoffset */
+    0,                          /* tp_init */
+    0,                                              /* tp_alloc */
+    Record_new,                                     /* tp_new */
 };
 
 /************/
 /* ControlRec */
 /************/
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     PyObject *input;
     Stream *input_stream;
@@ -334,27 +376,37 @@ typedef struct {
 } ControlRec;
 
 static void
-ControlRec_process(ControlRec *self) {
+ControlRec_process(ControlRec *self)
+{
     int i;
 
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
 
-    if (self->dur > 0.0) {
-        for (i=0; i<self->bufsize; i++) {
-            if ((self->time % self->modulo) == 0 && self->count < self->size) {
+    if (self->dur > 0.0)
+    {
+        for (i = 0; i < self->bufsize; i++)
+        {
+            if ((self->time % self->modulo) == 0 && self->count < self->size)
+            {
                 self->buffer[self->count] = in[i];
                 self->count++;
             }
+
             self->time++;
+
             if (self->count >= self->size)
                 PyObject_CallMethod((PyObject *)self, "stop", NULL);
         }
     }
-    else {
-        for (i=0; i<self->bufsize; i++) {
-            if ((self->time % self->modulo) == 0) {
+    else
+    {
+        for (i = 0; i < self->bufsize; i++)
+        {
+            if ((self->time % self->modulo) == 0)
+            {
                 PyList_Append(self->tmp_list, PyFloat_FromDouble(in[i]));
             }
+
             self->time++;
         }
     }
@@ -396,8 +448,10 @@ static void
 ControlRec_dealloc(ControlRec* self)
 {
     pyo_DEALLOC
+
     if (self->buffer != NULL)
         free(self->buffer);
+
     ControlRec_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -428,13 +482,17 @@ ControlRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    if (self->dur > 0.0) {
+    if (self->dur > 0.0)
+    {
         self->size = (long)(self->dur * self->rate + 1);
         self->buffer = (MYFLT *)realloc(self->buffer, self->size * sizeof(MYFLT));
-        for (j=0; j<self->size; j++) {
+
+        for (j = 0; j < self->size; j++)
+        {
             self->buffer[j] = 0.0;
         }
     }
+
     self->modulo = (int)(self->sr / self->rate);
 
     (*self->mode_func_ptr)(self);
@@ -445,7 +503,8 @@ ControlRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static PyObject * ControlRec_getServer(ControlRec* self) { GET_SERVER };
 static PyObject * ControlRec_getStream(ControlRec* self) { GET_STREAM };
 
-static PyObject * ControlRec_play(ControlRec *self, PyObject *args, PyObject *kwds) {
+static PyObject * ControlRec_play(ControlRec *self, PyObject *args, PyObject *kwds)
+{
     self->count = self->time = 0;
     PLAY
 };
@@ -453,14 +512,18 @@ static PyObject * ControlRec_play(ControlRec *self, PyObject *args, PyObject *kw
 static PyObject * ControlRec_stop(ControlRec *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject *
-ControlRec_getData(ControlRec *self) {
+ControlRec_getData(ControlRec *self)
+{
     int i;
     PyObject *data, *point;
     MYFLT time, timescl = 1.0 / self->rate;
 
-    if (self->dur > 0.0) {
+    if (self->dur > 0.0)
+    {
         data = PyList_New(self->size);
-        for (i=0; i<self->size; i++) {
+
+        for (i = 0; i < self->size; i++)
+        {
             time = i * timescl;
             point = PyTuple_New(2);
             PyTuple_SET_ITEM(point, 0, PyFloat_FromDouble(time));
@@ -468,10 +531,13 @@ ControlRec_getData(ControlRec *self) {
             PyList_SetItem(data, i, point);
         }
     }
-    else {
+    else
+    {
         Py_ssize_t size = PyList_Size(self->tmp_list);
         data = PyList_New(size);
-        for (i=0; i<size; i++) {
+
+        for (i = 0; i < size; i++)
+        {
             time = i * timescl;
             point = PyTuple_New(2);
             PyTuple_SET_ITEM(point, 0, PyFloat_FromDouble(time));
@@ -479,26 +545,30 @@ ControlRec_getData(ControlRec *self) {
             PyList_SetItem(data, i, point);
         }
     }
-	return data;
+
+    return data;
 }
 
-static PyMemberDef ControlRec_members[] = {
+static PyMemberDef ControlRec_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(ControlRec, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(ControlRec, stream), 0, "Stream object."},
     {"input", T_OBJECT_EX, offsetof(ControlRec, input), 0, "Input sound."},
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef ControlRec_methods[] = {
+static PyMethodDef ControlRec_methods[] =
+{
     {"getServer", (PyCFunction)ControlRec_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)ControlRec_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)ControlRec_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)ControlRec_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
+    {"play", (PyCFunction)ControlRec_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)ControlRec_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"getData", (PyCFunction)ControlRec_getData, METH_NOARGS, "Returns list of sampled points."},
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject ControlRecType = {
+PyTypeObject ControlRecType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.ControlRec_base",                                   /*tp_name*/
     sizeof(ControlRec),                                 /*tp_basicsize*/
@@ -509,7 +579,7 @@ PyTypeObject ControlRecType = {
     0,                                              /*tp_setattr*/
     0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
-    0,												/*tp_as_number*/
+    0,                                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/
     0,                                              /*tp_as_mapping*/
     0,                                              /*tp_hash */
@@ -542,7 +612,8 @@ PyTypeObject ControlRecType = {
 /**************/
 /* ControlRead object */
 /**************/
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     MYFLT *values;
     int rate;
@@ -560,7 +631,8 @@ typedef struct {
 } ControlRead;
 
 static void
-ControlRead_readframes_i(ControlRead *self) {
+ControlRead_readframes_i(ControlRead *self)
+{
     MYFLT fpart;
     long i, mod;
     MYFLT invmodulo = 1.0 / self->modulo;
@@ -568,28 +640,37 @@ ControlRead_readframes_i(ControlRead *self) {
     if (self->go == 0)
         PyObject_CallMethod((PyObject *)self, "stop", NULL);
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->trigsBuffer[i] = 0.0;
-        if (self->go == 1) {
+
+        if (self->go == 1)
+        {
             mod = self->time % self->modulo;
             fpart = mod * invmodulo;
             self->data[i] = (*self->interp_func_ptr)(self->values, (int)self->count, fpart, (int)self->size);
         }
-        else {
+        else
+        {
             mod = -1;
             self->data[i] = 0.0;
         }
 
-        if (mod == 0) {
+        if (mod == 0)
+        {
             self->count++;
-            if (self->count >= self->size) {
+
+            if (self->count >= self->size)
+            {
                 self->trigsBuffer[i] = 1.0;
+
                 if (self->loop == 1)
                     self->count = 0;
                 else
                     self->go = 0;
             }
         }
+
         self->time++;
     }
 }
@@ -612,31 +693,40 @@ ControlRead_setProcMode(ControlRead *self)
 
     self->proc_func_ptr = ControlRead_readframes_i;
 
-	switch (muladdmode) {
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = ControlRead_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = ControlRead_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = ControlRead_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = ControlRead_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = ControlRead_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = ControlRead_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = ControlRead_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = ControlRead_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = ControlRead_postprocessing_revareva;
             break;
@@ -680,7 +770,7 @@ static PyObject *
 ControlRead_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *valuestmp, *multmp=NULL, *addtmp=NULL;
+    PyObject *valuestmp, *multmp = NULL, *addtmp = NULL;
     ControlRead *self;
     self = (ControlRead *)type->tp_alloc(type, 0);
 
@@ -688,8 +778,8 @@ ControlRead_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->rate = 1000;
     self->interp = 2;
     self->go = 1;
-	self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, ControlRead_compute_next_data_frame);
@@ -700,15 +790,18 @@ ControlRead_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iiiOO", kwlist, &valuestmp, &self->rate, &self->loop, &self->interp, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    if (valuestmp) {
+    if (valuestmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setValues", "O", valuestmp);
     }
 
-    if (multmp) {
+    if (multmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
 
-    if (addtmp) {
+    if (addtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
 
@@ -716,7 +809,8 @@ ControlRead_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->trigsBuffer[i] = 0.0;
     }
 
@@ -771,12 +865,14 @@ ControlRead_setValues(ControlRead *self, PyObject *arg)
 
     self->size = PyList_Size(arg);
     self->values = (MYFLT *)realloc(self->values, self->size * sizeof(MYFLT));
-    for (i=0; i<self->size; i++) {
+
+    for (i = 0; i < self->size; i++)
+    {
         self->values[i] = PyFloat_AsDouble(PyList_GET_ITEM(arg, i));
     }
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
@@ -809,8 +905,9 @@ ControlRead_setInterp(ControlRead *self, PyObject *arg)
 
     int isNumber = PyNumber_Check(arg);
 
-	if (isNumber == 1) {
-		self->interp = PyInt_AsLong(PyNumber_Int(arg));
+    if (isNumber == 1)
+    {
+        self->interp = PyInt_AsLong(PyNumber_Int(arg));
     }
 
     SET_INTERP_POINTER
@@ -819,7 +916,8 @@ ControlRead_setInterp(ControlRead *self, PyObject *arg)
     return Py_None;
 }
 
-static PyMemberDef ControlRead_members[] = {
+static PyMemberDef ControlRead_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(ControlRead, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(ControlRead, stream), 0, "Stream object."},
     {"trig_stream", T_OBJECT_EX, offsetof(ControlRead, trig_stream), 0, "Trigger Stream object."},
@@ -828,12 +926,13 @@ static PyMemberDef ControlRead_members[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef ControlRead_methods[] = {
+static PyMethodDef ControlRead_methods[] =
+{
     {"getServer", (PyCFunction)ControlRead_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)ControlRead_getStream, METH_NOARGS, "Returns stream object."},
     {"_getTriggerStream", (PyCFunction)ControlRead_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
-    {"play", (PyCFunction)ControlRead_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)ControlRead_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
+    {"play", (PyCFunction)ControlRead_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)ControlRead_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setValues", (PyCFunction)ControlRead_setValues, METH_O, "Fill buffer with values in input."},
     {"setRate", (PyCFunction)ControlRead_setRate, METH_O, "Sets reading rate."},
     {"setLoop", (PyCFunction)ControlRead_setLoop, METH_O, "Sets the looping mode."},
@@ -845,7 +944,8 @@ static PyMethodDef ControlRead_methods[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods ControlRead_as_number = {
+static PyNumberMethods ControlRead_as_number =
+{
     (binaryfunc)ControlRead_add,                      /*nb_add*/
     (binaryfunc)ControlRead_sub,                 /*nb_subtract*/
     (binaryfunc)ControlRead_multiply,                 /*nb_multiply*/
@@ -887,7 +987,8 @@ static PyNumberMethods ControlRead_as_number = {
     0,                     /* nb_index */
 };
 
-PyTypeObject ControlReadType = {
+PyTypeObject ControlReadType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.ControlRead_base",         /*tp_name*/
     sizeof(ControlRead),         /*tp_basicsize*/
@@ -911,10 +1012,10 @@ PyTypeObject ControlReadType = {
     "ControlRead objects. Generates an oscillatory waveform.",           /* tp_doc */
     (traverseproc)ControlRead_traverse,   /* tp_traverse */
     (inquiry)ControlRead_clear,           /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
     ControlRead_methods,             /* tp_methods */
     ControlRead_members,             /* tp_members */
     0,                      /* tp_getset */
@@ -931,7 +1032,8 @@ PyTypeObject ControlReadType = {
 /************/
 /* NoteinRec */
 /************/
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     PyObject *inputp;
     Stream *inputp_stream;
@@ -946,23 +1048,28 @@ typedef struct {
 } NoteinRec;
 
 static void
-NoteinRec_process(NoteinRec *self) {
+NoteinRec_process(NoteinRec *self)
+{
     int i;
     MYFLT pit, vel;
 
     MYFLT *inp = Stream_getData((Stream *)self->inputp_stream);
     MYFLT *inv = Stream_getData((Stream *)self->inputv_stream);
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         pit = inp[i];
         vel = inv[i];
-        if (pit != self->last_pitch || vel != self->last_vel) {
+
+        if (pit != self->last_pitch || vel != self->last_vel)
+        {
             self->last_pitch = pit;
             self->last_vel = vel;
             PyList_Append(self->tmp_list_p, PyFloat_FromDouble(pit));
             PyList_Append(self->tmp_list_v, PyFloat_FromDouble(vel));
             PyList_Append(self->tmp_list_t, PyFloat_FromDouble( (float)self->time / self->sr) );
         }
+
         self->time++;
     }
 }
@@ -1061,7 +1168,8 @@ NoteinRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static PyObject * NoteinRec_getServer(NoteinRec* self) { GET_SERVER };
 static PyObject * NoteinRec_getStream(NoteinRec* self) { GET_STREAM };
 
-static PyObject * NoteinRec_play(NoteinRec *self, PyObject *args, PyObject *kwds) {
+static PyObject * NoteinRec_play(NoteinRec *self, PyObject *args, PyObject *kwds)
+{
     self->time = 0;
     PLAY
 };
@@ -1069,24 +1177,28 @@ static PyObject * NoteinRec_play(NoteinRec *self, PyObject *args, PyObject *kwds
 static PyObject * NoteinRec_stop(NoteinRec *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject *
-NoteinRec_getData(NoteinRec *self) {
+NoteinRec_getData(NoteinRec *self)
+{
     int i;
     PyObject *data, *point;
 
     Py_ssize_t size = PyList_Size(self->tmp_list_p);
     data = PyList_New(size);
 
-    for (i=0; i<size; i++) {
+    for (i = 0; i < size; i++)
+    {
         point = PyTuple_New(3);
         PyTuple_SET_ITEM(point, 0, PyList_GET_ITEM(self->tmp_list_t, i));
         PyTuple_SET_ITEM(point, 1, PyList_GET_ITEM(self->tmp_list_p, i));
         PyTuple_SET_ITEM(point, 2, PyList_GET_ITEM(self->tmp_list_v, i));
         PyList_SetItem(data, i, point);
     }
-	return data;
+
+    return data;
 }
 
-static PyMemberDef NoteinRec_members[] = {
+static PyMemberDef NoteinRec_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(NoteinRec, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(NoteinRec, stream), 0, "Stream object."},
     {"inputp", T_OBJECT_EX, offsetof(NoteinRec, inputp), 0, "Pitch input."},
@@ -1094,16 +1206,18 @@ static PyMemberDef NoteinRec_members[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef NoteinRec_methods[] = {
+static PyMethodDef NoteinRec_methods[] =
+{
     {"getServer", (PyCFunction)NoteinRec_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)NoteinRec_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)NoteinRec_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)NoteinRec_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
+    {"play", (PyCFunction)NoteinRec_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)NoteinRec_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"getData", (PyCFunction)NoteinRec_getData, METH_NOARGS, "Returns list of sampled points."},
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject NoteinRecType = {
+PyTypeObject NoteinRecType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.NoteinRec_base",                                   /*tp_name*/
     sizeof(NoteinRec),                                 /*tp_basicsize*/
@@ -1114,7 +1228,7 @@ PyTypeObject NoteinRecType = {
     0,                                              /*tp_setattr*/
     0,                                              /*tp_as_async (tp_compare in Python 2)*/
     0,                                              /*tp_repr*/
-    0,												/*tp_as_number*/
+    0,                                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/
     0,                                              /*tp_as_mapping*/
     0,                                              /*tp_hash */
@@ -1147,7 +1261,8 @@ PyTypeObject NoteinRecType = {
 /**************/
 /* NoteinRead object */
 /**************/
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     MYFLT *values;
     long *timestamps;
@@ -1163,16 +1278,21 @@ typedef struct {
 } NoteinRead;
 
 static void
-NoteinRead_readframes_i(NoteinRead *self) {
+NoteinRead_readframes_i(NoteinRead *self)
+{
     long i;
 
     if (self->go == 0)
         PyObject_CallMethod((PyObject *)self, "stop", NULL);
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->trigsBuffer[i] = 0.0;
-        if (self->go == 1) {
-            if (self->time >= self->timestamps[self->count]) {
+
+        if (self->go == 1)
+        {
+            if (self->time >= self->timestamps[self->count])
+            {
                 self->value = self->values[self->count];
                 self->data[i] = self->value;
                 self->count++;
@@ -1183,13 +1303,16 @@ NoteinRead_readframes_i(NoteinRead *self) {
         else
             self->data[i] = 0.0;
 
-        if (self->count >= self->size) {
+        if (self->count >= self->size)
+        {
             self->trigsBuffer[i] = 1.0;
+
             if (self->loop == 1)
                 self->time = self->count = 0;
             else
                 self->go = 0;
         }
+
         self->time++;
     }
 }
@@ -1212,31 +1335,40 @@ NoteinRead_setProcMode(NoteinRead *self)
 
     self->proc_func_ptr = NoteinRead_readframes_i;
 
-	switch (muladdmode) {
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = NoteinRead_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = NoteinRead_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = NoteinRead_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = NoteinRead_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = NoteinRead_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = NoteinRead_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = NoteinRead_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = NoteinRead_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = NoteinRead_postprocessing_revareva;
             break;
@@ -1281,15 +1413,15 @@ static PyObject *
 NoteinRead_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *valuestmp, *timestampstmp, *multmp=NULL, *addtmp=NULL;
+    PyObject *valuestmp, *timestampstmp, *multmp = NULL, *addtmp = NULL;
     NoteinRead *self;
     self = (NoteinRead *)type->tp_alloc(type, 0);
 
     self->value = 0.0;
     self->loop = 0;
     self->go = 1;
-	self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, NoteinRead_compute_next_data_frame);
@@ -1300,19 +1432,23 @@ NoteinRead_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|iOO", kwlist, &valuestmp, &timestampstmp, &self->loop, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    if (valuestmp) {
+    if (valuestmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setValues", "O", valuestmp);
     }
 
-    if (timestampstmp) {
+    if (timestampstmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setTimestamps", "O", timestampstmp);
     }
 
-     if (multmp) {
+    if (multmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
 
-    if (addtmp) {
+    if (addtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
 
@@ -1320,7 +1456,8 @@ NoteinRead_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->trigsBuffer[i] = 0.0;
     }
 
@@ -1371,12 +1508,14 @@ NoteinRead_setValues(NoteinRead *self, PyObject *arg)
 
     self->size = PyList_Size(arg);
     self->values = (MYFLT *)realloc(self->values, self->size * sizeof(MYFLT));
-    for (i=0; i<self->size; i++) {
+
+    for (i = 0; i < self->size; i++)
+    {
         self->values[i] = PyFloat_AsDouble(PyList_GET_ITEM(arg, i));
     }
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
@@ -1388,12 +1527,14 @@ NoteinRead_setTimestamps(NoteinRead *self, PyObject *arg)
 
     self->size = PyList_Size(arg);
     self->timestamps = (long *)realloc(self->timestamps, self->size * sizeof(long));
-    for (i=0; i<self->size; i++) {
+
+    for (i = 0; i < self->size; i++)
+    {
         self->timestamps[i] = (long)(PyFloat_AsDouble(PyList_GET_ITEM(arg, i)) * self->sr);
     }
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
@@ -1407,7 +1548,8 @@ NoteinRead_setLoop(NoteinRead *self, PyObject *arg)
     return Py_None;
 }
 
-static PyMemberDef NoteinRead_members[] = {
+static PyMemberDef NoteinRead_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(NoteinRead, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(NoteinRead, stream), 0, "Stream object."},
     {"trig_stream", T_OBJECT_EX, offsetof(NoteinRead, trig_stream), 0, "Trigger Stream object."},
@@ -1416,12 +1558,13 @@ static PyMemberDef NoteinRead_members[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef NoteinRead_methods[] = {
+static PyMethodDef NoteinRead_methods[] =
+{
     {"getServer", (PyCFunction)NoteinRead_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)NoteinRead_getStream, METH_NOARGS, "Returns stream object."},
     {"_getTriggerStream", (PyCFunction)NoteinRead_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
-    {"play", (PyCFunction)NoteinRead_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)NoteinRead_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
+    {"play", (PyCFunction)NoteinRead_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)NoteinRead_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setValues", (PyCFunction)NoteinRead_setValues, METH_O, "Fill buffer with values in input."},
     {"setTimestamps", (PyCFunction)NoteinRead_setTimestamps, METH_O, "Fill buffer with timestamps in input."},
     {"setLoop", (PyCFunction)NoteinRead_setLoop, METH_O, "Sets the looping mode."},
@@ -1432,7 +1575,8 @@ static PyMethodDef NoteinRead_methods[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods NoteinRead_as_number = {
+static PyNumberMethods NoteinRead_as_number =
+{
     (binaryfunc)NoteinRead_add,                      /*nb_add*/
     (binaryfunc)NoteinRead_sub,                 /*nb_subtract*/
     (binaryfunc)NoteinRead_multiply,                 /*nb_multiply*/
@@ -1474,7 +1618,8 @@ static PyNumberMethods NoteinRead_as_number = {
     0,                     /* nb_index */
 };
 
-PyTypeObject NoteinReadType = {
+PyTypeObject NoteinReadType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.NoteinRead_base",         /*tp_name*/
     sizeof(NoteinRead),         /*tp_basicsize*/
@@ -1498,10 +1643,10 @@ PyTypeObject NoteinReadType = {
     "NoteinRead objects. Reads a NoteinRec file.",           /* tp_doc */
     (traverseproc)NoteinRead_traverse,   /* tp_traverse */
     (inquiry)NoteinRead_clear,           /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
     NoteinRead_methods,             /* tp_methods */
     NoteinRead_members,             /* tp_members */
     0,                      /* tp_getset */

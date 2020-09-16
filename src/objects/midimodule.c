@@ -27,7 +27,8 @@
 #include "servermodule.h"
 #include "dummymodule.h"
 
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     PyObject *callable;
     int ctlnumber;
@@ -46,20 +47,26 @@ CtlScan_compute_next_data_frame(CtlScan *self)
     buffer = Server_getMidiEventBuffer((Server *)self->server);
     count = Server_getMidiEventCount((Server *)self->server);
 
-    if (count > 0) {
+    if (count > 0)
+    {
         PyObject *tup;
-        for (i=0; i<count; i++) {
+
+        for (i = 0; i < count; i++)
+        {
             int status = PyoMidi_MessageStatus(buffer[i].message);    // Temp note event holders
             int number = PyoMidi_MessageData1(buffer[i].message);
             int value = PyoMidi_MessageData2(buffer[i].message);
 
-            if ((status & 0xF0) == 0xB0) {
-                if (number != self->ctlnumber) {
+            if ((status & 0xF0) == 0xB0)
+            {
+                if (number != self->ctlnumber)
+                {
                     self->ctlnumber = number;
                     tup = PyTuple_New(1);
                     PyTuple_SetItem(tup, 0, PyInt_FromLong(self->ctlnumber));
                     PyObject_Call((PyObject *)self->callable, tup, NULL);
                 }
+
                 if (self->toprint == 1)
                     PySys_WriteStdout("ctl number : %i, ctl value : %i, midi channel : %i\n", self->ctlnumber, value, status - 0xB0 + 1);
             }
@@ -95,7 +102,7 @@ static PyObject *
 CtlScan_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *calltmp=NULL;
+    PyObject *calltmp = NULL;
     CtlScan *self;
     self = (CtlScan *)type->tp_alloc(type, 0);
 
@@ -111,7 +118,8 @@ CtlScan_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &calltmp, &self->toprint))
         Py_RETURN_NONE;
 
-    if (calltmp) {
+    if (calltmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setFunction", "O", calltmp);
     }
 
@@ -139,7 +147,8 @@ CtlScan_setFunction(CtlScan *self, PyObject *arg)
 {
     PyObject *tmp;
 
-    if (! PyCallable_Check(arg)) {
+    if (! PyCallable_Check(arg))
+    {
         PyErr_SetString(PyExc_TypeError, "The callable attribute must be a valid Python function.");
         Py_INCREF(Py_None);
         return Py_None;
@@ -158,31 +167,35 @@ static PyObject *
 CtlScan_setToprint(CtlScan *self, PyObject *arg)
 {
 
-    if (PyInt_Check(arg)) {
+    if (PyInt_Check(arg))
+    {
         self->toprint = PyInt_AsLong(arg);
     }
 
     Py_INCREF(Py_None);
     return Py_None;
 }
-static PyMemberDef CtlScan_members[] = {
+static PyMemberDef CtlScan_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(CtlScan, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(CtlScan, stream), 0, "Stream object."},
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef CtlScan_methods[] = {
+static PyMethodDef CtlScan_methods[] =
+{
     {"getServer", (PyCFunction)CtlScan_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)CtlScan_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)CtlScan_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)CtlScan_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
+    {"play", (PyCFunction)CtlScan_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)CtlScan_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"reset", (PyCFunction)CtlScan_reset, METH_NOARGS, "Resets the scanned number."},
     {"setFunction", (PyCFunction)CtlScan_setFunction, METH_O, "Sets the function to be called."},
     {"setToprint", (PyCFunction)CtlScan_setToprint, METH_O, "If True, print values to the console."},
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject CtlScanType = {
+PyTypeObject CtlScanType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.CtlScan_base",         /*tp_name*/
     sizeof(CtlScan),         /*tp_basicsize*/
@@ -223,7 +236,8 @@ PyTypeObject CtlScanType = {
     CtlScan_new,                 /* tp_new */
 };
 
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     PyObject *callable;
     int ctlnumber;
@@ -243,16 +257,22 @@ CtlScan2_compute_next_data_frame(CtlScan2 *self)
     buffer = Server_getMidiEventBuffer((Server *)self->server);
     count = Server_getMidiEventCount((Server *)self->server);
 
-    if (count > 0) {
+    if (count > 0)
+    {
         PyObject *tup;
-        for (i=0; i<count; i++) {
+
+        for (i = 0; i < count; i++)
+        {
             int status = PyoMidi_MessageStatus(buffer[i].message); // Temp note event holders
             int number = PyoMidi_MessageData1(buffer[i].message);
             int value = PyoMidi_MessageData2(buffer[i].message);
 
-            if ((status & 0xF0) == 0xB0) {
+            if ((status & 0xF0) == 0xB0)
+            {
                 midichnl = status - 0xB0 + 1;
-                if (number != self->ctlnumber || midichnl != self->midichnl) {
+
+                if (number != self->ctlnumber || midichnl != self->midichnl)
+                {
                     self->ctlnumber = number;
                     self->midichnl = midichnl;
                     tup = PyTuple_New(2);
@@ -260,6 +280,7 @@ CtlScan2_compute_next_data_frame(CtlScan2 *self)
                     PyTuple_SetItem(tup, 1, PyInt_FromLong(self->midichnl));
                     PyObject_Call((PyObject *)self->callable, tup, NULL);
                 }
+
                 if (self->toprint == 1)
                     PySys_WriteStdout("ctl number : %i, ctl value : %i, midi channel : %i\n", self->ctlnumber, value, midichnl);
             }
@@ -295,7 +316,7 @@ static PyObject *
 CtlScan2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *calltmp=NULL;
+    PyObject *calltmp = NULL;
     CtlScan2 *self;
     self = (CtlScan2 *)type->tp_alloc(type, 0);
 
@@ -311,7 +332,8 @@ CtlScan2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &calltmp, &self->toprint))
         Py_RETURN_NONE;
 
-    if (calltmp) {
+    if (calltmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setFunction", "O", calltmp);
     }
 
@@ -339,7 +361,8 @@ CtlScan2_setFunction(CtlScan2 *self, PyObject *arg)
 {
     PyObject *tmp;
 
-    if (! PyCallable_Check(arg)) {
+    if (! PyCallable_Check(arg))
+    {
         PyErr_SetString(PyExc_TypeError, "The callable attribute must be a valid Python function.");
         Py_INCREF(Py_None);
         return Py_None;
@@ -358,31 +381,35 @@ static PyObject *
 CtlScan2_setToprint(CtlScan2 *self, PyObject *arg)
 {
 
-    if (PyInt_Check(arg)) {
+    if (PyInt_Check(arg))
+    {
         self->toprint = PyInt_AsLong(arg);
     }
 
     Py_INCREF(Py_None);
     return Py_None;
 }
-static PyMemberDef CtlScan2_members[] = {
+static PyMemberDef CtlScan2_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(CtlScan2, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(CtlScan2, stream), 0, "Stream object."},
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef CtlScan2_methods[] = {
+static PyMethodDef CtlScan2_methods[] =
+{
     {"getServer", (PyCFunction)CtlScan2_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)CtlScan2_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)CtlScan2_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)CtlScan2_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
+    {"play", (PyCFunction)CtlScan2_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)CtlScan2_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"reset", (PyCFunction)CtlScan2_reset, METH_NOARGS, "Reset scanned numbers."},
     {"setFunction", (PyCFunction)CtlScan2_setFunction, METH_O, "Sets the function to be called."},
     {"setToprint", (PyCFunction)CtlScan2_setToprint, METH_O, "If True, print values to the console."},
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject CtlScan2Type = {
+PyTypeObject CtlScan2Type =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.CtlScan2_base",         /*tp_name*/
     sizeof(CtlScan2),         /*tp_basicsize*/
@@ -427,26 +454,34 @@ int
 getPosToWrite(long timestamp, Server *server, double sr, int bufsize)
 {
     /* With JackMidi, the timestamp is already a sample offset inside the buffer size. */
-    if (server->withJackMidi) {
+    if (server->withJackMidi)
+    {
         return (int)timestamp;
-    } else {
+    }
+    else
+    {
         int offset = 0;
         long realtimestamp, elapsed, ms;
         realtimestamp = timestamp - Server_getMidiTimeOffset(server);
+
         if (realtimestamp < 0)
             return 0;
+
         elapsed = (long)(Server_getElapsedTime(server) / sr * 1000);
         ms = realtimestamp - (elapsed - (long)(bufsize / sr * 1000));
         offset = (int)(ms * 0.001 * sr);
+
         if (offset < 0)
             offset = 0;
         else if (offset >= bufsize)
             offset = bufsize - 1;
+
         return offset;
     }
 }
 
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     int ctlnumber;
     int channel;
@@ -472,31 +507,40 @@ Midictl_setProcMode(Midictl *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    switch (muladdmode) {
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = Midictl_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = Midictl_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = Midictl_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = Midictl_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = Midictl_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = Midictl_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = Midictl_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = Midictl_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = Midictl_postprocessing_revareva;
             break;
@@ -511,20 +555,23 @@ Midictl_translateMidi(Midictl *self, PyoMidiEvent *buffer, int j)
     int number = PyoMidi_MessageData1(buffer[j].message);
     int value = PyoMidi_MessageData2(buffer[j].message);
 
-    if (self->channel == 0) {
+    if (self->channel == 0)
+    {
         if ((status & 0xF0) == 0xB0)
             ok = 1;
         else
             ok = 0;
     }
-    else {
+    else
+    {
         if (status == (0xB0 | (self->channel - 1)))
             ok = 1;
         else
             ok = 0;
     }
 
-    if (ok == 1 && number == self->ctlnumber) {
+    if (ok == 1 && number == self->ctlnumber)
+    {
         self->value = (value / 127.) * (self->maxscale - self->minscale) + self->minscale;
         posto = getPosToWrite(buffer[j].timestamp, (Server *)self->server, self->sr, self->bufsize);
     }
@@ -542,26 +589,37 @@ Midictl_compute_next_data_frame(Midictl *self)
     tmp = Server_getMidiEventBuffer((Server *)self->server);
     count = Server_getMidiEventCount((Server *)self->server);
 
-    if (count == 0) {
-        for (i=0; i<self->bufsize; i++) {
+    if (count == 0)
+    {
+        for (i = 0; i < self->bufsize; i++)
+        {
             self->data[i] = self->value;
         }
     }
-    else {
-        for (j=0; j<count; j++) {
+    else
+    {
+        for (j = 0; j < count; j++)
+        {
             oldval = self->value;
             posto = Midictl_translateMidi((Midictl *)self, tmp, j);
+
             if (posto == -1)
                 continue;
-            for (i=oldpos; i<posto; i++) {
+
+            for (i = oldpos; i < posto; i++)
+            {
                 self->data[i] = oldval;
             }
+
             oldpos = posto;
         }
-        for (i=oldpos; i<self->bufsize; i++) {
+
+        for (i = oldpos; i < self->bufsize; i++)
+        {
             self->data[i] = self->value;
         }
     }
+
     (*self->muladd_func_ptr)(self);
 }
 
@@ -591,7 +649,7 @@ static PyObject *
 Midictl_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *multmp=NULL, *addtmp=NULL;
+    PyObject *multmp = NULL, *addtmp = NULL;
     Midictl *self;
     self = (Midictl *)type->tp_alloc(type, 0);
 
@@ -611,11 +669,13 @@ Midictl_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_I_FFFIOO, kwlist, &self->ctlnumber, &self->minscale, &self->maxscale, &self->value, &self->channel, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    if (multmp) {
+    if (multmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
 
-    if (addtmp) {
+    if (addtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
 
@@ -652,7 +712,8 @@ Midictl_setValue(Midictl *self, PyObject *arg)
 
     int isNum = PyNumber_Check(arg);
 
-    if (isNum == 1) {
+    if (isNum == 1)
+    {
         self->value = PyFloat_AsDouble(arg);
     }
 
@@ -667,7 +728,8 @@ Midictl_setMinScale(Midictl *self, PyObject *arg)
 
     int isNum = PyNumber_Check(arg);
 
-    if (isNum == 1) {
+    if (isNum == 1)
+    {
         self->minscale = PyFloat_AsDouble(arg);
     }
 
@@ -682,7 +744,8 @@ Midictl_setMaxScale(Midictl *self, PyObject *arg)
 
     int isNum = PyNumber_Check(arg);
 
-    if (isNum == 1) {
+    if (isNum == 1)
+    {
         self->maxscale = PyFloat_AsDouble(arg);
     }
 
@@ -699,8 +762,10 @@ Midictl_setCtlNumber(Midictl *self, PyObject *arg)
 
     int isInt = PyInt_Check(arg);
 
-    if (isInt == 1) {
+    if (isInt == 1)
+    {
         tmp = PyInt_AsLong(arg);
+
         if (tmp >= 0 && tmp < 128)
             self->ctlnumber = tmp;
     }
@@ -718,8 +783,10 @@ Midictl_setChannel(Midictl *self, PyObject *arg)
 
     int isInt = PyInt_Check(arg);
 
-    if (isInt == 1) {
+    if (isInt == 1)
+    {
         tmp = PyInt_AsLong(arg);
+
         if (tmp >= 0 && tmp < 128)
             self->channel = tmp;
     }
@@ -728,7 +795,8 @@ Midictl_setChannel(Midictl *self, PyObject *arg)
     return Py_None;
 }
 
-static PyMemberDef Midictl_members[] = {
+static PyMemberDef Midictl_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(Midictl, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(Midictl, stream), 0, "Stream object."},
     {"mul", T_OBJECT_EX, offsetof(Midictl, mul), 0, "Mul factor."},
@@ -736,11 +804,12 @@ static PyMemberDef Midictl_members[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef Midictl_methods[] = {
+static PyMethodDef Midictl_methods[] =
+{
     {"getServer", (PyCFunction)Midictl_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Midictl_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Midictl_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)Midictl_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
+    {"play", (PyCFunction)Midictl_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)Midictl_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setValue", (PyCFunction)Midictl_setValue, METH_O, "Resets audio stream to value in argument."},
     {"setMinScale", (PyCFunction)Midictl_setMinScale, METH_O, "Sets the minimum value of scaling."},
     {"setMaxScale", (PyCFunction)Midictl_setMaxScale, METH_O, "Sets the maximum value of scaling."},
@@ -753,7 +822,8 @@ static PyMethodDef Midictl_methods[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Midictl_as_number = {
+static PyNumberMethods Midictl_as_number =
+{
     (binaryfunc)Midictl_add,                      /*nb_add*/
     (binaryfunc)Midictl_sub,                 /*nb_subtract*/
     (binaryfunc)Midictl_multiply,                 /*nb_multiply*/
@@ -795,7 +865,8 @@ static PyNumberMethods Midictl_as_number = {
     0,                     /* nb_index */
 };
 
-PyTypeObject MidictlType = {
+PyTypeObject MidictlType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.Midictl_base",         /*tp_name*/
     sizeof(Midictl),         /*tp_basicsize*/
@@ -836,7 +907,8 @@ PyTypeObject MidictlType = {
     Midictl_new,                 /* tp_new */
 };
 
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     int channel;
     int scale; /* 0 = midi, 1 = transpo */
@@ -861,31 +933,40 @@ Bendin_setProcMode(Bendin *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    switch (muladdmode) {
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = Bendin_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = Bendin_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = Bendin_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = Bendin_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = Bendin_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = Bendin_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = Bendin_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = Bendin_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = Bendin_postprocessing_revareva;
             break;
@@ -902,25 +983,30 @@ Bendin_translateMidi(Bendin *self, PyoMidiEvent *buffer, int j)
     int number = PyoMidi_MessageData1(buffer[j].message);
     int value = PyoMidi_MessageData2(buffer[j].message);
 
-    if (self->channel == 0) {
+    if (self->channel == 0)
+    {
         if ((status & 0xF0) == 0xe0)
             ok = 1;
         else
             ok = 0;
     }
-    else {
+    else
+    {
         if (status == (0xe0 | (self->channel - 1)))
             ok = 1;
         else
             ok = 0;
     }
 
-    if (ok == 1) {
+    if (ok == 1)
+    {
         val = (number + (value << 7) - 8192) / 8192.0 * self->range;
+
         if (self->scale == 0)
             self->value = val;
         else
             self->value = MYPOW(1.0594630943593, val);
+
         posto = getPosToWrite(buffer[j].timestamp, (Server *)self->server, self->sr, self->bufsize);
     }
 
@@ -937,23 +1023,33 @@ Bendin_compute_next_data_frame(Bendin *self)
     tmp = Server_getMidiEventBuffer((Server *)self->server);
     count = Server_getMidiEventCount((Server *)self->server);
 
-    if (count == 0) {
-        for (i=0; i<self->bufsize; i++) {
+    if (count == 0)
+    {
+        for (i = 0; i < self->bufsize; i++)
+        {
             self->data[i] = self->value;
         }
     }
-    else {
-        for (j=0; j<count; j++) {
+    else
+    {
+        for (j = 0; j < count; j++)
+        {
             oldval = self->value;
             posto = Bendin_translateMidi((Bendin *)self, tmp, j);
+
             if (posto == -1)
                 continue;
-            for (i=oldpos; i<posto; i++) {
+
+            for (i = oldpos; i < posto; i++)
+            {
                 self->data[i] = oldval;
             }
+
             oldpos = posto;
         }
-        for (i=oldpos; i<self->bufsize; i++) {
+
+        for (i = oldpos; i < self->bufsize; i++)
+        {
             self->data[i] = self->value;
         }
     }
@@ -987,7 +1083,7 @@ static PyObject *
 Bendin_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *multmp=NULL, *addtmp=NULL;
+    PyObject *multmp = NULL, *addtmp = NULL;
     Bendin *self;
     self = (Bendin *)type->tp_alloc(type, 0);
 
@@ -1007,11 +1103,13 @@ Bendin_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__FIIOO, kwlist, &self->range, &self->scale, &self->channel, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    if (multmp) {
+    if (multmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
 
-    if (addtmp) {
+    if (addtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
 
@@ -1053,8 +1151,10 @@ Bendin_setBrange(Bendin *self, PyObject *arg)
 
     int isNum = PyNumber_Check(arg);
 
-    if (isNum == 1) {
+    if (isNum == 1)
+    {
         tmp = PyFloat_AsDouble(arg);
+
         if (tmp >= 0.0 && tmp < 128.0)
             self->range = tmp;
     }
@@ -1072,8 +1172,10 @@ Bendin_setChannel(Bendin *self, PyObject *arg)
 
     int isInt = PyInt_Check(arg);
 
-    if (isInt == 1) {
+    if (isInt == 1)
+    {
         tmp = PyInt_AsLong(arg);
+
         if (tmp >= 0 && tmp < 128)
             self->channel = tmp;
     }
@@ -1091,8 +1193,10 @@ Bendin_setScale(Bendin *self, PyObject *arg)
 
     int isInt = PyInt_Check(arg);
 
-    if (isInt == 1) {
+    if (isInt == 1)
+    {
         tmp = PyInt_AsLong(arg);
+
         if (tmp == 0)
             self->scale = 0;
         else if (tmp == 1)
@@ -1103,7 +1207,8 @@ Bendin_setScale(Bendin *self, PyObject *arg)
     return Py_None;
 }
 
-static PyMemberDef Bendin_members[] = {
+static PyMemberDef Bendin_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(Bendin, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(Bendin, stream), 0, "Stream object."},
     {"mul", T_OBJECT_EX, offsetof(Bendin, mul), 0, "Mul factor."},
@@ -1111,11 +1216,12 @@ static PyMemberDef Bendin_members[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef Bendin_methods[] = {
+static PyMethodDef Bendin_methods[] =
+{
     {"getServer", (PyCFunction)Bendin_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Bendin_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Bendin_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)Bendin_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
+    {"play", (PyCFunction)Bendin_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)Bendin_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setBrange", (PyCFunction)Bendin_setBrange, METH_O, "Sets the bending bipolar range."},
     {"setScale", (PyCFunction)Bendin_setScale, METH_O, "Sets the output type, midi vs transpo."},
     {"setChannel", (PyCFunction)Bendin_setChannel, METH_O, "Sets the midi channel."},
@@ -1126,7 +1232,8 @@ static PyMethodDef Bendin_methods[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Bendin_as_number = {
+static PyNumberMethods Bendin_as_number =
+{
     (binaryfunc)Bendin_add,                      /*nb_add*/
     (binaryfunc)Bendin_sub,                 /*nb_subtract*/
     (binaryfunc)Bendin_multiply,                 /*nb_multiply*/
@@ -1168,7 +1275,8 @@ static PyNumberMethods Bendin_as_number = {
     0,                     /* nb_index */
 };
 
-PyTypeObject BendinType = {
+PyTypeObject BendinType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.Bendin_base",         /*tp_name*/
     sizeof(Bendin),         /*tp_basicsize*/
@@ -1209,7 +1317,8 @@ PyTypeObject BendinType = {
     Bendin_new,                 /* tp_new */
 };
 
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     int channel;
     MYFLT minscale;
@@ -1234,31 +1343,40 @@ Touchin_setProcMode(Touchin *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    switch (muladdmode) {
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = Touchin_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = Touchin_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = Touchin_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = Touchin_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = Touchin_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = Touchin_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = Touchin_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = Touchin_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = Touchin_postprocessing_revareva;
             break;
@@ -1272,20 +1390,23 @@ Touchin_translateMidi(Touchin *self, PyoMidiEvent *buffer, int j)
     int status = PyoMidi_MessageStatus(buffer[j].message);    // Temp note event holders
     int number = PyoMidi_MessageData1(buffer[j].message);
 
-    if (self->channel == 0) {
+    if (self->channel == 0)
+    {
         if ((status & 0xF0) == 0xd0)
             ok = 1;
         else
             ok = 0;
     }
-    else {
+    else
+    {
         if (status == (0xd0 | (self->channel - 1)))
             ok = 1;
         else
             ok = 0;
     }
 
-    if (ok == 1) {
+    if (ok == 1)
+    {
         self->value = (number / 127.) * (self->maxscale - self->minscale) + self->minscale;
         posto = getPosToWrite(buffer[j].timestamp, (Server *)self->server, self->sr, self->bufsize);
     }
@@ -1303,23 +1424,33 @@ Touchin_compute_next_data_frame(Touchin *self)
     tmp = Server_getMidiEventBuffer((Server *)self->server);
     count = Server_getMidiEventCount((Server *)self->server);
 
-    if (count == 0) {
-        for (i=0; i<self->bufsize; i++) {
+    if (count == 0)
+    {
+        for (i = 0; i < self->bufsize; i++)
+        {
             self->data[i] = self->value;
         }
     }
-    else {
-        for (j=0; j<count; j++) {
+    else
+    {
+        for (j = 0; j < count; j++)
+        {
             oldval = self->value;
             posto = Touchin_translateMidi((Touchin *)self, tmp, j);
+
             if (posto == -1)
                 continue;
-            for (i=oldpos; i<posto; i++) {
+
+            for (i = oldpos; i < posto; i++)
+            {
                 self->data[i] = oldval;
             }
+
             oldpos = posto;
         }
-        for (i=oldpos; i<self->bufsize; i++) {
+
+        for (i = oldpos; i < self->bufsize; i++)
+        {
             self->data[i] = self->value;
         }
     }
@@ -1353,7 +1484,7 @@ static PyObject *
 Touchin_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *multmp=NULL, *addtmp=NULL;
+    PyObject *multmp = NULL, *addtmp = NULL;
     Touchin *self;
     self = (Touchin *)type->tp_alloc(type, 0);
 
@@ -1373,11 +1504,13 @@ Touchin_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__FFFIOO, kwlist, &self->minscale, &self->maxscale, &self->value, &self->channel, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    if (multmp) {
+    if (multmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
 
-    if (addtmp) {
+    if (addtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
 
@@ -1412,7 +1545,8 @@ Touchin_setMinScale(Touchin *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    if (PyNumber_Check(arg) == 1) {
+    if (PyNumber_Check(arg) == 1)
+    {
         self->minscale = PyFloat_AsDouble(arg);
     }
 
@@ -1425,7 +1559,8 @@ Touchin_setMaxScale(Touchin *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    if (PyNumber_Check(arg) == 1) {
+    if (PyNumber_Check(arg) == 1)
+    {
         self->maxscale = PyFloat_AsDouble(arg);
     }
 
@@ -1440,8 +1575,10 @@ Touchin_setChannel(Touchin *self, PyObject *arg)
 
     ASSERT_ARG_NOT_NULL
 
-    if (PyInt_Check(arg) == 1) {
+    if (PyInt_Check(arg) == 1)
+    {
         tmp = PyInt_AsLong(arg);
+
         if (tmp >= 0 && tmp < 128)
             self->channel = tmp;
     }
@@ -1450,7 +1587,8 @@ Touchin_setChannel(Touchin *self, PyObject *arg)
     return Py_None;
 }
 
-static PyMemberDef Touchin_members[] = {
+static PyMemberDef Touchin_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(Touchin, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(Touchin, stream), 0, "Stream object."},
     {"mul", T_OBJECT_EX, offsetof(Touchin, mul), 0, "Mul factor."},
@@ -1458,11 +1596,12 @@ static PyMemberDef Touchin_members[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef Touchin_methods[] = {
+static PyMethodDef Touchin_methods[] =
+{
     {"getServer", (PyCFunction)Touchin_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Touchin_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Touchin_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)Touchin_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
+    {"play", (PyCFunction)Touchin_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)Touchin_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setMinScale", (PyCFunction)Touchin_setMinScale, METH_O, "Sets the minimum value of scaling."},
     {"setMaxScale", (PyCFunction)Touchin_setMaxScale, METH_O, "Sets the maximum value of scaling."},
     {"setChannel", (PyCFunction)Touchin_setChannel, METH_O, "Sets the midi channel."},
@@ -1473,7 +1612,8 @@ static PyMethodDef Touchin_methods[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Touchin_as_number = {
+static PyNumberMethods Touchin_as_number =
+{
     (binaryfunc)Touchin_add,                      /*nb_add*/
     (binaryfunc)Touchin_sub,                 /*nb_subtract*/
     (binaryfunc)Touchin_multiply,                 /*nb_multiply*/
@@ -1515,7 +1655,8 @@ static PyNumberMethods Touchin_as_number = {
     0,                     /* nb_index */
 };
 
-PyTypeObject TouchinType = {
+PyTypeObject TouchinType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.Touchin_base",         /*tp_name*/
     sizeof(Touchin),         /*tp_basicsize*/
@@ -1556,7 +1697,8 @@ PyTypeObject TouchinType = {
     Touchin_new,                 /* tp_new */
 };
 
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     int channel;
     MYFLT value;
@@ -1579,31 +1721,40 @@ Programin_setProcMode(Programin *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    switch (muladdmode) {
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = Programin_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = Programin_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = Programin_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = Programin_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = Programin_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = Programin_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = Programin_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = Programin_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = Programin_postprocessing_revareva;
             break;
@@ -1615,24 +1766,28 @@ void Programin_translateMidi(Programin *self, PyoMidiEvent *buffer, int count)
 {
     int i, ok;
 
-    for (i=0; i<count; i++) {
+    for (i = 0; i < count; i++)
+    {
         int status = PyoMidi_MessageStatus(buffer[i].message);    // Temp note event holders
         int number = PyoMidi_MessageData1(buffer[i].message);
 
-        if (self->channel == 0) {
+        if (self->channel == 0)
+        {
             if ((status & 0xF0) == 0xc0)
                 ok = 1;
             else
                 ok = 0;
         }
-        else {
+        else
+        {
             if (status == (0xc0 | (self->channel - 1)))
                 ok = 1;
             else
                 ok = 0;
         }
 
-        if (ok == 1) {
+        if (ok == 1)
+        {
             self->value = (MYFLT)number;
             break;
         }
@@ -1651,7 +1806,8 @@ Programin_compute_next_data_frame(Programin *self)
     if (count > 0)
         Programin_translateMidi((Programin *)self, tmp, count);
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->data[i] = self->value;
     }
 
@@ -1684,7 +1840,7 @@ static PyObject *
 Programin_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *multmp=NULL, *addtmp=NULL;
+    PyObject *multmp = NULL, *addtmp = NULL;
     Programin *self;
     self = (Programin *)type->tp_alloc(type, 0);
 
@@ -1702,11 +1858,13 @@ Programin_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "iOO", kwlist, &self->channel, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    if (multmp) {
+    if (multmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
 
-    if (addtmp) {
+    if (addtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
 
@@ -1745,8 +1903,10 @@ Programin_setChannel(Programin *self, PyObject *arg)
 
     int isInt = PyInt_Check(arg);
 
-    if (isInt == 1) {
+    if (isInt == 1)
+    {
         tmp = PyInt_AsLong(arg);
+
         if (tmp >= 0 && tmp < 128)
             self->channel = tmp;
     }
@@ -1755,7 +1915,8 @@ Programin_setChannel(Programin *self, PyObject *arg)
     return Py_None;
 }
 
-static PyMemberDef Programin_members[] = {
+static PyMemberDef Programin_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(Programin, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(Programin, stream), 0, "Stream object."},
     {"mul", T_OBJECT_EX, offsetof(Programin, mul), 0, "Mul factor."},
@@ -1763,11 +1924,12 @@ static PyMemberDef Programin_members[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef Programin_methods[] = {
+static PyMethodDef Programin_methods[] =
+{
     {"getServer", (PyCFunction)Programin_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Programin_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Programin_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)Programin_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
+    {"play", (PyCFunction)Programin_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)Programin_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setChannel", (PyCFunction)Programin_setChannel, METH_O, "Sets the midi channel."},
     {"setMul", (PyCFunction)Programin_setMul, METH_O, "Sets oscillator mul factor."},
     {"setAdd", (PyCFunction)Programin_setAdd, METH_O, "Sets oscillator add factor."},
@@ -1776,7 +1938,8 @@ static PyMethodDef Programin_methods[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Programin_as_number = {
+static PyNumberMethods Programin_as_number =
+{
     (binaryfunc)Programin_add,                      /*nb_add*/
     (binaryfunc)Programin_sub,                 /*nb_subtract*/
     (binaryfunc)Programin_multiply,                 /*nb_multiply*/
@@ -1818,7 +1981,8 @@ static PyNumberMethods Programin_as_number = {
     0,                     /* nb_index */
 };
 
-PyTypeObject PrograminType = {
+PyTypeObject PrograminType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.Programin_base",         /*tp_name*/
     sizeof(Programin),         /*tp_basicsize*/
@@ -1859,7 +2023,8 @@ PyTypeObject PrograminType = {
     Programin_new,                 /* tp_new */
 };
 
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     int *notebuf; /* pitch, velocity, posToWrite */
     int voices;
@@ -1879,53 +2044,74 @@ static void
 MidiNote_setProcMode(MidiNote *self) {};
 
 int
-pitchIsIn(int *buf, int pitch, int len) {
+pitchIsIn(int *buf, int pitch, int len)
+{
     int i;
     int isIn = 0;
-    for (i=0; i<len; i++) {
-        if (buf[i*3] == pitch) {
+
+    for (i = 0; i < len; i++)
+    {
+        if (buf[i * 3] == pitch)
+        {
             isIn = 1;
             break;
         }
     }
+
     return isIn;
 }
 
 /* no more used */
-int firstEmpty(int *buf, int len) {
+int firstEmpty(int *buf, int len)
+{
     int i;
     int voice = -1;
-    for (i=0; i<len; i++) {
-        if (buf[i*3+1] == 0) {
+
+    for (i = 0; i < len; i++)
+    {
+        if (buf[i * 3 + 1] == 0)
+        {
             voice = i;
             break;
         }
     }
+
     return voice;
 }
 
-int nextEmptyVoice(int *buf, int voice, int len) {
+int nextEmptyVoice(int *buf, int voice, int len)
+{
     int i, tmp;
     int next = -1;
-    for (i=1; i<=len; i++) {
+
+    for (i = 1; i <= len; i++)
+    {
         tmp = (i + voice) % len;
-        if (buf[tmp*3+1] == 0) {
+
+        if (buf[tmp * 3 + 1] == 0)
+        {
             next = tmp;
             break;
         }
     }
+
     return next;
 }
 
-int whichVoice(int *buf, int pitch, int len) {
+int whichVoice(int *buf, int pitch, int len)
+{
     int i;
     int voice = 0;
-    for (i=0; i<len; i++) {
-        if (buf[i*3] == pitch) {
+
+    for (i = 0; i < len; i++)
+    {
+        if (buf[i * 3] == pitch)
+        {
             voice = i;
             break;
         }
     }
+
     return voice;
 }
 
@@ -1934,25 +2120,29 @@ void grabMidiNotes(MidiNote *self, PyoMidiEvent *buffer, int count)
 {
     int i, ok, voice, kind, samp = 0;
 
-    for (i=0; i<count; i++) {
+    for (i = 0; i < count; i++)
+    {
         int status = PyoMidi_MessageStatus(buffer[i].message);    // Temp note event holders
         int pitch = PyoMidi_MessageData1(buffer[i].message);
         int velocity = PyoMidi_MessageData2(buffer[i].message);
 
-        if (self->channel == 0) {
+        if (self->channel == 0)
+        {
             if ((status & 0xF0) == 0x90 || (status & 0xF0) == 0x80)
                 ok = 1;
             else
                 ok = 0;
         }
-        else {
+        else
+        {
             if ( status == (0x90 | (self->channel - 1)) || status == (0x80 | (self->channel - 1)))
                 ok = 1;
             else
                 ok = 0;
         }
 
-        if (ok == 1) {
+        if (ok == 1)
+        {
             samp = getPosToWrite(buffer[i].timestamp, (Server *)self->server, self->sr, self->bufsize);
 
             if ((status & 0xF0) == 0x80)
@@ -1962,33 +2152,39 @@ void grabMidiNotes(MidiNote *self, PyoMidiEvent *buffer, int count)
             else
                 kind = 1;
 
-            if (pitchIsIn(self->notebuf, pitch, self->voices) == 0 && kind == 1 && pitch >= self->first && pitch <= self->last) {
+            if (pitchIsIn(self->notebuf, pitch, self->voices) == 0 && kind == 1 && pitch >= self->first && pitch <= self->last)
+            {
                 //PySys_WriteStdout("%i, %i, %i\n", status, pitch, velocity);
-                if (!self->stealing) {
+                if (!self->stealing)
+                {
                     voice = nextEmptyVoice(self->notebuf, self->vcount, self->voices);
-                    if (voice != -1) {
+
+                    if (voice != -1)
+                    {
                         self->vcount = voice;
-                        self->notebuf[voice*3] = pitch;
-                        self->notebuf[voice*3+1] = velocity;
-                        self->notebuf[voice*3+2] = samp;
-                        self->trigger_streams[self->bufsize*(self->vcount*2)+samp] = 1.0;
+                        self->notebuf[voice * 3] = pitch;
+                        self->notebuf[voice * 3 + 1] = velocity;
+                        self->notebuf[voice * 3 + 2] = samp;
+                        self->trigger_streams[self->bufsize * (self->vcount * 2) + samp] = 1.0;
                     }
                 }
-                else {
+                else
+                {
                     self->vcount = (self->vcount + 1) % self->voices;
-                    self->notebuf[self->vcount*3] = pitch;
-                    self->notebuf[self->vcount*3+1] = velocity;
-                    self->notebuf[self->vcount*3+2] = samp;
-                    self->trigger_streams[self->bufsize*(self->vcount*2)+samp] = 1.0;
+                    self->notebuf[self->vcount * 3] = pitch;
+                    self->notebuf[self->vcount * 3 + 1] = velocity;
+                    self->notebuf[self->vcount * 3 + 2] = samp;
+                    self->trigger_streams[self->bufsize * (self->vcount * 2) + samp] = 1.0;
                 }
             }
-            else if (pitchIsIn(self->notebuf, pitch, self->voices) == 1 && kind == 0 && pitch >= self->first && pitch <= self->last) {
+            else if (pitchIsIn(self->notebuf, pitch, self->voices) == 1 && kind == 0 && pitch >= self->first && pitch <= self->last)
+            {
                 //PySys_WriteStdout("%i, %i, %i\n", status, pitch, velocity);
                 voice = whichVoice(self->notebuf, pitch, self->voices);
-                self->notebuf[voice*3] = -1;
-                self->notebuf[voice*3+1] = 0;
-                self->notebuf[voice*3+2] = samp;
-                self->trigger_streams[self->bufsize*(voice*2+1)+samp] = 1.0;
+                self->notebuf[voice * 3] = -1;
+                self->notebuf[voice * 3 + 1] = 0;
+                self->notebuf[voice * 3 + 2] = samp;
+                self->trigger_streams[self->bufsize * (voice * 2 + 1) + samp] = 1.0;
             }
         }
     }
@@ -2000,17 +2196,21 @@ MidiNote_compute_next_data_frame(MidiNote *self)
     PyoMidiEvent *tmp;
     int i, count;
 
-    for (i=0; i<self->bufsize*self->voices*2; i++) {
+    for (i = 0; i < self->bufsize * self->voices * 2; i++)
+    {
         self->trigger_streams[i] = 0.0;
     }
 
-    if (self->eventcount > 0) {
+    if (self->eventcount > 0)
+    {
         grabMidiNotes((MidiNote *)self, self->midiEvents, self->eventcount);
     }
+
     self->eventcount = 0;
 
     tmp = Server_getMidiEventBuffer((Server *)self->server);
     count = Server_getMidiEventCount((Server *)self->server);
+
     if (count > 0)
         grabMidiNotes((MidiNote *)self, tmp, count);
 }
@@ -2076,14 +2276,16 @@ MidiNote_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->notebuf = (int *)realloc(self->notebuf, self->voices * 3 * sizeof(int));
     self->trigger_streams = (MYFLT *)realloc(self->trigger_streams, self->bufsize * self->voices * 2 * sizeof(MYFLT));
 
-    for (i=0; i<self->bufsize*self->voices*2; i++) {
+    for (i = 0; i < self->bufsize * self->voices * 2; i++)
+    {
         self->trigger_streams[i] = 0.0;
     }
 
-    for (i=0; i<self->voices; i++) {
-        self->notebuf[i*3] = -1;
-        self->notebuf[i*3+1] = 0;
-        self->notebuf[i*3+2] = 0;
+    for (i = 0; i < self->voices; i++)
+    {
+        self->notebuf[i * 3] = -1;
+        self->notebuf[i * 3 + 1] = 0;
+        self->notebuf[i * 3 + 2] = 0;
     }
 
     self->centralkey = (self->first + self->last) / 2;
@@ -2097,8 +2299,10 @@ MYFLT
 MidiNote_getValue(MidiNote *self, int voice, int which, int *posto)
 {
     MYFLT val = -1.0;
-    int midival = self->notebuf[voice*3+which];
-    if (which == 0 && midival != -1) {
+    int midival = self->notebuf[voice * 3 + which];
+
+    if (which == 0 && midival != -1)
+    {
         if (self->scale == 0)
             val = midival;
         else if (self->scale == 1)
@@ -2111,7 +2315,7 @@ MidiNote_getValue(MidiNote *self, int voice, int which, int *posto)
     else if (which == 1)
         val = (MYFLT)midival / 127.;
 
-    *posto = self->notebuf[voice*3+2];
+    *posto = self->notebuf[voice * 3 + 2];
 
     return val;
 }
@@ -2125,18 +2329,24 @@ MidiNote_addMidiEvent(MidiNote *self, PyObject *args)
     if (! PyArg_ParseTuple(args, "ii", &data1, &data2))
         return PyInt_FromLong(-1);
 
-    if (self->channel == 0) {
+    if (self->channel == 0)
+    {
         status = 0x90;
-    } else {
+    }
+    else
+    {
         status = 0x90 | (self->channel - 1);
     }
 
     buffer.timestamp = 0;
     buffer.message = PyoMidi_Message(status, data1, data2);
     self->midiEvents[self->eventcount++] = buffer;
-    if (self->eventcount == 64) {
+
+    if (self->eventcount == 64)
+    {
         self->eventcount = 0;
     }
+
     Py_RETURN_NONE;
 }
 
@@ -2151,11 +2361,14 @@ MidiNote_setScale(MidiNote *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    if (PyInt_Check(arg) == 1) {
+    if (PyInt_Check(arg) == 1)
+    {
         int tmp = PyInt_AsLong(arg);
+
         if (tmp >= 0 && tmp < 3)
             self->scale = tmp;
     }
+
     Py_RETURN_NONE;
 }
 
@@ -2164,11 +2377,14 @@ MidiNote_setFirst(MidiNote *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    if (PyInt_Check(arg) == 1) {
+    if (PyInt_Check(arg) == 1)
+    {
         int tmp = PyInt_AsLong(arg);
+
         if (tmp >= 0 && tmp < 128)
             self->first = tmp;
     }
+
     Py_RETURN_NONE;
 }
 
@@ -2177,11 +2393,14 @@ MidiNote_setLast(MidiNote *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    if (PyInt_Check(arg) == 1) {
+    if (PyInt_Check(arg) == 1)
+    {
         int tmp = PyInt_AsLong(arg);
+
         if (tmp >= 0 && tmp < 128)
             self->last = tmp;
     }
+
     Py_RETURN_NONE;
 }
 
@@ -2190,11 +2409,14 @@ MidiNote_setChannel(MidiNote *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    if (PyInt_Check(arg) == 1) {
+    if (PyInt_Check(arg) == 1)
+    {
         int tmp = PyInt_AsLong(arg);
+
         if (tmp >= 0 && tmp < 128)
             self->channel = tmp;
     }
+
     Py_RETURN_NONE;
 }
 
@@ -2207,8 +2429,10 @@ MidiNote_setCentralKey(MidiNote *self, PyObject *arg)
 
     int isInt = PyInt_Check(arg);
 
-    if (isInt == 1) {
+    if (isInt == 1)
+    {
         tmp = PyInt_AsLong(arg);
+
         if (tmp >= self->first && tmp <= self->last)
             self->centralkey = tmp;
     }
@@ -2231,71 +2455,75 @@ MidiNote_setStealing(MidiNote *self, PyObject *arg)
     return Py_None;
 }
 
-static PyMemberDef MidiNote_members[] = {
-{"server", T_OBJECT_EX, offsetof(MidiNote, server), 0, "Pyo server."},
-{"stream", T_OBJECT_EX, offsetof(MidiNote, stream), 0, "Stream object."},
-{NULL}  /* Sentinel */
+static PyMemberDef MidiNote_members[] =
+{
+    {"server", T_OBJECT_EX, offsetof(MidiNote, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(MidiNote, stream), 0, "Stream object."},
+    {NULL}  /* Sentinel */
 };
 
-static PyMethodDef MidiNote_methods[] = {
-{"getServer", (PyCFunction)MidiNote_getServer, METH_NOARGS, "Returns server object."},
-{"_getStream", (PyCFunction)MidiNote_getStream, METH_NOARGS, "Returns stream object."},
-{"play", (PyCFunction)MidiNote_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)MidiNote_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
-{"setScale", (PyCFunction)MidiNote_setScale, METH_O, "Sets the scale factor."},
-{"setFirst", (PyCFunction)MidiNote_setFirst, METH_O, "Sets the lowest midi note."},
-{"setLast", (PyCFunction)MidiNote_setLast, METH_O, "Sets the highest midi note."},
-{"setChannel", (PyCFunction)MidiNote_setChannel, METH_O, "Sets the midi channel."},
-{"setCentralKey", (PyCFunction)MidiNote_setCentralKey, METH_O, "Sets the midi key where there is no transposition."},
-{"setStealing", (PyCFunction)MidiNote_setStealing, METH_O, "Sets the stealing mode."},
-{"addMidiEvent", (PyCFunction)MidiNote_addMidiEvent, METH_VARARGS|METH_KEYWORDS, "Add a new midi event in the internal queue."},
-{NULL}  /* Sentinel */
+static PyMethodDef MidiNote_methods[] =
+{
+    {"getServer", (PyCFunction)MidiNote_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)MidiNote_getStream, METH_NOARGS, "Returns stream object."},
+    {"play", (PyCFunction)MidiNote_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)MidiNote_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"setScale", (PyCFunction)MidiNote_setScale, METH_O, "Sets the scale factor."},
+    {"setFirst", (PyCFunction)MidiNote_setFirst, METH_O, "Sets the lowest midi note."},
+    {"setLast", (PyCFunction)MidiNote_setLast, METH_O, "Sets the highest midi note."},
+    {"setChannel", (PyCFunction)MidiNote_setChannel, METH_O, "Sets the midi channel."},
+    {"setCentralKey", (PyCFunction)MidiNote_setCentralKey, METH_O, "Sets the midi key where there is no transposition."},
+    {"setStealing", (PyCFunction)MidiNote_setStealing, METH_O, "Sets the stealing mode."},
+    {"addMidiEvent", (PyCFunction)MidiNote_addMidiEvent, METH_VARARGS | METH_KEYWORDS, "Add a new midi event in the internal queue."},
+    {NULL}  /* Sentinel */
 };
 
-PyTypeObject MidiNoteType = {
-PyVarObject_HEAD_INIT(NULL, 0)
-"_pyo.MidiNote_base",         /*tp_name*/
-sizeof(MidiNote),         /*tp_basicsize*/
-0,                         /*tp_itemsize*/
-(destructor)MidiNote_dealloc, /*tp_dealloc*/
-0,                         /*tp_print*/
-0,                         /*tp_getattr*/
-0,                         /*tp_setattr*/
-0,                         /*tp_as_async (tp_compare in Python 2)*/
-0,                         /*tp_repr*/
-0,             /*tp_as_number*/
-0,                         /*tp_as_sequence*/
-0,                         /*tp_as_mapping*/
-0,                         /*tp_hash */
-0,                         /*tp_call*/
-0,                         /*tp_str*/
-0,                         /*tp_getattro*/
-0,                         /*tp_setattro*/
-0,                         /*tp_as_buffer*/
-Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
-"MidiNote objects. Retreive midi note from a midi input.",           /* tp_doc */
-(traverseproc)MidiNote_traverse,   /* tp_traverse */
-(inquiry)MidiNote_clear,           /* tp_clear */
-0,                       /* tp_richcompare */
-0,                       /* tp_weaklistoffset */
-0,                       /* tp_iter */
-0,                       /* tp_iternext */
-MidiNote_methods,             /* tp_methods */
-MidiNote_members,             /* tp_members */
-0,                      /* tp_getset */
-0,                         /* tp_base */
-0,                         /* tp_dict */
-0,                         /* tp_descr_get */
-0,                         /* tp_descr_set */
-0,                         /* tp_dictoffset */
-0,      /* tp_init */
-0,                         /* tp_alloc */
-MidiNote_new,                 /* tp_new */
+PyTypeObject MidiNoteType =
+{
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "_pyo.MidiNote_base",         /*tp_name*/
+    sizeof(MidiNote),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)MidiNote_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
+    0,                         /*tp_repr*/
+    0,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "MidiNote objects. Retreive midi note from a midi input.",           /* tp_doc */
+    (traverseproc)MidiNote_traverse,   /* tp_traverse */
+    (inquiry)MidiNote_clear,           /* tp_clear */
+    0,                       /* tp_richcompare */
+    0,                       /* tp_weaklistoffset */
+    0,                       /* tp_iter */
+    0,                       /* tp_iternext */
+    MidiNote_methods,             /* tp_methods */
+    MidiNote_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,      /* tp_init */
+    0,                         /* tp_alloc */
+    MidiNote_new,                 /* tp_new */
 };
 
 
 /* Notein streamer */
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     MidiNote *handler;
     int modebuffer[2];
@@ -2321,31 +2549,40 @@ Notein_setProcMode(Notein *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    switch (muladdmode) {
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = Notein_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = Notein_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = Notein_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = Notein_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = Notein_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = Notein_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = Notein_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = Notein_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = Notein_postprocessing_revareva;
             break;
@@ -2358,38 +2595,52 @@ Notein_compute_next_data_frame(Notein *self)
     int i, posto;
     MYFLT tmp = MidiNote_getValue(self->handler, self->voice, self->mode, &posto);
 
-    if (self->lastval == tmp) {
-        if (self->mode == 0 && tmp != -1) {
-            for (i=0; i<self->bufsize; i++) {
+    if (self->lastval == tmp)
+    {
+        if (self->mode == 0 && tmp != -1)
+        {
+            for (i = 0; i < self->bufsize; i++)
+            {
                 self->data[i] = tmp;
             }
         }
-        else if (self->mode == 1) {
-            for (i=0; i<self->bufsize; i++) {
+        else if (self->mode == 1)
+        {
+            for (i = 0; i < self->bufsize; i++)
+            {
                 self->data[i] = tmp;
             }
+
             (*self->muladd_func_ptr)(self);
         }
     }
-    else { /* There is a new note to compute. */
-        if (self->mode == 0 && tmp != -1) {
-            for (i=0; i<self->bufsize; i++) {
+    else   /* There is a new note to compute. */
+    {
+        if (self->mode == 0 && tmp != -1)
+        {
+            for (i = 0; i < self->bufsize; i++)
+            {
                 if (i < posto)
                     self->data[i] = self->lastpitch;
                 else
                     self->data[i] = tmp;
             }
         }
-        else if (self->mode == 1) {
-            for (i=0; i<self->bufsize; i++) {
+        else if (self->mode == 1)
+        {
+            for (i = 0; i < self->bufsize; i++)
+            {
                 if (i < posto)
                     self->data[i] = self->lastval;
                 else
                     self->data[i] = tmp;
             }
+
             (*self->muladd_func_ptr)(self);
         }
+
         self->lastval = tmp;
+
         if (tmp != -1)
             self->lastpitch = tmp;
     }
@@ -2423,7 +2674,7 @@ static PyObject *
 Notein_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *handlertmp=NULL, *multmp=NULL, *addtmp=NULL;
+    PyObject *handlertmp = NULL, *multmp = NULL, *addtmp = NULL;
     Notein *self;
     self = (Notein *)type->tp_alloc(type, 0);
 
@@ -2447,11 +2698,13 @@ Notein_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Py_INCREF(handlertmp);
     self->handler = (MidiNote *)handlertmp;
 
-    if (multmp) {
+    if (multmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
 
-    if (addtmp) {
+    if (addtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
 
@@ -2481,111 +2734,116 @@ static PyObject * Notein_inplace_sub(Notein *self, PyObject *arg) { INPLACE_SUB 
 static PyObject * Notein_div(Notein *self, PyObject *arg) { DIV };
 static PyObject * Notein_inplace_div(Notein *self, PyObject *arg) { INPLACE_DIV };
 
-static PyMemberDef Notein_members[] = {
-{"server", T_OBJECT_EX, offsetof(Notein, server), 0, "Pyo server."},
-{"stream", T_OBJECT_EX, offsetof(Notein, stream), 0, "Stream object."},
-{"mul", T_OBJECT_EX, offsetof(Notein, mul), 0, "Mul factor."},
-{"add", T_OBJECT_EX, offsetof(Notein, add), 0, "Add factor."},
-{NULL}  /* Sentinel */
+static PyMemberDef Notein_members[] =
+{
+    {"server", T_OBJECT_EX, offsetof(Notein, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(Notein, stream), 0, "Stream object."},
+    {"mul", T_OBJECT_EX, offsetof(Notein, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(Notein, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
 };
 
-static PyMethodDef Notein_methods[] = {
-{"getServer", (PyCFunction)Notein_getServer, METH_NOARGS, "Returns server object."},
-{"_getStream", (PyCFunction)Notein_getStream, METH_NOARGS, "Returns stream object."},
-{"play", (PyCFunction)Notein_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)Notein_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
-{"setMul", (PyCFunction)Notein_setMul, METH_O, "Sets Notein mul factor."},
-{"setAdd", (PyCFunction)Notein_setAdd, METH_O, "Sets Notein add factor."},
-{"setSub", (PyCFunction)Notein_setSub, METH_O, "Sets inverse add factor."},
-{"setDiv", (PyCFunction)Notein_setDiv, METH_O, "Sets inverse mul factor."},
-{NULL}  /* Sentinel */
+static PyMethodDef Notein_methods[] =
+{
+    {"getServer", (PyCFunction)Notein_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)Notein_getStream, METH_NOARGS, "Returns stream object."},
+    {"play", (PyCFunction)Notein_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)Notein_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"setMul", (PyCFunction)Notein_setMul, METH_O, "Sets Notein mul factor."},
+    {"setAdd", (PyCFunction)Notein_setAdd, METH_O, "Sets Notein add factor."},
+    {"setSub", (PyCFunction)Notein_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)Notein_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Notein_as_number = {
-(binaryfunc)Notein_add,                      /*nb_add*/
-(binaryfunc)Notein_sub,                 /*nb_subtract*/
-(binaryfunc)Notein_multiply,                 /*nb_multiply*/
-INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
-0,                /*nb_remainder*/
-0,                   /*nb_divmod*/
-0,                   /*nb_power*/
-0,                  /*nb_neg*/
-0,                /*nb_pos*/
-0,                  /*(unaryfunc)array_abs,*/
-0,                    /*nb_nonzero*/
-0,                    /*nb_invert*/
-0,               /*nb_lshift*/
-0,              /*nb_rshift*/
-0,              /*nb_and*/
-0,              /*nb_xor*/
-0,               /*nb_or*/
-INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
-0,                       /*nb_int*/
-0,                      /*nb_long*/
-0,                     /*nb_float*/
-INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
-(binaryfunc)Notein_inplace_add,              /*inplace_add*/
-(binaryfunc)Notein_inplace_sub,         /*inplace_subtract*/
-(binaryfunc)Notein_inplace_multiply,         /*inplace_multiply*/
-INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
-0,        /*inplace_remainder*/
-0,           /*inplace_power*/
-0,       /*inplace_lshift*/
-0,      /*inplace_rshift*/
-0,      /*inplace_and*/
-0,      /*inplace_xor*/
-0,       /*inplace_or*/
-0,             /*nb_floor_divide*/
-(binaryfunc)Notein_div,                       /*nb_true_divide*/
-0,     /*nb_inplace_floor_divide*/
-(binaryfunc)Notein_inplace_div,                       /*nb_inplace_true_divide*/
-0,                     /* nb_index */
+static PyNumberMethods Notein_as_number =
+{
+    (binaryfunc)Notein_add,                      /*nb_add*/
+    (binaryfunc)Notein_sub,                 /*nb_subtract*/
+    (binaryfunc)Notein_multiply,                 /*nb_multiply*/
+    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
+    0,                /*nb_remainder*/
+    0,                   /*nb_divmod*/
+    0,                   /*nb_power*/
+    0,                  /*nb_neg*/
+    0,                /*nb_pos*/
+    0,                  /*(unaryfunc)array_abs,*/
+    0,                    /*nb_nonzero*/
+    0,                    /*nb_invert*/
+    0,               /*nb_lshift*/
+    0,              /*nb_rshift*/
+    0,              /*nb_and*/
+    0,              /*nb_xor*/
+    0,               /*nb_or*/
+    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
+    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
+    (binaryfunc)Notein_inplace_add,              /*inplace_add*/
+    (binaryfunc)Notein_inplace_sub,         /*inplace_subtract*/
+    (binaryfunc)Notein_inplace_multiply,         /*inplace_multiply*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
+    0,        /*inplace_remainder*/
+    0,           /*inplace_power*/
+    0,       /*inplace_lshift*/
+    0,      /*inplace_rshift*/
+    0,      /*inplace_and*/
+    0,      /*inplace_xor*/
+    0,       /*inplace_or*/
+    0,             /*nb_floor_divide*/
+    (binaryfunc)Notein_div,                       /*nb_true_divide*/
+    0,     /*nb_inplace_floor_divide*/
+    (binaryfunc)Notein_inplace_div,                       /*nb_inplace_true_divide*/
+    0,                     /* nb_index */
 };
 
-PyTypeObject NoteinType = {
-PyVarObject_HEAD_INIT(NULL, 0)
-"_pyo.Notein_base",         /*tp_name*/
-sizeof(Notein),         /*tp_basicsize*/
-0,                         /*tp_itemsize*/
-(destructor)Notein_dealloc, /*tp_dealloc*/
-0,                         /*tp_print*/
-0,                         /*tp_getattr*/
-0,                         /*tp_setattr*/
-0,                         /*tp_as_async (tp_compare in Python 2)*/
-0,                         /*tp_repr*/
-&Notein_as_number,             /*tp_as_number*/
-0,                         /*tp_as_sequence*/
-0,                         /*tp_as_mapping*/
-0,                         /*tp_hash */
-0,                         /*tp_call*/
-0,                         /*tp_str*/
-0,                         /*tp_getattro*/
-0,                         /*tp_setattro*/
-0,                         /*tp_as_buffer*/
-Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
-"Notein objects. Stream pitch or velocity from a Notein voice.",           /* tp_doc */
-(traverseproc)Notein_traverse,   /* tp_traverse */
-(inquiry)Notein_clear,           /* tp_clear */
-0,                       /* tp_richcompare */
-0,                       /* tp_weaklistoffset */
-0,                       /* tp_iter */
-0,                       /* tp_iternext */
-Notein_methods,             /* tp_methods */
-Notein_members,             /* tp_members */
-0,                      /* tp_getset */
-0,                         /* tp_base */
-0,                         /* tp_dict */
-0,                         /* tp_descr_get */
-0,                         /* tp_descr_set */
-0,                         /* tp_dictoffset */
-0,      /* tp_init */
-0,                         /* tp_alloc */
-Notein_new,                 /* tp_new */
+PyTypeObject NoteinType =
+{
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "_pyo.Notein_base",         /*tp_name*/
+    sizeof(Notein),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)Notein_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
+    0,                         /*tp_repr*/
+    &Notein_as_number,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    "Notein objects. Stream pitch or velocity from a Notein voice.",           /* tp_doc */
+    (traverseproc)Notein_traverse,   /* tp_traverse */
+    (inquiry)Notein_clear,           /* tp_clear */
+    0,                       /* tp_richcompare */
+    0,                       /* tp_weaklistoffset */
+    0,                       /* tp_iter */
+    0,                       /* tp_iternext */
+    Notein_methods,             /* tp_methods */
+    Notein_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,      /* tp_init */
+    0,                         /* tp_alloc */
+    Notein_new,                 /* tp_new */
 };
 
 /* NoteinTrig trig streamer */
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     MidiNote *handler;
     int modebuffer[2];
@@ -2609,31 +2867,40 @@ NoteinTrig_setProcMode(NoteinTrig *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    switch (muladdmode) {
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = NoteinTrig_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = NoteinTrig_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = NoteinTrig_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = NoteinTrig_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = NoteinTrig_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = NoteinTrig_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = NoteinTrig_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = NoteinTrig_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = NoteinTrig_postprocessing_revareva;
             break;
@@ -2646,9 +2913,11 @@ NoteinTrig_compute_next_data_frame(NoteinTrig *self)
     int i;
     MYFLT *tmp = MidiNote_get_trigger_buffer(self->handler);
 
-    for (i=0; i<self->bufsize; i++) {
-        self->data[i] = tmp[self->bufsize*(self->voice*2+self->mode)+i];
+    for (i = 0; i < self->bufsize; i++)
+    {
+        self->data[i] = tmp[self->bufsize * (self->voice * 2 + self->mode) + i];
     }
+
     (*self->muladd_func_ptr)(self);
 }
 
@@ -2680,7 +2949,7 @@ static PyObject *
 NoteinTrig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *handlertmp=NULL, *multmp=NULL, *addtmp=NULL;
+    PyObject *handlertmp = NULL, *multmp = NULL, *addtmp = NULL;
     NoteinTrig *self;
     self = (NoteinTrig *)type->tp_alloc(type, 0);
 
@@ -2702,11 +2971,13 @@ NoteinTrig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Py_INCREF(handlertmp);
     self->handler = (MidiNote *)handlertmp;
 
-    if (multmp) {
+    if (multmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
 
-    if (addtmp) {
+    if (addtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
 
@@ -2736,110 +3007,115 @@ static PyObject * NoteinTrig_inplace_sub(NoteinTrig *self, PyObject *arg) { INPL
 static PyObject * NoteinTrig_div(NoteinTrig *self, PyObject *arg) { DIV };
 static PyObject * NoteinTrig_inplace_div(NoteinTrig *self, PyObject *arg) { INPLACE_DIV };
 
-static PyMemberDef NoteinTrig_members[] = {
-{"server", T_OBJECT_EX, offsetof(NoteinTrig, server), 0, "Pyo server."},
-{"stream", T_OBJECT_EX, offsetof(NoteinTrig, stream), 0, "Stream object."},
-{"mul", T_OBJECT_EX, offsetof(NoteinTrig, mul), 0, "Mul factor."},
-{"add", T_OBJECT_EX, offsetof(NoteinTrig, add), 0, "Add factor."},
-{NULL}  /* Sentinel */
+static PyMemberDef NoteinTrig_members[] =
+{
+    {"server", T_OBJECT_EX, offsetof(NoteinTrig, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(NoteinTrig, stream), 0, "Stream object."},
+    {"mul", T_OBJECT_EX, offsetof(NoteinTrig, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(NoteinTrig, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
 };
 
-static PyMethodDef NoteinTrig_methods[] = {
-{"getServer", (PyCFunction)NoteinTrig_getServer, METH_NOARGS, "Returns server object."},
-{"_getStream", (PyCFunction)NoteinTrig_getStream, METH_NOARGS, "Returns stream object."},
-{"play", (PyCFunction)NoteinTrig_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)NoteinTrig_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
-{"setMul", (PyCFunction)NoteinTrig_setMul, METH_O, "Sets NoteinTrig mul factor."},
-{"setAdd", (PyCFunction)NoteinTrig_setAdd, METH_O, "Sets NoteinTrig add factor."},
-{"setSub", (PyCFunction)NoteinTrig_setSub, METH_O, "Sets inverse add factor."},
-{"setDiv", (PyCFunction)NoteinTrig_setDiv, METH_O, "Sets inverse mul factor."},
-{NULL}  /* Sentinel */
+static PyMethodDef NoteinTrig_methods[] =
+{
+    {"getServer", (PyCFunction)NoteinTrig_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)NoteinTrig_getStream, METH_NOARGS, "Returns stream object."},
+    {"play", (PyCFunction)NoteinTrig_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)NoteinTrig_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"setMul", (PyCFunction)NoteinTrig_setMul, METH_O, "Sets NoteinTrig mul factor."},
+    {"setAdd", (PyCFunction)NoteinTrig_setAdd, METH_O, "Sets NoteinTrig add factor."},
+    {"setSub", (PyCFunction)NoteinTrig_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)NoteinTrig_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods NoteinTrig_as_number = {
-(binaryfunc)NoteinTrig_add,                      /*nb_add*/
-(binaryfunc)NoteinTrig_sub,                 /*nb_subtract*/
-(binaryfunc)NoteinTrig_multiply,                 /*nb_multiply*/
-INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
-0,                /*nb_remainder*/
-0,                   /*nb_divmod*/
-0,                   /*nb_power*/
-0,                  /*nb_neg*/
-0,                /*nb_pos*/
-0,                  /*(unaryfunc)array_abs,*/
-0,                    /*nb_nonzero*/
-0,                    /*nb_invert*/
-0,               /*nb_lshift*/
-0,              /*nb_rshift*/
-0,              /*nb_and*/
-0,              /*nb_xor*/
-0,               /*nb_or*/
-INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
-0,                       /*nb_int*/
-0,                      /*nb_long*/
-0,                     /*nb_float*/
-INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
-(binaryfunc)NoteinTrig_inplace_add,              /*inplace_add*/
-(binaryfunc)NoteinTrig_inplace_sub,         /*inplace_subtract*/
-(binaryfunc)NoteinTrig_inplace_multiply,         /*inplace_multiply*/
-INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
-0,        /*inplace_remainder*/
-0,           /*inplace_power*/
-0,       /*inplace_lshift*/
-0,      /*inplace_rshift*/
-0,      /*inplace_and*/
-0,      /*inplace_xor*/
-0,       /*inplace_or*/
-0,             /*nb_floor_divide*/
-(binaryfunc)NoteinTrig_div,                       /*nb_true_divide*/
-0,     /*nb_inplace_floor_divide*/
-(binaryfunc)NoteinTrig_inplace_div,                       /*nb_inplace_true_divide*/
-0,                     /* nb_index */
+static PyNumberMethods NoteinTrig_as_number =
+{
+    (binaryfunc)NoteinTrig_add,                      /*nb_add*/
+    (binaryfunc)NoteinTrig_sub,                 /*nb_subtract*/
+    (binaryfunc)NoteinTrig_multiply,                 /*nb_multiply*/
+    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
+    0,                /*nb_remainder*/
+    0,                   /*nb_divmod*/
+    0,                   /*nb_power*/
+    0,                  /*nb_neg*/
+    0,                /*nb_pos*/
+    0,                  /*(unaryfunc)array_abs,*/
+    0,                    /*nb_nonzero*/
+    0,                    /*nb_invert*/
+    0,               /*nb_lshift*/
+    0,              /*nb_rshift*/
+    0,              /*nb_and*/
+    0,              /*nb_xor*/
+    0,               /*nb_or*/
+    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
+    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
+    (binaryfunc)NoteinTrig_inplace_add,              /*inplace_add*/
+    (binaryfunc)NoteinTrig_inplace_sub,         /*inplace_subtract*/
+    (binaryfunc)NoteinTrig_inplace_multiply,         /*inplace_multiply*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
+    0,        /*inplace_remainder*/
+    0,           /*inplace_power*/
+    0,       /*inplace_lshift*/
+    0,      /*inplace_rshift*/
+    0,      /*inplace_and*/
+    0,      /*inplace_xor*/
+    0,       /*inplace_or*/
+    0,             /*nb_floor_divide*/
+    (binaryfunc)NoteinTrig_div,                       /*nb_true_divide*/
+    0,     /*nb_inplace_floor_divide*/
+    (binaryfunc)NoteinTrig_inplace_div,                       /*nb_inplace_true_divide*/
+    0,                     /* nb_index */
 };
 
-PyTypeObject NoteinTrigType = {
-PyVarObject_HEAD_INIT(NULL, 0)
-"_pyo.NoteinTrig_base",         /*tp_name*/
-sizeof(NoteinTrig),         /*tp_basicsize*/
-0,                         /*tp_itemsize*/
-(destructor)NoteinTrig_dealloc, /*tp_dealloc*/
-0,                         /*tp_print*/
-0,                         /*tp_getattr*/
-0,                         /*tp_setattr*/
-0,                         /*tp_as_async (tp_compare in Python 2)*/
-0,                         /*tp_repr*/
-&NoteinTrig_as_number,             /*tp_as_number*/
-0,                         /*tp_as_sequence*/
-0,                         /*tp_as_mapping*/
-0,                         /*tp_hash */
-0,                         /*tp_call*/
-0,                         /*tp_str*/
-0,                         /*tp_getattro*/
-0,                         /*tp_setattro*/
-0,                         /*tp_as_buffer*/
-Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
-"NoteinTrig objects. Stream noteon or noteoff trigger from a Notein voice.",           /* tp_doc */
-(traverseproc)NoteinTrig_traverse,   /* tp_traverse */
-(inquiry)NoteinTrig_clear,           /* tp_clear */
-0,                       /* tp_richcompare */
-0,                       /* tp_weaklistoffset */
-0,                       /* tp_iter */
-0,                       /* tp_iternext */
-NoteinTrig_methods,             /* tp_methods */
-NoteinTrig_members,             /* tp_members */
-0,                      /* tp_getset */
-0,                         /* tp_base */
-0,                         /* tp_dict */
-0,                         /* tp_descr_get */
-0,                         /* tp_descr_set */
-0,                         /* tp_dictoffset */
-0,      /* tp_init */
-0,                         /* tp_alloc */
-NoteinTrig_new,                 /* tp_new */
+PyTypeObject NoteinTrigType =
+{
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "_pyo.NoteinTrig_base",         /*tp_name*/
+    sizeof(NoteinTrig),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)NoteinTrig_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
+    0,                         /*tp_repr*/
+    &NoteinTrig_as_number,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    "NoteinTrig objects. Stream noteon or noteoff trigger from a Notein voice.",           /* tp_doc */
+    (traverseproc)NoteinTrig_traverse,   /* tp_traverse */
+    (inquiry)NoteinTrig_clear,           /* tp_clear */
+    0,                       /* tp_richcompare */
+    0,                       /* tp_weaklistoffset */
+    0,                       /* tp_iter */
+    0,                       /* tp_iternext */
+    NoteinTrig_methods,             /* tp_methods */
+    NoteinTrig_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,      /* tp_init */
+    0,                         /* tp_alloc */
+    NoteinTrig_new,                 /* tp_new */
 };
 
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     PyObject *input;
     Stream *input_stream;
@@ -2868,18 +3144,21 @@ typedef struct {
 } MidiAdsr;
 
 static void
-MidiAdsr_generates(MidiAdsr *self) {
+MidiAdsr_generates(MidiAdsr *self)
+{
     MYFLT val;
     int i;
 
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
 
-    for (i=0; i<self->bufsize; i++) {
-        if (self->fademode == 0 && in[i] > 0.0) {
+    for (i = 0; i < self->bufsize; i++)
+    {
+        if (self->fademode == 0 && in[i] > 0.0)
+        {
             self->fademode = 1;
             self->initAmp = in[i];
             self->expscl = MYPOW(self->initAmp, 1.0 / self->exp) / self->initAmp;
-            self->offsetAmp = self->buf[i]; 
+            self->offsetAmp = self->buf[i];
             self->sustainAmp = self->initAmp * self->sustain;
             self->currentTime = 0.0;
             self->invAttack = 1.0 / self->attack;
@@ -2888,37 +3167,47 @@ MidiAdsr_generates(MidiAdsr *self) {
             self->initAmpMinusOffsetAmp = self->initAmp - self->offsetAmp;
             self->initAmpMinusSustainAmp = self->initAmp - self->sustainAmp;
         }
-        else if (self->fademode == 1 && in[i] == 0.0) {
+        else if (self->fademode == 1 && in[i] == 0.0)
+        {
             self->fademode = 0;
             self->currentTime = 0.0;
             self->invRelease = 1.0 / self->release;
         }
 
-        if (self->fademode == 1) {
+        if (self->fademode == 1)
+        {
             if (self->currentTime <= self->attack)
                 val = self->currentTime * self->invAttack * self->initAmpMinusOffsetAmp + self->offsetAmp;
             else if (self->currentTime <= self->attackPlusDecay)
                 val = (self->decay - (self->currentTime - self->attack)) * self->invDecay * self->initAmpMinusSustainAmp + self->sustainAmp;
             else
                 val = self->sustainAmp;
+
             self->topValue = val;
         }
-        else {
+        else
+        {
             if (self->currentTime <= self->release)
                 val = self->topValue * (1. - self->currentTime * self->invRelease);
             else
                 val = 0.;
         }
+
         self->buf[i] = val;
         self->currentTime += self->sampleToSec;
     }
 
-    if (self->exp != 1.0) {
-        for (i=0; i<self->bufsize; i++) {
+    if (self->exp != 1.0)
+    {
+        for (i = 0; i < self->bufsize; i++)
+        {
             self->data[i] = MYPOW(self->buf[i] * self->expscl, self->exp);
         }
-    } else {
-        for (i=0; i<self->bufsize; i++) {
+    }
+    else
+    {
+        for (i = 0; i < self->bufsize; i++)
+        {
             self->data[i] = self->buf[i];
         }
     }
@@ -2942,31 +3231,40 @@ MidiAdsr_setProcMode(MidiAdsr *self)
 
     self->proc_func_ptr = MidiAdsr_generates;
 
-    switch (muladdmode) {
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = MidiAdsr_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = MidiAdsr_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = MidiAdsr_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = MidiAdsr_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = MidiAdsr_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = MidiAdsr_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = MidiAdsr_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = MidiAdsr_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = MidiAdsr_postprocessing_revareva;
             break;
@@ -3011,7 +3309,7 @@ static PyObject *
 MidiAdsr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
+    PyObject *inputtmp, *input_streamtmp, *multmp = NULL, *addtmp = NULL;
     MidiAdsr *self;
     self = (MidiAdsr *)type->tp_alloc(type, 0);
 
@@ -3040,27 +3338,34 @@ MidiAdsr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_INPUT_STREAM
 
-    if (multmp) {
+    if (multmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
 
-    if (addtmp) {
+    if (addtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     self->buf = (MYFLT *)realloc(self->buf, self->bufsize * sizeof(MYFLT));
-    for (i=0; i<self->bufsize; i++) {
+
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->buf[i] = 0.0;
     }
 
     if (self->attack < 0.000001)
         self->attack = 0.000001;
+
     if (self->decay < 0.000001)
         self->decay = 0.000001;
+
     if (self->release < 0.000001)
         self->release = 0.000001;
+
     if (self->sustain < 0.0)
         self->sustain = 0.0;
     else if (self->sustain > 1.0)
@@ -3093,13 +3398,17 @@ static PyObject * MidiAdsr_inplace_div(MidiAdsr *self, PyObject *arg) { INPLACE_
 static PyObject *
 MidiAdsr_setAttack(MidiAdsr *self, PyObject *arg)
 {
-    if (PyNumber_Check(arg)) {
+    if (PyNumber_Check(arg))
+    {
         self->attack = PyFloat_AsDouble(arg);
+
         if (self->attack < 0.000001)
             self->attack = 0.000001;
+
         self->invAttack = 1.0 / self->attack;
         self->attackPlusDecay = self->attack + self->decay;
     }
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -3107,13 +3416,17 @@ MidiAdsr_setAttack(MidiAdsr *self, PyObject *arg)
 static PyObject *
 MidiAdsr_setDecay(MidiAdsr *self, PyObject *arg)
 {
-    if (PyNumber_Check(arg)) {
+    if (PyNumber_Check(arg))
+    {
         self->decay = PyFloat_AsDouble(arg);
+
         if (self->decay < 0.000001)
             self->decay = 0.000001;
+
         self->invDecay = 1.0 / self->decay;
         self->attackPlusDecay = self->attack + self->decay;
     }
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -3121,13 +3434,16 @@ MidiAdsr_setDecay(MidiAdsr *self, PyObject *arg)
 static PyObject *
 MidiAdsr_setSustain(MidiAdsr *self, PyObject *arg)
 {
-    if (PyNumber_Check(arg)) {
+    if (PyNumber_Check(arg))
+    {
         self->sustain = PyFloat_AsDouble(arg);
+
         if (self->sustain < 0.0)
             self->sustain = 0.0;
         else if (self->sustain > 1.0)
             self->sustain = 1.0;
     }
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -3135,12 +3451,16 @@ MidiAdsr_setSustain(MidiAdsr *self, PyObject *arg)
 static PyObject *
 MidiAdsr_setRelease(MidiAdsr *self, PyObject *arg)
 {
-    if (PyNumber_Check(arg)) {
+    if (PyNumber_Check(arg))
+    {
         self->release = PyFloat_AsDouble(arg);
+
         if (self->release < 0.000001)
             self->release = 0.000001;
+
         self->invRelease = 1.0 / self->release;
     }
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -3148,16 +3468,20 @@ MidiAdsr_setRelease(MidiAdsr *self, PyObject *arg)
 static PyObject *
 MidiAdsr_setExp(MidiAdsr *self, PyObject *arg)
 {
-    if (PyNumber_Check(arg)) {
+    if (PyNumber_Check(arg))
+    {
         MYFLT tmp = PyFloat_AsDouble(arg);
+
         if (tmp > 0.0)
             self->exp = tmp;
     }
+
     Py_INCREF(Py_None);
     return Py_None;
 }
 
-static PyMemberDef MidiAdsr_members[] = {
+static PyMemberDef MidiAdsr_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(MidiAdsr, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(MidiAdsr, stream), 0, "Stream object."},
     {"input", T_OBJECT_EX, offsetof(MidiAdsr, input), 0, "Input sound object."},
@@ -3166,11 +3490,12 @@ static PyMemberDef MidiAdsr_members[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef MidiAdsr_methods[] = {
+static PyMethodDef MidiAdsr_methods[] =
+{
     {"getServer", (PyCFunction)MidiAdsr_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)MidiAdsr_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)MidiAdsr_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)MidiAdsr_stop, METH_VARARGS|METH_KEYWORDS, "Starts fadeout and stops computing."},
+    {"play", (PyCFunction)MidiAdsr_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)MidiAdsr_stop, METH_VARARGS | METH_KEYWORDS, "Starts fadeout and stops computing."},
     {"setMul", (PyCFunction)MidiAdsr_setMul, METH_O, "Sets MidiAdsr mul factor."},
     {"setAdd", (PyCFunction)MidiAdsr_setAdd, METH_O, "Sets MidiAdsr add factor."},
     {"setSub", (PyCFunction)MidiAdsr_setSub, METH_O, "Sets inverse add factor."},
@@ -3183,7 +3508,8 @@ static PyMethodDef MidiAdsr_methods[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods MidiAdsr_as_number = {
+static PyNumberMethods MidiAdsr_as_number =
+{
     (binaryfunc)MidiAdsr_add,                      /*nb_add*/
     (binaryfunc)MidiAdsr_sub,                 /*nb_subtract*/
     (binaryfunc)MidiAdsr_multiply,                 /*nb_multiply*/
@@ -3225,7 +3551,8 @@ static PyNumberMethods MidiAdsr_as_number = {
     0,                     /* nb_index */
 };
 
-PyTypeObject MidiAdsrType = {
+PyTypeObject MidiAdsrType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.MidiAdsr_base",         /*tp_name*/
     sizeof(MidiAdsr),         /*tp_basicsize*/
@@ -3266,7 +3593,8 @@ PyTypeObject MidiAdsrType = {
     MidiAdsr_new,                 /* tp_new */
 };
 
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     PyObject *input;
     Stream *input_stream;
@@ -3297,18 +3625,21 @@ typedef struct {
 } MidiDelAdsr;
 
 static void
-MidiDelAdsr_generates(MidiDelAdsr *self) {
+MidiDelAdsr_generates(MidiDelAdsr *self)
+{
     MYFLT val;
     int i;
 
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
 
-    for (i=0; i<self->bufsize; i++) {
-        if (self->fademode == 0 && in[i] > 0.0) {
+    for (i = 0; i < self->bufsize; i++)
+    {
+        if (self->fademode == 0 && in[i] > 0.0)
+        {
             self->fademode = 1;
             self->initAmp = in[i];
             self->expscl = MYPOW(self->initAmp, 1.0 / self->exp) / self->initAmp;
-            self->offsetAmp = self->buf[i]; 
+            self->offsetAmp = self->buf[i];
             self->sustainAmp = self->initAmp * self->sustain;
             self->currentTime = 0.0;
             self->invAttack = 1.0 / self->attack;
@@ -3318,13 +3649,15 @@ MidiDelAdsr_generates(MidiDelAdsr *self) {
             self->initAmpMinusOffsetAmp = self->initAmp - self->offsetAmp;
             self->initAmpMinusSustainAmp = self->initAmp - self->sustainAmp;
         }
-        else if (self->fademode == 1 && in[i] == 0.0) {
+        else if (self->fademode == 1 && in[i] == 0.0)
+        {
             self->fademode = 0;
             self->currentTime = 0.0;
             self->invRelease = 1.0 / self->release;
         }
 
-        if (self->fademode == 1) {
+        if (self->fademode == 1)
+        {
             if (self->currentTime < self->delay)
                 val = 0.0;
             else if (self->currentTime <= self->delayPlusAttack)
@@ -3333,24 +3666,32 @@ MidiDelAdsr_generates(MidiDelAdsr *self) {
                 val = (self->decay - (self->currentTime - self->delay - self->attack)) * self->invDecay * self->initAmpMinusSustainAmp + self->sustainAmp;
             else
                 val = self->sustainAmp;
+
             self->topValue = val;
         }
-        else {
+        else
+        {
             if (self->currentTime <= self->release)
                 val = self->topValue * (1. - self->currentTime * self->invRelease);
             else
                 val = 0.;
         }
+
         self->buf[i] = val;
         self->currentTime += self->sampleToSec;
     }
 
-    if (self->exp != 1.0) {
-        for (i=0; i<self->bufsize; i++) {
+    if (self->exp != 1.0)
+    {
+        for (i = 0; i < self->bufsize; i++)
+        {
             self->data[i] = MYPOW(self->buf[i] * self->expscl, self->exp);
         }
-    } else {
-        for (i=0; i<self->bufsize; i++) {
+    }
+    else
+    {
+        for (i = 0; i < self->bufsize; i++)
+        {
             self->data[i] = self->buf[i];
         }
     }
@@ -3374,31 +3715,40 @@ MidiDelAdsr_setProcMode(MidiDelAdsr *self)
 
     self->proc_func_ptr = MidiDelAdsr_generates;
 
-    switch (muladdmode) {
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = MidiDelAdsr_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = MidiDelAdsr_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = MidiDelAdsr_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = MidiDelAdsr_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = MidiDelAdsr_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = MidiDelAdsr_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = MidiDelAdsr_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = MidiDelAdsr_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = MidiDelAdsr_postprocessing_revareva;
             break;
@@ -3443,7 +3793,7 @@ static PyObject *
 MidiDelAdsr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
+    PyObject *inputtmp, *input_streamtmp, *multmp = NULL, *addtmp = NULL;
     MidiDelAdsr *self;
     self = (MidiDelAdsr *)type->tp_alloc(type, 0);
 
@@ -3473,27 +3823,34 @@ MidiDelAdsr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_INPUT_STREAM
 
-    if (multmp) {
+    if (multmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
 
-    if (addtmp) {
+    if (addtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     self->buf = (MYFLT *)realloc(self->buf, self->bufsize * sizeof(MYFLT));
-    for (i=0; i<self->bufsize; i++) {
+
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->buf[i] = 0.0;
     }
 
     if (self->attack < 0.000001)
         self->attack = 0.000001;
+
     if (self->decay < 0.000001)
         self->decay = 0.000001;
+
     if (self->release < 0.000001)
         self->release = 0.000001;
+
     if (self->sustain < 0.0)
         self->sustain = 0.0;
     else if (self->sustain > 1.0)
@@ -3526,11 +3883,13 @@ static PyObject * MidiDelAdsr_inplace_div(MidiDelAdsr *self, PyObject *arg) { IN
 static PyObject *
 MidiDelAdsr_setDelay(MidiDelAdsr *self, PyObject *arg)
 {
-    if (PyNumber_Check(arg)) {
+    if (PyNumber_Check(arg))
+    {
         self->delay = PyFloat_AsDouble(arg);
         self->delayPlusAttack = self->delay + self->attack;
         self->delayPlusAttackPlusDecay = self->delay + self->attack + self->decay;
     }
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -3538,14 +3897,18 @@ MidiDelAdsr_setDelay(MidiDelAdsr *self, PyObject *arg)
 static PyObject *
 MidiDelAdsr_setAttack(MidiDelAdsr *self, PyObject *arg)
 {
-    if (PyNumber_Check(arg)) {
+    if (PyNumber_Check(arg))
+    {
         self->attack = PyFloat_AsDouble(arg);
+
         if (self->attack < 0.000001)
             self->attack = 0.000001;
+
         self->invAttack = 1.0 / self->attack;
         self->delayPlusAttack = self->delay + self->attack;
         self->delayPlusAttackPlusDecay = self->delay + self->attack + self->decay;
     }
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -3553,13 +3916,17 @@ MidiDelAdsr_setAttack(MidiDelAdsr *self, PyObject *arg)
 static PyObject *
 MidiDelAdsr_setDecay(MidiDelAdsr *self, PyObject *arg)
 {
-    if (PyNumber_Check(arg)) {
+    if (PyNumber_Check(arg))
+    {
         self->decay = PyFloat_AsDouble(arg);
+
         if (self->decay < 0.000001)
             self->decay = 0.000001;
+
         self->invDecay = 1.0 / self->decay;
         self->delayPlusAttackPlusDecay = self->delay + self->attack + self->decay;
     }
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -3567,13 +3934,16 @@ MidiDelAdsr_setDecay(MidiDelAdsr *self, PyObject *arg)
 static PyObject *
 MidiDelAdsr_setSustain(MidiDelAdsr *self, PyObject *arg)
 {
-    if (PyNumber_Check(arg)) {
+    if (PyNumber_Check(arg))
+    {
         self->sustain = PyFloat_AsDouble(arg);
+
         if (self->sustain < 0.0)
             self->sustain = 0.0;
         else if (self->sustain > 1.0)
             self->sustain = 1.0;
     }
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -3581,12 +3951,16 @@ MidiDelAdsr_setSustain(MidiDelAdsr *self, PyObject *arg)
 static PyObject *
 MidiDelAdsr_setRelease(MidiDelAdsr *self, PyObject *arg)
 {
-    if (PyNumber_Check(arg)) {
+    if (PyNumber_Check(arg))
+    {
         self->release = PyFloat_AsDouble(arg);
+
         if (self->release < 0.000001)
             self->release = 0.000001;
+
         self->invRelease = 1.0 / self->release;
     }
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -3594,16 +3968,20 @@ MidiDelAdsr_setRelease(MidiDelAdsr *self, PyObject *arg)
 static PyObject *
 MidiDelAdsr_setExp(MidiDelAdsr *self, PyObject *arg)
 {
-    if (PyNumber_Check(arg)) {
+    if (PyNumber_Check(arg))
+    {
         MYFLT tmp = PyFloat_AsDouble(arg);
+
         if (tmp > 0.0)
             self->exp = tmp;
     }
+
     Py_INCREF(Py_None);
     return Py_None;
 }
 
-static PyMemberDef MidiDelAdsr_members[] = {
+static PyMemberDef MidiDelAdsr_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(MidiDelAdsr, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(MidiDelAdsr, stream), 0, "Stream object."},
     {"input", T_OBJECT_EX, offsetof(MidiDelAdsr, input), 0, "Input sound object."},
@@ -3612,11 +3990,12 @@ static PyMemberDef MidiDelAdsr_members[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef MidiDelAdsr_methods[] = {
+static PyMethodDef MidiDelAdsr_methods[] =
+{
     {"getServer", (PyCFunction)MidiDelAdsr_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)MidiDelAdsr_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)MidiDelAdsr_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)MidiDelAdsr_stop, METH_VARARGS|METH_KEYWORDS, "Starts fadeout and stops computing."},
+    {"play", (PyCFunction)MidiDelAdsr_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)MidiDelAdsr_stop, METH_VARARGS | METH_KEYWORDS, "Starts fadeout and stops computing."},
     {"setMul", (PyCFunction)MidiDelAdsr_setMul, METH_O, "Sets MidiDelAdsr mul factor."},
     {"setAdd", (PyCFunction)MidiDelAdsr_setAdd, METH_O, "Sets MidiDelAdsr add factor."},
     {"setSub", (PyCFunction)MidiDelAdsr_setSub, METH_O, "Sets inverse add factor."},
@@ -3630,7 +4009,8 @@ static PyMethodDef MidiDelAdsr_methods[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods MidiDelAdsr_as_number = {
+static PyNumberMethods MidiDelAdsr_as_number =
+{
     (binaryfunc)MidiDelAdsr_add,                      /*nb_add*/
     (binaryfunc)MidiDelAdsr_sub,                 /*nb_subtract*/
     (binaryfunc)MidiDelAdsr_multiply,                 /*nb_multiply*/
@@ -3672,7 +4052,8 @@ static PyNumberMethods MidiDelAdsr_as_number = {
     0,                     /* nb_index */
 };
 
-PyTypeObject MidiDelAdsrType = {
+PyTypeObject MidiDelAdsrType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.MidiDelAdsr_base",         /*tp_name*/
     sizeof(MidiDelAdsr),         /*tp_basicsize*/
@@ -3713,7 +4094,8 @@ PyTypeObject MidiDelAdsrType = {
     MidiDelAdsr_new,                 /* tp_new */
 };
 
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     PyObject *callable;
 } RawMidi;
@@ -3730,9 +4112,12 @@ RawMidi_compute_next_data_frame(RawMidi *self)
     buffer = Server_getMidiEventBuffer((Server *)self->server);
     count = Server_getMidiEventCount((Server *)self->server);
 
-    if (count > 0) {
+    if (count > 0)
+    {
         PyObject *tup;
-        for (i=0; i<count; i++) {
+
+        for (i = 0; i < count; i++)
+        {
             status = PyoMidi_MessageStatus(buffer[i].message);    // Temp note event holders
             data1 = PyoMidi_MessageData1(buffer[i].message);
             data2 = PyoMidi_MessageData2(buffer[i].message);
@@ -3773,7 +4158,7 @@ static PyObject *
 RawMidi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *calltmp=NULL;
+    PyObject *calltmp = NULL;
     RawMidi *self;
     self = (RawMidi *)type->tp_alloc(type, 0);
 
@@ -3786,7 +4171,8 @@ RawMidi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &calltmp))
         Py_RETURN_NONE;
 
-    if (calltmp) {
+    if (calltmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setFunction", "O", calltmp);
     }
 
@@ -3806,7 +4192,8 @@ RawMidi_setFunction(RawMidi *self, PyObject *arg)
 {
     PyObject *tmp;
 
-    if (! PyCallable_Check(arg)) {
+    if (! PyCallable_Check(arg))
+    {
         PyErr_SetString(PyExc_TypeError, "The callable attribute must be a valid Python function.");
         Py_INCREF(Py_None);
         return Py_None;
@@ -3821,22 +4208,25 @@ RawMidi_setFunction(RawMidi *self, PyObject *arg)
     return Py_None;
 }
 
-static PyMemberDef RawMidi_members[] = {
+static PyMemberDef RawMidi_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(RawMidi, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(RawMidi, stream), 0, "Stream object."},
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef RawMidi_methods[] = {
+static PyMethodDef RawMidi_methods[] =
+{
     {"getServer", (PyCFunction)RawMidi_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)RawMidi_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)RawMidi_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)RawMidi_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
+    {"play", (PyCFunction)RawMidi_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)RawMidi_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setFunction", (PyCFunction)RawMidi_setFunction, METH_O, "Sets the function to be called."},
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject RawMidiType = {
+PyTypeObject RawMidiType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.RawMidi_base",         /*tp_name*/
     sizeof(RawMidi),         /*tp_basicsize*/
@@ -3880,7 +4270,8 @@ PyTypeObject RawMidiType = {
 /*********************************************************************************************/
 /* MidiLinseg *********************************************************************************/
 /*********************************************************************************************/
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     PyObject *pointslist;
     PyObject *input;
@@ -3907,14 +4298,17 @@ typedef struct {
 } MidiLinseg;
 
 static void
-MidiLinseg_convert_pointslist(MidiLinseg *self) {
+MidiLinseg_convert_pointslist(MidiLinseg *self)
+{
     int i;
     PyObject *tup;
 
     self->listsize = PyList_Size(self->pointslist);
     self->targets = (MYFLT *)realloc(self->targets, self->listsize * sizeof(MYFLT));
     self->times = (MYFLT *)realloc(self->times, self->listsize * sizeof(MYFLT));
-    for (i=0; i<self->listsize; i++) {
+
+    for (i = 0; i < self->listsize; i++)
+    {
         tup = PyList_GET_ITEM(self->pointslist, i);
         self->times[i] = PyFloat_AsDouble(PyTuple_GET_ITEM(tup, 0));
         self->targets[i] = PyFloat_AsDouble(PyTuple_GET_ITEM(tup, 1));
@@ -3922,24 +4316,36 @@ MidiLinseg_convert_pointslist(MidiLinseg *self) {
 }
 
 static void
-MidiLinseg_reinit(MidiLinseg *self) {
-    if (self->newlist == 1) {
+MidiLinseg_reinit(MidiLinseg *self)
+{
+    if (self->newlist == 1)
+    {
         MidiLinseg_convert_pointslist((MidiLinseg *)self);
         self->newlist = 0;
     }
-    if (self->tmphold != self->hold) {
+
+    if (self->tmphold != self->hold)
+    {
         self->hold = self->tmphold;
     }
-    if (self->hold < 1 || self->hold >= self->listsize) {
+
+    if (self->hold < 1 || self->hold >= self->listsize)
+    {
         self->hold = self->listsize / 2;
     }
+
     self->currentTime = 0.0;
-    if (self->currentValue == 0.0) {
+
+    if (self->currentValue == 0.0)
+    {
         self->currentValue = self->targets[0];
         self->startFromLast = 0;
-    } else {
+    }
+    else
+    {
         self->startFromLast = 1;
     }
+
     self->which = 0;
     self->flag = 1;
     self->noteon = 1;
@@ -3947,53 +4353,77 @@ MidiLinseg_reinit(MidiLinseg *self) {
 }
 
 static void
-MidiLinseg_generate(MidiLinseg *self) {
+MidiLinseg_generate(MidiLinseg *self)
+{
     int i;
     MYFLT timefactor = 1.0;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->trigsBuffer[i] = 0.0;
-        if (in[i] > 0.0 && self->noteon == 0) {
+
+        if (in[i] > 0.0 && self->noteon == 0)
+        {
             MidiLinseg_reinit((MidiLinseg *)self);
             self->ampscaling = in[i];
-        } else if (in[i] == 0.0 && self->noteon == 1) {
+        }
+        else if (in[i] == 0.0 && self->noteon == 1)
+        {
             self->noteon = 0;
             self->waiting = 0;
         }
 
-        if (self->flag == 1) {
-            if (self->currentTime >= self->times[self->which]) {
+        if (self->flag == 1)
+        {
+            if (self->currentTime >= self->times[self->which])
+            {
                 self->which++;
-                if (self->which == self->listsize) {
+
+                if (self->which == self->listsize)
+                {
                     self->trigsBuffer[i] = 1.0;
                     self->flag = 0;
-                    self->currentValue = self->targets[self->which-1] * self->ampscaling;
-                } else {
-                    if ((self->which-1) == self->hold && self->noteon) {
-                        self->currentValue = self->targets[self->which-1] * self->ampscaling;
+                    self->currentValue = self->targets[self->which - 1] * self->ampscaling;
+                }
+                else
+                {
+                    if ((self->which - 1) == self->hold && self->noteon)
+                    {
+                        self->currentValue = self->targets[self->which - 1] * self->ampscaling;
                         self->waiting = 1;
                     }
-                    if ((self->times[self->which] - self->times[self->which-1]) <= 0) {
+
+                    if ((self->times[self->which] - self->times[self->which - 1]) <= 0)
+                    {
                         self->increment = self->targets[self->which] * self->ampscaling - self->currentValue;
-                    } else {
-                        timefactor = (self->times[self->which] - self->times[self->which-1]) / self->sampleToSec;
-                        if (self->startFromLast) {
+                    }
+                    else
+                    {
+                        timefactor = (self->times[self->which] - self->times[self->which - 1]) / self->sampleToSec;
+
+                        if (self->startFromLast)
+                        {
                             self->increment = (self->targets[self->which] * self->ampscaling - self->currentValue) / timefactor;
                             self->startFromLast = 0;
-                        } else {
-                            self->increment = (self->targets[self->which] - self->targets[self->which-1]) * self->ampscaling / timefactor;
-                        } 
+                        }
+                        else
+                        {
+                            self->increment = (self->targets[self->which] - self->targets[self->which - 1]) * self->ampscaling / timefactor;
+                        }
                     }
                 }
             }
-            if (self->waiting == 0 && self->currentTime <= self->times[self->listsize-1]) {
+
+            if (self->waiting == 0 && self->currentTime <= self->times[self->listsize - 1])
+            {
                 self->currentValue += self->increment;
             }
 
             self->data[i] = (MYFLT)self->currentValue;
 
-            if (self->waiting == 0) {
+            if (self->waiting == 0)
+            {
                 self->currentTime += self->sampleToSec;
             }
         }
@@ -4020,31 +4450,40 @@ MidiLinseg_setProcMode(MidiLinseg *self)
 
     self->proc_func_ptr = MidiLinseg_generate;
 
-	switch (muladdmode) {
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = MidiLinseg_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = MidiLinseg_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = MidiLinseg_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = MidiLinseg_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = MidiLinseg_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = MidiLinseg_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = MidiLinseg_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = MidiLinseg_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = MidiLinseg_postprocessing_revareva;
             break;
@@ -4095,7 +4534,7 @@ static PyObject *
 MidiLinseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *inputtmp, *input_streamtmp, *pointslist=NULL, *multmp=NULL, *addtmp=NULL;
+    PyObject *inputtmp, *input_streamtmp, *pointslist = NULL, *multmp = NULL, *addtmp = NULL;
     MidiLinseg *self;
     self = (MidiLinseg *)type->tp_alloc(type, 0);
 
@@ -4103,8 +4542,8 @@ MidiLinseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->newlist = 1;
     self->waiting = 0;
     self->ampscaling = 1.0;
-	self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, MidiLinseg_compute_next_data_frame);
@@ -4126,11 +4565,13 @@ MidiLinseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self->tmphold = self->hold;
 
-    if (multmp) {
+    if (multmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
 
-    if (addtmp) {
+    if (addtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
 
@@ -4138,7 +4579,8 @@ MidiLinseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->trigsBuffer[i] = 0.0;
     }
 
@@ -4173,12 +4615,14 @@ static PyObject * MidiLinseg_inplace_div(MidiLinseg *self, PyObject *arg) { INPL
 static PyObject *
 MidiLinseg_setList(MidiLinseg *self, PyObject *value)
 {
-    if (value == NULL) {
+    if (value == NULL)
+    {
         PyErr_SetString(PyExc_TypeError, "Cannot delete the list attribute.");
         return PyInt_FromLong(-1);
     }
 
-    if (! PyList_Check(value)) {
+    if (! PyList_Check(value))
+    {
         PyErr_SetString(PyExc_TypeError, "The points list attribute value must be a list of tuples.");
         return PyInt_FromLong(-1);
     }
@@ -4196,117 +4640,123 @@ MidiLinseg_setList(MidiLinseg *self, PyObject *value)
 static PyObject *
 MidiLinseg_setHold(MidiLinseg *self, PyObject *arg)
 {
-    if (PyInt_Check(arg)) {
+    if (PyInt_Check(arg))
+    {
         self->tmphold = PyInt_AsLong(arg);
     }
+
     Py_INCREF(Py_None);
     return Py_None;
 }
 
-static PyMemberDef MidiLinseg_members[] = {
-{"server", T_OBJECT_EX, offsetof(MidiLinseg, server), 0, "Pyo server."},
-{"stream", T_OBJECT_EX, offsetof(MidiLinseg, stream), 0, "Stream object."},
-{"trig_stream", T_OBJECT_EX, offsetof(MidiLinseg, trig_stream), 0, "Trigger Stream object."},
-{"pointslist", T_OBJECT_EX, offsetof(MidiLinseg, pointslist), 0, "List of target points."},
-{"mul", T_OBJECT_EX, offsetof(MidiLinseg, mul), 0, "Mul factor."},
-{"add", T_OBJECT_EX, offsetof(MidiLinseg, add), 0, "Add factor."},
-{NULL}  /* Sentinel */
+static PyMemberDef MidiLinseg_members[] =
+{
+    {"server", T_OBJECT_EX, offsetof(MidiLinseg, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(MidiLinseg, stream), 0, "Stream object."},
+    {"trig_stream", T_OBJECT_EX, offsetof(MidiLinseg, trig_stream), 0, "Trigger Stream object."},
+    {"pointslist", T_OBJECT_EX, offsetof(MidiLinseg, pointslist), 0, "List of target points."},
+    {"mul", T_OBJECT_EX, offsetof(MidiLinseg, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(MidiLinseg, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
 };
 
-static PyMethodDef MidiLinseg_methods[] = {
-{"getServer", (PyCFunction)MidiLinseg_getServer, METH_NOARGS, "Returns server object."},
-{"_getStream", (PyCFunction)MidiLinseg_getStream, METH_NOARGS, "Returns stream object."},
-{"_getTriggerStream", (PyCFunction)MidiLinseg_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
-{"play", (PyCFunction)MidiLinseg_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)MidiLinseg_stop, METH_VARARGS|METH_KEYWORDS, "Starts fadeout and stops computing."},
-{"setList", (PyCFunction)MidiLinseg_setList, METH_O, "Sets target points list."},
-{"setHold", (PyCFunction)MidiLinseg_setHold, METH_O, "Sets hold point."},
-{"setMul", (PyCFunction)MidiLinseg_setMul, METH_O, "Sets MidiLinseg mul factor."},
-{"setAdd", (PyCFunction)MidiLinseg_setAdd, METH_O, "Sets MidiLinseg add factor."},
-{"setSub", (PyCFunction)MidiLinseg_setSub, METH_O, "Sets inverse add factor."},
-{"setDiv", (PyCFunction)MidiLinseg_setDiv, METH_O, "Sets inverse mul factor."},
-{NULL}  /* Sentinel */
+static PyMethodDef MidiLinseg_methods[] =
+{
+    {"getServer", (PyCFunction)MidiLinseg_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)MidiLinseg_getStream, METH_NOARGS, "Returns stream object."},
+    {"_getTriggerStream", (PyCFunction)MidiLinseg_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
+    {"play", (PyCFunction)MidiLinseg_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)MidiLinseg_stop, METH_VARARGS | METH_KEYWORDS, "Starts fadeout and stops computing."},
+    {"setList", (PyCFunction)MidiLinseg_setList, METH_O, "Sets target points list."},
+    {"setHold", (PyCFunction)MidiLinseg_setHold, METH_O, "Sets hold point."},
+    {"setMul", (PyCFunction)MidiLinseg_setMul, METH_O, "Sets MidiLinseg mul factor."},
+    {"setAdd", (PyCFunction)MidiLinseg_setAdd, METH_O, "Sets MidiLinseg add factor."},
+    {"setSub", (PyCFunction)MidiLinseg_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)MidiLinseg_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods MidiLinseg_as_number = {
-(binaryfunc)MidiLinseg_add,                      /*nb_add*/
-(binaryfunc)MidiLinseg_sub,                 /*nb_subtract*/
-(binaryfunc)MidiLinseg_multiply,                 /*nb_multiply*/
-INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
-0,                /*nb_remainder*/
-0,                   /*nb_divmod*/
-0,                   /*nb_power*/
-0,                  /*nb_neg*/
-0,                /*nb_pos*/
-0,                  /*(unaryfunc)array_abs,*/
-0,                    /*nb_nonzero*/
-0,                    /*nb_invert*/
-0,               /*nb_lshift*/
-0,              /*nb_rshift*/
-0,              /*nb_and*/
-0,              /*nb_xor*/
-0,               /*nb_or*/
-INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
-0,                       /*nb_int*/
-0,                      /*nb_long*/
-0,                     /*nb_float*/
-INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
-(binaryfunc)MidiLinseg_inplace_add,              /*inplace_add*/
-(binaryfunc)MidiLinseg_inplace_sub,         /*inplace_subtract*/
-(binaryfunc)MidiLinseg_inplace_multiply,         /*inplace_multiply*/
-INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
-0,        /*inplace_remainder*/
-0,           /*inplace_power*/
-0,       /*inplace_lshift*/
-0,      /*inplace_rshift*/
-0,      /*inplace_and*/
-0,      /*inplace_xor*/
-0,       /*inplace_or*/
-0,             /*nb_floor_divide*/
-(binaryfunc)MidiLinseg_div,                       /*nb_true_divide*/
-0,     /*nb_inplace_floor_divide*/
-(binaryfunc)MidiLinseg_inplace_div,                       /*nb_inplace_true_divide*/
-0,                     /* nb_index */
+static PyNumberMethods MidiLinseg_as_number =
+{
+    (binaryfunc)MidiLinseg_add,                      /*nb_add*/
+    (binaryfunc)MidiLinseg_sub,                 /*nb_subtract*/
+    (binaryfunc)MidiLinseg_multiply,                 /*nb_multiply*/
+    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
+    0,                /*nb_remainder*/
+    0,                   /*nb_divmod*/
+    0,                   /*nb_power*/
+    0,                  /*nb_neg*/
+    0,                /*nb_pos*/
+    0,                  /*(unaryfunc)array_abs,*/
+    0,                    /*nb_nonzero*/
+    0,                    /*nb_invert*/
+    0,               /*nb_lshift*/
+    0,              /*nb_rshift*/
+    0,              /*nb_and*/
+    0,              /*nb_xor*/
+    0,               /*nb_or*/
+    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
+    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
+    (binaryfunc)MidiLinseg_inplace_add,              /*inplace_add*/
+    (binaryfunc)MidiLinseg_inplace_sub,         /*inplace_subtract*/
+    (binaryfunc)MidiLinseg_inplace_multiply,         /*inplace_multiply*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
+    0,        /*inplace_remainder*/
+    0,           /*inplace_power*/
+    0,       /*inplace_lshift*/
+    0,      /*inplace_rshift*/
+    0,      /*inplace_and*/
+    0,      /*inplace_xor*/
+    0,       /*inplace_or*/
+    0,             /*nb_floor_divide*/
+    (binaryfunc)MidiLinseg_div,                       /*nb_true_divide*/
+    0,     /*nb_inplace_floor_divide*/
+    (binaryfunc)MidiLinseg_inplace_div,                       /*nb_inplace_true_divide*/
+    0,                     /* nb_index */
 };
 
-PyTypeObject MidiLinsegType = {
-PyVarObject_HEAD_INIT(NULL, 0)
-"_pyo.MidiLinseg_base",         /*tp_name*/
-sizeof(MidiLinseg),         /*tp_basicsize*/
-0,                         /*tp_itemsize*/
-(destructor)MidiLinseg_dealloc, /*tp_dealloc*/
-0,                         /*tp_print*/
-0,                         /*tp_getattr*/
-0,                         /*tp_setattr*/
-0,                         /*tp_as_async (tp_compare in Python 2)*/
-0,                         /*tp_repr*/
-&MidiLinseg_as_number,             /*tp_as_number*/
-0,                         /*tp_as_sequence*/
-0,                         /*tp_as_mapping*/
-0,                         /*tp_hash */
-0,                         /*tp_call*/
-0,                         /*tp_str*/
-0,                         /*tp_getattro*/
-0,                         /*tp_setattro*/
-0,                         /*tp_as_buffer*/
-Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
-"MidiLinseg objects. Generates a linear segments break-points line.",           /* tp_doc */
-(traverseproc)MidiLinseg_traverse,   /* tp_traverse */
-(inquiry)MidiLinseg_clear,           /* tp_clear */
-0,		               /* tp_richcompare */
-0,		               /* tp_weaklistoffset */
-0,		               /* tp_iter */
-0,		               /* tp_iternext */
-MidiLinseg_methods,             /* tp_methods */
-MidiLinseg_members,             /* tp_members */
-0,                      /* tp_getset */
-0,                         /* tp_base */
-0,                         /* tp_dict */
-0,                         /* tp_descr_get */
-0,                         /* tp_descr_set */
-0,                         /* tp_dictoffset */
-0,      /* tp_init */
-0,                         /* tp_alloc */
-MidiLinseg_new,                 /* tp_new */
+PyTypeObject MidiLinsegType =
+{
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "_pyo.MidiLinseg_base",         /*tp_name*/
+    sizeof(MidiLinseg),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)MidiLinseg_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
+    0,                         /*tp_repr*/
+    &MidiLinseg_as_number,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "MidiLinseg objects. Generates a linear segments break-points line.",           /* tp_doc */
+    (traverseproc)MidiLinseg_traverse,   /* tp_traverse */
+    (inquiry)MidiLinseg_clear,           /* tp_clear */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
+    MidiLinseg_methods,             /* tp_methods */
+    MidiLinseg_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,      /* tp_init */
+    0,                         /* tp_alloc */
+    MidiLinseg_new,                 /* tp_new */
 };

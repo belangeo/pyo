@@ -27,7 +27,8 @@
 #include "servermodule.h"
 #include "dummymodule.h"
 
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     PyObject *input;
     int modebuffer[2];
@@ -49,31 +50,40 @@ Mix_setProcMode(Mix *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-	switch (muladdmode) {
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = Mix_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = Mix_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = Mix_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = Mix_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = Mix_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = Mix_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = Mix_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = Mix_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = Mix_postprocessing_revareva;
             break;
@@ -91,16 +101,20 @@ Mix_compute_next_data_frame(Mix *self)
     MYFLT buffer[self->bufsize];
     memset(&buffer, 0, sizeof(buffer));
 
-    for (i=0; i<lsize; i++) {
+    for (i = 0; i < lsize; i++)
+    {
         stream = PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->input, i), "_getStream", NULL);
         MYFLT *in = Stream_getData((Stream *)stream);
-        for (j=0; j<self->bufsize; j++) {
+
+        for (j = 0; j < self->bufsize; j++)
+        {
             old = buffer[j];
             buffer[j] = in[j] + old;
         }
     }
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->data[i] = buffer[i];
     }
 
@@ -135,12 +149,12 @@ static PyObject *
 Mix_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *inputtmp=NULL, *multmp=NULL, *addtmp=NULL;
+    PyObject *inputtmp = NULL, *multmp = NULL, *addtmp = NULL;
     Mix *self;
     self = (Mix *)type->tp_alloc(type, 0);
 
-	self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Mix_compute_next_data_frame);
@@ -155,11 +169,13 @@ Mix_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Py_XDECREF(self->input);
     self->input = inputtmp;
 
-    if (multmp) {
+    if (multmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
 
-    if (addtmp) {
+    if (addtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
 
@@ -190,7 +206,8 @@ static PyObject * Mix_inplace_sub(Mix *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Mix_div(Mix *self, PyObject *arg) { DIV };
 static PyObject * Mix_inplace_div(Mix *self, PyObject *arg) { INPLACE_DIV };
 
-static PyMemberDef Mix_members[] = {
+static PyMemberDef Mix_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(Mix, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(Mix, stream), 0, "Stream object."},
     {"input", T_OBJECT_EX, offsetof(Mix, input), 0, "List of input signals to mix."},
@@ -199,20 +216,22 @@ static PyMemberDef Mix_members[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef Mix_methods[] = {
+static PyMethodDef Mix_methods[] =
+{
     {"getServer", (PyCFunction)Mix_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Mix_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Mix_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)Mix_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Mix_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
-	{"setMul", (PyCFunction)Mix_setMul, METH_O, "Sets oscillator mul factor."},
-	{"setAdd", (PyCFunction)Mix_setAdd, METH_O, "Sets oscillator add factor."},
+    {"play", (PyCFunction)Mix_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)Mix_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)Mix_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"setMul", (PyCFunction)Mix_setMul, METH_O, "Sets oscillator mul factor."},
+    {"setAdd", (PyCFunction)Mix_setAdd, METH_O, "Sets oscillator add factor."},
     {"setSub", (PyCFunction)Mix_setSub, METH_O, "Sets inverse add factor."},
     {"setDiv", (PyCFunction)Mix_setDiv, METH_O, "Sets inverse mul factor."},
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Mix_as_number = {
+static PyNumberMethods Mix_as_number =
+{
     (binaryfunc)Mix_add,                      /*nb_add*/
     (binaryfunc)Mix_sub,                 /*nb_subtract*/
     (binaryfunc)Mix_multiply,                 /*nb_multiply*/
@@ -254,7 +273,8 @@ static PyNumberMethods Mix_as_number = {
     0,                     /* nb_index */
 };
 
-PyTypeObject MixType = {
+PyTypeObject MixType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.Mix_base",         /*tp_name*/
     sizeof(Mix),         /*tp_basicsize*/
@@ -278,10 +298,10 @@ PyTypeObject MixType = {
     "Mix objects. Retreive audio from an input channel.",           /* tp_doc */
     (traverseproc)Mix_traverse,   /* tp_traverse */
     (inquiry)Mix_clear,           /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
     Mix_methods,             /* tp_methods */
     Mix_members,             /* tp_members */
     0,                      /* tp_getset */

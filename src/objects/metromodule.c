@@ -29,7 +29,8 @@
 /****************/
 /**** Metro *****/
 /****************/
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     PyObject *time;
     Stream *time_stream;
@@ -41,7 +42,8 @@ typedef struct {
 } Metro;
 
 static void
-Metro_generate_i(Metro *self) {
+Metro_generate_i(Metro *self)
+{
     MYFLT val;
     double tm, off;
     int i;
@@ -49,13 +51,16 @@ Metro_generate_i(Metro *self) {
     tm = PyFloat_AS_DOUBLE(self->time);
     off = tm * self->offset;
 
-    for (i=0; i<self->bufsize; i++) {
-        if (self->currentTime >= tm) {
+    for (i = 0; i < self->bufsize; i++)
+    {
+        if (self->currentTime >= tm)
+        {
             val = 0;
             self->currentTime -= tm;
             self->flag = 1;
         }
-        else if (self->currentTime >= off && self->flag == 1) {
+        else if (self->currentTime >= off && self->flag == 1)
+        {
             val = 1;
             self->flag = 0;
         }
@@ -68,22 +73,27 @@ Metro_generate_i(Metro *self) {
 }
 
 static void
-Metro_generate_a(Metro *self) {
+Metro_generate_a(Metro *self)
+{
     MYFLT val;
     double off, tmd;
     int i;
 
     MYFLT *tm = Stream_getData((Stream *)self->time_stream);
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         tmd = (double)tm[i];
         off = tmd * self->offset;
-        if (self->currentTime >= tmd) {
+
+        if (self->currentTime >= tmd)
+        {
             val = 0;
             self->currentTime -= tmd;
             self->flag = 1;
         }
-        else if (self->currentTime >= off && self->flag == 1) {
+        else if (self->currentTime >= off && self->flag == 1)
+        {
             val = 1;
             self->flag = 0;
         }
@@ -112,39 +122,51 @@ Metro_setProcMode(Metro *self)
     procmode = self->modebuffer[2];
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    switch (procmode) {
+    switch (procmode)
+    {
         case 0:
             self->proc_func_ptr = Metro_generate_i;
             break;
+
         case 1:
             self->proc_func_ptr = Metro_generate_a;
             break;
     }
-    switch (muladdmode) {
+
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = Metro_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = Metro_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = Metro_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = Metro_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = Metro_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = Metro_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = Metro_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = Metro_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = Metro_postprocessing_revareva;
             break;
@@ -188,14 +210,14 @@ static PyObject *
 Metro_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *timetmp=NULL;
+    PyObject *timetmp = NULL;
     Metro *self;
     self = (Metro *)type->tp_alloc(type, 0);
 
     self->time = PyFloat_FromDouble(1.);
-	self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
-	self->modebuffer[2] = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
+    self->modebuffer[2] = 0;
     self->flag = 1;
 
     INIT_OBJECT_COMMON
@@ -212,7 +234,8 @@ Metro_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|Od", kwlist, &timetmp, &self->offset))
         Py_RETURN_NONE;
 
-    if (timetmp) {
+    if (timetmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setTime", "O", timetmp);
     }
 
@@ -245,57 +268,63 @@ static PyObject * Metro_inplace_div(Metro *self, PyObject *arg) { INPLACE_DIV };
 static PyObject *
 Metro_setTime(Metro *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->time);
-	if (isNumber == 1) {
-		self->time = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->time);
+
+    if (isNumber == 1)
+    {
+        self->time = PyNumber_Float(tmp);
         self->modebuffer[2] = 0;
-	}
-	else {
-		self->time = tmp;
+    }
+    else
+    {
+        self->time = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->time, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->time_stream);
         self->time_stream = (Stream *)streamtmp;
-		self->modebuffer[2] = 1;
-	}
+        self->modebuffer[2] = 1;
+    }
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
-static PyMemberDef Metro_members[] = {
-{"server", T_OBJECT_EX, offsetof(Metro, server), 0, "Pyo server."},
-{"stream", T_OBJECT_EX, offsetof(Metro, stream), 0, "Stream object."},
-{"time", T_OBJECT_EX, offsetof(Metro, time), 0, "Metro time factor."},
-{"mul", T_OBJECT_EX, offsetof(Metro, mul), 0, "Mul factor."},
-{"add", T_OBJECT_EX, offsetof(Metro, add), 0, "Add factor."},
-{NULL}  /* Sentinel */
+static PyMemberDef Metro_members[] =
+{
+    {"server", T_OBJECT_EX, offsetof(Metro, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(Metro, stream), 0, "Stream object."},
+    {"time", T_OBJECT_EX, offsetof(Metro, time), 0, "Metro time factor."},
+    {"mul", T_OBJECT_EX, offsetof(Metro, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(Metro, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
 };
 
-static PyMethodDef Metro_methods[] = {
-{"getServer", (PyCFunction)Metro_getServer, METH_NOARGS, "Returns server object."},
-{"_getStream", (PyCFunction)Metro_getStream, METH_NOARGS, "Returns stream object."},
-{"play", (PyCFunction)Metro_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)Metro_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
-{"setTime", (PyCFunction)Metro_setTime, METH_O, "Sets time factor."},
-{"setMul", (PyCFunction)Metro_setMul, METH_O, "Sets oscillator mul factor."},
-{"setAdd", (PyCFunction)Metro_setAdd, METH_O, "Sets oscillator add factor."},
-{"setSub", (PyCFunction)Metro_setSub, METH_O, "Sets inverse add factor."},
-{"setDiv", (PyCFunction)Metro_setDiv, METH_O, "Sets inverse mul factor."},
-{NULL}  /* Sentinel */
+static PyMethodDef Metro_methods[] =
+{
+    {"getServer", (PyCFunction)Metro_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)Metro_getStream, METH_NOARGS, "Returns stream object."},
+    {"play", (PyCFunction)Metro_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)Metro_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"setTime", (PyCFunction)Metro_setTime, METH_O, "Sets time factor."},
+    {"setMul", (PyCFunction)Metro_setMul, METH_O, "Sets oscillator mul factor."},
+    {"setAdd", (PyCFunction)Metro_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)Metro_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)Metro_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Metro_as_number = {
+static PyNumberMethods Metro_as_number =
+{
     (binaryfunc)Metro_add,                         /*nb_add*/
     (binaryfunc)Metro_sub,                         /*nb_subtract*/
     (binaryfunc)Metro_multiply,                    /*nb_multiply*/
@@ -337,51 +366,53 @@ static PyNumberMethods Metro_as_number = {
     0,                                              /* nb_index */
 };
 
-PyTypeObject MetroType = {
-PyVarObject_HEAD_INIT(NULL, 0)
-"_pyo.Metro_base",         /*tp_name*/
-sizeof(Metro),         /*tp_basicsize*/
-0,                         /*tp_itemsize*/
-(destructor)Metro_dealloc, /*tp_dealloc*/
-0,                         /*tp_print*/
-0,                         /*tp_getattr*/
-0,                         /*tp_setattr*/
-0,                         /*tp_as_async (tp_compare in Python 2)*/
-0,                         /*tp_repr*/
-&Metro_as_number,             /*tp_as_number*/
-0,                         /*tp_as_sequence*/
-0,                         /*tp_as_mapping*/
-0,                         /*tp_hash */
-0,                         /*tp_call*/
-0,                         /*tp_str*/
-0,                         /*tp_getattro*/
-0,                         /*tp_setattro*/
-0,                         /*tp_as_buffer*/
-Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
-"Metro objects. Create a metronome.",           /* tp_doc */
-(traverseproc)Metro_traverse,   /* tp_traverse */
-(inquiry)Metro_clear,           /* tp_clear */
-0,		               /* tp_richcompare */
-0,		               /* tp_weaklistoffset */
-0,		               /* tp_iter */
-0,		               /* tp_iternext */
-Metro_methods,             /* tp_methods */
-Metro_members,             /* tp_members */
-0,                      /* tp_getset */
-0,                         /* tp_base */
-0,                         /* tp_dict */
-0,                         /* tp_descr_get */
-0,                         /* tp_descr_set */
-0,                         /* tp_dictoffset */
-0,      /* tp_init */
-0,                         /* tp_alloc */
-Metro_new,                 /* tp_new */
+PyTypeObject MetroType =
+{
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "_pyo.Metro_base",         /*tp_name*/
+    sizeof(Metro),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)Metro_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
+    0,                         /*tp_repr*/
+    &Metro_as_number,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "Metro objects. Create a metronome.",           /* tp_doc */
+    (traverseproc)Metro_traverse,   /* tp_traverse */
+    (inquiry)Metro_clear,           /* tp_clear */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
+    Metro_methods,             /* tp_methods */
+    Metro_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,      /* tp_init */
+    0,                         /* tp_alloc */
+    Metro_new,                 /* tp_new */
 };
 
 /****************/
 /**** Seqer *****/
 /****************/
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     PyObject *time;
     Stream *time_stream;
@@ -410,45 +441,61 @@ Seqer_reset(Seqer *self)
 
     self->seqsize = PyList_Size(self->tmp);
     self->seq = (double *)realloc(self->seq, self->seqsize * sizeof(double));
-    for (i=0; i<self->seqsize; i++) {
+
+    for (i = 0; i < self->seqsize; i++)
+    {
         self->seq[i] = PyFloat_AsDouble(PyList_GET_ITEM(self->tmp, i));
     }
+
     self->newseq = 0;
 }
 
 static void
-Seqer_generate_ii(Seqer *self) {
+Seqer_generate_ii(Seqer *self)
+{
     double tm, sp;
     int i;
 
     tm = PyFloat_AS_DOUBLE(self->time);
     sp = PyFloat_AS_DOUBLE(self->speed);
 
-    for (i=0; i<(self->poly*self->bufsize); i++) {
+    for (i = 0; i < (self->poly * self->bufsize); i++)
+    {
         self->buffer_streams[i] = 0.0;
     }
 
-    if (self->to_stop) {
+    if (self->to_stop)
+    {
         PyObject_CallMethod((PyObject *)self, "stop", NULL);
         self->to_stop = 0;
         return;
     }
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->currentTime += (self->sampleToSec * sp);
-        if (self->currentTime >= self->when) {
+
+        if (self->currentTime >= self->when)
+        {
             self->currentTime -= self->when;
             self->when = self->seq[self->tap] * tm;
             self->buffer_streams[i + self->voiceCount * self->bufsize] = 1.0;
             self->voiceCount++;
+
             if (self->voiceCount >= self->poly)
                 self->voiceCount = 0;
+
             self->tap++;
-            if (self->tap >= self->seqsize) {
+
+            if (self->tap >= self->seqsize)
+            {
                 self->tap = 0;
+
                 if (self->newseq == 1)
                     Seqer_reset(self);
-                if (self->onlyonce) {
+
+                if (self->onlyonce)
+                {
                     self->to_stop = 1;
                     return;
                 }
@@ -458,38 +505,51 @@ Seqer_generate_ii(Seqer *self) {
 }
 
 static void
-Seqer_generate_ai(Seqer *self) {
+Seqer_generate_ai(Seqer *self)
+{
     int i;
     double sp;
 
     MYFLT *time = Stream_getData((Stream *)self->time_stream);
     sp = PyFloat_AS_DOUBLE(self->speed);
 
-    for (i=0; i<(self->poly*self->bufsize); i++) {
+    for (i = 0; i < (self->poly * self->bufsize); i++)
+    {
         self->buffer_streams[i] = 0.0;
     }
 
-    if (self->to_stop) {
+    if (self->to_stop)
+    {
         PyObject_CallMethod((PyObject *)self, "stop", NULL);
         self->to_stop = 0;
         return;
     }
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->currentTime += (self->sampleToSec * sp);
-        if (self->currentTime >= self->when) {
+
+        if (self->currentTime >= self->when)
+        {
             self->currentTime -= self->when;
             self->when = self->seq[self->tap] * (double)time[i];
             self->buffer_streams[i + self->voiceCount * self->bufsize] = 1.0;
             self->voiceCount++;
+
             if (self->voiceCount >= self->poly)
                 self->voiceCount = 0;
+
             self->tap++;
-            if (self->tap >= self->seqsize) {
+
+            if (self->tap >= self->seqsize)
+            {
                 self->tap = 0;
+
                 if (self->newseq == 1)
                     Seqer_reset(self);
-                if (self->onlyonce) {
+
+                if (self->onlyonce)
+                {
                     self->to_stop = 1;
                     return;
                 }
@@ -499,38 +559,51 @@ Seqer_generate_ai(Seqer *self) {
 }
 
 static void
-Seqer_generate_ia(Seqer *self) {
+Seqer_generate_ia(Seqer *self)
+{
     double tm;
     int i;
 
     tm = PyFloat_AS_DOUBLE(self->time);
     MYFLT *speed = Stream_getData((Stream *)self->speed_stream);
 
-    for (i=0; i<(self->poly*self->bufsize); i++) {
+    for (i = 0; i < (self->poly * self->bufsize); i++)
+    {
         self->buffer_streams[i] = 0.0;
     }
 
-    if (self->to_stop) {
+    if (self->to_stop)
+    {
         PyObject_CallMethod((PyObject *)self, "stop", NULL);
         self->to_stop = 0;
         return;
     }
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->currentTime += (self->sampleToSec * (double)speed[i]);
-        if (self->currentTime >= self->when) {
+
+        if (self->currentTime >= self->when)
+        {
             self->currentTime -= self->when;
             self->when = self->seq[self->tap] * tm;
             self->buffer_streams[i + self->voiceCount * self->bufsize] = 1.0;
             self->voiceCount++;
+
             if (self->voiceCount >= self->poly)
                 self->voiceCount = 0;
+
             self->tap++;
-            if (self->tap >= self->seqsize) {
+
+            if (self->tap >= self->seqsize)
+            {
                 self->tap = 0;
+
                 if (self->newseq == 1)
                     Seqer_reset(self);
-                if (self->onlyonce) {
+
+                if (self->onlyonce)
+                {
                     self->to_stop = 1;
                     return;
                 }
@@ -540,37 +613,50 @@ Seqer_generate_ia(Seqer *self) {
 }
 
 static void
-Seqer_generate_aa(Seqer *self) {
+Seqer_generate_aa(Seqer *self)
+{
     int i;
 
     MYFLT *time = Stream_getData((Stream *)self->time_stream);
     MYFLT *speed = Stream_getData((Stream *)self->speed_stream);
 
-    for (i=0; i<(self->poly*self->bufsize); i++) {
+    for (i = 0; i < (self->poly * self->bufsize); i++)
+    {
         self->buffer_streams[i] = 0.0;
     }
 
-    if (self->to_stop) {
+    if (self->to_stop)
+    {
         PyObject_CallMethod((PyObject *)self, "stop", NULL);
         self->to_stop = 0;
         return;
     }
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->currentTime += (self->sampleToSec * (double)speed[i]);
-        if (self->currentTime >= self->when) {
+
+        if (self->currentTime >= self->when)
+        {
             self->currentTime -= self->when;
             self->when = self->seq[self->tap] * (double)time[i];
             self->buffer_streams[i + self->voiceCount * self->bufsize] = 1.0;
             self->voiceCount++;
+
             if (self->voiceCount >= self->poly)
                 self->voiceCount = 0;
+
             self->tap++;
-            if (self->tap >= self->seqsize) {
+
+            if (self->tap >= self->seqsize)
+            {
                 self->tap = 0;
+
                 if (self->newseq == 1)
                     Seqer_reset(self);
-                if (self->onlyonce) {
+
+                if (self->onlyonce)
+                {
                     self->to_stop = 1;
                     return;
                 }
@@ -589,16 +675,21 @@ static void
 Seqer_setProcMode(Seqer *self)
 {
     int procmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    switch (procmode) {
+
+    switch (procmode)
+    {
         case 0:
             self->proc_func_ptr = Seqer_generate_ii;
             break;
+
         case 1:
             self->proc_func_ptr = Seqer_generate_ai;
             break;
+
         case 10:
             self->proc_func_ptr = Seqer_generate_ia;
             break;
+
         case 11:
             self->proc_func_ptr = Seqer_generate_aa;
             break;
@@ -649,7 +740,7 @@ static PyObject *
 Seqer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *timetmp=NULL, *speedtmp=NULL, *seqtmp=NULL;
+    PyObject *timetmp = NULL, *speedtmp = NULL, *seqtmp = NULL;
     Seqer *self;
     self = (Seqer *)type->tp_alloc(type, 0);
 
@@ -664,8 +755,8 @@ Seqer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->voiceCount = 0;
     self->onlyonce = 0;
     self->to_stop = 0;
-	self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Seqer_compute_next_data_frame);
@@ -681,17 +772,21 @@ Seqer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOiiO", kwlist, &timetmp, &seqtmp, &self->poly, &self->onlyonce, &speedtmp))
         Py_RETURN_NONE;
 
-    if (timetmp) {
+    if (timetmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setTime", "O", timetmp);
     }
 
-    if (speedtmp) {
+    if (speedtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setSpeed", "O", speedtmp);
     }
 
-    if (seqtmp) {
+    if (seqtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setSeq", "O", seqtmp);
     }
+
     Seqer_reset(self);
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -706,7 +801,8 @@ Seqer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static PyObject * Seqer_getServer(Seqer* self) { GET_SERVER };
 static PyObject * Seqer_getStream(Seqer* self) { GET_STREAM };
 
-static PyObject * Seqer_play(Seqer *self, PyObject *args, PyObject *kwds) { 
+static PyObject * Seqer_play(Seqer *self, PyObject *args, PyObject *kwds)
+{
     self->currentTime = 0.0;
     self->when = 0.0;
     self->tap = 0;
@@ -718,75 +814,82 @@ static PyObject * Seqer_stop(Seqer *self, PyObject *args, PyObject *kwds) { STOP
 static PyObject *
 Seqer_setTime(Seqer *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->time);
-	if (isNumber == 1) {
-		self->time = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->time);
+
+    if (isNumber == 1)
+    {
+        self->time = PyNumber_Float(tmp);
         self->modebuffer[0] = 0;
-	}
-	else {
-		self->time = tmp;
+    }
+    else
+    {
+        self->time = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->time, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->time_stream);
         self->time_stream = (Stream *)streamtmp;
-		self->modebuffer[0] = 1;
-	}
+        self->modebuffer[0] = 1;
+    }
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 Seqer_setSpeed(Seqer *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->speed);
-	if (isNumber == 1) {
-		self->speed = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->speed);
+
+    if (isNumber == 1)
+    {
+        self->speed = PyNumber_Float(tmp);
         self->modebuffer[1] = 0;
-	}
-	else {
-		self->speed = tmp;
+    }
+    else
+    {
+        self->speed = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->speed, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->speed_stream);
         self->speed_stream = (Stream *)streamtmp;
-		self->modebuffer[1] = 1;
-	}
+        self->modebuffer[1] = 1;
+    }
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 Seqer_setSeq(Seqer *self, PyObject *arg)
 {
-	PyObject *tmp;
+    PyObject *tmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isList = PyList_Check(arg);
+    int isList = PyList_Check(arg);
 
-	if (isList == 1) {
+    if (isList == 1)
+    {
         tmp = arg;
         Py_INCREF(tmp);
         Py_XDECREF(self->tmp);
@@ -794,8 +897,8 @@ Seqer_setSeq(Seqer *self, PyObject *arg)
         self->newseq = 1;
     }
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
@@ -803,17 +906,19 @@ Seqer_setOnlyonce(Seqer *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-	int isInt = PyInt_Check(arg);
+    int isInt = PyInt_Check(arg);
 
-	if (isInt == 1) {
+    if (isInt == 1)
+    {
         self->onlyonce = PyLong_AsLong(arg);
     }
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
-static PyMemberDef Seqer_members[] = {
+static PyMemberDef Seqer_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(Seqer, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(Seqer, stream), 0, "Stream object."},
     {"time", T_OBJECT_EX, offsetof(Seqer, time), 0, "Seqer time factor."},
@@ -821,11 +926,12 @@ static PyMemberDef Seqer_members[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef Seqer_methods[] = {
+static PyMethodDef Seqer_methods[] =
+{
     {"getServer", (PyCFunction)Seqer_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Seqer_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Seqer_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)Seqer_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
+    {"play", (PyCFunction)Seqer_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)Seqer_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setTime", (PyCFunction)Seqer_setTime, METH_O, "Sets time factor."},
     {"setSpeed", (PyCFunction)Seqer_setSpeed, METH_O, "Sets speed factor."},
     {"setSeq", (PyCFunction)Seqer_setSeq, METH_O, "Sets duration sequence."},
@@ -833,7 +939,8 @@ static PyMethodDef Seqer_methods[] = {
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject SeqerType = {
+PyTypeObject SeqerType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.Seqer_base",         /*tp_name*/
     sizeof(Seqer),         /*tp_basicsize*/
@@ -857,10 +964,10 @@ PyTypeObject SeqerType = {
     "Seqer objects. Creates a metronome with a duration sequence.",           /* tp_doc */
     (traverseproc)Seqer_traverse,   /* tp_traverse */
     (inquiry)Seqer_clear,           /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
     Seqer_methods,             /* tp_methods */
     Seqer_members,             /* tp_members */
     0,                      /* tp_getset */
@@ -877,7 +984,8 @@ PyTypeObject SeqerType = {
 /************************************************************************************************/
 /* Seq streamer object per channel */
 /************************************************************************************************/
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     Seqer *mainPlayer;
     int chnl;
@@ -895,35 +1003,45 @@ static void Seq_postprocessing_revaa(Seq *self) { POST_PROCESSING_REVAA };
 static void Seq_postprocessing_revareva(Seq *self) { POST_PROCESSING_REVAREVA };
 
 static void
-Seq_setProcMode(Seq *self) {
+Seq_setProcMode(Seq *self)
+{
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-	switch (muladdmode) {
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = Seq_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = Seq_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = Seq_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = Seq_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = Seq_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = Seq_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = Seq_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = Seq_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = Seq_postprocessing_revareva;
             break;
@@ -937,9 +1055,12 @@ Seq_compute_next_data_frame(Seq *self)
     MYFLT *tmp;
     int offset = self->chnl * self->bufsize;
     tmp = Seqer_getSamplesBuffer((Seqer *)self->mainPlayer);
-    for (i=0; i<self->bufsize; i++) {
+
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->data[i] = tmp[i + offset];
     }
+
     (*self->muladd_func_ptr)(self);
 }
 
@@ -971,7 +1092,7 @@ static PyObject *
 Seq_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *maintmp=NULL;
+    PyObject *maintmp = NULL;
     Seq *self;
     self = (Seq *)type->tp_alloc(type, 0);
 
@@ -1019,7 +1140,8 @@ static PyObject * Seq_inplace_sub(Seq *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Seq_div(Seq *self, PyObject *arg) { DIV };
 static PyObject * Seq_inplace_div(Seq *self, PyObject *arg) { INPLACE_DIV };
 
-static PyMemberDef Seq_members[] = {
+static PyMemberDef Seq_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(Seq, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(Seq, stream), 0, "Stream object."},
     {"mul", T_OBJECT_EX, offsetof(Seq, mul), 0, "Mul factor."},
@@ -1027,12 +1149,13 @@ static PyMemberDef Seq_members[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef Seq_methods[] = {
+static PyMethodDef Seq_methods[] =
+{
     {"getServer", (PyCFunction)Seq_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Seq_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Seq_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)Seq_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Seq_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
+    {"play", (PyCFunction)Seq_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)Seq_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)Seq_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setMul", (PyCFunction)Seq_setMul, METH_O, "Sets oscillator mul factor."},
     {"setAdd", (PyCFunction)Seq_setAdd, METH_O, "Sets oscillator add factor."},
     {"setSub", (PyCFunction)Seq_setSub, METH_O, "Sets inverse add factor."},
@@ -1040,7 +1163,8 @@ static PyMethodDef Seq_methods[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Seq_as_number = {
+static PyNumberMethods Seq_as_number =
+{
     (binaryfunc)Seq_add,                         /*nb_add*/
     (binaryfunc)Seq_sub,                         /*nb_subtract*/
     (binaryfunc)Seq_multiply,                    /*nb_multiply*/
@@ -1082,7 +1206,8 @@ static PyNumberMethods Seq_as_number = {
     0,                                              /* nb_index */
 };
 
-PyTypeObject SeqType = {
+PyTypeObject SeqType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.Seq_base",         /*tp_name*/
     sizeof(Seq),         /*tp_basicsize*/
@@ -1106,10 +1231,10 @@ PyTypeObject SeqType = {
     "Seq objects. Reads a channel from a Seqer.",           /* tp_doc */
     (traverseproc)Seq_traverse,   /* tp_traverse */
     (inquiry)Seq_clear,           /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
     Seq_methods,             /* tp_methods */
     Seq_members,             /* tp_members */
     0,                      /* tp_getset */
@@ -1126,7 +1251,8 @@ PyTypeObject SeqType = {
 /****************/
 /**** Clouder *****/
 /****************/
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     PyObject *density;
     Stream *density_stream;
@@ -1137,25 +1263,33 @@ typedef struct {
 } Clouder;
 
 static void
-Clouder_generate_i(Clouder *self) {
+Clouder_generate_i(Clouder *self)
+{
     int i;
     MYFLT rnd;
 
     MYFLT dens = PyFloat_AS_DOUBLE(self->density);
+
     if (dens <= 0.0)
         dens = 0.0;
     else if (dens > self->sr)
         dens = self->sr;
 
-    for (i=0; i<(self->poly*self->bufsize); i++) {
+    for (i = 0; i < (self->poly * self->bufsize); i++)
+    {
         self->buffer_streams[i] = 0.0;
     }
 
     dens *= 0.5;
-    for (i=0; i<self->bufsize; i++) {
+
+    for (i = 0; i < self->bufsize; i++)
+    {
         rnd = RANDOM_UNIFORM * self->sr;
-        if (rnd < dens) {
+
+        if (rnd < dens)
+        {
             self->buffer_streams[i + self->voiceCount++ * self->bufsize] = 1.0;
+
             if (self->voiceCount == self->poly)
                 self->voiceCount = 0;
         }
@@ -1163,19 +1297,23 @@ Clouder_generate_i(Clouder *self) {
 }
 
 static void
-Clouder_generate_a(Clouder *self) {
+Clouder_generate_a(Clouder *self)
+{
     MYFLT dens;
     int i;
     MYFLT rnd;
 
     MYFLT *density = Stream_getData((Stream *)self->density_stream);
 
-    for (i=0; i<(self->poly*self->bufsize); i++) {
+    for (i = 0; i < (self->poly * self->bufsize); i++)
+    {
         self->buffer_streams[i] = 0.0;
     }
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         dens = density[i];
+
         if (dens <= 0.0)
             dens = 0.0;
         else if (dens > self->sr)
@@ -1183,8 +1321,11 @@ Clouder_generate_a(Clouder *self) {
 
         dens *= 0.5;
         rnd = RANDOM_UNIFORM * self->sr;
-        if (rnd < dens) {
+
+        if (rnd < dens)
+        {
             self->buffer_streams[i + self->voiceCount++ * self->bufsize] = 1.0;
+
             if (self->voiceCount == self->poly)
                 self->voiceCount = 0;
         }
@@ -1201,10 +1342,13 @@ static void
 Clouder_setProcMode(Clouder *self)
 {
     int procmode = self->modebuffer[0];
-    switch (procmode) {
+
+    switch (procmode)
+    {
         case 0:
             self->proc_func_ptr = Clouder_generate_i;
             break;
+
         case 1:
             self->proc_func_ptr = Clouder_generate_a;
             break;
@@ -1248,14 +1392,14 @@ static PyObject *
 Clouder_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *densitytmp=NULL;
+    PyObject *densitytmp = NULL;
     Clouder *self;
     self = (Clouder *)type->tp_alloc(type, 0);
 
     self->density = PyFloat_FromDouble(10.0);
     self->poly = 1;
     self->voiceCount = 0;
-	self->modebuffer[0] = 0;
+    self->modebuffer[0] = 0;
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Clouder_compute_next_data_frame);
@@ -1268,7 +1412,8 @@ Clouder_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|Oi", kwlist, &densitytmp, &self->poly))
         Py_RETURN_NONE;
 
-    if (densitytmp) {
+    if (densitytmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setDensity", "O", densitytmp);
     }
 
@@ -1292,95 +1437,102 @@ static PyObject * Clouder_stop(Clouder *self, PyObject *args, PyObject *kwds) { 
 static PyObject *
 Clouder_setDensity(Clouder *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->density);
-	if (isNumber == 1) {
-		self->density = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->density);
+
+    if (isNumber == 1)
+    {
+        self->density = PyNumber_Float(tmp);
         self->modebuffer[0] = 0;
-	}
-	else {
-		self->density = tmp;
+    }
+    else
+    {
+        self->density = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->density, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->density_stream);
         self->density_stream = (Stream *)streamtmp;
-		self->modebuffer[0] = 1;
-	}
+        self->modebuffer[0] = 1;
+    }
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
-static PyMemberDef Clouder_members[] = {
-{"server", T_OBJECT_EX, offsetof(Clouder, server), 0, "Pyo server."},
-{"stream", T_OBJECT_EX, offsetof(Clouder, stream), 0, "Stream object."},
-{"density", T_OBJECT_EX, offsetof(Clouder, density), 0, "Clouder density factor."},
-{NULL}  /* Sentinel */
+static PyMemberDef Clouder_members[] =
+{
+    {"server", T_OBJECT_EX, offsetof(Clouder, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(Clouder, stream), 0, "Stream object."},
+    {"density", T_OBJECT_EX, offsetof(Clouder, density), 0, "Clouder density factor."},
+    {NULL}  /* Sentinel */
 };
 
-static PyMethodDef Clouder_methods[] = {
-{"getServer", (PyCFunction)Clouder_getServer, METH_NOARGS, "Returns server object."},
-{"_getStream", (PyCFunction)Clouder_getStream, METH_NOARGS, "Returns stream object."},
-{"play", (PyCFunction)Clouder_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)Clouder_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
-{"setDensity", (PyCFunction)Clouder_setDensity, METH_O, "Sets density factor."},
-{NULL}  /* Sentinel */
+static PyMethodDef Clouder_methods[] =
+{
+    {"getServer", (PyCFunction)Clouder_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)Clouder_getStream, METH_NOARGS, "Returns stream object."},
+    {"play", (PyCFunction)Clouder_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)Clouder_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"setDensity", (PyCFunction)Clouder_setDensity, METH_O, "Sets density factor."},
+    {NULL}  /* Sentinel */
 };
 
-PyTypeObject ClouderType = {
-PyVarObject_HEAD_INIT(NULL, 0)
-"_pyo.Clouder_base",         /*tp_name*/
-sizeof(Clouder),         /*tp_basicsize*/
-0,                         /*tp_itemsize*/
-(destructor)Clouder_dealloc, /*tp_dealloc*/
-0,                         /*tp_print*/
-0,                         /*tp_getattr*/
-0,                         /*tp_setattr*/
-0,                         /*tp_as_async (tp_compare in Python 2)*/
-0,                         /*tp_repr*/
-0,             /*tp_as_number*/
-0,                         /*tp_as_sequence*/
-0,                         /*tp_as_mapping*/
-0,                         /*tp_hash */
-0,                         /*tp_call*/
-0,                         /*tp_str*/
-0,                         /*tp_getattro*/
-0,                         /*tp_setattro*/
-0,                         /*tp_as_buffer*/
-Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
-"Clouder objects. Create a cloud of triggers.",           /* tp_doc */
-(traverseproc)Clouder_traverse,   /* tp_traverse */
-(inquiry)Clouder_clear,           /* tp_clear */
-0,		               /* tp_richcompare */
-0,		               /* tp_weaklistoffset */
-0,		               /* tp_iter */
-0,		               /* tp_iternext */
-Clouder_methods,             /* tp_methods */
-Clouder_members,             /* tp_members */
-0,                      /* tp_getset */
-0,                         /* tp_base */
-0,                         /* tp_dict */
-0,                         /* tp_descr_get */
-0,                         /* tp_descr_set */
-0,                         /* tp_dictoffset */
-0,      /* tp_init */
-0,                         /* tp_alloc */
-Clouder_new,                 /* tp_new */
+PyTypeObject ClouderType =
+{
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "_pyo.Clouder_base",         /*tp_name*/
+    sizeof(Clouder),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)Clouder_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
+    0,                         /*tp_repr*/
+    0,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "Clouder objects. Create a cloud of triggers.",           /* tp_doc */
+    (traverseproc)Clouder_traverse,   /* tp_traverse */
+    (inquiry)Clouder_clear,           /* tp_clear */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
+    Clouder_methods,             /* tp_methods */
+    Clouder_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,      /* tp_init */
+    0,                         /* tp_alloc */
+    Clouder_new,                 /* tp_new */
 };
 
 /************************************************************************************************/
 /* Cloud streamer object per channel */
 /************************************************************************************************/
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     Clouder *mainPlayer;
     int chnl;
@@ -1398,35 +1550,45 @@ static void Cloud_postprocessing_revaa(Cloud *self) { POST_PROCESSING_REVAA };
 static void Cloud_postprocessing_revareva(Cloud *self) { POST_PROCESSING_REVAREVA };
 
 static void
-Cloud_setProcMode(Cloud *self) {
+Cloud_setProcMode(Cloud *self)
+{
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-	switch (muladdmode) {
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = Cloud_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = Cloud_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = Cloud_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = Cloud_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = Cloud_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = Cloud_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = Cloud_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = Cloud_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = Cloud_postprocessing_revareva;
             break;
@@ -1440,9 +1602,12 @@ Cloud_compute_next_data_frame(Cloud *self)
     MYFLT *tmp;
     int offset = self->chnl * self->bufsize;
     tmp = Clouder_getSamplesBuffer((Clouder *)self->mainPlayer);
-    for (i=0; i<self->bufsize; i++) {
+
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->data[i] = tmp[i + offset];
     }
+
     (*self->muladd_func_ptr)(self);
 }
 
@@ -1474,7 +1639,7 @@ static PyObject *
 Cloud_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *maintmp=NULL;
+    PyObject *maintmp = NULL;
     Cloud *self;
     self = (Cloud *)type->tp_alloc(type, 0);
 
@@ -1522,28 +1687,31 @@ static PyObject * Cloud_inplace_sub(Cloud *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Cloud_div(Cloud *self, PyObject *arg) { DIV };
 static PyObject * Cloud_inplace_div(Cloud *self, PyObject *arg) { INPLACE_DIV };
 
-static PyMemberDef Cloud_members[] = {
-{"server", T_OBJECT_EX, offsetof(Cloud, server), 0, "Pyo server."},
-{"stream", T_OBJECT_EX, offsetof(Cloud, stream), 0, "Stream object."},
-{"mul", T_OBJECT_EX, offsetof(Cloud, mul), 0, "Mul factor."},
-{"add", T_OBJECT_EX, offsetof(Cloud, add), 0, "Add factor."},
-{NULL}  /* Sentinel */
+static PyMemberDef Cloud_members[] =
+{
+    {"server", T_OBJECT_EX, offsetof(Cloud, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(Cloud, stream), 0, "Stream object."},
+    {"mul", T_OBJECT_EX, offsetof(Cloud, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(Cloud, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
 };
 
-static PyMethodDef Cloud_methods[] = {
-{"getServer", (PyCFunction)Cloud_getServer, METH_NOARGS, "Returns server object."},
-{"_getStream", (PyCFunction)Cloud_getStream, METH_NOARGS, "Returns stream object."},
-{"play", (PyCFunction)Cloud_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"out", (PyCFunction)Cloud_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-{"stop", (PyCFunction)Cloud_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
-{"setMul", (PyCFunction)Cloud_setMul, METH_O, "Sets oscillator mul factor."},
-{"setAdd", (PyCFunction)Cloud_setAdd, METH_O, "Sets oscillator add factor."},
-{"setSub", (PyCFunction)Cloud_setSub, METH_O, "Sets inverse add factor."},
-{"setDiv", (PyCFunction)Cloud_setDiv, METH_O, "Sets inverse mul factor."},
-{NULL}  /* Sentinel */
+static PyMethodDef Cloud_methods[] =
+{
+    {"getServer", (PyCFunction)Cloud_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)Cloud_getStream, METH_NOARGS, "Returns stream object."},
+    {"play", (PyCFunction)Cloud_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)Cloud_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)Cloud_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"setMul", (PyCFunction)Cloud_setMul, METH_O, "Sets oscillator mul factor."},
+    {"setAdd", (PyCFunction)Cloud_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)Cloud_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)Cloud_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Cloud_as_number = {
+static PyNumberMethods Cloud_as_number =
+{
     (binaryfunc)Cloud_add,                         /*nb_add*/
     (binaryfunc)Cloud_sub,                         /*nb_subtract*/
     (binaryfunc)Cloud_multiply,                    /*nb_multiply*/
@@ -1585,51 +1753,53 @@ static PyNumberMethods Cloud_as_number = {
     0,                                              /* nb_index */
 };
 
-PyTypeObject CloudType = {
-PyVarObject_HEAD_INIT(NULL, 0)
-"_pyo.Cloud_base",         /*tp_name*/
-sizeof(Cloud),         /*tp_basicsize*/
-0,                         /*tp_itemsize*/
-(destructor)Cloud_dealloc, /*tp_dealloc*/
-0,                         /*tp_print*/
-0,                         /*tp_getattr*/
-0,                         /*tp_setattr*/
-0,                         /*tp_as_async (tp_compare in Python 2)*/
-0,                         /*tp_repr*/
-&Cloud_as_number,             /*tp_as_number*/
-0,                         /*tp_as_sequence*/
-0,                         /*tp_as_mapping*/
-0,                         /*tp_hash */
-0,                         /*tp_call*/
-0,                         /*tp_str*/
-0,                         /*tp_getattro*/
-0,                         /*tp_setattro*/
-0,                         /*tp_as_buffer*/
-Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
-"Cloud objects. Reads a channel from a Clouder.",           /* tp_doc */
-(traverseproc)Cloud_traverse,   /* tp_traverse */
-(inquiry)Cloud_clear,           /* tp_clear */
-0,		               /* tp_richcompare */
-0,		               /* tp_weaklistoffset */
-0,		               /* tp_iter */
-0,		               /* tp_iternext */
-Cloud_methods,             /* tp_methods */
-Cloud_members,             /* tp_members */
-0,                      /* tp_getset */
-0,                         /* tp_base */
-0,                         /* tp_dict */
-0,                         /* tp_descr_get */
-0,                         /* tp_descr_set */
-0,                         /* tp_dictoffset */
-0,      /* tp_init */
-0,                         /* tp_alloc */
-Cloud_new,                 /* tp_new */
+PyTypeObject CloudType =
+{
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "_pyo.Cloud_base",         /*tp_name*/
+    sizeof(Cloud),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)Cloud_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
+    0,                         /*tp_repr*/
+    &Cloud_as_number,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    "Cloud objects. Reads a channel from a Clouder.",           /* tp_doc */
+    (traverseproc)Cloud_traverse,   /* tp_traverse */
+    (inquiry)Cloud_clear,           /* tp_clear */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
+    Cloud_methods,             /* tp_methods */
+    Cloud_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,      /* tp_init */
+    0,                         /* tp_alloc */
+    Cloud_new,                 /* tp_new */
 };
 
 /****************/
 /**** Trig *****/
 /****************/
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     int flag;
     int modebuffer[2];
@@ -1651,31 +1821,40 @@ Trig_setProcMode(Trig *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-	switch (muladdmode) {
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = Trig_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = Trig_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = Trig_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = Trig_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = Trig_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = Trig_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = Trig_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = Trig_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = Trig_postprocessing_revareva;
             break;
@@ -1685,12 +1864,14 @@ Trig_setProcMode(Trig *self)
 static void
 Trig_compute_next_data_frame(Trig *self)
 {
-    if (self->flag == 1) {
+    if (self->flag == 1)
+    {
         self->data[0] = 1.0;
         self->flag = 0;
     }
     else
         self->data[0] = 0.0;
+
     (*self->muladd_func_ptr)(self);
 }
 
@@ -1767,27 +1948,30 @@ static PyObject * Trig_inplace_sub(Trig *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Trig_div(Trig *self, PyObject *arg) { DIV };
 static PyObject * Trig_inplace_div(Trig *self, PyObject *arg) { INPLACE_DIV };
 
-static PyMemberDef Trig_members[] = {
-{"server", T_OBJECT_EX, offsetof(Trig, server), 0, "Pyo server."},
-{"stream", T_OBJECT_EX, offsetof(Trig, stream), 0, "Stream object."},
-{"mul", T_OBJECT_EX, offsetof(Trig, mul), 0, "Mul factor."},
-{"add", T_OBJECT_EX, offsetof(Trig, add), 0, "Add factor."},
-{NULL}  /* Sentinel */
+static PyMemberDef Trig_members[] =
+{
+    {"server", T_OBJECT_EX, offsetof(Trig, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(Trig, stream), 0, "Stream object."},
+    {"mul", T_OBJECT_EX, offsetof(Trig, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(Trig, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
 };
 
-static PyMethodDef Trig_methods[] = {
-{"getServer", (PyCFunction)Trig_getServer, METH_NOARGS, "Returns server object."},
-{"_getStream", (PyCFunction)Trig_getStream, METH_NOARGS, "Returns stream object."},
-{"play", (PyCFunction)Trig_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)Trig_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
-{"setMul", (PyCFunction)Trig_setMul, METH_O, "Sets oscillator mul factor."},
-{"setAdd", (PyCFunction)Trig_setAdd, METH_O, "Sets oscillator add factor."},
-{"setSub", (PyCFunction)Trig_setSub, METH_O, "Sets inverse add factor."},
-{"setDiv", (PyCFunction)Trig_setDiv, METH_O, "Sets inverse mul factor."},
-{NULL}  /* Sentinel */
+static PyMethodDef Trig_methods[] =
+{
+    {"getServer", (PyCFunction)Trig_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)Trig_getStream, METH_NOARGS, "Returns stream object."},
+    {"play", (PyCFunction)Trig_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)Trig_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"setMul", (PyCFunction)Trig_setMul, METH_O, "Sets oscillator mul factor."},
+    {"setAdd", (PyCFunction)Trig_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)Trig_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)Trig_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Trig_as_number = {
+static PyNumberMethods Trig_as_number =
+{
     (binaryfunc)Trig_add,                         /*nb_add*/
     (binaryfunc)Trig_sub,                         /*nb_subtract*/
     (binaryfunc)Trig_multiply,                    /*nb_multiply*/
@@ -1829,51 +2013,53 @@ static PyNumberMethods Trig_as_number = {
     0,                                              /* nb_index */
 };
 
-PyTypeObject TrigType = {
-PyVarObject_HEAD_INIT(NULL, 0)
-"_pyo.Trig_base",         /*tp_name*/
-sizeof(Trig),         /*tp_basicsize*/
-0,                         /*tp_itemsize*/
-(destructor)Trig_dealloc, /*tp_dealloc*/
-0,                         /*tp_print*/
-0,                         /*tp_getattr*/
-0,                         /*tp_setattr*/
-0,                         /*tp_as_async (tp_compare in Python 2)*/
-0,                         /*tp_repr*/
-&Trig_as_number,             /*tp_as_number*/
-0,                         /*tp_as_sequence*/
-0,                         /*tp_as_mapping*/
-0,                         /*tp_hash */
-0,                         /*tp_call*/
-0,                         /*tp_str*/
-0,                         /*tp_getattro*/
-0,                         /*tp_setattro*/
-0,                         /*tp_as_buffer*/
-Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
-"Trig objects. Sends one trig.",           /* tp_doc */
-(traverseproc)Trig_traverse,   /* tp_traverse */
-(inquiry)Trig_clear,           /* tp_clear */
-0,		               /* tp_richcompare */
-0,		               /* tp_weaklistoffset */
-0,		               /* tp_iter */
-0,		               /* tp_iternext */
-Trig_methods,             /* tp_methods */
-Trig_members,             /* tp_members */
-0,                      /* tp_getset */
-0,                         /* tp_base */
-0,                         /* tp_dict */
-0,                         /* tp_descr_get */
-0,                         /* tp_descr_set */
-0,                         /* tp_dictoffset */
-0,      /* tp_init */
-0,                         /* tp_alloc */
-Trig_new,                 /* tp_new */
+PyTypeObject TrigType =
+{
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "_pyo.Trig_base",         /*tp_name*/
+    sizeof(Trig),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)Trig_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
+    0,                         /*tp_repr*/
+    &Trig_as_number,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "Trig objects. Sends one trig.",           /* tp_doc */
+    (traverseproc)Trig_traverse,   /* tp_traverse */
+    (inquiry)Trig_clear,           /* tp_clear */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
+    Trig_methods,             /* tp_methods */
+    Trig_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,      /* tp_init */
+    0,                         /* tp_alloc */
+    Trig_new,                 /* tp_new */
 };
 
 /****************/
 /**** Beater *****/
 /****************/
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     PyObject *time;
     Stream *time_stream;
@@ -1897,13 +2083,13 @@ typedef struct {
     int tmp_sequence[64];
     int tapList[64];
     int tapLength;
-	int tapProb[64];
+    int tapProb[64];
     int preset[32][65];
     int preCall;
-	MYFLT durations[64];
-	MYFLT tmp_durations[64];
-	MYFLT accentTable[64];
-	MYFLT tmp_accentTable[64];
+    MYFLT durations[64];
+    MYFLT tmp_durations[64];
+    MYFLT accentTable[64];
+    MYFLT tmp_accentTable[64];
     MYFLT tapDur;
     double sampleToSec;
     double currentTime;
@@ -1918,22 +2104,26 @@ typedef struct {
 } Beater;
 
 static MYFLT
-Beater_defineAccent(int n) {
-	if (n == 1)
-		return (MYFLT)((pyorand() % 15) + 112) / 127.; // 112 -> 127
-	else if (n == 2)
-		return (MYFLT)((pyorand() % 20) + 70) / 127.; // 70 -> 90
-	else if (n == 3)
-		return (MYFLT)((pyorand() % 20) + 40) / 127.; // 40 -> 60
+Beater_defineAccent(int n)
+{
+    if (n == 1)
+        return (MYFLT)((pyorand() % 15) + 112) / 127.; // 112 -> 127
+    else if (n == 2)
+        return (MYFLT)((pyorand() % 20) + 70) / 127.; // 70 -> 90
+    else if (n == 3)
+        return (MYFLT)((pyorand() % 20) + 40) / 127.; // 40 -> 60
     else
         return 0.5;
 }
 
 static void
-Beater_restore(Beater *self) {
+Beater_restore(Beater *self)
+{
     int i;
     self->fillEnd = 0;
-    for (i=0; i<self->taps; i++) {
+
+    for (i = 0; i < self->taps; i++)
+    {
         self->accentTable[i] = self->tmp_accentTable[i];
         self->sequence[i] = self->tmp_sequence[i];
         self->durations[i] = self->tmp_durations[i];
@@ -1941,151 +2131,198 @@ Beater_restore(Beater *self) {
 }
 
 static void
-Beater_makeTable(Beater *self, int fill) {
-	short i;
-	short len;
+Beater_makeTable(Beater *self, int fill)
+{
+    short i;
+    short len;
     int w1, w2, w3;
-    if (fill == 0) {
+
+    if (fill == 0)
+    {
         self->last_taps = self->taps;
         w1 = self->last_weight1 = self->weight1;
         w2 = self->last_weight2 = self->weight2;
         w3 = self->last_weight3 = self->weight3;
         self->newFlag = 0;
     }
-    else {
+    else
+    {
         w1 = self->weight1 + 20;
         w2 = self->weight2 + 20;
         w3 = self->weight3 + 20;
         self->fillStart = 0;
         self->fillEnd = 1;
-        for (i=0; i<self->taps; i++) {
+
+        for (i = 0; i < self->taps; i++)
+        {
             self->tmp_accentTable[i] = self->accentTable[i];
             self->tmp_sequence[i] = self->sequence[i];
             self->tmp_durations[i] = self->durations[i];
         }
     }
 
-	if ((self->taps % 7) == 0) {
-		len = 7;
-		for (i=0; i < self->taps; i++) {
-            if ((i % len) == 4  || (i % len) == 2) {
+    if ((self->taps % 7) == 0)
+    {
+        len = 7;
+
+        for (i = 0; i < self->taps; i++)
+        {
+            if ((i % len) == 4  || (i % len) == 2)
+            {
                 self->tapProb[i] = w2;
                 self->accentTable[i] = Beater_defineAccent(2);
             }
-            else if ((i % len) == 0) {
+            else if ((i % len) == 0)
+            {
                 self->tapProb[i] = w1;
                 self->accentTable[i] = Beater_defineAccent(1);
             }
-            else {
+            else
+            {
                 self->tapProb[i] = w3;
                 self->accentTable[i] = Beater_defineAccent(3);
             }
-		}
-	}
-	else if ((self->taps % 6) == 0) {
-		len = 6;
-		for (i=0; i < self->taps; i++) {
-            if ((i % len) == 3) {
+        }
+    }
+    else if ((self->taps % 6) == 0)
+    {
+        len = 6;
+
+        for (i = 0; i < self->taps; i++)
+        {
+            if ((i % len) == 3)
+            {
                 self->tapProb[i] = w2;
                 self->accentTable[i] = Beater_defineAccent(2);
             }
-            else if ((i % len) == 0) {
+            else if ((i % len) == 0)
+            {
                 self->tapProb[i] = w1;
                 self->accentTable[i] = Beater_defineAccent(1);
             }
-            else {
+            else
+            {
                 self->tapProb[i] = w3;
                 self->accentTable[i] = Beater_defineAccent(3);
             }
-		}
-	}
-	else if ((self->taps % 5) == 0) {
-		len = 5;
-		for (i=0; i < self->taps; i++) {
-            if ((i % len) == 3) {
+        }
+    }
+    else if ((self->taps % 5) == 0)
+    {
+        len = 5;
+
+        for (i = 0; i < self->taps; i++)
+        {
+            if ((i % len) == 3)
+            {
                 self->tapProb[i] = w2;
                 self->accentTable[i] = Beater_defineAccent(2);
             }
-            else if ((i % len) == 0) {
+            else if ((i % len) == 0)
+            {
                 self->tapProb[i] = w1;
                 self->accentTable[i] = Beater_defineAccent(1);
             }
-            else {
+            else
+            {
                 self->tapProb[i] = w3;
                 self->accentTable[i] = Beater_defineAccent(3);
             }
-		}
-	}
-	else if ((self->taps % 4) == 0) {
-		len = 4;
-		for (i=0; i < self->taps; i++) {
-            if ((i % len) == 2) {
+        }
+    }
+    else if ((self->taps % 4) == 0)
+    {
+        len = 4;
+
+        for (i = 0; i < self->taps; i++)
+        {
+            if ((i % len) == 2)
+            {
                 self->tapProb[i] = w2;
                 self->accentTable[i] = Beater_defineAccent(2);
             }
-            else if ((i % len) == 0) {
+            else if ((i % len) == 0)
+            {
                 self->tapProb[i] = w1;
                 self->accentTable[i] = Beater_defineAccent(1);
             }
-            else {
+            else
+            {
                 self->tapProb[i] = w3;
                 self->accentTable[i] = Beater_defineAccent(3);
             }
-		}
-	}
-	else if ((self->taps % 3) == 0) {
-		len = 3;
-		for (i=0; i < self->taps; i++) {
-            if ((i % len) == 0) {
+        }
+    }
+    else if ((self->taps % 3) == 0)
+    {
+        len = 3;
+
+        for (i = 0; i < self->taps; i++)
+        {
+            if ((i % len) == 0)
+            {
                 self->tapProb[i] = w1;
                 self->accentTable[i] = Beater_defineAccent(1);
             }
-            else {
+            else
+            {
                 self->tapProb[i] = w3;
                 self->accentTable[i] = Beater_defineAccent(3);
             }
-		}
-	}
-	else if ((self->taps % 2) == 0) {
-		len = 2;
-		for (i=0; i < self->taps; i++) {
-            if ((i % len) == 0) {
+        }
+    }
+    else if ((self->taps % 2) == 0)
+    {
+        len = 2;
+
+        for (i = 0; i < self->taps; i++)
+        {
+            if ((i % len) == 0)
+            {
                 self->tapProb[i] = w1;
                 self->accentTable[i] = Beater_defineAccent(1);
             }
-            else {
+            else
+            {
                 self->tapProb[i] = w3;
                 self->accentTable[i] = Beater_defineAccent(3);
             }
-		}
-	}
+        }
+    }
 }
 
 static void
-Beater_makeSequence(Beater *self) {
-	short i, j;
+Beater_makeSequence(Beater *self)
+{
+    short i, j;
 
-	j = 0;
-	for (i=0; i < self->taps; i++) {
-		if ((int)(pyorand() % 100) < self->tapProb[i]) {
-			self->sequence[i] = 1;
-			self->tapList[j++] = i;
-		}
-		else
-			self->sequence[i] = 0;
-	}
+    j = 0;
+
+    for (i = 0; i < self->taps; i++)
+    {
+        if ((int)(pyorand() % 100) < self->tapProb[i])
+        {
+            self->sequence[i] = 1;
+            self->tapList[j++] = i;
+        }
+        else
+            self->sequence[i] = 0;
+    }
 
     self->tapLength = j;
 }
 
 static void
-Beater_calculateDurations(Beater *self) {
+Beater_calculateDurations(Beater *self)
+{
     int i;
 
-    for (i=0; i < (self->tapLength-1); i++) {
-		self->durations[self->tapList[i]] = (self->tapList[i+1] - self->tapList[i]) * self->tapDur - 0.005;
-	}
-	self->durations[self->tapList[self->tapLength-1]] = (self->last_taps - self->tapList[self->tapLength-1] + self->tapList[0]) * self->tapDur - 0.005;
+    for (i = 0; i < (self->tapLength - 1); i++)
+    {
+        self->durations[self->tapList[i]] = (self->tapList[i + 1] - self->tapList[i]) * self->tapDur - 0.005;
+    }
+
+    self->durations[self->tapList[self->tapLength - 1]] = (self->last_taps - self->tapList[self->tapLength - 1] + self->tapList[0]) * self->tapDur - 0.005;
 }
 
 static void
@@ -2095,14 +2332,19 @@ Beater_makePresetActive(Beater *self, int n)
 
     self->preCall = -1;
     len = self->preset[n][0];
-    if (len != self->taps) {
+
+    if (len != self->taps)
+    {
         self->taps = len;
         Beater_makeTable(self, 0);
     }
 
     j = 0;
-    for (i=0; i<self->taps; i++) {
-        self->sequence[i] = self->preset[n][i+1];
+
+    for (i = 0; i < self->taps; i++)
+    {
+        self->sequence[i] = self->preset[n][i + 1];
+
         if (self->sequence[i] == 1)
             self->tapList[j++] = i;
     }
@@ -2111,7 +2353,8 @@ Beater_makePresetActive(Beater *self, int n)
 }
 
 static void
-Beater_generate_i(Beater *self) {
+Beater_generate_i(Beater *self)
+{
     int i, j;
     double tm;
 
@@ -2120,78 +2363,106 @@ Beater_generate_i(Beater *self) {
     self->tapDur = (MYFLT)tm;
     Beater_calculateDurations(self);
 
-    if (self->currentTime == -1.0) {
+    if (self->currentTime == -1.0)
+    {
         self->currentTime = tm;
     }
 
-    for (i=0; i<(self->poly*self->bufsize); i++) {
+    for (i = 0; i < (self->poly * self->bufsize); i++)
+    {
         self->buffer_streams[i] = self->end_buffer_streams[i] = 0.0;
     }
 
-    if (self->to_stop) {
+    if (self->to_stop)
+    {
         PyObject_CallMethod((PyObject *)self, "stop", NULL);
         self->to_stop = 0;
         return;
     }
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->tap_buffer_streams[i + self->voiceCount * self->bufsize] = (MYFLT)self->currentTap;
-        for (j=0; j<self->poly; j++) {
+
+        for (j = 0; j < self->poly; j++)
+        {
             self->amp_buffer_streams[i + j * self->bufsize] = self->amplitudes[j];
         }
+
         self->dur_buffer_streams[i + self->voiceCount * self->bufsize] = self->durations[self->tapCount];
-        if (self->currentTime >= tm) {
+
+        if (self->currentTime >= tm)
+        {
             self->currentTime -= tm;
-            if (self->tapCount == (self->last_taps-2)) {
+
+            if (self->tapCount == (self->last_taps - 2))
+            {
                 self->end_buffer_streams[i + self->voiceCount * self->bufsize] = 1.0;
             }
-            if (self->sequence[self->tapCount] == 1) {
+
+            if (self->sequence[self->tapCount] == 1)
+            {
                 self->currentTap = self->tapCount;
                 self->amplitudes[self->voiceCount] = self->accentTable[self->tapCount];
                 self->buffer_streams[i + self->voiceCount++ * self->bufsize] = 1.0;
+
                 if (self->voiceCount == self->poly)
                     self->voiceCount = 0;
             }
+
             self->tapCount++;
-            if (self->tapCount >= self->last_taps) {
+
+            if (self->tapCount >= self->last_taps)
+            {
                 self->tapCount = 0;
-                if (self->fillStart == 1) {
+
+                if (self->fillStart == 1)
+                {
                     Beater_makeTable(self, 1);
                     Beater_makeSequence(self);
                 }
-                else if (self->fillEnd == 1 && self->newFlag == 1) {
+                else if (self->fillEnd == 1 && self->newFlag == 1)
+                {
                     Beater_restore(self);
                     Beater_makeTable(self, 0);
                     Beater_makeSequence(self);
                 }
-                else if (self->fillEnd == 1 && self->preCall != -1) {
+                else if (self->fillEnd == 1 && self->preCall != -1)
+                {
                     Beater_restore(self);
                     Beater_makePresetActive(self, self->preCall);
                 }
-                else if (self->fillEnd == 1) {
+                else if (self->fillEnd == 1)
+                {
                     Beater_restore(self);
                 }
-                else if (self->preCall != -1) {
+                else if (self->preCall != -1)
+                {
                     Beater_makePresetActive(self, self->preCall);
                 }
                 else if (self->last_taps != self->taps || self->last_weight1 != self->weight1 ||
-                    self->last_weight2 != self->weight2 || self->last_weight3 != self->weight3 ||
-                    self->newFlag == 1) {
+                         self->last_weight2 != self->weight2 || self->last_weight3 != self->weight3 ||
+                         self->newFlag == 1)
+                {
                     Beater_makeTable(self, 0);
                     Beater_makeSequence(self);
                 }
-                if (self->onlyonce) {
+
+                if (self->onlyonce)
+                {
                     self->to_stop = 1;
                     return;
                 }
             }
         }
+
         self->currentTime += self->sampleToSec;
     }
 }
 
 static void
-Beater_generate_a(Beater *self) {
+Beater_generate_a(Beater *self)
+{
     double tm;
     int i, j;
 
@@ -2200,73 +2471,99 @@ Beater_generate_a(Beater *self) {
     self->tapDur = time[0];
     Beater_calculateDurations(self);
 
-    if (self->currentTime == -1.0) {
+    if (self->currentTime == -1.0)
+    {
         self->currentTime = (double)time[0];
     }
 
-    for (i=0; i<(self->poly*self->bufsize); i++) {
+    for (i = 0; i < (self->poly * self->bufsize); i++)
+    {
         self->buffer_streams[i] = self->end_buffer_streams[i] = 0.0;
     }
 
-    if (self->to_stop) {
+    if (self->to_stop)
+    {
         PyObject_CallMethod((PyObject *)self, "stop", NULL);
         self->to_stop = 0;
         return;
     }
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         tm = (double)time[i];
         self->tap_buffer_streams[i + self->voiceCount * self->bufsize] = (MYFLT)self->currentTap;
-        for (j=0; j<self->poly; j++) {
+
+        for (j = 0; j < self->poly; j++)
+        {
             self->amp_buffer_streams[i + j * self->bufsize] = self->amplitudes[j];
         }
+
         self->dur_buffer_streams[i + self->voiceCount * self->bufsize] = self->durations[self->tapCount];
-        if (self->currentTime >= tm) {
+
+        if (self->currentTime >= tm)
+        {
             self->currentTime -= tm;
-            if (self->tapCount == (self->last_taps-2))
+
+            if (self->tapCount == (self->last_taps - 2))
                 self->end_buffer_streams[i + self->voiceCount * self->bufsize] = 1.0;
-            if (self->sequence[self->tapCount] == 1) {
+
+            if (self->sequence[self->tapCount] == 1)
+            {
                 self->currentTap = self->tapCount;
                 self->amplitudes[self->voiceCount] = self->accentTable[self->tapCount];
                 self->buffer_streams[i + self->voiceCount++ * self->bufsize] = 1.0;
+
                 if (self->voiceCount == self->poly)
                     self->voiceCount = 0;
             }
+
             self->tapCount++;
-            if (self->tapCount >= self->last_taps) {
+
+            if (self->tapCount >= self->last_taps)
+            {
                 self->tapCount = 0;
-                if (self->fillStart == 1) {
+
+                if (self->fillStart == 1)
+                {
                     Beater_makeTable(self, 1);
                     Beater_makeSequence(self);
                 }
-                else if (self->fillEnd == 1 && self->newFlag == 1) {
+                else if (self->fillEnd == 1 && self->newFlag == 1)
+                {
                     Beater_restore(self);
                     Beater_makeTable(self, 0);
                     Beater_makeSequence(self);
                 }
-                else if (self->fillEnd == 1 && self->preCall != -1) {
+                else if (self->fillEnd == 1 && self->preCall != -1)
+                {
                     Beater_restore(self);
                     Beater_makePresetActive(self, self->preCall);
                 }
-                else if (self->fillEnd == 1) {
+                else if (self->fillEnd == 1)
+                {
                     Beater_restore(self);
                 }
-                else if (self->preCall != -1) {
+                else if (self->preCall != -1)
+                {
                     Beater_makePresetActive(self, self->preCall);
                 }
                 else if (self->last_taps != self->taps || self->last_weight1 != self->weight1 ||
-                    self->last_weight2 != self->weight2 || self->last_weight3 != self->weight3 ||
-                    self->newFlag == 1) {
+                         self->last_weight2 != self->weight2 || self->last_weight3 != self->weight3 ||
+                         self->newFlag == 1)
+                {
                     self->tapDur = time[i];
                     Beater_makeTable(self, 0);
                     Beater_makeSequence(self);
                 }
-                if (self->onlyonce) {
+
+                if (self->onlyonce)
+                {
                     self->to_stop = 1;
                     return;
                 }
             }
         }
+
         self->currentTime += self->sampleToSec;
     }
 }
@@ -2305,10 +2602,13 @@ static void
 Beater_setProcMode(Beater *self)
 {
     int procmode = self->modebuffer[0];
-    switch (procmode) {
+
+    switch (procmode)
+    {
         case 0:
             self->proc_func_ptr = Beater_generate_i;
             break;
+
         case 1:
             self->proc_func_ptr = Beater_generate_a;
             break;
@@ -2357,12 +2657,14 @@ static PyObject *
 Beater_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i, j;
-    PyObject *timetmp=NULL;
+    PyObject *timetmp = NULL;
     Beater *self;
     self = (Beater *)type->tp_alloc(type, 0);
 
-    for (i=0; i<32; i++) {
-        for (j=0; j<64; j++) {
+    for (i = 0; i < 32; i++)
+    {
+        for (j = 0; j < 64; j++)
+        {
             self->preset[i][j] = 0;
         }
     }
@@ -2374,7 +2676,7 @@ Beater_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->onlyonce = 0;
     self->to_stop = 0;
     self->voiceCount = 0;
-	self->modebuffer[0] = 0;
+    self->modebuffer[0] = 0;
 
     self->taps = 16;
     self->tapCount = 0;
@@ -2400,7 +2702,8 @@ Beater_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|Oiiiiii", kwlist, &timetmp, &self->taps, &self->weight1, &self->weight2, &self->weight3, &self->poly, &self->onlyonce))
         Py_RETURN_NONE;
 
-    if (timetmp) {
+    if (timetmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setTime", "O", timetmp);
     }
 
@@ -2415,11 +2718,16 @@ Beater_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->amp_buffer_streams = (MYFLT *)realloc(self->amp_buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
     self->dur_buffer_streams = (MYFLT *)realloc(self->dur_buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
     self->end_buffer_streams = (MYFLT *)realloc(self->end_buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
-    for (i=0; i<(self->poly*self->bufsize); i++) {
+
+    for (i = 0; i < (self->poly * self->bufsize); i++)
+    {
         self->buffer_streams[i] = self->tap_buffer_streams[i] = self->amp_buffer_streams[i] = self->dur_buffer_streams[i] = self->end_buffer_streams[i] = 0.0;
     }
+
     self->amplitudes = (MYFLT *)realloc(self->amplitudes, self->poly * sizeof(MYFLT));
-    for (i=0; i<self->poly; i++) {
+
+    for (i = 0; i < self->poly; i++)
+    {
         self->amplitudes[i] = 0.0;
     }
 
@@ -2432,7 +2740,8 @@ Beater_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static PyObject * Beater_getServer(Beater* self) { GET_SERVER };
 static PyObject * Beater_getStream(Beater* self) { GET_STREAM };
 
-static PyObject * Beater_play(Beater *self, PyObject *args, PyObject *kwds) {
+static PyObject * Beater_play(Beater *self, PyObject *args, PyObject *kwds)
+{
     self->to_stop = 0;
     self->voiceCount = 0;
     self->tapCount = 0;
@@ -2445,35 +2754,38 @@ static PyObject * Beater_stop(Beater *self, PyObject *args, PyObject *kwds) { ST
 static PyObject *
 Beater_setTime(Beater *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->time);
-	if (isNumber == 1) {
-		self->time = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->time);
+
+    if (isNumber == 1)
+    {
+        self->time = PyNumber_Float(tmp);
         self->tapDur = PyFloat_AS_DOUBLE(self->time);
         self->modebuffer[0] = 0;
-	}
-	else {
-		self->time = tmp;
+    }
+    else
+    {
+        self->time = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->time, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->time_stream);
         self->time_stream = (Stream *)streamtmp;
-		self->modebuffer[0] = 1;
+        self->modebuffer[0] = 1;
         MYFLT *time = Stream_getData((Stream *)self->time_stream);
         self->tapDur = time[0];
-	}
+    }
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
@@ -2483,33 +2795,34 @@ Beater_reset(Beater *self)
     self->tapCount = 0;
     self->currentTap = 0;
     self->currentTime = -1.0;
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 Beater_setTaps(Beater *self, PyObject *arg)
 {
-	if (PyInt_Check(arg))
+    if (PyInt_Check(arg))
         self->taps = PyInt_AS_LONG(arg);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 Beater_setWeights(Beater *self, PyObject *args, PyObject *kwds)
 {
-    PyObject *w1=NULL, *w2=NULL, *w3=NULL;
+    PyObject *w1 = NULL, *w2 = NULL, *w3 = NULL;
 
     static char *kwlist[] = {"weight1", "weight2", "weight3", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOO", kwlist, &w1, &w2, &w3)) {
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOO", kwlist, &w1, &w2, &w3))
+    {
         Py_INCREF(Py_None);
         return Py_None;
     }
 
-	if (PyInt_Check(w1))
+    if (PyInt_Check(w1))
         self->weight1 = PyInt_AS_LONG(w1);
 
     if (PyInt_Check(w2))
@@ -2518,32 +2831,36 @@ Beater_setWeights(Beater *self, PyObject *args, PyObject *kwds)
     if (PyInt_Check(w3))
         self->weight3 = PyInt_AS_LONG(w3);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 Beater_newPattern(Beater *self, PyObject *arg)
 {
-    if (PyInt_Check(arg)) {
-        if (PyInt_AsLong(arg)) {
+    if (PyInt_Check(arg))
+    {
+        if (PyInt_AsLong(arg))
+        {
             Beater_makeTable(self, 0);
             Beater_makeSequence(self);
         }
-        else {
+        else
+        {
             self->newFlag = 1;
         }
     }
-	Py_INCREF(Py_None);
-	return Py_None;
+
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 Beater_fillPattern(Beater *self)
 {
     self->fillStart = 1;
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
@@ -2551,24 +2868,30 @@ Beater_storePreset(Beater *self, PyObject *arg)
 {
     int i, n;
 
-    if (PyInt_Check(arg)) {
+    if (PyInt_Check(arg))
+    {
         n = PyInt_AS_LONG(arg);
         self->preset[n][0] = self->taps;
-        for (i=0; i<self->taps; i++) {
-            self->preset[n][i+1] = self->sequence[i];
+
+        for (i = 0; i < self->taps; i++)
+        {
+            self->preset[n][i + 1] = self->sequence[i];
         }
     }
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 Beater_recallPreset(Beater *self, PyObject *arg)
 {
     int x;
-    if (PyInt_Check(arg)) {
+
+    if (PyInt_Check(arg))
+    {
         x = PyInt_AS_LONG(arg);
+
         if (x >= 0 && x < 32)
             self->preCall = x;
     }
@@ -2582,18 +2905,25 @@ Beater_recallPreset(Beater *self, PyObject *arg)
 }
 
 static PyObject *
-Beater_getPresets(Beater *self) {
+Beater_getPresets(Beater *self)
+{
     int i, j;
     PyObject *list, *tmp;
 
     list = PyList_New(0);
-    for (i=0; i<32; i++) {
-        if (self->preset[i][0] != 0) {
+
+    for (i = 0; i < 32; i++)
+    {
+        if (self->preset[i][0] != 0)
+        {
             tmp = PyList_New(0);
             PyList_Append(tmp, PyInt_FromLong(self->preset[i][0]));
-            for (j=0; j<self->preset[i][0]; j++) {
-                PyList_Append(tmp, PyInt_FromLong(self->preset[i][j+1]));
+
+            for (j = 0; j < self->preset[i][0]; j++)
+            {
+                PyList_Append(tmp, PyInt_FromLong(self->preset[i][j + 1]));
             }
+
             PyList_Append(list, tmp);
         }
     }
@@ -2602,23 +2932,32 @@ Beater_getPresets(Beater *self) {
 }
 
 static PyObject *
-Beater_setPresets(Beater *self, PyObject *arg) {
+Beater_setPresets(Beater *self, PyObject *arg)
+{
     int i, j, len, len2;
     PyObject *tmp;
 
-    if (PyList_Check(arg)) {
+    if (PyList_Check(arg))
+    {
         len = PyList_Size(arg);
-        for (i=0; i<len; i++) {
+
+        for (i = 0; i < len; i++)
+        {
             tmp = PyList_GetItem(arg, i);
-            if (PyList_Check(tmp)) {
+
+            if (PyList_Check(tmp))
+            {
                 len2 = PyInt_AsLong(PyList_GetItem(tmp, 0));
                 self->preset[i][0] = len2;
-                for (j=0; j<len2; j++) {
-                    self->preset[i][j+1] = PyInt_AsLong(PyList_GetItem(tmp, j+1));
+
+                for (j = 0; j < len2; j++)
+                {
+                    self->preset[i][j + 1] = PyInt_AsLong(PyList_GetItem(tmp, j + 1));
                 }
             }
         }
     }
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -2628,31 +2967,34 @@ Beater_setOnlyonce(Beater *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-	int isInt = PyInt_Check(arg);
+    int isInt = PyInt_Check(arg);
 
-	if (isInt == 1) {
+    if (isInt == 1)
+    {
         self->onlyonce = PyLong_AsLong(arg);
     }
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
-static PyMemberDef Beater_members[] = {
+static PyMemberDef Beater_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(Beater, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(Beater, stream), 0, "Stream object."},
     {"time", T_OBJECT_EX, offsetof(Beater, time), 0, "Tap duration."},
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef Beater_methods[] = {
+static PyMethodDef Beater_methods[] =
+{
     {"getServer", (PyCFunction)Beater_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Beater_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Beater_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)Beater_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
+    {"play", (PyCFunction)Beater_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)Beater_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setTime", (PyCFunction)Beater_setTime, METH_O, "Sets tap duration."},
     {"setTaps", (PyCFunction)Beater_setTaps, METH_O, "Sets number of taps in the pattern."},
-    {"setWeights", (PyCFunction)Beater_setWeights, METH_VARARGS|METH_KEYWORDS, "Sets probabilities for time accents in the pattern."},
+    {"setWeights", (PyCFunction)Beater_setWeights, METH_VARARGS | METH_KEYWORDS, "Sets probabilities for time accents in the pattern."},
     {"new", (PyCFunction)Beater_newPattern, METH_O, "Generates a new pattern."},
     {"fill", (PyCFunction)Beater_fillPattern, METH_NOARGS, "Generates a fillin pattern and then restore the current pattern."},
     {"store", (PyCFunction)Beater_storePreset, METH_O, "Store the current pattern in a memory slot."},
@@ -2664,7 +3006,8 @@ static PyMethodDef Beater_methods[] = {
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject BeaterType = {
+PyTypeObject BeaterType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.Beater_base",         /*tp_name*/
     sizeof(Beater),         /*tp_basicsize*/
@@ -2688,10 +3031,10 @@ PyTypeObject BeaterType = {
     "Beater objects. Create an algorithmic beat sequence.",           /* tp_doc */
     (traverseproc)Beater_traverse,   /* tp_traverse */
     (inquiry)Beater_clear,           /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
     Beater_methods,             /* tp_methods */
     Beater_members,             /* tp_members */
     0,                      /* tp_getset */
@@ -2708,7 +3051,8 @@ PyTypeObject BeaterType = {
 /************************************************************************************************/
 /* Beat streamer object per channel */
 /************************************************************************************************/
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     Beater *mainPlayer;
     int chnl;
@@ -2726,35 +3070,45 @@ static void Beat_postprocessing_revaa(Beat *self) { POST_PROCESSING_REVAA };
 static void Beat_postprocessing_revareva(Beat *self) { POST_PROCESSING_REVAREVA };
 
 static void
-Beat_setProcMode(Beat *self) {
+Beat_setProcMode(Beat *self)
+{
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    switch (muladdmode) {
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = Beat_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = Beat_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = Beat_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = Beat_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = Beat_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = Beat_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = Beat_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = Beat_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = Beat_postprocessing_revareva;
             break;
@@ -2768,9 +3122,12 @@ Beat_compute_next_data_frame(Beat *self)
     MYFLT *tmp;
     int offset = self->chnl * self->bufsize;
     tmp = Beater_getSamplesBuffer((Beater *)self->mainPlayer);
-    for (i=0; i<self->bufsize; i++) {
+
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->data[i] = tmp[i + offset];
     }
+
     (*self->muladd_func_ptr)(self);
 }
 
@@ -2802,7 +3159,7 @@ static PyObject *
 Beat_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *maintmp=NULL;
+    PyObject *maintmp = NULL;
     Beat *self;
     self = (Beat *)type->tp_alloc(type, 0);
 
@@ -2850,7 +3207,8 @@ static PyObject * Beat_inplace_sub(Beat *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Beat_div(Beat *self, PyObject *arg) { DIV };
 static PyObject * Beat_inplace_div(Beat *self, PyObject *arg) { INPLACE_DIV };
 
-static PyMemberDef Beat_members[] = {
+static PyMemberDef Beat_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(Beat, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(Beat, stream), 0, "Stream object."},
     {"mul", T_OBJECT_EX, offsetof(Beat, mul), 0, "Mul factor."},
@@ -2858,12 +3216,13 @@ static PyMemberDef Beat_members[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef Beat_methods[] = {
+static PyMethodDef Beat_methods[] =
+{
     {"getServer", (PyCFunction)Beat_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Beat_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Beat_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)Beat_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Beat_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
+    {"play", (PyCFunction)Beat_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)Beat_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)Beat_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setMul", (PyCFunction)Beat_setMul, METH_O, "Sets oscillator mul factor."},
     {"setAdd", (PyCFunction)Beat_setAdd, METH_O, "Sets oscillator add factor."},
     {"setSub", (PyCFunction)Beat_setSub, METH_O, "Sets inverse add factor."},
@@ -2871,7 +3230,8 @@ static PyMethodDef Beat_methods[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Beat_as_number = {
+static PyNumberMethods Beat_as_number =
+{
     (binaryfunc)Beat_add,                         /*nb_add*/
     (binaryfunc)Beat_sub,                         /*nb_subtract*/
     (binaryfunc)Beat_multiply,                    /*nb_multiply*/
@@ -2913,7 +3273,8 @@ static PyNumberMethods Beat_as_number = {
     0,                                              /* nb_index */
 };
 
-PyTypeObject BeatType = {
+PyTypeObject BeatType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.Beat_base",         /*tp_name*/
     sizeof(Beat),         /*tp_basicsize*/
@@ -2937,10 +3298,10 @@ PyTypeObject BeatType = {
     "Beat objects. Reads a channel from a Beater.",           /* tp_doc */
     (traverseproc)Beat_traverse,   /* tp_traverse */
     (inquiry)Beat_clear,           /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
     Beat_methods,             /* tp_methods */
     Beat_members,             /* tp_members */
     0,                      /* tp_getset */
@@ -2957,7 +3318,8 @@ PyTypeObject BeatType = {
 /************************************************************************************************/
 /* BeatTapStream object per channel */
 /************************************************************************************************/
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     Beater *mainPlayer;
     int chnl;
@@ -2975,35 +3337,45 @@ static void BeatTapStream_postprocessing_revaa(BeatTapStream *self) { POST_PROCE
 static void BeatTapStream_postprocessing_revareva(BeatTapStream *self) { POST_PROCESSING_REVAREVA };
 
 static void
-BeatTapStream_setProcMode(BeatTapStream *self) {
+BeatTapStream_setProcMode(BeatTapStream *self)
+{
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    switch (muladdmode) {
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = BeatTapStream_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = BeatTapStream_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = BeatTapStream_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = BeatTapStream_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = BeatTapStream_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = BeatTapStream_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = BeatTapStream_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = BeatTapStream_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = BeatTapStream_postprocessing_revareva;
             break;
@@ -3017,9 +3389,12 @@ BeatTapStream_compute_next_data_frame(BeatTapStream *self)
     MYFLT *tmp;
     int offset = self->chnl * self->bufsize;
     tmp = Beater_getTapBuffer((Beater *)self->mainPlayer);
-    for (i=0; i<self->bufsize; i++) {
+
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->data[i] = tmp[i + offset];
     }
+
     (*self->muladd_func_ptr)(self);
 }
 
@@ -3051,7 +3426,7 @@ static PyObject *
 BeatTapStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *maintmp=NULL;
+    PyObject *maintmp = NULL;
     BeatTapStream *self;
     self = (BeatTapStream *)type->tp_alloc(type, 0);
 
@@ -3099,7 +3474,8 @@ static PyObject * BeatTapStream_inplace_sub(BeatTapStream *self, PyObject *arg) 
 static PyObject * BeatTapStream_div(BeatTapStream *self, PyObject *arg) { DIV };
 static PyObject * BeatTapStream_inplace_div(BeatTapStream *self, PyObject *arg) { INPLACE_DIV };
 
-static PyMemberDef BeatTapStream_members[] = {
+static PyMemberDef BeatTapStream_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(BeatTapStream, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(BeatTapStream, stream), 0, "Stream object."},
     {"mul", T_OBJECT_EX, offsetof(BeatTapStream, mul), 0, "Mul factor."},
@@ -3107,12 +3483,13 @@ static PyMemberDef BeatTapStream_members[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef BeatTapStream_methods[] = {
+static PyMethodDef BeatTapStream_methods[] =
+{
     {"getServer", (PyCFunction)BeatTapStream_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)BeatTapStream_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)BeatTapStream_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)BeatTapStream_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)BeatTapStream_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
+    {"play", (PyCFunction)BeatTapStream_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)BeatTapStream_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)BeatTapStream_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setMul", (PyCFunction)BeatTapStream_setMul, METH_O, "Sets oscillator mul factor."},
     {"setAdd", (PyCFunction)BeatTapStream_setAdd, METH_O, "Sets oscillator add factor."},
     {"setSub", (PyCFunction)BeatTapStream_setSub, METH_O, "Sets inverse add factor."},
@@ -3120,7 +3497,8 @@ static PyMethodDef BeatTapStream_methods[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods BeatTapStream_as_number = {
+static PyNumberMethods BeatTapStream_as_number =
+{
     (binaryfunc)BeatTapStream_add,                         /*nb_add*/
     (binaryfunc)BeatTapStream_sub,                         /*nb_subtract*/
     (binaryfunc)BeatTapStream_multiply,                    /*nb_multiply*/
@@ -3162,7 +3540,8 @@ static PyNumberMethods BeatTapStream_as_number = {
     0,                                              /* nb_index */
 };
 
-PyTypeObject BeatTapStreamType = {
+PyTypeObject BeatTapStreamType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.BeatTapStream_base",         /*tp_name*/
     sizeof(BeatTapStream),         /*tp_basicsize*/
@@ -3186,10 +3565,10 @@ PyTypeObject BeatTapStreamType = {
     "BeatTapStream objects. Reads the current tap from a Beater object.",           /* tp_doc */
     (traverseproc)BeatTapStream_traverse,   /* tp_traverse */
     (inquiry)BeatTapStream_clear,           /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
     BeatTapStream_methods,             /* tp_methods */
     BeatTapStream_members,             /* tp_members */
     0,                      /* tp_getset */
@@ -3206,7 +3585,8 @@ PyTypeObject BeatTapStreamType = {
 /************************************************************************************************/
 /* BeatAmpStream object per channel */
 /************************************************************************************************/
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     Beater *mainPlayer;
     int chnl;
@@ -3224,35 +3604,45 @@ static void BeatAmpStream_postprocessing_revaa(BeatAmpStream *self) { POST_PROCE
 static void BeatAmpStream_postprocessing_revareva(BeatAmpStream *self) { POST_PROCESSING_REVAREVA };
 
 static void
-BeatAmpStream_setProcMode(BeatAmpStream *self) {
+BeatAmpStream_setProcMode(BeatAmpStream *self)
+{
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    switch (muladdmode) {
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = BeatAmpStream_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = BeatAmpStream_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = BeatAmpStream_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = BeatAmpStream_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = BeatAmpStream_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = BeatAmpStream_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = BeatAmpStream_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = BeatAmpStream_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = BeatAmpStream_postprocessing_revareva;
             break;
@@ -3266,9 +3656,12 @@ BeatAmpStream_compute_next_data_frame(BeatAmpStream *self)
     MYFLT *tmp;
     int offset = self->chnl * self->bufsize;
     tmp = Beater_getAmpBuffer((Beater *)self->mainPlayer);
-    for (i=0; i<self->bufsize; i++) {
+
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->data[i] = tmp[i + offset];
     }
+
     (*self->muladd_func_ptr)(self);
 }
 
@@ -3300,7 +3693,7 @@ static PyObject *
 BeatAmpStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *maintmp=NULL;
+    PyObject *maintmp = NULL;
     BeatAmpStream *self;
     self = (BeatAmpStream *)type->tp_alloc(type, 0);
 
@@ -3348,7 +3741,8 @@ static PyObject * BeatAmpStream_inplace_sub(BeatAmpStream *self, PyObject *arg) 
 static PyObject * BeatAmpStream_div(BeatAmpStream *self, PyObject *arg) { DIV };
 static PyObject * BeatAmpStream_inplace_div(BeatAmpStream *self, PyObject *arg) { INPLACE_DIV };
 
-static PyMemberDef BeatAmpStream_members[] = {
+static PyMemberDef BeatAmpStream_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(BeatAmpStream, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(BeatAmpStream, stream), 0, "Stream object."},
     {"mul", T_OBJECT_EX, offsetof(BeatAmpStream, mul), 0, "Mul factor."},
@@ -3356,12 +3750,13 @@ static PyMemberDef BeatAmpStream_members[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef BeatAmpStream_methods[] = {
+static PyMethodDef BeatAmpStream_methods[] =
+{
     {"getServer", (PyCFunction)BeatAmpStream_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)BeatAmpStream_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)BeatAmpStream_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)BeatAmpStream_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)BeatAmpStream_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
+    {"play", (PyCFunction)BeatAmpStream_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)BeatAmpStream_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)BeatAmpStream_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setMul", (PyCFunction)BeatAmpStream_setMul, METH_O, "Sets oscillator mul factor."},
     {"setAdd", (PyCFunction)BeatAmpStream_setAdd, METH_O, "Sets oscillator add factor."},
     {"setSub", (PyCFunction)BeatAmpStream_setSub, METH_O, "Sets inverse add factor."},
@@ -3369,7 +3764,8 @@ static PyMethodDef BeatAmpStream_methods[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods BeatAmpStream_as_number = {
+static PyNumberMethods BeatAmpStream_as_number =
+{
     (binaryfunc)BeatAmpStream_add,                         /*nb_add*/
     (binaryfunc)BeatAmpStream_sub,                         /*nb_subtract*/
     (binaryfunc)BeatAmpStream_multiply,                    /*nb_multiply*/
@@ -3411,7 +3807,8 @@ static PyNumberMethods BeatAmpStream_as_number = {
     0,                                              /* nb_index */
 };
 
-PyTypeObject BeatAmpStreamType = {
+PyTypeObject BeatAmpStreamType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.BeatAmpStream_base",         /*tp_name*/
     sizeof(BeatAmpStream),         /*tp_basicsize*/
@@ -3435,10 +3832,10 @@ PyTypeObject BeatAmpStreamType = {
     "BeatAmpStream objects. Reads a amplitude channel from a Beater object.",           /* tp_doc */
     (traverseproc)BeatAmpStream_traverse,   /* tp_traverse */
     (inquiry)BeatAmpStream_clear,           /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
     BeatAmpStream_methods,             /* tp_methods */
     BeatAmpStream_members,             /* tp_members */
     0,                      /* tp_getset */
@@ -3455,7 +3852,8 @@ PyTypeObject BeatAmpStreamType = {
 /************************************************************************************************/
 /* BeatDurStream object per channel */
 /************************************************************************************************/
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     Beater *mainPlayer;
     int chnl;
@@ -3473,35 +3871,45 @@ static void BeatDurStream_postprocessing_revaa(BeatDurStream *self) { POST_PROCE
 static void BeatDurStream_postprocessing_revareva(BeatDurStream *self) { POST_PROCESSING_REVAREVA };
 
 static void
-BeatDurStream_setProcMode(BeatDurStream *self) {
+BeatDurStream_setProcMode(BeatDurStream *self)
+{
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    switch (muladdmode) {
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = BeatDurStream_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = BeatDurStream_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = BeatDurStream_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = BeatDurStream_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = BeatDurStream_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = BeatDurStream_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = BeatDurStream_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = BeatDurStream_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = BeatDurStream_postprocessing_revareva;
             break;
@@ -3515,9 +3923,12 @@ BeatDurStream_compute_next_data_frame(BeatDurStream *self)
     MYFLT *tmp;
     int offset = self->chnl * self->bufsize;
     tmp = Beater_getDurBuffer((Beater *)self->mainPlayer);
-    for (i=0; i<self->bufsize; i++) {
+
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->data[i] = tmp[i + offset];
     }
+
     (*self->muladd_func_ptr)(self);
 }
 
@@ -3549,7 +3960,7 @@ static PyObject *
 BeatDurStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *maintmp=NULL;
+    PyObject *maintmp = NULL;
     BeatDurStream *self;
     self = (BeatDurStream *)type->tp_alloc(type, 0);
 
@@ -3597,7 +4008,8 @@ static PyObject * BeatDurStream_inplace_sub(BeatDurStream *self, PyObject *arg) 
 static PyObject * BeatDurStream_div(BeatDurStream *self, PyObject *arg) { DIV };
 static PyObject * BeatDurStream_inplace_div(BeatDurStream *self, PyObject *arg) { INPLACE_DIV };
 
-static PyMemberDef BeatDurStream_members[] = {
+static PyMemberDef BeatDurStream_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(BeatDurStream, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(BeatDurStream, stream), 0, "Stream object."},
     {"mul", T_OBJECT_EX, offsetof(BeatDurStream, mul), 0, "Mul factor."},
@@ -3605,12 +4017,13 @@ static PyMemberDef BeatDurStream_members[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef BeatDurStream_methods[] = {
+static PyMethodDef BeatDurStream_methods[] =
+{
     {"getServer", (PyCFunction)BeatDurStream_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)BeatDurStream_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)BeatDurStream_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)BeatDurStream_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)BeatDurStream_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
+    {"play", (PyCFunction)BeatDurStream_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)BeatDurStream_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)BeatDurStream_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setMul", (PyCFunction)BeatDurStream_setMul, METH_O, "Sets oscillator mul factor."},
     {"setAdd", (PyCFunction)BeatDurStream_setAdd, METH_O, "Sets oscillator add factor."},
     {"setSub", (PyCFunction)BeatDurStream_setSub, METH_O, "Sets inverse add factor."},
@@ -3618,7 +4031,8 @@ static PyMethodDef BeatDurStream_methods[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods BeatDurStream_as_number = {
+static PyNumberMethods BeatDurStream_as_number =
+{
     (binaryfunc)BeatDurStream_add,                         /*nb_add*/
     (binaryfunc)BeatDurStream_sub,                         /*nb_subtract*/
     (binaryfunc)BeatDurStream_multiply,                    /*nb_multiply*/
@@ -3660,7 +4074,8 @@ static PyNumberMethods BeatDurStream_as_number = {
     0,                                              /* nb_index */
 };
 
-PyTypeObject BeatDurStreamType = {
+PyTypeObject BeatDurStreamType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.BeatDurStream_base",         /*tp_name*/
     sizeof(BeatDurStream),         /*tp_basicsize*/
@@ -3684,10 +4099,10 @@ PyTypeObject BeatDurStreamType = {
     "BeatDurStream objects. Reads a duration channel from a Beater object.",           /* tp_doc */
     (traverseproc)BeatDurStream_traverse,   /* tp_traverse */
     (inquiry)BeatDurStream_clear,           /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
     BeatDurStream_methods,             /* tp_methods */
     BeatDurStream_members,             /* tp_members */
     0,                      /* tp_getset */
@@ -3704,7 +4119,8 @@ PyTypeObject BeatDurStreamType = {
 /************************************************************************************************/
 /* BeatEndStream object per channel */
 /************************************************************************************************/
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     Beater *mainPlayer;
     int chnl;
@@ -3722,35 +4138,45 @@ static void BeatEndStream_postprocessing_revaa(BeatEndStream *self) { POST_PROCE
 static void BeatEndStream_postprocessing_revareva(BeatEndStream *self) { POST_PROCESSING_REVAREVA };
 
 static void
-BeatEndStream_setProcMode(BeatEndStream *self) {
+BeatEndStream_setProcMode(BeatEndStream *self)
+{
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    switch (muladdmode) {
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = BeatEndStream_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = BeatEndStream_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = BeatEndStream_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = BeatEndStream_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = BeatEndStream_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = BeatEndStream_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = BeatEndStream_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = BeatEndStream_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = BeatEndStream_postprocessing_revareva;
             break;
@@ -3764,9 +4190,12 @@ BeatEndStream_compute_next_data_frame(BeatEndStream *self)
     MYFLT *tmp;
     int offset = self->chnl * self->bufsize;
     tmp = Beater_getEndBuffer((Beater *)self->mainPlayer);
-    for (i=0; i<self->bufsize; i++) {
+
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->data[i] = tmp[i + offset];
     }
+
     (*self->muladd_func_ptr)(self);
 }
 
@@ -3798,7 +4227,7 @@ static PyObject *
 BeatEndStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *maintmp=NULL;
+    PyObject *maintmp = NULL;
     BeatEndStream *self;
     self = (BeatEndStream *)type->tp_alloc(type, 0);
 
@@ -3846,7 +4275,8 @@ static PyObject * BeatEndStream_inplace_sub(BeatEndStream *self, PyObject *arg) 
 static PyObject * BeatEndStream_div(BeatEndStream *self, PyObject *arg) { DIV };
 static PyObject * BeatEndStream_inplace_div(BeatEndStream *self, PyObject *arg) { INPLACE_DIV };
 
-static PyMemberDef BeatEndStream_members[] = {
+static PyMemberDef BeatEndStream_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(BeatEndStream, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(BeatEndStream, stream), 0, "Stream object."},
     {"mul", T_OBJECT_EX, offsetof(BeatEndStream, mul), 0, "Mul factor."},
@@ -3854,12 +4284,13 @@ static PyMemberDef BeatEndStream_members[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef BeatEndStream_methods[] = {
+static PyMethodDef BeatEndStream_methods[] =
+{
     {"getServer", (PyCFunction)BeatEndStream_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)BeatEndStream_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)BeatEndStream_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)BeatEndStream_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)BeatEndStream_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
+    {"play", (PyCFunction)BeatEndStream_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)BeatEndStream_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)BeatEndStream_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setMul", (PyCFunction)BeatEndStream_setMul, METH_O, "Sets oscillator mul factor."},
     {"setAdd", (PyCFunction)BeatEndStream_setAdd, METH_O, "Sets oscillator add factor."},
     {"setSub", (PyCFunction)BeatEndStream_setSub, METH_O, "Sets inverse add factor."},
@@ -3867,7 +4298,8 @@ static PyMethodDef BeatEndStream_methods[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods BeatEndStream_as_number = {
+static PyNumberMethods BeatEndStream_as_number =
+{
     (binaryfunc)BeatEndStream_add,                         /*nb_add*/
     (binaryfunc)BeatEndStream_sub,                         /*nb_subtract*/
     (binaryfunc)BeatEndStream_multiply,                    /*nb_multiply*/
@@ -3909,7 +4341,8 @@ static PyNumberMethods BeatEndStream_as_number = {
     0,                                              /* nb_index */
 };
 
-PyTypeObject BeatEndStreamType = {
+PyTypeObject BeatEndStreamType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.BeatEndStream_base",         /*tp_name*/
     sizeof(BeatEndStream),         /*tp_basicsize*/
@@ -3933,10 +4366,10 @@ PyTypeObject BeatEndStreamType = {
     "BeatEndStream objects. Reads a duration channel from a Beater object.",           /* tp_doc */
     (traverseproc)BeatEndStream_traverse,   /* tp_traverse */
     (inquiry)BeatEndStream_clear,           /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
     BeatEndStream_methods,             /* tp_methods */
     BeatEndStream_members,             /* tp_members */
     0,                      /* tp_getset */
@@ -3953,7 +4386,8 @@ PyTypeObject BeatEndStreamType = {
 /****************/
 /**** TrigBurster *****/
 /****************/
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     PyObject *input;
     Stream *input_stream;
@@ -3984,17 +4418,21 @@ typedef struct {
 } TrigBurster;
 
 static void
-TrigBurster_generate_i(TrigBurster *self) {
+TrigBurster_generate_i(TrigBurster *self)
+{
     int i, j;
 
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
 
-    for (i=0; i<(self->poly*self->bufsize); i++) {
+    for (i = 0; i < (self->poly * self->bufsize); i++)
+    {
         self->buffer_streams[i] = self->end_buffer_streams[i] = 0.0;
     }
 
-    for (i=0; i<self->bufsize; i++) {
-        if (in[i] == 1.0) {
+    for (i = 0; i < self->bufsize; i++)
+    {
+        if (in[i] == 1.0)
+        {
             self->flag = 1;
             self->currentCount = 0;
             self->a_time = self->targetTime = self->currentTime = self->time;
@@ -4002,8 +4440,11 @@ TrigBurster_generate_i(TrigBurster *self) {
             self->a_expand = self->expand;
             self->a_ampfade = self->ampfade;
         }
-        if (self->flag == 1) {
-            if (self->currentTime >= self->targetTime) {
+
+        if (self->flag == 1)
+        {
+            if (self->currentTime >= self->targetTime)
+            {
                 self->currentTime -= self->targetTime;
                 self->targetTime = self->a_time * MYPOW(self->a_expand, self->currentCount);
                 self->currentTap[self->voiceCount] = self->currentCount;
@@ -4011,17 +4452,24 @@ TrigBurster_generate_i(TrigBurster *self) {
                 self->currentDur[self->voiceCount] = self->targetTime;
                 self->buffer_streams[i + self->voiceCount * self->bufsize] = 1.0;
                 self->currentCount++;
+
                 if (self->currentCount == (self->a_count - 1))
                     self->end_buffer_streams[i + self->voiceCount * self->bufsize] = 1.0;
+
                 if (self->currentCount == self->a_count)
                     self->flag = 0;
+
                 self->voiceCount++;
+
                 if (self->voiceCount == self->poly)
                     self->voiceCount = 0;
             }
+
             self->currentTime += self->sampleToSec;
         }
-        for (j=0; j<self->poly; j++) {
+
+        for (j = 0; j < self->poly; j++)
+        {
             self->tap_buffer_streams[i + j * self->bufsize] = (MYFLT)self->currentTap[j];
             self->amp_buffer_streams[i + j * self->bufsize] = self->currentAmp[j];
             self->dur_buffer_streams[i + j * self->bufsize] = self->currentDur[j];
@@ -4149,14 +4597,18 @@ TrigBurster_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->amp_buffer_streams = (MYFLT *)realloc(self->amp_buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
     self->dur_buffer_streams = (MYFLT *)realloc(self->dur_buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
     self->end_buffer_streams = (MYFLT *)realloc(self->end_buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
-    for (i=0; i<(self->poly*self->bufsize); i++) {
+
+    for (i = 0; i < (self->poly * self->bufsize); i++)
+    {
         self->buffer_streams[i] = self->tap_buffer_streams[i] = self->amp_buffer_streams[i] = self->dur_buffer_streams[i] = self->end_buffer_streams[i] = 0.0;
     }
 
     self->currentTap = (int *)realloc(self->currentTap, self->poly * sizeof(int));
     self->currentAmp = (MYFLT *)realloc(self->currentAmp, self->poly * sizeof(MYFLT));
     self->currentDur = (MYFLT *)realloc(self->currentDur, self->poly * sizeof(MYFLT));
-    for (i=0; i<(self->poly); i++) {
+
+    for (i = 0; i < (self->poly); i++)
+    {
         self->currentTap[i] = 0;
         self->currentAmp[i] = self->currentDur[i] = 0.0;
     }
@@ -4173,63 +4625,69 @@ static PyObject * TrigBurster_stop(TrigBurster *self, PyObject *args, PyObject *
 static PyObject *
 TrigBurster_setTime(TrigBurster *self, PyObject *arg)
 {
-	if (PyNumber_Check(arg))
+    if (PyNumber_Check(arg))
         self->time = PyFloat_AsDouble(arg);
-        if (self->time <= 0.01)
-            self->time = 0.01;
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    if (self->time <= 0.01)
+        self->time = 0.01;
+
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 TrigBurster_setCount(TrigBurster *self, PyObject *arg)
 {
-	if (PyInt_Check(arg))
+    if (PyInt_Check(arg))
         self->count = PyInt_AS_LONG(arg);
-        if (self->count < 1)
-            self->count = 1;
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    if (self->count < 1)
+        self->count = 1;
+
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 TrigBurster_setExpand(TrigBurster *self, PyObject *arg)
 {
-	if (PyNumber_Check(arg))
+    if (PyNumber_Check(arg))
         self->expand = PyFloat_AsDouble(arg);
-        if (self->expand <= 0.1)
-            self->expand = 0.1;
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    if (self->expand <= 0.1)
+        self->expand = 0.1;
+
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 TrigBurster_setAmpfade(TrigBurster *self, PyObject *arg)
 {
-	if (PyNumber_Check(arg))
+    if (PyNumber_Check(arg))
         self->ampfade = PyFloat_AsDouble(arg);
-        if (self->ampfade <= 0.1)
-            self->ampfade = 0.1;
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    if (self->ampfade <= 0.1)
+        self->ampfade = 0.1;
+
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
-static PyMemberDef TrigBurster_members[] = {
+static PyMemberDef TrigBurster_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(TrigBurster, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(TrigBurster, stream), 0, "Stream object."},
     {"input", T_OBJECT_EX, offsetof(TrigBurster, input), 0, "Input sound object."},
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef TrigBurster_methods[] = {
+static PyMethodDef TrigBurster_methods[] =
+{
     {"getServer", (PyCFunction)TrigBurster_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)TrigBurster_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)TrigBurster_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)TrigBurster_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
+    {"play", (PyCFunction)TrigBurster_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)TrigBurster_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setTime", (PyCFunction)TrigBurster_setTime, METH_O, "Sets the base time of the serie."},
     {"setCount", (PyCFunction)TrigBurster_setCount, METH_O, "Sets the number of trigs in the serie."},
     {"setExpand", (PyCFunction)TrigBurster_setExpand, METH_O, "Sets the time's expansion factor of the serie."},
@@ -4237,7 +4695,8 @@ static PyMethodDef TrigBurster_methods[] = {
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject TrigBursterType = {
+PyTypeObject TrigBursterType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.TrigBurster_base",         /*tp_name*/
     sizeof(TrigBurster),         /*tp_basicsize*/
@@ -4261,10 +4720,10 @@ PyTypeObject TrigBursterType = {
     "TrigBurster objects. Create an algorithmic beat sequence.",           /* tp_doc */
     (traverseproc)TrigBurster_traverse,   /* tp_traverse */
     (inquiry)TrigBurster_clear,           /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
     TrigBurster_methods,             /* tp_methods */
     TrigBurster_members,             /* tp_members */
     0,                      /* tp_getset */
@@ -4281,7 +4740,8 @@ PyTypeObject TrigBursterType = {
 /************************************************************************************************/
 /* TrigBurst streamer object per channel */
 /************************************************************************************************/
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     TrigBurster *mainPlayer;
     int chnl;
@@ -4299,35 +4759,45 @@ static void TrigBurst_postprocessing_revaa(TrigBurst *self) { POST_PROCESSING_RE
 static void TrigBurst_postprocessing_revareva(TrigBurst *self) { POST_PROCESSING_REVAREVA };
 
 static void
-TrigBurst_setProcMode(TrigBurst *self) {
+TrigBurst_setProcMode(TrigBurst *self)
+{
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    switch (muladdmode) {
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = TrigBurst_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = TrigBurst_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = TrigBurst_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = TrigBurst_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = TrigBurst_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = TrigBurst_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = TrigBurst_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = TrigBurst_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = TrigBurst_postprocessing_revareva;
             break;
@@ -4341,9 +4811,12 @@ TrigBurst_compute_next_data_frame(TrigBurst *self)
     MYFLT *tmp;
     int offset = self->chnl * self->bufsize;
     tmp = TrigBurster_getSamplesBuffer((TrigBurster *)self->mainPlayer);
-    for (i=0; i<self->bufsize; i++) {
+
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->data[i] = tmp[i + offset];
     }
+
     (*self->muladd_func_ptr)(self);
 }
 
@@ -4375,7 +4848,7 @@ static PyObject *
 TrigBurst_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *maintmp=NULL;
+    PyObject *maintmp = NULL;
     TrigBurst *self;
     self = (TrigBurst *)type->tp_alloc(type, 0);
 
@@ -4423,7 +4896,8 @@ static PyObject * TrigBurst_inplace_sub(TrigBurst *self, PyObject *arg) { INPLAC
 static PyObject * TrigBurst_div(TrigBurst *self, PyObject *arg) { DIV };
 static PyObject * TrigBurst_inplace_div(TrigBurst *self, PyObject *arg) { INPLACE_DIV };
 
-static PyMemberDef TrigBurst_members[] = {
+static PyMemberDef TrigBurst_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(TrigBurst, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(TrigBurst, stream), 0, "Stream object."},
     {"mul", T_OBJECT_EX, offsetof(TrigBurst, mul), 0, "Mul factor."},
@@ -4431,12 +4905,13 @@ static PyMemberDef TrigBurst_members[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef TrigBurst_methods[] = {
+static PyMethodDef TrigBurst_methods[] =
+{
     {"getServer", (PyCFunction)TrigBurst_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)TrigBurst_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)TrigBurst_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)TrigBurst_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)TrigBurst_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
+    {"play", (PyCFunction)TrigBurst_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)TrigBurst_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)TrigBurst_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setMul", (PyCFunction)TrigBurst_setMul, METH_O, "Sets oscillator mul factor."},
     {"setAdd", (PyCFunction)TrigBurst_setAdd, METH_O, "Sets oscillator add factor."},
     {"setSub", (PyCFunction)TrigBurst_setSub, METH_O, "Sets inverse add factor."},
@@ -4444,7 +4919,8 @@ static PyMethodDef TrigBurst_methods[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods TrigBurst_as_number = {
+static PyNumberMethods TrigBurst_as_number =
+{
     (binaryfunc)TrigBurst_add,                         /*nb_add*/
     (binaryfunc)TrigBurst_sub,                         /*nb_subtract*/
     (binaryfunc)TrigBurst_multiply,                    /*nb_multiply*/
@@ -4486,7 +4962,8 @@ static PyNumberMethods TrigBurst_as_number = {
     0,                                              /* nb_index */
 };
 
-PyTypeObject TrigBurstType = {
+PyTypeObject TrigBurstType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.TrigBurst_base",         /*tp_name*/
     sizeof(TrigBurst),         /*tp_basicsize*/
@@ -4510,10 +4987,10 @@ PyTypeObject TrigBurstType = {
     "TrigBurst objects. Reads a channel from a TrigBurster.",           /* tp_doc */
     (traverseproc)TrigBurst_traverse,   /* tp_traverse */
     (inquiry)TrigBurst_clear,           /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
     TrigBurst_methods,             /* tp_methods */
     TrigBurst_members,             /* tp_members */
     0,                      /* tp_getset */
@@ -4530,7 +5007,8 @@ PyTypeObject TrigBurstType = {
 /************************************************************************************************/
 /* TrigBurstTapStream object per channel */
 /************************************************************************************************/
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     TrigBurster *mainPlayer;
     int chnl;
@@ -4548,35 +5026,45 @@ static void TrigBurstTapStream_postprocessing_revaa(TrigBurstTapStream *self) { 
 static void TrigBurstTapStream_postprocessing_revareva(TrigBurstTapStream *self) { POST_PROCESSING_REVAREVA };
 
 static void
-TrigBurstTapStream_setProcMode(TrigBurstTapStream *self) {
+TrigBurstTapStream_setProcMode(TrigBurstTapStream *self)
+{
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    switch (muladdmode) {
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = TrigBurstTapStream_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = TrigBurstTapStream_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = TrigBurstTapStream_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = TrigBurstTapStream_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = TrigBurstTapStream_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = TrigBurstTapStream_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = TrigBurstTapStream_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = TrigBurstTapStream_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = TrigBurstTapStream_postprocessing_revareva;
             break;
@@ -4590,9 +5078,12 @@ TrigBurstTapStream_compute_next_data_frame(TrigBurstTapStream *self)
     MYFLT *tmp;
     int offset = self->chnl * self->bufsize;
     tmp = TrigBurster_getTapBuffer((TrigBurster *)self->mainPlayer);
-    for (i=0; i<self->bufsize; i++) {
+
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->data[i] = tmp[i + offset];
     }
+
     (*self->muladd_func_ptr)(self);
 }
 
@@ -4624,7 +5115,7 @@ static PyObject *
 TrigBurstTapStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *maintmp=NULL;
+    PyObject *maintmp = NULL;
     TrigBurstTapStream *self;
     self = (TrigBurstTapStream *)type->tp_alloc(type, 0);
 
@@ -4672,7 +5163,8 @@ static PyObject * TrigBurstTapStream_inplace_sub(TrigBurstTapStream *self, PyObj
 static PyObject * TrigBurstTapStream_div(TrigBurstTapStream *self, PyObject *arg) { DIV };
 static PyObject * TrigBurstTapStream_inplace_div(TrigBurstTapStream *self, PyObject *arg) { INPLACE_DIV };
 
-static PyMemberDef TrigBurstTapStream_members[] = {
+static PyMemberDef TrigBurstTapStream_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(TrigBurstTapStream, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(TrigBurstTapStream, stream), 0, "Stream object."},
     {"mul", T_OBJECT_EX, offsetof(TrigBurstTapStream, mul), 0, "Mul factor."},
@@ -4680,12 +5172,13 @@ static PyMemberDef TrigBurstTapStream_members[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef TrigBurstTapStream_methods[] = {
+static PyMethodDef TrigBurstTapStream_methods[] =
+{
     {"getServer", (PyCFunction)TrigBurstTapStream_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)TrigBurstTapStream_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)TrigBurstTapStream_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)TrigBurstTapStream_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)TrigBurstTapStream_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
+    {"play", (PyCFunction)TrigBurstTapStream_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)TrigBurstTapStream_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)TrigBurstTapStream_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setMul", (PyCFunction)TrigBurstTapStream_setMul, METH_O, "Sets oscillator mul factor."},
     {"setAdd", (PyCFunction)TrigBurstTapStream_setAdd, METH_O, "Sets oscillator add factor."},
     {"setSub", (PyCFunction)TrigBurstTapStream_setSub, METH_O, "Sets inverse add factor."},
@@ -4693,7 +5186,8 @@ static PyMethodDef TrigBurstTapStream_methods[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods TrigBurstTapStream_as_number = {
+static PyNumberMethods TrigBurstTapStream_as_number =
+{
     (binaryfunc)TrigBurstTapStream_add,                         /*nb_add*/
     (binaryfunc)TrigBurstTapStream_sub,                         /*nb_subtract*/
     (binaryfunc)TrigBurstTapStream_multiply,                    /*nb_multiply*/
@@ -4735,7 +5229,8 @@ static PyNumberMethods TrigBurstTapStream_as_number = {
     0,                                              /* nb_index */
 };
 
-PyTypeObject TrigBurstTapStreamType = {
+PyTypeObject TrigBurstTapStreamType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.TrigBurstTapStream_base",         /*tp_name*/
     sizeof(TrigBurstTapStream),         /*tp_basicsize*/
@@ -4759,10 +5254,10 @@ PyTypeObject TrigBurstTapStreamType = {
     "TrigBurstTapStream objects. Reads the current tap from a TrigBurster object.",           /* tp_doc */
     (traverseproc)TrigBurstTapStream_traverse,   /* tp_traverse */
     (inquiry)TrigBurstTapStream_clear,           /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
     TrigBurstTapStream_methods,             /* tp_methods */
     TrigBurstTapStream_members,             /* tp_members */
     0,                      /* tp_getset */
@@ -4779,7 +5274,8 @@ PyTypeObject TrigBurstTapStreamType = {
 /************************************************************************************************/
 /* TrigBurstAmpStream object per channel */
 /************************************************************************************************/
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     TrigBurster *mainPlayer;
     int chnl;
@@ -4797,35 +5293,45 @@ static void TrigBurstAmpStream_postprocessing_revaa(TrigBurstAmpStream *self) { 
 static void TrigBurstAmpStream_postprocessing_revareva(TrigBurstAmpStream *self) { POST_PROCESSING_REVAREVA };
 
 static void
-TrigBurstAmpStream_setProcMode(TrigBurstAmpStream *self) {
+TrigBurstAmpStream_setProcMode(TrigBurstAmpStream *self)
+{
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    switch (muladdmode) {
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = TrigBurstAmpStream_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = TrigBurstAmpStream_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = TrigBurstAmpStream_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = TrigBurstAmpStream_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = TrigBurstAmpStream_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = TrigBurstAmpStream_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = TrigBurstAmpStream_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = TrigBurstAmpStream_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = TrigBurstAmpStream_postprocessing_revareva;
             break;
@@ -4839,9 +5345,12 @@ TrigBurstAmpStream_compute_next_data_frame(TrigBurstAmpStream *self)
     MYFLT *tmp;
     int offset = self->chnl * self->bufsize;
     tmp = TrigBurster_getAmpBuffer((TrigBurster *)self->mainPlayer);
-    for (i=0; i<self->bufsize; i++) {
+
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->data[i] = tmp[i + offset];
     }
+
     (*self->muladd_func_ptr)(self);
 }
 
@@ -4873,7 +5382,7 @@ static PyObject *
 TrigBurstAmpStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *maintmp=NULL;
+    PyObject *maintmp = NULL;
     TrigBurstAmpStream *self;
     self = (TrigBurstAmpStream *)type->tp_alloc(type, 0);
 
@@ -4921,7 +5430,8 @@ static PyObject * TrigBurstAmpStream_inplace_sub(TrigBurstAmpStream *self, PyObj
 static PyObject * TrigBurstAmpStream_div(TrigBurstAmpStream *self, PyObject *arg) { DIV };
 static PyObject * TrigBurstAmpStream_inplace_div(TrigBurstAmpStream *self, PyObject *arg) { INPLACE_DIV };
 
-static PyMemberDef TrigBurstAmpStream_members[] = {
+static PyMemberDef TrigBurstAmpStream_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(TrigBurstAmpStream, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(TrigBurstAmpStream, stream), 0, "Stream object."},
     {"mul", T_OBJECT_EX, offsetof(TrigBurstAmpStream, mul), 0, "Mul factor."},
@@ -4929,12 +5439,13 @@ static PyMemberDef TrigBurstAmpStream_members[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef TrigBurstAmpStream_methods[] = {
+static PyMethodDef TrigBurstAmpStream_methods[] =
+{
     {"getServer", (PyCFunction)TrigBurstAmpStream_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)TrigBurstAmpStream_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)TrigBurstAmpStream_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)TrigBurstAmpStream_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)TrigBurstAmpStream_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
+    {"play", (PyCFunction)TrigBurstAmpStream_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)TrigBurstAmpStream_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)TrigBurstAmpStream_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setMul", (PyCFunction)TrigBurstAmpStream_setMul, METH_O, "Sets oscillator mul factor."},
     {"setAdd", (PyCFunction)TrigBurstAmpStream_setAdd, METH_O, "Sets oscillator add factor."},
     {"setSub", (PyCFunction)TrigBurstAmpStream_setSub, METH_O, "Sets inverse add factor."},
@@ -4942,7 +5453,8 @@ static PyMethodDef TrigBurstAmpStream_methods[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods TrigBurstAmpStream_as_number = {
+static PyNumberMethods TrigBurstAmpStream_as_number =
+{
     (binaryfunc)TrigBurstAmpStream_add,                         /*nb_add*/
     (binaryfunc)TrigBurstAmpStream_sub,                         /*nb_subtract*/
     (binaryfunc)TrigBurstAmpStream_multiply,                    /*nb_multiply*/
@@ -4984,7 +5496,8 @@ static PyNumberMethods TrigBurstAmpStream_as_number = {
     0,                                              /* nb_index */
 };
 
-PyTypeObject TrigBurstAmpStreamType = {
+PyTypeObject TrigBurstAmpStreamType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.TrigBurstAmpStream_base",         /*tp_name*/
     sizeof(TrigBurstAmpStream),         /*tp_basicsize*/
@@ -5008,10 +5521,10 @@ PyTypeObject TrigBurstAmpStreamType = {
     "TrigBurstAmpStream objects. Reads a amplitude channel from a TrigBurster object.",           /* tp_doc */
     (traverseproc)TrigBurstAmpStream_traverse,   /* tp_traverse */
     (inquiry)TrigBurstAmpStream_clear,           /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
     TrigBurstAmpStream_methods,             /* tp_methods */
     TrigBurstAmpStream_members,             /* tp_members */
     0,                      /* tp_getset */
@@ -5028,7 +5541,8 @@ PyTypeObject TrigBurstAmpStreamType = {
 /************************************************************************************************/
 /* TrigBurstDurStream object per channel */
 /************************************************************************************************/
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     TrigBurster *mainPlayer;
     int chnl;
@@ -5046,35 +5560,45 @@ static void TrigBurstDurStream_postprocessing_revaa(TrigBurstDurStream *self) { 
 static void TrigBurstDurStream_postprocessing_revareva(TrigBurstDurStream *self) { POST_PROCESSING_REVAREVA };
 
 static void
-TrigBurstDurStream_setProcMode(TrigBurstDurStream *self) {
+TrigBurstDurStream_setProcMode(TrigBurstDurStream *self)
+{
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    switch (muladdmode) {
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = TrigBurstDurStream_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = TrigBurstDurStream_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = TrigBurstDurStream_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = TrigBurstDurStream_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = TrigBurstDurStream_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = TrigBurstDurStream_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = TrigBurstDurStream_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = TrigBurstDurStream_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = TrigBurstDurStream_postprocessing_revareva;
             break;
@@ -5088,9 +5612,12 @@ TrigBurstDurStream_compute_next_data_frame(TrigBurstDurStream *self)
     MYFLT *tmp;
     int offset = self->chnl * self->bufsize;
     tmp = TrigBurster_getDurBuffer((TrigBurster *)self->mainPlayer);
-    for (i=0; i<self->bufsize; i++) {
+
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->data[i] = tmp[i + offset];
     }
+
     (*self->muladd_func_ptr)(self);
 }
 
@@ -5122,7 +5649,7 @@ static PyObject *
 TrigBurstDurStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *maintmp=NULL;
+    PyObject *maintmp = NULL;
     TrigBurstDurStream *self;
     self = (TrigBurstDurStream *)type->tp_alloc(type, 0);
 
@@ -5170,7 +5697,8 @@ static PyObject * TrigBurstDurStream_inplace_sub(TrigBurstDurStream *self, PyObj
 static PyObject * TrigBurstDurStream_div(TrigBurstDurStream *self, PyObject *arg) { DIV };
 static PyObject * TrigBurstDurStream_inplace_div(TrigBurstDurStream *self, PyObject *arg) { INPLACE_DIV };
 
-static PyMemberDef TrigBurstDurStream_members[] = {
+static PyMemberDef TrigBurstDurStream_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(TrigBurstDurStream, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(TrigBurstDurStream, stream), 0, "Stream object."},
     {"mul", T_OBJECT_EX, offsetof(TrigBurstDurStream, mul), 0, "Mul factor."},
@@ -5178,12 +5706,13 @@ static PyMemberDef TrigBurstDurStream_members[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef TrigBurstDurStream_methods[] = {
+static PyMethodDef TrigBurstDurStream_methods[] =
+{
     {"getServer", (PyCFunction)TrigBurstDurStream_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)TrigBurstDurStream_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)TrigBurstDurStream_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)TrigBurstDurStream_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)TrigBurstDurStream_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
+    {"play", (PyCFunction)TrigBurstDurStream_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)TrigBurstDurStream_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)TrigBurstDurStream_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setMul", (PyCFunction)TrigBurstDurStream_setMul, METH_O, "Sets oscillator mul factor."},
     {"setAdd", (PyCFunction)TrigBurstDurStream_setAdd, METH_O, "Sets oscillator add factor."},
     {"setSub", (PyCFunction)TrigBurstDurStream_setSub, METH_O, "Sets inverse add factor."},
@@ -5191,7 +5720,8 @@ static PyMethodDef TrigBurstDurStream_methods[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods TrigBurstDurStream_as_number = {
+static PyNumberMethods TrigBurstDurStream_as_number =
+{
     (binaryfunc)TrigBurstDurStream_add,                         /*nb_add*/
     (binaryfunc)TrigBurstDurStream_sub,                         /*nb_subtract*/
     (binaryfunc)TrigBurstDurStream_multiply,                    /*nb_multiply*/
@@ -5233,7 +5763,8 @@ static PyNumberMethods TrigBurstDurStream_as_number = {
     0,                                              /* nb_index */
 };
 
-PyTypeObject TrigBurstDurStreamType = {
+PyTypeObject TrigBurstDurStreamType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.TrigBurstDurStream_base",         /*tp_name*/
     sizeof(TrigBurstDurStream),         /*tp_basicsize*/
@@ -5257,10 +5788,10 @@ PyTypeObject TrigBurstDurStreamType = {
     "TrigBurstDurStream objects. Reads a duration channel from a TrigBurster object.",           /* tp_doc */
     (traverseproc)TrigBurstDurStream_traverse,   /* tp_traverse */
     (inquiry)TrigBurstDurStream_clear,           /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
     TrigBurstDurStream_methods,             /* tp_methods */
     TrigBurstDurStream_members,             /* tp_members */
     0,                      /* tp_getset */
@@ -5277,7 +5808,8 @@ PyTypeObject TrigBurstDurStreamType = {
 /************************************************************************************************/
 /* TrigBurstEndStream object per channel */
 /************************************************************************************************/
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     TrigBurster *mainPlayer;
     int chnl;
@@ -5295,35 +5827,45 @@ static void TrigBurstEndStream_postprocessing_revaa(TrigBurstEndStream *self) { 
 static void TrigBurstEndStream_postprocessing_revareva(TrigBurstEndStream *self) { POST_PROCESSING_REVAREVA };
 
 static void
-TrigBurstEndStream_setProcMode(TrigBurstEndStream *self) {
+TrigBurstEndStream_setProcMode(TrigBurstEndStream *self)
+{
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    switch (muladdmode) {
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = TrigBurstEndStream_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = TrigBurstEndStream_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = TrigBurstEndStream_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = TrigBurstEndStream_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = TrigBurstEndStream_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = TrigBurstEndStream_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = TrigBurstEndStream_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = TrigBurstEndStream_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = TrigBurstEndStream_postprocessing_revareva;
             break;
@@ -5337,9 +5879,12 @@ TrigBurstEndStream_compute_next_data_frame(TrigBurstEndStream *self)
     MYFLT *tmp;
     int offset = self->chnl * self->bufsize;
     tmp = TrigBurster_getEndBuffer((TrigBurster *)self->mainPlayer);
-    for (i=0; i<self->bufsize; i++) {
+
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->data[i] = tmp[i + offset];
     }
+
     (*self->muladd_func_ptr)(self);
 }
 
@@ -5371,7 +5916,7 @@ static PyObject *
 TrigBurstEndStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *maintmp=NULL;
+    PyObject *maintmp = NULL;
     TrigBurstEndStream *self;
     self = (TrigBurstEndStream *)type->tp_alloc(type, 0);
 
@@ -5419,7 +5964,8 @@ static PyObject * TrigBurstEndStream_inplace_sub(TrigBurstEndStream *self, PyObj
 static PyObject * TrigBurstEndStream_div(TrigBurstEndStream *self, PyObject *arg) { DIV };
 static PyObject * TrigBurstEndStream_inplace_div(TrigBurstEndStream *self, PyObject *arg) { INPLACE_DIV };
 
-static PyMemberDef TrigBurstEndStream_members[] = {
+static PyMemberDef TrigBurstEndStream_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(TrigBurstEndStream, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(TrigBurstEndStream, stream), 0, "Stream object."},
     {"mul", T_OBJECT_EX, offsetof(TrigBurstEndStream, mul), 0, "Mul factor."},
@@ -5427,12 +5973,13 @@ static PyMemberDef TrigBurstEndStream_members[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef TrigBurstEndStream_methods[] = {
+static PyMethodDef TrigBurstEndStream_methods[] =
+{
     {"getServer", (PyCFunction)TrigBurstEndStream_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)TrigBurstEndStream_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)TrigBurstEndStream_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)TrigBurstEndStream_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)TrigBurstEndStream_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
+    {"play", (PyCFunction)TrigBurstEndStream_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)TrigBurstEndStream_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)TrigBurstEndStream_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setMul", (PyCFunction)TrigBurstEndStream_setMul, METH_O, "Sets oscillator mul factor."},
     {"setAdd", (PyCFunction)TrigBurstEndStream_setAdd, METH_O, "Sets oscillator add factor."},
     {"setSub", (PyCFunction)TrigBurstEndStream_setSub, METH_O, "Sets inverse add factor."},
@@ -5440,7 +5987,8 @@ static PyMethodDef TrigBurstEndStream_methods[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods TrigBurstEndStream_as_number = {
+static PyNumberMethods TrigBurstEndStream_as_number =
+{
     (binaryfunc)TrigBurstEndStream_add,                         /*nb_add*/
     (binaryfunc)TrigBurstEndStream_sub,                         /*nb_subtract*/
     (binaryfunc)TrigBurstEndStream_multiply,                    /*nb_multiply*/
@@ -5482,7 +6030,8 @@ static PyNumberMethods TrigBurstEndStream_as_number = {
     0,                                              /* nb_index */
 };
 
-PyTypeObject TrigBurstEndStreamType = {
+PyTypeObject TrigBurstEndStreamType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.TrigBurstEndStream_base",         /*tp_name*/
     sizeof(TrigBurstEndStream),         /*tp_basicsize*/
@@ -5506,10 +6055,10 @@ PyTypeObject TrigBurstEndStreamType = {
     "TrigBurstEndStream objects. Reads a duration channel from a TrigBurster object.",           /* tp_doc */
     (traverseproc)TrigBurstEndStream_traverse,   /* tp_traverse */
     (inquiry)TrigBurstEndStream_clear,           /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
     TrigBurstEndStream_methods,             /* tp_methods */
     TrigBurstEndStream_members,             /* tp_members */
     0,                      /* tp_getset */

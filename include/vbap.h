@@ -7,7 +7,7 @@
 #ifndef __VBAP_H
 #define __VBAP_H
 
-#ifdef __cplusplus 
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -15,7 +15,8 @@ extern "C" {
 #define MAX_TRIPLET_AMOUNT 128
 #define MIN_VOL_P_SIDE_LGTH 0.01
 
-typedef struct {
+typedef struct
+{
     int dimension;      /* Number of dimension, always 3. */
     int count;          /* Number of speakers. */
     float *azimuth;     /* Azimuth angle of speakers. */
@@ -23,21 +24,24 @@ typedef struct {
 } SPEAKERS_SETUP;
 
 /* Cartesian vector for a speaker position. */
-typedef struct {
+typedef struct
+{
     float x;
     float y;
     float z;
 } CART_VEC;
 
 /* Angular vector for a speaker position. */
-typedef struct {
+typedef struct
+{
     float azi;
     float ele;
     float length;
 } ANG_VEC;
 
 /* A struct for a loudspeaker triplet or pair (set). */
-typedef struct {
+typedef struct
+{
     int ls_nos[3];
     float inv_mx[9];
     float set_gains[3];
@@ -46,13 +50,15 @@ typedef struct {
 } LS_SET;
 
 /* A struct for a loudspeaker instance. */
-typedef struct { 
+typedef struct
+{
     CART_VEC coords;
     ANG_VEC angles;
 } ls; // TODO: rename this struct.
 
 /* VBAP structure of n loudspeaker panning */
-typedef struct {
+typedef struct
+{
     int out_patches[MAX_LS_AMOUNT];     /* Physical outputs (starts at 1). */
     float gains[MAX_LS_AMOUNT];         /* Loudspeaker gains. */
     float y[MAX_LS_AMOUNT];             /* Loudspeaker gains smoothing. */
@@ -75,7 +81,7 @@ SPEAKERS_SETUP * load_speakers_setup(int cnt, float *azi, float *ele);
  * File format:
  *
  * First line starts with an integer which is the number of speakers.
- * Remaining lines (must be equal to the number of speakers) starts with 
+ * Remaining lines (must be equal to the number of speakers) starts with
  * two floats. They give the azimuth and elevation for each speakers.
  */
 SPEAKERS_SETUP * load_speakers_setup_from_file(const char *filename);
@@ -99,7 +105,7 @@ VBAP_DATA * copy_vbap_data(VBAP_DATA *data);
  */
 void free_vbap_data(VBAP_DATA *data);
 
-/* Calculates gain factors using loudspeaker setup and angle direction. 
+/* Calculates gain factors using loudspeaker setup and angle direction.
  */
 void vbap(float azi, float ele, float spread, VBAP_DATA *data);
 void vbap2(float azi, float ele, float sp_azi,
@@ -110,7 +116,7 @@ void vbap2_flip_y_z(float azi, float ele, float sp_azi,
 
 int vbap_get_triplets(VBAP_DATA *data, int ***triplets);
 
-#ifdef __cplusplus 
+#ifdef __cplusplus
 }
 #endif
 

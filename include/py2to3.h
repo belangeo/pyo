@@ -77,7 +77,7 @@
 
 /* Unicode/string handling. */
 #if PY_MAJOR_VERSION >= 3
-#define PY_STRING_CHECK(a) PyUnicode_Check(a) 
+#define PY_STRING_CHECK(a) PyUnicode_Check(a)
 #define PY_STRING_AS_STRING(a) PyUnicode_AsUTF8(a)
 #define PY_UNICODE_AS_UNICODE(a) PyUnicode_AsUTF8(a)
 #define PY_BYTES_FROM_STRING(a) PyBytes_FromString(a)

@@ -22,47 +22,64 @@
 #include "pyomodule.h"
 #include <math.h>
 
-MYFLT nointerp(MYFLT *buf, int index, MYFLT frac, int size) {
+MYFLT nointerp(MYFLT *buf, int index, MYFLT frac, int size)
+{
     return  buf[index];
 }
 
-MYFLT linear(MYFLT *buf, int index, MYFLT frac, int size) {
+MYFLT linear(MYFLT *buf, int index, MYFLT frac, int size)
+{
     MYFLT x1 = buf[index];
-    MYFLT x2 = buf[index+1];
+    MYFLT x2 = buf[index + 1];
     return (x1 + (x2 - x1) * frac);
 }
 
-MYFLT cosine(MYFLT *buf, int index, MYFLT frac, int size) {
+MYFLT cosine(MYFLT *buf, int index, MYFLT frac, int size)
+{
     MYFLT frac2;
     MYFLT x1 = buf[index];
-    MYFLT x2 = buf[index+1];
+    MYFLT x2 = buf[index + 1];
 
     frac2 = (1.0 - MYCOS(frac * M_PI)) * 0.5;
     return (x1 + (x2 - x1) * frac2);
 }
 
-MYFLT cubic(MYFLT *buf, int index, MYFLT frac, int size) {
+MYFLT cubic(MYFLT *buf, int index, MYFLT frac, int size)
+{
     MYFLT x0, x3, a0, a1, a2, a3;
     MYFLT x1 = buf[index];
-    MYFLT x2 = buf[index+1];
+    MYFLT x2 = buf[index + 1];
 
-    if (index == 0) {
+    if (index == 0)
+    {
         x0 = x1 + (x1 - x2);
         x3 = buf[index + 2];
     }
-    else if (index >= (size-2)) {
+    else if (index >= (size - 2))
+    {
         x0 = buf[index - 1];
         x3 = x2 + (x2 - x1);
     }
-    else {
+    else
+    {
         x0 = buf[index - 1];
         x3 = buf[index + 2];
     }
 
-    a3 = frac * frac; a3 -= 1.0; a3 *= (1.0 / 6.0);
-    a2 = (frac + 1.0) * 0.5; a0 = a2 - 1.0;
-    a1 = a3 * 3.0; a2 -= a1; a0 -= a3; a1 -= frac;
-    a0 *= frac; a1 *= frac; a2 *= frac; a3 *= frac; a1 += 1.0;
+    a3 = frac * frac;
+    a3 -= 1.0;
+    a3 *= (1.0 / 6.0);
+    a2 = (frac + 1.0) * 0.5;
+    a0 = a2 - 1.0;
+    a1 = a3 * 3.0;
+    a2 -= a1;
+    a0 -= a3;
+    a1 -= frac;
+    a0 *= frac;
+    a1 *= frac;
+    a2 *= frac;
+    a3 *= frac;
+    a1 += 1.0;
 
-    return (a0*x0+a1*x1+a2*x2+a3*x3);
+    return (a0 * x0 + a1 * x1 + a2 * x2 + a3 * x3);
 }

@@ -43,31 +43,40 @@ Dummy_setProcMode(Dummy *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-	switch (muladdmode) {
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = Dummy_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = Dummy_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = Dummy_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = Dummy_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = Dummy_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = Dummy_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = Dummy_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = Dummy_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = Dummy_postprocessing_revareva;
             break;
@@ -78,17 +87,26 @@ static void
 Dummy_compute_next_data_frame(Dummy *self)
 {
     int i;
-    if (self->modebuffer[2] == 0) {
+
+    if (self->modebuffer[2] == 0)
+    {
         MYFLT inval = PyFloat_AS_DOUBLE(self->input);
-        for (i=0; i<self->bufsize; i++) {
+
+        for (i = 0; i < self->bufsize; i++)
+        {
             self->data[i] = inval;
         }
-    } else {
+    }
+    else
+    {
         MYFLT *in = Stream_getData((Stream *)self->input_stream);
-        for (i=0; i<self->bufsize; i++) {
+
+        for (i = 0; i < self->bufsize; i++)
+        {
             self->data[i] = in[i];
         }
     }
+
     (*self->muladd_func_ptr)(self);
 }
 
@@ -151,10 +169,13 @@ Dummy_setInput(Dummy *self, PyObject *arg)
     Py_INCREF(tmp);
     Py_XDECREF(self->input);
 
-    if (isNumber == 1) {
+    if (isNumber == 1)
+    {
         self->input = PyNumber_Float(tmp);
         self->modebuffer[2] = 0;
-    } else {
+    }
+    else
+    {
         self->input = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getStream", NULL);
         Py_INCREF(streamtmp);
@@ -191,7 +212,8 @@ static PyObject * Dummy_inplace_sub(Dummy *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Dummy_div(Dummy *self, PyObject *arg) { DIV };
 static PyObject * Dummy_inplace_div(Dummy *self, PyObject *arg) { INPLACE_DIV };
 
-static PyMemberDef Dummy_members[] = {
+static PyMemberDef Dummy_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(Dummy, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(Dummy, stream), 0, "Stream object."},
     {"input", T_OBJECT_EX, offsetof(Dummy, input), 0, "Input sound object."},
@@ -200,21 +222,23 @@ static PyMemberDef Dummy_members[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef Dummy_methods[] = {
+static PyMethodDef Dummy_methods[] =
+{
     {"getServer", (PyCFunction)Dummy_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Dummy_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Dummy_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)Dummy_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Dummy_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
-	{"setInput", (PyCFunction)Dummy_setInput, METH_O, "Sets the input sound object."},
-	{"setMul", (PyCFunction)Dummy_setMul, METH_O, "Sets mul factor."},
-	{"setAdd", (PyCFunction)Dummy_setAdd, METH_O, "Sets add factor."},
+    {"play", (PyCFunction)Dummy_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)Dummy_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)Dummy_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"setInput", (PyCFunction)Dummy_setInput, METH_O, "Sets the input sound object."},
+    {"setMul", (PyCFunction)Dummy_setMul, METH_O, "Sets mul factor."},
+    {"setAdd", (PyCFunction)Dummy_setAdd, METH_O, "Sets add factor."},
     {"setSub", (PyCFunction)Dummy_setSub, METH_O, "Sets inverse add factor."},
     {"setDiv", (PyCFunction)Dummy_setDiv, METH_O, "Sets inverse mul factor."},
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Dummy_as_number = {
+static PyNumberMethods Dummy_as_number =
+{
     (binaryfunc)Dummy_add,                         /*nb_add*/
     (binaryfunc)Dummy_sub,                         /*nb_subtract*/
     (binaryfunc)Dummy_multiply,                    /*nb_multiply*/
@@ -256,7 +280,8 @@ static PyNumberMethods Dummy_as_number = {
     0,                                              /* nb_index */
 };
 
-PyTypeObject DummyType = {
+PyTypeObject DummyType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.Dummy_base",                                   /*tp_name*/
     sizeof(Dummy),                                 /*tp_basicsize*/
@@ -300,7 +325,8 @@ PyTypeObject DummyType = {
 /************************************************************************************************/
 /* TriggerDummy streamer */
 /************************************************************************************************/
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     PyObject *input;
     TriggerStream *input_stream;
@@ -318,35 +344,45 @@ static void TriggerDummy_postprocessing_revaa(TriggerDummy *self) { POST_PROCESS
 static void TriggerDummy_postprocessing_revareva(TriggerDummy *self) { POST_PROCESSING_REVAREVA };
 
 static void
-TriggerDummy_setProcMode(TriggerDummy *self) {
+TriggerDummy_setProcMode(TriggerDummy *self)
+{
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    switch (muladdmode) {
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = TriggerDummy_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = TriggerDummy_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = TriggerDummy_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = TriggerDummy_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = TriggerDummy_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = TriggerDummy_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = TriggerDummy_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = TriggerDummy_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = TriggerDummy_postprocessing_revareva;
             break;
@@ -358,9 +394,12 @@ TriggerDummy_compute_next_data_frame(TriggerDummy *self)
 {
     int i;
     MYFLT *tmp = TriggerStream_getData((TriggerStream *)self->input_stream);
-    for (i=0; i<self->bufsize; i++) {
+
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->data[i] = tmp[i];
     }
+
     (*self->muladd_func_ptr)(self);
 }
 
@@ -438,7 +477,8 @@ static PyObject * TriggerDummy_inplace_sub(TriggerDummy *self, PyObject *arg) { 
 static PyObject * TriggerDummy_div(TriggerDummy *self, PyObject *arg) { DIV };
 static PyObject * TriggerDummy_inplace_div(TriggerDummy *self, PyObject *arg) { INPLACE_DIV };
 
-static PyMemberDef TriggerDummy_members[] = {
+static PyMemberDef TriggerDummy_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(TriggerDummy, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(TriggerDummy, stream), 0, "Stream object."},
     {"mul", T_OBJECT_EX, offsetof(TriggerDummy, mul), 0, "Mul factor."},
@@ -446,18 +486,20 @@ static PyMemberDef TriggerDummy_members[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef TriggerDummy_methods[] = {
+static PyMethodDef TriggerDummy_methods[] =
+{
     {"getServer", (PyCFunction)TriggerDummy_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)TriggerDummy_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)TriggerDummy_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)TriggerDummy_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
+    {"play", (PyCFunction)TriggerDummy_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)TriggerDummy_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setMul", (PyCFunction)TriggerDummy_setMul, METH_O, "Sets oscillator mul factor."},
     {"setAdd", (PyCFunction)TriggerDummy_setAdd, METH_O, "Sets oscillator add factor."},
     {"setSub", (PyCFunction)TriggerDummy_setSub, METH_O, "Sets inverse add factor."},
     {"setDiv", (PyCFunction)TriggerDummy_setDiv, METH_O, "Sets inverse mul factor."},
     {NULL}  /* Sentinel */
 };
-static PyNumberMethods TriggerDummy_as_number = {
+static PyNumberMethods TriggerDummy_as_number =
+{
     (binaryfunc)TriggerDummy_add,                         /*nb_add*/
     (binaryfunc)TriggerDummy_sub,                         /*nb_subtract*/
     (binaryfunc)TriggerDummy_multiply,                    /*nb_multiply*/
@@ -499,7 +541,8 @@ static PyNumberMethods TriggerDummy_as_number = {
     0,                                              /* nb_index */
 };
 
-PyTypeObject TriggerDummyType = {
+PyTypeObject TriggerDummyType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.TriggerDummy_base",         /*tp_name*/
     sizeof(TriggerDummy),         /*tp_basicsize*/
@@ -523,10 +566,10 @@ PyTypeObject TriggerDummyType = {
     "TriggerDummy objects. Sends trigger at the end of playback.",           /* tp_doc */
     (traverseproc)TriggerDummy_traverse,   /* tp_traverse */
     (inquiry)TriggerDummy_clear,           /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
     TriggerDummy_methods,             /* tp_methods */
     TriggerDummy_members,             /* tp_members */
     0,                      /* tp_getset */

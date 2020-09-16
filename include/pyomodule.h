@@ -679,10 +679,10 @@ extern PyTypeObject MMLZStreamType;
     free(self->data); \
 
 #define ASSERT_ARG_NOT_NULL \
-	if (arg == NULL) { \
-		Py_INCREF(Py_None); \
-		return Py_None; \
-	}
+    if (arg == NULL) { \
+        Py_INCREF(Py_None); \
+        return Py_None; \
+    }
 
 /* INIT INPUT STREAM */
 #define INIT_INPUT_STREAM \
@@ -1205,28 +1205,28 @@ extern PyTypeObject MMLZStreamType;
 
 /* Normalize */
 #define NORMALIZE \
-	int i; \
-	MYFLT mi, ma, max, ratio; \
-	mi = ma = *self->data; \
-	for (i=1; i<self->size; i++) { \
-		if (mi > *(self->data+i)) \
-			mi = *(self->data+i); \
-		if (ma < *(self->data+i)) \
-			ma = *(self->data+i); \
-	} \
-	if ((mi*mi) > (ma*ma)) \
-		max = MYFABS(mi); \
-	else \
-		max = MYFABS(ma); \
+    int i; \
+    MYFLT mi, ma, max, ratio; \
+    mi = ma = *self->data; \
+    for (i=1; i<self->size; i++) { \
+        if (mi > *(self->data+i)) \
+            mi = *(self->data+i); \
+        if (ma < *(self->data+i)) \
+            ma = *(self->data+i); \
+    } \
+    if ((mi*mi) > (ma*ma)) \
+        max = MYFABS(mi); \
+    else \
+        max = MYFABS(ma); \
  \
-	if (max > 0.0) { \
-		ratio = 0.99 / max; \
-		for (i=0; i<self->size+1; i++) { \
-			self->data[i] *= ratio; \
-		} \
-	} \
-	Py_INCREF(Py_None); \
-	return Py_None; \
+    if (max > 0.0) { \
+        ratio = 0.99 / max; \
+        for (i=0; i<self->size+1; i++) { \
+            self->data[i] *= ratio; \
+        } \
+    } \
+    Py_INCREF(Py_None); \
+    return Py_None; \
 
 #define NORMALIZE_MATRIX \
     int i, j; \

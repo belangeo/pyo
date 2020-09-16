@@ -105,14 +105,16 @@ PyObject * PyServer_get_server() { return (PyObject *)my_server[serverID]; };
 
 #define num_rnd_objs 29
 
-int rnd_objs_count[num_rnd_objs] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-int rnd_objs_mult[num_rnd_objs] = {1993,1997,1999,2003,2011,2017,2027,2029,2039,2053,2063,2069,
-                                   2081,2083,2087,2089,2099,2111,2113,2129,2131,2137,2141,2143,
-                                   2153,2161,2179,2203,2207};
+int rnd_objs_count[num_rnd_objs] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+int rnd_objs_mult[num_rnd_objs] = {1993, 1997, 1999, 2003, 2011, 2017, 2027, 2029, 2039, 2053, 2063, 2069,
+                                   2081, 2083, 2087, 2089, 2099, 2111, 2113, 2129, 2131, 2137, 2141, 2143,
+                                   2153, 2161, 2179, 2203, 2207
+                                  };
 
 /* Linear congruential pseudo-random generator. */
 static unsigned int PYO_RAND_SEED = 1u;
-unsigned int pyorand() {
+unsigned int pyorand()
+{
     PYO_RAND_SEED = (PYO_RAND_SEED * 1664525 + 1013904223) % PYO_RAND_MAX;
     return PYO_RAND_SEED;
 }
@@ -124,60 +126,66 @@ unsigned int pyorand() {
 void
 Server_error(Server *self, char * format, ...)
 {
-    if (self->verbosity & 1) {
+    if (self->verbosity & 1)
+    {
         char buffer[256];
         va_list args;
         va_start (args, format);
-        vsprintf (buffer,format, args);
+        vsprintf (buffer, format, args);
         va_end (args);
 
         PySys_WriteStdout("Pyo error: %s", buffer);
     }
 }
 
-/* Messages should print useful or relevant information, or 
+/* Messages should print useful or relevant information, or
    information requested by the user. */
 void
 Server_message(Server *self, char * format, ...)
 {
-    if (self->verbosity & 2) {
+    if (self->verbosity & 2)
+    {
         char buffer[256];
         va_list args;
         va_start (args, format);
-        vsprintf (buffer,format, args);
+        vsprintf (buffer, format, args);
         va_end (args);
 
         PySys_WriteStdout("Pyo message: %s", buffer);
     }
 }
 
-/* Warnings should be used when an unexpected or unusual 
+/* Warnings should be used when an unexpected or unusual
    choice was made by pyo. */
 void
 Server_warning(Server *self, char * format, ...)
 {
 #ifndef NO_MESSAGES
-    if (self->verbosity & 4) {
+
+    if (self->verbosity & 4)
+    {
         char buffer[256];
         va_list args;
         va_start (args, format);
-        vsprintf (buffer,format, args);
+        vsprintf (buffer, format, args);
         va_end (args);
         PySys_WriteStdout("Pyo warning: %s", buffer);
     }
+
 #endif
 }
 
-/* Debug messages should print internal information which 
+/* Debug messages should print internal information which
    might be necessary for debugging internal conditions. */
 void
 Server_debug(Server *self, char * format, ...)
 {
-    if (self->verbosity & 8) {
+    if (self->verbosity & 8)
+    {
         char buffer[256];
         va_list args;
         va_start (args, format);
-        vsprintf (buffer,format, args);
+        vsprintf (buffer, format, args);
         va_end (args);
 
         PySys_WriteStdout("Pyo debug: %s", buffer);
@@ -206,22 +214,29 @@ void
     self = (Server *)arg;
 
     PyGILState_STATE s = PyGILState_Ensure();
-    if (self->recdur < 0) {
+
+    if (self->recdur < 0)
+    {
         Server_error(self, "Duration must be specified for Offline Server (see Server.recordOptions).");
     }
-    else {
+    else
+    {
         Server_message(self, "Offline Server rendering file %s dur=%f\n", self->recpath, self->recdur);
-        numBlocks = ceil(self->recdur * self->samplingRate/self->bufferSize);
-        Server_debug(self,"Offline Server rendering, number of blocks = %i\n", numBlocks);
+        numBlocks = ceil(self->recdur * self->samplingRate / self->bufferSize);
+        Server_debug(self, "Offline Server rendering, number of blocks = %i\n", numBlocks);
         Server_start_rec_internal(self, self->recpath);
-        while (numBlocks-- > 0 && self->server_stopped == 0) {
+
+        while (numBlocks-- > 0 && self->server_stopped == 0)
+        {
             offline_process_block((Server *) self);
         }
+
         self->server_started = 0;
         self->record = 0;
         sf_close(self->recfile);
         Server_message(self, "Offline Server rendering finished.\n");
     }
+
     PyGILState_Release(s);
 
     return NULL;
@@ -240,17 +255,22 @@ Server_offline_start(Server *self)
 {
     int numBlocks;
 
-    if (self->recdur < 0) {
+    if (self->recdur < 0)
+    {
         Server_error(self, "Duration must be specified for Offline Server (see Server.recordOptions).");
         return -1;
     }
+
     Server_message(self, "Offline Server rendering file %s dur=%f\n", self->recpath, self->recdur);
-    numBlocks = ceil(self->recdur * self->samplingRate/self->bufferSize);
-    Server_debug(self,"Offline Server rendering, number of blocks = %i\n", numBlocks);
+    numBlocks = ceil(self->recdur * self->samplingRate / self->bufferSize);
+    Server_debug(self, "Offline Server rendering, number of blocks = %i\n", numBlocks);
     Server_start_rec_internal(self, self->recpath);
-    while (numBlocks-- > 0 && self->server_stopped == 0) {
+
+    while (numBlocks-- > 0 && self->server_stopped == 0)
+    {
         offline_process_block((Server *) self);
     }
+
     self->server_started = 0;
     self->server_stopped = 1;
     self->record = 0;
@@ -297,15 +317,19 @@ Server_embedded_ni_start(Server *self)
 
     Server_process_buffers(self);
 
-    for (i=0; i<(self->bufferSize*self->nchnls); i++){
+    for (i = 0; i < (self->bufferSize * self->nchnls); i++)
+    {
         out[i] = self->output_buffer[i];
     }
 
-    for (i=0; i<self->bufferSize; i++) {
-        for (j=0; j<self->nchnls; j++) {
-            self->output_buffer[(j*self->bufferSize)+i] = out[(i*self->nchnls)+j];
+    for (i = 0; i < self->bufferSize; i++)
+    {
+        for (j = 0; j < self->nchnls; j++)
+        {
+            self->output_buffer[(j * self->bufferSize) + i] = out[(i * self->nchnls) + j];
         }
     }
+
     self->midi_count = 0;
     return 0;
 }
@@ -373,47 +397,66 @@ Server_process_buffers(Server *server)
     if (server->CALLBACK != NULL)
         PyObject_Call((PyObject *)server->CALLBACK, PyTuple_New(0), NULL);
 
-    for (i=0; i<server->stream_count; i++) {
+    for (i = 0; i < server->stream_count; i++)
+    {
         stream_tmp = (Stream *)PyList_GET_ITEM(server->streams, i);
-        if (Stream_getStreamActive(stream_tmp) == 1) {
+
+        if (Stream_getStreamActive(stream_tmp) == 1)
+        {
             Stream_callFunction(stream_tmp);
-            if (Stream_getStreamToDac(stream_tmp) != 0) {
+
+            if (Stream_getStreamToDac(stream_tmp) != 0)
+            {
                 data = Stream_getData(stream_tmp);
                 chnl = Stream_getStreamChnl(stream_tmp);
-                for (j=0; j < server->bufferSize; j++) {
+
+                for (j = 0; j < server->bufferSize; j++)
+                {
                     buffer[chnl][j] += *data++;
                 }
             }
-            if (Stream_getDuration(stream_tmp) != 0) {
+
+            if (Stream_getDuration(stream_tmp) != 0)
+            {
                 Stream_IncrementDurationCount(stream_tmp);
             }
         }
         else if (Stream_getBufferCountWait(stream_tmp) != 0)
             Stream_IncrementBufferCount(stream_tmp);
     }
-    if (server->withGUI == 1 && nchnls <= 16) {
+
+    if (server->withGUI == 1 && nchnls <= 16)
+    {
         Server_process_gui(server);
     }
-    if (server->withTIME == 1) {
+
+    if (server->withTIME == 1)
+    {
         Server_process_time(server);
     }
+
     server->elapsedSamples += server->bufferSize;
 
     PyGILState_Release(s);
 
-    if (amp != server->lastAmp) {
+    if (amp != server->lastAmp)
+    {
         server->timeCount = 0;
         server->stepVal = (amp - server->currentAmp) / server->timeStep;
         server->lastAmp = amp;
     }
 
-    for (i=0; i < server->bufferSize; i++){
-        if (server->timeCount < server->timeStep) {
+    for (i = 0; i < server->bufferSize; i++)
+    {
+        if (server->timeCount < server->timeStep)
+        {
             server->currentAmp += server->stepVal;
             server->timeCount++;
         }
-        for (j=0; j<server->nchnls; j++) {
-            out[(i*server->nchnls)+j] = (float)buffer[j][i] * server->currentAmp;
+
+        for (j = 0; j < server->nchnls; j++)
+        {
+            out[(i * server->nchnls) + j] = (float)buffer[j][i] * server->currentAmp;
         }
     }
 
@@ -432,76 +475,105 @@ Server_process_gui(Server *server)
     float rms[server->nchnls];
     float *out = server->output_buffer;
     float outAmp;
-    int i,j;
-    for (j=0; j<server->nchnls; j++) {
+    int i, j;
+
+    for (j = 0; j < server->nchnls; j++)
+    {
         rms[j] = 0.0;
-        for (i=0; i<server->bufferSize; i++) {
-            outAmp = out[(i*server->nchnls)+j];
+
+        for (i = 0; i < server->bufferSize; i++)
+        {
+            outAmp = out[(i * server->nchnls) + j];
             outAmp *= outAmp;
+
             if (outAmp > rms[j])
                 rms[j] = outAmp;
         }
     }
-    if (server->gcount <= server->numPass) {
-        for (j=0; j<server->nchnls; j++) {
+
+    if (server->gcount <= server->numPass)
+    {
+        for (j = 0; j < server->nchnls; j++)
+        {
             server->lastRms[j] = (rms[j] + server->lastRms[j]) * 0.5;
         }
+
         server->gcount++;
     }
-    else {
-        for (j=0; j<server->nchnls; j++) {
+    else
+    {
+        for (j = 0; j < server->nchnls; j++)
+        {
             server->lastRms[j] = (rms[j] + server->lastRms[j]) * 0.5;
         }
-        switch (server->nchnls) {
+
+        switch (server->nchnls)
+        {
             case 1:
                 PyObject_CallMethod((PyObject *)server->GUI, "setRms", "f", server->lastRms[0]);
                 break;
+
             case 2:
                 PyObject_CallMethod((PyObject *)server->GUI, "setRms", "ff", server->lastRms[0], server->lastRms[1]);
                 break;
+
             case 3:
                 PyObject_CallMethod((PyObject *)server->GUI, "setRms", "fff", server->lastRms[0], server->lastRms[1], server->lastRms[2]);
                 break;
+
             case 4:
                 PyObject_CallMethod((PyObject *)server->GUI, "setRms", "ffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3]);
                 break;
+
             case 5:
                 PyObject_CallMethod((PyObject *)server->GUI, "setRms", "fffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4]);
                 break;
+
             case 6:
                 PyObject_CallMethod((PyObject *)server->GUI, "setRms", "ffffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4], server->lastRms[5]);
                 break;
+
             case 7:
                 PyObject_CallMethod((PyObject *)server->GUI, "setRms", "fffffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4], server->lastRms[5], server->lastRms[6]);
                 break;
+
             case 8:
                 PyObject_CallMethod((PyObject *)server->GUI, "setRms", "ffffffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4], server->lastRms[5], server->lastRms[6], server->lastRms[7]);
                 break;
+
             case 9:
                 PyObject_CallMethod((PyObject *)server->GUI, "setRms", "fffffffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4], server->lastRms[5], server->lastRms[6], server->lastRms[7], server->lastRms[8]);
                 break;
+
             case 10:
                 PyObject_CallMethod((PyObject *)server->GUI, "setRms", "ffffffffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4], server->lastRms[5], server->lastRms[6], server->lastRms[7], server->lastRms[8], server->lastRms[9]);
                 break;
+
             case 11:
                 PyObject_CallMethod((PyObject *)server->GUI, "setRms", "fffffffffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4], server->lastRms[5], server->lastRms[6], server->lastRms[7], server->lastRms[8], server->lastRms[9], server->lastRms[10]);
                 break;
+
             case 12:
                 PyObject_CallMethod((PyObject *)server->GUI, "setRms", "ffffffffffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4], server->lastRms[5], server->lastRms[6], server->lastRms[7], server->lastRms[8], server->lastRms[9], server->lastRms[10], server->lastRms[11]);
                 break;
+
             case 13:
                 PyObject_CallMethod((PyObject *)server->GUI, "setRms", "fffffffffffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4], server->lastRms[5], server->lastRms[6], server->lastRms[7], server->lastRms[8], server->lastRms[9], server->lastRms[10], server->lastRms[11], server->lastRms[12]);
                 break;
+
             case 14:
                 PyObject_CallMethod((PyObject *)server->GUI, "setRms", "ffffffffffffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4], server->lastRms[5], server->lastRms[6], server->lastRms[7], server->lastRms[8], server->lastRms[9], server->lastRms[10], server->lastRms[11], server->lastRms[12], server->lastRms[13]);
                 break;
+
             case 15:
                 PyObject_CallMethod((PyObject *)server->GUI, "setRms", "fffffffffffffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4], server->lastRms[5], server->lastRms[6], server->lastRms[7], server->lastRms[8], server->lastRms[9], server->lastRms[10], server->lastRms[11], server->lastRms[12], server->lastRms[13], server->lastRms[14]);
                 break;
+
             case 16:
                 PyObject_CallMethod((PyObject *)server->GUI, "setRms", "ffffffffffffffff", server->lastRms[0], server->lastRms[1], server->lastRms[2], server->lastRms[3], server->lastRms[4], server->lastRms[5], server->lastRms[6], server->lastRms[7], server->lastRms[8], server->lastRms[9], server->lastRms[10], server->lastRms[11], server->lastRms[12], server->lastRms[13], server->lastRms[14], server->lastRms[15]);
                 break;
         }
+
         server->gcount = 0;
     }
 }
@@ -513,10 +585,12 @@ Server_process_time(Server *server)
     float sr = server->samplingRate;
     double sampsToSecs;
 
-    if (server->tcount <= server->timePass) {
+    if (server->tcount <= server->timePass)
+    {
         server->tcount++;
     }
-    else {
+    else
+    {
         sampsToSecs = (double)(server->elapsedSamples / sr);
         seconds = (int)sampsToSecs;
         milliseconds = (int)((sampsToSecs - seconds) * 1000);
@@ -534,8 +608,10 @@ Server_traverse(Server *self, visitproc visit, void *arg)
 {
     Py_VISIT(self->GUI);
     Py_VISIT(self->TIME);
+
     if (self->CALLBACK != NULL)
         Py_VISIT(self->CALLBACK);
+
     Py_VISIT(self->streams);
     Py_VISIT(self->jackInputPortNames);
     Py_VISIT(self->jackOutputPortNames);
@@ -553,8 +629,10 @@ Server_clear(Server *self)
 {
     Py_CLEAR(self->GUI);
     Py_CLEAR(self->TIME);
+
     if (self->CALLBACK != NULL)
         Py_CLEAR(self->CALLBACK);
+
     Py_CLEAR(self->streams);
     Py_CLEAR(self->jackInputPortNames);
     Py_CLEAR(self->jackOutputPortNames);
@@ -572,12 +650,15 @@ Server_dealloc(Server* self)
 {
     if (self->server_booted == 1)
         Server_shutdown(self);
+
     Server_clear(self);
     free(self->input_buffer);
     free(self->output_buffer);
     free(self->serverName);
+
     if (self->withGUI == 1)
         free(self->lastRms);
+
     my_server[self->thisServerID] = NULL;
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -596,19 +677,25 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     char *serverName = "pyo";
 
     static char *kwlist[] = {"sr", "nchnls", "buffersize", "duplex", "audio", "jackname", "ichnls", "midi", NULL};
+
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|diiissis", kwlist,
-            &samplingRate, &nchnls, &bufferSize, &duplex, &audioType, &serverName, &ichnls, &midiType)) {
+                                      &samplingRate, &nchnls, &bufferSize, &duplex, &audioType, &serverName, &ichnls, &midiType))
+    {
         Py_INCREF(Py_False);
         return Py_False;
     }
 
     /* find the first free serverID */
-    for(serverID = 0; serverID < MAX_NBR_SERVER; serverID++){
-        if (my_server[serverID] == NULL){
+    for(serverID = 0; serverID < MAX_NBR_SERVER; serverID++)
+    {
+        if (my_server[serverID] == NULL)
+        {
             break;
         }
     }
-    if(serverID == MAX_NBR_SERVER){
+
+    if(serverID == MAX_NBR_SERVER)
+    {
         PyErr_SetString(PyExc_RuntimeError, "You are already using the maximum number of server allowed!\n");
         Py_RETURN_NONE;
     }
@@ -683,47 +770,60 @@ Server_init(Server *self, PyObject *args, PyObject *kwds)
     char *serverName = "pyo";
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|diiissis", kwlist,
-            &self->samplingRate, &self->nchnls, &self->bufferSize, &self->duplex, &audioType, &serverName, &self->ichnls, &midiType))
+                                      &self->samplingRate, &self->nchnls, &self->bufferSize, &self->duplex, &audioType, &serverName, &self->ichnls, &midiType))
         return -1;
 
-    if (strcmp(audioType, "jack") == 0) {
+    if (strcmp(audioType, "jack") == 0)
+    {
         self->audio_be_type = PyoJack;
     }
-    else if (strcmp(audioType, "portaudio") == 0 || strcmp(audioType, "pa") == 0 ) {
+    else if (strcmp(audioType, "portaudio") == 0 || strcmp(audioType, "pa") == 0 )
+    {
         self->audio_be_type = PyoPortaudio;
     }
-    else if (strcmp(audioType, "coreaudio") == 0) {
+    else if (strcmp(audioType, "coreaudio") == 0)
+    {
         self->audio_be_type = PyoCoreaudio;
     }
-    else if (strcmp(audioType, "offline") == 0) {
+    else if (strcmp(audioType, "offline") == 0)
+    {
         self->audio_be_type = PyoOffline;
     }
-    else if (strcmp(audioType, "offline_nb") == 0) {
+    else if (strcmp(audioType, "offline_nb") == 0)
+    {
         self->audio_be_type = PyoOfflineNB;
     }
-    else if (strcmp(audioType, "embedded") == 0) {
+    else if (strcmp(audioType, "embedded") == 0)
+    {
         self->audio_be_type = PyoEmbedded;
     }
-    else {
+    else
+    {
         Server_warning(self, "Unknown audio type. Using Portaudio\n");
         self->audio_be_type = PyoPortaudio;
     }
 
     self->withJackMidi = 0;
-    if (strcmp(midiType, "portmidi") == 0 || strcmp(midiType, "pm") == 0 ) {
+
+    if (strcmp(midiType, "portmidi") == 0 || strcmp(midiType, "pm") == 0 )
+    {
         self->midi_be_type = PyoPortmidi;
     }
-    else if (strcmp(midiType, "jack") == 0) {
+    else if (strcmp(midiType, "jack") == 0)
+    {
         self->midi_be_type = PyoJackMidi;
         self->withJackMidi = 1;
     }
-    else {
+    else
+    {
         Server_warning(self, "Unknown midi type. Using Portmidi\n");
         self->midi_be_type = PyoPortmidi;
     }
 
     strncpy(self->serverName, serverName, 32);
-    if (strlen(serverName) > 31) {
+
+    if (strlen(serverName) > 31)
+    {
         self->serverName[31] = '\0';
     }
 
@@ -747,80 +847,99 @@ Server_setDefaultRecPath(Server *self, PyObject *args, PyObject *kwds)
 static PyObject *
 Server_setInputOffset(Server *self, PyObject *arg)
 {
-    if (self->server_booted) {
+    if (self->server_booted)
+    {
         Server_warning(self, "Can't change input offset when the Server is already booted.\n");
         Py_RETURN_NONE;
     }
-    if (arg != NULL) {
+
+    if (arg != NULL)
+    {
         if (PyInt_Check(arg))
             self->input_offset = PyInt_AsLong(arg);
     }
+
     Py_RETURN_NONE;
 }
 
 static PyObject *
 Server_setOutputOffset(Server *self, PyObject *arg)
 {
-    if (self->server_booted) {
+    if (self->server_booted)
+    {
         Server_warning(self, "Can't change output offset when the Server is already booted.\n");
         Py_RETURN_NONE;
     }
-    if (arg != NULL) {
+
+    if (arg != NULL)
+    {
         if (PyInt_Check(arg))
             self->output_offset = PyInt_AsLong(arg);
     }
+
     Py_RETURN_NONE;
 }
 
 static PyObject *
 Server_setInputDevice(Server *self, PyObject *arg)
 {
-    if (arg != NULL) {
+    if (arg != NULL)
+    {
         if (PyInt_Check(arg))
             self->input = PyInt_AsLong(arg);
     }
+
     Py_RETURN_NONE;
 }
 
 static PyObject *
 Server_setInOutDevice(Server *self, PyObject *arg)
 {
-    if (arg != NULL) {
-        if (PyInt_Check(arg)) {
+    if (arg != NULL)
+    {
+        if (PyInt_Check(arg))
+        {
             self->input = PyInt_AsLong(arg);
             self->output = PyInt_AsLong(arg);
         }
     }
+
     Py_RETURN_NONE;
 }
 
 static PyObject *
 Server_setOutputDevice(Server *self, PyObject *arg)
 {
-    if (arg != NULL) {
+    if (arg != NULL)
+    {
         if (PyInt_Check(arg))
             self->output = PyInt_AsLong(arg);
     }
+
     Py_RETURN_NONE;
 }
 
 static PyObject *
 Server_setMidiInputDevice(Server *self, PyObject *arg)
 {
-    if (arg != NULL) {
+    if (arg != NULL)
+    {
         if (PyInt_Check(arg))
             self->midi_input = PyInt_AsLong(arg);
     }
+
     Py_RETURN_NONE;
 }
 
 static PyObject *
 Server_setMidiOutputDevice(Server *self, PyObject *arg)
 {
-    if (arg != NULL) {
+    if (arg != NULL)
+    {
         if (PyInt_Check(arg))
             self->midi_output = PyInt_AsLong(arg);
     }
+
     Py_RETURN_NONE;
 }
 
@@ -834,105 +953,134 @@ Server_deactivateMidi(Server *self)
 static PyObject *
 Server_setSamplingRate(Server *self, PyObject *arg)
 {
-    if (self->server_booted) {
+    if (self->server_booted)
+    {
         Server_warning(self, "Can't change sampling rate when the Server is already booted.\n");
         Py_RETURN_NONE;
     }
-    if (arg != NULL && PyNumber_Check(arg)) {
+
+    if (arg != NULL && PyNumber_Check(arg))
+    {
         self->samplingRate = PyFloat_AsDouble(arg);
     }
-    else {
+    else
+    {
         Server_error(self, "Sampling rate must be a number.\n");
     }
+
     Py_RETURN_NONE;
 }
 
 static PyObject *
 Server_setNchnls(Server *self, PyObject *arg)
 {
-    if (self->server_booted) {
+    if (self->server_booted)
+    {
         Server_warning(self, "Can't change number of channels when the Server is already booted.\n");
         Py_RETURN_NONE;
     }
-    if (arg != NULL && PyInt_Check(arg)) {
+
+    if (arg != NULL && PyInt_Check(arg))
+    {
         self->nchnls = PyInt_AsLong(arg);
     }
-    else {
+    else
+    {
         Server_error(self, "Number of channels must be an integer.\n");
     }
+
     Py_RETURN_NONE;
 }
 
 static PyObject *
 Server_setIchnls(Server *self, PyObject *arg)
 {
-    if (self->server_booted) {
+    if (self->server_booted)
+    {
         Server_warning(self, "Can't change number of input channels when the Server is already booted.\n");
         Py_RETURN_NONE;
     }
-    if (arg != NULL && PyInt_Check(arg)) {
+
+    if (arg != NULL && PyInt_Check(arg))
+    {
         self->ichnls = PyInt_AsLong(arg);
     }
-    else {
+    else
+    {
         Server_error(self, "Number of input channels must be an integer.\n");
     }
+
     Py_RETURN_NONE;
 }
 
 static PyObject *
 Server_setBufferSize(Server *self, PyObject *arg)
 {
-    if (self->server_booted) {
+    if (self->server_booted)
+    {
         Server_warning(self, "Can't change buffer size when the Server is already booted.\n");
         Py_RETURN_NONE;
     }
-    if (arg != NULL && PyInt_Check(arg)) {
+
+    if (arg != NULL && PyInt_Check(arg))
+    {
         self->bufferSize = PyInt_AsLong(arg);
     }
-    else {
+    else
+    {
         Server_error(self, "Buffer size must be an integer.\n");
     }
+
     Py_RETURN_NONE;
 }
 
 static PyObject *
 Server_setGlobalDur(Server *self, PyObject *arg)
 {
-    if (arg != NULL && PyNumber_Check(arg)) {
+    if (arg != NULL && PyNumber_Check(arg))
+    {
         self->globalDur = PyFloat_AsDouble(arg);
     }
+
     Py_RETURN_NONE;
 }
 
 static PyObject *
 Server_setGlobalDel(Server *self, PyObject *arg)
 {
-    if (arg != NULL && PyNumber_Check(arg)) {
+    if (arg != NULL && PyNumber_Check(arg))
+    {
         self->globalDel = PyFloat_AsDouble(arg);
     }
+
     Py_RETURN_NONE;
 }
 
 static PyObject *
 Server_setDuplex(Server *self, PyObject *arg)
 {
-    if (self->server_booted) {
-        Server_warning(self,"Can't change duplex mode when the Server is already booted.\n");
+    if (self->server_booted)
+    {
+        Server_warning(self, "Can't change duplex mode when the Server is already booted.\n");
         Py_RETURN_NONE;
     }
-    if (arg != NULL) {
+
+    if (arg != NULL)
+    {
         if (PyInt_Check(arg))
             self->duplex = PyInt_AsLong(arg);
     }
+
     Py_RETURN_NONE;
 }
 
 static PyObject *
 Server_setJackAuto(Server *self, PyObject *args)
 {
-    int in=1, out=1;
+    int in = 1, out = 1;
 
-    if (! PyArg_ParseTuple(args, "ii", &in, &out)) {
+    if (! PyArg_ParseTuple(args, "ii", &in, &out))
+    {
         Py_RETURN_NONE;
     }
 
@@ -947,8 +1095,10 @@ Server_setJackAutoConnectInputPorts(Server *self, PyObject *arg)
 {
     PyObject *tmp;
 
-    if (arg != NULL) {
-        if (PyList_Check(arg)) {
+    if (arg != NULL)
+    {
+        if (PyList_Check(arg))
+        {
             tmp = arg;
             Py_XDECREF(self->jackAutoConnectInputPorts);
             Py_INCREF(tmp);
@@ -964,8 +1114,10 @@ Server_setJackAutoConnectOutputPorts(Server *self, PyObject *arg)
 {
     PyObject *tmp;
 
-    if (arg != NULL) {
-        if (PyList_Check(arg)) {
+    if (arg != NULL)
+    {
+        if (PyList_Check(arg))
+        {
             tmp = arg;
             Py_XDECREF(self->jackAutoConnectOutputPorts);
             Py_INCREF(tmp);
@@ -981,8 +1133,10 @@ Server_setJackAutoConnectMidiInputPort(Server *self, PyObject *arg)
 {
     PyObject *tmp;
 
-    if (arg != NULL) {
-        if (PyList_Check(arg)) {
+    if (arg != NULL)
+    {
+        if (PyList_Check(arg))
+        {
             tmp = arg;
             Py_XDECREF(self->jackAutoConnectMidiInputPort);
             Py_INCREF(tmp);
@@ -998,8 +1152,10 @@ Server_setJackAutoConnectMidiOutputPort(Server *self, PyObject *arg)
 {
     PyObject *tmp;
 
-    if (arg != NULL) {
-        if (PyList_Check(arg)) {
+    if (arg != NULL)
+    {
+        if (PyList_Check(arg))
+        {
             tmp = arg;
             Py_XDECREF(self->jackAutoConnectMidiOutputPort);
             Py_INCREF(tmp);
@@ -1015,8 +1171,10 @@ Server_setJackInputPortNames(Server *self, PyObject *arg)
 {
     PyObject *tmp;
 
-    if (arg != NULL) {
-        if (PyList_Check(arg) || PY_STRING_CHECK(arg)) {
+    if (arg != NULL)
+    {
+        if (PyList_Check(arg) || PY_STRING_CHECK(arg))
+        {
             tmp = arg;
             Py_XDECREF(self->jackInputPortNames);
             Py_INCREF(tmp);
@@ -1034,8 +1192,10 @@ Server_setJackOutputPortNames(Server *self, PyObject *arg)
 {
     PyObject *tmp;
 
-    if (arg != NULL) {
-        if (PyList_Check(arg) || PY_STRING_CHECK(arg)) {
+    if (arg != NULL)
+    {
+        if (PyList_Check(arg) || PY_STRING_CHECK(arg))
+        {
             tmp = arg;
             Py_XDECREF(self->jackOutputPortNames);
             Py_INCREF(tmp);
@@ -1053,8 +1213,10 @@ Server_setJackMidiInputPortName(Server *self, PyObject *arg)
 {
     PyObject *tmp;
 
-    if (arg != NULL) {
-        if (PY_STRING_CHECK(arg)) {
+    if (arg != NULL)
+    {
+        if (PY_STRING_CHECK(arg))
+        {
             tmp = arg;
             Py_XDECREF(self->jackMidiInputPortName);
             Py_INCREF(tmp);
@@ -1072,8 +1234,10 @@ Server_setJackMidiOutputPortName(Server *self, PyObject *arg)
 {
     PyObject *tmp;
 
-    if (arg != NULL) {
-        if (PY_STRING_CHECK(arg)) {
+    if (arg != NULL)
+    {
+        if (PY_STRING_CHECK(arg))
+        {
             tmp = arg;
             Py_XDECREF(self->jackMidiOutputPortName);
             Py_INCREF(tmp);
@@ -1089,14 +1253,18 @@ Server_setJackMidiOutputPortName(Server *self, PyObject *arg)
 static PyObject *
 Server_setIsJackTransportSlave(Server *self, PyObject *arg)
 {
-    if (self->server_booted) {
-        Server_warning(self,"Can't change isJackTransportSlave mode when the Server is already booted.\n");
+    if (self->server_booted)
+    {
+        Server_warning(self, "Can't change isJackTransportSlave mode when the Server is already booted.\n");
         Py_RETURN_NONE;
     }
-    if (arg != NULL) {
+
+    if (arg != NULL)
+    {
         if (PyInt_Check(arg))
             self->isJackTransportSlave = PyInt_AsLong(arg);
     }
+
     Py_RETURN_NONE;
 }
 
@@ -1105,7 +1273,8 @@ Server_setGlobalSeed(Server *self, PyObject *arg)
 {
     self->globalSeed = 0;
 
-    if (arg != NULL && PyLong_Check(arg)) {
+    if (arg != NULL && PyLong_Check(arg))
+    {
         self->globalSeed = (int)PyInt_AsLong(arg);
         self->globalSeed = self->globalSeed > 0 ? self->globalSeed : 0;
     }
@@ -1121,10 +1290,12 @@ Server_generateSeed(Server *self, int oid)
     count = ++rnd_objs_count[oid];
     mult = rnd_objs_mult[oid];
 
-    if (self->globalSeed > 0) {
+    if (self->globalSeed > 0)
+    {
         curseed = (self->globalSeed + count * mult) % PYO_RAND_MAX;
     }
-    else {
+    else
+    {
         ltime = (unsigned int)time(NULL);
         curseed = (ltime * ltime + count * mult) % PYO_RAND_MAX;
     }
@@ -1137,15 +1308,19 @@ Server_generateSeed(Server *self, int oid)
 static PyObject *
 Server_setAmp(Server *self, PyObject *arg)
 {
-    if (arg != NULL) {
+    if (arg != NULL)
+    {
         int check = PyNumber_Check(arg);
 
-        if (check) {
+        if (check)
+        {
             self->amp = PyFloat_AsDouble(arg);
+
             if (self->amp != 0.0)
                 self->resetAmp = self->amp;
         }
     }
+
     Py_RETURN_NONE;
 }
 
@@ -1163,16 +1338,21 @@ Server_setAmpCallable(Server *self, PyObject *arg)
     self->GUI = tmp;
 
     self->lastRms = (float *)realloc(self->lastRms, self->nchnls * sizeof(float));
-    for (i=0; i<self->nchnls; i++) {
+
+    for (i = 0; i < self->nchnls; i++)
+    {
         self->lastRms[i] = 0.0;
     }
 
-    for (i=1; i<100; i++) {
-        if ((self->bufferSize * i / self->samplingRate) > 0.045) {
+    for (i = 1; i < 100; i++)
+    {
+        if ((self->bufferSize * i / self->samplingRate) > 0.045)
+        {
             self->numPass = i;
             break;
         }
     }
+
     self->gcount = 0;
     self->withGUI = 1;
 
@@ -1192,12 +1372,15 @@ Server_setTimeCallable(Server *self, PyObject *arg)
     Py_INCREF(tmp);
     self->TIME = tmp;
 
-    for (i=1; i<100; i++) {
-        if ((self->bufferSize * i / self->samplingRate) > 0.06) {
+    for (i = 1; i < 100; i++)
+    {
+        if ((self->bufferSize * i / self->samplingRate) > 0.06)
+        {
             self->timePass = i;
             break;
         }
     }
+
     self->tcount = 0;
     self->withTIME = 1;
 
@@ -1222,10 +1405,12 @@ Server_setCallback(Server *self, PyObject *arg)
 static PyObject *
 Server_setVerbosity(Server *self, PyObject *arg)
 {
-    if (arg != NULL) {
+    if (arg != NULL)
+    {
         int check = PyInt_Check(arg);
 
-        if (check) {
+        if (check)
+        {
             self->verbosity = PyInt_AsLong(arg);
         }
     }
@@ -1236,10 +1421,12 @@ Server_setVerbosity(Server *self, PyObject *arg)
 static PyObject *
 Server_setStartOffset(Server *self, PyObject *arg)
 {
-    if (arg != NULL) {
+    if (arg != NULL)
+    {
         int check = PyNumber_Check(arg);
 
-        if (check) {
+        if (check)
+        {
             self->startoffset = PyFloat_AsDouble(arg);
         }
     }
@@ -1264,64 +1451,87 @@ Server_shutdown(Server *self)
     int i, ret = -1;
     PyGILState_STATE s = 0;
 
-    if (self->server_booted == 0) {
+    if (self->server_booted == 0)
+    {
         Server_error(self, "The Server must be booted!\n");
         Py_RETURN_NONE;
     }
-    if (self->server_started == 1) {
+
+    if (self->server_started == 1)
+    {
         Server_stop((Server *)self);
     }
 
-    for (i=0; i<num_rnd_objs; i++) {
+    for (i = 0; i < num_rnd_objs; i++)
+    {
         rnd_objs_count[i] = 0;
     }
 
-    switch (self->midi_be_type) {
+    switch (self->midi_be_type)
+    {
         case PyoPortmidi:
             if (self->withPortMidi == 1 || self->withPortMidiOut == 1)
                 ret = Server_pm_deinit(self);
+
             break;
+
         default:
             break;
     }
 
-    switch (self->audio_be_type) {
+    switch (self->audio_be_type)
+    {
         case PyoPortaudio:
             ret = Server_pa_deinit(self);
             break;
+
         case PyoCoreaudio:
             ret = Server_coreaudio_deinit(self);
             break;
+
         case PyoJack:
             ret = Server_jack_deinit(self);
             break;
+
         case PyoOffline:
             ret = Server_offline_deinit(self);
             break;
+
         case PyoOfflineNB:
             ret = Server_offline_deinit(self);
             break;
+
         case PyoEmbedded:
             ret = Server_embedded_deinit(self);
             break;
     }
+
     self->server_booted = 0;
-    if (ret < 0) {
+
+    if (ret < 0)
+    {
         Server_error(self, "Error closing audio backend.\n");
     }
 
-    /* Cleaning list of audio streams. 
+    /* Cleaning list of audio streams.
        Note: Grabbing the GIL crashes embedded servers. */
-    if (self->audio_be_type != PyoEmbedded) {
+    if (self->audio_be_type != PyoEmbedded)
+    {
         s = PyGILState_Ensure();
     }
-    if (PyList_Size(self->streams) > 0) {
-        for (i=PyList_Size(self->streams); i>0; i--) {
-            PySequence_DelItem(self->streams, i-1);
+
+    if (PyList_Size(self->streams) > 0)
+    {
+        for (i = PyList_Size(self->streams); i > 0; i--)
+        {
+            PySequence_DelItem(self->streams, i - 1);
         }
     }
+
     self->stream_count = 0;
-    if (self->audio_be_type != PyoEmbedded) {
+
+    if (self->audio_be_type != PyoEmbedded)
+    {
         PyGILState_Release(s);
     }
 
@@ -1332,113 +1542,172 @@ PyObject *
 Server_boot(Server *self, PyObject *arg)
 {
     int i, audioerr = 0, midierr = 0;
-    if (self->server_booted == 1) {
+
+    if (self->server_booted == 1)
+    {
         Server_error(self, "Server already booted!\n");
         Py_RETURN_NONE;
     }
+
     self->server_started = 0;
     self->stream_count = 0;
     self->elapsedSamples = 0;
 
     /* Ensure Python is set up for threading */
-    if (!PyEval_ThreadsInitialized()) {
+    if (!PyEval_ThreadsInitialized())
+    {
         PyEval_InitThreads();
     }
 
     int needNewBuffer = 0;
-    if (arg != NULL && PyBool_Check(arg)) {
+
+    if (arg != NULL && PyBool_Check(arg))
+    {
         needNewBuffer = PyObject_IsTrue(arg);
     }
-    else {
+    else
+    {
         Server_error(self, "The argument to set for a new buffer must be a boolean.\n");
     }
 
     Server_debug(self, "Streams list size at Server boot (must always be 0) = %d\n",
                  PyList_Size(self->streams));
-    switch (self->audio_be_type) {
+
+    switch (self->audio_be_type)
+    {
         case PyoPortaudio:
             audioerr = Server_pa_init(self);
-            if (audioerr < 0) {
+
+            if (audioerr < 0)
+            {
                 Server_pa_deinit(self);
+
                 if (audioerr == -10)
                     Server_error(self, "Pyo built without Portaudio support\n");
             }
+
             break;
+
         case PyoJack:
             audioerr = Server_jack_init(self);
-            if (audioerr < 0) {
+
+            if (audioerr < 0)
+            {
                 Server_jack_deinit(self);
+
                 if (audioerr == -10)
                     Server_error(self, "Pyo built without Jack support\n");
             }
+
             break;
+
         case PyoCoreaudio:
             audioerr = Server_coreaudio_init(self);
-            if (audioerr < 0) {
+
+            if (audioerr < 0)
+            {
                 Server_coreaudio_deinit(self);
+
                 if (audioerr == -10)
                     Server_error(self, "Pyo built without Coreaudio support\n");
             }
+
             break;
+
         case PyoOffline:
             audioerr = Server_offline_init(self);
-            if (audioerr < 0) {
+
+            if (audioerr < 0)
+            {
                 Server_offline_deinit(self);
             }
+
             break;
+
         case PyoOfflineNB:
             audioerr = Server_offline_init(self);
-            if (audioerr < 0) {
+
+            if (audioerr < 0)
+            {
                 Server_offline_deinit(self);
             }
+
             break;
+
         case PyoEmbedded:
             audioerr = Server_embedded_init(self);
-            if (audioerr < 0) {
+
+            if (audioerr < 0)
+            {
                 Server_embedded_deinit(self);
             }
+
             break;
     }
-    if (needNewBuffer == 1){
+
+    if (needNewBuffer == 1)
+    {
         /* Must allocate buffer after initializing the audio backend in case parameters change there */
-        if (self->input_buffer) {
+        if (self->input_buffer)
+        {
             free(self->input_buffer);
         }
+
         self->input_buffer = (MYFLT *)calloc(self->bufferSize * self->ichnls, sizeof(MYFLT));
-        if (self->output_buffer) {
+
+        if (self->output_buffer)
+        {
             free(self->output_buffer);
         }
+
         self->output_buffer = (float *)calloc(self->bufferSize * self->nchnls, sizeof(float));
     }
-    for (i=0; i<self->bufferSize*self->ichnls; i++) {
+
+    for (i = 0; i < self->bufferSize * self->ichnls; i++)
+    {
         self->input_buffer[i] = 0.0;
     }
-    for (i=0; i<self->bufferSize*self->nchnls; i++) {
+
+    for (i = 0; i < self->bufferSize * self->nchnls; i++)
+    {
         self->output_buffer[i] = 0.0;
     }
-    if (audioerr == 0) {
+
+    if (audioerr == 0)
+    {
         self->server_booted = 1;
     }
-    else {
+    else
+    {
         self->server_booted = 0;
         Server_error(self, "\nServer not booted.\n");
     }
 
-    if (self->audio_be_type != PyoOffline && self->audio_be_type != PyoOfflineNB && self->audio_be_type != PyoEmbedded) {
-        switch (self->midi_be_type) {
+    if (self->audio_be_type != PyoOffline && self->audio_be_type != PyoOfflineNB && self->audio_be_type != PyoEmbedded)
+    {
+        switch (self->midi_be_type)
+        {
             case PyoPortmidi:
                 midierr = Server_pm_init(self);
-                if (midierr < 0) {
+
+                if (midierr < 0)
+                {
                     Server_pm_deinit(self);
+
                     if (midierr == -10)
                         Server_error(self, "Pyo built without Portmidi support\n");
                 }
+
                 break;
+
             case PyoJackMidi:
+
                 /* Initialized inside the jack audio backend. */
-                if (self->audio_be_type != PyoJack) {
-                    Server_error(self, "To use jack midi, you must also use jack as the audio backend.\n"); 
+                if (self->audio_be_type != PyoJack)
+                {
+                    Server_error(self, "To use jack midi, you must also use jack as the audio backend.\n");
                 }
+
                 break;
         }
     }
@@ -1450,12 +1719,15 @@ PyObject *
 Server_start(Server *self)
 {
     int err = -1;
-    if (self->server_started == 1) {
+
+    if (self->server_started == 1)
+    {
         Server_warning(self, "Server already started!\n");
         Py_RETURN_NONE;
     }
 
-    if (self->server_booted == 0) {
+    if (self->server_booted == 0)
+    {
         Server_warning(self, "The Server must be booted before calling the start method!\n");
         Py_RETURN_NONE;
     }
@@ -1466,40 +1738,53 @@ Server_start(Server *self)
     self->server_started = 1;
     self->timeStep = (int)(0.005 * self->samplingRate);
 
-    if (self->startoffset > 0.0) {
+    if (self->startoffset > 0.0)
+    {
         Server_message(self, "Rendering %.2f seconds offline...\n", self->startoffset);
-        int numBlocks = ceil(self->startoffset * self->samplingRate/self->bufferSize);
-        self->lastAmp = 1.0; self->amp = 0.0;
-        while (numBlocks-- > 0) {
+        int numBlocks = ceil(self->startoffset * self->samplingRate / self->bufferSize);
+        self->lastAmp = 1.0;
+        self->amp = 0.0;
+
+        while (numBlocks-- > 0)
+        {
             offline_process_block((Server *) self);
         }
+
         Server_message(self, "Offline rendering completed. Start realtime processing.\n");
         self->startoffset = 0.0;
     }
 
     self->amp = self->resetAmp;
 
-    switch (self->audio_be_type) {
+    switch (self->audio_be_type)
+    {
         case PyoPortaudio:
             err = Server_pa_start(self);
             break;
+
         case PyoCoreaudio:
             err = Server_coreaudio_start(self);
             break;
+
         case PyoJack:
             err = Server_jack_start(self);
             break;
+
         case PyoOffline:
             err = Server_offline_start(self);
             break;
+
         case PyoOfflineNB:
             err = Server_offline_nb_start(self);
             break;
+
         case PyoEmbedded:
             err = Server_embedded_nb_start(self);
             break;
     }
-    if (err) {
+
+    if (err)
+    {
         Server_error(self, "Error starting server.\n");
     }
 
@@ -1513,29 +1798,46 @@ PyObject *
 Server_stop(Server *self)
 {
     int err = 0;
-    if (self->server_started == 0) {
+
+    if (self->server_started == 0)
+    {
         Server_warning(self, "The Server must be started!\n");
         Py_RETURN_NONE;
     }
-    switch (self->audio_be_type) {
+
+    switch (self->audio_be_type)
+    {
         case PyoPortaudio:
-            err = Server_pa_stop(self); break;
+            err = Server_pa_stop(self);
+            break;
+
         case PyoCoreaudio:
-            err = Server_coreaudio_stop(self); break;
+            err = Server_coreaudio_stop(self);
+            break;
+
         case PyoJack:
-            err = Server_jack_stop(self); break;
+            err = Server_jack_stop(self);
+            break;
+
         case PyoOffline:
-            err = Server_offline_stop(self); break;
+            err = Server_offline_stop(self);
+            break;
+
         case PyoOfflineNB:
-            err = Server_offline_stop(self); break;
+            err = Server_offline_stop(self);
+            break;
+
         case PyoEmbedded:
-            err = Server_embedded_stop(self); break;
+            err = Server_embedded_stop(self);
+            break;
     }
 
-    if (err != 0) {
+    if (err != 0)
+    {
         Server_error(self, "Error stopping server.\n");
     }
-    else {
+    else
+    {
         self->server_stopped = 1;
         self->server_started = 0;
     }
@@ -1552,7 +1854,8 @@ Server_recordOptions(Server *self, PyObject *args, PyObject *kwds)
     //Py_ssize_t psize;
     static char *kwlist[] = {"dur", "filename", "fileformat", "sampletype", "quality", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "d|siid", kwlist, &self->recdur, &self->recpath, &self->recformat, &self->rectype, &self->recquality)) {
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "d|siid", kwlist, &self->recdur, &self->recpath, &self->recformat, &self->rectype, &self->recquality))
+    {
         return PyInt_FromLong(-1);
     }
 
@@ -1563,13 +1866,15 @@ static PyObject *
 Server_start_rec(Server *self, PyObject *args, PyObject *kwds)
 {
     Py_ssize_t psize;
-    char *filename=NULL;
+    char *filename = NULL;
 
     static char *kwlist[] = {"filename", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|s#", kwlist, &filename, &psize)) {
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|s#", kwlist, &filename, &psize))
+    {
         return PyInt_FromLong(-1);
     }
+
     Server_start_rec_internal(self, filename);
 
     Py_RETURN_NONE;
@@ -1585,71 +1890,95 @@ Server_start_rec_internal(Server *self, char *filename)
     Server_debug(self, "Recording samplerate = %i\n", self->recinfo.samplerate);
     Server_debug(self, "Recording number of channels = %i\n", self->recinfo.channels);
 
-    switch (self->recformat) {
+    switch (self->recformat)
+    {
         case 0:
             self->recinfo.format = SF_FORMAT_WAV;
             break;
+
         case 1:
             self->recinfo.format = SF_FORMAT_AIFF;
             break;
+
         case 2:
             self->recinfo.format = SF_FORMAT_AU;
             break;
+
         case 3:
             self->recinfo.format = SF_FORMAT_RAW;
             break;
+
         case 4:
             self->recinfo.format = SF_FORMAT_SD2;
             break;
+
         case 5:
             self->recinfo.format = SF_FORMAT_FLAC;
             break;
+
         case 6:
             self->recinfo.format = SF_FORMAT_CAF;
             break;
+
         case 7:
             self->recinfo.format = SF_FORMAT_OGG | SF_FORMAT_VORBIS;
             break;
     }
-    if (self->recformat != 7) {
-        switch (self->rectype) {
+
+    if (self->recformat != 7)
+    {
+        switch (self->rectype)
+        {
             case 0:
                 self->recinfo.format = self->recinfo.format | SF_FORMAT_PCM_16;
                 break;
+
             case 1:
                 self->recinfo.format = self->recinfo.format | SF_FORMAT_PCM_24;
                 break;
+
             case 2:
                 self->recinfo.format = self->recinfo.format | SF_FORMAT_PCM_32;
                 break;
+
             case 3:
                 self->recinfo.format = self->recinfo.format | SF_FORMAT_FLOAT;
                 break;
+
             case 4:
                 self->recinfo.format = self->recinfo.format | SF_FORMAT_DOUBLE;
                 break;
+
             case 5:
                 self->recinfo.format = self->recinfo.format | SF_FORMAT_ULAW;
                 break;
+
             case 6:
                 self->recinfo.format = self->recinfo.format | SF_FORMAT_ALAW;
                 break;
         }
     }
+
     Server_debug(self, "Recording format = %i\n", self->recinfo.format);
 
     /* Open the output file. */
-    if (filename == NULL) {
+    if (filename == NULL)
+    {
         Server_debug(self, "Recording path = %s\n", self->recpath);
-        if (! (self->recfile = sf_open(self->recpath, SFM_WRITE, &self->recinfo))) {
+
+        if (! (self->recfile = sf_open(self->recpath, SFM_WRITE, &self->recinfo)))
+        {
             Server_error(self, "Not able to open output file %s.\n", self->recpath);
             Server_debug(self, "%s\n", sf_strerror(self->recfile));
             return -1;
         }
     }
-    else {
+    else
+    {
         Server_debug(self, "Recording filename path = %s\n", filename);
-        if (! (self->recfile = sf_open(filename, SFM_WRITE, &self->recinfo))) {
+
+        if (! (self->recfile = sf_open(filename, SFM_WRITE, &self->recinfo)))
+        {
             Server_error(self, "Not able to open output file %s.\n", filename);
             Server_debug(self, "%s\n", sf_strerror(self->recfile));
             return -1;
@@ -1657,7 +1986,8 @@ Server_start_rec_internal(Server *self, char *filename)
     }
 
     /* Sets the encoding quality for FLAC and OGG compressed formats. */
-    if (self->recformat == 5 || self->recformat == 7) {
+    if (self->recformat == 5 || self->recformat == 7)
+    {
         sf_command(self->recfile, SFC_SET_VBR_ENCODING_QUALITY, &self->recquality, sizeof(double));
     }
 
@@ -1682,7 +2012,8 @@ Server_addStream(Server *self, PyObject *args)
     if (! PyArg_ParseTuple(args, "O", &tmp))
         return PyInt_FromLong(-1);
 
-    if (tmp == NULL) {
+    if (tmp == NULL)
+    {
         Server_error(self, "Server_addStream function needs a PyoObject as argument.\n");
         return PyInt_FromLong(-1);
     }
@@ -1701,15 +2032,23 @@ Server_removeStream(Server *self, int id)
     Stream *stream_tmp;
     PyGILState_STATE s = 0;
 
-    if (self->audio_be_type != PyoEmbedded) {
+    if (self->audio_be_type != PyoEmbedded)
+    {
         s = PyGILState_Ensure();
     }
-    if (my_server[self->thisServerID] != NULL && PySequence_Size(self->streams) != -1) {
-        for (i=0; i<self->stream_count; i++) {
+
+    if (my_server[self->thisServerID] != NULL && PySequence_Size(self->streams) != -1)
+    {
+        for (i = 0; i < self->stream_count; i++)
+        {
             stream_tmp = (Stream *)PyList_GetItem(self->streams, i);
-            if (stream_tmp != NULL) {
+
+            if (stream_tmp != NULL)
+            {
                 sid = Stream_getStreamId(stream_tmp);
-                if (sid == id) {
+
+                if (sid == id)
+                {
                     Server_debug(self, "Removed stream id %d\n", id);
                     PySequence_DelItem(self->streams, i);
                     self->stream_count--;
@@ -1718,7 +2057,9 @@ Server_removeStream(Server *self, int id)
             }
         }
     }
-    if (self->audio_be_type != PyoEmbedded) {
+
+    if (self->audio_be_type != PyoEmbedded)
+    {
         PyGILState_Release(s);
     }
 
@@ -1737,20 +2078,26 @@ Server_changeStreamPosition(Server *self, PyObject *args)
     rsid = Stream_getStreamId(ref_stream_tmp);
     csid = Stream_getStreamId(cur_stream_tmp);
 
-    for (i=0; i<self->stream_count; i++) {
+    for (i = 0; i < self->stream_count; i++)
+    {
         stream_tmp = (Stream *)PyList_GET_ITEM(self->streams, i);
         sid = Stream_getStreamId(stream_tmp);
-        if (sid == csid) {
+
+        if (sid == csid)
+        {
             PySequence_DelItem(self->streams, i);
             self->stream_count--;
             break;
         }
     }
 
-    for (i=0; i<self->stream_count; i++) {
+    for (i = 0; i < self->stream_count; i++)
+    {
         stream_tmp = (Stream *)PyList_GET_ITEM(self->streams, i);
         sid = Stream_getStreamId(stream_tmp);
-        if (sid == rsid) {
+
+        if (sid == rsid)
+        {
             break;
         }
     }
@@ -1762,15 +2109,21 @@ Server_changeStreamPosition(Server *self, PyObject *args)
     Py_RETURN_NONE;
 }
 
-void pyoGetMidiEvents(Server *self) {
-    switch (self->midi_be_type) {
+void pyoGetMidiEvents(Server *self)
+{
+    switch (self->midi_be_type)
+    {
         case PyoPortmidi:
-            if (self->withPortMidi == 1) {
+            if (self->withPortMidi == 1)
+            {
                 portmidiGetEvents(self);
             }
+
             break;
+
         case PyoJackMidi:
-            /* Handled inside jack audio callback! */
+
+        /* Handled inside jack audio callback! */
         default:
             break;
     }
@@ -1785,18 +2138,24 @@ Server_noteout(Server *self, PyObject *args)
     if (! PyArg_ParseTuple(args, "iiil", &pit, &vel, &chan, &timestamp))
         return PyInt_FromLong(-1);
 
-    switch (self->midi_be_type) {
+    switch (self->midi_be_type)
+    {
         case PyoPortmidi:
-            if (self->withPortMidiOut) {
+            if (self->withPortMidiOut)
+            {
                 pm_noteout(self, pit, vel, chan, timestamp);
             }
+
             break;
+
         case PyoJackMidi:
             jack_noteout(self, pit, vel, chan, timestamp);
             break;
+
         default:
             break;
     }
+
     Py_RETURN_NONE;
 }
 
@@ -1809,18 +2168,24 @@ Server_afterout(Server *self, PyObject *args)
     if (! PyArg_ParseTuple(args, "iiil", &pit, &vel, &chan, &timestamp))
         return PyInt_FromLong(-1);
 
-    switch (self->midi_be_type) {
+    switch (self->midi_be_type)
+    {
         case PyoPortmidi:
-            if (self->withPortMidiOut) {
+            if (self->withPortMidiOut)
+            {
                 pm_afterout(self, pit, vel, chan, timestamp);
             }
+
             break;
+
         case PyoJackMidi:
             jack_afterout(self, pit, vel, chan, timestamp);
             break;
+
         default:
             break;
     }
+
     Py_RETURN_NONE;
 }
 
@@ -1833,18 +2198,24 @@ Server_ctlout(Server *self, PyObject *args)
     if (! PyArg_ParseTuple(args, "iiil", &ctlnum, &value, &chan, &timestamp))
         return PyInt_FromLong(-1);
 
-    switch (self->midi_be_type) {
+    switch (self->midi_be_type)
+    {
         case PyoPortmidi:
-            if (self->withPortMidiOut) {
+            if (self->withPortMidiOut)
+            {
                 pm_ctlout(self, ctlnum, value, chan, timestamp);
             }
+
             break;
+
         case PyoJackMidi:
             jack_ctlout(self, ctlnum, value, chan, timestamp);
             break;
+
         default:
             break;
     }
+
     Py_RETURN_NONE;
 }
 
@@ -1857,18 +2228,24 @@ Server_programout(Server *self, PyObject *args)
     if (! PyArg_ParseTuple(args, "iil", &value, &chan, &timestamp))
         return PyInt_FromLong(-1);
 
-    switch (self->midi_be_type) {
+    switch (self->midi_be_type)
+    {
         case PyoPortmidi:
-            if (self->withPortMidiOut) {
+            if (self->withPortMidiOut)
+            {
                 pm_programout(self, value, chan, timestamp);
             }
+
             break;
+
         case PyoJackMidi:
             jack_programout(self, value, chan, timestamp);
             break;
+
         default:
             break;
     }
+
     Py_RETURN_NONE;
 }
 
@@ -1881,18 +2258,24 @@ Server_pressout(Server *self, PyObject *args)
     if (! PyArg_ParseTuple(args, "iil", &value, &chan, &timestamp))
         return PyInt_FromLong(-1);
 
-    switch (self->midi_be_type) {
+    switch (self->midi_be_type)
+    {
         case PyoPortmidi:
-            if (self->withPortMidiOut) {
+            if (self->withPortMidiOut)
+            {
                 pm_pressout(self, value, chan, timestamp);
             }
+
             break;
+
         case PyoJackMidi:
             jack_pressout(self, value, chan, timestamp);
             break;
+
         default:
             break;
     }
+
     Py_RETURN_NONE;
 }
 
@@ -1905,18 +2288,24 @@ Server_bendout(Server *self, PyObject *args)
     if (! PyArg_ParseTuple(args, "iil", &value, &chan, &timestamp))
         return PyInt_FromLong(-1);
 
-    switch (self->midi_be_type) {
+    switch (self->midi_be_type)
+    {
         case PyoPortmidi:
-            if (self->withPortMidiOut) {
+            if (self->withPortMidiOut)
+            {
                 pm_bendout(self, value, chan, timestamp);
             }
+
             break;
+
         case PyoJackMidi:
             jack_bendout(self, value, chan, timestamp);
             break;
+
         default:
             break;
     }
+
     Py_RETURN_NONE;
 }
 
@@ -1930,15 +2319,19 @@ Server_sysexout(Server *self, PyObject *args)
     if (! PyArg_ParseTuple(args, "s#l", &msg, &size, &timestamp))
         return PyInt_FromLong(-1);
 
-    if (self->withPortMidiOut) {
-        switch (self->midi_be_type) {
+    if (self->withPortMidiOut)
+    {
+        switch (self->midi_be_type)
+        {
             case PyoPortmidi:
                 pm_sysexout(self, msg, timestamp);
                 break;
+
             default:
                 break;
         }
     }
+
     Py_RETURN_NONE;
 }
 
@@ -1950,42 +2343,53 @@ Server_makenote(Server *self, PyObject *args)
     if (! PyArg_ParseTuple(args, "iiii", &pit, &vel, &dur, &chan))
         return PyInt_FromLong(-1);
 
-    switch (self->midi_be_type) {
+    switch (self->midi_be_type)
+    {
         case PyoPortmidi:
-            if (self->withPortMidiOut) {
+            if (self->withPortMidiOut)
+            {
                 pm_makenote(self, pit, vel, dur, chan);
             }
+
             break;
+
         case PyoJackMidi:
             jack_makenote(self, pit, vel, dur, chan);
             break;
+
         default:
             break;
     }
+
     Py_RETURN_NONE;
 }
 
 MYFLT *
-Server_getInputBuffer(Server *self) {
+Server_getInputBuffer(Server *self)
+{
     return (MYFLT *)self->input_buffer;
 }
 
 PyoMidiEvent *
-Server_getMidiEventBuffer(Server *self) {
+Server_getMidiEventBuffer(Server *self)
+{
     return (PyoMidiEvent *)self->midiEvents;
 }
 
 int
-Server_getMidiEventCount(Server *self) {
+Server_getMidiEventCount(Server *self)
+{
     return self->midi_count;
 }
 
 long
-Server_getMidiTimeOffset(Server *self) {
+Server_getMidiTimeOffset(Server *self)
+{
     return self->midi_time_offset;
 }
 
-unsigned long Server_getElapsedTime(Server *self) {
+unsigned long Server_getElapsedTime(Server *self)
+{
     return self->elapsedSamples;
 }
 
@@ -1994,7 +2398,7 @@ Server_addMidiEvent(Server *self, PyObject *args)
 {
     int status, data1, data2;
     PyoMidiEvent buffer;
-    
+
     if (! PyArg_ParseTuple(args, "iii", &status, &data1, &data2))
         return PyInt_FromLong(-1);
 
@@ -2005,12 +2409,14 @@ Server_addMidiEvent(Server *self, PyObject *args)
 }
 
 int
-Server_getCurrentResamplingFactor(Server *self) {
+Server_getCurrentResamplingFactor(Server *self)
+{
     return self->currentResampling;
 }
 
 int
-Server_getLastResamplingFactor(Server *self) {
+Server_getLastResamplingFactor(Server *self)
+{
     return self->lastResampling;
 }
 
@@ -2065,10 +2471,12 @@ Server_getGlobalDel(Server *self)
 static PyObject *
 Server_beginResamplingBlock(Server *self, PyObject *arg)
 {
-    if (PyInt_Check(arg)) {
+    if (PyInt_Check(arg))
+    {
         self->lastResampling = self->currentResampling;
         self->currentResampling = PyInt_AsLong(arg);
     }
+
     Py_RETURN_NONE;
 }
 
@@ -2194,29 +2602,40 @@ Server_getCurrentAmp(Server *self)
     float rms[self->nchnls];
     float *out = self->output_buffer;
     float outAmp;
-    int i,j;
-    for (j=0; j<self->nchnls; j++) {
+    int i, j;
+
+    for (j = 0; j < self->nchnls; j++)
+    {
         rms[j] = 0.0;
-        for (i=0; i<self->bufferSize; i++) {
-            outAmp = out[(i*self->nchnls)+j];
+
+        for (i = 0; i < self->bufferSize; i++)
+        {
+            outAmp = out[(i * self->nchnls) + j];
             outAmp *= outAmp;
+
             if (outAmp > rms[j])
                 rms[j] = outAmp;
         }
     }
+
     amplist = PyTuple_New(self->nchnls);
-    for (i=0; i<self->nchnls; i++) {
+
+    for (i = 0; i < self->nchnls; i++)
+    {
         PyTuple_SET_ITEM(amplist, i, PyFloat_FromDouble(rms[i]));
     }
+
     return amplist;
 }
 
 static PyObject *
 Server_setAutoStartChildren(Server *self, PyObject *arg)
 {
-    if (PyInt_Check(arg)) {
+    if (PyInt_Check(arg))
+    {
         self->autoStartChildren = PyInt_AsLong(arg);
     }
+
     Py_RETURN_NONE;
 }
 
@@ -2226,7 +2645,8 @@ Server_getAutoStartChildren(Server *self)
     return PyInt_FromLong(self->autoStartChildren);
 }
 
-static PyMethodDef Server_methods[] = {
+static PyMethodDef Server_methods[] =
+{
     {"setInputDevice", (PyCFunction)Server_setInputDevice, METH_O, "Sets audio input device."},
     {"setOutputDevice", (PyCFunction)Server_setOutputDevice, METH_O, "Sets audio output device."},
     {"setInputOffset", (PyCFunction)Server_setInputOffset, METH_O, "Sets audio input channel offset."},
@@ -2266,15 +2686,21 @@ static PyMethodDef Server_methods[] = {
     {"shutdown", (PyCFunction)Server_shutdown, METH_NOARGS, "Shut down the server."},
     {"start", (PyCFunction)Server_start, METH_NOARGS, "Starts the server's callback loop."},
     {"stop", (PyCFunction)Server_stop, METH_NOARGS, "Stops the server's callback loop."},
-    {"recordOptions", (PyCFunction)Server_recordOptions, METH_VARARGS|METH_KEYWORDS, "Sets format settings for offline rendering and global recording."},
-    {"recstart", (PyCFunction)Server_start_rec, METH_VARARGS|METH_KEYWORDS, "Start automatic output recording."},
+    {"recordOptions", (PyCFunction)Server_recordOptions, METH_VARARGS | METH_KEYWORDS, "Sets format settings for offline rendering and global recording."},
+    {"recstart", (PyCFunction)Server_start_rec, METH_VARARGS | METH_KEYWORDS, "Start automatic output recording."},
     {"recstop", (PyCFunction)Server_stop_rec, METH_NOARGS, "Stop automatic output recording."},
-    {"addStream", (PyCFunction)Server_addStream, METH_VARARGS, "Adds an audio stream to the server. \
-                                                                This is for internal use and must never be called by the user."},
-    {"removeStream", (PyCFunction)Server_removeStream, METH_VARARGS, "Adds an audio stream to the server. \
-                                                                This is for internal use and must never be called by the user."},
-    {"changeStreamPosition", (PyCFunction)Server_changeStreamPosition, METH_VARARGS, "Puts an audio stream before another in the stack. \
-                                                                This is for internal use and must never be called by the user."},
+    {
+        "addStream", (PyCFunction)Server_addStream, METH_VARARGS, "Adds an audio stream to the server. \
+                                                                This is for internal use and must never be called by the user."
+    },
+    {
+        "removeStream", (PyCFunction)Server_removeStream, METH_VARARGS, "Adds an audio stream to the server. \
+                                                                This is for internal use and must never be called by the user."
+    },
+    {
+        "changeStreamPosition", (PyCFunction)Server_changeStreamPosition, METH_VARARGS, "Puts an audio stream before another in the stack. \
+                                                                This is for internal use and must never be called by the user."
+    },
     {"noteout", (PyCFunction)Server_noteout, METH_VARARGS, "Send a Midi note event to Portmidi output stream."},
     {"afterout", (PyCFunction)Server_afterout, METH_VARARGS, "Send an aftertouch event to Portmidi output stream."},
     {"ctlout", (PyCFunction)Server_ctlout, METH_VARARGS, "Send a control change event to Portmidi output stream."},
@@ -2295,7 +2721,7 @@ static PyMethodDef Server_methods[] = {
     {"getIsBooted", (PyCFunction)Server_getIsBooted, METH_NOARGS, "Returns 1 if the server is booted, otherwise returns 0."},
     {"getIsStarted", (PyCFunction)Server_getIsStarted, METH_NOARGS, "Returns 1 if the server is started, otherwise returns 0."},
     {"getMidiActive", (PyCFunction)Server_getMidiActive, METH_NOARGS, "Returns 1 if midi callback is active, otherwise returns 0."},
-    {"_setDefaultRecPath", (PyCFunction)Server_setDefaultRecPath, METH_VARARGS|METH_KEYWORDS, "Sets the default recording path."},
+    {"_setDefaultRecPath", (PyCFunction)Server_setDefaultRecPath, METH_VARARGS | METH_KEYWORDS, "Sets the default recording path."},
     {"setServer", (PyCFunction)Server_setServer, METH_NOARGS, "Sets this server as the one to use for new objects when using the embedded device"},
     {"getInputAddr", (PyCFunction)Server_getInputAddr, METH_NOARGS, "Get the embedded device input buffer memory address"},
     {"getOutputAddr", (PyCFunction)Server_getOutputAddr, METH_NOARGS, "Get the embedded device output buffer memory address"},
@@ -2309,12 +2735,14 @@ static PyMethodDef Server_methods[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyMemberDef Server_members[] = {
+static PyMemberDef Server_members[] =
+{
     {"streams", T_OBJECT_EX, offsetof(Server, streams), 0, "Server's streams list."},
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject ServerType = {
+PyTypeObject ServerType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.Server",         /*tp_name*/
     sizeof(Server),         /*tp_basicsize*/

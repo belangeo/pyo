@@ -21,7 +21,8 @@
 #include <Python.h>
 #include "pyomodule.h"
 
-typedef struct {
+typedef struct
+{
     PyObject_HEAD
     int fftsize;
     int olaps;

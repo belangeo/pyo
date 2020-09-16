@@ -25,14 +25,16 @@
 #include <jack/midiport.h>
 #include "servermodule.h"
 
-typedef struct {
+typedef struct
+{
     unsigned long timestamp;
     int status;
     int data1;
     int data2;
 } PyoJackMidiEvent;
 
-typedef struct {
+typedef struct
+{
     int activated;
     jack_client_t *jack_client;
     jack_port_t **jack_in_ports;
@@ -60,5 +62,5 @@ void jack_pressout(Server *self, int value, int chan, long timestamp);
 void jack_bendout(Server *self, int value, int chan, long timestamp);
 void jack_makenote(Server *self, int pit, int vel, int dur, int chan);
 
-#endif 
+#endif
 /* _AD_JACK_H */

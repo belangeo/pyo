@@ -32,11 +32,13 @@
 #include "matrixmodule.h"
 
 static int
-isPowerOfTwo(int x) {
+isPowerOfTwo(int x)
+{
     return (x != 0) && ((x & (x - 1)) == 0);
 }
 
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     PyObject *input;
     Stream *input_stream;
@@ -54,20 +56,27 @@ typedef struct {
 } FFTMain;
 
 static void
-FFTMain_realloc_memories(FFTMain *self) {
+FFTMain_realloc_memories(FFTMain *self)
+{
     int i, n8;
     self->hsize = self->size / 2;
     n8 = self->size >> 3;
     self->inframe = (MYFLT *)realloc(self->inframe, self->size * sizeof(MYFLT));
     self->outframe = (MYFLT *)realloc(self->outframe, self->size * sizeof(MYFLT));
-    for (i=0; i<self->size; i++)
+
+    for (i = 0; i < self->size; i++)
         self->inframe[i] = self->outframe[i] = 0.0;
+
     self->buffer_streams = (MYFLT *)realloc(self->buffer_streams, 3 * self->bufsize * sizeof(MYFLT));
-    for (i=0; i<(self->bufsize*3); i++)
+
+    for (i = 0; i < (self->bufsize * 3); i++)
         self->buffer_streams[i] = 0.0;
+
     self->twiddle = (MYFLT **)realloc(self->twiddle, 4 * sizeof(MYFLT *));
-    for(i=0; i<4; i++)
+
+    for(i = 0; i < 4; i++)
         self->twiddle[i] = (MYFLT *)malloc(n8 * sizeof(MYFLT));
+
     fft_compute_split_twiddle(self->twiddle, self->size);
     //self->twiddle2 = (MYFLT *)realloc(self->twiddle2, self->size * sizeof(MYFLT));
     //fft_compute_radix2_twiddle(self->twiddle2, self->size);
@@ -77,30 +86,40 @@ FFTMain_realloc_memories(FFTMain *self) {
 }
 
 static void
-FFTMain_filters(FFTMain *self) {
+FFTMain_filters(FFTMain *self)
+{
     int i, incount;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
 
     incount = self->incount;
 
-    for (i=0; i<self->bufsize; i++) {
-        if (incount >= 0) {
+    for (i = 0; i < self->bufsize; i++)
+    {
+        if (incount >= 0)
+        {
             self->inframe[incount] = in[i] * self->window[incount];
-            if (incount < self->hsize) {
+
+            if (incount < self->hsize)
+            {
                 self->buffer_streams[i] = self->outframe[incount];
+
                 if (incount)
-                    self->buffer_streams[i+self->bufsize] = self->outframe[self->size - incount];
+                    self->buffer_streams[i + self->bufsize] = self->outframe[self->size - incount];
                 else
-                    self->buffer_streams[i+self->bufsize] = 0.0;
+                    self->buffer_streams[i + self->bufsize] = 0.0;
             }
             else if (incount == self->hsize)
                 self->buffer_streams[i] = self->outframe[incount];
             else
-                self->buffer_streams[i] = self->buffer_streams[i+self->bufsize] = 0.0;
-            self->buffer_streams[i+self->bufsize*2] = (MYFLT)incount;
+                self->buffer_streams[i] = self->buffer_streams[i + self->bufsize] = 0.0;
+
+            self->buffer_streams[i + self->bufsize * 2] = (MYFLT)incount;
         }
+
         incount++;
-        if (incount >= self->size) {
+
+        if (incount >= self->size)
+        {
             incount -= self->size;
             realfft_split(self->inframe, self->outframe, self->size, self->twiddle);
         }
@@ -173,9 +192,12 @@ FFTMain_dealloc(FFTMain* self)
     free(self->outframe);
     free(self->window);
     free(self->buffer_streams);
-    for(i=0; i<4; i++) {
+
+    for(i = 0; i < 4; i++)
+    {
         free(self->twiddle[i]);
     }
+
     free(self->twiddle);
     //free(self->twiddle2);
     FFTMain_clear(self);
@@ -224,12 +246,15 @@ FFTMain_setSize(FFTMain *self, PyObject *args, PyObject *kwds)
     int size, hopsize;
 
     static char *kwlist[] = {"size", "hopsize", NULL};
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "ii", kwlist, &size, &hopsize)) {
+
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "ii", kwlist, &size, &hopsize))
+    {
         Py_INCREF(Py_None);
         return Py_None;
     }
 
-    if (isPowerOfTwo(size)) {
+    if (isPowerOfTwo(size))
+    {
         self->size = size;
         self->hopsize = hopsize;
         FFTMain_realloc_memories(self);
@@ -244,7 +269,8 @@ FFTMain_setSize(FFTMain *self, PyObject *args, PyObject *kwds)
 static PyObject *
 FFTMain_setWinType(FFTMain *self, PyObject *arg)
 {
-    if (PyLong_Check(arg) || PyInt_Check(arg)) {
+    if (PyLong_Check(arg) || PyInt_Check(arg))
+    {
         self->wintype = PyLong_AsLong(arg);
         gen_window(self->window, self->size, self->wintype);
     }
@@ -253,68 +279,72 @@ FFTMain_setWinType(FFTMain *self, PyObject *arg)
     return Py_None;
 }
 
-static PyMemberDef FFTMain_members[] = {
-{"server", T_OBJECT_EX, offsetof(FFTMain, server), 0, "Pyo server."},
-{"stream", T_OBJECT_EX, offsetof(FFTMain, stream), 0, "Stream object."},
-{"input", T_OBJECT_EX, offsetof(FFTMain, input), 0, "FFT sound object."},
-{NULL}  /* Sentinel */
+static PyMemberDef FFTMain_members[] =
+{
+    {"server", T_OBJECT_EX, offsetof(FFTMain, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(FFTMain, stream), 0, "Stream object."},
+    {"input", T_OBJECT_EX, offsetof(FFTMain, input), 0, "FFT sound object."},
+    {NULL}  /* Sentinel */
 };
 
-static PyMethodDef FFTMain_methods[] = {
-{"getServer", (PyCFunction)FFTMain_getServer, METH_NOARGS, "Returns server object."},
-{"_getStream", (PyCFunction)FFTMain_getStream, METH_NOARGS, "Returns stream object."},
-{"play", (PyCFunction)FFTMain_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)FFTMain_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
-{"setSize", (PyCFunction)FFTMain_setSize, METH_VARARGS|METH_KEYWORDS, "Sets a new FFT size."},
-{"setWinType", (PyCFunction)FFTMain_setWinType, METH_O, "Sets a new window."},
-{NULL}  /* Sentinel */
+static PyMethodDef FFTMain_methods[] =
+{
+    {"getServer", (PyCFunction)FFTMain_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)FFTMain_getStream, METH_NOARGS, "Returns stream object."},
+    {"play", (PyCFunction)FFTMain_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)FFTMain_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"setSize", (PyCFunction)FFTMain_setSize, METH_VARARGS | METH_KEYWORDS, "Sets a new FFT size."},
+    {"setWinType", (PyCFunction)FFTMain_setWinType, METH_O, "Sets a new window."},
+    {NULL}  /* Sentinel */
 };
 
-PyTypeObject FFTMainType = {
-PyVarObject_HEAD_INIT(NULL, 0)
-"_pyo.FFTMain_base",                                   /*tp_name*/
-sizeof(FFTMain),                                 /*tp_basicsize*/
-0,                                              /*tp_itemsize*/
-(destructor)FFTMain_dealloc,                     /*tp_dealloc*/
-0,                                              /*tp_print*/
-0,                                              /*tp_getattr*/
-0,                                              /*tp_setattr*/
-0,                                              /*tp_as_async (tp_compare in Python 2)*/
-0,                                              /*tp_repr*/
-0,                              /*tp_as_number*/
-0,                                              /*tp_as_sequence*/
-0,                                              /*tp_as_mapping*/
-0,                                              /*tp_hash */
-0,                                              /*tp_call*/
-0,                                              /*tp_str*/
-0,                                              /*tp_getattro*/
-0,                                              /*tp_setattro*/
-0,                                              /*tp_as_buffer*/
-Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
-"FFTMain objects. FFT transform.",           /* tp_doc */
-(traverseproc)FFTMain_traverse,                  /* tp_traverse */
-(inquiry)FFTMain_clear,                          /* tp_clear */
-0,                                              /* tp_richcompare */
-0,                                              /* tp_weaklistoffset */
-0,                                              /* tp_iter */
-0,                                              /* tp_iternext */
-FFTMain_methods,                                 /* tp_methods */
-FFTMain_members,                                 /* tp_members */
-0,                                              /* tp_getset */
-0,                                              /* tp_base */
-0,                                              /* tp_dict */
-0,                                              /* tp_descr_get */
-0,                                              /* tp_descr_set */
-0,                                              /* tp_dictoffset */
-0,                          /* tp_init */
-0,                                              /* tp_alloc */
-FFTMain_new,                                     /* tp_new */
+PyTypeObject FFTMainType =
+{
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "_pyo.FFTMain_base",                                   /*tp_name*/
+    sizeof(FFTMain),                                 /*tp_basicsize*/
+    0,                                              /*tp_itemsize*/
+    (destructor)FFTMain_dealloc,                     /*tp_dealloc*/
+    0,                                              /*tp_print*/
+    0,                                              /*tp_getattr*/
+    0,                                              /*tp_setattr*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
+    0,                                              /*tp_repr*/
+    0,                              /*tp_as_number*/
+    0,                                              /*tp_as_sequence*/
+    0,                                              /*tp_as_mapping*/
+    0,                                              /*tp_hash */
+    0,                                              /*tp_call*/
+    0,                                              /*tp_str*/
+    0,                                              /*tp_getattro*/
+    0,                                              /*tp_setattro*/
+    0,                                              /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "FFTMain objects. FFT transform.",           /* tp_doc */
+    (traverseproc)FFTMain_traverse,                  /* tp_traverse */
+    (inquiry)FFTMain_clear,                          /* tp_clear */
+    0,                                              /* tp_richcompare */
+    0,                                              /* tp_weaklistoffset */
+    0,                                              /* tp_iter */
+    0,                                              /* tp_iternext */
+    FFTMain_methods,                                 /* tp_methods */
+    FFTMain_members,                                 /* tp_members */
+    0,                                              /* tp_getset */
+    0,                                              /* tp_base */
+    0,                                              /* tp_dict */
+    0,                                              /* tp_descr_get */
+    0,                                              /* tp_descr_set */
+    0,                                              /* tp_dictoffset */
+    0,                          /* tp_init */
+    0,                                              /* tp_alloc */
+    FFTMain_new,                                     /* tp_new */
 };
 
 /************************************************************************************************/
 /* FFT streamer object */
 /************************************************************************************************/
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     FFTMain *mainSplitter;
     int modebuffer[2];
@@ -337,31 +367,40 @@ FFT_setProcMode(FFT *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    switch (muladdmode) {
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = FFT_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = FFT_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = FFT_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = FFT_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = FFT_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = FFT_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = FFT_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = FFT_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = FFT_postprocessing_revareva;
             break;
@@ -375,9 +414,12 @@ FFT_compute_next_data_frame(FFT *self)
     MYFLT *tmp;
     int offset = self->chnl * self->bufsize;
     tmp = FFTMain_getSamplesBuffer((FFTMain *)self->mainSplitter);
-    for (i=0; i<self->bufsize; i++) {
+
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->data[i] = tmp[i + offset];
     }
+
     (*self->muladd_func_ptr)(self);
 }
 
@@ -409,7 +451,7 @@ static PyObject *
 FFT_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *maintmp=NULL, *multmp=NULL, *addtmp=NULL;
+    PyObject *maintmp = NULL, *multmp = NULL, *addtmp = NULL;
     FFT *self;
     self = (FFT *)type->tp_alloc(type, 0);
 
@@ -429,11 +471,13 @@ FFT_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Py_INCREF(maintmp);
     self->mainSplitter = (FFTMain *)maintmp;
 
-    if (multmp) {
+    if (multmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
 
-    if (addtmp) {
+    if (addtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
 
@@ -463,110 +507,115 @@ static PyObject * FFT_inplace_sub(FFT *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * FFT_div(FFT *self, PyObject *arg) { DIV };
 static PyObject * FFT_inplace_div(FFT *self, PyObject *arg) { INPLACE_DIV };
 
-static PyMemberDef FFT_members[] = {
-{"server", T_OBJECT_EX, offsetof(FFT, server), 0, "Pyo server."},
-{"stream", T_OBJECT_EX, offsetof(FFT, stream), 0, "Stream object."},
-{"mul", T_OBJECT_EX, offsetof(FFT, mul), 0, "Mul factor."},
-{"add", T_OBJECT_EX, offsetof(FFT, add), 0, "Add factor."},
-{NULL}  /* Sentinel */
+static PyMemberDef FFT_members[] =
+{
+    {"server", T_OBJECT_EX, offsetof(FFT, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(FFT, stream), 0, "Stream object."},
+    {"mul", T_OBJECT_EX, offsetof(FFT, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(FFT, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
 };
 
-static PyMethodDef FFT_methods[] = {
-{"getServer", (PyCFunction)FFT_getServer, METH_NOARGS, "Returns server object."},
-{"_getStream", (PyCFunction)FFT_getStream, METH_NOARGS, "Returns stream object."},
-{"play", (PyCFunction)FFT_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)FFT_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
-{"setMul", (PyCFunction)FFT_setMul, METH_O, "Sets FFT mul factor."},
-{"setAdd", (PyCFunction)FFT_setAdd, METH_O, "Sets FFT add factor."},
-{"setSub", (PyCFunction)FFT_setSub, METH_O, "Sets inverse add factor."},
-{"setDiv", (PyCFunction)FFT_setDiv, METH_O, "Sets inverse mul factor."},
-{NULL}  /* Sentinel */
+static PyMethodDef FFT_methods[] =
+{
+    {"getServer", (PyCFunction)FFT_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)FFT_getStream, METH_NOARGS, "Returns stream object."},
+    {"play", (PyCFunction)FFT_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)FFT_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"setMul", (PyCFunction)FFT_setMul, METH_O, "Sets FFT mul factor."},
+    {"setAdd", (PyCFunction)FFT_setAdd, METH_O, "Sets FFT add factor."},
+    {"setSub", (PyCFunction)FFT_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)FFT_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods FFT_as_number = {
-(binaryfunc)FFT_add,                      /*nb_add*/
-(binaryfunc)FFT_sub,                 /*nb_subtract*/
-(binaryfunc)FFT_multiply,                 /*nb_multiply*/
-INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
-0,                /*nb_remainder*/
-0,                   /*nb_divmod*/
-0,                   /*nb_power*/
-0,                  /*nb_neg*/
-0,                /*nb_pos*/
-0,                  /*(unaryfunc)array_abs,*/
-0,                    /*nb_nonzero*/
-0,                    /*nb_invert*/
-0,               /*nb_lshift*/
-0,              /*nb_rshift*/
-0,              /*nb_and*/
-0,              /*nb_xor*/
-0,               /*nb_or*/
-INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
-0,                       /*nb_int*/
-0,                      /*nb_long*/
-0,                     /*nb_float*/
-INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
-(binaryfunc)FFT_inplace_add,              /*inplace_add*/
-(binaryfunc)FFT_inplace_sub,         /*inplace_subtract*/
-(binaryfunc)FFT_inplace_multiply,         /*inplace_multiply*/
-INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
-0,        /*inplace_remainder*/
-0,           /*inplace_power*/
-0,       /*inplace_lshift*/
-0,      /*inplace_rshift*/
-0,      /*inplace_and*/
-0,      /*inplace_xor*/
-0,       /*inplace_or*/
-0,             /*nb_floor_divide*/
-(binaryfunc)FFT_div,                       /*nb_true_divide*/
-0,     /*nb_inplace_floor_divide*/
-(binaryfunc)FFT_inplace_div,                       /*nb_inplace_true_divide*/
-0,                     /* nb_index */
+static PyNumberMethods FFT_as_number =
+{
+    (binaryfunc)FFT_add,                      /*nb_add*/
+    (binaryfunc)FFT_sub,                 /*nb_subtract*/
+    (binaryfunc)FFT_multiply,                 /*nb_multiply*/
+    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
+    0,                /*nb_remainder*/
+    0,                   /*nb_divmod*/
+    0,                   /*nb_power*/
+    0,                  /*nb_neg*/
+    0,                /*nb_pos*/
+    0,                  /*(unaryfunc)array_abs,*/
+    0,                    /*nb_nonzero*/
+    0,                    /*nb_invert*/
+    0,               /*nb_lshift*/
+    0,              /*nb_rshift*/
+    0,              /*nb_and*/
+    0,              /*nb_xor*/
+    0,               /*nb_or*/
+    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
+    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
+    (binaryfunc)FFT_inplace_add,              /*inplace_add*/
+    (binaryfunc)FFT_inplace_sub,         /*inplace_subtract*/
+    (binaryfunc)FFT_inplace_multiply,         /*inplace_multiply*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
+    0,        /*inplace_remainder*/
+    0,           /*inplace_power*/
+    0,       /*inplace_lshift*/
+    0,      /*inplace_rshift*/
+    0,      /*inplace_and*/
+    0,      /*inplace_xor*/
+    0,       /*inplace_or*/
+    0,             /*nb_floor_divide*/
+    (binaryfunc)FFT_div,                       /*nb_true_divide*/
+    0,     /*nb_inplace_floor_divide*/
+    (binaryfunc)FFT_inplace_div,                       /*nb_inplace_true_divide*/
+    0,                     /* nb_index */
 };
 
-PyTypeObject FFTType = {
-PyVarObject_HEAD_INIT(NULL, 0)
-"_pyo.FFT_base",         /*tp_name*/
-sizeof(FFT),         /*tp_basicsize*/
-0,                         /*tp_itemsize*/
-(destructor)FFT_dealloc, /*tp_dealloc*/
-0,                         /*tp_print*/
-0,                         /*tp_getattr*/
-0,                         /*tp_setattr*/
-0,                         /*tp_as_async (tp_compare in Python 2)*/
-0,                         /*tp_repr*/
-&FFT_as_number,             /*tp_as_number*/
-0,                         /*tp_as_sequence*/
-0,                         /*tp_as_mapping*/
-0,                         /*tp_hash */
-0,                         /*tp_call*/
-0,                         /*tp_str*/
-0,                         /*tp_getattro*/
-0,                         /*tp_setattro*/
-0,                         /*tp_as_buffer*/
-Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
-"FFT objects. Reads one band (real, imag or bins) from a FFT transform.",           /* tp_doc */
-(traverseproc)FFT_traverse,   /* tp_traverse */
-(inquiry)FFT_clear,           /* tp_clear */
-0,                       /* tp_richcompare */
-0,                       /* tp_weaklistoffset */
-0,                       /* tp_iter */
-0,                       /* tp_iternext */
-FFT_methods,             /* tp_methods */
-FFT_members,             /* tp_members */
-0,                      /* tp_getset */
-0,                         /* tp_base */
-0,                         /* tp_dict */
-0,                         /* tp_descr_get */
-0,                         /* tp_descr_set */
-0,                         /* tp_dictoffset */
-0,      /* tp_init */
-0,                         /* tp_alloc */
-FFT_new,                 /* tp_new */
+PyTypeObject FFTType =
+{
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "_pyo.FFT_base",         /*tp_name*/
+    sizeof(FFT),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)FFT_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
+    0,                         /*tp_repr*/
+    &FFT_as_number,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    "FFT objects. Reads one band (real, imag or bins) from a FFT transform.",           /* tp_doc */
+    (traverseproc)FFT_traverse,   /* tp_traverse */
+    (inquiry)FFT_clear,           /* tp_clear */
+    0,                       /* tp_richcompare */
+    0,                       /* tp_weaklistoffset */
+    0,                       /* tp_iter */
+    0,                       /* tp_iternext */
+    FFT_methods,             /* tp_methods */
+    FFT_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,      /* tp_init */
+    0,                         /* tp_alloc */
+    FFT_new,                 /* tp_new */
 };
 
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     PyObject *inreal;
     Stream *inreal_stream;
@@ -586,17 +635,22 @@ typedef struct {
 } IFFT;
 
 static void
-IFFT_realloc_memories(IFFT *self) {
+IFFT_realloc_memories(IFFT *self)
+{
     int i, n8;
     self->hsize = self->size / 2;
     n8 = self->size >> 3;
     self->inframe = (MYFLT *)realloc(self->inframe, self->size * sizeof(MYFLT));
     self->outframe = (MYFLT *)realloc(self->outframe, self->size * sizeof(MYFLT));
-    for (i=0; i<self->size; i++)
+
+    for (i = 0; i < self->size; i++)
         self->inframe[i] = self->outframe[i] = 0.0;
+
     self->twiddle = (MYFLT **)realloc(self->twiddle, 4 * sizeof(MYFLT *));
-    for(i=0; i<4; i++)
+
+    for(i = 0; i < 4; i++)
         self->twiddle[i] = (MYFLT *)malloc(n8 * sizeof(MYFLT));
+
     fft_compute_split_twiddle(self->twiddle, self->size);
     //self->twiddle2 = (MYFLT *)realloc(self->twiddle2, self->size * sizeof(MYFLT));
     //fft_compute_radix2_twiddle(self->twiddle2, self->size);
@@ -606,31 +660,42 @@ IFFT_realloc_memories(IFFT *self) {
 }
 
 static void
-IFFT_filters(IFFT *self) {
+IFFT_filters(IFFT *self)
+{
     int i, incount;
     MYFLT data;
     MYFLT *inreal = Stream_getData((Stream *)self->inreal_stream);
     MYFLT *inimag = Stream_getData((Stream *)self->inimag_stream);
 
     incount = self->incount;
-    for (i=0; i<self->bufsize; i++) {
-        if (incount >= 0) {
-            if (incount < self->hsize) {
+
+    for (i = 0; i < self->bufsize; i++)
+    {
+        if (incount >= 0)
+        {
+            if (incount < self->hsize)
+            {
                 self->inframe[incount] = inreal[i];
+
                 if (incount)
                     self->inframe[self->size - incount] = inimag[i];
             }
             else if (incount == self->hsize)
                 self->inframe[incount] = inreal[i];
+
             data = self->outframe[incount] * self->window[incount];
             self->data[i] = data;
         }
+
         incount++;
-        if (incount >= self->size) {
+
+        if (incount >= self->size)
+        {
             incount -= self->size;
             irealfft_split(self->inframe, self->outframe, self->size, self->twiddle);
         }
     }
+
     /*
     for (i=0; i<self->bufsize; i++) {
         if (incount >= 0) {
@@ -668,31 +733,40 @@ IFFT_setProcMode(IFFT *self)
 
     self->proc_func_ptr = IFFT_filters;
 
-    switch (muladdmode) {
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = IFFT_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = IFFT_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = IFFT_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = IFFT_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = IFFT_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = IFFT_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = IFFT_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = IFFT_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = IFFT_postprocessing_revareva;
             break;
@@ -736,9 +810,12 @@ IFFT_dealloc(IFFT* self)
     free(self->inframe);
     free(self->outframe);
     free(self->window);
-    for(i=0; i<4; i++) {
+
+    for(i = 0; i < 4; i++)
+    {
         free(self->twiddle[i]);
     }
+
     free(self->twiddle);
     //free(self->twiddle2);
     IFFT_clear(self);
@@ -749,7 +826,7 @@ static PyObject *
 IFFT_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *inrealtmp, *inreal_streamtmp, *inimagtmp, *inimag_streamtmp, *multmp=NULL, *addtmp=NULL;
+    PyObject *inrealtmp, *inreal_streamtmp, *inimagtmp, *inimag_streamtmp, *multmp = NULL, *addtmp = NULL;
     IFFT *self;
     self = (IFFT *)type->tp_alloc(type, 0);
 
@@ -781,11 +858,13 @@ IFFT_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Py_XDECREF(self->inreal_stream);
     self->inreal_stream = (Stream *)inreal_streamtmp;
 
-    if (multmp) {
+    if (multmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
 
-    if (addtmp) {
+    if (addtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
 
@@ -824,12 +903,15 @@ IFFT_setSize(IFFT *self, PyObject *args, PyObject *kwds)
     int size, hopsize;
 
     static char *kwlist[] = {"size", "hopsize", NULL};
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "ii", kwlist, &size, &hopsize)) {
+
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "ii", kwlist, &size, &hopsize))
+    {
         Py_INCREF(Py_None);
         return Py_None;
     }
 
-    if (isPowerOfTwo(size)) {
+    if (isPowerOfTwo(size))
+    {
         self->size = size;
         self->hopsize = hopsize;
         IFFT_realloc_memories(self);
@@ -844,7 +926,8 @@ IFFT_setSize(IFFT *self, PyObject *args, PyObject *kwds)
 static PyObject *
 IFFT_setWinType(IFFT *self, PyObject *arg)
 {
-    if (PyLong_Check(arg) || PyInt_Check(arg)) {
+    if (PyLong_Check(arg) || PyInt_Check(arg))
+    {
         self->wintype = PyLong_AsLong(arg);
         gen_window(self->window, self->size, self->wintype);
     }
@@ -853,7 +936,8 @@ IFFT_setWinType(IFFT *self, PyObject *arg)
     return Py_None;
 }
 
-static PyMemberDef IFFT_members[] = {
+static PyMemberDef IFFT_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(IFFT, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(IFFT, stream), 0, "Stream object."},
     {"inreal", T_OBJECT_EX, offsetof(IFFT, inreal), 0, "Real input."},
@@ -863,13 +947,14 @@ static PyMemberDef IFFT_members[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef IFFT_methods[] = {
+static PyMethodDef IFFT_methods[] =
+{
     {"getServer", (PyCFunction)IFFT_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)IFFT_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)IFFT_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)IFFT_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)IFFT_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
-    {"setSize", (PyCFunction)IFFT_setSize, METH_VARARGS|METH_KEYWORDS, "Sets a new IFFT size."},
+    {"play", (PyCFunction)IFFT_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)IFFT_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)IFFT_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"setSize", (PyCFunction)IFFT_setSize, METH_VARARGS | METH_KEYWORDS, "Sets a new IFFT size."},
     {"setWinType", (PyCFunction)IFFT_setWinType, METH_O, "Sets a new window."},
     {"setMul", (PyCFunction)IFFT_setMul, METH_O, "Sets oscillator mul factor."},
     {"setAdd", (PyCFunction)IFFT_setAdd, METH_O, "Sets oscillator add factor."},
@@ -878,7 +963,8 @@ static PyMethodDef IFFT_methods[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods IFFT_as_number = {
+static PyNumberMethods IFFT_as_number =
+{
     (binaryfunc)IFFT_add,                      /*nb_add*/
     (binaryfunc)IFFT_sub,                 /*nb_subtract*/
     (binaryfunc)IFFT_multiply,                 /*nb_multiply*/
@@ -920,7 +1006,8 @@ static PyNumberMethods IFFT_as_number = {
     0,                     /* nb_index */
 };
 
-PyTypeObject IFFTType = {
+PyTypeObject IFFTType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.IFFT_base",         /*tp_name*/
     sizeof(IFFT),         /*tp_basicsize*/
@@ -961,7 +1048,8 @@ PyTypeObject IFFTType = {
     IFFT_new,                 /* tp_new */
 };
 
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     PyObject *input; /* real input */
     Stream *input_stream;
@@ -972,18 +1060,23 @@ typedef struct {
 } CarToPol;
 
 static void
-CarToPol_generate(CarToPol *self) {
+CarToPol_generate(CarToPol *self)
+{
     int i;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *in2 = Stream_getData((Stream *)self->input2_stream);
 
-    if (self->chnl == 0) {
-        for (i=0; i<self->bufsize; i++) {
-            self->data[i] = MYSQRT(in[i]*in[i] + in2[i]*in2[i]);
+    if (self->chnl == 0)
+    {
+        for (i = 0; i < self->bufsize; i++)
+        {
+            self->data[i] = MYSQRT(in[i] * in[i] + in2[i] * in2[i]);
         }
     }
-    else {
-        for (i=0; i<self->bufsize; i++) {
+    else
+    {
+        for (i = 0; i < self->bufsize; i++)
+        {
             self->data[i] = MYATAN2(in2[i], in[i]);
         }
     }
@@ -1007,31 +1100,40 @@ CarToPol_setProcMode(CarToPol *self)
 
     self->proc_func_ptr = CarToPol_generate;
 
-    switch (muladdmode) {
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = CarToPol_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = CarToPol_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = CarToPol_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = CarToPol_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = CarToPol_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = CarToPol_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = CarToPol_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = CarToPol_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = CarToPol_postprocessing_revareva;
             break;
@@ -1079,7 +1181,7 @@ static PyObject *
 CarToPol_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *inputtmp, *input_streamtmp, *input2tmp, *input2_streamtmp, *multmp=NULL, *addtmp=NULL;
+    PyObject *inputtmp, *input_streamtmp, *input2tmp, *input2_streamtmp, *multmp = NULL, *addtmp = NULL;
     CarToPol *self;
     self = (CarToPol *)type->tp_alloc(type, 0);
 
@@ -1104,11 +1206,13 @@ CarToPol_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Py_XDECREF(self->input2_stream);
     self->input2_stream = (Stream *)input2_streamtmp;
 
-    if (multmp) {
+    if (multmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
 
-    if (addtmp) {
+    if (addtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
 
@@ -1138,7 +1242,8 @@ static PyObject * CarToPol_inplace_sub(CarToPol *self, PyObject *arg) { INPLACE_
 static PyObject * CarToPol_div(CarToPol *self, PyObject *arg) { DIV };
 static PyObject * CarToPol_inplace_div(CarToPol *self, PyObject *arg) { INPLACE_DIV };
 
-static PyMemberDef CarToPol_members[] = {
+static PyMemberDef CarToPol_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(CarToPol, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(CarToPol, stream), 0, "Stream object."},
     {"input", T_OBJECT_EX, offsetof(CarToPol, input), 0, "Real sound object."},
@@ -1148,11 +1253,12 @@ static PyMemberDef CarToPol_members[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef CarToPol_methods[] = {
+static PyMethodDef CarToPol_methods[] =
+{
     {"getServer", (PyCFunction)CarToPol_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)CarToPol_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)CarToPol_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)CarToPol_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
+    {"play", (PyCFunction)CarToPol_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)CarToPol_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setMul", (PyCFunction)CarToPol_setMul, METH_O, "Sets CarToPol mul factor."},
     {"setAdd", (PyCFunction)CarToPol_setAdd, METH_O, "Sets CarToPol add factor."},
     {"setSub", (PyCFunction)CarToPol_setSub, METH_O, "Sets inverse add factor."},
@@ -1160,7 +1266,8 @@ static PyMethodDef CarToPol_methods[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods CarToPol_as_number = {
+static PyNumberMethods CarToPol_as_number =
+{
     (binaryfunc)CarToPol_add,                      /*nb_add*/
     (binaryfunc)CarToPol_sub,                 /*nb_subtract*/
     (binaryfunc)CarToPol_multiply,                 /*nb_multiply*/
@@ -1202,7 +1309,8 @@ static PyNumberMethods CarToPol_as_number = {
     0,                     /* nb_index */
 };
 
-PyTypeObject CarToPolType = {
+PyTypeObject CarToPolType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.CarToPol_base",         /*tp_name*/
     sizeof(CarToPol),         /*tp_basicsize*/
@@ -1243,7 +1351,8 @@ PyTypeObject CarToPolType = {
     CarToPol_new,                 /* tp_new */
 };
 
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     PyObject *input; /* mag input */
     Stream *input_stream;
@@ -1254,18 +1363,23 @@ typedef struct {
 } PolToCar;
 
 static void
-PolToCar_generate(PolToCar *self) {
+PolToCar_generate(PolToCar *self)
+{
     int i;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *in2 = Stream_getData((Stream *)self->input2_stream);
 
-    if (self->chnl == 0) {
-        for (i=0; i<self->bufsize; i++) {
+    if (self->chnl == 0)
+    {
+        for (i = 0; i < self->bufsize; i++)
+        {
             self->data[i] = in[i] * MYCOS(in2[i]);
         }
     }
-    else {
-        for (i=0; i<self->bufsize; i++) {
+    else
+    {
+        for (i = 0; i < self->bufsize; i++)
+        {
             self->data[i] = in[i] * MYSIN(in2[i]);
         }
     }
@@ -1289,31 +1403,40 @@ PolToCar_setProcMode(PolToCar *self)
 
     self->proc_func_ptr = PolToCar_generate;
 
-    switch (muladdmode) {
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = PolToCar_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = PolToCar_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = PolToCar_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = PolToCar_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = PolToCar_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = PolToCar_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = PolToCar_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = PolToCar_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = PolToCar_postprocessing_revareva;
             break;
@@ -1361,7 +1484,7 @@ static PyObject *
 PolToCar_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *inputtmp, *input_streamtmp, *input2tmp, *input2_streamtmp, *multmp=NULL, *addtmp=NULL;
+    PyObject *inputtmp, *input_streamtmp, *input2tmp, *input2_streamtmp, *multmp = NULL, *addtmp = NULL;
     PolToCar *self;
     self = (PolToCar *)type->tp_alloc(type, 0);
 
@@ -1386,11 +1509,13 @@ PolToCar_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Py_XDECREF(self->input2_stream);
     self->input2_stream = (Stream *)input2_streamtmp;
 
-    if (multmp) {
+    if (multmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
 
-    if (addtmp) {
+    if (addtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
 
@@ -1420,7 +1545,8 @@ static PyObject * PolToCar_inplace_sub(PolToCar *self, PyObject *arg) { INPLACE_
 static PyObject * PolToCar_div(PolToCar *self, PyObject *arg) { DIV };
 static PyObject * PolToCar_inplace_div(PolToCar *self, PyObject *arg) { INPLACE_DIV };
 
-static PyMemberDef PolToCar_members[] = {
+static PyMemberDef PolToCar_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(PolToCar, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(PolToCar, stream), 0, "Stream object."},
     {"input", T_OBJECT_EX, offsetof(PolToCar, input), 0, "Magnitude sound object."},
@@ -1430,11 +1556,12 @@ static PyMemberDef PolToCar_members[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef PolToCar_methods[] = {
+static PyMethodDef PolToCar_methods[] =
+{
     {"getServer", (PyCFunction)PolToCar_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)PolToCar_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)PolToCar_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)PolToCar_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
+    {"play", (PyCFunction)PolToCar_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)PolToCar_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setMul", (PyCFunction)PolToCar_setMul, METH_O, "Sets PolToCar mul factor."},
     {"setAdd", (PyCFunction)PolToCar_setAdd, METH_O, "Sets PolToCar add factor."},
     {"setSub", (PyCFunction)PolToCar_setSub, METH_O, "Sets inverse add factor."},
@@ -1442,7 +1569,8 @@ static PyMethodDef PolToCar_methods[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods PolToCar_as_number = {
+static PyNumberMethods PolToCar_as_number =
+{
     (binaryfunc)PolToCar_add,                      /*nb_add*/
     (binaryfunc)PolToCar_sub,                 /*nb_subtract*/
     (binaryfunc)PolToCar_multiply,                 /*nb_multiply*/
@@ -1484,7 +1612,8 @@ static PyNumberMethods PolToCar_as_number = {
     0,                     /* nb_index */
 };
 
-PyTypeObject PolToCarType = {
+PyTypeObject PolToCarType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.PolToCar_base",         /*tp_name*/
     sizeof(PolToCar),         /*tp_basicsize*/
@@ -1525,7 +1654,8 @@ PyTypeObject PolToCarType = {
     PolToCar_new,                 /* tp_new */
 };
 
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     PyObject *input;
     int inputSize;
@@ -1539,38 +1669,57 @@ typedef struct {
 } FrameDeltaMain;
 
 static void
-FrameDeltaMain_generate(FrameDeltaMain *self) {
+FrameDeltaMain_generate(FrameDeltaMain *self)
+{
     int i, j, which, where;
     MYFLT curPhase, lastPhase, diff;
 
     MYFLT ins[self->overlaps][self->bufsize];
-    for (j=0; j<self->overlaps; j++) {
+
+    for (j = 0; j < self->overlaps; j++)
+    {
         MYFLT *in = Stream_getData((Stream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->input, j), "_getStream", NULL));
-        for (i=0; i<self->bufsize; i++) {
+
+        for (i = 0; i < self->bufsize; i++)
+        {
             ins[j][i] = in[i];
         }
     }
-    for (i=0; i<self->bufsize; i++) {
-        for (j=0; j<self->overlaps; j++) {
+
+    for (i = 0; i < self->bufsize; i++)
+    {
+        for (j = 0; j < self->overlaps; j++)
+        {
             curPhase = ins[j][i];
             which = j - 1;
+
             if (which < 0)
                 which = self->overlaps - 1;
+
             where = self->count - self->hopsize;
+
             if (where < 0)
                 where += self->frameSize;
+
             lastPhase = self->frameBuffer[which][where];
             diff = curPhase - lastPhase;
-            while (diff < -PI) {
+
+            while (diff < -PI)
+            {
                 diff += TWOPI;
             }
-            while (diff > PI) {
+
+            while (diff > PI)
+            {
                 diff -= TWOPI;
             }
+
             self->frameBuffer[j][self->count] = curPhase;
-            self->buffer_streams[i+j*self->bufsize] = diff;
+            self->buffer_streams[i + j * self->bufsize] = diff;
         }
+
         self->count++;
+
         if (self->count >= self->frameSize)
             self->count = 0;
     }
@@ -1615,9 +1764,12 @@ FrameDeltaMain_dealloc(FrameDeltaMain* self)
 {
     int i;
     pyo_DEALLOC
-    for (i=0; i<self->overlaps; i++) {
+
+    for (i = 0; i < self->overlaps; i++)
+    {
         free(self->frameBuffer[i]);
     }
+
     free(self->frameBuffer);
     free(self->buffer_streams);
     FrameDeltaMain_clear(self);
@@ -1643,7 +1795,8 @@ FrameDeltaMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oii", kwlist, &inputtmp, &self->frameSize, &self->overlaps))
         Py_RETURN_NONE;
 
-    if (inputtmp) {
+    if (inputtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setInput", "O", inputtmp);
     }
 
@@ -1651,14 +1804,21 @@ FrameDeltaMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self->hopsize = self->frameSize / self->overlaps;
     self->frameBuffer = (MYFLT **)realloc(self->frameBuffer, self->overlaps * sizeof(MYFLT *));
-    for(i=0; i<self->overlaps; i++) {
+
+    for(i = 0; i < self->overlaps; i++)
+    {
         self->frameBuffer[i] = (MYFLT *)malloc(self->frameSize * sizeof(MYFLT));
-        for (j=0; j<self->frameSize; j++) {
+
+        for (j = 0; j < self->frameSize; j++)
+        {
             self->frameBuffer[i][j] = 0.0;
         }
     }
+
     self->buffer_streams = (MYFLT *)realloc(self->buffer_streams, self->overlaps * self->bufsize * sizeof(MYFLT));
-    for (i=0; i<(self->overlaps*self->bufsize); i++) {
+
+    for (i = 0; i < (self->overlaps * self->bufsize); i++)
+    {
         self->buffer_streams[i] = 0.0;
     }
 
@@ -1678,7 +1838,8 @@ FrameDeltaMain_setInput(FrameDeltaMain *self, PyObject *arg)
 {
     PyObject *tmp;
 
-    if (! PyList_Check(arg)) {
+    if (! PyList_Check(arg))
+    {
         PyErr_SetString(PyExc_TypeError, "The inputs attribute must be a list.");
         Py_INCREF(Py_None);
         return Py_None;
@@ -1699,16 +1860,23 @@ FrameDeltaMain_setFrameSize(FrameDeltaMain *self, PyObject *arg)
 {
     int i, j, tmp;
 
-    if (PyInt_Check(arg)) {
+    if (PyInt_Check(arg))
+    {
         tmp = PyLong_AsLong(arg);
-        if (isPowerOfTwo(tmp)) {
+
+        if (isPowerOfTwo(tmp))
+        {
             self->frameSize = tmp;
             self->hopsize = self->frameSize / self->overlaps;
 
             self->frameBuffer = (MYFLT **)realloc(self->frameBuffer, self->overlaps * sizeof(MYFLT *));
-            for(i=0; i<self->overlaps; i++) {
+
+            for(i = 0; i < self->overlaps; i++)
+            {
                 self->frameBuffer[i] = (MYFLT *)malloc(self->frameSize * sizeof(MYFLT));
-                for (j=0; j<self->frameSize; j++) {
+
+                for (j = 0; j < self->frameSize; j++)
+                {
                     self->frameBuffer[i][j] = 0.0;
                 }
             }
@@ -1723,24 +1891,27 @@ FrameDeltaMain_setFrameSize(FrameDeltaMain *self, PyObject *arg)
     return Py_None;
 }
 
-static PyMemberDef FrameDeltaMain_members[] = {
+static PyMemberDef FrameDeltaMain_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(FrameDeltaMain, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(FrameDeltaMain, stream), 0, "Stream object."},
     {"input", T_OBJECT_EX, offsetof(FrameDeltaMain, input), 0, "Phase input object."},
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef FrameDeltaMain_methods[] = {
+static PyMethodDef FrameDeltaMain_methods[] =
+{
     {"getServer", (PyCFunction)FrameDeltaMain_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)FrameDeltaMain_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)FrameDeltaMain_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)FrameDeltaMain_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
+    {"play", (PyCFunction)FrameDeltaMain_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)FrameDeltaMain_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setInput", (PyCFunction)FrameDeltaMain_setInput, METH_O, "Sets list of input streams."},
     {"setFrameSize", (PyCFunction)FrameDeltaMain_setFrameSize, METH_O, "Sets frame size."},
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject FrameDeltaMainType = {
+PyTypeObject FrameDeltaMainType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.FrameDeltaMain_base",         /*tp_name*/
     sizeof(FrameDeltaMain),         /*tp_basicsize*/
@@ -1784,7 +1955,8 @@ PyTypeObject FrameDeltaMainType = {
 /************************************************************************************************/
 /* FrameDelta streamer object */
 /************************************************************************************************/
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     FrameDeltaMain *mainSplitter;
     int modebuffer[2];
@@ -1807,31 +1979,40 @@ FrameDelta_setProcMode(FrameDelta *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    switch (muladdmode) {
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = FrameDelta_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = FrameDelta_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = FrameDelta_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = FrameDelta_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = FrameDelta_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = FrameDelta_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = FrameDelta_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = FrameDelta_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = FrameDelta_postprocessing_revareva;
             break;
@@ -1845,9 +2026,12 @@ FrameDelta_compute_next_data_frame(FrameDelta *self)
     MYFLT *tmp;
     int offset = self->chnl * self->bufsize;
     tmp = FrameDeltaMain_getSamplesBuffer((FrameDeltaMain *)self->mainSplitter);
-    for (i=0; i<self->bufsize; i++) {
+
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->data[i] = tmp[i + offset];
     }
+
     (*self->muladd_func_ptr)(self);
 }
 
@@ -1879,7 +2063,7 @@ static PyObject *
 FrameDelta_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *maintmp=NULL, *multmp=NULL, *addtmp=NULL;
+    PyObject *maintmp = NULL, *multmp = NULL, *addtmp = NULL;
     FrameDelta *self;
     self = (FrameDelta *)type->tp_alloc(type, 0);
 
@@ -1899,11 +2083,13 @@ FrameDelta_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Py_INCREF(maintmp);
     self->mainSplitter = (FrameDeltaMain *)maintmp;
 
-    if (multmp) {
+    if (multmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
 
-    if (addtmp) {
+    if (addtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
 
@@ -1934,7 +2120,8 @@ static PyObject * FrameDelta_inplace_sub(FrameDelta *self, PyObject *arg) { INPL
 static PyObject * FrameDelta_div(FrameDelta *self, PyObject *arg) { DIV };
 static PyObject * FrameDelta_inplace_div(FrameDelta *self, PyObject *arg) { INPLACE_DIV };
 
-static PyMemberDef FrameDelta_members[] = {
+static PyMemberDef FrameDelta_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(FrameDelta, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(FrameDelta, stream), 0, "Stream object."},
     {"mul", T_OBJECT_EX, offsetof(FrameDelta, mul), 0, "Mul factor."},
@@ -1942,12 +2129,13 @@ static PyMemberDef FrameDelta_members[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef FrameDelta_methods[] = {
+static PyMethodDef FrameDelta_methods[] =
+{
     {"getServer", (PyCFunction)FrameDelta_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)FrameDelta_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)FrameDelta_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)FrameDelta_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)FrameDelta_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
+    {"play", (PyCFunction)FrameDelta_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)FrameDelta_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)FrameDelta_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setMul", (PyCFunction)FrameDelta_setMul, METH_O, "Sets FrameDelta mul factor."},
     {"setAdd", (PyCFunction)FrameDelta_setAdd, METH_O, "Sets FrameDelta add factor."},
     {"setSub", (PyCFunction)FrameDelta_setSub, METH_O, "Sets inverse add factor."},
@@ -1955,7 +2143,8 @@ static PyMethodDef FrameDelta_methods[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods FrameDelta_as_number = {
+static PyNumberMethods FrameDelta_as_number =
+{
     (binaryfunc)FrameDelta_add,                      /*nb_add*/
     (binaryfunc)FrameDelta_sub,                 /*nb_subtract*/
     (binaryfunc)FrameDelta_multiply,                 /*nb_multiply*/
@@ -1997,7 +2186,8 @@ static PyNumberMethods FrameDelta_as_number = {
     0,                     /* nb_index */
 };
 
-PyTypeObject FrameDeltaType = {
+PyTypeObject FrameDeltaType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.FrameDelta_base",         /*tp_name*/
     sizeof(FrameDelta),         /*tp_basicsize*/
@@ -2038,7 +2228,8 @@ PyTypeObject FrameDeltaType = {
     FrameDelta_new,                 /* tp_new */
 };
 
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     PyObject *input;
     int inputSize;
@@ -2052,32 +2243,46 @@ typedef struct {
 } FrameAccumMain;
 
 static void
-FrameAccumMain_generate(FrameAccumMain *self) {
+FrameAccumMain_generate(FrameAccumMain *self)
+{
     int i, j, which, where;
     MYFLT curPhase, lastPhase, diff;
 
     MYFLT ins[self->overlaps][self->bufsize];
-    for (j=0; j<self->overlaps; j++) {
+
+    for (j = 0; j < self->overlaps; j++)
+    {
         MYFLT *in = Stream_getData((Stream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->input, j), "_getStream", NULL));
-        for (i=0; i<self->bufsize; i++) {
+
+        for (i = 0; i < self->bufsize; i++)
+        {
             ins[j][i] = in[i];
         }
     }
-    for (i=0; i<self->bufsize; i++) {
-        for (j=0; j<self->overlaps; j++) {
+
+    for (i = 0; i < self->bufsize; i++)
+    {
+        for (j = 0; j < self->overlaps; j++)
+        {
             curPhase = ins[j][i];
             which = j - 1;
+
             if (which < 0)
                 which = self->overlaps - 1;
+
             where = self->count - self->hopsize;
+
             if (where < 0)
                 where += self->frameSize;
+
             lastPhase = self->frameBuffer[which][where];
             diff = curPhase + lastPhase;
             self->frameBuffer[j][self->count] = diff;
-            self->buffer_streams[i+j*self->bufsize] = diff;
+            self->buffer_streams[i + j * self->bufsize] = diff;
         }
+
         self->count++;
+
         if (self->count >= self->frameSize)
             self->count = 0;
     }
@@ -2122,9 +2327,12 @@ FrameAccumMain_dealloc(FrameAccumMain* self)
 {
     int i;
     pyo_DEALLOC
-    for (i=0; i<self->overlaps; i++) {
+
+    for (i = 0; i < self->overlaps; i++)
+    {
         free(self->frameBuffer[i]);
     }
+
     free(self->frameBuffer);
     free(self->buffer_streams);
     FrameAccumMain_clear(self);
@@ -2150,7 +2358,8 @@ FrameAccumMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oii", kwlist, &inputtmp, &self->frameSize, &self->overlaps))
         Py_RETURN_NONE;
 
-    if (inputtmp) {
+    if (inputtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setInput", "O", inputtmp);
     }
 
@@ -2158,14 +2367,21 @@ FrameAccumMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self->hopsize = self->frameSize / self->overlaps;
     self->frameBuffer = (MYFLT **)realloc(self->frameBuffer, self->overlaps * sizeof(MYFLT *));
-    for(i=0; i<self->overlaps; i++) {
+
+    for(i = 0; i < self->overlaps; i++)
+    {
         self->frameBuffer[i] = (MYFLT *)malloc(self->frameSize * sizeof(MYFLT));
-        for (j=0; j<self->frameSize; j++) {
+
+        for (j = 0; j < self->frameSize; j++)
+        {
             self->frameBuffer[i][j] = 0.0;
         }
     }
+
     self->buffer_streams = (MYFLT *)realloc(self->buffer_streams, self->overlaps * self->bufsize * sizeof(MYFLT));
-    for (i=0; i<(self->overlaps*self->bufsize); i++) {
+
+    for (i = 0; i < (self->overlaps * self->bufsize); i++)
+    {
         self->buffer_streams[i] = 0.0;
     }
 
@@ -2185,7 +2401,8 @@ FrameAccumMain_setInput(FrameAccumMain *self, PyObject *arg)
 {
     PyObject *tmp;
 
-    if (! PyList_Check(arg)) {
+    if (! PyList_Check(arg))
+    {
         PyErr_SetString(PyExc_TypeError, "The inputs attribute must be a list.");
         Py_INCREF(Py_None);
         return Py_None;
@@ -2206,16 +2423,23 @@ FrameAccumMain_setFrameSize(FrameAccumMain *self, PyObject *arg)
 {
     int i, j, tmp;
 
-    if (PyInt_Check(arg)) {
+    if (PyInt_Check(arg))
+    {
         tmp = PyLong_AsLong(arg);
-        if (isPowerOfTwo(tmp)) {
+
+        if (isPowerOfTwo(tmp))
+        {
             self->frameSize = tmp;
             self->hopsize = self->frameSize / self->overlaps;
 
             self->frameBuffer = (MYFLT **)realloc(self->frameBuffer, self->overlaps * sizeof(MYFLT *));
-            for(i=0; i<self->overlaps; i++) {
+
+            for(i = 0; i < self->overlaps; i++)
+            {
                 self->frameBuffer[i] = (MYFLT *)malloc(self->frameSize * sizeof(MYFLT));
-                for (j=0; j<self->frameSize; j++) {
+
+                for (j = 0; j < self->frameSize; j++)
+                {
                     self->frameBuffer[i][j] = 0.0;
                 }
             }
@@ -2230,24 +2454,27 @@ FrameAccumMain_setFrameSize(FrameAccumMain *self, PyObject *arg)
     return Py_None;
 }
 
-static PyMemberDef FrameAccumMain_members[] = {
+static PyMemberDef FrameAccumMain_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(FrameAccumMain, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(FrameAccumMain, stream), 0, "Stream object."},
     {"input", T_OBJECT_EX, offsetof(FrameAccumMain, input), 0, "Phase input object."},
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef FrameAccumMain_methods[] = {
+static PyMethodDef FrameAccumMain_methods[] =
+{
     {"getServer", (PyCFunction)FrameAccumMain_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)FrameAccumMain_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)FrameAccumMain_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)FrameAccumMain_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
+    {"play", (PyCFunction)FrameAccumMain_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)FrameAccumMain_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setInput", (PyCFunction)FrameAccumMain_setInput, METH_O, "Sets list of input streams."},
     {"setFrameSize", (PyCFunction)FrameAccumMain_setFrameSize, METH_O, "Sets frame size."},
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject FrameAccumMainType = {
+PyTypeObject FrameAccumMainType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.FrameAccumMain_base",         /*tp_name*/
     sizeof(FrameAccumMain),         /*tp_basicsize*/
@@ -2291,7 +2518,8 @@ PyTypeObject FrameAccumMainType = {
 /************************************************************************************************/
 /* FrameAccum streamer object */
 /************************************************************************************************/
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     FrameAccumMain *mainSplitter;
     int modebuffer[2];
@@ -2314,31 +2542,40 @@ FrameAccum_setProcMode(FrameAccum *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    switch (muladdmode) {
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = FrameAccum_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = FrameAccum_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = FrameAccum_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = FrameAccum_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = FrameAccum_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = FrameAccum_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = FrameAccum_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = FrameAccum_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = FrameAccum_postprocessing_revareva;
             break;
@@ -2352,9 +2589,12 @@ FrameAccum_compute_next_data_frame(FrameAccum *self)
     MYFLT *tmp;
     int offset = self->chnl * self->bufsize;
     tmp = FrameAccumMain_getSamplesBuffer((FrameAccumMain *)self->mainSplitter);
-    for (i=0; i<self->bufsize; i++) {
+
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->data[i] = tmp[i + offset];
     }
+
     (*self->muladd_func_ptr)(self);
 }
 
@@ -2386,7 +2626,7 @@ static PyObject *
 FrameAccum_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *maintmp=NULL, *multmp=NULL, *addtmp=NULL;
+    PyObject *maintmp = NULL, *multmp = NULL, *addtmp = NULL;
     FrameAccum *self;
     self = (FrameAccum *)type->tp_alloc(type, 0);
 
@@ -2406,11 +2646,13 @@ FrameAccum_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Py_INCREF(maintmp);
     self->mainSplitter = (FrameAccumMain *)maintmp;
 
-    if (multmp) {
+    if (multmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
 
-    if (addtmp) {
+    if (addtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
 
@@ -2441,7 +2683,8 @@ static PyObject * FrameAccum_inplace_sub(FrameAccum *self, PyObject *arg) { INPL
 static PyObject * FrameAccum_div(FrameAccum *self, PyObject *arg) { DIV };
 static PyObject * FrameAccum_inplace_div(FrameAccum *self, PyObject *arg) { INPLACE_DIV };
 
-static PyMemberDef FrameAccum_members[] = {
+static PyMemberDef FrameAccum_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(FrameAccum, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(FrameAccum, stream), 0, "Stream object."},
     {"mul", T_OBJECT_EX, offsetof(FrameAccum, mul), 0, "Mul factor."},
@@ -2449,12 +2692,13 @@ static PyMemberDef FrameAccum_members[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef FrameAccum_methods[] = {
+static PyMethodDef FrameAccum_methods[] =
+{
     {"getServer", (PyCFunction)FrameAccum_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)FrameAccum_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)FrameAccum_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)FrameAccum_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)FrameAccum_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
+    {"play", (PyCFunction)FrameAccum_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)FrameAccum_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)FrameAccum_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setMul", (PyCFunction)FrameAccum_setMul, METH_O, "Sets FrameAccum mul factor."},
     {"setAdd", (PyCFunction)FrameAccum_setAdd, METH_O, "Sets FrameAccum add factor."},
     {"setSub", (PyCFunction)FrameAccum_setSub, METH_O, "Sets inverse add factor."},
@@ -2462,7 +2706,8 @@ static PyMethodDef FrameAccum_methods[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods FrameAccum_as_number = {
+static PyNumberMethods FrameAccum_as_number =
+{
     (binaryfunc)FrameAccum_add,                      /*nb_add*/
     (binaryfunc)FrameAccum_sub,                 /*nb_subtract*/
     (binaryfunc)FrameAccum_multiply,                 /*nb_multiply*/
@@ -2504,7 +2749,8 @@ static PyNumberMethods FrameAccum_as_number = {
     0,                     /* nb_index */
 };
 
-PyTypeObject FrameAccumType = {
+PyTypeObject FrameAccumType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.FrameAccum_base",         /*tp_name*/
     sizeof(FrameAccum),         /*tp_basicsize*/
@@ -2545,7 +2791,8 @@ PyTypeObject FrameAccumType = {
     FrameAccum_new,                 /* tp_new */
 };
 
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     PyObject *input;
     PyObject *up;
@@ -2565,7 +2812,8 @@ typedef struct {
 } VectralMain;
 
 static void
-VectralMain_generate(VectralMain *self) {
+VectralMain_generate(VectralMain *self)
+{
     int i, j, which, where, bin, halfSize;
     MYFLT curMag, lastMag, diff, slope, up, down, damp;
 
@@ -2575,62 +2823,85 @@ VectralMain_generate(VectralMain *self) {
         up = PyFloat_AS_DOUBLE(self->up);
     else
         up = Stream_getData((Stream *)self->up_stream)[0];
+
     if (up < 0.001)
         up = 0.001;
     else if (up > 1.0)
         up = 1.0;
+
     up = MYPOW(up, 4.0);
 
     if (self->modebuffer[3] == 0)
         down = PyFloat_AS_DOUBLE(self->down);
     else
         down = Stream_getData((Stream *)self->down_stream)[0];
+
     if (down < 0.001)
         down = 0.001;
     else if (down > 1.0)
         down = 1.0;
+
     down = MYPOW(down, 4.0);
 
     if (self->modebuffer[4] == 0)
         damp = PyFloat_AS_DOUBLE(self->damp);
     else
         damp = Stream_getData((Stream *)self->damp_stream)[0];
+
     if (damp < 0.)
         damp = 0.;
     else if (damp > 1.0)
         damp = 1.0;
+
     damp = damp * 0.1 + 0.9;
 
     MYFLT ins[self->overlaps][self->bufsize];
-    for (j=0; j<self->overlaps; j++) {
+
+    for (j = 0; j < self->overlaps; j++)
+    {
         MYFLT *in = Stream_getData((Stream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->input, j), "_getStream", NULL));
-        for (i=0; i<self->bufsize; i++) {
+
+        for (i = 0; i < self->bufsize; i++)
+        {
             ins[j][i] = in[i];
         }
     }
-    for (i=0; i<self->bufsize; i++) {
-        for (j=0; j<self->overlaps; j++) {
+
+    for (i = 0; i < self->bufsize; i++)
+    {
+        for (j = 0; j < self->overlaps; j++)
+        {
             which = j - 1;
+
             if (which < 0)
                 which = self->overlaps - 1;
+
             where = self->count - self->hopsize;
+
             if (where < 0)
                 where += self->frameSize;
+
             bin = self->count - (self->hopsize * j);
+
             if (bin < 0)
                 bin += self->frameSize;
+
             slope = MYPOW(damp, (MYFLT)(bin % halfSize));
             curMag = ins[j][i] * slope;
             lastMag = self->frameBuffer[which][where];
             diff = curMag - lastMag;
+
             if (diff < 0.0)
                 curMag = curMag * down + lastMag * (1.0 - down);
             else if (diff >= 0.0)
                 curMag = curMag * up + lastMag * (1.0 - up);
+
             self->frameBuffer[j][self->count] = curMag;
-            self->buffer_streams[i+j*self->bufsize] = curMag;
+            self->buffer_streams[i + j * self->bufsize] = curMag;
         }
+
         self->count++;
+
         if (self->count >= self->frameSize)
             self->count = 0;
     }
@@ -2687,9 +2958,12 @@ VectralMain_dealloc(VectralMain* self)
 {
     int i;
     pyo_DEALLOC
-    for (i=0; i<self->overlaps; i++) {
+
+    for (i = 0; i < self->overlaps; i++)
+    {
         free(self->frameBuffer[i]);
     }
+
     free(self->frameBuffer);
     free(self->buffer_streams);
     VectralMain_clear(self);
@@ -2700,7 +2974,7 @@ static PyObject *
 VectralMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i, j;
-    PyObject *inputtmp, *uptmp=NULL, *downtmp=NULL, *damptmp=NULL;
+    PyObject *inputtmp, *uptmp = NULL, *downtmp = NULL, *damptmp = NULL;
     VectralMain *self;
     self = (VectralMain *)type->tp_alloc(type, 0);
 
@@ -2723,19 +2997,23 @@ VectralMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oii|OOO", kwlist, &inputtmp, &self->frameSize, &self->overlaps, &uptmp, &downtmp, &damptmp))
         Py_RETURN_NONE;
 
-    if (inputtmp) {
+    if (inputtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setInput", "O", inputtmp);
     }
 
-    if (uptmp) {
+    if (uptmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setUp", "O", uptmp);
     }
 
-    if (downtmp) {
+    if (downtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setDown", "O", downtmp);
     }
 
-    if (damptmp) {
+    if (damptmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setDamp", "O", damptmp);
     }
 
@@ -2743,14 +3021,21 @@ VectralMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self->hopsize = self->frameSize / self->overlaps;
     self->frameBuffer = (MYFLT **)realloc(self->frameBuffer, self->overlaps * sizeof(MYFLT *));
-    for(i=0; i<self->overlaps; i++) {
+
+    for(i = 0; i < self->overlaps; i++)
+    {
         self->frameBuffer[i] = (MYFLT *)malloc(self->frameSize * sizeof(MYFLT));
-        for (j=0; j<self->frameSize; j++) {
+
+        for (j = 0; j < self->frameSize; j++)
+        {
             self->frameBuffer[i][j] = 0.0;
         }
     }
+
     self->buffer_streams = (MYFLT *)realloc(self->buffer_streams, self->overlaps * self->bufsize * sizeof(MYFLT));
-    for (i=0; i<(self->overlaps*self->bufsize); i++) {
+
+    for (i = 0; i < (self->overlaps * self->bufsize); i++)
+    {
         self->buffer_streams[i] = 0.0;
     }
 
@@ -2770,7 +3055,8 @@ VectralMain_setInput(VectralMain *self, PyObject *arg)
 {
     PyObject *tmp;
 
-    if (! PyList_Check(arg)) {
+    if (! PyList_Check(arg))
+    {
         PyErr_SetString(PyExc_TypeError, "The inputs attribute must be a list.");
         Py_INCREF(Py_None);
         return Py_None;
@@ -2791,16 +3077,23 @@ VectralMain_setFrameSize(VectralMain *self, PyObject *arg)
 {
     int i, j, tmp;
 
-    if (PyInt_Check(arg)) {
+    if (PyInt_Check(arg))
+    {
         tmp = PyLong_AsLong(arg);
-        if (isPowerOfTwo(tmp)) {
+
+        if (isPowerOfTwo(tmp))
+        {
             self->frameSize = tmp;
             self->hopsize = self->frameSize / self->overlaps;
 
             self->frameBuffer = (MYFLT **)realloc(self->frameBuffer, self->overlaps * sizeof(MYFLT *));
-            for(i=0; i<self->overlaps; i++) {
+
+            for(i = 0; i < self->overlaps; i++)
+            {
                 self->frameBuffer[i] = (MYFLT *)malloc(self->frameSize * sizeof(MYFLT));
-                for (j=0; j<self->frameSize; j++) {
+
+                for (j = 0; j < self->frameSize; j++)
+                {
                     self->frameBuffer[i][j] = 0.0;
                 }
             }
@@ -2827,11 +3120,14 @@ VectralMain_setUp(VectralMain *self, PyObject *arg)
     tmp = arg;
     Py_INCREF(tmp);
     Py_DECREF(self->up);
-    if (isNumber == 1) {
+
+    if (isNumber == 1)
+    {
         self->up = PyNumber_Float(tmp);
         self->modebuffer[2] = 0;
     }
-    else {
+    else
+    {
         self->up = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->up, "_getStream", NULL);
         Py_INCREF(streamtmp);
@@ -2856,11 +3152,14 @@ VectralMain_setDown(VectralMain *self, PyObject *arg)
     tmp = arg;
     Py_INCREF(tmp);
     Py_DECREF(self->down);
-    if (isNumber == 1) {
+
+    if (isNumber == 1)
+    {
         self->down = PyNumber_Float(tmp);
         self->modebuffer[3] = 0;
     }
-    else {
+    else
+    {
         self->down = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->down, "_getStream", NULL);
         Py_INCREF(streamtmp);
@@ -2885,11 +3184,14 @@ VectralMain_setDamp(VectralMain *self, PyObject *arg)
     tmp = arg;
     Py_INCREF(tmp);
     Py_DECREF(self->damp);
-    if (isNumber == 1) {
+
+    if (isNumber == 1)
+    {
         self->damp = PyNumber_Float(tmp);
         self->modebuffer[4] = 0;
     }
-    else {
+    else
+    {
         self->damp = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->damp, "_getStream", NULL);
         Py_INCREF(streamtmp);
@@ -2902,18 +3204,20 @@ VectralMain_setDamp(VectralMain *self, PyObject *arg)
     return Py_None;
 }
 
-static PyMemberDef VectralMain_members[] = {
+static PyMemberDef VectralMain_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(VectralMain, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(VectralMain, stream), 0, "Stream object."},
     {"input", T_OBJECT_EX, offsetof(VectralMain, input), 0, "Phase input object."},
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef VectralMain_methods[] = {
+static PyMethodDef VectralMain_methods[] =
+{
     {"getServer", (PyCFunction)VectralMain_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)VectralMain_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)VectralMain_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)VectralMain_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
+    {"play", (PyCFunction)VectralMain_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)VectralMain_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setInput", (PyCFunction)VectralMain_setInput, METH_O, "Sets list of input streams."},
     {"setFrameSize", (PyCFunction)VectralMain_setFrameSize, METH_O, "Sets frame size."},
     {"setUp", (PyCFunction)VectralMain_setUp, METH_O, "Sets clipping upward factor."},
@@ -2922,7 +3226,8 @@ static PyMethodDef VectralMain_methods[] = {
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject VectralMainType = {
+PyTypeObject VectralMainType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.VectralMain_base",         /*tp_name*/
     sizeof(VectralMain),         /*tp_basicsize*/
@@ -2966,7 +3271,8 @@ PyTypeObject VectralMainType = {
 /************************************************************************************************/
 /* Vectral streamer object */
 /************************************************************************************************/
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     VectralMain *mainSplitter;
     int modebuffer[2];
@@ -2989,31 +3295,40 @@ Vectral_setProcMode(Vectral *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    switch (muladdmode) {
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = Vectral_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = Vectral_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = Vectral_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = Vectral_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = Vectral_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = Vectral_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = Vectral_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = Vectral_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = Vectral_postprocessing_revareva;
             break;
@@ -3027,9 +3342,12 @@ Vectral_compute_next_data_frame(Vectral *self)
     MYFLT *tmp;
     int offset = self->chnl * self->bufsize;
     tmp = VectralMain_getSamplesBuffer((VectralMain *)self->mainSplitter);
-    for (i=0; i<self->bufsize; i++) {
+
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->data[i] = tmp[i + offset];
     }
+
     (*self->muladd_func_ptr)(self);
 }
 
@@ -3061,7 +3379,7 @@ static PyObject *
 Vectral_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *maintmp=NULL, *multmp=NULL, *addtmp=NULL;
+    PyObject *maintmp = NULL, *multmp = NULL, *addtmp = NULL;
     Vectral *self;
     self = (Vectral *)type->tp_alloc(type, 0);
 
@@ -3081,11 +3399,13 @@ Vectral_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Py_INCREF(maintmp);
     self->mainSplitter = (VectralMain *)maintmp;
 
-    if (multmp) {
+    if (multmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
 
-    if (addtmp) {
+    if (addtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
 
@@ -3116,7 +3436,8 @@ static PyObject * Vectral_inplace_sub(Vectral *self, PyObject *arg) { INPLACE_SU
 static PyObject * Vectral_div(Vectral *self, PyObject *arg) { DIV };
 static PyObject * Vectral_inplace_div(Vectral *self, PyObject *arg) { INPLACE_DIV };
 
-static PyMemberDef Vectral_members[] = {
+static PyMemberDef Vectral_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(Vectral, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(Vectral, stream), 0, "Stream object."},
     {"mul", T_OBJECT_EX, offsetof(Vectral, mul), 0, "Mul factor."},
@@ -3124,12 +3445,13 @@ static PyMemberDef Vectral_members[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef Vectral_methods[] = {
+static PyMethodDef Vectral_methods[] =
+{
     {"getServer", (PyCFunction)Vectral_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Vectral_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Vectral_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)Vectral_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Vectral_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
+    {"play", (PyCFunction)Vectral_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)Vectral_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)Vectral_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setMul", (PyCFunction)Vectral_setMul, METH_O, "Sets Vectral mul factor."},
     {"setAdd", (PyCFunction)Vectral_setAdd, METH_O, "Sets Vectral add factor."},
     {"setSub", (PyCFunction)Vectral_setSub, METH_O, "Sets inverse add factor."},
@@ -3137,7 +3459,8 @@ static PyMethodDef Vectral_methods[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Vectral_as_number = {
+static PyNumberMethods Vectral_as_number =
+{
     (binaryfunc)Vectral_add,                      /*nb_add*/
     (binaryfunc)Vectral_sub,                 /*nb_subtract*/
     (binaryfunc)Vectral_multiply,                 /*nb_multiply*/
@@ -3179,7 +3502,8 @@ static PyNumberMethods Vectral_as_number = {
     0,                     /* nb_index */
 };
 
-PyTypeObject VectralType = {
+PyTypeObject VectralType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.Vectral_base",         /*tp_name*/
     sizeof(Vectral),         /*tp_basicsize*/
@@ -3220,7 +3544,8 @@ PyTypeObject VectralType = {
     Vectral_new,                 /* tp_new */
 };
 
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     PyObject *input;
     Stream *input_stream;
@@ -3251,7 +3576,8 @@ typedef struct {
 } CvlVerb;
 
 static void
-CvlVerb_alloc_memories(CvlVerb *self) {
+CvlVerb_alloc_memories(CvlVerb *self)
+{
     int i, n8;
     self->hsize = self->size / 2;
     self->size2 = self->size * 2;
@@ -3263,18 +3589,24 @@ CvlVerb_alloc_memories(CvlVerb *self) {
     self->last_half_frame = (MYFLT *)realloc(self->last_half_frame, self->size * sizeof(MYFLT));
     self->input_buffer = (MYFLT *)realloc(self->input_buffer, self->size * sizeof(MYFLT));
     self->output_buffer = (MYFLT *)realloc(self->output_buffer, self->size2 * sizeof(MYFLT));
-    for (i=0; i<self->size2; i++)
+
+    for (i = 0; i < self->size2; i++)
         self->inframe[i] = self->outframe[i] = self->output_buffer[i] = 0.0;
-    for (i=0; i<self->size; i++)
+
+    for (i = 0; i < self->size; i++)
         self->last_half_frame[i] = self->input_buffer[i] = 0.0;
+
     self->twiddle = (MYFLT **)realloc(self->twiddle, 4 * sizeof(MYFLT *));
-    for(i=0; i<4; i++)
+
+    for(i = 0; i < 4; i++)
         self->twiddle[i] = (MYFLT *)malloc(n8 * sizeof(MYFLT));
+
     fft_compute_split_twiddle(self->twiddle, self->size2);
 }
 
 static void
-CvlVerb_analyse_impulse(CvlVerb *self) {
+CvlVerb_analyse_impulse(CvlVerb *self)
+{
     SNDFILE *sf;
     SF_INFO info;
     int i, j, snd_size, snd_sr, snd_chnls, num_items, num;
@@ -3282,16 +3614,20 @@ CvlVerb_analyse_impulse(CvlVerb *self) {
 
     info.format = 0;
     sf = sf_open(self->impulse_path, SFM_READ, &info);
-    if (sf == NULL) {
+
+    if (sf == NULL)
+    {
         PySys_WriteStdout("CvlVerb failed to open the impulse file %s.\n", self->impulse_path);
         return;
     }
+
     snd_size = info.frames;
     snd_sr = info.samplerate;
     snd_chnls = info.channels;
     num_items = snd_size * snd_chnls;
 
-    if (snd_sr != self->sr) {
+    if (snd_sr != self->sr)
+    {
         PySys_WriteStdout("CvlVerb warning: Impulse sampling rate does't match the sampling rate of the server.\n");
     }
 
@@ -3304,10 +3640,14 @@ CvlVerb_analyse_impulse(CvlVerb *self) {
     sf_seek(sf, 0, SEEK_SET);
     num = SF_READ(sf, tmp, num_items);
     sf_close(sf);
-    for (i=0; i<snd_size; i++) {
-        tmp2[i] = tmp[i*snd_chnls+self->chnl];
+
+    for (i = 0; i < snd_size; i++)
+    {
+        tmp2[i] = tmp[i * snd_chnls + self->chnl];
     }
-    for (i=snd_size; i<self->impulse_len; i++) {
+
+    for (i = snd_size; i < self->impulse_len; i++)
+    {
         tmp2[i] = 0.0;
     }
 
@@ -3315,12 +3655,16 @@ CvlVerb_analyse_impulse(CvlVerb *self) {
     self->impulse_imag = (MYFLT **)realloc(self->impulse_imag, self->num_iter * sizeof(MYFLT *));
     self->accum_real = (MYFLT **)realloc(self->accum_real, self->num_iter * sizeof(MYFLT *));
     self->accum_imag = (MYFLT **)realloc(self->accum_imag, self->num_iter * sizeof(MYFLT *));
-    for(i=0; i<self->num_iter; i++) {
+
+    for(i = 0; i < self->num_iter; i++)
+    {
         self->impulse_real[i] = (MYFLT *)malloc(self->size * sizeof(MYFLT));
         self->impulse_imag[i] = (MYFLT *)malloc(self->size * sizeof(MYFLT));
         self->accum_real[i] = (MYFLT *)malloc(self->size * sizeof(MYFLT));
         self->accum_imag[i] = (MYFLT *)malloc(self->size * sizeof(MYFLT));
-        for (j=0; j<self->size; j++) {
+
+        for (j = 0; j < self->size; j++)
+        {
             self->accum_real[i][j] = 0.0;
             self->accum_imag[i][j] = 0.0;
         }
@@ -3329,18 +3673,26 @@ CvlVerb_analyse_impulse(CvlVerb *self) {
     inframe = (MYFLT *)malloc(self->size2 * sizeof(MYFLT));
     outframe = (MYFLT *)malloc(self->size2 * sizeof(MYFLT));
 
-    for (j=0; j<self->num_iter; j++) {
+    for (j = 0; j < self->num_iter; j++)
+    {
         num = j * self->size;
-        for (i=0; i<self->size; i++) {
-            inframe[i] = tmp2[num+i];
+
+        for (i = 0; i < self->size; i++)
+        {
+            inframe[i] = tmp2[num + i];
         }
-        for (i=self->size; i<self->size2; i++) {
+
+        for (i = self->size; i < self->size2; i++)
+        {
             inframe[i] = 0.0;
         }
+
         realfft_split(inframe, outframe, self->size2, self->twiddle);
         self->impulse_real[j][0] = outframe[0];
         self->impulse_imag[j][0] = 0.0;
-        for (i=1; i<self->size; i++) {
+
+        for (i = 1; i < self->size; i++)
+        {
             self->impulse_real[j][i] = outframe[i];
             self->impulse_imag[j][i] = outframe[self->size2 - i];
         }
@@ -3353,62 +3705,85 @@ CvlVerb_analyse_impulse(CvlVerb *self) {
 }
 
 static void
-CvlVerb_process_i(CvlVerb *self) {
+CvlVerb_process_i(CvlVerb *self)
+{
     int i, j, k;
     MYFLT gdry;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT bal = PyFloat_AS_DOUBLE(self->bal);
+
     if (bal < 0)
         bal = 0.0;
     else if (bal > 1)
         bal = 1.0;
+
     gdry = 1.0 - bal;
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->input_buffer[self->incount] = in[i];
         self->data[i] = (self->output_buffer[self->incount] * 100 * bal) + (in[i] * gdry);
 
         self->incount++;
-        if (self->incount == self->size) {
+
+        if (self->incount == self->size)
+        {
             self->incount = 0;
 
             k = self->current_iter - 1;
+
             if (k < 0)
                 k += self->num_iter;
-            for (i=0; i<self->size; i++) {
+
+            for (i = 0; i < self->size; i++)
+            {
                 self->accum_real[k][i] = self->accum_imag[k][i] = 0.0;
                 self->inframe[i] = self->last_half_frame[i];
-                self->inframe[i+self->size] = self->last_half_frame[i] = self->input_buffer[i];
+                self->inframe[i + self->size] = self->last_half_frame[i] = self->input_buffer[i];
             }
+
             realfft_split(self->inframe, self->outframe, self->size2, self->twiddle);
             self->real[0] = self->outframe[0];
             self->imag[0] = 0.0;
-            for (i=1; i<self->size; i++) {
+
+            for (i = 1; i < self->size; i++)
+            {
                 self->real[i] = self->outframe[i];
                 self->imag[i] = self->outframe[self->size2 - i];
             }
-            for (j=0; j<self->num_iter; j++) {
+
+            for (j = 0; j < self->num_iter; j++)
+            {
                 k = self->current_iter + j;
+
                 if (k >= self->num_iter)
                     k -= self->num_iter;
-                for (i=0; i<self->size; i++) {
+
+                for (i = 0; i < self->size; i++)
+                {
                     self->accum_real[k][i] += self->real[i] * self->impulse_real[j][i] - self->imag[i] * self->impulse_imag[j][i];
                     self->accum_imag[k][i] += self->real[i] * self->impulse_imag[j][i] + self->imag[i] * self->impulse_real[j][i];
                 }
             }
+
             self->inframe[0] = self->accum_real[self->current_iter][0];
             self->inframe[self->size] = 0.0;
-            for (i=1; i<self->size; i++) {
+
+            for (i = 1; i < self->size; i++)
+            {
                 self->inframe[i] = self->accum_real[self->current_iter][i];
                 self->inframe[self->size2 - i] = self->accum_imag[self->current_iter][i];
             }
+
             irealfft_split(self->inframe, self->outframe, self->size2, self->twiddle);
 
-            for (i=0; i<self->size; i++) {
-                self->output_buffer[i] = self->outframe[i+self->size];
+            for (i = 0; i < self->size; i++)
+            {
+                self->output_buffer[i] = self->outframe[i + self->size];
             }
 
             self->current_iter++;
+
             if (self->current_iter == self->num_iter)
                 self->current_iter = 0;
         }
@@ -3416,63 +3791,86 @@ CvlVerb_process_i(CvlVerb *self) {
 }
 
 static void
-CvlVerb_process_a(CvlVerb *self) {
+CvlVerb_process_a(CvlVerb *self)
+{
     int i, j, k;
     MYFLT gwet, gdry;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *bal = Stream_getData((Stream *)self->bal_stream);
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         gwet = bal[i];
+
         if (gwet < 0)
             gwet = 0.0;
         else if (gwet > 1)
             gwet = 1.0;
+
         gdry = 1.0 - gwet;
         self->input_buffer[self->incount] = in[i];
         self->data[i] = (self->output_buffer[self->incount] * 100 * gwet) + in[i] * gdry;
 
         self->incount++;
-        if (self->incount == self->size) {
+
+        if (self->incount == self->size)
+        {
             self->incount = 0;
 
             k = self->current_iter - 1;
+
             if (k < 0)
                 k += self->num_iter;
-            for (i=0; i<self->size; i++) {
+
+            for (i = 0; i < self->size; i++)
+            {
                 self->accum_real[k][i] = self->accum_imag[k][i] = 0.0;
                 self->inframe[i] = self->last_half_frame[i];
-                self->inframe[i+self->size] = self->last_half_frame[i] = self->input_buffer[i];
+                self->inframe[i + self->size] = self->last_half_frame[i] = self->input_buffer[i];
             }
+
             realfft_split(self->inframe, self->outframe, self->size2, self->twiddle);
             self->real[0] = self->outframe[0];
             self->imag[0] = 0.0;
-            for (i=1; i<self->size; i++) {
+
+            for (i = 1; i < self->size; i++)
+            {
                 self->real[i] = self->outframe[i];
                 self->imag[i] = self->outframe[self->size2 - i];
             }
-            for (j=0; j<self->num_iter; j++) {
+
+            for (j = 0; j < self->num_iter; j++)
+            {
                 k = self->current_iter + j;
+
                 if (k >= self->num_iter)
                     k -= self->num_iter;
-                for (i=0; i<self->size; i++) {
+
+                for (i = 0; i < self->size; i++)
+                {
                     self->accum_real[k][i] += self->real[i] * self->impulse_real[j][i] - self->imag[i] * self->impulse_imag[j][i];
                     self->accum_imag[k][i] += self->real[i] * self->impulse_imag[j][i] + self->imag[i] * self->impulse_real[j][i];
                 }
             }
+
             self->inframe[0] = self->accum_real[self->current_iter][0];
             self->inframe[self->size] = 0.0;
-            for (i=1; i<self->size; i++) {
+
+            for (i = 1; i < self->size; i++)
+            {
                 self->inframe[i] = self->accum_real[self->current_iter][i];
                 self->inframe[self->size2 - i] = self->accum_imag[self->current_iter][i];
             }
+
             irealfft_split(self->inframe, self->outframe, self->size2, self->twiddle);
 
-            for (i=0; i<self->size; i++) {
-                self->output_buffer[i] = self->outframe[i+self->size];
+            for (i = 0; i < self->size; i++)
+            {
+                self->output_buffer[i] = self->outframe[i + self->size];
             }
 
             self->current_iter++;
+
             if (self->current_iter == self->num_iter)
                 self->current_iter = 0;
         }
@@ -3496,40 +3894,51 @@ CvlVerb_setProcMode(CvlVerb *self)
     procmode = self->modebuffer[2];
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    switch (procmode) {
+    switch (procmode)
+    {
         case 0:
             self->proc_func_ptr = CvlVerb_process_i;
             break;
+
         case 1:
             self->proc_func_ptr = CvlVerb_process_a;
             break;
     }
 
-    switch (muladdmode) {
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = CvlVerb_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = CvlVerb_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = CvlVerb_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = CvlVerb_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = CvlVerb_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = CvlVerb_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = CvlVerb_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = CvlVerb_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = CvlVerb_postprocessing_revareva;
             break;
@@ -3575,16 +3984,22 @@ CvlVerb_dealloc(CvlVerb* self)
     free(self->input_buffer);
     free(self->output_buffer);
     free(self->last_half_frame);
-    for(i=0; i<4; i++) {
+
+    for(i = 0; i < 4; i++)
+    {
         free(self->twiddle[i]);
     }
+
     free(self->twiddle);
-    for(i=0; i<self->num_iter; i++) {
+
+    for(i = 0; i < self->num_iter; i++)
+    {
         free(self->impulse_real[i]);
         free(self->impulse_imag[i]);
         free(self->accum_real[i]);
         free(self->accum_imag[i]);
     }
+
     free(self->impulse_real);
     free(self->impulse_imag);
     free(self->accum_real);
@@ -3600,7 +4015,7 @@ CvlVerb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i, k;
     Py_ssize_t psize;
-    PyObject *inputtmp, *input_streamtmp, *baltmp=NULL, *multmp=NULL, *addtmp=NULL;
+    PyObject *inputtmp, *input_streamtmp, *baltmp = NULL, *multmp = NULL, *addtmp = NULL;
     CvlVerb *self;
     self = (CvlVerb *)type->tp_alloc(type, 0);
 
@@ -3618,27 +4033,33 @@ CvlVerb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "Os#|OiiOO", kwlist, &inputtmp, &self->impulse_path, &psize, &baltmp, &self->size, &self->chnl, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    if (self->size < self->bufsize) {
+    if (self->size < self->bufsize)
+    {
         PySys_WriteStdout("Warning: CvlVerb size less than buffer size!\nCvlVerb size set to buffersize: %d\n", self->bufsize);
         self->size = self->bufsize;
     }
 
     k = 1;
+
     while (k < self->size)
         k <<= 1;
+
     self->size = k;
 
     INIT_INPUT_STREAM
 
-    if (baltmp) {
+    if (baltmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setBal", "O", baltmp);
     }
 
-    if (multmp) {
+    if (multmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
 
-    if (addtmp) {
+    if (addtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
 
@@ -3664,11 +4085,14 @@ CvlVerb_setBal(CvlVerb *self, PyObject *arg)
     tmp = arg;
     Py_INCREF(tmp);
     Py_DECREF(self->bal);
-    if (isNumber == 1) {
+
+    if (isNumber == 1)
+    {
         self->bal = PyNumber_Float(tmp);
         self->modebuffer[2] = 0;
     }
-    else {
+    else
+    {
         self->bal = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->bal, "_getStream", NULL);
         Py_INCREF(streamtmp);
@@ -3704,31 +4128,34 @@ static PyObject * CvlVerb_div(CvlVerb *self, PyObject *arg) { DIV };
 static PyObject * CvlVerb_inplace_div(CvlVerb *self, PyObject *arg) { INPLACE_DIV };
 
 
-static PyMemberDef CvlVerb_members[] = {
-{"server", T_OBJECT_EX, offsetof(CvlVerb, server), 0, "Pyo server."},
-{"stream", T_OBJECT_EX, offsetof(CvlVerb, stream), 0, "Stream object."},
-{"mul", T_OBJECT_EX, offsetof(CvlVerb, mul), 0, "Mul factor."},
-{"add", T_OBJECT_EX, offsetof(CvlVerb, add), 0, "Add factor."},
-{"input", T_OBJECT_EX, offsetof(CvlVerb, input), 0, "Input sound object."},
-{"bal", T_OBJECT_EX, offsetof(CvlVerb, bal), 0, "Wet/dry balance."},
-{NULL}  /* Sentinel */
+static PyMemberDef CvlVerb_members[] =
+{
+    {"server", T_OBJECT_EX, offsetof(CvlVerb, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(CvlVerb, stream), 0, "Stream object."},
+    {"mul", T_OBJECT_EX, offsetof(CvlVerb, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(CvlVerb, add), 0, "Add factor."},
+    {"input", T_OBJECT_EX, offsetof(CvlVerb, input), 0, "Input sound object."},
+    {"bal", T_OBJECT_EX, offsetof(CvlVerb, bal), 0, "Wet/dry balance."},
+    {NULL}  /* Sentinel */
 };
 
-static PyMethodDef CvlVerb_methods[] = {
-{"getServer", (PyCFunction)CvlVerb_getServer, METH_NOARGS, "Returns server object."},
-{"_getStream", (PyCFunction)CvlVerb_getStream, METH_NOARGS, "Returns stream object."},
-{"out", (PyCFunction)CvlVerb_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-{"play", (PyCFunction)CvlVerb_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)CvlVerb_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
-{"setBal", (PyCFunction)CvlVerb_setBal, METH_O, "Sets wet/dry balance."},
-{"setMul", (PyCFunction)CvlVerb_setMul, METH_O, "Sets CvlVerb mul factor."},
-{"setAdd", (PyCFunction)CvlVerb_setAdd, METH_O, "Sets CvlVerb add factor."},
-{"setSub", (PyCFunction)CvlVerb_setSub, METH_O, "Sets CvlVerb add factor."},
-{"setDiv", (PyCFunction)CvlVerb_setDiv, METH_O, "Sets CvlVerb mul factor."},
-{NULL}  /* Sentinel */
+static PyMethodDef CvlVerb_methods[] =
+{
+    {"getServer", (PyCFunction)CvlVerb_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)CvlVerb_getStream, METH_NOARGS, "Returns stream object."},
+    {"out", (PyCFunction)CvlVerb_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"play", (PyCFunction)CvlVerb_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)CvlVerb_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"setBal", (PyCFunction)CvlVerb_setBal, METH_O, "Sets wet/dry balance."},
+    {"setMul", (PyCFunction)CvlVerb_setMul, METH_O, "Sets CvlVerb mul factor."},
+    {"setAdd", (PyCFunction)CvlVerb_setAdd, METH_O, "Sets CvlVerb add factor."},
+    {"setSub", (PyCFunction)CvlVerb_setSub, METH_O, "Sets CvlVerb add factor."},
+    {"setDiv", (PyCFunction)CvlVerb_setDiv, METH_O, "Sets CvlVerb mul factor."},
+    {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods CvlVerb_as_number = {
+static PyNumberMethods CvlVerb_as_number =
+{
     (binaryfunc)CvlVerb_add,                      /*nb_add*/
     (binaryfunc)CvlVerb_sub,                 /*nb_subtract*/
     (binaryfunc)CvlVerb_multiply,                 /*nb_multiply*/
@@ -3770,48 +4197,50 @@ static PyNumberMethods CvlVerb_as_number = {
     0,                     /* nb_index */
 };
 
-PyTypeObject CvlVerbType = {
-PyVarObject_HEAD_INIT(NULL, 0)
-"_pyo.CvlVerb_base",                                   /*tp_name*/
-sizeof(CvlVerb),                                 /*tp_basicsize*/
-0,                                              /*tp_itemsize*/
-(destructor)CvlVerb_dealloc,                     /*tp_dealloc*/
-0,                                              /*tp_print*/
-0,                                              /*tp_getattr*/
-0,                                              /*tp_setattr*/
-0,                                              /*tp_as_async (tp_compare in Python 2)*/
-0,                                              /*tp_repr*/
-&CvlVerb_as_number,                              /*tp_as_number*/
-0,                                              /*tp_as_sequence*/
-0,                                              /*tp_as_mapping*/
-0,                                              /*tp_hash */
-0,                                              /*tp_call*/
-0,                                              /*tp_str*/
-0,                                              /*tp_getattro*/
-0,                                              /*tp_setattro*/
-0,                                              /*tp_as_buffer*/
-Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
-"CvlVerb objects. FFT transform.",           /* tp_doc */
-(traverseproc)CvlVerb_traverse,                  /* tp_traverse */
-(inquiry)CvlVerb_clear,                          /* tp_clear */
-0,                                              /* tp_richcompare */
-0,                                              /* tp_weaklistoffset */
-0,                                              /* tp_iter */
-0,                                              /* tp_iternext */
-CvlVerb_methods,                                 /* tp_methods */
-CvlVerb_members,                                 /* tp_members */
-0,                                              /* tp_getset */
-0,                                              /* tp_base */
-0,                                              /* tp_dict */
-0,                                              /* tp_descr_get */
-0,                                              /* tp_descr_set */
-0,                                              /* tp_dictoffset */
-0,                          /* tp_init */
-0,                                              /* tp_alloc */
-CvlVerb_new,                                     /* tp_new */
+PyTypeObject CvlVerbType =
+{
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "_pyo.CvlVerb_base",                                   /*tp_name*/
+    sizeof(CvlVerb),                                 /*tp_basicsize*/
+    0,                                              /*tp_itemsize*/
+    (destructor)CvlVerb_dealloc,                     /*tp_dealloc*/
+    0,                                              /*tp_print*/
+    0,                                              /*tp_getattr*/
+    0,                                              /*tp_setattr*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
+    0,                                              /*tp_repr*/
+    &CvlVerb_as_number,                              /*tp_as_number*/
+    0,                                              /*tp_as_sequence*/
+    0,                                              /*tp_as_mapping*/
+    0,                                              /*tp_hash */
+    0,                                              /*tp_call*/
+    0,                                              /*tp_str*/
+    0,                                              /*tp_getattro*/
+    0,                                              /*tp_setattro*/
+    0,                                              /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "CvlVerb objects. FFT transform.",           /* tp_doc */
+    (traverseproc)CvlVerb_traverse,                  /* tp_traverse */
+    (inquiry)CvlVerb_clear,                          /* tp_clear */
+    0,                                              /* tp_richcompare */
+    0,                                              /* tp_weaklistoffset */
+    0,                                              /* tp_iter */
+    0,                                              /* tp_iternext */
+    CvlVerb_methods,                                 /* tp_methods */
+    CvlVerb_members,                                 /* tp_members */
+    0,                                              /* tp_getset */
+    0,                                              /* tp_base */
+    0,                                              /* tp_dict */
+    0,                                              /* tp_descr_get */
+    0,                                              /* tp_descr_set */
+    0,                                              /* tp_dictoffset */
+    0,                          /* tp_init */
+    0,                                              /* tp_alloc */
+    CvlVerb_new,                                     /* tp_new */
 };
 
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     PyObject *input;
     Stream *input_stream;
@@ -3839,23 +4268,30 @@ typedef struct {
 } Spectrum;
 
 static void
-Spectrum_realloc_memories(Spectrum *self) {
+Spectrum_realloc_memories(Spectrum *self)
+{
     int i, n8;
     self->hsize = self->size / 2;
     n8 = self->size >> 3;
     self->input_buffer = (MYFLT *)realloc(self->input_buffer, self->size * sizeof(MYFLT));
     self->inframe = (MYFLT *)realloc(self->inframe, self->size * sizeof(MYFLT));
     self->outframe = (MYFLT *)realloc(self->outframe, self->size * sizeof(MYFLT));
-    for (i=0; i<self->size; i++)
+
+    for (i = 0; i < self->size; i++)
         self->input_buffer[i] = self->inframe[i] = self->outframe[i] = 0.0;
+
     self->magnitude = (MYFLT *)realloc(self->magnitude, self->hsize * sizeof(MYFLT));
     self->last_magnitude = (MYFLT *)realloc(self->last_magnitude, self->hsize * sizeof(MYFLT));
-    self->tmpmag = (MYFLT *)realloc(self->tmpmag, (self->hsize+6) * sizeof(MYFLT));
-    for (i=0; i<self->hsize; i++)
-        self->magnitude[i] = self->last_magnitude[i] = self->tmpmag[i+3] = 0.0;
+    self->tmpmag = (MYFLT *)realloc(self->tmpmag, (self->hsize + 6) * sizeof(MYFLT));
+
+    for (i = 0; i < self->hsize; i++)
+        self->magnitude[i] = self->last_magnitude[i] = self->tmpmag[i + 3] = 0.0;
+
     self->twiddle = (MYFLT **)realloc(self->twiddle, 4 * sizeof(MYFLT *));
-    for(i=0; i<4; i++)
+
+    for(i = 0; i < 4; i++)
         self->twiddle[i] = (MYFLT *)malloc(n8 * sizeof(MYFLT));
+
     fft_compute_split_twiddle(self->twiddle, self->size);
     self->window = (MYFLT *)realloc(self->window, self->size * sizeof(MYFLT));
     gen_window(self->window, self->size, self->wintype);
@@ -3864,7 +4300,8 @@ Spectrum_realloc_memories(Spectrum *self) {
 }
 
 static PyObject *
-Spectrum_display(Spectrum *self) {
+Spectrum_display(Spectrum *self)
+{
     int i, p1, b1, b2, bins;
     MYFLT pos, step, frac, iw, mag, h4;
     MYFLT logmin, logrange;
@@ -3877,7 +4314,7 @@ Spectrum_display(Spectrum *self) {
     iw = 1.0 / (MYFLT)(self->width);
     h4 = self->height * 0.75;
 
-    points = PyList_New(self->width+2);
+    points = PyList_New(self->width + 2);
 
     tuple = PyTuple_New(2);
     PyTuple_SET_ITEM(tuple, 0, PyInt_FromLong(0));
@@ -3886,65 +4323,78 @@ Spectrum_display(Spectrum *self) {
     tuple = PyTuple_New(2);
     PyTuple_SET_ITEM(tuple, 0, PyInt_FromLong(self->width));
     PyTuple_SET_ITEM(tuple, 1, PyInt_FromLong(self->height));
-    PyList_SET_ITEM(points, self->width+1, tuple);
-    if (!self->fscaling && !self->mscaling) {
-        for (i=0; i<self->width; i++) {
+    PyList_SET_ITEM(points, self->width + 1, tuple);
+
+    if (!self->fscaling && !self->mscaling)
+    {
+        for (i = 0; i < self->width; i++)
+        {
             pos = i * step + b1;
             p1 = (int)pos;
             frac = pos - p1;
             tuple = PyTuple_New(2);
-            mag = ((self->magnitude[p1] + (self->magnitude[p1+1] - self->magnitude[p1]) * frac) * self->gain * 4 * h4);
+            mag = ((self->magnitude[p1] + (self->magnitude[p1 + 1] - self->magnitude[p1]) * frac) * self->gain * 4 * h4);
             PyTuple_SET_ITEM(tuple, 0, PyInt_FromLong(i));
             PyTuple_SET_ITEM(tuple, 1, PyInt_FromLong(self->height - (int)mag));
-            PyList_SET_ITEM(points, i+1, tuple);
+            PyList_SET_ITEM(points, i + 1, tuple);
         }
     }
-    else if (!self->fscaling && self->mscaling) {
-        for (i=0; i<self->width; i++) {
+    else if (!self->fscaling && self->mscaling)
+    {
+        for (i = 0; i < self->width; i++)
+        {
             pos = i * step + b1;
             p1 = (int)pos;
             frac = pos - p1;
             tuple = PyTuple_New(2);
-            mag = ((self->magnitude[p1] + (self->magnitude[p1+1] - self->magnitude[p1]) * frac) * 0.7 * self->gain);
+            mag = ((self->magnitude[p1] + (self->magnitude[p1 + 1] - self->magnitude[p1]) * frac) * 0.7 * self->gain);
             mag = mag > 0.001 ? mag : 0.001;
             mag = (60.0 + (20.0 * MYLOG10(mag))) * 0.01666 * h4;
             PyTuple_SET_ITEM(tuple, 0, PyInt_FromLong(i));
             PyTuple_SET_ITEM(tuple, 1, PyInt_FromLong(self->height - (int)mag));
-            PyList_SET_ITEM(points, i+1, tuple);
+            PyList_SET_ITEM(points, i + 1, tuple);
         }
     }
-    else if (self->fscaling && !self->mscaling) {
+    else if (self->fscaling && !self->mscaling)
+    {
         if (self->freqone <= 20.0)
             self->freqone = 20.0;
+
         logmin = MYLOG10(self->freqone);
         logrange = MYLOG10(self->freqtwo) - logmin;
-        for (i=0; i<self->width; i++) {
+
+        for (i = 0; i < self->width; i++)
+        {
             pos = MYPOW(10.0, i * iw * logrange + logmin) / self->freqPerBin;
             p1 = (int)pos;
             frac = pos - p1;
             tuple = PyTuple_New(2);
-            mag = ((self->magnitude[p1] + (self->magnitude[p1+1] - self->magnitude[p1]) * frac) * self->gain * 4 * h4);
+            mag = ((self->magnitude[p1] + (self->magnitude[p1 + 1] - self->magnitude[p1]) * frac) * self->gain * 4 * h4);
             PyTuple_SET_ITEM(tuple, 0, PyInt_FromLong(i));
             PyTuple_SET_ITEM(tuple, 1, PyInt_FromLong(self->height - (int)mag));
-            PyList_SET_ITEM(points, i+1, tuple);
+            PyList_SET_ITEM(points, i + 1, tuple);
         }
     }
-    else {
+    else
+    {
         if (self->freqone <= 20.0)
             self->freqone = 20.0;
+
         logmin = MYLOG10(self->freqone);
         logrange = MYLOG10(self->freqtwo) - logmin;
-        for (i=0; i<self->width; i++) {
+
+        for (i = 0; i < self->width; i++)
+        {
             pos = MYPOW(10.0, i * iw * logrange + logmin) / self->freqPerBin;
             p1 = (int)pos;
             frac = pos - p1;
             tuple = PyTuple_New(2);
-            mag = ((self->magnitude[p1] + (self->magnitude[p1+1] - self->magnitude[p1]) * frac) * 0.7 * self->gain);
+            mag = ((self->magnitude[p1] + (self->magnitude[p1 + 1] - self->magnitude[p1]) * frac) * 0.7 * self->gain);
             mag = mag > 0.001 ? mag : 0.001;
             mag = (60.0 + (20.0 * MYLOG10(mag))) * 0.01666 * self->height;
             PyTuple_SET_ITEM(tuple, 0, PyInt_FromLong(i));
             PyTuple_SET_ITEM(tuple, 1, PyInt_FromLong(self->height - (int)mag));
-            PyList_SET_ITEM(points, i+1, tuple);
+            PyList_SET_ITEM(points, i + 1, tuple);
         }
     }
 
@@ -3952,35 +4402,45 @@ Spectrum_display(Spectrum *self) {
 }
 
 static void
-Spectrum_filters(Spectrum *self) {
+Spectrum_filters(Spectrum *self)
+{
     int i, j = 0, impos = 0;
     MYFLT tmp = 0.0;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->input_buffer[self->incount] = in[i];
         self->incount++;
-        if (self->incount == self->size) {
-            for (j=0; j<self->size; j++) {
+
+        if (self->incount == self->size)
+        {
+            for (j = 0; j < self->size; j++)
+            {
                 self->inframe[j] = self->input_buffer[j] * self->window[j];
             }
+
             self->incount = self->hsize;
             realfft_split(self->inframe, self->outframe, self->size, self->twiddle);
             self->tmpmag[0] = self->tmpmag[1] = self->tmpmag[2] = 0.0;
-            self->tmpmag[self->hsize] = self->tmpmag[self->hsize+1] = self->tmpmag[self->hsize+2] = 0.0;
-            self->tmpmag[3] = MYSQRT(self->outframe[0]*self->outframe[0]);
-            for (j=1; j<self->hsize; j++) {
+            self->tmpmag[self->hsize] = self->tmpmag[self->hsize + 1] = self->tmpmag[self->hsize + 2] = 0.0;
+            self->tmpmag[3] = MYSQRT(self->outframe[0] * self->outframe[0]);
+
+            for (j = 1; j < self->hsize; j++)
+            {
                 impos = self->size - j;
-                tmp = MYSQRT(self->outframe[j]*self->outframe[j] + self->outframe[impos]*self->outframe[impos]) * 2;
-                self->tmpmag[j+3] = self->last_magnitude[j] = tmp + self->last_magnitude[j] * 0.5;
+                tmp = MYSQRT(self->outframe[j] * self->outframe[j] + self->outframe[impos] * self->outframe[impos]) * 2;
+                self->tmpmag[j + 3] = self->last_magnitude[j] = tmp + self->last_magnitude[j] * 0.5;
             }
-            for (j=0; j<self->hsize; j++) {
-                tmp =   (self->tmpmag[j] + self->tmpmag[j+6]) * 0.05 +
-                        (self->tmpmag[j+1] + self->tmpmag[j+5]) * 0.15 +
-                        (self->tmpmag[j+2] + self->tmpmag[j+4])* 0.3 +
-                        self->tmpmag[j+3] * 0.5;
+
+            for (j = 0; j < self->hsize; j++)
+            {
+                tmp =   (self->tmpmag[j] + self->tmpmag[j + 6]) * 0.05 +
+                        (self->tmpmag[j + 1] + self->tmpmag[j + 5]) * 0.15 +
+                        (self->tmpmag[j + 2] + self->tmpmag[j + 4]) * 0.3 +
+                        self->tmpmag[j + 3] * 0.5;
                 self->magnitude[j] = tmp;
-                self->input_buffer[j] = self->input_buffer[j+self->hsize];
+                self->input_buffer[j] = self->input_buffer[j + self->hsize];
             }
         }
     }
@@ -4028,9 +4488,12 @@ Spectrum_dealloc(Spectrum* self)
     free(self->magnitude);
     free(self->last_magnitude);
     free(self->tmpmag);
-    for(i=0; i<4; i++) {
+
+    for(i = 0; i < 4; i++)
+    {
         free(self->twiddle[i]);
     }
+
     free(self->twiddle);
     Spectrum_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
@@ -4070,10 +4533,13 @@ Spectrum_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    if (!isPowerOfTwo(self->size)) {
+    if (!isPowerOfTwo(self->size))
+    {
         k = 1;
+
         while (k < self->size)
             k *= 2;
+
         self->size = k;
         PySys_WriteStdout("Spectrum: size argument must be a power-of-2, using the next power-of-2 greater than size : %d\n", self->size);
     }
@@ -4094,9 +4560,13 @@ static PyObject *
 Spectrum_setSize(Spectrum *self, PyObject *arg)
 {
     int tmp;
-    if (PyLong_Check(arg) || PyInt_Check(arg)) {
+
+    if (PyLong_Check(arg) || PyInt_Check(arg))
+    {
         tmp = PyInt_AsLong(arg);
-        if (isPowerOfTwo(tmp)) {
+
+        if (isPowerOfTwo(tmp))
+        {
             self->size = tmp;
             Spectrum_realloc_memories(self);
         }
@@ -4111,7 +4581,8 @@ Spectrum_setSize(Spectrum *self, PyObject *arg)
 static PyObject *
 Spectrum_setWinType(Spectrum *self, PyObject *arg)
 {
-    if (PyLong_Check(arg) || PyInt_Check(arg)) {
+    if (PyLong_Check(arg) || PyInt_Check(arg))
+    {
         self->wintype = PyLong_AsLong(arg);
         gen_window(self->window, self->size, self->wintype);
     }
@@ -4124,8 +4595,11 @@ static PyObject *
 Spectrum_setLowbound(Spectrum *self, PyObject *arg)
 {
     MYFLT tmp;
-    if (PyNumber_Check(arg)) {
+
+    if (PyNumber_Check(arg))
+    {
         tmp = PyFloat_AsDouble(arg);
+
         if (tmp >= 0.0 && tmp <= 0.5)
             self->freqone = tmp * self->sr;
         else
@@ -4147,8 +4621,11 @@ static PyObject *
 Spectrum_setHighbound(Spectrum *self, PyObject *arg)
 {
     MYFLT tmp;
-    if (PyNumber_Check(arg)) {
+
+    if (PyNumber_Check(arg))
+    {
         tmp = PyFloat_AsDouble(arg);
+
         if (tmp >= 0.0 && tmp <= 0.5)
             self->freqtwo = tmp * self->sr;
         else
@@ -4216,75 +4693,79 @@ Spectrum_setGain(Spectrum *self, PyObject *arg)
     return Py_None;
 }
 
-static PyMemberDef Spectrum_members[] = {
-{"server", T_OBJECT_EX, offsetof(Spectrum, server), 0, "Pyo server."},
-{"stream", T_OBJECT_EX, offsetof(Spectrum, stream), 0, "Stream object."},
-{"input", T_OBJECT_EX, offsetof(Spectrum, input), 0, "FFT sound object."},
-{NULL}  /* Sentinel */
+static PyMemberDef Spectrum_members[] =
+{
+    {"server", T_OBJECT_EX, offsetof(Spectrum, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(Spectrum, stream), 0, "Stream object."},
+    {"input", T_OBJECT_EX, offsetof(Spectrum, input), 0, "FFT sound object."},
+    {NULL}  /* Sentinel */
 };
 
-static PyMethodDef Spectrum_methods[] = {
-{"getServer", (PyCFunction)Spectrum_getServer, METH_NOARGS, "Returns server object."},
-{"_getStream", (PyCFunction)Spectrum_getStream, METH_NOARGS, "Returns stream object."},
-{"play", (PyCFunction)Spectrum_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)Spectrum_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
-{"setSize", (PyCFunction)Spectrum_setSize, METH_O, "Sets a new FFT size."},
-{"setWinType", (PyCFunction)Spectrum_setWinType, METH_O, "Sets a new window."},
-{"setLowbound", (PyCFunction)Spectrum_setLowbound, METH_O, "Sets the first frequency to display."},
-{"setHighbound", (PyCFunction)Spectrum_setHighbound, METH_O, "Sets the last frequency to display."},
-{"setWidth", (PyCFunction)Spectrum_setWidth, METH_O, "Sets the width of the display."},
-{"setHeight", (PyCFunction)Spectrum_setHeight, METH_O, "Sets the height of the display."},
-{"setFscaling", (PyCFunction)Spectrum_setFscaling, METH_O, "Sets the frequency scaling of the display."},
-{"setMscaling", (PyCFunction)Spectrum_setMscaling, METH_O, "Sets the magnitude scaling of the display."},
-{"setGain", (PyCFunction)Spectrum_setGain, METH_O, "Sets the magnitude gain of the display."},
-{"display", (PyCFunction)Spectrum_display, METH_NOARGS, "Gets points to display."},
-{"getLowfreq", (PyCFunction)Spectrum_getLowfreq, METH_NOARGS, "Returns the lowest frequency to display."},
-{"getHighfreq", (PyCFunction)Spectrum_getHighfreq, METH_NOARGS, "Returns the highest frequency to display."},
-{NULL}  /* Sentinel */
+static PyMethodDef Spectrum_methods[] =
+{
+    {"getServer", (PyCFunction)Spectrum_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)Spectrum_getStream, METH_NOARGS, "Returns stream object."},
+    {"play", (PyCFunction)Spectrum_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)Spectrum_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"setSize", (PyCFunction)Spectrum_setSize, METH_O, "Sets a new FFT size."},
+    {"setWinType", (PyCFunction)Spectrum_setWinType, METH_O, "Sets a new window."},
+    {"setLowbound", (PyCFunction)Spectrum_setLowbound, METH_O, "Sets the first frequency to display."},
+    {"setHighbound", (PyCFunction)Spectrum_setHighbound, METH_O, "Sets the last frequency to display."},
+    {"setWidth", (PyCFunction)Spectrum_setWidth, METH_O, "Sets the width of the display."},
+    {"setHeight", (PyCFunction)Spectrum_setHeight, METH_O, "Sets the height of the display."},
+    {"setFscaling", (PyCFunction)Spectrum_setFscaling, METH_O, "Sets the frequency scaling of the display."},
+    {"setMscaling", (PyCFunction)Spectrum_setMscaling, METH_O, "Sets the magnitude scaling of the display."},
+    {"setGain", (PyCFunction)Spectrum_setGain, METH_O, "Sets the magnitude gain of the display."},
+    {"display", (PyCFunction)Spectrum_display, METH_NOARGS, "Gets points to display."},
+    {"getLowfreq", (PyCFunction)Spectrum_getLowfreq, METH_NOARGS, "Returns the lowest frequency to display."},
+    {"getHighfreq", (PyCFunction)Spectrum_getHighfreq, METH_NOARGS, "Returns the highest frequency to display."},
+    {NULL}  /* Sentinel */
 };
 
-PyTypeObject SpectrumType = {
-PyVarObject_HEAD_INIT(NULL, 0)
-"_pyo.Spectrum_base",                                   /*tp_name*/
-sizeof(Spectrum),                                 /*tp_basicsize*/
-0,                                              /*tp_itemsize*/
-(destructor)Spectrum_dealloc,                     /*tp_dealloc*/
-0,                                              /*tp_print*/
-0,                                              /*tp_getattr*/
-0,                                              /*tp_setattr*/
-0,                                              /*tp_as_async (tp_compare in Python 2)*/
-0,                                              /*tp_repr*/
-0,                              /*tp_as_number*/
-0,                                              /*tp_as_sequence*/
-0,                                              /*tp_as_mapping*/
-0,                                              /*tp_hash */
-0,                                              /*tp_call*/
-0,                                              /*tp_str*/
-0,                                              /*tp_getattro*/
-0,                                              /*tp_setattro*/
-0,                                              /*tp_as_buffer*/
-Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
-"Spectrum objects. FFT spectrum analyser.",           /* tp_doc */
-(traverseproc)Spectrum_traverse,                  /* tp_traverse */
-(inquiry)Spectrum_clear,                          /* tp_clear */
-0,                                              /* tp_richcompare */
-0,                                              /* tp_weaklistoffset */
-0,                                              /* tp_iter */
-0,                                              /* tp_iternext */
-Spectrum_methods,                                 /* tp_methods */
-Spectrum_members,                                 /* tp_members */
-0,                                              /* tp_getset */
-0,                                              /* tp_base */
-0,                                              /* tp_dict */
-0,                                              /* tp_descr_get */
-0,                                              /* tp_descr_set */
-0,                                              /* tp_dictoffset */
-0,                          /* tp_init */
-0,                                              /* tp_alloc */
-Spectrum_new,                                     /* tp_new */
+PyTypeObject SpectrumType =
+{
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "_pyo.Spectrum_base",                                   /*tp_name*/
+    sizeof(Spectrum),                                 /*tp_basicsize*/
+    0,                                              /*tp_itemsize*/
+    (destructor)Spectrum_dealloc,                     /*tp_dealloc*/
+    0,                                              /*tp_print*/
+    0,                                              /*tp_getattr*/
+    0,                                              /*tp_setattr*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
+    0,                                              /*tp_repr*/
+    0,                              /*tp_as_number*/
+    0,                                              /*tp_as_sequence*/
+    0,                                              /*tp_as_mapping*/
+    0,                                              /*tp_hash */
+    0,                                              /*tp_call*/
+    0,                                              /*tp_str*/
+    0,                                              /*tp_getattro*/
+    0,                                              /*tp_setattro*/
+    0,                                              /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "Spectrum objects. FFT spectrum analyser.",           /* tp_doc */
+    (traverseproc)Spectrum_traverse,                  /* tp_traverse */
+    (inquiry)Spectrum_clear,                          /* tp_clear */
+    0,                                              /* tp_richcompare */
+    0,                                              /* tp_weaklistoffset */
+    0,                                              /* tp_iter */
+    0,                                              /* tp_iternext */
+    Spectrum_methods,                                 /* tp_methods */
+    Spectrum_members,                                 /* tp_members */
+    0,                                              /* tp_getset */
+    0,                                              /* tp_base */
+    0,                                              /* tp_dict */
+    0,                                              /* tp_descr_get */
+    0,                                              /* tp_descr_set */
+    0,                                              /* tp_dictoffset */
+    0,                          /* tp_init */
+    0,                                              /* tp_alloc */
+    Spectrum_new,                                     /* tp_new */
 };
 
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     PyObject *matrix;
     PyObject *index;
@@ -4304,17 +4785,22 @@ typedef struct {
 } IFFTMatrix;
 
 static void
-IFFTMatrix_realloc_memories(IFFTMatrix *self) {
+IFFTMatrix_realloc_memories(IFFTMatrix *self)
+{
     int i, n8;
     self->hsize = self->size / 2;
     n8 = self->size >> 3;
     self->inframe = (MYFLT *)realloc(self->inframe, self->size * sizeof(MYFLT));
     self->outframe = (MYFLT *)realloc(self->outframe, self->size * sizeof(MYFLT));
-    for (i=0; i<self->size; i++)
+
+    for (i = 0; i < self->size; i++)
         self->inframe[i] = self->outframe[i] = 0.0;
+
     self->twiddle = (MYFLT **)realloc(self->twiddle, 4 * sizeof(MYFLT *));
-    for(i=0; i<4; i++)
+
+    for(i = 0; i < 4; i++)
         self->twiddle[i] = (MYFLT *)malloc(n8 * sizeof(MYFLT));
+
     fft_compute_split_twiddle(self->twiddle, self->size);
     self->window = (MYFLT *)realloc(self->window, self->size * sizeof(MYFLT));
     gen_window(self->window, self->size, self->wintype);
@@ -4322,7 +4808,8 @@ IFFTMatrix_realloc_memories(IFFTMatrix *self) {
 }
 
 static void
-IFFTMatrix_filters(IFFTMatrix *self) {
+IFFTMatrix_filters(IFFTMatrix *self)
+{
     int i;
     MYFLT data, amp, phase, real, imag, pos;
 
@@ -4332,26 +4819,35 @@ IFFTMatrix_filters(IFFTMatrix *self) {
     int yWidth = MatrixStream_getHeight(self->matrix);
     MYFLT yScaling = (MYFLT)yWidth / self->hsize;
 
-    for (i=0; i<self->bufsize; i++) {
-        if (self->incount >= 0) {
-            if (self->incount < self->hsize) {
+    for (i = 0; i < self->bufsize; i++)
+    {
+        if (self->incount >= 0)
+        {
+            if (self->incount < self->hsize)
+            {
                 pos = 1.0 - MYSQRT((MYFLT)self->incount * yScaling / yWidth);
                 amp = MatrixStream_getInterpPointFromPos(self->matrix, ind[i], pos) * 0.5 + 0.5;
                 phase = ph[i] * PI;
                 real = amp * MYCOS(phase);
                 imag = amp * MYSIN(phase);
                 self->inframe[self->incount] = real;
+
                 if (self->incount)
                     self->inframe[self->size - self->incount] = imag;
             }
-            else if (self->incount == self->hsize) {
+            else if (self->incount == self->hsize)
+            {
                 self->inframe[self->incount] = self->inframe[0];
             }
+
             data = self->outframe[self->incount] * self->window[self->incount] / self->hsize;
             self->data[i] = data;
         }
+
         self->incount++;
-        if (self->incount >= self->size) {
+
+        if (self->incount >= self->size)
+        {
             self->incount -= self->size;
             irealfft_split(self->inframe, self->outframe, self->size, self->twiddle);
         }
@@ -4376,31 +4872,40 @@ IFFTMatrix_setProcMode(IFFTMatrix *self)
 
     self->proc_func_ptr = IFFTMatrix_filters;
 
-    switch (muladdmode) {
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = IFFTMatrix_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = IFFTMatrix_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = IFFTMatrix_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = IFFTMatrix_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = IFFTMatrix_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = IFFTMatrix_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = IFFTMatrix_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = IFFTMatrix_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = IFFTMatrix_postprocessing_revareva;
             break;
@@ -4446,9 +4951,12 @@ IFFTMatrix_dealloc(IFFTMatrix* self)
     free(self->inframe);
     free(self->outframe);
     free(self->window);
-    for(i=0; i<4; i++) {
+
+    for(i = 0; i < 4; i++)
+    {
         free(self->twiddle[i]);
     }
+
     free(self->twiddle);
     IFFTMatrix_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
@@ -4458,7 +4966,7 @@ static PyObject *
 IFFTMatrix_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *matrixtmp, *indextmp, *phasetmp, *multmp=NULL, *addtmp=NULL;
+    PyObject *matrixtmp, *indextmp, *phasetmp, *multmp = NULL, *addtmp = NULL;
     IFFTMatrix *self;
     self = (IFFTMatrix *)type->tp_alloc(type, 0);
 
@@ -4476,26 +4984,32 @@ IFFTMatrix_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOO|iiiOO", kwlist, &matrixtmp, &indextmp, &phasetmp, &self->size, &self->hopsize, &self->wintype, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    if ( PyObject_HasAttrString((PyObject *)matrixtmp, "getMatrixStream") == 0 ) {
+    if ( PyObject_HasAttrString((PyObject *)matrixtmp, "getMatrixStream") == 0 )
+    {
         PyErr_SetString(PyExc_TypeError, "\"matrix\" argument of IFFTMatrix must be a PyoMatrixObject.\n");
         Py_RETURN_NONE;
     }
+
     Py_XDECREF(self->matrix);
     self->matrix = PyObject_CallMethod((PyObject *)matrixtmp, "getMatrixStream", "");
 
-    if (indextmp) {
+    if (indextmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setIndex", "O", indextmp);
     }
 
-    if (phasetmp) {
+    if (phasetmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setPhase", "O", phasetmp);
     }
 
-    if (multmp) {
+    if (multmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
 
-    if (addtmp) {
+    if (addtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
 
@@ -4531,19 +5045,20 @@ static PyObject * IFFTMatrix_inplace_div(IFFTMatrix *self, PyObject *arg) { INPL
 static PyObject *
 IFFTMatrix_setIndex(IFFTMatrix *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	tmp = arg;
+    tmp = arg;
 
-	if (PyObject_HasAttrString((PyObject *)tmp, "server") == 0) {
+    if (PyObject_HasAttrString((PyObject *)tmp, "server") == 0)
+    {
         PyErr_SetString(PyExc_TypeError, "\"index\" attribute of IFFTMatrix must be a PyoObject.\n");
         Py_RETURN_NONE;
-	}
+    }
 
-	Py_INCREF(tmp);
-	Py_XDECREF(self->index);
+    Py_INCREF(tmp);
+    Py_XDECREF(self->index);
 
     self->index = tmp;
     streamtmp = PyObject_CallMethod((PyObject *)self->index, "_getStream", NULL);
@@ -4551,26 +5066,27 @@ IFFTMatrix_setIndex(IFFTMatrix *self, PyObject *arg)
     Py_XDECREF(self->index_stream);
     self->index_stream = (Stream *)streamtmp;
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 IFFTMatrix_setPhase(IFFTMatrix *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	tmp = arg;
+    tmp = arg;
 
-	if (PyObject_HasAttrString((PyObject *)tmp, "server") == 0) {
+    if (PyObject_HasAttrString((PyObject *)tmp, "server") == 0)
+    {
         PyErr_SetString(PyExc_TypeError, "\"phase\" attribute of IFFTMatrix must be a PyoObject.\n");
         Py_RETURN_NONE;
-	}
+    }
 
-	Py_INCREF(tmp);
-	Py_XDECREF(self->phase);
+    Py_INCREF(tmp);
+    Py_XDECREF(self->phase);
 
     self->phase = tmp;
     streamtmp = PyObject_CallMethod((PyObject *)self->phase, "_getStream", NULL);
@@ -4578,8 +5094,8 @@ IFFTMatrix_setPhase(IFFTMatrix *self, PyObject *arg)
     Py_XDECREF(self->phase_stream);
     self->phase_stream = (Stream *)streamtmp;
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
@@ -4588,12 +5104,15 @@ IFFTMatrix_setSize(IFFTMatrix *self, PyObject *args, PyObject *kwds)
     int size, hopsize;
 
     static char *kwlist[] = {"size", "hopsize", NULL};
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "ii", kwlist, &size, &hopsize)) {
+
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "ii", kwlist, &size, &hopsize))
+    {
         Py_INCREF(Py_None);
         return Py_None;
     }
 
-    if (isPowerOfTwo(size)) {
+    if (isPowerOfTwo(size))
+    {
         self->size = size;
         self->hopsize = hopsize;
         IFFTMatrix_realloc_memories(self);
@@ -4608,7 +5127,8 @@ IFFTMatrix_setSize(IFFTMatrix *self, PyObject *args, PyObject *kwds)
 static PyObject *
 IFFTMatrix_setWinType(IFFTMatrix *self, PyObject *arg)
 {
-    if (PyLong_Check(arg) || PyInt_Check(arg)) {
+    if (PyLong_Check(arg) || PyInt_Check(arg))
+    {
         self->wintype = PyLong_AsLong(arg);
         gen_window(self->window, self->size, self->wintype);
     }
@@ -4617,7 +5137,8 @@ IFFTMatrix_setWinType(IFFTMatrix *self, PyObject *arg)
     return Py_None;
 }
 
-static PyMemberDef IFFTMatrix_members[] = {
+static PyMemberDef IFFTMatrix_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(IFFTMatrix, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(IFFTMatrix, stream), 0, "Stream object."},
     {"matrix", T_OBJECT_EX, offsetof(IFFTMatrix, matrix), 0, "Matrix to read."},
@@ -4628,13 +5149,14 @@ static PyMemberDef IFFTMatrix_members[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef IFFTMatrix_methods[] = {
+static PyMethodDef IFFTMatrix_methods[] =
+{
     {"getServer", (PyCFunction)IFFTMatrix_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)IFFTMatrix_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)IFFTMatrix_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)IFFTMatrix_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)IFFTMatrix_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
-    {"setSize", (PyCFunction)IFFTMatrix_setSize, METH_VARARGS|METH_KEYWORDS, "Sets a new IFFTMatrix size."},
+    {"play", (PyCFunction)IFFTMatrix_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)IFFTMatrix_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)IFFTMatrix_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"setSize", (PyCFunction)IFFTMatrix_setSize, METH_VARARGS | METH_KEYWORDS, "Sets a new IFFTMatrix size."},
     {"setWinType", (PyCFunction)IFFTMatrix_setWinType, METH_O, "Sets a new window."},
     {"setIndex", (PyCFunction)IFFTMatrix_setIndex, METH_O, "Sets reading position."},
     {"setPhase", (PyCFunction)IFFTMatrix_setPhase, METH_O, "Sets instantaneous phase."},
@@ -4645,7 +5167,8 @@ static PyMethodDef IFFTMatrix_methods[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods IFFTMatrix_as_number = {
+static PyNumberMethods IFFTMatrix_as_number =
+{
     (binaryfunc)IFFTMatrix_add,                      /*nb_add*/
     (binaryfunc)IFFTMatrix_sub,                 /*nb_subtract*/
     (binaryfunc)IFFTMatrix_multiply,                 /*nb_multiply*/
@@ -4687,7 +5210,8 @@ static PyNumberMethods IFFTMatrix_as_number = {
     0,                     /* nb_index */
 };
 
-PyTypeObject IFFTMatrixType = {
+PyTypeObject IFFTMatrixType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.IFFTMatrix_base",         /*tp_name*/
     sizeof(IFFTMatrix),         /*tp_basicsize*/

@@ -27,7 +27,8 @@
 #include "servermodule.h"
 #include "dummymodule.h"
 
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     PyObject *input1;
     PyObject *input2;
@@ -46,7 +47,8 @@ static void InputFader_process_only_first(InputFader *self)
     int i;
     MYFLT *in = Stream_getData((Stream *)self->input1_stream);
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->data[i] = in[i];
     }
 }
@@ -56,7 +58,8 @@ static void InputFader_process_only_second(InputFader *self)
     int i;
     MYFLT *in = Stream_getData((Stream *)self->input2_stream);
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         self->data[i] = in[i];
     }
 }
@@ -70,8 +73,11 @@ static void InputFader_process_one(InputFader *self)
 
     val = 0.0;
     sclfade = 1. / self->fadetime;
-    for (i=0; i<self->bufsize; i++) {
-        if (self->currentTime < self->fadetime) {
+
+    for (i = 0; i < self->bufsize; i++)
+    {
+        if (self->currentTime < self->fadetime)
+        {
             val = MYSQRT(self->currentTime * sclfade);
             self->currentTime += self->sampleToSec;
         }
@@ -80,6 +86,7 @@ static void InputFader_process_one(InputFader *self)
 
         self->data[i] = in1[i] * val + in2[i] * (1 - val);
     }
+
     if (val == 1.)
         self->proc_func_ptr = InputFader_process_only_first;
 
@@ -94,8 +101,11 @@ static void InputFader_process_two(InputFader *self)
 
     val = 0.0;
     sclfade = 1. / self->fadetime;
-    for (i=0; i<self->bufsize; i++) {
-        if (self->currentTime < self->fadetime) {
+
+    for (i = 0; i < self->bufsize; i++)
+    {
+        if (self->currentTime < self->fadetime)
+        {
             val = MYSQRT(self->currentTime * sclfade);
             self->currentTime += self->sampleToSec;
         }
@@ -104,6 +114,7 @@ static void InputFader_process_two(InputFader *self)
 
         self->data[i] = in2[i] * val + in1[i] * (1 - val);
     }
+
     if (val == 1.)
         self->proc_func_ptr = InputFader_process_only_second;
 }
@@ -148,7 +159,7 @@ static PyObject *
 InputFader_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *inputtmp=NULL, *streamtmp;
+    PyObject *inputtmp = NULL, *streamtmp;
     InputFader *self;
     self = (InputFader *)type->tp_alloc(type, 0);
 
@@ -169,10 +180,12 @@ InputFader_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &inputtmp))
         Py_RETURN_NONE;
 
-    if ( PyObject_HasAttrString((PyObject *)inputtmp, "server") == 0 ) {
+    if ( PyObject_HasAttrString((PyObject *)inputtmp, "server") == 0 )
+    {
         PyErr_SetString(PyExc_TypeError, "\"input\" argument must be a PyoObject.\n");
         Py_RETURN_NONE;
     }
+
     Py_INCREF(inputtmp);
     Py_XDECREF(self->input1);
     self->input1 = inputtmp;
@@ -189,7 +202,7 @@ InputFader_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static PyObject *
 InputFader_setInput(InputFader *self, PyObject *args, PyObject *kwds)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     static char *kwlist[] = {"input", "fadetime", NULL};
 
@@ -198,12 +211,14 @@ InputFader_setInput(InputFader *self, PyObject *args, PyObject *kwds)
 
     self->switcher = (self->switcher + 1) % 2;
     self->currentTime = 0.0;
+
     if (self->fadetime == 0)
         self->fadetime = 0.0001;
 
     Py_INCREF(tmp);
 
-    if (self->switcher == 0) {
+    if (self->switcher == 0)
+    {
         Py_DECREF(self->input1);
         self->input1 = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->input1, "_getStream", NULL);
@@ -211,8 +226,9 @@ InputFader_setInput(InputFader *self, PyObject *args, PyObject *kwds)
         Py_XDECREF(self->input1_stream);
         self->input1_stream = (Stream *)streamtmp;
         self->proc_func_ptr = InputFader_process_one;
-	}
-    else {
+    }
+    else
+    {
         Py_XDECREF(self->input2);
         self->input2 = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->input2, "_getStream", NULL);
@@ -220,10 +236,10 @@ InputFader_setInput(InputFader *self, PyObject *args, PyObject *kwds)
         Py_XDECREF(self->input2_stream);
         self->input2_stream = (Stream *)streamtmp;
         self->proc_func_ptr = InputFader_process_two;
-	}
+    }
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject * InputFader_getServer(InputFader* self) { GET_SERVER };
@@ -233,7 +249,8 @@ static PyObject * InputFader_play(InputFader *self, PyObject *args, PyObject *kw
 static PyObject * InputFader_out(InputFader *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * InputFader_stop(InputFader *self, PyObject *args, PyObject *kwds) { STOP };
 
-static PyMemberDef InputFader_members[] = {
+static PyMemberDef InputFader_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(InputFader, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(InputFader, stream), 0, "Stream object."},
     {"input1", T_OBJECT_EX, offsetof(InputFader, input1), 0, "First input."},
@@ -241,17 +258,19 @@ static PyMemberDef InputFader_members[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef InputFader_methods[] = {
+static PyMethodDef InputFader_methods[] =
+{
     {"getServer", (PyCFunction)InputFader_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)InputFader_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)InputFader_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)InputFader_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"setInput", (PyCFunction)InputFader_setInput, METH_VARARGS|METH_KEYWORDS, "Crossfade between current stream and given stream."},
-    {"stop", (PyCFunction)InputFader_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
+    {"play", (PyCFunction)InputFader_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)InputFader_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"setInput", (PyCFunction)InputFader_setInput, METH_VARARGS | METH_KEYWORDS, "Crossfade between current stream and given stream."},
+    {"stop", (PyCFunction)InputFader_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {NULL}  /* Sentinel */
 };
 
-PyTypeObject InputFaderType = {
+PyTypeObject InputFaderType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.InputFader_base",         /*tp_name*/
     sizeof(InputFader),         /*tp_basicsize*/
@@ -275,10 +294,10 @@ PyTypeObject InputFaderType = {
     "InputFader objects. Generates a crossfade between current input sound stream and new input sound stream.",  /* tp_doc */
     (traverseproc)InputFader_traverse,   /* tp_traverse */
     (inquiry)InputFader_clear,           /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
     InputFader_methods,             /* tp_methods */
     InputFader_members,             /* tp_members */
     0,                      /* tp_getset */

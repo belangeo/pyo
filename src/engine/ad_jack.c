@@ -31,20 +31,28 @@ JackMidiEventToPyoMidiEvent(jack_midi_event_t event)
 }
 
 static int
-jackMidiEventCompare(const void *evt1, const void *evt2) {
+jackMidiEventCompare(const void *evt1, const void *evt2)
+{
     const PyoJackMidiEvent *event1 = evt1;
     const PyoJackMidiEvent *event2 = evt2;
+
     if (event1->timestamp > event2->timestamp) return 1;
+
     if (event1->timestamp < event2->timestamp) return -1;
+
     return 0;
 }
 
 static int
-jackMidiEventSort(PyoJackMidiEvent *orig, PyoJackMidiEvent *new, Server *server) {
+jackMidiEventSort(PyoJackMidiEvent *orig, PyoJackMidiEvent *new, Server *server)
+{
     int i, count = 0;
     jack_nframes_t time = 0;
-    for (i=0; i<512; i++) {
-        if (orig[i].timestamp != -1 && orig[i].timestamp < (server->elapsedSamples + server->bufferSize)) {
+
+    for (i = 0; i < 512; i++)
+    {
+        if (orig[i].timestamp != -1 && orig[i].timestamp < (server->elapsedSamples + server->bufferSize))
+        {
             time = orig[i].timestamp % server->bufferSize;
             new[count] = orig[i];
             new[count].timestamp = time;
@@ -52,7 +60,9 @@ jackMidiEventSort(PyoJackMidiEvent *orig, PyoJackMidiEvent *new, Server *server)
             count++;
         }
     }
-    if (count > 1) {
+
+    if (count > 1)
+    {
         qsort(new, count, sizeof(PyoJackMidiEvent), jackMidiEventCompare);
     }
 
@@ -60,7 +70,8 @@ jackMidiEventSort(PyoJackMidiEvent *orig, PyoJackMidiEvent *new, Server *server)
 }
 
 static int
-jack_callback(jack_nframes_t nframes, void *arg) {
+jack_callback(jack_nframes_t nframes, void *arg)
+{
     int i, j;
     Server *server = (Server *) arg;
 
@@ -70,30 +81,39 @@ jack_callback(jack_nframes_t nframes, void *arg) {
 
     PyoJackBackendData *be_data = (PyoJackBackendData *) server->audio_be_data;
 
-    if (server->duplex == 1) {
-        for (i = 0; i < server->ichnls; i++) {
-            in_buffers[i] = jack_port_get_buffer(be_data->jack_in_ports[i+server->input_offset], server->bufferSize);
+    if (server->duplex == 1)
+    {
+        for (i = 0; i < server->ichnls; i++)
+        {
+            in_buffers[i] = jack_port_get_buffer(be_data->jack_in_ports[i + server->input_offset], server->bufferSize);
         }
     }
 
-    for (i = 0; i < server->nchnls; i++) {
-        out_buffers[i] = jack_port_get_buffer(be_data->jack_out_ports[i+server->output_offset], server->bufferSize);
+    for (i = 0; i < server->nchnls; i++)
+    {
+        out_buffers[i] = jack_port_get_buffer(be_data->jack_out_ports[i + server->output_offset], server->bufferSize);
 
     }
 
     /* Outputs zeros while the audio server is not started. */
-    if (!server->server_started) {
-        for (i=0; i<server->bufferSize; i++) {
-            for (j=0; j<server->nchnls; j++) {
+    if (!server->server_started)
+    {
+        for (i = 0; i < server->bufferSize; i++)
+        {
+            for (j = 0; j < server->nchnls; j++)
+            {
                 out_buffers[j][i] = 0.0;
             }
         }
+
         return 0;
     }
 
-    if (server->withJackMidi) {
+    if (server->withJackMidi)
+    {
         // Handle midiout events.
-        if (be_data->midi_event_count > 0) {
+        if (be_data->midi_event_count > 0)
+        {
             PyoJackMidiEvent ordlist[512];
             int numevents = jackMidiEventSort(be_data->midi_events, ordlist, server);
             be_data->midi_event_count -= numevents;
@@ -101,7 +121,9 @@ jack_callback(jack_nframes_t nframes, void *arg) {
             unsigned char *buffer;
             void *port_buf_out = jack_port_get_buffer(be_data->jack_midiout_port, server->bufferSize);
             jack_midi_clear_buffer(port_buf_out);
-            for (i=0; i<numevents; i++) {
+
+            for (i = 0; i < numevents; i++)
+            {
                 buffer = jack_midi_event_reserve(port_buf_out, ordlist[i].timestamp, 3);
                 buffer[0] = ordlist[i].status;
                 buffer[1] = ordlist[i].data1;
@@ -115,58 +137,79 @@ jack_callback(jack_nframes_t nframes, void *arg) {
         jack_midi_event_t in_event;
         jack_nframes_t event_count = jack_midi_get_event_count(port_buf_in);
 
-        if (event_count > 0) {
-            for (i=0; i<event_count; i++) {
+        if (event_count > 0)
+        {
+            for (i = 0; i < event_count; i++)
+            {
                 jack_midi_event_get(&in_event, port_buf_in, i);
                 server->midiEvents[server->midi_count++] = JackMidiEventToPyoMidiEvent(in_event);
             }
         }
-    } else {
+    }
+    else
+    {
         pyoGetMidiEvents(server);
     }
 
     /* jack audio data is not interleaved */
-    if (server->duplex == 1) {
-        for (i=0; i<server->bufferSize; i++) {
-            for (j=0; j<server->ichnls; j++) {
-                server->input_buffer[(i*server->ichnls)+j] = (MYFLT) in_buffers[j][i];
+    if (server->duplex == 1)
+    {
+        for (i = 0; i < server->bufferSize; i++)
+        {
+            for (j = 0; j < server->ichnls; j++)
+            {
+                server->input_buffer[(i * server->ichnls) + j] = (MYFLT) in_buffers[j][i];
             }
         }
     }
+
     Server_process_buffers(server);
-    for (i=0; i<server->bufferSize; i++) {
-        for (j=0; j<server->nchnls; j++) {
-            out_buffers[j][i] = (jack_default_audio_sample_t) server->output_buffer[(i*server->nchnls)+j];
+
+    for (i = 0; i < server->bufferSize; i++)
+    {
+        for (j = 0; j < server->nchnls; j++)
+        {
+            out_buffers[j][i] = (jack_default_audio_sample_t) server->output_buffer[(i * server->nchnls) + j];
         }
     }
+
     server->midi_count = 0;
     return 0;
 }
 
 static int
-jack_transport_cb(jack_transport_state_t state, jack_position_t *pos, void *arg) {
+jack_transport_cb(jack_transport_state_t state, jack_position_t *pos, void *arg)
+{
     Server *server = (Server *) arg;
 
     if (server->jack_transport_state == state)
         return 0;
 
-    switch (state) {
+    switch (state)
+    {
         case JackTransportStopped:
-            if (server->server_started) {
+            if (server->server_started)
+            {
                 PyGILState_STATE s = PyGILState_Ensure();
                 Server_stop(server);
                 PyGILState_Release(s);
             }
+
             break;
+
         case JackTransportRolling:
-            if (!server->server_started) {
+            if (!server->server_started)
+            {
                 PyGILState_STATE s = PyGILState_Ensure();
                 Server_start(server);
                 PyGILState_Release(s);
             }
+
             break;
+
         case JackTransportStarting:
             break;
+
         case JackTransportLooping:
             break;
     }
@@ -177,7 +220,8 @@ jack_transport_cb(jack_transport_state_t state, jack_position_t *pos, void *arg)
 }
 
 static int
-jack_srate_cb(jack_nframes_t nframes, void *arg) {
+jack_srate_cb(jack_nframes_t nframes, void *arg)
+{
     Server *server = (Server *) arg;
     server->samplingRate = (double) nframes;
 
@@ -189,7 +233,8 @@ jack_srate_cb(jack_nframes_t nframes, void *arg) {
 }
 
 static int
-jack_bufsize_cb(jack_nframes_t nframes, void *arg) {
+jack_bufsize_cb(jack_nframes_t nframes, void *arg)
+{
     Server *server = (Server *) arg;
     server->bufferSize = (int) nframes;
 
@@ -201,7 +246,8 @@ jack_bufsize_cb(jack_nframes_t nframes, void *arg) {
 }
 
 static void
-jack_error_cb(const char *desc) {
+jack_error_cb(const char *desc)
+{
 #ifndef NDEBUG
     PyGILState_STATE s = PyGILState_Ensure();
     PySys_WriteStdout("Jack error: %s\n", desc);
@@ -210,7 +256,8 @@ jack_error_cb(const char *desc) {
 }
 
 static void
-jack_shutdown_cb(void *arg) {
+jack_shutdown_cb(void *arg)
+{
     Server *server = (Server *) arg;
 
     PyoJackBackendData *be_data = (PyoJackBackendData *) server->audio_be_data;
@@ -224,86 +271,115 @@ jack_shutdown_cb(void *arg) {
 }
 
 static void
-Server_jack_autoconnect(Server *self) {
+Server_jack_autoconnect(Server *self)
+{
     const char **ports;
     const char *portname;
     int i, j, num, err = 0;
     PyoJackBackendData *be_data = (PyoJackBackendData *) self->audio_be_data;
 
-    if (self->jackautoin && self->duplex == 1) {
+    if (self->jackautoin && self->duplex == 1)
+    {
 
         Py_BEGIN_ALLOW_THREADS
         ports = jack_get_ports(be_data->jack_client, "system", NULL, JackPortIsOutput);
         Py_END_ALLOW_THREADS
 
-        if (ports == NULL) {
+        if (ports == NULL)
+        {
             Server_error(self, "Jack cannot find any physical capture ports called 'system'.\n");
             Server_error(self, "Server falls back to playback-only mode.\n");
             self->duplex = 0;
-        } else {
+        }
+        else
+        {
             i = 0;
-            while(ports[i] != NULL && be_data->jack_in_ports[i] != NULL) {
+
+            while(ports[i] != NULL && be_data->jack_in_ports[i] != NULL)
+            {
 
                 Py_BEGIN_ALLOW_THREADS
                 err = jack_connect(be_data->jack_client, ports[i], jack_port_name(be_data->jack_in_ports[i]));
                 Py_END_ALLOW_THREADS
 
-                if (err) {
+                if (err)
+                {
                     Server_error(self, "Jack cannot connect 'system' to input ports.\n");
                 }
+
                 i++;
             }
+
             free(ports);
         }
     }
 
-    if (self->jackautoout) {
+    if (self->jackautoout)
+    {
 
         Py_BEGIN_ALLOW_THREADS
         ports = jack_get_ports(be_data->jack_client, "system", NULL, JackPortIsInput);
         Py_END_ALLOW_THREADS
 
-        if (ports == NULL) {
+        if (ports == NULL)
+        {
             Server_error(self, "Jack cannot find any physical playback ports called 'system'.\n");
         }
 
         i = 0;
-        while(ports[i] != NULL && be_data->jack_out_ports[i] != NULL){
+
+        while(ports[i] != NULL && be_data->jack_out_ports[i] != NULL)
+        {
 
             Py_BEGIN_ALLOW_THREADS
             jack_connect(be_data->jack_client, jack_port_name (be_data->jack_out_ports[i]), ports[i]);
             Py_END_ALLOW_THREADS
 
-            if (err) {
+            if (err)
+            {
                 Server_error(self, "Jack cannot connect output ports to 'system'.\n");
             }
+
             i++;
         }
+
         free(ports);
     }
 
-    if (self->duplex == 1) {
+    if (self->duplex == 1)
+    {
         num = PyList_Size(self->jackAutoConnectInputPorts);
-        if (num > 0) {
-            if (num != self->ichnls || !PyList_Check(PyList_GetItem(self->jackAutoConnectInputPorts, 0))) {
+
+        if (num > 0)
+        {
+            if (num != self->ichnls || !PyList_Check(PyList_GetItem(self->jackAutoConnectInputPorts, 0)))
+            {
                 Server_error(self, "Jack auto-connect input ports list size does not match server.ichnls.\n");
             }
-            else {
-                for (j=0; j<self->ichnls; j++) {
+            else
+            {
+                for (j = 0; j < self->ichnls; j++)
+                {
                     num = PyList_Size(PyList_GetItem(self->jackAutoConnectInputPorts, j));
-                    for (i=0; i<num; i++) {
+
+                    for (i = 0; i < num; i++)
+                    {
                         portname = PY_STRING_AS_STRING(PyList_GetItem(PyList_GetItem(self->jackAutoConnectInputPorts, j), i));
-                        if (jack_port_by_name(be_data->jack_client, portname) != NULL) {
+
+                        if (jack_port_by_name(be_data->jack_client, portname) != NULL)
+                        {
 
                             Py_BEGIN_ALLOW_THREADS
                             err = jack_connect(be_data->jack_client, portname, jack_port_name(be_data->jack_in_ports[j]));
                             Py_END_ALLOW_THREADS
 
-                            if (err) {
+                            if (err)
+                            {
                                 Server_error(self, "Jack cannot connect '%s' to input port %d.\n", portname, j);
                             }
                         }
-                        else {
+                        else
+                        {
                             Server_error(self, "Jack cannot find port '%s'.\n", portname);
                         }
                     }
@@ -313,25 +389,37 @@ Server_jack_autoconnect(Server *self) {
     }
 
     num = PyList_Size(self->jackAutoConnectOutputPorts);
-    if (num > 0) {
-        if (num != self->nchnls || !PyList_Check(PyList_GetItem(self->jackAutoConnectOutputPorts, 0))) {
+
+    if (num > 0)
+    {
+        if (num != self->nchnls || !PyList_Check(PyList_GetItem(self->jackAutoConnectOutputPorts, 0)))
+        {
             Server_error(self, "Jack auto-connect output ports list size does not match server.nchnls.\n");
-        } else {
-            for (j=0; j<self->nchnls; j++) {
+        }
+        else
+        {
+            for (j = 0; j < self->nchnls; j++)
+            {
                 num = PyList_Size(PyList_GetItem(self->jackAutoConnectOutputPorts, j));
-                for (i=0; i<num; i++) {
+
+                for (i = 0; i < num; i++)
+                {
                     portname = PY_STRING_AS_STRING(PyList_GetItem(PyList_GetItem(self->jackAutoConnectOutputPorts, j), i));
-                    if (jack_port_by_name(be_data->jack_client, portname) != NULL) {
+
+                    if (jack_port_by_name(be_data->jack_client, portname) != NULL)
+                    {
 
                         Py_BEGIN_ALLOW_THREADS
                         jack_connect(be_data->jack_client, jack_port_name(be_data->jack_out_ports[j]), portname);
                         Py_END_ALLOW_THREADS
 
-                        if (err) {
+                        if (err)
+                        {
                             Server_error(self, "Jack cannot connect output port %d to '%s'.\n", j, portname);
                         }
                     }
-                    else {
+                    else
+                    {
                         Server_error(self, "Jack cannot find port '%s'.\n", portname);
                     }
                 }
@@ -339,44 +427,57 @@ Server_jack_autoconnect(Server *self) {
         }
     }
 
-    if (self->withJackMidi) {
+    if (self->withJackMidi)
+    {
         num = PyList_Size(self->jackAutoConnectMidiInputPort);
-        if (num > 0) {
-            for (i=0; i<num; i++) {
+
+        if (num > 0)
+        {
+            for (i = 0; i < num; i++)
+            {
                 portname = PY_STRING_AS_STRING(PyList_GetItem(self->jackAutoConnectMidiInputPort, i));
 
-                if (jack_port_by_name(be_data->jack_client, portname) != NULL) {
+                if (jack_port_by_name(be_data->jack_client, portname) != NULL)
+                {
 
                     Py_BEGIN_ALLOW_THREADS
                     err = jack_connect(be_data->jack_client, portname, jack_port_name(be_data->jack_midiin_port));
                     Py_END_ALLOW_THREADS
 
-                    if (err) {
+                    if (err)
+                    {
                         Server_error(self, "Jack cannot connect '%s' to midi input port.\n", portname);
                     }
                 }
-                else {
+                else
+                {
                     Server_error(self, "Jack cannot find port '%s'.\n", portname);
                 }
             }
         }
 
         num = PyList_Size(self->jackAutoConnectMidiOutputPort);
-        if (num > 0) {
-            for (i=0; i<num; i++) {
+
+        if (num > 0)
+        {
+            for (i = 0; i < num; i++)
+            {
                 portname = PY_STRING_AS_STRING(PyList_GetItem(self->jackAutoConnectMidiOutputPort, i));
 
-                if (jack_port_by_name(be_data->jack_client, portname) != NULL) {
+                if (jack_port_by_name(be_data->jack_client, portname) != NULL)
+                {
 
                     Py_BEGIN_ALLOW_THREADS
                     err = jack_connect(be_data->jack_client, jack_port_name(be_data->jack_midiout_port), portname);
                     Py_END_ALLOW_THREADS
 
-                    if (err) {
+                    if (err)
+                    {
                         Server_error(self, "Jack cannot connect '%s' to midi output port.\n", portname);
                     }
                 }
-                else {
+                else
+                {
                     Server_error(self, "Jack cannot find port '%s'.\n", portname);
                 }
             }
@@ -385,7 +486,8 @@ Server_jack_autoconnect(Server *self) {
 }
 
 int
-Server_jack_init(Server *self) {
+Server_jack_init(Server *self)
+{
     int i = 0;
     char client_name[32];
     char name[16];
@@ -406,46 +508,69 @@ Server_jack_init(Server *self) {
 
     Py_BEGIN_ALLOW_THREADS
     be_data->midi_event_count = 0;
-    if (self->duplex == 1) {
+
+    if (self->duplex == 1)
+    {
         be_data->jack_in_ports = (jack_port_t **) calloc(self->ichnls + self->input_offset, sizeof(jack_port_t *));
-    } else {
+    }
+    else
+    {
         be_data->jack_in_ports = NULL;
     }
+
     be_data->jack_out_ports = (jack_port_t **) calloc(self->nchnls + self->output_offset, sizeof(jack_port_t *));
     be_data->jack_client = jack_client_open(client_name, options, &status, server_name);
-    if (self->withJackMidi) {
+
+    if (self->withJackMidi)
+    {
         be_data->midi_events = (PyoJackMidiEvent *)malloc(512 * sizeof(PyoJackMidiEvent));
-        for (i=0; i<512; i++) {
+
+        for (i = 0; i < 512; i++)
+        {
             be_data->midi_events[i].timestamp = -1;
         }
     }
+
     Py_END_ALLOW_THREADS
 
-    if (be_data->jack_client == NULL) {
+    if (be_data->jack_client == NULL)
+    {
         Server_error(self, "Jack unable to create client.\n");
-        if (status & JackServerFailed) {
+
+        if (status & JackServerFailed)
+        {
             Server_debug(self, "Jack jack_client_open() failed, "
                          "status = 0x%2.0x\n", status);
         }
+
         return -1;
     }
-    if (status & JackServerStarted) {
+
+    if (status & JackServerStarted)
+    {
         Server_warning(self, "Jack server started.\n");
     }
-    if (strcmp(self->serverName, jack_get_client_name(be_data->jack_client)) ) {
+
+    if (strcmp(self->serverName, jack_get_client_name(be_data->jack_client)) )
+    {
         strcpy(self->serverName, jack_get_client_name(be_data->jack_client));
         Server_warning(self, "Jack name `%s' assigned.\n", self->serverName);
     }
 
     sampleRate = jack_get_sample_rate(be_data->jack_client);
-    if (sampleRate != self->samplingRate) {
+
+    if (sampleRate != self->samplingRate)
+    {
         self->samplingRate = (double)sampleRate;
         Server_warning(self, "Sample rate set to Jack engine sample rate: %" PRIu32 ".\n", sampleRate);
     }
-    else {
+    else
+    {
         Server_debug(self, "Jack engine sample rate: %" PRIu32 ".\n", sampleRate);
     }
-    if (sampleRate <= 0) {
+
+    if (sampleRate <= 0)
+    {
         Server_error(self, "Jack invalid engine sample rate.");
 
         Py_BEGIN_ALLOW_THREADS
@@ -456,42 +581,52 @@ Server_jack_init(Server *self) {
     }
 
     bufferSize = jack_get_buffer_size(be_data->jack_client);
-    if (bufferSize != self->bufferSize) {
+
+    if (bufferSize != self->bufferSize)
+    {
         self->bufferSize = bufferSize;
         Server_warning(self, "Buffer size set to Jack engine buffer size: %" PRIu32 ".\n", bufferSize);
     }
-    else {
+    else
+    {
         Server_debug(self, "Jack engine buffer size: %" PRIu32 ".\n", bufferSize);
     }
 
-    if (self->withJackMidi) {
+    if (self->withJackMidi)
+    {
         Py_BEGIN_ALLOW_THREADS
         be_data->jack_midiin_port = jack_port_register(be_data->jack_client, "input",
-                                                       JACK_DEFAULT_MIDI_TYPE,
-                                                       JackPortIsInput, 0);
+                                    JACK_DEFAULT_MIDI_TYPE,
+                                    JackPortIsInput, 0);
         be_data->jack_midiout_port = jack_port_register(be_data->jack_client, "output",
-                                                       JACK_DEFAULT_MIDI_TYPE,
-                                                       JackPortIsOutput, 0);
+                                     JACK_DEFAULT_MIDI_TYPE,
+                                     JackPortIsOutput, 0);
         Py_END_ALLOW_THREADS
     }
 
-    if (self->duplex == 1) {
+    if (self->duplex == 1)
+    {
         nchnls = total_nchnls = self->ichnls + self->input_offset;
-        while (nchnls-- > 0) {
+
+        while (nchnls-- > 0)
+        {
             index = total_nchnls - nchnls - 1;
             ret = sprintf(name, "input_%i", index + 1);
-            if (ret > 0) {
+
+            if (ret > 0)
+            {
 
                 Py_BEGIN_ALLOW_THREADS
                 be_data->jack_in_ports[index] = jack_port_register(be_data->jack_client,
-                                                                   name,
-                                                                   JACK_DEFAULT_AUDIO_TYPE,
-                                                                   JackPortIsInput, 0);
+                                                name,
+                                                JACK_DEFAULT_AUDIO_TYPE,
+                                                JackPortIsInput, 0);
                 Py_END_ALLOW_THREADS
 
             }
 
-            if ((be_data->jack_in_ports[index] == NULL)) {
+            if ((be_data->jack_in_ports[index] == NULL))
+            {
                 Server_error(self, "No more Jack input ports available.\n");
                 return -1;
             }
@@ -499,24 +634,31 @@ Server_jack_init(Server *self) {
     }
 
     nchnls = total_nchnls = self->nchnls + self->output_offset;
-    while (nchnls-- > 0) {
+
+    while (nchnls-- > 0)
+    {
         index = total_nchnls - nchnls - 1;
         ret = sprintf(name, "output_%i", index + 1);
-        if (ret > 0) {
+
+        if (ret > 0)
+        {
 
             Py_BEGIN_ALLOW_THREADS
             be_data->jack_out_ports[index] = jack_port_register(be_data->jack_client,
-                                                                name,
-                                                                JACK_DEFAULT_AUDIO_TYPE,
-                                                                JackPortIsOutput, 0);
+                                             name,
+                                             JACK_DEFAULT_AUDIO_TYPE,
+                                             JackPortIsOutput, 0);
             Py_END_ALLOW_THREADS
 
         }
-        if ((be_data->jack_out_ports[index] == NULL)) {
+
+        if ((be_data->jack_out_ports[index] == NULL))
+        {
             Server_error(self, "No more Jack output ports available.\n");
             return -1;
         }
     }
+
     jack_set_error_function(jack_error_cb);
     jack_set_sample_rate_callback(be_data->jack_client, jack_srate_cb, (void *) self);
     jack_on_shutdown(be_data->jack_client, jack_shutdown_cb, (void *) self);
@@ -530,7 +672,8 @@ Server_jack_init(Server *self) {
     ret = jack_activate(be_data->jack_client);
     Py_END_ALLOW_THREADS
 
-    if (ret) {
+    if (ret)
+    {
         Server_error(self, "Jack cannot activate jack client.\n");
         return -1;
     }
@@ -543,11 +686,13 @@ Server_jack_init(Server *self) {
 }
 
 int
-Server_jack_deinit(Server *self) {
+Server_jack_deinit(Server *self)
+{
     int ret = 0;
     PyoJackBackendData *be_data = (PyoJackBackendData *) self->audio_be_data;
 
-    if (be_data->activated == 1) {
+    if (be_data->activated == 1)
+    {
 
         Py_BEGIN_ALLOW_THREADS
         ret = jack_deactivate(be_data->jack_client);
@@ -567,11 +712,15 @@ Server_jack_deinit(Server *self) {
 
     be_data->activated = 0;
 
-    if (be_data->jack_in_ports != NULL) {
+    if (be_data->jack_in_ports != NULL)
+    {
         free(be_data->jack_in_ports);
     }
+
     free(be_data->jack_out_ports);
-    if (self->withJackMidi == 1) {
+
+    if (self->withJackMidi == 1)
+    {
         free(be_data->midi_events);
     }
 
@@ -581,20 +730,25 @@ Server_jack_deinit(Server *self) {
 }
 
 int
-jack_input_port_set_names(Server *self) {
+jack_input_port_set_names(Server *self)
+{
     int i, err, lsize;
     const char *name;
     char result[128];
     PyoJackBackendData *be_data = (PyoJackBackendData *) self->audio_be_data;
 
-    if (self->duplex == 0) {
+    if (self->duplex == 0)
+    {
         Server_error(self, "Can not change Jack input port name with duplex=0.\n");
         return 0;
     }
 
-    if (PyList_Check(self->jackInputPortNames)) {
+    if (PyList_Check(self->jackInputPortNames))
+    {
         lsize = PyList_Size(self->jackInputPortNames);
-        for (i=0; i<self->ichnls && i<lsize; i++) {
+
+        for (i = 0; i < self->ichnls && i < lsize; i++)
+        {
             name = PY_STRING_AS_STRING(PyList_GetItem(self->jackInputPortNames, i));
 
             Py_BEGIN_ALLOW_THREADS
@@ -609,9 +763,12 @@ jack_input_port_set_names(Server *self) {
                 Server_error(self, "Jack cannot change port short name.\n");
         }
     }
-    else if (PY_STRING_CHECK(self->jackInputPortNames)) {
+    else if (PY_STRING_CHECK(self->jackInputPortNames))
+    {
         name = PY_STRING_AS_STRING(self->jackInputPortNames);
-        for (i=0; i<self->ichnls; i++) {
+
+        for (i = 0; i < self->ichnls; i++)
+        {
             sprintf(result, "%s_%d", name, i);
 
             Py_BEGIN_ALLOW_THREADS
@@ -633,15 +790,19 @@ jack_input_port_set_names(Server *self) {
 }
 
 int
-jack_output_port_set_names(Server *self) {
+jack_output_port_set_names(Server *self)
+{
     int i, err, lsize;
     const char *name;
     char result[128];
     PyoJackBackendData *be_data = (PyoJackBackendData *) self->audio_be_data;
 
-    if (PyList_Check(self->jackOutputPortNames)) {
+    if (PyList_Check(self->jackOutputPortNames))
+    {
         lsize = PyList_Size(self->jackOutputPortNames);
-        for (i=0; i<self->nchnls && i<lsize; i++) {
+
+        for (i = 0; i < self->nchnls && i < lsize; i++)
+        {
             name = PY_STRING_AS_STRING(PyList_GetItem(self->jackOutputPortNames, i));
 
             Py_BEGIN_ALLOW_THREADS
@@ -656,9 +817,12 @@ jack_output_port_set_names(Server *self) {
                 Server_error(self, "Jack cannot change port short name.\n");
         }
     }
-    else if (PY_STRING_CHECK(self->jackOutputPortNames)) {
+    else if (PY_STRING_CHECK(self->jackOutputPortNames))
+    {
         name = PY_STRING_AS_STRING(self->jackOutputPortNames);
-        for (i=0; i<self->nchnls; i++) {
+
+        for (i = 0; i < self->nchnls; i++)
+        {
             sprintf(result, "%s_%d", name, i);
 
             Py_BEGIN_ALLOW_THREADS
@@ -680,12 +844,14 @@ jack_output_port_set_names(Server *self) {
 }
 
 int
-jack_midi_input_port_set_name(Server *self) {
+jack_midi_input_port_set_name(Server *self)
+{
     int err;
     const char *name;
     PyoJackBackendData *be_data = (PyoJackBackendData *) self->audio_be_data;
 
-    if (PY_STRING_CHECK(self->jackMidiInputPortName)) {
+    if (PY_STRING_CHECK(self->jackMidiInputPortName))
+    {
         name = PY_STRING_AS_STRING(self->jackMidiInputPortName);
 
         Py_BEGIN_ALLOW_THREADS
@@ -706,12 +872,14 @@ jack_midi_input_port_set_name(Server *self) {
 }
 
 int
-jack_midi_output_port_set_name(Server *self) {
+jack_midi_output_port_set_name(Server *self)
+{
     int err;
     const char *name;
     PyoJackBackendData *be_data = (PyoJackBackendData *) self->audio_be_data;
 
-    if (PY_STRING_CHECK(self->jackMidiOutputPortName)) {
+    if (PY_STRING_CHECK(self->jackMidiOutputPortName))
+    {
         name = PY_STRING_AS_STRING(self->jackMidiOutputPortName);
 
         Py_BEGIN_ALLOW_THREADS
@@ -732,12 +900,14 @@ jack_midi_output_port_set_name(Server *self) {
 }
 
 int
-Server_jack_start(Server *self) {
+Server_jack_start(Server *self)
+{
     return 0;
 }
 
 int
-Server_jack_stop(Server *self) {
+Server_jack_stop(Server *self)
+{
     return 0;
 }
 
@@ -751,15 +921,19 @@ jack_noteout(Server *self, int pit, int vel, int chan, long timestamp)
 
     PyoJackMidiEvent event;
     event.timestamp = elapsed + (unsigned long)(timestamp * 0.001 * self->samplingRate);
+
     if (chan == 0)
         event.status = 0x90;
     else
         event.status = 0x90 | (chan - 1);
+
     event.data1 = pit;
     event.data2 = vel;
 
-    for (i=0; i<512; i++) {
-        if (be_data->midi_events[i].timestamp == -1) {
+    for (i = 0; i < 512; i++)
+    {
+        if (be_data->midi_events[i].timestamp == -1)
+        {
             be_data->midi_events[i] = event;
             be_data->midi_event_count++;
             break;
@@ -777,15 +951,19 @@ jack_afterout(Server *self, int pit, int vel, int chan, long timestamp)
 
     PyoJackMidiEvent event;
     event.timestamp = elapsed + (unsigned long)(timestamp * 0.001 * self->samplingRate);
+
     if (chan == 0)
         event.status = 0xA0;
     else
         event.status = 0xA0 | (chan - 1);
+
     event.data1 = pit;
     event.data2 = vel;
 
-    for (i=0; i<512; i++) {
-        if (be_data->midi_events[i].timestamp == -1) {
+    for (i = 0; i < 512; i++)
+    {
+        if (be_data->midi_events[i].timestamp == -1)
+        {
             be_data->midi_events[i] = event;
             be_data->midi_event_count++;
             break;
@@ -803,15 +981,19 @@ jack_ctlout(Server *self, int ctlnum, int value, int chan, long timestamp)
 
     PyoJackMidiEvent event;
     event.timestamp = elapsed + (unsigned long)(timestamp * 0.001 * self->samplingRate);
+
     if (chan == 0)
         event.status = 0xB0;
     else
         event.status = 0xB0 | (chan - 1);
+
     event.data1 = ctlnum;
     event.data2 = value;
 
-    for (i=0; i<512; i++) {
-        if (be_data->midi_events[i].timestamp == -1) {
+    for (i = 0; i < 512; i++)
+    {
+        if (be_data->midi_events[i].timestamp == -1)
+        {
             be_data->midi_events[i] = event;
             be_data->midi_event_count++;
             break;
@@ -829,15 +1011,19 @@ jack_programout(Server *self, int value, int chan, long timestamp)
 
     PyoJackMidiEvent event;
     event.timestamp = elapsed + (unsigned long)(timestamp * 0.001 * self->samplingRate);
+
     if (chan == 0)
         event.status = 0xC0;
     else
         event.status = 0xC0 | (chan - 1);
+
     event.data1 = value;
     event.data2 = 0;
 
-    for (i=0; i<512; i++) {
-        if (be_data->midi_events[i].timestamp == -1) {
+    for (i = 0; i < 512; i++)
+    {
+        if (be_data->midi_events[i].timestamp == -1)
+        {
             be_data->midi_events[i] = event;
             be_data->midi_event_count++;
             break;
@@ -855,15 +1041,19 @@ jack_pressout(Server *self, int value, int chan, long timestamp)
 
     PyoJackMidiEvent event;
     event.timestamp = elapsed + (unsigned long)(timestamp * 0.001 * self->samplingRate);
+
     if (chan == 0)
         event.status = 0xD0;
     else
         event.status = 0xD0 | (chan - 1);
+
     event.data1 = value;
     event.data2 = 0;
 
-    for (i=0; i<512; i++) {
-        if (be_data->midi_events[i].timestamp == -1) {
+    for (i = 0; i < 512; i++)
+    {
+        if (be_data->midi_events[i].timestamp == -1)
+        {
             be_data->midi_events[i] = event;
             be_data->midi_event_count++;
             break;
@@ -881,6 +1071,7 @@ jack_bendout(Server *self, int value, int chan, long timestamp)
 
     PyoJackMidiEvent event;
     event.timestamp = elapsed + (unsigned long)(timestamp * 0.001 * self->samplingRate);
+
     if (chan == 0)
         event.status = 0xE0;
     else
@@ -892,8 +1083,10 @@ jack_bendout(Server *self, int value, int chan, long timestamp)
     event.data1 = lsb;
     event.data2 = msb;
 
-    for (i=0; i<512; i++) {
-        if (be_data->midi_events[i].timestamp == -1) {
+    for (i = 0; i < 512; i++)
+    {
+        if (be_data->midi_events[i].timestamp == -1)
+        {
             be_data->midi_events[i] = event;
             be_data->midi_event_count++;
             break;
@@ -919,8 +1112,10 @@ jack_makenote(Server *self, int pit, int vel, int dur, int chan)
     eventon.data1 = pit;
     eventon.data2 = vel;
 
-    for (i=0; i<512; i++) {
-        if (be_data->midi_events[i].timestamp == -1) {
+    for (i = 0; i < 512; i++)
+    {
+        if (be_data->midi_events[i].timestamp == -1)
+        {
             be_data->midi_events[i] = eventon;
             be_data->midi_event_count++;
             break;
@@ -933,8 +1128,10 @@ jack_makenote(Server *self, int pit, int vel, int dur, int chan)
     eventoff.data1 = pit;
     eventoff.data2 = 0;
 
-    for (i=0; i<512; i++) {
-        if (be_data->midi_events[i].timestamp == -1) {
+    for (i = 0; i < 512; i++)
+    {
+        if (be_data->midi_events[i].timestamp == -1)
+        {
             be_data->midi_events[i] = eventoff;
             be_data->midi_event_count++;
             break;

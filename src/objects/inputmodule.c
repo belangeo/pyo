@@ -26,7 +26,8 @@
 #include "servermodule.h"
 #include "dummymodule.h"
 
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     int chnl;
     int modebuffer[2];
@@ -48,31 +49,40 @@ Input_setProcMode(Input *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-	switch (muladdmode) {
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = Input_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = Input_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = Input_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = Input_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = Input_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = Input_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = Input_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = Input_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = Input_postprocessing_revareva;
             break;
@@ -85,10 +95,13 @@ Input_compute_next_data_frame(Input *self)
     int i;
     MYFLT *tmp;
     tmp = Server_getInputBuffer((Server *)self->server);
-    for (i=0; i<self->bufsize*self->ichnls; i++) {
+
+    for (i = 0; i < self->bufsize * self->ichnls; i++)
+    {
         if ((i % self->ichnls) == self->chnl)
-            self->data[(int)(i/self->ichnls)] = tmp[i];
+            self->data[(int)(i / self->ichnls)] = tmp[i];
     }
+
     (*self->muladd_func_ptr)(self);
 }
 
@@ -118,13 +131,13 @@ static PyObject *
 Input_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *multmp=NULL, *addtmp=NULL;
+    PyObject *multmp = NULL, *addtmp = NULL;
     Input *self;
     self = (Input *)type->tp_alloc(type, 0);
 
     self->chnl = 0;
-	self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Input_compute_next_data_frame);
@@ -135,11 +148,13 @@ Input_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|iOO", kwlist, &self->chnl, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    if (multmp) {
+    if (multmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
 
-    if (addtmp) {
+    if (addtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
 
@@ -170,7 +185,8 @@ static PyObject * Input_inplace_sub(Input *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Input_div(Input *self, PyObject *arg) { DIV };
 static PyObject * Input_inplace_div(Input *self, PyObject *arg) { INPLACE_DIV };
 
-static PyMemberDef Input_members[] = {
+static PyMemberDef Input_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(Input, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(Input, stream), 0, "Stream object."},
     {"mul", T_OBJECT_EX, offsetof(Input, mul), 0, "Mul factor."},
@@ -178,20 +194,22 @@ static PyMemberDef Input_members[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef Input_methods[] = {
+static PyMethodDef Input_methods[] =
+{
     {"getServer", (PyCFunction)Input_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Input_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Input_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)Input_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Input_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
-	{"setMul", (PyCFunction)Input_setMul, METH_O, "Sets oscillator mul factor."},
-	{"setAdd", (PyCFunction)Input_setAdd, METH_O, "Sets oscillator add factor."},
+    {"play", (PyCFunction)Input_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)Input_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)Input_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"setMul", (PyCFunction)Input_setMul, METH_O, "Sets oscillator mul factor."},
+    {"setAdd", (PyCFunction)Input_setAdd, METH_O, "Sets oscillator add factor."},
     {"setSub", (PyCFunction)Input_setSub, METH_O, "Sets inverse add factor."},
     {"setDiv", (PyCFunction)Input_setDiv, METH_O, "Sets inverse mul factor."},
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Input_as_number = {
+static PyNumberMethods Input_as_number =
+{
     (binaryfunc)Input_add,                      /*nb_add*/
     (binaryfunc)Input_sub,                 /*nb_subtract*/
     (binaryfunc)Input_multiply,                 /*nb_multiply*/
@@ -233,7 +251,8 @@ static PyNumberMethods Input_as_number = {
     0,                     /* nb_index */
 };
 
-PyTypeObject InputType = {
+PyTypeObject InputType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.Input_base",         /*tp_name*/
     sizeof(Input),         /*tp_basicsize*/
@@ -257,10 +276,10 @@ PyTypeObject InputType = {
     "Input objects. Retreive audio from an input channel.",           /* tp_doc */
     (traverseproc)Input_traverse,   /* tp_traverse */
     (inquiry)Input_clear,           /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
     Input_methods,             /* tp_methods */
     Input_members,             /* tp_members */
     0,                      /* tp_getset */

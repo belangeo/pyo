@@ -21,11 +21,11 @@
 #include "ad_coreaudio.h"
 
 OSStatus coreaudio_input_callback(AudioDeviceID device, const AudioTimeStamp* inNow,
-                                   const AudioBufferList* inInputData,
-                                   const AudioTimeStamp* inInputTime,
-                                   AudioBufferList* outOutputData,
-                                   const AudioTimeStamp* inOutputTime,
-                                   void* defptr)
+                                  const AudioBufferList* inInputData,
+                                  const AudioTimeStamp* inInputTime,
+                                  AudioBufferList* outOutputData,
+                                  const AudioTimeStamp* inOutputTime,
+                                  void* defptr)
 {
     int i, j, bufchnls, servchnls, off1chnls, off2chnls;
     Server *server = (Server *) defptr;
@@ -34,13 +34,18 @@ OSStatus coreaudio_input_callback(AudioDeviceID device, const AudioTimeStamp* in
     float *bufdata = (float*)inputBuf->mData;
     bufchnls = inputBuf->mNumberChannels;
     servchnls = server->ichnls < bufchnls ? server->ichnls : bufchnls;
-    for (i=0; i<server->bufferSize; i++) {
-        off1chnls = i*bufchnls+server->input_offset;
-        off2chnls = i*servchnls;
-        for (j=0; j<servchnls; j++) {
-            server->input_buffer[off2chnls+j] = (MYFLT)bufdata[off1chnls+j];
+
+    for (i = 0; i < server->bufferSize; i++)
+    {
+        off1chnls = i * bufchnls + server->input_offset;
+        off2chnls = i * servchnls;
+
+        for (j = 0; j < servchnls; j++)
+        {
+            server->input_buffer[off2chnls + j] = (MYFLT)bufdata[off1chnls + j];
         }
     }
+
     return kAudioHardwareNoError;
 }
 
@@ -56,7 +61,8 @@ OSStatus coreaudio_output_callback(AudioDeviceID device, const AudioTimeStamp* i
 
     (void) inInputData;
 
-    if (server->withPortMidi == 1) {
+    if (server->withPortMidi == 1)
+    {
         pyoGetMidiEvents(server);
     }
 
@@ -65,13 +71,18 @@ OSStatus coreaudio_output_callback(AudioDeviceID device, const AudioTimeStamp* i
     bufchnls = outputBuf->mNumberChannels;
     servchnls = server->nchnls < bufchnls ? server->nchnls : bufchnls;
     float *bufdata = (float*)outputBuf->mData;
-    for (i=0; i<server->bufferSize; i++) {
-        off1chnls = i*bufchnls+server->output_offset;
-        off2chnls = i*servchnls;
-        for(j=0; j<servchnls; j++) {
-            bufdata[off1chnls+j] = server->output_buffer[off2chnls+j];
+
+    for (i = 0; i < server->bufferSize; i++)
+    {
+        off1chnls = i * bufchnls + server->output_offset;
+        off2chnls = i * servchnls;
+
+        for(j = 0; j < servchnls; j++)
+        {
+            bufdata[off1chnls + j] = server->output_buffer[off2chnls + j];
         }
     }
+
     server->midi_count = 0;
 
     return kAudioHardwareNoError;
@@ -82,19 +93,25 @@ coreaudio_stop_callback(Server *self)
 {
     OSStatus err = kAudioHardwareNoError;
 
-    if (self->duplex == 1) {
+    if (self->duplex == 1)
+    {
         err = AudioDeviceStop(self->input, coreaudio_input_callback);
-        if (err != kAudioHardwareNoError) {
+
+        if (err != kAudioHardwareNoError)
+        {
             Server_error(self, "Input AudioDeviceStop failed %d\n", (int)err);
             return -1;
         }
     }
 
     err = AudioDeviceStop(self->output, coreaudio_output_callback);
-    if (err != kAudioHardwareNoError) {
+
+    if (err != kAudioHardwareNoError)
+    {
         Server_error(self, "Output AudioDeviceStop failed %d\n", (int)err);
         return -1;
     }
+
     self->server_started = 0;
     return 0;
 }
@@ -120,7 +137,9 @@ Server_coreaudio_init(Server *self)
     err = AudioHardwareGetPropertyInfo(kAudioHardwarePropertyDevices, &count, 0);
     AudioDeviceID *devices = (AudioDeviceID*) malloc(count);
     err = AudioHardwareGetProperty(kAudioHardwarePropertyDevices, &count, devices);
-    if (err != kAudioHardwareNoError) {
+
+    if (err != kAudioHardwareNoError)
+    {
         Server_error(self, "Get kAudioHardwarePropertyDevices error %s\n", (char*)&err);
         free(devices);
     }
@@ -128,20 +147,26 @@ Server_coreaudio_init(Server *self)
     numdevices = count / sizeof(AudioDeviceID);
     Server_debug(self, "Coreaudio : Number of devices: %i\n", numdevices);
 
-    for (i=0; i<numdevices; ++i) {
+    for (i = 0; i < numdevices; ++i)
+    {
         err = AudioDeviceGetPropertyInfo(devices[i], 0, false, kAudioDevicePropertyDeviceName, &count, 0);
-        if (err != kAudioHardwareNoError) {
+
+        if (err != kAudioHardwareNoError)
+        {
             Server_error(self, "Info kAudioDevicePropertyDeviceName error %s A %d %08X\n", (char*)&err, i, devices[i]);
             break;
         }
 
         char *name = (char*)malloc(count);
         err = AudioDeviceGetProperty(devices[i], 0, false, kAudioDevicePropertyDeviceName, &count, name);
-        if (err != kAudioHardwareNoError) {
+
+        if (err != kAudioHardwareNoError)
+        {
             Server_error(self, "Get kAudioDevicePropertyDeviceName error %s A %d %08X\n", (char*)&err, i, devices[i]);
             free(name);
             break;
         }
+
         Server_debug(self, "   %d : \"%s\"\n", i, name);
         free(name);
     }
@@ -150,28 +175,38 @@ Server_coreaudio_init(Server *self)
     /* Acquire input and output devices */
     /************************************/
     /* Acquire input audio device */
-    if (self->duplex == 1) {
+    if (self->duplex == 1)
+    {
         if (self->input != -1)
             mInputDevice = devices[self->input];
 
-        if (mInputDevice==kAudioDeviceUnknown) {
+        if (mInputDevice == kAudioDeviceUnknown)
+        {
             count = sizeof(mInputDevice);
             err = AudioHardwareGetProperty(kAudioHardwarePropertyDefaultInputDevice, &count, (void *) &mInputDevice);
-            if (err != kAudioHardwareNoError) {
+
+            if (err != kAudioHardwareNoError)
+            {
                 Server_error(self, "Get kAudioHardwarePropertyDefaultInputDevice error %s\n", (char*)&err);
                 return -1;
             }
         }
 
         err = AudioDeviceGetPropertyInfo(mInputDevice, 0, false, kAudioDevicePropertyDeviceName, &namelen, 0);
-        if (err != kAudioHardwareNoError) {
+
+        if (err != kAudioHardwareNoError)
+        {
             Server_error(self, "Info kAudioDevicePropertyDeviceName error %s A %08X\n", (char*)&err, mInputDevice);
         }
+
         name = (char*)malloc(namelen);
         err = AudioDeviceGetProperty(mInputDevice, 0, false, kAudioDevicePropertyDeviceName, &namelen, name);
-        if (err != kAudioHardwareNoError) {
+
+        if (err != kAudioHardwareNoError)
+        {
             Server_error(self, "Get kAudioDevicePropertyDeviceName error %s A %08X\n", (char*)&err, mInputDevice);
         }
+
         Server_debug(self, "Coreaudio : Uses input device : \"%s\"\n", name);
         self->input = mInputDevice;
         free(name);
@@ -181,24 +216,33 @@ Server_coreaudio_init(Server *self)
     if (self->output != -1)
         mOutputDevice = devices[self->output];
 
-    if (mOutputDevice==kAudioDeviceUnknown) {
+    if (mOutputDevice == kAudioDeviceUnknown)
+    {
         count = sizeof(mOutputDevice);
         err = AudioHardwareGetProperty(kAudioHardwarePropertyDefaultOutputDevice, &count, (void *) &mOutputDevice);
-        if (err != kAudioHardwareNoError) {
+
+        if (err != kAudioHardwareNoError)
+        {
             Server_error(self, "Get kAudioHardwarePropertyDefaultOutputDevice error %s\n", (char*)&err);
             return -1;
         }
     }
 
     err = AudioDeviceGetPropertyInfo(mOutputDevice, 0, false, kAudioDevicePropertyDeviceName, &namelen, 0);
-    if (err != kAudioHardwareNoError) {
+
+    if (err != kAudioHardwareNoError)
+    {
         Server_error(self, "Info kAudioDevicePropertyDeviceName error %s A %08X\n", (char*)&err, mOutputDevice);
     }
+
     name = (char*)malloc(namelen);
     err = AudioDeviceGetProperty(mOutputDevice, 0, false, kAudioDevicePropertyDeviceName, &namelen, name);
-    if (err != kAudioHardwareNoError) {
+
+    if (err != kAudioHardwareNoError)
+    {
         Server_error(self, "Get kAudioDevicePropertyDeviceName error %s A %08X\n", (char*)&err, mOutputDevice);
     }
+
     Server_debug(self, "Coreaudio : Uses output device : \"%s\"\n", name);
     self->output = mOutputDevice;
     free(name);
@@ -211,45 +255,58 @@ Server_coreaudio_init(Server *self)
     Float64 sampleRate;
 
     /* Get input device buffer frame size and buffer frame size range */
-    if (self->duplex == 1) {
+    if (self->duplex == 1)
+    {
         count = sizeof(UInt32);
         err = AudioDeviceGetProperty(mInputDevice, 0, false, kAudioDevicePropertyBufferFrameSize, &count, &bufferSize);
+
         if (err != kAudioHardwareNoError)
             Server_error(self, "Get kAudioDevicePropertyBufferFrameSize error %s\n", (char*)&err);
+
         Server_debug(self, "Coreaudio : Coreaudio input device buffer size = %ld\n", bufferSize);
 
         count = sizeof(AudioValueRange);
         err = AudioDeviceGetProperty(mInputDevice, 0, false, kAudioDevicePropertyBufferSizeRange, &count, &range);
+
         if (err != kAudioHardwareNoError)
             Server_error(self, "Get kAudioDevicePropertyBufferSizeRange error %s\n", (char*)&err);
+
         Server_debug(self, "Coreaudio : Coreaudio input device buffer size range = %f -> %f\n", range.mMinimum, range.mMaximum);
 
         /* Get input device sampling rate */
         count = sizeof(Float64);
         err = AudioDeviceGetProperty(mInputDevice, 0, false, kAudioDevicePropertyNominalSampleRate, &count, &sampleRate);
+
         if (err != kAudioHardwareNoError)
             Server_debug(self, "Get kAudioDevicePropertyNominalSampleRate error %s\n", (char*)&err);
+
         Server_debug(self, "Coreaudio : Coreaudio input device sampling rate = %.2f\n", sampleRate);
     }
 
     /* Get output device buffer frame size and buffer frame size range */
     count = sizeof(UInt32);
     err = AudioDeviceGetProperty(mOutputDevice, 0, false, kAudioDevicePropertyBufferFrameSize, &count, &bufferSize);
+
     if (err != kAudioHardwareNoError)
         Server_error(self, "Get kAudioDevicePropertyBufferFrameSize error %s\n", (char*)&err);
+
     Server_debug(self, "Coreaudio : Coreaudio output device buffer size = %ld\n", bufferSize);
 
     count = sizeof(AudioValueRange);
     err = AudioDeviceGetProperty(mOutputDevice, 0, false, kAudioDevicePropertyBufferSizeRange, &count, &range);
+
     if (err != kAudioHardwareNoError)
         Server_error(self, "Get kAudioDevicePropertyBufferSizeRange error %s\n", (char*)&err);
+
     Server_debug(self, "Coreaudio : Coreaudio output device buffer size range = %.2f -> %.2f\n", range.mMinimum, range.mMaximum);
 
     /* Get output device sampling rate */
     count = sizeof(Float64);
     err = AudioDeviceGetProperty(mOutputDevice, 0, false, kAudioDevicePropertyNominalSampleRate, &count, &sampleRate);
+
     if (err != kAudioHardwareNoError)
         Server_debug(self, "Get kAudioDevicePropertyNominalSampleRate error %s\n", (char*)&err);
+
     Server_debug(self, "Coreaudio : Coreaudio output device sampling rate = %.2f\n", sampleRate);
 
 
@@ -259,10 +316,13 @@ Server_coreaudio_init(Server *self)
     /* set/get the buffersize for the devices */
     count = sizeof(UInt32);
     err = AudioDeviceSetProperty(mOutputDevice, &now, 0, false, kAudioDevicePropertyBufferFrameSize, count, &self->bufferSize);
-    if (err != kAudioHardwareNoError) {
+
+    if (err != kAudioHardwareNoError)
+    {
         Server_error(self, "set kAudioDevicePropertyBufferFrameSize error %4.4s\n", (char*)&err);
         self->bufferSize = bufferSize;
         err = AudioDeviceSetProperty(mOutputDevice, &now, 0, false, kAudioDevicePropertyBufferFrameSize, count, &self->bufferSize);
+
         if (err != kAudioHardwareNoError)
             Server_error(self, "set kAudioDevicePropertyBufferFrameSize error %4.4s\n", (char*)&err);
         else
@@ -271,9 +331,12 @@ Server_coreaudio_init(Server *self)
     else
         Server_debug(self, "Coreaudio : Changed output device buffer size successfully: %i\n", self->bufferSize);
 
-    if (self->duplex == 1) {
+    if (self->duplex == 1)
+    {
         err = AudioDeviceSetProperty(mInputDevice, &now, 0, false, kAudioDevicePropertyBufferFrameSize, count, &self->bufferSize);
-        if (err != kAudioHardwareNoError) {
+
+        if (err != kAudioHardwareNoError)
+        {
             Server_error(self, "set kAudioDevicePropertyBufferFrameSize error %4.4s\n", (char*)&err);
         }
     }
@@ -282,10 +345,13 @@ Server_coreaudio_init(Server *self)
     count = sizeof(double);
     double pyoSamplingRate = self->samplingRate;
     err = AudioDeviceSetProperty(mOutputDevice, &now, 0, false, kAudioDevicePropertyNominalSampleRate, count, &pyoSamplingRate);
-    if (err != kAudioHardwareNoError) {
+
+    if (err != kAudioHardwareNoError)
+    {
         Server_error(self, "set kAudioDevicePropertyNominalSampleRate error %s\n", (char*)&err);
         self->samplingRate = (double)sampleRate;
         err = AudioDeviceSetProperty(mOutputDevice, &now, 0, false, kAudioDevicePropertyNominalSampleRate, count, &sampleRate);
+
         if (err != kAudioHardwareNoError)
             Server_error(self, "set kAudioDevicePropertyNominalSampleRate error %s\n", (char*)&err);
         else
@@ -294,10 +360,13 @@ Server_coreaudio_init(Server *self)
     else
         Server_debug(self, "Coreaudio : Changed output device sampling rate successfully: %.2f\n", self->samplingRate);
 
-    if (self->duplex ==1) {
+    if (self->duplex == 1)
+    {
         pyoSamplingRate = self->samplingRate;
         err = AudioDeviceSetProperty(mInputDevice, &now, 0, false, kAudioDevicePropertyNominalSampleRate, count, &pyoSamplingRate);
-        if (err != kAudioHardwareNoError) {
+
+        if (err != kAudioHardwareNoError)
+        {
             Server_error(self, "set kAudioDevicePropertyNominalSampleRate error %s\n", (char*)&err);
         }
     }
@@ -310,9 +379,11 @@ Server_coreaudio_init(Server *self)
     AudioStreamBasicDescription inputStreamDescription;
 
     // Get input device stream configuration
-    if (self->duplex == 1) {
+    if (self->duplex == 1)
+    {
         count = sizeof(AudioStreamBasicDescription);
         err = AudioDeviceGetProperty(mInputDevice, 0, true, kAudioDevicePropertyStreamFormat, &count, &inputStreamDescription);
+
         if (err != kAudioHardwareNoError)
             Server_debug(self, "Get kAudioDevicePropertyStreamFormat error %s\n", (char*)&err);
 
@@ -336,6 +407,7 @@ Server_coreaudio_init(Server *self)
     /* Get output device stream configuration */
     count = sizeof(AudioStreamBasicDescription);
     err = AudioDeviceGetProperty(mOutputDevice, 0, false, kAudioDevicePropertyStreamFormat, &count, &outputStreamDescription);
+
     if (err != kAudioHardwareNoError)
         Server_debug(self, "Get kAudioDevicePropertyStreamFormat error %s\n", (char*)&err);
 
@@ -359,34 +431,47 @@ Server_coreaudio_init(Server *self)
     /**************************************************/
     /********* Set input and output callbacks *********/
     /**************************************************/
-    if (self->duplex == 1) {
+    if (self->duplex == 1)
+    {
         err = AudioDeviceAddIOProc(self->input, coreaudio_input_callback, (void *) self);    // setup our device with an IO proc
-        if (err != kAudioHardwareNoError) {
+
+        if (err != kAudioHardwareNoError)
+        {
             Server_error(self, "Input AudioDeviceAddIOProc failed %d\n", (int)err);
             return -1;
         }
+
         err = AudioDeviceGetPropertyInfo(self->input, 0, true, kAudioDevicePropertyIOProcStreamUsage, &propertySize, &writable);
         AudioHardwareIOProcStreamUsage *input_su = (AudioHardwareIOProcStreamUsage*)malloc(propertySize);
         input_su->mIOProc = (void*)coreaudio_input_callback;
         err = AudioDeviceGetProperty(self->input, 0, true, kAudioDevicePropertyIOProcStreamUsage, &propertySize, input_su);
-        for (i=0; i<inputStreamDescription.mChannelsPerFrame; ++i) {
+
+        for (i = 0; i < inputStreamDescription.mChannelsPerFrame; ++i)
+        {
             input_su->mStreamIsOn[i] = 1;
         }
+
         err = AudioDeviceSetProperty(self->input, &now, 0, true, kAudioDevicePropertyIOProcStreamUsage, propertySize, input_su);
     }
 
     err = AudioDeviceAddIOProc(self->output, coreaudio_output_callback, (void *) self);    // setup our device with an IO proc
-    if (err != kAudioHardwareNoError) {
+
+    if (err != kAudioHardwareNoError)
+    {
         Server_error(self, "Output AudioDeviceAddIOProc failed %d\n", (int)err);
         return -1;
     }
+
     err = AudioDeviceGetPropertyInfo(self->output, 0, false, kAudioDevicePropertyIOProcStreamUsage, &propertySize, &writable);
     AudioHardwareIOProcStreamUsage *output_su = (AudioHardwareIOProcStreamUsage*)malloc(propertySize);
     output_su->mIOProc = (void*)coreaudio_output_callback;
     err = AudioDeviceGetProperty(self->output, 0, false, kAudioDevicePropertyIOProcStreamUsage, &propertySize, output_su);
-    for (i=0; i<outputStreamDescription.mChannelsPerFrame; ++i) {
+
+    for (i = 0; i < outputStreamDescription.mChannelsPerFrame; ++i)
+    {
         output_su->mStreamIsOn[i] = 1;
     }
+
     err = AudioDeviceSetProperty(self->output, &now, 0, false, kAudioDevicePropertyIOProcStreamUsage, propertySize, output_su);
 
     return 0;
@@ -397,16 +482,21 @@ Server_coreaudio_deinit(Server *self)
 {
     OSStatus err = kAudioHardwareNoError;
 
-    if (self->duplex == 1) {
+    if (self->duplex == 1)
+    {
         err = AudioDeviceRemoveIOProc(self->input, coreaudio_input_callback);
-        if (err != kAudioHardwareNoError) {
+
+        if (err != kAudioHardwareNoError)
+        {
             Server_error(self, "Input AudioDeviceRemoveIOProc failed %d\n", (int)err);
             return -1;
         }
     }
 
     err = AudioDeviceRemoveIOProc(self->output, coreaudio_output_callback);
-    if (err != kAudioHardwareNoError) {
+
+    if (err != kAudioHardwareNoError)
+    {
         Server_error(self, "Output AudioDeviceRemoveIOProc failed %d\n", (int)err);
         return -1;
     }
@@ -419,19 +509,25 @@ Server_coreaudio_start(Server *self)
 {
     OSStatus err = kAudioHardwareNoError;
 
-    if (self->duplex == 1) {
+    if (self->duplex == 1)
+    {
         err = AudioDeviceStart(self->input, coreaudio_input_callback);
-        if (err != kAudioHardwareNoError) {
+
+        if (err != kAudioHardwareNoError)
+        {
             Server_error(self, "Input AudioDeviceStart failed %d\n", (int)err);
             return -1;
         }
     }
 
     err = AudioDeviceStart(self->output, coreaudio_output_callback);
-    if (err != kAudioHardwareNoError) {
+
+    if (err != kAudioHardwareNoError)
+    {
         Server_error(self, "Output AudioDeviceStart failed %d\n", (int)err);
         return -1;
     }
+
     return 0;
 }
 

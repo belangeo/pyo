@@ -32,93 +32,141 @@
 #include "pyomodule.h"
 #include <math.h>
 
-void gen_window(MYFLT *window, int size, int wintype) {
+void gen_window(MYFLT *window, int size, int wintype)
+{
     int i;
     MYFLT arg;
 
-    switch (wintype) {
+    switch (wintype)
+    {
         case 0:
+
             /* Rectangular */
-            for (i=0; i<size; i++) {
+            for (i = 0; i < size; i++)
+            {
                 window[i] = 1.0;
             }
+
             break;
+
         case 1:
             /* Hamming */
-            arg = 2.0 * PI / (size-1);
-            for (i = 0; i < size; i++) {
+            arg = 2.0 * PI / (size - 1);
+
+            for (i = 0; i < size; i++)
+            {
                 window[i] = 0.54 - 0.46 * MYCOS(arg * i);
             }
+
             break;
+
         case 2:
             /* Hanning */
-            arg = 2.0 * PI / (size-1);
-            for (i = 0; i < size; i++) {
+            arg = 2.0 * PI / (size - 1);
+
+            for (i = 0; i < size; i++)
+            {
                 window[i] = 0.5 - 0.5 * MYCOS(arg * i);
             }
+
             break;
+
         case 3:
             /* Bartlett (triangle) */
-            arg = 2.0 / (size-1);
-            for (i = 0; i < (size-1)/2; i++) {
+            arg = 2.0 / (size - 1);
+
+            for (i = 0; i < (size - 1) / 2; i++)
+            {
                 window[i] = i * arg;
             }
-            for ( ; i < size; i++) {
+
+            for ( ; i < size; i++)
+            {
                 window[i] = 2.0 - i * arg;
             }
+
             break;
+
         case 4:
             /* Blackman (3 term) */
-            arg = 2.0 * PI / (size-1);
-            for (i = 0; i < size; i++) {
-                window[i] = 0.42323 - 0.49755*MYCOS(arg*i) + 0.07922*MYCOS(2*arg*i);
+            arg = 2.0 * PI / (size - 1);
+
+            for (i = 0; i < size; i++)
+            {
+                window[i] = 0.42323 - 0.49755 * MYCOS(arg * i) + 0.07922 * MYCOS(2 * arg * i);
             }
+
             break;
+
         case 5:
             /* Blackman-Harris (4 term) */
-            arg = 2.0 * PI / (size-1);
-            for (i = 0; i < size; i++) {
-                window[i] = 0.35875 - 0.48829*MYCOS(arg*i) + 0.14128*MYCOS(2*arg*i) - \
-                            0.01168*MYCOS(3*arg*i);
+            arg = 2.0 * PI / (size - 1);
+
+            for (i = 0; i < size; i++)
+            {
+                window[i] = 0.35875 - 0.48829 * MYCOS(arg * i) + 0.14128 * MYCOS(2 * arg * i) - \
+                            0.01168 * MYCOS(3 * arg * i);
             }
+
             break;
+
         case 6:
             /* Blackman-Harris (7 term) */
-            arg = 2.0 * PI / (size-1);
-            for (i = 0; i < size; i++) {
-                window[i] = 0.2712203606 - 0.4334446123*MYCOS(arg*i) + \
-                            0.21800412*MYCOS(2*arg*i) - 0.0657853433*MYCOS(3*arg*i) + \
-                            0.0107618673*MYCOS(4*arg*i) - 0.0007700127*MYCOS(5*arg*i) + \
-                            0.00001368088*MYCOS(6*arg*i);
+            arg = 2.0 * PI / (size - 1);
+
+            for (i = 0; i < size; i++)
+            {
+                window[i] = 0.2712203606 - 0.4334446123 * MYCOS(arg * i) + \
+                            0.21800412 * MYCOS(2 * arg * i) - 0.0657853433 * MYCOS(3 * arg * i) + \
+                            0.0107618673 * MYCOS(4 * arg * i) - 0.0007700127 * MYCOS(5 * arg * i) + \
+                            0.00001368088 * MYCOS(6 * arg * i);
             }
+
             break;
+
         case 7:
             /* Tuckey (alpha = 0.66) */
             arg = 0.66;
-            for (i = 0; i < (int)(arg*size/2); i++) {
-                window[i] = 0.5 * (1 + MYCOS(PI*(2*i/(arg*size)-1)));
+
+            for (i = 0; i < (int)(arg * size / 2); i++)
+            {
+                window[i] = 0.5 * (1 + MYCOS(PI * (2 * i / (arg * size) - 1)));
             }
-            for ( ; i < (int)(size*(1-arg/2)); i++) {
+
+            for ( ; i < (int)(size * (1 - arg / 2)); i++)
+            {
                 window[i] = 1.0;
             }
-            for ( ; i < size; i++) {
-                window[i] = 0.5 * (1 + MYCOS(PI*(2*i/(arg*size)-2/arg+1)));
+
+            for ( ; i < size; i++)
+            {
+                window[i] = 0.5 * (1 + MYCOS(PI * (2 * i / (arg * size) - 2 / arg + 1)));
             }
+
             break;
+
         case 8:
             /* Sine */
-            arg = PI / (size-1);
-            for (i = 0; i < size; i++) {
+            arg = PI / (size - 1);
+
+            for (i = 0; i < size; i++)
+            {
                 window[i] = MYSIN(arg * i);
             }
+
             break;
+
         default:
             /* default is hanning */
-            arg = 2.0 * PI / (size-1);
-            for (i = 0; i < size; i++) {
+            arg = 2.0 * PI / (size - 1);
+
+            for (i = 0; i < size; i++)
+            {
                 window[i] = 0.5 - 0.5 * MYCOS(arg * i);
             }
+
             break;
     }
+
     return;
 }

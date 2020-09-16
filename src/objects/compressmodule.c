@@ -28,7 +28,8 @@
 #include "dummymodule.h"
 
 /* Compressor */
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     PyObject *input;
     Stream *input_stream;
@@ -62,7 +63,8 @@ C_clip(MYFLT x)
 }
 
 static void
-Compress_compress_soft(Compress *self) {
+Compress_compress_soft(Compress *self)
+{
     MYFLT samp, ampthresh, absin, indb, diff, outdb, outa;
     MYFLT kneethresh, kneescl, knee, kneeratio, invKneeRange;
     MYFLT risetime, falltime, thresh, ratio;
@@ -75,18 +77,23 @@ Compress_compress_soft(Compress *self) {
         risetime = PyFloat_AS_DOUBLE(self->risetime);
     else
         risetime = Stream_getData((Stream *)self->risetime_stream)[0];
+
     if (risetime <= 0.0)
         risetime = 0.001;
+
     if (self->modebuffer[3] == 0)
         falltime = PyFloat_AS_DOUBLE(self->falltime);
     else
         falltime = Stream_getData((Stream *)self->falltime_stream)[0];
+
     if (falltime <= 0.0)
         falltime = 0.001;
+
     if (self->modebuffer[4] == 0)
         thresh = PyFloat_AS_DOUBLE(self->thresh);
     else
         thresh = Stream_getData((Stream *)self->thresh_stream)[0];
+
     if (self->modebuffer[5] == 0)
         ratio = PyFloat_AS_DOUBLE(self->ratio);
     else
@@ -97,17 +104,22 @@ Compress_compress_soft(Compress *self) {
     falltime = MYEXP(-1.0 / (self->sr * falltime));
     knee = self->knee * 0.999 + 0.001; /* 0 = hard knee, 1 = soft knee */
     thresh += 3.0 * self->knee;
+
     if (thresh > 0.0)
         thresh = 0.0;
+
     ampthresh = MYPOW(10.0, thresh * 0.05); /* up to 3 dB above threshold */
     kneethresh = MYPOW(10.0, (thresh - (self->knee * 8.5 + 0.5)) * 0.05); /* up to 6 dB under threshold */
     invKneeRange = 1.0 / (ampthresh - kneethresh);
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         /* Envelope follower */
         absin = in[i];
+
         if (absin < 0.0)
             absin = -absin;
+
         if (self->follow < absin)
             self->follow = absin + risetime * (self->follow - absin);
         else
@@ -115,24 +127,30 @@ Compress_compress_soft(Compress *self) {
 
         /* Look ahead */
         ind = self->lh_in_count - self->lh_delay;
+
         if (ind < 0)
             ind += self->lh_size;
+
         samp = self->lh_buffer[ind];
 
         self->lh_buffer[self->lh_in_count] = in[i];
         self->lh_in_count++;
+
         if (self->lh_in_count >= self->lh_size)
             self->lh_in_count = 0;
 
         /* Compress signal */
         outa = 1.0;
-        if (self->follow > ampthresh) { /* Above threshold */
+
+        if (self->follow > ampthresh)   /* Above threshold */
+        {
             indb = 20.0 * MYLOG10(self->follow + 1.0e-20);
             diff = indb - thresh;
             outdb = diff - diff * ratio;
             outa = MYPOW(10.0, -outdb * 0.05);
         }
-        else if (self->follow > kneethresh) { /* Under the knee */
+        else if (self->follow > kneethresh)   /* Under the knee */
+        {
             kneescl = (self->follow - kneethresh) * invKneeRange;
             kneeratio = (((knee + 1.0) * kneescl) / (knee + kneescl)) * (ratio - 1.0) + 1.0;
             indb = 20.0 * MYLOG10(self->follow + 1.0e-20);
@@ -140,6 +158,7 @@ Compress_compress_soft(Compress *self) {
             outdb = diff - diff * kneeratio;
             outa = MYPOW(10.0, -outdb * 0.05);
         }
+
         if (self->outputAmp == 0)
             self->data[i] = samp * C_clip(outa);
         else
@@ -163,31 +182,40 @@ Compress_setProcMode(Compress *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-	switch (muladdmode) {
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = Compress_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = Compress_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = Compress_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = Compress_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = Compress_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = Compress_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = Compress_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = Compress_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = Compress_postprocessing_revareva;
             break;
@@ -248,8 +276,8 @@ static PyObject *
 Compress_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *inputtmp, *input_streamtmp, *threshtmp=NULL, *ratiotmp=NULL, *risetimetmp=NULL, *falltimetmp=NULL, *multmp=NULL, *addtmp=NULL;
-    PyObject *looktmp=NULL, *kneetmp=NULL;
+    PyObject *inputtmp, *input_streamtmp, *threshtmp = NULL, *ratiotmp = NULL, *risetimetmp = NULL, *falltimetmp = NULL, *multmp = NULL, *addtmp = NULL;
+    PyObject *looktmp = NULL, *kneetmp = NULL;
     Compress *self;
     self = (Compress *)type->tp_alloc(type, 0);
 
@@ -257,12 +285,12 @@ Compress_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->ratio = PyFloat_FromDouble(2.0);
     self->risetime = PyFloat_FromDouble(0.01);
     self->falltime = PyFloat_FromDouble(0.1);
-	self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
-	self->modebuffer[2] = 0;
-	self->modebuffer[3] = 0;
-	self->modebuffer[4] = 0;
-	self->modebuffer[5] = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
+    self->modebuffer[2] = 0;
+    self->modebuffer[3] = 0;
+    self->modebuffer[4] = 0;
+    self->modebuffer[5] = 0;
     self->outputAmp = 0;
     self->follow = 0.0;
     self->lh_delay = 0;
@@ -281,27 +309,33 @@ Compress_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_INPUT_STREAM
 
-    if (threshtmp) {
+    if (threshtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setThresh", "O", threshtmp);
     }
 
-    if (ratiotmp) {
+    if (ratiotmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setRatio", "O", ratiotmp);
     }
 
-    if (risetimetmp) {
+    if (risetimetmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setRiseTime", "O", risetimetmp);
     }
 
-    if (falltimetmp) {
+    if (falltimetmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setFallTime", "O", falltimetmp);
     }
 
-    if (multmp) {
+    if (multmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
 
-    if (addtmp) {
+    if (addtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
 
@@ -309,8 +343,10 @@ Compress_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject_CallMethod((PyObject *)self, "setKnee", "O", kneetmp);
 
     self->lh_size = (long)(0.025 * self->sr + 0.5);
-    self->lh_buffer = (MYFLT *)realloc(self->lh_buffer, (self->lh_size+1) * sizeof(MYFLT));
-    for (i=0; i<(self->lh_size+1); i++) {
+    self->lh_buffer = (MYFLT *)realloc(self->lh_buffer, (self->lh_size + 1) * sizeof(MYFLT));
+
+    for (i = 0; i < (self->lh_size + 1); i++)
+    {
         self->lh_buffer[i] = 0.;
     }
 
@@ -346,117 +382,129 @@ static PyObject * Compress_inplace_div(Compress *self, PyObject *arg) { INPLACE_
 static PyObject *
 Compress_setThresh(Compress *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->thresh);
-	if (isNumber == 1) {
-		self->thresh = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->thresh);
+
+    if (isNumber == 1)
+    {
+        self->thresh = PyNumber_Float(tmp);
         self->modebuffer[4] = 0;
-	}
-	else {
-		self->thresh = tmp;
+    }
+    else
+    {
+        self->thresh = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->thresh, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->thresh_stream);
         self->thresh_stream = (Stream *)streamtmp;
-		self->modebuffer[4] = 1;
-	}
+        self->modebuffer[4] = 1;
+    }
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 Compress_setRatio(Compress *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->ratio);
-	if (isNumber == 1) {
-		self->ratio = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->ratio);
+
+    if (isNumber == 1)
+    {
+        self->ratio = PyNumber_Float(tmp);
         self->modebuffer[5] = 0;
-	}
-	else {
-		self->ratio = tmp;
+    }
+    else
+    {
+        self->ratio = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->ratio, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->ratio_stream);
         self->ratio_stream = (Stream *)streamtmp;
-		self->modebuffer[5] = 1;
-	}
+        self->modebuffer[5] = 1;
+    }
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 Compress_setRiseTime(Compress *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->risetime);
-	if (isNumber == 1) {
-		self->risetime = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->risetime);
+
+    if (isNumber == 1)
+    {
+        self->risetime = PyNumber_Float(tmp);
         self->modebuffer[2] = 0;
-	}
-	else {
-		self->risetime = tmp;
+    }
+    else
+    {
+        self->risetime = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->risetime, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->risetime_stream);
         self->risetime_stream = (Stream *)streamtmp;
-		self->modebuffer[2] = 1;
-	}
+        self->modebuffer[2] = 1;
+    }
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 Compress_setFallTime(Compress *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->falltime);
-	if (isNumber == 1) {
-		self->falltime = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->falltime);
+
+    if (isNumber == 1)
+    {
+        self->falltime = PyNumber_Float(tmp);
         self->modebuffer[3] = 0;
-	}
-	else {
-		self->falltime = tmp;
+    }
+    else
+    {
+        self->falltime = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->falltime, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->falltime_stream);
         self->falltime_stream = (Stream *)streamtmp;
-		self->modebuffer[3] = 1;
-	}
+        self->modebuffer[3] = 1;
+    }
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
@@ -466,16 +514,18 @@ Compress_setLookAhead(Compress *self, PyObject *arg)
 
     ASSERT_ARG_NOT_NULL
 
-	if (PyNumber_Check(arg)) {
-		tmp = PyFloat_AsDouble(arg);
+    if (PyNumber_Check(arg))
+    {
+        tmp = PyFloat_AsDouble(arg);
+
         if (tmp <= 25.0)
             self->lh_delay = (long)(tmp * 0.001 * self->sr);
         else
             PySys_WriteStdout("Compress: lookahead argument must be less than 25.0 ms.\n");
-	}
+    }
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
@@ -485,138 +535,145 @@ Compress_setKnee(Compress *self, PyObject *arg)
 
     ASSERT_ARG_NOT_NULL
 
-	if (PyNumber_Check(arg)) {
-		tmp = PyFloat_AsDouble(arg);
+    if (PyNumber_Check(arg))
+    {
+        tmp = PyFloat_AsDouble(arg);
+
         if (tmp >= 0.0 && tmp <= 1.0)
             self->knee = tmp;
         else
             PySys_WriteStdout("Compress: knee argument must be in range 0 (hard) -> 1 (soft).\n");
-	}
+    }
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
-static PyMemberDef Compress_members[] = {
-{"server", T_OBJECT_EX, offsetof(Compress, server), 0, "Pyo server."},
-{"stream", T_OBJECT_EX, offsetof(Compress, stream), 0, "Stream object."},
-{"input", T_OBJECT_EX, offsetof(Compress, input), 0, "Input sound object."},
-{"thresh", T_OBJECT_EX, offsetof(Compress, thresh), 0, "Compressor threshold."},
-{"ratio", T_OBJECT_EX, offsetof(Compress, ratio), 0, "Compressor ratio."},
-{"risetime", T_OBJECT_EX, offsetof(Compress, risetime), 0, "Rising portamento time in seconds."},
-{"falltime", T_OBJECT_EX, offsetof(Compress, falltime), 0, "Falling portamento time in seconds."},
-{"mul", T_OBJECT_EX, offsetof(Compress, mul), 0, "Mul factor."},
-{"add", T_OBJECT_EX, offsetof(Compress, add), 0, "Add factor."},
-{NULL}  /* Sentinel */
+static PyMemberDef Compress_members[] =
+{
+    {"server", T_OBJECT_EX, offsetof(Compress, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(Compress, stream), 0, "Stream object."},
+    {"input", T_OBJECT_EX, offsetof(Compress, input), 0, "Input sound object."},
+    {"thresh", T_OBJECT_EX, offsetof(Compress, thresh), 0, "Compressor threshold."},
+    {"ratio", T_OBJECT_EX, offsetof(Compress, ratio), 0, "Compressor ratio."},
+    {"risetime", T_OBJECT_EX, offsetof(Compress, risetime), 0, "Rising portamento time in seconds."},
+    {"falltime", T_OBJECT_EX, offsetof(Compress, falltime), 0, "Falling portamento time in seconds."},
+    {"mul", T_OBJECT_EX, offsetof(Compress, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(Compress, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
 };
 
-static PyMethodDef Compress_methods[] = {
-{"getServer", (PyCFunction)Compress_getServer, METH_NOARGS, "Returns server object."},
-{"_getStream", (PyCFunction)Compress_getStream, METH_NOARGS, "Returns stream object."},
-{"play", (PyCFunction)Compress_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"out", (PyCFunction)Compress_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-{"stop", (PyCFunction)Compress_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
-{"setThresh", (PyCFunction)Compress_setThresh, METH_O, "Sets compressor threshold."},
-{"setRatio", (PyCFunction)Compress_setRatio, METH_O, "Sets compressor ratio."},
-{"setRiseTime", (PyCFunction)Compress_setRiseTime, METH_O, "Sets rising portamento time in seconds."},
-{"setFallTime", (PyCFunction)Compress_setFallTime, METH_O, "Sets falling portamento time in seconds."},
-{"setLookAhead", (PyCFunction)Compress_setLookAhead, METH_O, "Sets look ahead time in ms."},
-{"setKnee", (PyCFunction)Compress_setKnee, METH_O, "Sets the knee between 0 (hard) and 1 (soft)."},
-{"setMul", (PyCFunction)Compress_setMul, METH_O, "Sets mul factor."},
-{"setAdd", (PyCFunction)Compress_setAdd, METH_O, "Sets add factor."},
-{"setSub", (PyCFunction)Compress_setSub, METH_O, "Sets inverse add factor."},
-{"setDiv", (PyCFunction)Compress_setDiv, METH_O, "Sets inverse mul factor."},
-{NULL}  /* Sentinel */
+static PyMethodDef Compress_methods[] =
+{
+    {"getServer", (PyCFunction)Compress_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)Compress_getStream, METH_NOARGS, "Returns stream object."},
+    {"play", (PyCFunction)Compress_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)Compress_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)Compress_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"setThresh", (PyCFunction)Compress_setThresh, METH_O, "Sets compressor threshold."},
+    {"setRatio", (PyCFunction)Compress_setRatio, METH_O, "Sets compressor ratio."},
+    {"setRiseTime", (PyCFunction)Compress_setRiseTime, METH_O, "Sets rising portamento time in seconds."},
+    {"setFallTime", (PyCFunction)Compress_setFallTime, METH_O, "Sets falling portamento time in seconds."},
+    {"setLookAhead", (PyCFunction)Compress_setLookAhead, METH_O, "Sets look ahead time in ms."},
+    {"setKnee", (PyCFunction)Compress_setKnee, METH_O, "Sets the knee between 0 (hard) and 1 (soft)."},
+    {"setMul", (PyCFunction)Compress_setMul, METH_O, "Sets mul factor."},
+    {"setAdd", (PyCFunction)Compress_setAdd, METH_O, "Sets add factor."},
+    {"setSub", (PyCFunction)Compress_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)Compress_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Compress_as_number = {
-(binaryfunc)Compress_add,                         /*nb_add*/
-(binaryfunc)Compress_sub,                         /*nb_subtract*/
-(binaryfunc)Compress_multiply,                    /*nb_multiply*/
-INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
-0,                                              /*nb_remainder*/
-0,                                              /*nb_divmod*/
-0,                                              /*nb_power*/
-0,                                              /*nb_neg*/
-0,                                              /*nb_pos*/
-0,                                              /*(unaryfunc)array_abs,*/
-0,                                              /*nb_nonzero*/
-0,                                              /*nb_invert*/
-0,                                              /*nb_lshift*/
-0,                                              /*nb_rshift*/
-0,                                              /*nb_and*/
-0,                                              /*nb_xor*/
-0,                                              /*nb_or*/
-INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
-0,                                              /*nb_int*/
-0,                                              /*nb_long*/
-0,                                              /*nb_float*/
-INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
-(binaryfunc)Compress_inplace_add,                 /*inplace_add*/
-(binaryfunc)Compress_inplace_sub,                 /*inplace_subtract*/
-(binaryfunc)Compress_inplace_multiply,            /*inplace_multiply*/
-INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
-0,                                              /*inplace_remainder*/
-0,                                              /*inplace_power*/
-0,                                              /*inplace_lshift*/
-0,                                              /*inplace_rshift*/
-0,                                              /*inplace_and*/
-0,                                              /*inplace_xor*/
-0,                                              /*inplace_or*/
-0,                                              /*nb_floor_divide*/
-(binaryfunc)Compress_div,                       /*nb_true_divide*/
-0,                                              /*nb_inplace_floor_divide*/
-(binaryfunc)Compress_inplace_div,                       /*nb_inplace_true_divide*/
-0,                                              /* nb_index */
+static PyNumberMethods Compress_as_number =
+{
+    (binaryfunc)Compress_add,                         /*nb_add*/
+    (binaryfunc)Compress_sub,                         /*nb_subtract*/
+    (binaryfunc)Compress_multiply,                    /*nb_multiply*/
+    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
+    0,                                              /*nb_remainder*/
+    0,                                              /*nb_divmod*/
+    0,                                              /*nb_power*/
+    0,                                              /*nb_neg*/
+    0,                                              /*nb_pos*/
+    0,                                              /*(unaryfunc)array_abs,*/
+    0,                                              /*nb_nonzero*/
+    0,                                              /*nb_invert*/
+    0,                                              /*nb_lshift*/
+    0,                                              /*nb_rshift*/
+    0,                                              /*nb_and*/
+    0,                                              /*nb_xor*/
+    0,                                              /*nb_or*/
+    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
+    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
+    (binaryfunc)Compress_inplace_add,                 /*inplace_add*/
+    (binaryfunc)Compress_inplace_sub,                 /*inplace_subtract*/
+    (binaryfunc)Compress_inplace_multiply,            /*inplace_multiply*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
+    0,                                              /*inplace_remainder*/
+    0,                                              /*inplace_power*/
+    0,                                              /*inplace_lshift*/
+    0,                                              /*inplace_rshift*/
+    0,                                              /*inplace_and*/
+    0,                                              /*inplace_xor*/
+    0,                                              /*inplace_or*/
+    0,                                              /*nb_floor_divide*/
+    (binaryfunc)Compress_div,                       /*nb_true_divide*/
+    0,                                              /*nb_inplace_floor_divide*/
+    (binaryfunc)Compress_inplace_div,                       /*nb_inplace_true_divide*/
+    0,                                              /* nb_index */
 };
 
-PyTypeObject CompressType = {
-PyVarObject_HEAD_INIT(NULL, 0)
-"_pyo.Compress_base",                                   /*tp_name*/
-sizeof(Compress),                                 /*tp_basicsize*/
-0,                                              /*tp_itemsize*/
-(destructor)Compress_dealloc,                     /*tp_dealloc*/
-0,                                              /*tp_print*/
-0,                                              /*tp_getattr*/
-0,                                              /*tp_setattr*/
-0,                                              /*tp_as_async (tp_compare in Python 2)*/
-0,                                              /*tp_repr*/
-&Compress_as_number,                              /*tp_as_number*/
-0,                                              /*tp_as_sequence*/
-0,                                              /*tp_as_mapping*/
-0,                                              /*tp_hash */
-0,                                              /*tp_call*/
-0,                                              /*tp_str*/
-0,                                              /*tp_getattro*/
-0,                                              /*tp_setattro*/
-0,                                              /*tp_as_buffer*/
-Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
-"Compress objects. Compress audio signal by a certain ratio above a threshold.",           /* tp_doc */
-(traverseproc)Compress_traverse,                  /* tp_traverse */
-(inquiry)Compress_clear,                          /* tp_clear */
-0,                                              /* tp_richcompare */
-0,                                              /* tp_weaklistoffset */
-0,                                              /* tp_iter */
-0,                                              /* tp_iternext */
-Compress_methods,                                 /* tp_methods */
-Compress_members,                                 /* tp_members */
-0,                                              /* tp_getset */
-0,                                              /* tp_base */
-0,                                              /* tp_dict */
-0,                                              /* tp_descr_get */
-0,                                              /* tp_descr_set */
-0,                                              /* tp_dictoffset */
-0,                          /* tp_init */
-0,                                              /* tp_alloc */
-Compress_new,                                     /* tp_new */
+PyTypeObject CompressType =
+{
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "_pyo.Compress_base",                                   /*tp_name*/
+    sizeof(Compress),                                 /*tp_basicsize*/
+    0,                                              /*tp_itemsize*/
+    (destructor)Compress_dealloc,                     /*tp_dealloc*/
+    0,                                              /*tp_print*/
+    0,                                              /*tp_getattr*/
+    0,                                              /*tp_setattr*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
+    0,                                              /*tp_repr*/
+    &Compress_as_number,                              /*tp_as_number*/
+    0,                                              /*tp_as_sequence*/
+    0,                                              /*tp_as_mapping*/
+    0,                                              /*tp_hash */
+    0,                                              /*tp_call*/
+    0,                                              /*tp_str*/
+    0,                                              /*tp_getattro*/
+    0,                                              /*tp_setattro*/
+    0,                                              /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "Compress objects. Compress audio signal by a certain ratio above a threshold.",           /* tp_doc */
+    (traverseproc)Compress_traverse,                  /* tp_traverse */
+    (inquiry)Compress_clear,                          /* tp_clear */
+    0,                                              /* tp_richcompare */
+    0,                                              /* tp_weaklistoffset */
+    0,                                              /* tp_iter */
+    0,                                              /* tp_iternext */
+    Compress_methods,                                 /* tp_methods */
+    Compress_members,                                 /* tp_members */
+    0,                                              /* tp_getset */
+    0,                                              /* tp_base */
+    0,                                              /* tp_dict */
+    0,                                              /* tp_descr_get */
+    0,                                              /* tp_descr_set */
+    0,                                              /* tp_dictoffset */
+    0,                          /* tp_init */
+    0,                                              /* tp_alloc */
+    Compress_new,                                     /* tp_new */
 };
 
 const MYFLT GATE_MIN_RAMP_TIME = 0.0001;
 /************/
 /* Gate */
 /************/
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     PyObject *input;
     Stream *input_stream;
@@ -642,7 +699,8 @@ typedef struct {
 } Gate;
 
 static void
-Gate_filters_iii(Gate *self) {
+Gate_filters_iii(Gate *self)
+{
     MYFLT samp, absin, thresh, ampthresh, risetime, falltime;
     int i, ind;
 
@@ -650,24 +708,31 @@ Gate_filters_iii(Gate *self) {
 
     thresh = PyFloat_AS_DOUBLE(self->thresh);
     risetime = PyFloat_AS_DOUBLE(self->risetime);
+
     if (risetime <= 0.0)
         risetime = GATE_MIN_RAMP_TIME;
+
     falltime = PyFloat_AS_DOUBLE(self->falltime);
+
     if (falltime <= 0.0)
         falltime = GATE_MIN_RAMP_TIME;
 
-    if (risetime != self->last_risetime) {
+    if (risetime != self->last_risetime)
+    {
         self->risefactor = MYEXP(-1.0 / (self->sr * risetime));
         self->last_risetime = risetime;
     }
 
-    if (falltime != self->last_falltime) {
+    if (falltime != self->last_falltime)
+    {
         self->fallfactor = MYEXP(-1.0 / (self->sr * falltime));
         self->last_falltime = falltime;
     }
 
     ampthresh = MYPOW(10.0, thresh * 0.05);
-    for (i=0; i<self->bufsize; i++) {
+
+    for (i = 0; i < self->bufsize; i++)
+    {
         /* Follower */
         absin = in[i] * in[i];
         self->lpfollow = absin + self->lpfactor * (self->lpfollow - absin);
@@ -680,12 +745,15 @@ Gate_filters_iii(Gate *self) {
 
         /* Look ahead */
         ind = self->lh_in_count - self->lh_delay;
+
         if (ind < 0)
             ind += self->lh_size;
+
         samp = self->lh_buffer[ind];
 
         self->lh_buffer[self->lh_in_count] = in[i];
         self->lh_in_count++;
+
         if (self->lh_in_count >= self->lh_size)
             self->lh_in_count = 0;
 
@@ -698,7 +766,8 @@ Gate_filters_iii(Gate *self) {
 }
 
 static void
-Gate_filters_aii(Gate *self) {
+Gate_filters_aii(Gate *self)
+{
     MYFLT samp, absin, thresh, ampthresh, risetime, falltime;
     int i, ind;
 
@@ -706,23 +775,29 @@ Gate_filters_aii(Gate *self) {
     MYFLT *tr = Stream_getData((Stream *)self->thresh_stream);
 
     risetime = PyFloat_AS_DOUBLE(self->risetime);
+
     if (risetime <= 0.0)
         risetime = GATE_MIN_RAMP_TIME;
+
     falltime = PyFloat_AS_DOUBLE(self->falltime);
+
     if (falltime <= 0.0)
         falltime = GATE_MIN_RAMP_TIME;
 
-    if (risetime != self->last_risetime) {
+    if (risetime != self->last_risetime)
+    {
         self->risefactor = MYEXP(-1.0 / (self->sr * risetime));
         self->last_risetime = risetime;
     }
 
-    if (falltime != self->last_falltime) {
+    if (falltime != self->last_falltime)
+    {
         self->fallfactor = MYEXP(-1.0 / (self->sr * falltime));
         self->last_falltime = falltime;
     }
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         thresh = tr[i];
         ampthresh = MYPOW(10.0, thresh * 0.05);
         /* Follower */
@@ -737,12 +812,15 @@ Gate_filters_aii(Gate *self) {
 
         /* Look ahead */
         ind = self->lh_in_count - self->lh_delay;
+
         if (ind < 0)
             ind += self->lh_size;
+
         samp = self->lh_buffer[ind];
 
         self->lh_buffer[self->lh_in_count] = in[i];
         self->lh_in_count++;
+
         if (self->lh_in_count >= self->lh_size)
             self->lh_in_count = 0;
 
@@ -755,7 +833,8 @@ Gate_filters_aii(Gate *self) {
 }
 
 static void
-Gate_filters_iai(Gate *self) {
+Gate_filters_iai(Gate *self)
+{
     MYFLT samp, absin, thresh, ampthresh, risetime, falltime;
     int i, ind;
 
@@ -765,20 +844,27 @@ Gate_filters_iai(Gate *self) {
     MYFLT *rise = Stream_getData((Stream *)self->risetime_stream);
 
     falltime = PyFloat_AS_DOUBLE(self->falltime);
+
     if (falltime <= 0.0)
         falltime = GATE_MIN_RAMP_TIME;
 
-    if (falltime != self->last_falltime) {
+    if (falltime != self->last_falltime)
+    {
         self->fallfactor = MYEXP(-1.0 / (self->sr * falltime));
         self->last_falltime = falltime;
     }
 
     ampthresh = MYPOW(10.0, thresh * 0.05);
-    for (i=0; i<self->bufsize; i++) {
+
+    for (i = 0; i < self->bufsize; i++)
+    {
         risetime = rise[i];
+
         if (risetime <= 0.0)
             risetime = GATE_MIN_RAMP_TIME;
-        if (risetime != self->last_risetime) {
+
+        if (risetime != self->last_risetime)
+        {
             self->risefactor = MYEXP(-1.0 / (self->sr * risetime));
             self->last_risetime = risetime;
         }
@@ -795,12 +881,15 @@ Gate_filters_iai(Gate *self) {
 
         /* Look ahead */
         ind = self->lh_in_count - self->lh_delay;
+
         if (ind < 0)
             ind += self->lh_size;
+
         samp = self->lh_buffer[ind];
 
         self->lh_buffer[self->lh_in_count] = in[i];
         self->lh_in_count++;
+
         if (self->lh_in_count >= self->lh_size)
             self->lh_in_count = 0;
 
@@ -813,7 +902,8 @@ Gate_filters_iai(Gate *self) {
 }
 
 static void
-Gate_filters_aai(Gate *self) {
+Gate_filters_aai(Gate *self)
+{
     MYFLT samp, absin, thresh, ampthresh, risetime, falltime;
     int i, ind;
 
@@ -823,21 +913,27 @@ Gate_filters_aai(Gate *self) {
     MYFLT *rise = Stream_getData((Stream *)self->risetime_stream);
 
     falltime = PyFloat_AS_DOUBLE(self->falltime);
+
     if (falltime <= 0.0)
         falltime = GATE_MIN_RAMP_TIME;
 
-    if (falltime != self->last_falltime) {
+    if (falltime != self->last_falltime)
+    {
         self->fallfactor = MYEXP(-1.0 / (self->sr * falltime));
         self->last_falltime = falltime;
     }
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         thresh = tr[i];
         ampthresh = MYPOW(10.0, thresh * 0.05);
         risetime = rise[i];
+
         if (risetime <= 0.0)
             risetime = GATE_MIN_RAMP_TIME;
-        if (risetime != self->last_risetime) {
+
+        if (risetime != self->last_risetime)
+        {
             self->risefactor = MYEXP(-1.0 / (self->sr * risetime));
             self->last_risetime = risetime;
         }
@@ -854,12 +950,15 @@ Gate_filters_aai(Gate *self) {
 
         /* Look ahead */
         ind = self->lh_in_count - self->lh_delay;
+
         if (ind < 0)
             ind += self->lh_size;
+
         samp = self->lh_buffer[ind];
 
         self->lh_buffer[self->lh_in_count] = in[i];
         self->lh_in_count++;
+
         if (self->lh_in_count >= self->lh_size)
             self->lh_in_count = 0;
 
@@ -872,7 +971,8 @@ Gate_filters_aai(Gate *self) {
 }
 
 static void
-Gate_filters_iia(Gate *self) {
+Gate_filters_iia(Gate *self)
+{
     MYFLT samp, absin, thresh, ampthresh, risetime, falltime;
     int i, ind;
 
@@ -880,21 +980,29 @@ Gate_filters_iia(Gate *self) {
 
     thresh = PyFloat_AS_DOUBLE(self->thresh);
     risetime = PyFloat_AS_DOUBLE(self->risetime);
+
     if (risetime <= 0.0)
         risetime = GATE_MIN_RAMP_TIME;
+
     MYFLT *fall = Stream_getData((Stream *)self->falltime_stream);
 
-    if (risetime != self->last_risetime) {
+    if (risetime != self->last_risetime)
+    {
         self->risefactor = MYEXP(-1.0 / (self->sr * risetime));
         self->last_risetime = risetime;
     }
 
     ampthresh = MYPOW(10.0, thresh * 0.05);
-    for (i=0; i<self->bufsize; i++) {
+
+    for (i = 0; i < self->bufsize; i++)
+    {
         falltime = fall[i];
+
         if (falltime <= 0.0)
             falltime = GATE_MIN_RAMP_TIME;
-        if (falltime != self->last_falltime) {
+
+        if (falltime != self->last_falltime)
+        {
             self->fallfactor = MYEXP(-1.0 / (self->sr * falltime));
             self->last_falltime = falltime;
         }
@@ -911,12 +1019,15 @@ Gate_filters_iia(Gate *self) {
 
         /* Look ahead */
         ind = self->lh_in_count - self->lh_delay;
+
         if (ind < 0)
             ind += self->lh_size;
+
         samp = self->lh_buffer[ind];
 
         self->lh_buffer[self->lh_in_count] = in[i];
         self->lh_in_count++;
+
         if (self->lh_in_count >= self->lh_size)
             self->lh_in_count = 0;
 
@@ -929,7 +1040,8 @@ Gate_filters_iia(Gate *self) {
 }
 
 static void
-Gate_filters_aia(Gate *self) {
+Gate_filters_aia(Gate *self)
+{
     MYFLT samp, absin, thresh, ampthresh, risetime, falltime;
     int i, ind;
 
@@ -937,22 +1049,29 @@ Gate_filters_aia(Gate *self) {
 
     MYFLT *tr = Stream_getData((Stream *)self->thresh_stream);
     risetime = PyFloat_AS_DOUBLE(self->risetime);
+
     if (risetime <= 0.0)
         risetime = GATE_MIN_RAMP_TIME;
+
     MYFLT *fall = Stream_getData((Stream *)self->falltime_stream);
 
-    if (risetime != self->last_risetime) {
+    if (risetime != self->last_risetime)
+    {
         self->risefactor = MYEXP(-1.0 / (self->sr * risetime));
         self->last_risetime = risetime;
     }
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         thresh = tr[i];
         ampthresh = MYPOW(10.0, thresh * 0.05);
         falltime = fall[i];
+
         if (falltime <= 0.0)
             falltime = GATE_MIN_RAMP_TIME;
-        if (falltime != self->last_falltime) {
+
+        if (falltime != self->last_falltime)
+        {
             self->fallfactor = MYEXP(-1.0 / (self->sr * falltime));
             self->last_falltime = falltime;
         }
@@ -969,12 +1088,15 @@ Gate_filters_aia(Gate *self) {
 
         /* Look ahead */
         ind = self->lh_in_count - self->lh_delay;
+
         if (ind < 0)
             ind += self->lh_size;
+
         samp = self->lh_buffer[ind];
 
         self->lh_buffer[self->lh_in_count] = in[i];
         self->lh_in_count++;
+
         if (self->lh_in_count >= self->lh_size)
             self->lh_in_count = 0;
 
@@ -987,7 +1109,8 @@ Gate_filters_aia(Gate *self) {
 }
 
 static void
-Gate_filters_iaa(Gate *self) {
+Gate_filters_iaa(Gate *self)
+{
     MYFLT samp, absin, thresh, ampthresh, risetime, falltime;
     int i, ind;
 
@@ -998,18 +1121,27 @@ Gate_filters_iaa(Gate *self) {
     MYFLT *fall = Stream_getData((Stream *)self->falltime_stream);
 
     ampthresh = MYPOW(10.0, thresh * 0.05);
-    for (i=0; i<self->bufsize; i++) {
+
+    for (i = 0; i < self->bufsize; i++)
+    {
         risetime = rise[i];
+
         if (risetime <= 0.0)
             risetime = GATE_MIN_RAMP_TIME;
-        if (risetime != self->last_risetime) {
+
+        if (risetime != self->last_risetime)
+        {
             self->risefactor = MYEXP(-1.0 / (self->sr * risetime));
             self->last_risetime = risetime;
         }
+
         falltime = fall[i];
+
         if (falltime <= 0.0)
             falltime = GATE_MIN_RAMP_TIME;
-        if (falltime != self->last_falltime) {
+
+        if (falltime != self->last_falltime)
+        {
             self->fallfactor = MYEXP(-1.0 / (self->sr * falltime));
             self->last_falltime = falltime;
         }
@@ -1026,12 +1158,15 @@ Gate_filters_iaa(Gate *self) {
 
         /* Look ahead */
         ind = self->lh_in_count - self->lh_delay;
+
         if (ind < 0)
             ind += self->lh_size;
+
         samp = self->lh_buffer[ind];
 
         self->lh_buffer[self->lh_in_count] = in[i];
         self->lh_in_count++;
+
         if (self->lh_in_count >= self->lh_size)
             self->lh_in_count = 0;
 
@@ -1044,7 +1179,8 @@ Gate_filters_iaa(Gate *self) {
 }
 
 static void
-Gate_filters_aaa(Gate *self) {
+Gate_filters_aaa(Gate *self)
+{
     MYFLT samp, absin, thresh, ampthresh, risetime, falltime;
     int i, ind;
 
@@ -1054,20 +1190,28 @@ Gate_filters_aaa(Gate *self) {
     MYFLT *rise = Stream_getData((Stream *)self->risetime_stream);
     MYFLT *fall = Stream_getData((Stream *)self->falltime_stream);
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         thresh = tr[i];
         ampthresh = MYPOW(10.0, thresh * 0.05);
         risetime = rise[i];
+
         if (risetime <= 0.0)
             risetime = 0.001;
-        if (risetime != self->last_risetime) {
+
+        if (risetime != self->last_risetime)
+        {
             self->risefactor = MYEXP(-1.0 / (self->sr * risetime));
             self->last_risetime = risetime;
         }
+
         falltime = fall[i];
+
         if (falltime <= 0.0)
             falltime = 0.001;
-        if (falltime != self->last_falltime) {
+
+        if (falltime != self->last_falltime)
+        {
             self->fallfactor = MYEXP(-1.0 / (self->sr * falltime));
             self->last_falltime = falltime;
         }
@@ -1084,12 +1228,15 @@ Gate_filters_aaa(Gate *self) {
 
         /* Look ahead */
         ind = self->lh_in_count - self->lh_delay;
+
         if (ind < 0)
             ind += self->lh_size;
+
         samp = self->lh_buffer[ind];
 
         self->lh_buffer[self->lh_in_count] = in[i];
         self->lh_in_count++;
+
         if (self->lh_in_count >= self->lh_size)
             self->lh_in_count = 0;
 
@@ -1118,57 +1265,75 @@ Gate_setProcMode(Gate *self)
     procmode = self->modebuffer[2] + self->modebuffer[3] * 10 + self->modebuffer[4] * 100;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-	switch (procmode) {
+    switch (procmode)
+    {
         case 0:
             self->proc_func_ptr = Gate_filters_iii;
             break;
+
         case 1:
             self->proc_func_ptr = Gate_filters_aii;
             break;
+
         case 10:
             self->proc_func_ptr = Gate_filters_iai;
             break;
+
         case 11:
             self->proc_func_ptr = Gate_filters_aai;
             break;
+
         case 100:
             self->proc_func_ptr = Gate_filters_iia;
             break;
+
         case 101:
             self->proc_func_ptr = Gate_filters_aia;
             break;
+
         case 110:
             self->proc_func_ptr = Gate_filters_iaa;
             break;
+
         case 111:
             self->proc_func_ptr = Gate_filters_aaa;
             break;
     }
-	switch (muladdmode) {
+
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = Gate_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = Gate_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = Gate_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = Gate_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = Gate_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = Gate_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = Gate_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = Gate_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = Gate_postprocessing_revareva;
             break;
@@ -1225,8 +1390,8 @@ static PyObject *
 Gate_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *inputtmp, *input_streamtmp, *threshtmp=NULL, *risetimetmp=NULL, *falltimetmp=NULL, *multmp=NULL, *addtmp=NULL;
-    PyObject *looktmp=NULL;
+    PyObject *inputtmp, *input_streamtmp, *threshtmp = NULL, *risetimetmp = NULL, *falltimetmp = NULL, *multmp = NULL, *addtmp = NULL;
+    PyObject *looktmp = NULL;
     Gate *self;
     self = (Gate *)type->tp_alloc(type, 0);
 
@@ -1237,11 +1402,11 @@ Gate_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->last_risetime = -1.0;
     self->last_falltime = -1.0;
     self->risefactor = self->fallfactor = 0.99;
-	self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
-	self->modebuffer[2] = 0;
-	self->modebuffer[3] = 0;
-	self->modebuffer[4] = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
+    self->modebuffer[2] = 0;
+    self->modebuffer[3] = 0;
+    self->modebuffer[4] = 0;
     self->lh_delay = 0;
     self->lh_in_count = 0;
     self->outputAmp = 0;
@@ -1260,31 +1425,38 @@ Gate_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_INPUT_STREAM
 
-    if (threshtmp) {
+    if (threshtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setThresh", "O", threshtmp);
     }
 
-    if (risetimetmp) {
+    if (risetimetmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setRiseTime", "O", risetimetmp);
     }
 
-    if (falltimetmp) {
+    if (falltimetmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setFallTime", "O", falltimetmp);
     }
 
-    if (multmp) {
+    if (multmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
 
-    if (addtmp) {
+    if (addtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
 
     PyObject_CallMethod((PyObject *)self, "setLookAhead", "O", looktmp);
 
     self->lh_size = (long)(0.025 * self->sr + 0.5);
-    self->lh_buffer = (MYFLT *)realloc(self->lh_buffer, (self->lh_size+1) * sizeof(MYFLT));
-    for (i=0; i<(self->lh_size+1); i++) {
+    self->lh_buffer = (MYFLT *)realloc(self->lh_buffer, (self->lh_size + 1) * sizeof(MYFLT));
+
+    for (i = 0; i < (self->lh_size + 1); i++)
+    {
         self->lh_buffer[i] = 0.;
     }
 
@@ -1318,94 +1490,103 @@ static PyObject * Gate_inplace_div(Gate *self, PyObject *arg) { INPLACE_DIV };
 static PyObject *
 Gate_setThresh(Gate *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->thresh);
-	if (isNumber == 1) {
-		self->thresh = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->thresh);
+
+    if (isNumber == 1)
+    {
+        self->thresh = PyNumber_Float(tmp);
         self->modebuffer[2] = 0;
-	}
-	else {
-		self->thresh = tmp;
+    }
+    else
+    {
+        self->thresh = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->thresh, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->thresh_stream);
         self->thresh_stream = (Stream *)streamtmp;
-		self->modebuffer[2] = 1;
-	}
+        self->modebuffer[2] = 1;
+    }
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 Gate_setRiseTime(Gate *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->risetime);
-	if (isNumber == 1) {
-		self->risetime = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->risetime);
+
+    if (isNumber == 1)
+    {
+        self->risetime = PyNumber_Float(tmp);
         self->modebuffer[3] = 0;
-	}
-	else {
-		self->risetime = tmp;
+    }
+    else
+    {
+        self->risetime = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->risetime, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->risetime_stream);
         self->risetime_stream = (Stream *)streamtmp;
-		self->modebuffer[3] = 1;
-	}
+        self->modebuffer[3] = 1;
+    }
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 Gate_setFallTime(Gate *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->falltime);
-	if (isNumber == 1) {
-		self->falltime = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->falltime);
+
+    if (isNumber == 1)
+    {
+        self->falltime = PyNumber_Float(tmp);
         self->modebuffer[4] = 0;
-	}
-	else {
-		self->falltime = tmp;
+    }
+    else
+    {
+        self->falltime = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->falltime, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->falltime_stream);
         self->falltime_stream = (Stream *)streamtmp;
-		self->modebuffer[4] = 1;
-	}
+        self->modebuffer[4] = 1;
+    }
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
@@ -1415,19 +1596,22 @@ Gate_setLookAhead(Gate *self, PyObject *arg)
 
     ASSERT_ARG_NOT_NULL
 
-	if (PyNumber_Check(arg)) {
-		tmp = PyFloat_AsDouble(arg);
+    if (PyNumber_Check(arg))
+    {
+        tmp = PyFloat_AsDouble(arg);
+
         if (tmp <= 25.0)
             self->lh_delay = (long)(tmp * 0.001 * self->sr);
         else
             PySys_WriteStdout("Gate: lookahead argument must be less than 25.0 ms.\n");
-	}
+    }
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
-static PyMemberDef Gate_members[] = {
+static PyMemberDef Gate_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(Gate, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(Gate, stream), 0, "Stream object."},
     {"input", T_OBJECT_EX, offsetof(Gate, input), 0, "Input sound object."},
@@ -1439,12 +1623,13 @@ static PyMemberDef Gate_members[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef Gate_methods[] = {
+static PyMethodDef Gate_methods[] =
+{
     {"getServer", (PyCFunction)Gate_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Gate_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Gate_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)Gate_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Gate_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
+    {"play", (PyCFunction)Gate_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)Gate_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)Gate_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setThresh", (PyCFunction)Gate_setThresh, METH_O, "Sets the threshold in dB."},
     {"setRiseTime", (PyCFunction)Gate_setRiseTime, METH_O, "Sets filter risetime in second."},
     {"setFallTime", (PyCFunction)Gate_setFallTime, METH_O, "Sets filter falltime in second."},
@@ -1456,7 +1641,8 @@ static PyMethodDef Gate_methods[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Gate_as_number = {
+static PyNumberMethods Gate_as_number =
+{
     (binaryfunc)Gate_add,                         /*nb_add*/
     (binaryfunc)Gate_sub,                         /*nb_subtract*/
     (binaryfunc)Gate_multiply,                    /*nb_multiply*/
@@ -1498,7 +1684,8 @@ static PyNumberMethods Gate_as_number = {
     0,                                              /* nb_index */
 };
 
-PyTypeObject GateType = {
+PyTypeObject GateType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.Gate_base",                                   /*tp_name*/
     sizeof(Gate),                                 /*tp_basicsize*/
@@ -1542,7 +1729,8 @@ PyTypeObject GateType = {
 /************/
 /* Balance */
 /************/
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     PyObject *input;
     Stream *input_stream;
@@ -1558,7 +1746,8 @@ typedef struct {
 } Balance;
 
 static void
-Balance_filters_i(Balance *self) {
+Balance_filters_i(Balance *self)
+{
     MYFLT absin, freq;
     int i;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
@@ -1568,52 +1757,71 @@ Balance_filters_i(Balance *self) {
     if (freq < 0.1)
         freq = 0.1;
 
-    if (freq != self->last_freq) {
+    if (freq != self->last_freq)
+    {
         self->factor = MYEXP(-1.0 / (self->sr / freq));
         self->last_freq = freq;
     }
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         absin = in[i];
+
         if (absin < 0.0)
             absin = -absin;
+
         self->follow1 = absin + self->factor * (self->follow1 - absin);
+
         if (self->follow1 < 0.001)
             self->follow1 = 0.001;
+
         absin = in2[i];
+
         if (absin < 0.0)
             absin = -absin;
+
         self->follow2 = absin + self->factor * (self->follow2 - absin);
         self->data[i] = in[i] * (self->follow2 / self->follow1);
     }
 }
 
 static void
-Balance_filters_a(Balance *self) {
+Balance_filters_a(Balance *self)
+{
     MYFLT absin, freq;
     int i;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *in2 = Stream_getData((Stream *)self->input2_stream);
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         freq = fr[i];
+
         if (freq < 0.1)
             freq = 0.1;
 
-        if (freq != self->last_freq) {
+        if (freq != self->last_freq)
+        {
             self->factor = MYEXP(-1.0 / (self->sr / freq));
             self->last_freq = freq;
         }
+
         absin = in[i];
+
         if (absin < 0.0)
             absin = -absin;
+
         self->follow1 = absin + self->factor * (self->follow1 - absin);
+
         if (self->follow1 < 0.001)
             self->follow1 = 0.001;
+
         absin = in2[i];
+
         if (absin < 0.0)
             absin = -absin;
+
         self->follow2 = absin + self->factor * (self->follow2 - absin);
         self->data[i] = in[i] * (self->follow2 / self->follow1);
     }
@@ -1636,39 +1844,51 @@ Balance_setProcMode(Balance *self)
     procmode = self->modebuffer[2];
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-	switch (procmode) {
+    switch (procmode)
+    {
         case 0:
             self->proc_func_ptr = Balance_filters_i;
             break;
+
         case 1:
             self->proc_func_ptr = Balance_filters_a;
             break;
     }
-	switch (muladdmode) {
+
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = Balance_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = Balance_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = Balance_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = Balance_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = Balance_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = Balance_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = Balance_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = Balance_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = Balance_postprocessing_revareva;
             break;
@@ -1720,7 +1940,7 @@ static PyObject *
 Balance_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *inputtmp, *input_streamtmp, *input2tmp, *input2_streamtmp, *freqtmp=NULL, *multmp=NULL, *addtmp=NULL;
+    PyObject *inputtmp, *input_streamtmp, *input2tmp, *input2_streamtmp, *freqtmp = NULL, *multmp = NULL, *addtmp = NULL;
     Balance *self;
     self = (Balance *)type->tp_alloc(type, 0);
 
@@ -1728,9 +1948,9 @@ Balance_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->follow1 = self->follow2 = 0.0;
     self->last_freq = -1.0;
     self->factor = 0.99;
-	self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
-	self->modebuffer[2] = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
+    self->modebuffer[2] = 0;
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Balance_compute_next_data_frame);
@@ -1750,15 +1970,18 @@ Balance_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Py_XDECREF(self->input2_stream);
     self->input2_stream = (Stream *)input2_streamtmp;
 
-    if (freqtmp) {
+    if (freqtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
     }
 
-    if (multmp) {
+    if (multmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
 
-    if (addtmp) {
+    if (addtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
 
@@ -1792,35 +2015,39 @@ static PyObject * Balance_inplace_div(Balance *self, PyObject *arg) { INPLACE_DI
 static PyObject *
 Balance_setFreq(Balance *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->freq);
-	if (isNumber == 1) {
-		self->freq = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->freq);
+
+    if (isNumber == 1)
+    {
+        self->freq = PyNumber_Float(tmp);
         self->modebuffer[2] = 0;
-	}
-	else {
-		self->freq = tmp;
+    }
+    else
+    {
+        self->freq = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->freq_stream);
         self->freq_stream = (Stream *)streamtmp;
-		self->modebuffer[2] = 1;
-	}
+        self->modebuffer[2] = 1;
+    }
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
-static PyMemberDef Balance_members[] = {
+static PyMemberDef Balance_members[] =
+{
     {"server", T_OBJECT_EX, offsetof(Balance, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(Balance, stream), 0, "Stream object."},
     {"input", T_OBJECT_EX, offsetof(Balance, input), 0, "Input sound object."},
@@ -1831,12 +2058,13 @@ static PyMemberDef Balance_members[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyMethodDef Balance_methods[] = {
+static PyMethodDef Balance_methods[] =
+{
     {"getServer", (PyCFunction)Balance_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Balance_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Balance_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)Balance_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Balance_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
+    {"play", (PyCFunction)Balance_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)Balance_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)Balance_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setFreq", (PyCFunction)Balance_setFreq, METH_O, "Sets filter cutoff frequency in cycle per second."},
     {"setMul", (PyCFunction)Balance_setMul, METH_O, "Sets oscillator mul factor."},
     {"setAdd", (PyCFunction)Balance_setAdd, METH_O, "Sets oscillator add factor."},
@@ -1845,7 +2073,8 @@ static PyMethodDef Balance_methods[] = {
     {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Balance_as_number = {
+static PyNumberMethods Balance_as_number =
+{
     (binaryfunc)Balance_add,                         /*nb_add*/
     (binaryfunc)Balance_sub,                         /*nb_subtract*/
     (binaryfunc)Balance_multiply,                    /*nb_multiply*/
@@ -1887,7 +2116,8 @@ static PyNumberMethods Balance_as_number = {
     0,                                              /* nb_index */
 };
 
-PyTypeObject BalanceType = {
+PyTypeObject BalanceType =
+{
     PyVarObject_HEAD_INIT(NULL, 0)
     "_pyo.Balance_base",                                   /*tp_name*/
     sizeof(Balance),                                 /*tp_basicsize*/
@@ -1929,7 +2159,8 @@ PyTypeObject BalanceType = {
 };
 
 /* Expander */
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     PyObject *input;
     Stream *input_stream;
@@ -1953,7 +2184,8 @@ typedef struct {
 } Expand;
 
 static void
-Expand_compress_soft(Expand *self) {
+Expand_compress_soft(Expand *self)
+{
     MYFLT samp, absin, indb, diff, outa;
     MYFLT risetime, falltime, upthresh, downthresh, ratio;
     int i;
@@ -1965,28 +2197,36 @@ Expand_compress_soft(Expand *self) {
         risetime = PyFloat_AS_DOUBLE(self->risetime);
     else
         risetime = Stream_getData((Stream *)self->risetime_stream)[0];
+
     if (risetime <= 0.0)
         risetime = 0.001;
+
     if (self->modebuffer[3] == 0)
         falltime = PyFloat_AS_DOUBLE(self->falltime);
     else
         falltime = Stream_getData((Stream *)self->falltime_stream)[0];
+
     if (falltime <= 0.0)
         falltime = 0.001;
+
     if (self->modebuffer[4] == 0)
         upthresh = PyFloat_AS_DOUBLE(self->upthresh);
     else
         upthresh = Stream_getData((Stream *)self->upthresh_stream)[0];
+
     if (upthresh > 0.0)
         upthresh = 0.0;
+
     if (self->modebuffer[5] == 0)
         downthresh = PyFloat_AS_DOUBLE(self->downthresh);
     else
         downthresh = Stream_getData((Stream *)self->downthresh_stream)[0];
+
     if (downthresh < -120.0)
         downthresh = -120.0;
     else if (downthresh > upthresh)
         downthresh = upthresh;
+
     if (self->modebuffer[6] == 0)
         ratio = PyFloat_AS_DOUBLE(self->ratio);
     else
@@ -1996,11 +2236,14 @@ Expand_compress_soft(Expand *self) {
     risetime = MYEXP(-1.0 / (self->sr * risetime));
     falltime = MYEXP(-1.0 / (self->sr * falltime));
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         /* Envelope follower */
         absin = in[i];
+
         if (absin < 0.0)
             absin = -absin;
+
         if (self->follow < absin)
             self->follow = absin + risetime * (self->follow - absin);
         else
@@ -2008,25 +2251,33 @@ Expand_compress_soft(Expand *self) {
 
         /* Look ahead */
         ind = self->lh_in_count - self->lh_delay;
+
         if (ind < 0)
             ind += self->lh_size;
+
         samp = self->lh_buffer[ind];
 
         self->lh_buffer[self->lh_in_count] = in[i];
         self->lh_in_count++;
+
         if (self->lh_in_count >= self->lh_size)
             self->lh_in_count = 0;
 
         /* Expand signal */
         outa = 1.0;
         indb = 20.0 * MYLOG10(C_clip(self->follow));
-        if (indb > upthresh) { /* Above upper threshold */
+
+        if (indb > upthresh)   /* Above upper threshold */
+        {
             diff = indb - upthresh;
             outa = MYPOW(10.0, (diff * ratio - diff) * 0.05);
-        } else if (indb < downthresh) { /* Below lower threshold */
+        }
+        else if (indb < downthresh)     /* Below lower threshold */
+        {
             diff = downthresh - indb;
             outa = MYPOW(10.0, (diff - diff * ratio) * 0.05);
         }
+
         outa = 1.0 / outa;
 
         if (self->outputAmp == 0)
@@ -2052,31 +2303,40 @@ Expand_setProcMode(Expand *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-	switch (muladdmode) {
+    switch (muladdmode)
+    {
         case 0:
             self->muladd_func_ptr = Expand_postprocessing_ii;
             break;
+
         case 1:
             self->muladd_func_ptr = Expand_postprocessing_ai;
             break;
+
         case 2:
             self->muladd_func_ptr = Expand_postprocessing_revai;
             break;
+
         case 10:
             self->muladd_func_ptr = Expand_postprocessing_ia;
             break;
+
         case 11:
             self->muladd_func_ptr = Expand_postprocessing_aa;
             break;
+
         case 12:
             self->muladd_func_ptr = Expand_postprocessing_revaa;
             break;
+
         case 20:
             self->muladd_func_ptr = Expand_postprocessing_ireva;
             break;
+
         case 21:
             self->muladd_func_ptr = Expand_postprocessing_areva;
             break;
+
         case 22:
             self->muladd_func_ptr = Expand_postprocessing_revareva;
             break;
@@ -2141,8 +2401,8 @@ static PyObject *
 Expand_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *inputtmp, *input_streamtmp, *upthreshtmp=NULL, *downthreshtmp=NULL, *ratiotmp=NULL, *risetimetmp=NULL, *falltimetmp=NULL, *multmp=NULL, *addtmp=NULL;
-    PyObject *looktmp=NULL;
+    PyObject *inputtmp, *input_streamtmp, *upthreshtmp = NULL, *downthreshtmp = NULL, *ratiotmp = NULL, *risetimetmp = NULL, *falltimetmp = NULL, *multmp = NULL, *addtmp = NULL;
+    PyObject *looktmp = NULL;
     Expand *self;
     self = (Expand *)type->tp_alloc(type, 0);
 
@@ -2151,13 +2411,13 @@ Expand_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->ratio = PyFloat_FromDouble(2.0);
     self->risetime = PyFloat_FromDouble(0.01);
     self->falltime = PyFloat_FromDouble(0.1);
-	self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
-	self->modebuffer[2] = 0;
-	self->modebuffer[3] = 0;
-	self->modebuffer[4] = 0;
-	self->modebuffer[5] = 0;
-	self->modebuffer[6] = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
+    self->modebuffer[2] = 0;
+    self->modebuffer[3] = 0;
+    self->modebuffer[4] = 0;
+    self->modebuffer[5] = 0;
+    self->modebuffer[6] = 0;
     self->outputAmp = 0;
     self->follow = 0.0;
     self->lh_delay = 0;
@@ -2175,39 +2435,48 @@ Expand_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_INPUT_STREAM
 
-    if (downthreshtmp) {
+    if (downthreshtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setDownThresh", "O", downthreshtmp);
     }
 
-    if (upthreshtmp) {
+    if (upthreshtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setUpThresh", "O", upthreshtmp);
     }
 
-    if (ratiotmp) {
+    if (ratiotmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setRatio", "O", ratiotmp);
     }
 
-    if (risetimetmp) {
+    if (risetimetmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setRiseTime", "O", risetimetmp);
     }
 
-    if (falltimetmp) {
+    if (falltimetmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setFallTime", "O", falltimetmp);
     }
 
-    if (multmp) {
+    if (multmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
 
-    if (addtmp) {
+    if (addtmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
 
     PyObject_CallMethod((PyObject *)self, "setLookAhead", "O", looktmp);
 
     self->lh_size = (long)(0.025 * self->sr + 0.5);
-    self->lh_buffer = (MYFLT *)realloc(self->lh_buffer, (self->lh_size+1) * sizeof(MYFLT));
-    for (i=0; i<(self->lh_size+1); i++) {
+    self->lh_buffer = (MYFLT *)realloc(self->lh_buffer, (self->lh_size + 1) * sizeof(MYFLT));
+
+    for (i = 0; i < (self->lh_size + 1); i++)
+    {
         self->lh_buffer[i] = 0.;
     }
 
@@ -2243,146 +2512,161 @@ static PyObject * Expand_inplace_div(Expand *self, PyObject *arg) { INPLACE_DIV 
 static PyObject *
 Expand_setDownThresh(Expand *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->downthresh);
-	if (isNumber == 1) {
-		self->downthresh = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->downthresh);
+
+    if (isNumber == 1)
+    {
+        self->downthresh = PyNumber_Float(tmp);
         self->modebuffer[5] = 0;
-	}
-	else {
-		self->downthresh = tmp;
+    }
+    else
+    {
+        self->downthresh = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->downthresh, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->downthresh_stream);
         self->downthresh_stream = (Stream *)streamtmp;
-		self->modebuffer[5] = 1;
-	}
+        self->modebuffer[5] = 1;
+    }
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 Expand_setUpThresh(Expand *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->upthresh);
-	if (isNumber == 1) {
-		self->upthresh = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->upthresh);
+
+    if (isNumber == 1)
+    {
+        self->upthresh = PyNumber_Float(tmp);
         self->modebuffer[4] = 0;
-	}
-	else {
-		self->upthresh = tmp;
+    }
+    else
+    {
+        self->upthresh = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->upthresh, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->upthresh_stream);
         self->upthresh_stream = (Stream *)streamtmp;
-		self->modebuffer[4] = 1;
-	}
+        self->modebuffer[4] = 1;
+    }
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 Expand_setRatio(Expand *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->ratio);
-	if (isNumber == 1) {
-		self->ratio = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->ratio);
+
+    if (isNumber == 1)
+    {
+        self->ratio = PyNumber_Float(tmp);
         self->modebuffer[6] = 0;
-	}
-	else {
-		self->ratio = tmp;
+    }
+    else
+    {
+        self->ratio = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->ratio, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->ratio_stream);
         self->ratio_stream = (Stream *)streamtmp;
-		self->modebuffer[6] = 1;
-	}
+        self->modebuffer[6] = 1;
+    }
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 Expand_setRiseTime(Expand *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->risetime);
-	if (isNumber == 1) {
-		self->risetime = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->risetime);
+
+    if (isNumber == 1)
+    {
+        self->risetime = PyNumber_Float(tmp);
         self->modebuffer[2] = 0;
-	}
-	else {
-		self->risetime = tmp;
+    }
+    else
+    {
+        self->risetime = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->risetime, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->risetime_stream);
         self->risetime_stream = (Stream *)streamtmp;
-		self->modebuffer[2] = 1;
-	}
+        self->modebuffer[2] = 1;
+    }
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 Expand_setFallTime(Expand *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->falltime);
-	if (isNumber == 1) {
-		self->falltime = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->falltime);
+
+    if (isNumber == 1)
+    {
+        self->falltime = PyNumber_Float(tmp);
         self->modebuffer[3] = 0;
-	}
-	else {
-		self->falltime = tmp;
+    }
+    else
+    {
+        self->falltime = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->falltime, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->falltime_stream);
         self->falltime_stream = (Stream *)streamtmp;
-		self->modebuffer[3] = 1;
-	}
+        self->modebuffer[3] = 1;
+    }
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
@@ -2392,131 +2676,137 @@ Expand_setLookAhead(Expand *self, PyObject *arg)
 
     ASSERT_ARG_NOT_NULL
 
-	if (PyNumber_Check(arg)) {
-		tmp = PyFloat_AsDouble(arg);
+    if (PyNumber_Check(arg))
+    {
+        tmp = PyFloat_AsDouble(arg);
+
         if (tmp <= 25.0)
             self->lh_delay = (long)(tmp * 0.001 * self->sr);
         else
             PySys_WriteStdout("Expand: lookahead argument must be less than 25.0 ms.\n");
-	}
+    }
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
-static PyMemberDef Expand_members[] = {
-{"server", T_OBJECT_EX, offsetof(Expand, server), 0, "Pyo server."},
-{"stream", T_OBJECT_EX, offsetof(Expand, stream), 0, "Stream object."},
-{"input", T_OBJECT_EX, offsetof(Expand, input), 0, "Input sound object."},
-{"downthresh", T_OBJECT_EX, offsetof(Expand, downthresh), 0, "Expander lower threshold."},
-{"upthresh", T_OBJECT_EX, offsetof(Expand, upthresh), 0, "Expander upper threshold."},
-{"ratio", T_OBJECT_EX, offsetof(Expand, ratio), 0, "Expandor ratio."},
-{"risetime", T_OBJECT_EX, offsetof(Expand, risetime), 0, "Rising portamento time in seconds."},
-{"falltime", T_OBJECT_EX, offsetof(Expand, falltime), 0, "Falling portamento time in seconds."},
-{"mul", T_OBJECT_EX, offsetof(Expand, mul), 0, "Mul factor."},
-{"add", T_OBJECT_EX, offsetof(Expand, add), 0, "Add factor."},
-{NULL}  /* Sentinel */
+static PyMemberDef Expand_members[] =
+{
+    {"server", T_OBJECT_EX, offsetof(Expand, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(Expand, stream), 0, "Stream object."},
+    {"input", T_OBJECT_EX, offsetof(Expand, input), 0, "Input sound object."},
+    {"downthresh", T_OBJECT_EX, offsetof(Expand, downthresh), 0, "Expander lower threshold."},
+    {"upthresh", T_OBJECT_EX, offsetof(Expand, upthresh), 0, "Expander upper threshold."},
+    {"ratio", T_OBJECT_EX, offsetof(Expand, ratio), 0, "Expandor ratio."},
+    {"risetime", T_OBJECT_EX, offsetof(Expand, risetime), 0, "Rising portamento time in seconds."},
+    {"falltime", T_OBJECT_EX, offsetof(Expand, falltime), 0, "Falling portamento time in seconds."},
+    {"mul", T_OBJECT_EX, offsetof(Expand, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(Expand, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
 };
 
-static PyMethodDef Expand_methods[] = {
-{"getServer", (PyCFunction)Expand_getServer, METH_NOARGS, "Returns server object."},
-{"_getStream", (PyCFunction)Expand_getStream, METH_NOARGS, "Returns stream object."},
-{"play", (PyCFunction)Expand_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"out", (PyCFunction)Expand_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-{"stop", (PyCFunction)Expand_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
-{"setDownThresh", (PyCFunction)Expand_setDownThresh, METH_O, "Sets expander lower threshold."},
-{"setUpThresh", (PyCFunction)Expand_setUpThresh, METH_O, "Sets expander upper threshold."},
-{"setRatio", (PyCFunction)Expand_setRatio, METH_O, "Sets expander ratio."},
-{"setRiseTime", (PyCFunction)Expand_setRiseTime, METH_O, "Sets rising portamento time in seconds."},
-{"setFallTime", (PyCFunction)Expand_setFallTime, METH_O, "Sets falling portamento time in seconds."},
-{"setLookAhead", (PyCFunction)Expand_setLookAhead, METH_O, "Sets look ahead time in ms."},
-{"setMul", (PyCFunction)Expand_setMul, METH_O, "Sets mul factor."},
-{"setAdd", (PyCFunction)Expand_setAdd, METH_O, "Sets add factor."},
-{"setSub", (PyCFunction)Expand_setSub, METH_O, "Sets inverse add factor."},
-{"setDiv", (PyCFunction)Expand_setDiv, METH_O, "Sets inverse mul factor."},
-{NULL}  /* Sentinel */
+static PyMethodDef Expand_methods[] =
+{
+    {"getServer", (PyCFunction)Expand_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)Expand_getStream, METH_NOARGS, "Returns stream object."},
+    {"play", (PyCFunction)Expand_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)Expand_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)Expand_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"setDownThresh", (PyCFunction)Expand_setDownThresh, METH_O, "Sets expander lower threshold."},
+    {"setUpThresh", (PyCFunction)Expand_setUpThresh, METH_O, "Sets expander upper threshold."},
+    {"setRatio", (PyCFunction)Expand_setRatio, METH_O, "Sets expander ratio."},
+    {"setRiseTime", (PyCFunction)Expand_setRiseTime, METH_O, "Sets rising portamento time in seconds."},
+    {"setFallTime", (PyCFunction)Expand_setFallTime, METH_O, "Sets falling portamento time in seconds."},
+    {"setLookAhead", (PyCFunction)Expand_setLookAhead, METH_O, "Sets look ahead time in ms."},
+    {"setMul", (PyCFunction)Expand_setMul, METH_O, "Sets mul factor."},
+    {"setAdd", (PyCFunction)Expand_setAdd, METH_O, "Sets add factor."},
+    {"setSub", (PyCFunction)Expand_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)Expand_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
 };
 
-static PyNumberMethods Expand_as_number = {
-(binaryfunc)Expand_add,                         /*nb_add*/
-(binaryfunc)Expand_sub,                         /*nb_subtract*/
-(binaryfunc)Expand_multiply,                    /*nb_multiply*/
-INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
-0,                                              /*nb_remainder*/
-0,                                              /*nb_divmod*/
-0,                                              /*nb_power*/
-0,                                              /*nb_neg*/
-0,                                              /*nb_pos*/
-0,                                              /*(unaryfunc)array_abs,*/
-0,                                              /*nb_nonzero*/
-0,                                              /*nb_invert*/
-0,                                              /*nb_lshift*/
-0,                                              /*nb_rshift*/
-0,                                              /*nb_and*/
-0,                                              /*nb_xor*/
-0,                                              /*nb_or*/
-INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
-0,                                              /*nb_int*/
-0,                                              /*nb_long*/
-0,                                              /*nb_float*/
-INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
-(binaryfunc)Expand_inplace_add,                 /*inplace_add*/
-(binaryfunc)Expand_inplace_sub,                 /*inplace_subtract*/
-(binaryfunc)Expand_inplace_multiply,            /*inplace_multiply*/
-INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
-0,                                              /*inplace_remainder*/
-0,                                              /*inplace_power*/
-0,                                              /*inplace_lshift*/
-0,                                              /*inplace_rshift*/
-0,                                              /*inplace_and*/
-0,                                              /*inplace_xor*/
-0,                                              /*inplace_or*/
-0,                                              /*nb_floor_divide*/
-(binaryfunc)Expand_div,                       /*nb_true_divide*/
-0,                                              /*nb_inplace_floor_divide*/
-(binaryfunc)Expand_inplace_div,                       /*nb_inplace_true_divide*/
-0,                                              /* nb_index */
+static PyNumberMethods Expand_as_number =
+{
+    (binaryfunc)Expand_add,                         /*nb_add*/
+    (binaryfunc)Expand_sub,                         /*nb_subtract*/
+    (binaryfunc)Expand_multiply,                    /*nb_multiply*/
+    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
+    0,                                              /*nb_remainder*/
+    0,                                              /*nb_divmod*/
+    0,                                              /*nb_power*/
+    0,                                              /*nb_neg*/
+    0,                                              /*nb_pos*/
+    0,                                              /*(unaryfunc)array_abs,*/
+    0,                                              /*nb_nonzero*/
+    0,                                              /*nb_invert*/
+    0,                                              /*nb_lshift*/
+    0,                                              /*nb_rshift*/
+    0,                                              /*nb_and*/
+    0,                                              /*nb_xor*/
+    0,                                              /*nb_or*/
+    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
+    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
+    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
+    (binaryfunc)Expand_inplace_add,                 /*inplace_add*/
+    (binaryfunc)Expand_inplace_sub,                 /*inplace_subtract*/
+    (binaryfunc)Expand_inplace_multiply,            /*inplace_multiply*/
+    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
+    0,                                              /*inplace_remainder*/
+    0,                                              /*inplace_power*/
+    0,                                              /*inplace_lshift*/
+    0,                                              /*inplace_rshift*/
+    0,                                              /*inplace_and*/
+    0,                                              /*inplace_xor*/
+    0,                                              /*inplace_or*/
+    0,                                              /*nb_floor_divide*/
+    (binaryfunc)Expand_div,                       /*nb_true_divide*/
+    0,                                              /*nb_inplace_floor_divide*/
+    (binaryfunc)Expand_inplace_div,                       /*nb_inplace_true_divide*/
+    0,                                              /* nb_index */
 };
 
-PyTypeObject ExpandType = {
-PyVarObject_HEAD_INIT(NULL, 0)
-"_pyo.Expand_base",                                   /*tp_name*/
-sizeof(Expand),                                 /*tp_basicsize*/
-0,                                              /*tp_itemsize*/
-(destructor)Expand_dealloc,                     /*tp_dealloc*/
-0,                                              /*tp_print*/
-0,                                              /*tp_getattr*/
-0,                                              /*tp_setattr*/
-0,                                              /*tp_as_async (tp_compare in Python 2)*/
-0,                                              /*tp_repr*/
-&Expand_as_number,                              /*tp_as_number*/
-0,                                              /*tp_as_sequence*/
-0,                                              /*tp_as_mapping*/
-0,                                              /*tp_hash */
-0,                                              /*tp_call*/
-0,                                              /*tp_str*/
-0,                                              /*tp_getattro*/
-0,                                              /*tp_setattro*/
-0,                                              /*tp_as_buffer*/
-Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
-"Expand objects. Expand audio signal by a certain ratio when below or above certain thresholds.", /* tp_doc */
-(traverseproc)Expand_traverse,                  /* tp_traverse */
-(inquiry)Expand_clear,                          /* tp_clear */
-0,                                              /* tp_richcompare */
-0,                                              /* tp_weaklistoffset */
-0,                                              /* tp_iter */
-0,                                              /* tp_iternext */
-Expand_methods,                                 /* tp_methods */
-Expand_members,                                 /* tp_members */
-0,                                              /* tp_getset */
-0,                                              /* tp_base */
-0,                                              /* tp_dict */
-0,                                              /* tp_descr_get */
-0,                                              /* tp_descr_set */
-0,                                              /* tp_dictoffset */
-0,                          /* tp_init */
-0,                                              /* tp_alloc */
-Expand_new,                                     /* tp_new */
+PyTypeObject ExpandType =
+{
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "_pyo.Expand_base",                                   /*tp_name*/
+    sizeof(Expand),                                 /*tp_basicsize*/
+    0,                                              /*tp_itemsize*/
+    (destructor)Expand_dealloc,                     /*tp_dealloc*/
+    0,                                              /*tp_print*/
+    0,                                              /*tp_getattr*/
+    0,                                              /*tp_setattr*/
+    0,                                              /*tp_as_async (tp_compare in Python 2)*/
+    0,                                              /*tp_repr*/
+    &Expand_as_number,                              /*tp_as_number*/
+    0,                                              /*tp_as_sequence*/
+    0,                                              /*tp_as_mapping*/
+    0,                                              /*tp_hash */
+    0,                                              /*tp_call*/
+    0,                                              /*tp_str*/
+    0,                                              /*tp_getattro*/
+    0,                                              /*tp_setattro*/
+    0,                                              /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "Expand objects. Expand audio signal by a certain ratio when below or above certain thresholds.", /* tp_doc */
+    (traverseproc)Expand_traverse,                  /* tp_traverse */
+    (inquiry)Expand_clear,                          /* tp_clear */
+    0,                                              /* tp_richcompare */
+    0,                                              /* tp_weaklistoffset */
+    0,                                              /* tp_iter */
+    0,                                              /* tp_iternext */
+    Expand_methods,                                 /* tp_methods */
+    Expand_members,                                 /* tp_members */
+    0,                                              /* tp_getset */
+    0,                                              /* tp_base */
+    0,                                              /* tp_dict */
+    0,                                              /* tp_descr_get */
+    0,                                              /* tp_descr_set */
+    0,                                              /* tp_dictoffset */
+    0,                          /* tp_init */
+    0,                                              /* tp_alloc */
+    Expand_new,                                     /* tp_new */
 };
 

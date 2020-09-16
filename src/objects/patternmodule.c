@@ -26,7 +26,8 @@
 #include "servermodule.h"
 #include "dummymodule.h"
 
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     PyObject *callable;
     PyObject *time;
@@ -39,72 +40,98 @@ typedef struct {
 } Pattern;
 
 static void
-Pattern_generate_i(Pattern *self) {
+Pattern_generate_i(Pattern *self)
+{
     int i;
     MYFLT tm;
     PyObject *tuple, *result;
 
     tm = PyFloat_AS_DOUBLE(self->time);
 
-    if (self->init) {
+    if (self->init)
+    {
         self->init = 0;
         self->currentTime = tm;
     }
 
-    for (i=0; i<self->bufsize; i++) {
-        if (self->currentTime >= tm) {
+    for (i = 0; i < self->bufsize; i++)
+    {
+        if (self->currentTime >= tm)
+        {
             self->currentTime = 0.0;
-            if (self->arg == Py_None) {
+
+            if (self->arg == Py_None)
+            {
                 result = PyObject_Call((PyObject *)self->callable, PyTuple_New(0), NULL);
-                if (result == NULL) {
+
+                if (result == NULL)
+                {
                     PyErr_Print();
                     return;
                 }
-            } else {
+            }
+            else
+            {
                 tuple = PyTuple_New(1);
                 PyTuple_SET_ITEM(tuple, 0, self->arg);
                 result = PyObject_Call((PyObject *)self->callable, tuple, NULL);
-                if (result == NULL) {
+
+                if (result == NULL)
+                {
                     PyErr_Print();
                     return;
                 }
             }
         }
+
         self->currentTime += self->sampleToSec;
     }
 }
 
 static void
-Pattern_generate_a(Pattern *self) {
+Pattern_generate_a(Pattern *self)
+{
     int i;
     PyObject *tuple, *result;
 
     MYFLT *tm = Stream_getData((Stream *)self->time_stream);
 
-    if (self->init) {
+    if (self->init)
+    {
         self->init = 0;
         self->currentTime = tm[0];
     }
 
-    for (i=0; i<self->bufsize; i++) {
-        if (self->currentTime >= tm[i]) {
+    for (i = 0; i < self->bufsize; i++)
+    {
+        if (self->currentTime >= tm[i])
+        {
             self->currentTime = 0.0;
-            if (self->arg == Py_None) {
+
+            if (self->arg == Py_None)
+            {
                 result = PyObject_Call((PyObject *)self->callable, PyTuple_New(0), NULL);
-                if (result == NULL) {
+
+                if (result == NULL)
+                {
                     PyErr_Print();
                     return;
                 }
-            } else {
+            }
+            else
+            {
                 tuple = PyTuple_New(1);
                 PyTuple_SET_ITEM(tuple, 0, self->arg);
                 result = PyObject_Call((PyObject *)self->callable, tuple, NULL);
-                if (result == NULL) {
+
+                if (result == NULL)
+                {
                     PyErr_Print();
                     return;
                 }
             }
         }
+
         self->currentTime += self->sampleToSec;
     }
 }
@@ -113,10 +140,13 @@ static void
 Pattern_setProcMode(Pattern *self)
 {
     int procmode = self->modebuffer[0];
-    switch (procmode) {
+
+    switch (procmode)
+    {
         case 0:
             self->proc_func_ptr = Pattern_generate_i;
             break;
+
         case 1:
             self->proc_func_ptr = Pattern_generate_a;
             break;
@@ -163,12 +193,12 @@ static PyObject *
 Pattern_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *timetmp=NULL, *calltmp=NULL, *argtmp=NULL;
+    PyObject *timetmp = NULL, *calltmp = NULL, *argtmp = NULL;
     Pattern *self;
     self = (Pattern *)type->tp_alloc(type, 0);
 
     self->time = PyFloat_FromDouble(1.);
-	self->modebuffer[0] = 0;
+    self->modebuffer[0] = 0;
     self->init = 1;
     self->arg = Py_None;
 
@@ -184,21 +214,26 @@ Pattern_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &calltmp, &timetmp, &argtmp))
         Py_RETURN_NONE;
 
-    if (calltmp) {
+    if (calltmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setFunction", "O", calltmp);
     }
 
-    if (timetmp) {
+    if (timetmp)
+    {
         PyObject_CallMethod((PyObject *)self, "setTime", "O", timetmp);
     }
 
-    if (argtmp) {
-        if (PyTuple_Check(argtmp)) {
+    if (argtmp)
+    {
+        if (PyTuple_Check(argtmp))
+        {
             PyObject *argument = PyTuple_New(1);
             PyTuple_SetItem(argument, 0, argtmp);
             PyObject_CallMethod((PyObject *)self, "setArg", "O", argument);
         }
-        else {
+        else
+        {
             PyObject_CallMethod((PyObject *)self, "setArg", "O", argtmp);
         }
     }
@@ -225,131 +260,139 @@ static PyObject * Pattern_stop(Pattern *self, PyObject *args, PyObject *kwds) { 
 static PyObject *
 Pattern_setFunction(Pattern *self, PyObject *arg)
 {
-	PyObject *tmp;
+    PyObject *tmp;
 
-	if (! PyCallable_Check(arg)) {
+    if (! PyCallable_Check(arg))
+    {
         PyErr_SetString(PyExc_TypeError, "The callable attribute must be a valid Python function.");
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
 
     tmp = arg;
     Py_XDECREF(self->callable);
     Py_INCREF(tmp);
     self->callable = tmp;
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 Pattern_setTime(Pattern *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
+    PyObject *tmp, *streamtmp;
 
     ASSERT_ARG_NOT_NULL
 
-	int isNumber = PyNumber_Check(arg);
+    int isNumber = PyNumber_Check(arg);
 
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->time);
-	if (isNumber == 1) {
-		self->time = PyNumber_Float(tmp);
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->time);
+
+    if (isNumber == 1)
+    {
+        self->time = PyNumber_Float(tmp);
         self->modebuffer[0] = 0;
-	}
-	else {
-		self->time = tmp;
+    }
+    else
+    {
+        self->time = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->time, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->time_stream);
         self->time_stream = (Stream *)streamtmp;
-		self->modebuffer[0] = 1;
-	}
+        self->modebuffer[0] = 1;
+    }
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 Pattern_setArg(Pattern *self, PyObject *arg)
 {
-	PyObject *tmp;
+    PyObject *tmp;
 
     tmp = arg;
     Py_XDECREF(self->arg);
     Py_INCREF(tmp);
     self->arg = tmp;
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
-static PyMemberDef Pattern_members[] = {
-{"server", T_OBJECT_EX, offsetof(Pattern, server), 0, "Pyo server."},
-{"stream", T_OBJECT_EX, offsetof(Pattern, stream), 0, "Stream object."},
-{"time", T_OBJECT_EX, offsetof(Pattern, time), 0, "Pattern time factor."},
-{NULL}  /* Sentinel */
+static PyMemberDef Pattern_members[] =
+{
+    {"server", T_OBJECT_EX, offsetof(Pattern, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(Pattern, stream), 0, "Stream object."},
+    {"time", T_OBJECT_EX, offsetof(Pattern, time), 0, "Pattern time factor."},
+    {NULL}  /* Sentinel */
 };
 
-static PyMethodDef Pattern_methods[] = {
-{"getServer", (PyCFunction)Pattern_getServer, METH_NOARGS, "Returns server object."},
-{"_getStream", (PyCFunction)Pattern_getStream, METH_NOARGS, "Returns stream object."},
-{"play", (PyCFunction)Pattern_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)Pattern_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
-{"setTime", (PyCFunction)Pattern_setTime, METH_O, "Sets time factor."},
-{"setFunction", (PyCFunction)Pattern_setFunction, METH_O, "Sets the function to be called."},
-{"setArg", (PyCFunction)Pattern_setArg, METH_O, "Sets function's argument."},
-{NULL}  /* Sentinel */
+static PyMethodDef Pattern_methods[] =
+{
+    {"getServer", (PyCFunction)Pattern_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)Pattern_getStream, METH_NOARGS, "Returns stream object."},
+    {"play", (PyCFunction)Pattern_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)Pattern_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"setTime", (PyCFunction)Pattern_setTime, METH_O, "Sets time factor."},
+    {"setFunction", (PyCFunction)Pattern_setFunction, METH_O, "Sets the function to be called."},
+    {"setArg", (PyCFunction)Pattern_setArg, METH_O, "Sets function's argument."},
+    {NULL}  /* Sentinel */
 };
 
-PyTypeObject PatternType = {
-PyVarObject_HEAD_INIT(NULL, 0)
-"_pyo.Pattern_base",         /*tp_name*/
-sizeof(Pattern),         /*tp_basicsize*/
-0,                         /*tp_itemsize*/
-(destructor)Pattern_dealloc, /*tp_dealloc*/
-0,                         /*tp_print*/
-0,                         /*tp_getattr*/
-0,                         /*tp_setattr*/
-0,                         /*tp_as_async (tp_compare in Python 2)*/
-0,                         /*tp_repr*/
-0,             /*tp_as_number*/
-0,                         /*tp_as_sequence*/
-0,                         /*tp_as_mapping*/
-0,                         /*tp_hash */
-0,                         /*tp_call*/
-0,                         /*tp_str*/
-0,                         /*tp_getattro*/
-0,                         /*tp_setattro*/
-0,                         /*tp_as_buffer*/
-Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
-"Pattern objects. Create a metronome.",           /* tp_doc */
-(traverseproc)Pattern_traverse,   /* tp_traverse */
-(inquiry)Pattern_clear,           /* tp_clear */
-0,		               /* tp_richcompare */
-0,		               /* tp_weaklistoffset */
-0,		               /* tp_iter */
-0,		               /* tp_iternext */
-Pattern_methods,             /* tp_methods */
-Pattern_members,             /* tp_members */
-0,                      /* tp_getset */
-0,                         /* tp_base */
-0,                         /* tp_dict */
-0,                         /* tp_descr_get */
-0,                         /* tp_descr_set */
-0,                         /* tp_dictoffset */
-0,      /* tp_init */
-0,                         /* tp_alloc */
-Pattern_new,                 /* tp_new */
+PyTypeObject PatternType =
+{
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "_pyo.Pattern_base",         /*tp_name*/
+    sizeof(Pattern),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)Pattern_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
+    0,                         /*tp_repr*/
+    0,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "Pattern objects. Create a metronome.",           /* tp_doc */
+    (traverseproc)Pattern_traverse,   /* tp_traverse */
+    (inquiry)Pattern_clear,           /* tp_clear */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
+    Pattern_methods,             /* tp_methods */
+    Pattern_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,      /* tp_init */
+    0,                         /* tp_alloc */
+    Pattern_new,                 /* tp_new */
 };
 
 /***************/
 /**** Score ****/
 /***************/
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     PyObject *input;
     Stream *input_stream;
@@ -359,14 +402,18 @@ typedef struct {
 } Score;
 
 static void
-Score_selector(Score *self) {
+Score_selector(Score *self)
+{
     int i, inval;
 
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
 
-    for (i=0; i<self->bufsize; i++) {
+    for (i = 0; i < self->bufsize; i++)
+    {
         inval = (int)in[i];
-        if (inval != self->last_value) {
+
+        if (inval != self->last_value)
+        {
             sprintf(self->curfname, "%s%i()\n", self->fname, inval);
             PyRun_SimpleString(self->curfname);
             self->last_value = inval;
@@ -446,65 +493,69 @@ static PyObject * Score_getStream(Score* self) { GET_STREAM };
 static PyObject * Score_play(Score *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Score_stop(Score *self, PyObject *args, PyObject *kwds) { STOP };
 
-static PyMemberDef Score_members[] = {
-{"server", T_OBJECT_EX, offsetof(Score, server), 0, "Pyo server."},
-{"stream", T_OBJECT_EX, offsetof(Score, stream), 0, "Stream object."},
-{NULL}  /* Sentinel */
+static PyMemberDef Score_members[] =
+{
+    {"server", T_OBJECT_EX, offsetof(Score, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(Score, stream), 0, "Stream object."},
+    {NULL}  /* Sentinel */
 };
 
-static PyMethodDef Score_methods[] = {
-{"getServer", (PyCFunction)Score_getServer, METH_NOARGS, "Returns server object."},
-{"_getStream", (PyCFunction)Score_getStream, METH_NOARGS, "Returns stream object."},
-{"play", (PyCFunction)Score_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)Score_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
-{NULL}  /* Sentinel */
+static PyMethodDef Score_methods[] =
+{
+    {"getServer", (PyCFunction)Score_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)Score_getStream, METH_NOARGS, "Returns stream object."},
+    {"play", (PyCFunction)Score_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)Score_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {NULL}  /* Sentinel */
 };
 
-PyTypeObject ScoreType = {
-PyVarObject_HEAD_INIT(NULL, 0)
-"_pyo.Score_base",         /*tp_name*/
-sizeof(Score),         /*tp_basicsize*/
-0,                         /*tp_itemsize*/
-(destructor)Score_dealloc, /*tp_dealloc*/
-0,                         /*tp_print*/
-0,                         /*tp_getattr*/
-0,                         /*tp_setattr*/
-0,                         /*tp_as_async (tp_compare in Python 2)*/
-0,                         /*tp_repr*/
-0,             /*tp_as_number*/
-0,                         /*tp_as_sequence*/
-0,                         /*tp_as_mapping*/
-0,                         /*tp_hash */
-0,                         /*tp_call*/
-0,                         /*tp_str*/
-0,                         /*tp_getattro*/
-0,                         /*tp_setattro*/
-0,                         /*tp_as_buffer*/
-Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
-"Score objects. Calls numbered function from an integer count.",           /* tp_doc */
-(traverseproc)Score_traverse,   /* tp_traverse */
-(inquiry)Score_clear,           /* tp_clear */
-0,		               /* tp_richcompare */
-0,		               /* tp_weaklistoffset */
-0,		               /* tp_iter */
-0,		               /* tp_iternext */
-Score_methods,             /* tp_methods */
-Score_members,             /* tp_members */
-0,                      /* tp_getset */
-0,                         /* tp_base */
-0,                         /* tp_dict */
-0,                         /* tp_descr_get */
-0,                         /* tp_descr_set */
-0,                         /* tp_dictoffset */
-0,      /* tp_init */
-0,                         /* tp_alloc */
-Score_new,                 /* tp_new */
+PyTypeObject ScoreType =
+{
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "_pyo.Score_base",         /*tp_name*/
+    sizeof(Score),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)Score_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
+    0,                         /*tp_repr*/
+    0,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "Score objects. Calls numbered function from an integer count.",           /* tp_doc */
+    (traverseproc)Score_traverse,   /* tp_traverse */
+    (inquiry)Score_clear,           /* tp_clear */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
+    Score_methods,             /* tp_methods */
+    Score_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,      /* tp_init */
+    0,                         /* tp_alloc */
+    Score_new,                 /* tp_new */
 };
 
 /*****************/
 /*** CallAfter ***/
 /*****************/
-typedef struct {
+typedef struct
+{
     pyo_audio_HEAD
     PyObject *callable;
     PyObject *arg;
@@ -514,25 +565,34 @@ typedef struct {
 } CallAfter;
 
 static void
-CallAfter_generate(CallAfter *self) {
+CallAfter_generate(CallAfter *self)
+{
     int i;
     PyObject *tuple, *result;
 
-    for (i=0; i<self->bufsize; i++) {
-        if (self->currentTime >= self->time) {
+    for (i = 0; i < self->bufsize; i++)
+    {
+        if (self->currentTime >= self->time)
+        {
             if (self->stream != NULL)
                 PyObject_CallMethod((PyObject *)self, "stop", NULL);
+
             if (self->arg == Py_None)
                 tuple = PyTuple_New(0);
-            else {
+            else
+            {
                 tuple = PyTuple_New(1);
                 PyTuple_SET_ITEM(tuple, 0, self->arg);
             }
+
             result = PyObject_Call(self->callable, tuple, NULL);
+
             if (result == NULL)
                 PyErr_Print();
+
             break;
         }
+
         self->currentTime += self->sampleToSec;
     }
 }
@@ -579,7 +639,7 @@ static PyObject *
 CallAfter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *calltmp=NULL, *argtmp=NULL;
+    PyObject *calltmp = NULL, *argtmp = NULL;
     CallAfter *self;
     self = (CallAfter *)type->tp_alloc(type, 0);
 
@@ -601,7 +661,8 @@ CallAfter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyCallable_Check(calltmp))
         Py_RETURN_NONE;
 
-    if (argtmp) {
+    if (argtmp)
+    {
         Py_DECREF(self->arg);
         Py_INCREF(argtmp);
         self->arg = argtmp;
@@ -621,90 +682,95 @@ CallAfter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static PyObject * CallAfter_getServer(CallAfter* self) { GET_SERVER };
 static PyObject * CallAfter_getStream(CallAfter* self) { GET_STREAM };
 
-static PyObject * CallAfter_play(CallAfter *self, PyObject *args, PyObject *kwds) { 
+static PyObject * CallAfter_play(CallAfter *self, PyObject *args, PyObject *kwds)
+{
     self->currentTime = 0.;
-    PLAY 
+    PLAY
 };
 static PyObject * CallAfter_stop(CallAfter *self, PyObject *args, PyObject *kwds) { STOP };
 
 static PyObject *
 CallAfter_setTime(CallAfter *self, PyObject *arg)
 {
-    if (PyNumber_Check(arg)) {
+    if (PyNumber_Check(arg))
+    {
         self->time = PyFloat_AsDouble(arg);
     }
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 CallAfter_setArg(CallAfter *self, PyObject *arg)
 {
-	PyObject *tmp;
+    PyObject *tmp;
 
     tmp = arg;
     Py_XDECREF(self->arg);
     Py_INCREF(tmp);
     self->arg = tmp;
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
-static PyMemberDef CallAfter_members[] = {
-{"server", T_OBJECT_EX, offsetof(CallAfter, server), 0, "Pyo server."},
-{"stream", T_OBJECT_EX, offsetof(CallAfter, stream), 0, "Stream object."},
-{NULL}  /* Sentinel */
+static PyMemberDef CallAfter_members[] =
+{
+    {"server", T_OBJECT_EX, offsetof(CallAfter, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(CallAfter, stream), 0, "Stream object."},
+    {NULL}  /* Sentinel */
 };
 
-static PyMethodDef CallAfter_methods[] = {
-{"getServer", (PyCFunction)CallAfter_getServer, METH_NOARGS, "Returns server object."},
-{"_getStream", (PyCFunction)CallAfter_getStream, METH_NOARGS, "Returns stream object."},
-{"play", (PyCFunction)CallAfter_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)CallAfter_stop, METH_VARARGS|METH_KEYWORDS, "Stops computing."},
-{"setTime", (PyCFunction)CallAfter_setTime, METH_O, "Sets time argument."},
-{"setArg", (PyCFunction)CallAfter_setArg, METH_O, "Sets function's argument."},
-{NULL}  /* Sentinel */
+static PyMethodDef CallAfter_methods[] =
+{
+    {"getServer", (PyCFunction)CallAfter_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)CallAfter_getStream, METH_NOARGS, "Returns stream object."},
+    {"play", (PyCFunction)CallAfter_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)CallAfter_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"setTime", (PyCFunction)CallAfter_setTime, METH_O, "Sets time argument."},
+    {"setArg", (PyCFunction)CallAfter_setArg, METH_O, "Sets function's argument."},
+    {NULL}  /* Sentinel */
 };
 
-PyTypeObject CallAfterType = {
-PyVarObject_HEAD_INIT(NULL, 0)
-"_pyo.CallAfter_base",         /*tp_name*/
-sizeof(CallAfter),         /*tp_basicsize*/
-0,                         /*tp_itemsize*/
-(destructor)CallAfter_dealloc, /*tp_dealloc*/
-0,                         /*tp_print*/
-0,                         /*tp_getattr*/
-0,                         /*tp_setattr*/
-0,                         /*tp_as_async (tp_compare in Python 2)*/
-0,                         /*tp_repr*/
-0,             /*tp_as_number*/
-0,                         /*tp_as_sequence*/
-0,                         /*tp_as_mapping*/
-0,                         /*tp_hash */
-0,                         /*tp_call*/
-0,                         /*tp_str*/
-0,                         /*tp_getattro*/
-0,                         /*tp_setattro*/
-0,                         /*tp_as_buffer*/
-Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
-"CallAfter objects. Create a metronome.",           /* tp_doc */
-(traverseproc)CallAfter_traverse,   /* tp_traverse */
-(inquiry)CallAfter_clear,           /* tp_clear */
-0,		               /* tp_richcompare */
-0,		               /* tp_weaklistoffset */
-0,		               /* tp_iter */
-0,		               /* tp_iternext */
-CallAfter_methods,             /* tp_methods */
-CallAfter_members,             /* tp_members */
-0,                      /* tp_getset */
-0,                         /* tp_base */
-0,                         /* tp_dict */
-0,                         /* tp_descr_get */
-0,                         /* tp_descr_set */
-0,                         /* tp_dictoffset */
-0,      /* tp_init */
-0,                         /* tp_alloc */
-CallAfter_new,                 /* tp_new */
+PyTypeObject CallAfterType =
+{
+    PyVarObject_HEAD_INIT(NULL, 0)
+    "_pyo.CallAfter_base",         /*tp_name*/
+    sizeof(CallAfter),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)CallAfter_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_as_async (tp_compare in Python 2)*/
+    0,                         /*tp_repr*/
+    0,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "CallAfter objects. Create a metronome.",           /* tp_doc */
+    (traverseproc)CallAfter_traverse,   /* tp_traverse */
+    (inquiry)CallAfter_clear,           /* tp_clear */
+    0,                     /* tp_richcompare */
+    0,                     /* tp_weaklistoffset */
+    0,                     /* tp_iter */
+    0,                     /* tp_iternext */
+    CallAfter_methods,             /* tp_methods */
+    CallAfter_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,      /* tp_init */
+    0,                         /* tp_alloc */
+    CallAfter_new,                 /* tp_new */
 };
