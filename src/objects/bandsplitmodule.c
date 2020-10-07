@@ -1769,7 +1769,7 @@ MultiBandMain_setFrequencies(MultiBandMain* self, PyObject *arg)
 {
     int i, bounds = self->nbands - 1;
 
-    if PyList_Check(arg)
+    if (PyList_Check(arg))
     {
         if (PyList_Size(arg) == bounds)
         {
