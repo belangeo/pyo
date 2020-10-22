@@ -74,7 +74,7 @@ Alphabetical class reference
 - :py:class:`Euclide` :     Euclidean rhythm generator.
 - :py:class:`EventCall` :     Calls a function, with any number of arguments, and uses its return value.
 - :py:class:`EventChoice` :     Plays values randomly chosen from a list.
-- :py:class:`EventCoditional` : 
+- :py:class:`EventConditional` :     Executes one generator or the other depending on the result of a condition.
 - :py:class:`EventDrunk` :     Performs a random walk over a list of values.
 - :py:class:`EventDummy` : An EventGenerator created internally to handle arithmetic on Events.
 - :py:class:`EventFilter` : An EventGenerator created internally to handle simple filter on Events.

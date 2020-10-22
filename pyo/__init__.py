@@ -438,7 +438,7 @@ OBJECTS_TREE = {
                     "EventDrunk",
                     "EventNoise",
                     "EventCall",
-                    "EventCoditional",
+                    "EventConditional",
                     "Events",
                 ]
             ),
