@@ -16,8 +16,9 @@ Roadmap 1.0.4
 
 - Deprecation warning:
 
-/usr/local/lib/python3.7/dist-packages/pyo/lib/_core.py:1108: DeprecationWarning: inspect.getargspec() is deprecated since Python 3.0, use inspect.signature() or inspect.getfullargspec()
-  args, _, _, _ = inspect.getargspec(init)
+/usr/local/lib/python3.7/dist-packages/pyo/lib/_core.py:686: DeprecationWarning: `formatargspec` is deprecated since Python 3.5. 
+Use `signature` and the `Signature` object directly
+  arg = inspect.formatargspec(arg, varargs, varkw, defaults, kwonlyargs, kwonlydefaults, annotations, formatvalue=removeExtraDecimals)
 
 Internal
 --------

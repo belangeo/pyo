@@ -682,8 +682,8 @@ def class_args(cls):
     try:
         # Try for a class __init__ function
         init = getattr(cls, "__init__")
-        arg, varargs, varkw, defaults = inspect.getargspec(init)
-        arg = inspect.formatargspec(arg, varargs, varkw, defaults, formatvalue=removeExtraDecimals)
+        arg, varargs, varkw, defaults, kwonlyargs, kwonlydefaults, annotations = inspect.getfullargspec(init)
+        arg = inspect.formatargspec(arg, varargs, varkw, defaults, kwonlyargs, kwonlydefaults, annotations, formatvalue=removeExtraDecimals)
         arg = arg.replace("self, ", "")
         return name + arg
     except TypeError:
@@ -1112,7 +1112,7 @@ class PyoObjectBase(object):
 
     def __dir__(self):
         init = getattr(self.__class__, "__init__")
-        args, _, _, _ = inspect.getargspec(init)
+        args, _, _, _, _, _, _ = inspect.getfullargspec(init)
         args = [a for a in args if hasattr(self.__class__, a) and a != "self"]
         return args
 
