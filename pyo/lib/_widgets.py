@@ -116,7 +116,7 @@ def createRootWindow():
             win = wx.App()
             return win
         else:
-            return None
+            return wx.GetApp()
 
 
 def tkCloseWindow(win):
