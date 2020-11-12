@@ -17,7 +17,7 @@ benefits of a mature, and widely used, general programming language.
 
 Systems : macOS (10.10+), linux, Windows (XP, Vista, 7, 8, 10)
 
-Python versions : 2.7, 3.5+
+Python versions : 2.7, 3.6, 3.7, 3.8.
 
 **For more resources, informations and documentation**, visit the 
 [PYO OFFICIAL WEB SITE](http://ajaxsoundstudio.com/pyo/).
