@@ -1065,6 +1065,13 @@ class PyoObjectBase(object):
         self._stop_delay = x
         return self
 
+    def getStopDelay(self):
+        """
+        Return the waiting time applied when calling the stop method on this object.
+
+        """
+        return self._stop_delay
+
     def __iter__(self):
         self.__index = 0
         return self

@@ -11,7 +11,14 @@ Roadmap 1.0.4
 - Install m_pyo.h configured for the target version in pythonlib/pyo/include/.
 
 - Update pyo-linux-wheels to use manylinux2010 or manylinux2014 image instead of manylinux1.
- 
+
+- unit testing
+
+- Deprecation warning:
+
+/usr/local/lib/python3.7/dist-packages/pyo/lib/_core.py:1108: DeprecationWarning: inspect.getargspec() is deprecated since Python 3.0, use inspect.signature() or inspect.getfullargspec()
+  args, _, _, _ = inspect.getargspec(init)
+
 Internal
 --------
 
