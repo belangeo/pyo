@@ -11,8 +11,8 @@ Dependencies
 
 To compile pyo with all its features, you will need the following dependencies: 
 
-- `Python 2.7 or 3.5 or higher <https://www.python.org/downloads/>`_.
-- `WxPython 3.0.2.0 (classic) or 4.0.6 (phoenix, recommended) <https://www.wxpython.org/pages/downloads/>`_
+- `Python 3.6, 3.7 or 3.8 <https://www.python.org/downloads/>`_.
+- `WxPython Phoenix 4.1.0 or higher <https://www.wxpython.org/pages/downloads/>`_
 - `Portaudio <http://www.portaudio.com/>`_
 - `Portmidi <http://portmedia.sourceforge.net/portmidi/>`_
 - `libsndfile <http://www.mega-nerd.com/libsndfile/>`_
@@ -136,23 +136,9 @@ To compile both 32-bit and 64-bit resolutions on macOS with Jack support (Jack h
 Debian & Ubuntu (apt-get)
 -------------------------
 
-Under Debian & Ubuntu you can type the following commands to get pyo up 
-and running.
+Under Debian & Ubuntu you can type the following commands to get pyo up and running.
 
-For Python 2.7
-************** 
-
-.. code-block:: bash
-
-    sudo apt-get install libjack-jackd2-dev libportmidi-dev portaudio19-dev liblo-dev libsndfile-dev
-    sudo apt-get install python-dev python-tk python-imaging-tk python-wxgtk3.0
-    git clone https://github.com/belangeo/pyo.git
-    cd pyo
-    sudo python setup.py install --use-jack --use-double
-
-* On Ubuntu system prior to vivid, wxpython 3.0 must be compiled from sources.
-
-For Python 3.5 and higher
+For Python 3.6 and higher
 *************************
 
 .. code-block:: bash
@@ -163,7 +149,7 @@ For Python 3.5 and higher
     cd pyo
     sudo python3 setup.py install --use-jack --use-double
 
-If you want to be able to use all of pyo's gui widgets, you will need wxPython Phoenix. 
+If you want to be able to use all of pyo's gui widgets, you will need wxPython Phoenix 4.1.0. 
 
 - To install wxPython with pip on linux, follow the instructions on the wxPython's `downloads <https://wxpython.org/pages/downloads/>`_ page. 
 
@@ -179,7 +165,7 @@ Second step, if you want to be able to use all of pyo's gui widgets, you will ne
 
 .. code-block:: bash
 
-    sudo pip3 install -U wxPython
+    sudo pip3 install -U wxPython==4.1.0
 
 The third step is to install `Homebrew <http://brew.sh/>`_.
 
