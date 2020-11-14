@@ -664,37 +664,34 @@ def removeExtraDecimals(x):
 
 def class_args(cls):
     """
-    Returns the init line of a class reference.
+    Returns the signature of a pyo class or function.
 
-    This function takes a class reference (not an instance of that class)
-    as input and returns the init line of that class with the default values.
+    This function takes a class or a function reference as input and returns 
+    its signature with the default values.
+
+    If the operation can't succeed, the function silently fails and returns
+    an empty string.
 
     :Args:
 
-        cls: PyoObject class
-            Class reference of the desired object's init line.
+        cls: callable (class or function from pyo lib)
+            Reference of the class or function for which the signature is retrieved.
 
     >>> print(class_args(Sine))
     >>> 'Sine(freq=1000, phase=0, mul=1, add=0)'
 
     """
-    name = cls.__name__
     try:
-        # Try for a class __init__ function
-        init = getattr(cls, "__init__")
-        arg, varargs, varkw, defaults, kwonlyargs, kwonlydefaults, annotations = inspect.getfullargspec(init)
-        arg = inspect.formatargspec(arg, varargs, varkw, defaults, kwonlyargs, kwonlydefaults, annotations, formatvalue=removeExtraDecimals)
-        arg = arg.replace("self, ", "")
-        return name + arg
-    except TypeError:
+        arg = str(inspect.signature(cls))
+        return cls.__name__ + arg
+    except:
         try:
-            # Try for a function
+            # Try for a built-in function
+            name = cls.__name__
             if name in FUNCTIONS_INIT_LINES:
                 return FUNCTIONS_INIT_LINES[name]
         except:
-            print("class_args was unable to retrieve the init line of the object as an argument.")
-        return ""
-
+            return ""
 
 def beatToDur(beat, bpm=120):
     """

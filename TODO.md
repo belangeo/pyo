@@ -14,12 +14,6 @@ Roadmap 1.0.4
 
 - unit testing
 
-- Deprecation warning:
-
-/usr/local/lib/python3.7/dist-packages/pyo/lib/_core.py:686: DeprecationWarning: `formatargspec` is deprecated since Python 3.5. 
-Use `signature` and the `Signature` object directly
-  arg = inspect.formatargspec(arg, varargs, varkw, defaults, kwonlyargs, kwonlydefaults, annotations, formatvalue=removeExtraDecimals)
-
 Internal
 --------
 
