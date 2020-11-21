@@ -148,6 +148,12 @@ Stream_getId(Stream *self)
     return Py_BuildValue("i", self->sid);
 }
 
+static PyObject *
+Stream_getOutputChnl(Stream *self)
+{
+    return Py_BuildValue("i", self->chnl);
+}
+
 PyObject *
 Stream_getStreamObject(Stream *self)
 {
@@ -189,6 +195,7 @@ static PyMethodDef Stream_methods[] =
 {
     {"getValue", (PyCFunction)Stream_getValue, METH_NOARGS, "Returns the first sample of the current buffer."},
     {"getId", (PyCFunction)Stream_getId, METH_NOARGS, "Returns the ID of assigned to this stream."},
+    {"getOutputChannel", (PyCFunction)Stream_getOutputChnl, METH_NOARGS, "Returns the output channel number, starting at 0."},
     {"getStreamObject", (PyCFunction)Stream_getStreamObject, METH_NOARGS, "Returns the object associated with this stream."},
     {"isPlaying", (PyCFunction)Stream_isPlaying, METH_NOARGS, "Returns True if the stream is playing, otherwise, returns False."},
     {"isOutputting", (PyCFunction)Stream_isOutputting, METH_NOARGS, "Returns True if the stream outputs to dac, otherwise, returns False."},
