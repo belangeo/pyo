@@ -1404,7 +1404,7 @@ class PyoObject(PyoObjectBase):
 
     def isPlaying(self, all=False):
         """
-        Returns True if the object is playing, otherwise, returns False.
+        Returns True if the object is currently playing, otherwise, returns False.
 
         :Args:
 

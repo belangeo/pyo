@@ -164,7 +164,7 @@ Stream_getStreamObject(Stream *self)
 PyObject *
 Stream_isPlaying(Stream *self)
 {
-    if (self->active || self->todac)
+    if (self->active)
     {
         Py_INCREF(Py_True);
         return Py_True;

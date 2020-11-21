@@ -1727,11 +1727,17 @@ extern PyTypeObject MMLZStreamType;
         Stream_setStreamActive(self->stream, 1); \
     } \
     else { \
-        Stream_setStreamActive(self->stream, 0); \
-        for (i=0; i<self->bufsize; i++) \
-            self->data[i] = 0.0; \
         nearestBuf = (int)roundf((del * self->sr) / self->bufsize); \
-        Stream_setBufferCountWait(self->stream, nearestBuf); \
+        if (nearestBuf <= 0) { \
+            Stream_setBufferCountWait(self->stream, 0); \
+            Stream_setStreamActive(self->stream, 1); \
+        } \
+        else { \
+            Stream_setStreamActive(self->stream, 0); \
+            for (i=0; i<self->bufsize; i++) \
+                self->data[i] = 0.0; \
+            Stream_setBufferCountWait(self->stream, nearestBuf); \
+        } \
     } \
     if (dur == 0) \
         Stream_setDuration(self->stream, 0); \
