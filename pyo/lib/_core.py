@@ -329,7 +329,7 @@ def upsamp(path, outfile, up=4, order=128):
     >>> import os
     >>> home = os.path.expanduser('~')
     >>> f = SNDS_PATH+'/transparent.aif'
-    >>> # upsample a signal 3 times
+    >>> # upsample a signal 2 times
     >>> upfile = os.path.join(home, 'trans_upsamp_2.aif')
     >>> upsamp(f, upfile, 2, 256)
     >>> # downsample the upsampled signal 3 times
@@ -361,7 +361,7 @@ def downsamp(path, outfile, down=4, order=128):
     >>> import os
     >>> home = os.path.expanduser('~')
     >>> f = SNDS_PATH+'/transparent.aif'
-    >>> # upsample a signal 3 times
+    >>> # upsample a signal 2 times
     >>> upfile = os.path.join(home, 'trans_upsamp_2.aif')
     >>> upsamp(f, upfile, 2, 256)
     >>> # downsample the upsampled signal 3 times
@@ -1605,6 +1605,9 @@ class PyoObject(PyoObjectBase):
         else:
             if chnl < 0:
                 [obj.out(i * inc, wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(listscramble(self._base_objs))]
+                # prevent normal order to happen.
+                while [obj._getStream().getOutputChannel() for obj in self._base_objs] == list(range(len(self._base_objs))):
+                    [obj.out(i * inc, wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(listscramble(self._base_objs))]
             else:
                 [obj.out(chnl + i * inc, wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._base_objs)]
         return self
