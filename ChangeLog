@@ -1,3 +1,7 @@
+2020-11-23 belangeo <belangeo@gmail.com>
+
+    * Added a level argument to PyoTableObject.normalize method.
+
 2020-11-12 belangeo <belangeo@gmail.com>
 
     * Added PyoObjectBase.getStopDelay() method (mainly for unit testing).

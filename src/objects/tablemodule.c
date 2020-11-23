@@ -271,7 +271,7 @@ static PyObject * HarmTable_getServer(HarmTable* self) { GET_SERVER };
 static PyObject * HarmTable_getTableStream(HarmTable* self) { GET_TABLE_STREAM };
 static PyObject * HarmTable_setData(HarmTable *self, PyObject *arg) { SET_TABLE_DATA };
 static PyObject * HarmTable_reset(HarmTable *self) { TABLE_RESET };
-static PyObject * HarmTable_normalize(HarmTable *self) { NORMALIZE };
+static PyObject * HarmTable_normalize(HarmTable *self, PyObject *args, PyObject *kwds) { NORMALIZE };
 static PyObject * HarmTable_removeDC(HarmTable *self) { REMOVE_DC };
 static PyObject * HarmTable_reverse(HarmTable *self) { REVERSE };
 static PyObject * HarmTable_invert(HarmTable *self) { INVERT };
@@ -365,7 +365,7 @@ static PyMethodDef HarmTable_methods[] =
     {"getTable", (PyCFunction)HarmTable_getTable, METH_NOARGS, "Returns a list of table samples."},
     {"getViewTable", (PyCFunction)HarmTable_getViewTable, METH_VARARGS | METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
     {"getTableStream", (PyCFunction)HarmTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
-    {"normalize", (PyCFunction)HarmTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
+    {"normalize", (PyCFunction)HarmTable_normalize, METH_VARARGS | METH_KEYWORDS, "Normalize table samples"},
     {"reset", (PyCFunction)HarmTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
     {"removeDC", (PyCFunction)HarmTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
     {"reverse", (PyCFunction)HarmTable_reverse, METH_NOARGS, "Reverse the table's data in time."},
@@ -601,7 +601,7 @@ ChebyTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static PyObject * ChebyTable_getServer(ChebyTable* self) { GET_SERVER };
 static PyObject * ChebyTable_getTableStream(ChebyTable* self) { GET_TABLE_STREAM };
 static PyObject * ChebyTable_setData(ChebyTable *self, PyObject *arg) { SET_TABLE_DATA };
-static PyObject * ChebyTable_normalize(ChebyTable *self) { NORMALIZE };
+static PyObject * ChebyTable_normalize(ChebyTable *self, PyObject *args, PyObject *kwds) { NORMALIZE };
 static PyObject * ChebyTable_reset(ChebyTable *self) { TABLE_RESET };
 static PyObject * ChebyTable_removeDC(ChebyTable *self) { REMOVE_DC };
 static PyObject * ChebyTable_reverse(ChebyTable *self) { REVERSE };
@@ -798,7 +798,7 @@ static PyMethodDef ChebyTable_methods[] =
     {"getViewTable", (PyCFunction)ChebyTable_getViewTable, METH_VARARGS | METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
     {"getTableStream", (PyCFunction)ChebyTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
     {"setData", (PyCFunction)ChebyTable_setData, METH_O, "Sets the table from samples in a text file."},
-    {"normalize", (PyCFunction)ChebyTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
+    {"normalize", (PyCFunction)ChebyTable_normalize, METH_VARARGS | METH_KEYWORDS, "Normalize table samples"},
     {"reset", (PyCFunction)ChebyTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
     {"removeDC", (PyCFunction)ChebyTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
     {"reverse", (PyCFunction)ChebyTable_reverse, METH_NOARGS, "Reverse the table's data."},
@@ -943,7 +943,7 @@ HannTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static PyObject * HannTable_getServer(HannTable* self) { GET_SERVER };
 static PyObject * HannTable_getTableStream(HannTable* self) { GET_TABLE_STREAM };
 static PyObject * HannTable_setData(HannTable *self, PyObject *arg) { SET_TABLE_DATA };
-static PyObject * HannTable_normalize(HannTable *self) { NORMALIZE };
+static PyObject * HannTable_normalize(HannTable *self, PyObject *args, PyObject *kwds) { NORMALIZE };
 static PyObject * HannTable_reset(HannTable *self) { TABLE_RESET };
 static PyObject * HannTable_removeDC(HannTable *self) { REMOVE_DC };
 static PyObject * HannTable_reverse(HannTable *self) { REVERSE };
@@ -1016,7 +1016,7 @@ static PyMethodDef HannTable_methods[] =
     {"getViewTable", (PyCFunction)HannTable_getViewTable, METH_VARARGS | METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
     {"getTableStream", (PyCFunction)HannTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
     {"setData", (PyCFunction)HannTable_setData, METH_O, "Sets the table from samples in a text file."},
-    {"normalize", (PyCFunction)HannTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
+    {"normalize", (PyCFunction)HannTable_normalize, METH_VARARGS | METH_KEYWORDS, "Normalize table samples"},
     {"reset", (PyCFunction)HannTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
     {"removeDC", (PyCFunction)HannTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
     {"reverse", (PyCFunction)HannTable_reverse, METH_NOARGS, "Reverse the table's data."},
@@ -1188,7 +1188,7 @@ SincTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static PyObject * SincTable_getServer(SincTable* self) { GET_SERVER };
 static PyObject * SincTable_getTableStream(SincTable* self) { GET_TABLE_STREAM };
 static PyObject * SincTable_setData(SincTable *self, PyObject *arg) { SET_TABLE_DATA };
-static PyObject * SincTable_normalize(SincTable *self) { NORMALIZE };
+static PyObject * SincTable_normalize(SincTable *self, PyObject *args, PyObject *kwds) { NORMALIZE };
 static PyObject * SincTable_reset(SincTable *self) { TABLE_RESET };
 static PyObject * SincTable_removeDC(SincTable *self) { REMOVE_DC };
 static PyObject * SincTable_reverse(SincTable *self) { REVERSE };
@@ -1297,7 +1297,7 @@ static PyMethodDef SincTable_methods[] =
     {"getViewTable", (PyCFunction)SincTable_getViewTable, METH_VARARGS | METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
     {"getTableStream", (PyCFunction)SincTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
     {"setData", (PyCFunction)SincTable_setData, METH_O, "Sets the table from samples in a text file."},
-    {"normalize", (PyCFunction)SincTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
+    {"normalize", (PyCFunction)SincTable_normalize, METH_VARARGS | METH_KEYWORDS, "Normalize table samples"},
     {"reset", (PyCFunction)SincTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
     {"removeDC", (PyCFunction)SincTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
     {"reverse", (PyCFunction)SincTable_reverse, METH_NOARGS, "Reverse the table's data."},
@@ -1433,7 +1433,7 @@ WinTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static PyObject * WinTable_getServer(WinTable* self) { GET_SERVER };
 static PyObject * WinTable_getTableStream(WinTable* self) { GET_TABLE_STREAM };
 static PyObject * WinTable_setData(WinTable *self, PyObject *arg) { SET_TABLE_DATA };
-static PyObject * WinTable_normalize(WinTable *self) { NORMALIZE };
+static PyObject * WinTable_normalize(WinTable *self, PyObject *args, PyObject *kwds) { NORMALIZE };
 static PyObject * WinTable_reset(WinTable *self) { TABLE_RESET };
 static PyObject * WinTable_removeDC(WinTable *self) { REMOVE_DC };
 static PyObject * WinTable_reverse(WinTable *self) { REVERSE };
@@ -1529,7 +1529,7 @@ static PyMethodDef WinTable_methods[] =
     {"getViewTable", (PyCFunction)WinTable_getViewTable, METH_VARARGS | METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
     {"getTableStream", (PyCFunction)WinTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
     {"setData", (PyCFunction)WinTable_setData, METH_O, "Sets the table from samples in a text file."},
-    {"normalize", (PyCFunction)WinTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
+    {"normalize", (PyCFunction)WinTable_normalize, METH_VARARGS | METH_KEYWORDS, "Normalize table samples"},
     {"reset", (PyCFunction)WinTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
     {"removeDC", (PyCFunction)WinTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
     {"reverse", (PyCFunction)WinTable_reverse, METH_NOARGS, "Reverse the table's data."},
@@ -1679,7 +1679,7 @@ ParaTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static PyObject * ParaTable_getServer(ParaTable* self) { GET_SERVER };
 static PyObject * ParaTable_getTableStream(ParaTable* self) { GET_TABLE_STREAM };
 static PyObject * ParaTable_setData(ParaTable *self, PyObject *arg) { SET_TABLE_DATA };
-static PyObject * ParaTable_normalize(ParaTable *self) { NORMALIZE };
+static PyObject * ParaTable_normalize(ParaTable *self, PyObject *args, PyObject *kwds) { NORMALIZE };
 static PyObject * ParaTable_reset(ParaTable *self) { TABLE_RESET };
 static PyObject * ParaTable_removeDC(ParaTable *self) { REMOVE_DC };
 static PyObject * ParaTable_reverse(ParaTable *self) { REVERSE };
@@ -1752,7 +1752,7 @@ static PyMethodDef ParaTable_methods[] =
     {"getViewTable", (PyCFunction)ParaTable_getViewTable, METH_VARARGS | METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
     {"getTableStream", (PyCFunction)ParaTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
     {"setData", (PyCFunction)ParaTable_setData, METH_O, "Sets the table from samples in a text file."},
-    {"normalize", (PyCFunction)ParaTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
+    {"normalize", (PyCFunction)ParaTable_normalize, METH_VARARGS | METH_KEYWORDS, "Normalize table samples"},
     {"reset", (PyCFunction)ParaTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
     {"removeDC", (PyCFunction)ParaTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
     {"reverse", (PyCFunction)ParaTable_reverse, METH_NOARGS, "Reverse the table's data."},
@@ -1957,7 +1957,7 @@ LinTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static PyObject * LinTable_getServer(LinTable* self) { GET_SERVER };
 static PyObject * LinTable_getTableStream(LinTable* self) { GET_TABLE_STREAM };
 static PyObject * LinTable_setData(LinTable *self, PyObject *arg) { SET_TABLE_DATA };
-static PyObject * LinTable_normalize(LinTable *self) { NORMALIZE };
+static PyObject * LinTable_normalize(LinTable *self, PyObject *args, PyObject *kwds) { NORMALIZE };
 static PyObject * LinTable_reset(LinTable *self) { TABLE_RESET };
 static PyObject * LinTable_removeDC(LinTable *self) { REMOVE_DC };
 static PyObject * LinTable_reverse(LinTable *self) { REVERSE };
@@ -2087,7 +2087,7 @@ static PyMethodDef LinTable_methods[] =
     {"getViewTable", (PyCFunction)LinTable_getViewTable, METH_VARARGS | METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
     {"getTableStream", (PyCFunction)LinTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
     {"setData", (PyCFunction)LinTable_setData, METH_O, "Sets the table from samples in a text file."},
-    {"normalize", (PyCFunction)LinTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
+    {"normalize", (PyCFunction)LinTable_normalize, METH_VARARGS | METH_KEYWORDS, "Normalize table samples"},
     {"reset", (PyCFunction)LinTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
     {"removeDC", (PyCFunction)LinTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
     {"reverse", (PyCFunction)LinTable_reverse, METH_NOARGS, "Reverse the table's data."},
@@ -2326,7 +2326,7 @@ LogTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static PyObject * LogTable_getServer(LogTable* self) { GET_SERVER };
 static PyObject * LogTable_getTableStream(LogTable* self) { GET_TABLE_STREAM };
 static PyObject * LogTable_setData(LogTable *self, PyObject *arg) { SET_TABLE_DATA };
-static PyObject * LogTable_normalize(LogTable *self) { NORMALIZE };
+static PyObject * LogTable_normalize(LogTable *self, PyObject *args, PyObject *kwds) { NORMALIZE };
 static PyObject * LogTable_reset(LogTable *self) { TABLE_RESET };
 static PyObject * LogTable_removeDC(LogTable *self) { REMOVE_DC };
 static PyObject * LogTable_reverse(LogTable *self) { REVERSE };
@@ -2456,7 +2456,7 @@ static PyMethodDef LogTable_methods[] =
     {"getViewTable", (PyCFunction)LogTable_getViewTable, METH_VARARGS | METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
     {"getTableStream", (PyCFunction)LogTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
     {"setData", (PyCFunction)LogTable_setData, METH_O, "Sets the table from samples in a text file."},
-    {"normalize", (PyCFunction)LogTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
+    {"normalize", (PyCFunction)LogTable_normalize, METH_VARARGS | METH_KEYWORDS, "Normalize table samples"},
     {"reset", (PyCFunction)LogTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
     {"removeDC", (PyCFunction)LogTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
     {"reverse", (PyCFunction)LogTable_reverse, METH_NOARGS, "Reverse the table's data."},
@@ -2663,7 +2663,7 @@ CosTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static PyObject * CosTable_getServer(CosTable* self) { GET_SERVER };
 static PyObject * CosTable_getTableStream(CosTable* self) { GET_TABLE_STREAM };
 static PyObject * CosTable_setData(CosTable *self, PyObject *arg) { SET_TABLE_DATA };
-static PyObject * CosTable_normalize(CosTable *self) { NORMALIZE };
+static PyObject * CosTable_normalize(CosTable *self, PyObject *args, PyObject *kwds) { NORMALIZE };
 static PyObject * CosTable_reset(CosTable *self) { TABLE_RESET };
 static PyObject * CosTable_removeDC(CosTable *self) { REMOVE_DC };
 static PyObject * CosTable_reverse(CosTable *self) { REVERSE };
@@ -2793,7 +2793,7 @@ static PyMethodDef CosTable_methods[] =
     {"getViewTable", (PyCFunction)CosTable_getViewTable, METH_VARARGS | METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
     {"getTableStream", (PyCFunction)CosTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
     {"setData", (PyCFunction)CosTable_setData, METH_O, "Sets the table from samples in a text file."},
-    {"normalize", (PyCFunction)CosTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
+    {"normalize", (PyCFunction)CosTable_normalize, METH_VARARGS | METH_KEYWORDS, "Normalize table samples"},
     {"reset", (PyCFunction)CosTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
     {"removeDC", (PyCFunction)CosTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
     {"reverse", (PyCFunction)CosTable_reverse, METH_NOARGS, "Reverse the table's data."},
@@ -3033,7 +3033,7 @@ CosLogTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static PyObject * CosLogTable_getServer(CosLogTable* self) { GET_SERVER };
 static PyObject * CosLogTable_getTableStream(CosLogTable* self) { GET_TABLE_STREAM };
 static PyObject * CosLogTable_setData(CosLogTable *self, PyObject *arg) { SET_TABLE_DATA };
-static PyObject * CosLogTable_normalize(CosLogTable *self) { NORMALIZE };
+static PyObject * CosLogTable_normalize(CosLogTable *self, PyObject *args, PyObject *kwds) { NORMALIZE };
 static PyObject * CosLogTable_reset(CosLogTable *self) { TABLE_RESET };
 static PyObject * CosLogTable_removeDC(CosLogTable *self) { REMOVE_DC };
 static PyObject * CosLogTable_reverse(CosLogTable *self) { REVERSE };
@@ -3163,7 +3163,7 @@ static PyMethodDef CosLogTable_methods[] =
     {"getViewTable", (PyCFunction)CosLogTable_getViewTable, METH_VARARGS | METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
     {"getTableStream", (PyCFunction)CosLogTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
     {"setData", (PyCFunction)CosLogTable_setData, METH_O, "Sets the table from samples in a text file."},
-    {"normalize", (PyCFunction)CosLogTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
+    {"normalize", (PyCFunction)CosLogTable_normalize, METH_VARARGS | METH_KEYWORDS, "Normalize table samples"},
     {"reset", (PyCFunction)CosLogTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
     {"removeDC", (PyCFunction)CosLogTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
     {"reverse", (PyCFunction)CosLogTable_reverse, METH_NOARGS, "Reverse the table's data."},
@@ -3399,7 +3399,7 @@ CurveTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static PyObject * CurveTable_getServer(CurveTable* self) { GET_SERVER };
 static PyObject * CurveTable_getTableStream(CurveTable* self) { GET_TABLE_STREAM };
 static PyObject * CurveTable_setData(CurveTable *self, PyObject *arg) { SET_TABLE_DATA };
-static PyObject * CurveTable_normalize(CurveTable * self) { NORMALIZE };
+static PyObject * CurveTable_normalize(CurveTable * self, PyObject *args, PyObject *kwds) { NORMALIZE };
 static PyObject * CurveTable_reset(CurveTable * self) { TABLE_RESET };
 static PyObject * CurveTable_removeDC(CurveTable *self) { REMOVE_DC };
 static PyObject * CurveTable_reverse(CurveTable *self) { REVERSE };
@@ -3583,7 +3583,7 @@ static PyMethodDef CurveTable_methods[] =
     {"setTension", (PyCFunction)CurveTable_setTension, METH_O, "Sets the curvature tension."},
     {"setBias", (PyCFunction)CurveTable_setBias, METH_O, "Sets the curve bias."},
     {"replace", (PyCFunction)CurveTable_replace, METH_O, "Sets the harmonics amplitude list and generates a new waveform table."},
-    {"normalize", (PyCFunction)CurveTable_normalize, METH_NOARGS, "Normalize table between -1 and 1."},
+    {"normalize", (PyCFunction)CurveTable_normalize, METH_VARARGS | METH_KEYWORDS, "Normalize table between -1 and 1."},
     {"reset", (PyCFunction)CurveTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
     {"removeDC", (PyCFunction)CurveTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
     {"reverse", (PyCFunction)CurveTable_reverse, METH_NOARGS, "Reverse the table's data."},
@@ -3813,7 +3813,7 @@ ExpTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static PyObject * ExpTable_getServer(ExpTable* self) { GET_SERVER };
 static PyObject * ExpTable_getTableStream(ExpTable* self) { GET_TABLE_STREAM };
 static PyObject * ExpTable_setData(ExpTable *self, PyObject *arg) { SET_TABLE_DATA };
-static PyObject * ExpTable_normalize(ExpTable * self) { NORMALIZE };
+static PyObject * ExpTable_normalize(ExpTable * self, PyObject *args, PyObject *kwds) { NORMALIZE };
 static PyObject * ExpTable_reset(ExpTable * self) { TABLE_RESET };
 static PyObject * ExpTable_removeDC(ExpTable *self) { REMOVE_DC };
 static PyObject * ExpTable_reverse(ExpTable *self) { REVERSE };
@@ -3996,7 +3996,7 @@ static PyMethodDef ExpTable_methods[] =
     {"setExp", (PyCFunction)ExpTable_setExp, METH_O, "Sets the exponent factor."},
     {"setInverse", (PyCFunction)ExpTable_setInverse, METH_O, "Sets the inverse factor."},
     {"replace", (PyCFunction)ExpTable_replace, METH_O, "Sets the harmonics amplitude list and generates a new waveform table."},
-    {"normalize", (PyCFunction)ExpTable_normalize, METH_NOARGS, "Normalize table between -1 and 1."},
+    {"normalize", (PyCFunction)ExpTable_normalize, METH_VARARGS | METH_KEYWORDS, "Normalize table between -1 and 1."},
     {"reset", (PyCFunction)ExpTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
     {"removeDC", (PyCFunction)ExpTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
     {"reverse", (PyCFunction)ExpTable_reverse, METH_NOARGS, "Reverse the table's data."},
@@ -4590,7 +4590,7 @@ SndTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static PyObject * SndTable_getServer(SndTable* self) { GET_SERVER };
 static PyObject * SndTable_getTableStream(SndTable* self) { GET_TABLE_STREAM };
 static PyObject * SndTable_setData(SndTable *self, PyObject *arg) { SET_TABLE_DATA };
-static PyObject * SndTable_normalize(SndTable *self) { NORMALIZE };
+static PyObject * SndTable_normalize(SndTable *self, PyObject *args, PyObject *kwds) { NORMALIZE };
 static PyObject * SndTable_reset(SndTable *self) { TABLE_RESET };
 static PyObject * SndTable_removeDC(SndTable *self) { REMOVE_DC };
 static PyObject * SndTable_reverse(SndTable *self) { REVERSE };
@@ -4929,7 +4929,7 @@ static PyMethodDef SndTable_methods[] =
     {"getTableStream", (PyCFunction)SndTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
     {"getEnvelope", (PyCFunction)SndTable_getEnvelope, METH_O, "Returns X points envelope follower of the table."},
     {"setData", (PyCFunction)SndTable_setData, METH_O, "Sets the table from samples in a text file."},
-    {"normalize", (PyCFunction)SndTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
+    {"normalize", (PyCFunction)SndTable_normalize, METH_VARARGS | METH_KEYWORDS, "Normalize table samples"},
     {"reset", (PyCFunction)SndTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
     {"removeDC", (PyCFunction)SndTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
     {"reverse", (PyCFunction)SndTable_reverse, METH_NOARGS, "Reverse the table's data."},
@@ -5125,7 +5125,7 @@ NewTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static PyObject * NewTable_getServer(NewTable* self) { GET_SERVER };
 static PyObject * NewTable_getTableStream(NewTable* self) { GET_TABLE_STREAM };
 static PyObject * NewTable_setData(NewTable *self, PyObject *arg) { SET_TABLE_DATA };
-static PyObject * NewTable_normalize(NewTable *self) { NORMALIZE };
+static PyObject * NewTable_normalize(NewTable *self, PyObject *args, PyObject *kwds) { NORMALIZE };
 static PyObject * NewTable_reset(NewTable *self) { TABLE_RESET };
 static PyObject * NewTable_removeDC(NewTable *self) { REMOVE_DC };
 static PyObject * NewTable_reverse(NewTable *self) { REVERSE };
@@ -5337,7 +5337,7 @@ static PyMethodDef NewTable_methods[] =
     {"copy", (PyCFunction)NewTable_copy, METH_O, "Copy data from table given in argument."},
     {"copyData", (PyCFunction)NewTable_copyData, METH_VARARGS | METH_KEYWORDS, "Copy data from table given in argument."},
     {"rotate", (PyCFunction)NewTable_rotate, METH_VARARGS | METH_KEYWORDS, "Rotate table around position as argument."},
-    {"normalize", (PyCFunction)NewTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
+    {"normalize", (PyCFunction)NewTable_normalize, METH_VARARGS | METH_KEYWORDS, "Normalize table samples"},
     {"reset", (PyCFunction)NewTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
     {"removeDC", (PyCFunction)NewTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
     {"reverse", (PyCFunction)NewTable_reverse, METH_NOARGS, "Reverse the table's data."},
@@ -5480,7 +5480,7 @@ DataTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static PyObject * DataTable_getServer(DataTable* self) { GET_SERVER };
 static PyObject * DataTable_getTableStream(DataTable* self) { GET_TABLE_STREAM };
 static PyObject * DataTable_setData(DataTable *self, PyObject *arg) { SET_TABLE_DATA };
-static PyObject * DataTable_normalize(DataTable *self) { NORMALIZE };
+static PyObject * DataTable_normalize(DataTable *self, PyObject *args, PyObject *kwds) { NORMALIZE };
 static PyObject * DataTable_reset(DataTable *self) { TABLE_RESET };
 static PyObject * DataTable_removeDC(DataTable *self) { REMOVE_DC };
 static PyObject * DataTable_reverse(DataTable *self) { REVERSE };
@@ -5535,7 +5535,7 @@ static PyMethodDef DataTable_methods[] =
     {"getViewTable", (PyCFunction)DataTable_getViewTable, METH_VARARGS | METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
     {"getTableStream", (PyCFunction)DataTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
     {"setData", (PyCFunction)DataTable_setData, METH_O, "Sets the table from samples in a text file."},
-    {"normalize", (PyCFunction)DataTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
+    {"normalize", (PyCFunction)DataTable_normalize, METH_VARARGS | METH_KEYWORDS, "Normalize table samples"},
     {"reset", (PyCFunction)DataTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
     {"removeDC", (PyCFunction)DataTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
     {"reverse", (PyCFunction)DataTable_reverse, METH_NOARGS, "Reverse the table's data."},
@@ -5688,7 +5688,7 @@ AtanTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static PyObject * AtanTable_getServer(AtanTable* self) { GET_SERVER };
 static PyObject * AtanTable_getTableStream(AtanTable* self) { GET_TABLE_STREAM };
 static PyObject * AtanTable_setData(AtanTable *self, PyObject *arg) { SET_TABLE_DATA };
-static PyObject * AtanTable_normalize(AtanTable *self) { NORMALIZE };
+static PyObject * AtanTable_normalize(AtanTable *self, PyObject *args, PyObject *kwds) { NORMALIZE };
 static PyObject * AtanTable_reset(AtanTable *self) { TABLE_RESET };
 static PyObject * AtanTable_removeDC(AtanTable *self) { REMOVE_DC };
 static PyObject * AtanTable_reverse(AtanTable *self) { REVERSE };
@@ -5784,7 +5784,7 @@ static PyMethodDef AtanTable_methods[] =
     {"getViewTable", (PyCFunction)AtanTable_getViewTable, METH_VARARGS | METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
     {"getTableStream", (PyCFunction)AtanTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
     {"setData", (PyCFunction)AtanTable_setData, METH_O, "Sets the table from samples in a text file."},
-    {"normalize", (PyCFunction)AtanTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
+    {"normalize", (PyCFunction)AtanTable_normalize, METH_VARARGS | METH_KEYWORDS, "Normalize table samples"},
     {"reset", (PyCFunction)AtanTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
     {"removeDC", (PyCFunction)AtanTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
     {"reverse", (PyCFunction)AtanTable_reverse, METH_NOARGS, "Reverse the table's data."},
@@ -6056,7 +6056,7 @@ PadSynthTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static PyObject * PadSynthTable_getServer(PadSynthTable* self) { GET_SERVER };
 static PyObject * PadSynthTable_getTableStream(PadSynthTable* self) { GET_TABLE_STREAM };
 static PyObject * PadSynthTable_setData(PadSynthTable *self, PyObject *arg) { SET_TABLE_DATA };
-static PyObject * PadSynthTable_normalize(PadSynthTable *self) { NORMALIZE };
+static PyObject * PadSynthTable_normalize(PadSynthTable *self, PyObject *args, PyObject *kwds) { NORMALIZE };
 static PyObject * PadSynthTable_reset(PadSynthTable *self) { TABLE_RESET };
 static PyObject * PadSynthTable_removeDC(PadSynthTable *self) { REMOVE_DC };
 static PyObject * PadSynthTable_reverse(PadSynthTable *self) { REVERSE };
@@ -6229,7 +6229,7 @@ static PyMethodDef PadSynthTable_methods[] =
     {"getViewTable", (PyCFunction)PadSynthTable_getViewTable, METH_VARARGS | METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
     {"getTableStream", (PyCFunction)PadSynthTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
     {"setData", (PyCFunction)PadSynthTable_setData, METH_O, "Sets the table from samples in a text file."},
-    {"normalize", (PyCFunction)PadSynthTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
+    {"normalize", (PyCFunction)PadSynthTable_normalize, METH_VARARGS | METH_KEYWORDS, "Normalize table samples"},
     {"reset", (PyCFunction)PadSynthTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
     {"removeDC", (PyCFunction)PadSynthTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
     {"reverse", (PyCFunction)PadSynthTable_reverse, METH_NOARGS, "Reverse the table's data."},
@@ -6240,7 +6240,6 @@ static PyMethodDef PadSynthTable_methods[] =
     {"fadein", (PyCFunction)PadSynthTable_fadein, METH_VARARGS | METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
     {"fadeout", (PyCFunction)PadSynthTable_fadeout, METH_VARARGS | METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
     {"pow", (PyCFunction)PadSynthTable_pow, METH_VARARGS | METH_KEYWORDS, "Apply a power function on each sample in the table."},
-    //{"setSize", (PyCFunction)PadSynthTable_setSize, METH_O, "Sets the size of the table in samples"},
     {"getSize", (PyCFunction)PadSynthTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
     {"setBaseFreq", (PyCFunction)PadSynthTable_setBaseFreq, METH_VARARGS | METH_KEYWORDS, "Sets the base frequency in hertz."},
     {"setSpread", (PyCFunction)PadSynthTable_setSpread, METH_VARARGS | METH_KEYWORDS, "Sets the frequency spreading factor."},
@@ -8380,7 +8379,7 @@ SharedTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static PyObject * SharedTable_getServer(SharedTable* self) { GET_SERVER };
 static PyObject * SharedTable_getTableStream(SharedTable* self) { GET_TABLE_STREAM };
 static PyObject * SharedTable_setData(SharedTable *self, PyObject *arg) { SET_TABLE_DATA };
-static PyObject * SharedTable_normalize(SharedTable *self) { NORMALIZE };
+static PyObject * SharedTable_normalize(SharedTable *self, PyObject *args, PyObject *kwds) { NORMALIZE };
 static PyObject * SharedTable_reset(SharedTable *self) { TABLE_RESET };
 static PyObject * SharedTable_removeDC(SharedTable *self) { REMOVE_DC };
 static PyObject * SharedTable_reverse(SharedTable *self) { REVERSE };
@@ -8435,7 +8434,7 @@ static PyMethodDef SharedTable_methods[] =
     {"getViewTable", (PyCFunction)SharedTable_getViewTable, METH_VARARGS | METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
     {"getTableStream", (PyCFunction)SharedTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
     {"setData", (PyCFunction)SharedTable_setData, METH_O, "Sets the table from samples in a text file."},
-    {"normalize", (PyCFunction)SharedTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
+    {"normalize", (PyCFunction)SharedTable_normalize, METH_VARARGS | METH_KEYWORDS, "Normalize table samples"},
     {"reset", (PyCFunction)SharedTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
     {"removeDC", (PyCFunction)SharedTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
     {"reverse", (PyCFunction)SharedTable_reverse, METH_NOARGS, "Reverse the table's data."},

@@ -1206,7 +1206,13 @@ extern PyTypeObject MMLZStreamType;
 /* Normalize */
 #define NORMALIZE \
     int i; \
+    MYFLT level = 0.99; \
     MYFLT mi, ma, max, ratio; \
+ \
+    static char *kwlist[] = {"level", NULL}; \
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F, kwlist, &level)) \
+        return PyInt_FromLong(-1); \
+ \
     mi = ma = *self->data; \
     for (i=1; i<self->size; i++) { \
         if (mi > *(self->data+i)) \
@@ -1220,7 +1226,7 @@ extern PyTypeObject MMLZStreamType;
         max = MYFABS(ma); \
  \
     if (max > 0.0) { \
-        ratio = 0.99 / max; \
+        ratio = level / max; \
         for (i=0; i<self->size+1; i++) { \
             self->data[i] *= ratio; \
         } \

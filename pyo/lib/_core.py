@@ -2139,12 +2139,18 @@ class PyoTableObject(PyoObjectBase):
         else:
             return self._base_objs[0].getTable()
 
-    def normalize(self):
+    def normalize(self, level=0.99):
         """
-        Normalize table samples between -1 and 1.
+        Normalizes table samples to a given level.
+
+        :Args:
+
+            level: float, optional
+                Samples will be normalized between -level and +level.
+                Defaults to 0.99.
 
         """
-        [obj.normalize() for obj in self._base_objs]
+        [obj.normalize(level) for obj in self._base_objs]
         self.refreshView()
         return self
 
