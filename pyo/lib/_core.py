@@ -2023,9 +2023,15 @@ class PyoTableObject(PyoObjectBase):
             arr = numpy.asarray(t.getBuffer())
 
         Now, every changes applied to the array will be reflected in
-        the SndTable.
+        the SndTable. This method works for a single channel only.
 
-        For more details about the buffer protocol, see PEP 3118 and
+        :Args:
+
+            chnl: int, optional
+                The channel in the table for which to obtain the underlying buffer.
+                Defaults to 0.
+
+        For more details about the buffer protocol, see PEP 3118 and the
         python documentation.
 
         """
