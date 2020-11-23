@@ -169,7 +169,7 @@ class SLMap(Map):
             to object's attribute. Defaults to 0.025.
         dataOnly: boolean, optional
             Set this argument to True if the parameter does not accept audio
-            signal as control but discreet values. If True, label will be
+            signal as control but discrete values. If True, label will be
             marked with a star symbol (*). Defaults to False.
 
     >>> s = Server().boot()

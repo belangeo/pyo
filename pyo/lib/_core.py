@@ -1819,8 +1819,8 @@ class PyoObject(PyoObjectBase):
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         """
         Opens a sliders window to control the parameters of the object.
-        Only parameters that can be set to a PyoObject are allowed
-        to be mapped on a slider.
+        SLMap has a `dataOnly` attribute to identify parameters that don't
+        audio signal as control but only discrete values.
 
         If a list of values are given to a parameter, a multisliders
         will be used to control each stream independently.
@@ -2004,6 +2004,11 @@ class PyoTableObject(PyoObjectBase):
         f_len = len(f_list)
         f.close()
         [obj.setData(f_list[i % f_len]) for i, obj in enumerate(self._base_objs)]
+        # adjust the _size attribute.
+        if f_len == 1:
+            self._size = self._base_objs[0].getSize()
+        else:
+            self._size = [obj.getSize() for obj in self._base_objs]
         self.refreshView()
 
     def getBuffer(self, chnl=0):
