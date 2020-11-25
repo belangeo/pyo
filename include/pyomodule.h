@@ -1165,40 +1165,79 @@ extern PyTypeObject MMLZStreamType;
 /* FADE IN, FADE OUT */
 #define TABLE_FADEIN \
     MYFLT dur, inc; \
-    int i, samp; \
+    int i, samp, shape = 0; \
     double sr = PyFloat_AsDouble(PyObject_CallMethod(PyServer_get_server(), "getSamplingRate", NULL)); \
-    static char *kwlist[] = {"dur", NULL}; \
+    static char *kwlist[] = {"dur", "shape", NULL}; \
  \
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F, kwlist, &dur)) \
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F_I, kwlist, &dur, &shape)) \
         return PyInt_FromLong(-1); \
  \
-    samp = (int)(dur * sr); \
+    samp = (int)(dur * sr + 0.5); \
     if (samp < 0 || samp >= self->size) \
         Py_RETURN_NONE; \
  \
     inc = 1.0 / samp; \
-    for (i=0; i<samp; i++) { \
-        self->data[i] = self->data[i] * MYSQRT(inc * i); \
+    switch (shape) \
+    { \
+        case 0: \
+            for (i=0; i<samp; i++) \
+                self->data[i] = self->data[i] * inc * i; \
+            break; \
+        case 1: \
+            for (i=0; i<samp; i++) \
+                self->data[i] = self->data[i] * MYSQRT(inc * i); \
+            break; \
+        case 2: \
+            for (i=0; i<samp; i++) \
+                self->data[i] = self->data[i] * MYSIN(inc * i * PI * 0.5); \
+            break; \
+        case 3: \
+            for (i=0; i<samp; i++) \
+                self->data[i] = self->data[i] * MYPOW(inc * i, 2.0); \
+            break; \
+        default: \
+            for (i=0; i<samp; i++) \
+                self->data[i] = self->data[i] * inc * i; \
     } \
  \
     Py_RETURN_NONE;
 
 #define TABLE_FADEOUT \
     MYFLT dur, inc; \
-    int i, samp; \
+    int i, samp, shape = 0; \
     double sr = PyFloat_AsDouble(PyObject_CallMethod(PyServer_get_server(), "getSamplingRate", NULL)); \
-    static char *kwlist[] = {"dur", NULL}; \
+    static char *kwlist[] = {"dur", "shape", NULL}; \
  \
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F, kwlist, &dur)) \
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F_I, kwlist, &dur, &shape)) \
         return PyInt_FromLong(-1); \
  \
-    samp = (int)(dur * sr); \
+    samp = (int)(dur * sr + 0.5); \
     if (samp < 0 || samp >= self->size) \
         Py_RETURN_NONE; \
  \
+    int size1 = self->size - 1; \
     inc = 1.0 / samp; \
-    for (i=self->size; i>(self->size-samp); i--) { \
-        self->data[i] = self->data[i] * MYSQRT(inc * (self->size - i)); \
+    switch (shape) \
+    { \
+        case 0: \
+            for (i=size1; i>(size1-samp); i--) \
+                self->data[i] = self->data[i] * inc * (size1 - i); \
+            break; \
+        case 1: \
+            for (i=size1; i>(size1-samp); i--) \
+                self->data[i] = self->data[i] * MYSQRT(inc * (size1 - i)); \
+            break; \
+        case 2: \
+            for (i=size1; i>(size1-samp); i--) \
+                self->data[i] = self->data[i] * MYSIN(inc * (size1 - i) * PI * 0.5); \
+            break; \
+        case 3: \
+            for (i=size1; i>(size1-samp); i--) \
+                self->data[i] = self->data[i] * MYPOW(inc * (size1 - i), 2.0); \
+            break; \
+        default: \
+            for (i=size1; i>(size1-samp); i--) \
+                self->data[i] = self->data[i] * inc * (size1 - i); \
     } \
  \
     Py_RETURN_NONE;

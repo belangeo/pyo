@@ -2246,7 +2246,7 @@ class PyoTableObject(PyoObjectBase):
         self.refreshView()
         return self
 
-    def fadein(self, dur=0.1):
+    def fadein(self, dur=0.1, shape=0):
         """
         Apply a gradual increase in the level of the table's samples.
 
@@ -2254,14 +2254,22 @@ class PyoTableObject(PyoObjectBase):
 
             dur: float, optional
                 Fade in duration, in seconds. Defaults to 0.1.
+            shape: int, optional
+                Curve type used to shape the fadein. Available curves:
+                    0: linear (default)
+                    1: sqrt
+                    2: sin
+                    3: squared
 
         """
-        pyoArgsAssert(self, "N", dur)
-        [obj.fadein(dur) for obj in self._base_objs]
+        pyoArgsAssert(self, "NI", dur, shape)
+        if shape < 0 or shape > 3:
+            shape = 0
+        [obj.fadein(dur, shape) for obj in self._base_objs]
         self.refreshView()
         return self
 
-    def fadeout(self, dur=0.1):
+    def fadeout(self, dur=0.1, shape=0):
         """
         Apply a gradual decrease in the level of the table's samples.
 
@@ -2269,10 +2277,18 @@ class PyoTableObject(PyoObjectBase):
 
             dur: float, optional
                 Fade out duration, in seconds. Defaults to 0.1.
+            shape: int, optional
+                Curve type used to shape the fadein. Available curves:
+                    0: linear (default)
+                    1: sqrt
+                    2: sin
+                    3: squared
 
         """
-        pyoArgsAssert(self, "N", dur)
-        [obj.fadeout(dur) for obj in self._base_objs]
+        pyoArgsAssert(self, "NI", dur, shape)
+        if shape < 0 or shape > 3:
+            shape = 0
+        [obj.fadeout(dur, shape) for obj in self._base_objs]
         self.refreshView()
         return self
 

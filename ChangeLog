@@ -1,3 +1,7 @@
+2020-11-25 belangeo <belangeo@gmail.com>
+
+    * Added a shape argument to PyoTableObject.fadein and  PyoTableObject.fadeout methods.
+
 2020-11-23 belangeo <belangeo@gmail.com>
 
     * Added a level argument to PyoTableObject.normalize method.
