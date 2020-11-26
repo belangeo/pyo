@@ -292,6 +292,7 @@ static PyObject * HarmTable_get(HarmTable *self, PyObject *args, PyObject *kwds)
 static PyObject * HarmTable_add(HarmTable *self, PyObject *arg) { TABLE_ADD };
 static PyObject * HarmTable_sub(HarmTable *self, PyObject *arg) { TABLE_SUB };
 static PyObject * HarmTable_mul(HarmTable *self, PyObject *arg) { TABLE_MUL };
+static PyObject * HarmTable_div(HarmTable *self, PyObject *arg) { TABLE_DIV };
 
 static PyObject *
 HarmTable_setSize(HarmTable *self, PyObject *value)
@@ -388,6 +389,7 @@ static PyMethodDef HarmTable_methods[] =
     {"add", (PyCFunction)HarmTable_add, METH_O, "Performs table addition."},
     {"sub", (PyCFunction)HarmTable_sub, METH_O, "Performs table substraction."},
     {"mul", (PyCFunction)HarmTable_mul, METH_O, "Performs table multiplication."},
+    {"div", (PyCFunction)HarmTable_div, METH_O, "Performs table division."},
     {NULL}  /* Sentinel */
 };
 
@@ -623,6 +625,7 @@ static PyObject * ChebyTable_get(ChebyTable *self, PyObject *args, PyObject *kwd
 static PyObject * ChebyTable_add(ChebyTable *self, PyObject *arg) { TABLE_ADD };
 static PyObject * ChebyTable_sub(ChebyTable *self, PyObject *arg) { TABLE_SUB };
 static PyObject * ChebyTable_mul(ChebyTable *self, PyObject *arg) { TABLE_MUL };
+static PyObject * ChebyTable_div(ChebyTable *self, PyObject *arg) { TABLE_DIV };
 
 static PyObject *
 ChebyTable_setSize(ChebyTable *self, PyObject *value)
@@ -818,6 +821,7 @@ static PyMethodDef ChebyTable_methods[] =
     {"add", (PyCFunction)ChebyTable_add, METH_O, "Performs table addition."},
     {"sub", (PyCFunction)ChebyTable_sub, METH_O, "Performs table substraction."},
     {"mul", (PyCFunction)ChebyTable_mul, METH_O, "Performs table multiplication."},
+    {"div", (PyCFunction)ChebyTable_div, METH_O, "Performs table division."},
     {NULL}  /* Sentinel */
 };
 
@@ -965,6 +969,7 @@ static PyObject * HannTable_get(HannTable *self, PyObject *args, PyObject *kwds)
 static PyObject * HannTable_add(HannTable *self, PyObject *arg) { TABLE_ADD };
 static PyObject * HannTable_sub(HannTable *self, PyObject *arg) { TABLE_SUB };
 static PyObject * HannTable_mul(HannTable *self, PyObject *arg) { TABLE_MUL };
+static PyObject * HannTable_div(HannTable *self, PyObject *arg) { TABLE_DIV };
 
 static PyObject *
 HannTable_setSize(HannTable *self, PyObject *value)
@@ -1034,6 +1039,7 @@ static PyMethodDef HannTable_methods[] =
     {"add", (PyCFunction)HannTable_add, METH_O, "Performs table addition."},
     {"sub", (PyCFunction)HannTable_sub, METH_O, "Performs table substraction."},
     {"mul", (PyCFunction)HannTable_mul, METH_O, "Performs table multiplication."},
+    {"div", (PyCFunction)HannTable_div, METH_O, "Performs table division."},
     {NULL}  /* Sentinel */
 };
 
@@ -1210,6 +1216,7 @@ static PyObject * SincTable_get(SincTable *self, PyObject *args, PyObject *kwds)
 static PyObject * SincTable_add(SincTable *self, PyObject *arg) { TABLE_ADD };
 static PyObject * SincTable_sub(SincTable *self, PyObject *arg) { TABLE_SUB };
 static PyObject * SincTable_mul(SincTable *self, PyObject *arg) { TABLE_MUL };
+static PyObject * SincTable_div(SincTable *self, PyObject *arg) { TABLE_DIV };
 
 static PyObject *
 SincTable_setFreq(SincTable *self, PyObject *value)
@@ -1317,6 +1324,7 @@ static PyMethodDef SincTable_methods[] =
     {"add", (PyCFunction)SincTable_add, METH_O, "Performs table addition."},
     {"sub", (PyCFunction)SincTable_sub, METH_O, "Performs table substraction."},
     {"mul", (PyCFunction)SincTable_mul, METH_O, "Performs table multiplication."},
+    {"div", (PyCFunction)SincTable_div, METH_O, "Performs table division."},
     {NULL}  /* Sentinel */
 };
 
@@ -1455,6 +1463,7 @@ static PyObject * WinTable_get(WinTable *self, PyObject *args, PyObject *kwds) {
 static PyObject * WinTable_add(WinTable *self, PyObject *arg) { TABLE_ADD };
 static PyObject * WinTable_sub(WinTable *self, PyObject *arg) { TABLE_SUB };
 static PyObject * WinTable_mul(WinTable *self, PyObject *arg) { TABLE_MUL };
+static PyObject * WinTable_div(WinTable *self, PyObject *arg) { TABLE_DIV };
 
 static PyObject *
 WinTable_setSize(WinTable *self, PyObject *value)
@@ -1548,6 +1557,7 @@ static PyMethodDef WinTable_methods[] =
     {"add", (PyCFunction)WinTable_add, METH_O, "Performs table addition."},
     {"sub", (PyCFunction)WinTable_sub, METH_O, "Performs table substraction."},
     {"mul", (PyCFunction)WinTable_mul, METH_O, "Performs table multiplication."},
+    {"div", (PyCFunction)WinTable_div, METH_O, "Performs table division."},
     {NULL}  /* Sentinel */
 };
 
@@ -1701,6 +1711,7 @@ static PyObject * ParaTable_get(ParaTable *self, PyObject *args, PyObject *kwds)
 static PyObject * ParaTable_add(ParaTable *self, PyObject *arg) { TABLE_ADD };
 static PyObject * ParaTable_sub(ParaTable *self, PyObject *arg) { TABLE_SUB };
 static PyObject * ParaTable_mul(ParaTable *self, PyObject *arg) { TABLE_MUL };
+static PyObject * ParaTable_div(ParaTable *self, PyObject *arg) { TABLE_DIV };
 
 static PyObject *
 ParaTable_setSize(ParaTable *self, PyObject *value)
@@ -1770,6 +1781,7 @@ static PyMethodDef ParaTable_methods[] =
     {"add", (PyCFunction)ParaTable_add, METH_O, "Performs table addition."},
     {"sub", (PyCFunction)ParaTable_sub, METH_O, "Performs table substraction."},
     {"mul", (PyCFunction)ParaTable_mul, METH_O, "Performs table multiplication."},
+    {"div", (PyCFunction)ParaTable_div, METH_O, "Performs table division."},
     {NULL}  /* Sentinel */
 };
 
@@ -1979,6 +1991,7 @@ static PyObject * LinTable_get(LinTable *self, PyObject *args, PyObject *kwds) {
 static PyObject * LinTable_add(LinTable *self, PyObject *arg) { TABLE_ADD };
 static PyObject * LinTable_sub(LinTable *self, PyObject *arg) { TABLE_SUB };
 static PyObject * LinTable_mul(LinTable *self, PyObject *arg) { TABLE_MUL };
+static PyObject * LinTable_div(LinTable *self, PyObject *arg) { TABLE_DIV };
 
 static PyObject *
 LinTable_setSize(LinTable *self, PyObject *value)
@@ -2107,6 +2120,7 @@ static PyMethodDef LinTable_methods[] =
     {"add", (PyCFunction)LinTable_add, METH_O, "Performs table addition."},
     {"sub", (PyCFunction)LinTable_sub, METH_O, "Performs table substraction."},
     {"mul", (PyCFunction)LinTable_mul, METH_O, "Performs table multiplication."},
+    {"div", (PyCFunction)LinTable_div, METH_O, "Performs table division."},
     {NULL}  /* Sentinel */
 };
 
@@ -2348,6 +2362,7 @@ static PyObject * LogTable_get(LogTable *self, PyObject *args, PyObject *kwds) {
 static PyObject * LogTable_add(LogTable *self, PyObject *arg) { TABLE_ADD };
 static PyObject * LogTable_sub(LogTable *self, PyObject *arg) { TABLE_SUB };
 static PyObject * LogTable_mul(LogTable *self, PyObject *arg) { TABLE_MUL };
+static PyObject * LogTable_div(LogTable *self, PyObject *arg) { TABLE_DIV };
 
 static PyObject *
 LogTable_setSize(LogTable *self, PyObject *value)
@@ -2476,6 +2491,7 @@ static PyMethodDef LogTable_methods[] =
     {"add", (PyCFunction)LogTable_add, METH_O, "Performs table addition."},
     {"sub", (PyCFunction)LogTable_sub, METH_O, "Performs table substraction."},
     {"mul", (PyCFunction)LogTable_mul, METH_O, "Performs table multiplication."},
+    {"div", (PyCFunction)LogTable_div, METH_O, "Performs table division."},
     {NULL}  /* Sentinel */
 };
 
@@ -2685,6 +2701,7 @@ static PyObject * CosTable_get(CosTable *self, PyObject *args, PyObject *kwds) {
 static PyObject * CosTable_add(CosTable *self, PyObject *arg) { TABLE_ADD };
 static PyObject * CosTable_sub(CosTable *self, PyObject *arg) { TABLE_SUB };
 static PyObject * CosTable_mul(CosTable *self, PyObject *arg) { TABLE_MUL };
+static PyObject * CosTable_div(CosTable *self, PyObject *arg) { TABLE_DIV };
 
 static PyObject *
 CosTable_setSize(CosTable *self, PyObject *value)
@@ -2813,6 +2830,7 @@ static PyMethodDef CosTable_methods[] =
     {"add", (PyCFunction)CosTable_add, METH_O, "Performs table addition."},
     {"sub", (PyCFunction)CosTable_sub, METH_O, "Performs table substraction."},
     {"mul", (PyCFunction)CosTable_mul, METH_O, "Performs table multiplication."},
+    {"div", (PyCFunction)CosTable_div, METH_O, "Performs table division."},
     {NULL}  /* Sentinel */
 };
 
@@ -3055,6 +3073,7 @@ static PyObject * CosLogTable_get(CosLogTable *self, PyObject *args, PyObject *k
 static PyObject * CosLogTable_add(CosLogTable *self, PyObject *arg) { TABLE_ADD };
 static PyObject * CosLogTable_sub(CosLogTable *self, PyObject *arg) { TABLE_SUB };
 static PyObject * CosLogTable_mul(CosLogTable *self, PyObject *arg) { TABLE_MUL };
+static PyObject * CosLogTable_div(CosLogTable *self, PyObject *arg) { TABLE_DIV };
 
 static PyObject *
 CosLogTable_setSize(CosLogTable *self, PyObject *value)
@@ -3183,6 +3202,7 @@ static PyMethodDef CosLogTable_methods[] =
     {"add", (PyCFunction)CosLogTable_add, METH_O, "Performs table addition."},
     {"sub", (PyCFunction)CosLogTable_sub, METH_O, "Performs table substraction."},
     {"mul", (PyCFunction)CosLogTable_mul, METH_O, "Performs table multiplication."},
+    {"div", (PyCFunction)CosLogTable_div, METH_O, "Performs table division."},
     {NULL}  /* Sentinel */
 };
 
@@ -3421,6 +3441,7 @@ static PyObject * CurveTable_get(CurveTable *self, PyObject *args, PyObject *kwd
 static PyObject * CurveTable_add(CurveTable *self, PyObject *arg) { TABLE_ADD };
 static PyObject * CurveTable_sub(CurveTable *self, PyObject *arg) { TABLE_SUB };
 static PyObject * CurveTable_mul(CurveTable *self, PyObject *arg) { TABLE_MUL };
+static PyObject * CurveTable_div(CurveTable *self, PyObject *arg) { TABLE_DIV };
 
 static PyObject *
 CurveTable_setTension(CurveTable *self, PyObject *value)
@@ -3597,6 +3618,7 @@ static PyMethodDef CurveTable_methods[] =
     {"add", (PyCFunction)CurveTable_add, METH_O, "Performs table addition."},
     {"sub", (PyCFunction)CurveTable_sub, METH_O, "Performs table substraction."},
     {"mul", (PyCFunction)CurveTable_mul, METH_O, "Performs table multiplication."},
+    {"div", (PyCFunction)CurveTable_div, METH_O, "Performs table division."},
     {NULL}  /* Sentinel */
 };
 
@@ -3835,6 +3857,7 @@ static PyObject * ExpTable_get(ExpTable *self, PyObject *args, PyObject *kwds) {
 static PyObject * ExpTable_add(ExpTable *self, PyObject *arg) { TABLE_ADD };
 static PyObject * ExpTable_sub(ExpTable *self, PyObject *arg) { TABLE_SUB };
 static PyObject * ExpTable_mul(ExpTable *self, PyObject *arg) { TABLE_MUL };
+static PyObject * ExpTable_div(ExpTable *self, PyObject *arg) { TABLE_DIV };
 
 static PyObject *
 ExpTable_setExp(ExpTable *self, PyObject *value)
@@ -4010,6 +4033,7 @@ static PyMethodDef ExpTable_methods[] =
     {"add", (PyCFunction)ExpTable_add, METH_O, "Performs table addition."},
     {"sub", (PyCFunction)ExpTable_sub, METH_O, "Performs table substraction."},
     {"mul", (PyCFunction)ExpTable_mul, METH_O, "Performs table multiplication."},
+    {"div", (PyCFunction)ExpTable_div, METH_O, "Performs table division."},
     {NULL}  /* Sentinel */
 };
 
@@ -4611,6 +4635,7 @@ static PyObject * SndTable_get(SndTable *self, PyObject *args, PyObject *kwds) {
 static PyObject * SndTable_add(SndTable *self, PyObject *arg) { TABLE_ADD };
 static PyObject * SndTable_sub(SndTable *self, PyObject *arg) { TABLE_SUB };
 static PyObject * SndTable_mul(SndTable *self, PyObject *arg) { TABLE_MUL };
+static PyObject * SndTable_div(SndTable *self, PyObject *arg) { TABLE_DIV };
 
 static PyObject *
 SndTable_getViewTable(SndTable *self, PyObject *args, PyObject *kwds)
@@ -4951,6 +4976,7 @@ static PyMethodDef SndTable_methods[] =
     {"add", (PyCFunction)SndTable_add, METH_O, "Performs table addition."},
     {"sub", (PyCFunction)SndTable_sub, METH_O, "Performs table substraction."},
     {"mul", (PyCFunction)SndTable_mul, METH_O, "Performs table multiplication."},
+    {"div", (PyCFunction)SndTable_div, METH_O, "Performs table division."},
     {NULL}  /* Sentinel */
 };
 
@@ -5146,6 +5172,7 @@ static PyObject * NewTable_get(NewTable *self, PyObject *args, PyObject *kwds) {
 static PyObject * NewTable_add(NewTable *self, PyObject *arg) { TABLE_ADD };
 static PyObject * NewTable_sub(NewTable *self, PyObject *arg) { TABLE_SUB };
 static PyObject * NewTable_mul(NewTable *self, PyObject *arg) { TABLE_MUL };
+static PyObject * NewTable_div(NewTable *self, PyObject *arg) { TABLE_DIV };
 
 static PyObject *
 NewTable_getViewTable(NewTable *self, PyObject *args, PyObject *kwds)
@@ -5356,6 +5383,7 @@ static PyMethodDef NewTable_methods[] =
     {"add", (PyCFunction)NewTable_add, METH_O, "Performs table addition."},
     {"sub", (PyCFunction)NewTable_sub, METH_O, "Performs table substraction."},
     {"mul", (PyCFunction)NewTable_mul, METH_O, "Performs table multiplication."},
+    {"div", (PyCFunction)NewTable_div, METH_O, "Performs table division."},
     {NULL}  /* Sentinel */
 };
 
@@ -5502,6 +5530,7 @@ static PyObject * DataTable_get(DataTable *self, PyObject *args, PyObject *kwds)
 static PyObject * DataTable_add(DataTable *self, PyObject *arg) { TABLE_ADD };
 static PyObject * DataTable_sub(DataTable *self, PyObject *arg) { TABLE_SUB };
 static PyObject * DataTable_mul(DataTable *self, PyObject *arg) { TABLE_MUL };
+static PyObject * DataTable_div(DataTable *self, PyObject *arg) { TABLE_DIV };
 
 static PyObject *
 DataTable_getSize(DataTable *self)
@@ -5553,6 +5582,7 @@ static PyMethodDef DataTable_methods[] =
     {"add", (PyCFunction)DataTable_add, METH_O, "Performs table addition."},
     {"sub", (PyCFunction)DataTable_sub, METH_O, "Performs table substraction."},
     {"mul", (PyCFunction)DataTable_mul, METH_O, "Performs table multiplication."},
+    {"div", (PyCFunction)DataTable_div, METH_O, "Performs table division."},
     {NULL}  /* Sentinel */
 };
 
@@ -5710,6 +5740,7 @@ static PyObject * AtanTable_get(AtanTable *self, PyObject *args, PyObject *kwds)
 static PyObject * AtanTable_add(AtanTable *self, PyObject *arg) { TABLE_ADD };
 static PyObject * AtanTable_sub(AtanTable *self, PyObject *arg) { TABLE_SUB };
 static PyObject * AtanTable_mul(AtanTable *self, PyObject *arg) { TABLE_MUL };
+static PyObject * AtanTable_div(AtanTable *self, PyObject *arg) { TABLE_DIV };
 
 static PyObject *
 AtanTable_setSlope(AtanTable *self, PyObject *value)
@@ -5803,6 +5834,7 @@ static PyMethodDef AtanTable_methods[] =
     {"add", (PyCFunction)AtanTable_add, METH_O, "Performs table addition."},
     {"sub", (PyCFunction)AtanTable_sub, METH_O, "Performs table substraction."},
     {"mul", (PyCFunction)AtanTable_mul, METH_O, "Performs table multiplication."},
+    {"div", (PyCFunction)AtanTable_div, METH_O, "Performs table division."},
     {NULL}  /* Sentinel */
 };
 
@@ -6078,6 +6110,7 @@ static PyObject * PadSynthTable_get(PadSynthTable *self, PyObject *args, PyObjec
 static PyObject * PadSynthTable_add(PadSynthTable *self, PyObject *arg) { TABLE_ADD };
 static PyObject * PadSynthTable_sub(PadSynthTable *self, PyObject *arg) { TABLE_SUB };
 static PyObject * PadSynthTable_mul(PadSynthTable *self, PyObject *arg) { TABLE_MUL };
+static PyObject * PadSynthTable_div(PadSynthTable *self, PyObject *arg) { TABLE_DIV };
 
 static PyObject *
 PadSynthTable_setBaseFreq(PadSynthTable *self, PyObject *args, PyObject *kwds)
@@ -6253,6 +6286,7 @@ static PyMethodDef PadSynthTable_methods[] =
     {"add", (PyCFunction)PadSynthTable_add, METH_O, "Performs table addition."},
     {"sub", (PyCFunction)PadSynthTable_sub, METH_O, "Performs table substraction."},
     {"mul", (PyCFunction)PadSynthTable_mul, METH_O, "Performs table multiplication."},
+    {"div", (PyCFunction)PadSynthTable_div, METH_O, "Performs table division."},
     {NULL}  /* Sentinel */
 };
 
@@ -8401,6 +8435,7 @@ static PyObject * SharedTable_get(SharedTable *self, PyObject *args, PyObject *k
 static PyObject * SharedTable_add(SharedTable *self, PyObject *arg) { TABLE_ADD };
 static PyObject * SharedTable_sub(SharedTable *self, PyObject *arg) { TABLE_SUB };
 static PyObject * SharedTable_mul(SharedTable *self, PyObject *arg) { TABLE_MUL };
+static PyObject * SharedTable_div(SharedTable *self, PyObject *arg) { TABLE_DIV };
 
 static PyObject *
 SharedTable_getSize(SharedTable *self)
@@ -8452,6 +8487,7 @@ static PyMethodDef SharedTable_methods[] =
     {"add", (PyCFunction)SharedTable_add, METH_O, "Performs table addition."},
     {"sub", (PyCFunction)SharedTable_sub, METH_O, "Performs table substraction."},
     {"mul", (PyCFunction)SharedTable_mul, METH_O, "Performs table multiplication."},
+    {"div", (PyCFunction)SharedTable_div, METH_O, "Performs table division."},
     {NULL}  /* Sentinel */
 };
 

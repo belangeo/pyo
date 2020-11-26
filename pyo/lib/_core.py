@@ -2367,6 +2367,31 @@ class PyoTableObject(PyoObjectBase):
         self.refreshView()
         return self
 
+    def div(self, x):
+        """
+        Performs division on the table values.
+
+        Divide each table values by the argument, position by position
+        if the argument is a list or another PyoTableObject.
+
+        :Args:
+
+            x: float, list or PyoTableObject
+                value(s) used to divide.
+
+        """
+        pyoArgsAssert(self, "T", x)
+        if isinstance(x, list):
+            if isinstance(x[0], list):
+                [obj.div(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
+            else:
+                [obj.div(x) for obj in self._base_objs]
+        else:
+            x, _ = convertArgsToLists(x)
+            [obj.div(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
+        self.refreshView()
+        return self
+
     def copyData(self, table, srcpos=0, destpos=0, length=-1):
         """
         Copy samples from a source table.
