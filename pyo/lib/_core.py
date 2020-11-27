@@ -2564,7 +2564,7 @@ class PyoMatrixObject(PyoObjectBase):
         Reads the content of a text file and replaces the matrix data
         with the values in the file.
 
-        Format is a list of lists of floats. For example, A two
+        Format is a list of lists of list of floats. For example, A two
         matrixstreams object must be given a content like this:
 
         [ [ [0.0 ,1.0, 0.5, ... ], [1.0, 0.99, 0.98, 0.97, ... ] ],

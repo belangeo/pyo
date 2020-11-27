@@ -766,11 +766,14 @@ extern PyTypeObject MMLZStreamType;
         PyErr_SetString(PyExc_TypeError, "The data must be a list of list of floats."); \
         return PyInt_FromLong(-1); \
     } \
+    for (i = 0; i < (self->height + 1); i++) { \
+        free(self->data[i]); \
+    } \
     self->height = PyList_Size(arg); \
     self->width = PyList_Size(PyList_GetItem(arg, 0)); \
-    self->data = (MYFLT **)realloc(self->data, (self->height + 1) * sizeof(MYFLT)); \
+    self->data = (MYFLT **)realloc(self->data, (self->height + 1) * sizeof(MYFLT *)); \
     for (i=0; i<(self->height+1); i++) { \
-        self->data[i] = (MYFLT *)realloc(self->data[i], (self->width + 1) * sizeof(MYFLT)); \
+        self->data[i] = (MYFLT *)malloc((self->width + 1) * sizeof(MYFLT)); \
     } \
     MatrixStream_setWidth(self->matrixstream, self->width); \
     MatrixStream_setHeight(self->matrixstream, self->height); \

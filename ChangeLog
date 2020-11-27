@@ -1,3 +1,7 @@
+2020-11-26 belangeo <belangeo@gmail.com>
+
+    * Fixed segmentation fault in PyoMatrixObject.read() method.
+
 2020-11-25 belangeo <belangeo@gmail.com>
 
     * Added a div method to PyoTableObject.

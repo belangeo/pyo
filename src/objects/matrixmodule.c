@@ -276,7 +276,7 @@ NewMatrix_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         self->data[i] = (MYFLT *)malloc((self->width + 1) * sizeof(MYFLT));
     }
 
-    for(i = 0; i < (self->height + 1); i++)
+    for (i = 0; i < (self->height + 1); i++)
     {
         for (j = 0; j < (self->width + 1); j++)
         {
