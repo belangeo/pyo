@@ -299,7 +299,7 @@ NewMatrix_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * NewMatrix_getServer(NewMatrix* self) { GET_SERVER };
 static PyObject * NewMatrix_getMatrixStream(NewMatrix* self) { GET_MATRIX_STREAM };
-static PyObject * NewMatrix_normalize(NewMatrix *self) { NORMALIZE_MATRIX };
+static PyObject * NewMatrix_normalize(NewMatrix *self, PyObject *args, PyObject *kwds) { NORMALIZE_MATRIX };
 static PyObject * NewMatrix_setData(NewMatrix *self, PyObject *arg) { SET_MATRIX_DATA };
 static PyObject * NewMatrix_blur(NewMatrix *self) { MATRIX_BLUR };
 static PyObject * NewMatrix_boost(NewMatrix *self, PyObject *args, PyObject *kwds) { MATRIX_BOOST };
@@ -483,7 +483,7 @@ static PyMethodDef NewMatrix_methods[] =
     {"getMatrixStream", (PyCFunction)NewMatrix_getMatrixStream, METH_NOARGS, "Returns matrixstream object created by this matrix."},
     {"setMatrix", (PyCFunction)NewMatrix_setMatrix, METH_O, "Sets the matrix from a list of list of floats (must be the same size as the object size)."},
     {"setData", (PyCFunction)NewMatrix_setData, METH_O, "Sets the matrix from a list of list of floats (resizes the matrix)."},
-    {"normalize", (PyCFunction)NewMatrix_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
+    {"normalize", (PyCFunction)NewMatrix_normalize, METH_VARARGS | METH_KEYWORDS, "Normalize matrix samples between -1 and 1"},
     {"blur", (PyCFunction)NewMatrix_blur, METH_NOARGS, "Blur the matrix."},
     {"genSineTerrain", (PyCFunction)NewMatrix_genSineTerrain, METH_VARARGS | METH_KEYWORDS, "Generate a modulated sinusoidal terrain."},
     {"boost", (PyCFunction)NewMatrix_boost, METH_VARARGS | METH_KEYWORDS, "Boost the contrast of the matrix."},

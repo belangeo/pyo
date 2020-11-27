@@ -2594,12 +2594,17 @@ class PyoMatrixObject(PyoObjectBase):
         """
         return self._size
 
-    def normalize(self):
+    def normalize(self, level=0.99):
         """
-        Normalize matrix samples between -1 and 1.
+        Normalize matrix samples to a given level.
+
+        :Args:
+            level: float, optional
+                Samples will be normalized between -level and +level.
+                Defaults to 0.99.
 
         """
-        [obj.normalize() for obj in self._base_objs]
+        [obj.normalize(level) for obj in self._base_objs]
         return self
 
     def blur(self):
