@@ -819,7 +819,7 @@ class FrameDelta(PyoObject):
     >>> s.start()
     >>> snd = SNDS_PATH + '/transparent.aif'
     >>> size, hop = 1024, 256
-    >>> nframes = sndinfo(snd)[0] / size
+    >>> nframes = int(sndinfo(snd)[0] / size) + 1
     >>> a = SfPlayer(snd, mul=.3)
     >>> m_mag = [NewMatrix(width=size, height=nframes) for i in range(4)]
     >>> m_pha = [NewMatrix(width=size, height=nframes) for i in range(4)]
@@ -953,7 +953,7 @@ class FrameAccum(PyoObject):
     >>> s.start()
     >>> snd = SNDS_PATH + '/transparent.aif'
     >>> size, hop = 1024, 256
-    >>> nframes = sndinfo(snd)[0] / size
+    >>> nframes = int(sndinfo(snd)[0] / size) + 1
     >>> a = SfPlayer(snd, mul=.3)
     >>> m_mag = [NewMatrix(width=size, height=nframes) for i in range(4)]
     >>> m_pha = [NewMatrix(width=size, height=nframes) for i in range(4)]

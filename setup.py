@@ -365,6 +365,8 @@ if compile_externals:
     os.system("cp externals/external.py pyo/lib/")
 
 soundfiles = [f for f in os.listdir(os.path.join("pyo", "lib", "snds")) if f[-3:] in ["aif", "wav"]]
+soundfiles.extend(["ControlRead_example_test_000", "ControlRead_example_test_001"])
+soundfiles.extend(["NoteinRead_example_test_000", "NoteinRead_example_test_001"])
 short_desc = "Python module to build digital signal processing program."
 long_desc = """
 pyo is a Python module containing classes for a wide variety of audio signal processing types. 

@@ -1657,9 +1657,9 @@ class EventCall(EventGenerator):
             get None as value for the given parameter. It's the user
             responsability to handle this case correctly. Defaults to True.
 
-    >>> from random import randrange
     >>> s = Server().boot()
     >>> s.start()
+    >>> from random import randrange
     >>> e = Events(midinote=EventCall(randrange, 48, 72, 3), beat=1/4., db=-6).play()
 
     """

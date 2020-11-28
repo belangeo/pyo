@@ -3069,7 +3069,7 @@ class TablePut(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> t = DataTable(size=16)
-    >>> rnd = Choice(range(200, 601, 50), freq=16)
+    >>> rnd = Choice(list(range(200, 601, 50)), freq=16)
     >>> rec = TablePut(rnd, t).play()
     >>> met = Metro(.125).play()
     >>> ind = Counter(met, max=16)

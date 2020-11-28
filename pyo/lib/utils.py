@@ -936,10 +936,7 @@ class ControlRead(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> home = os.path.expanduser('~')
-    >>> # assuming "test_xxx" exists in the user directory
-    >>> # run ControlRec's example to generate the files
-    >>> rnds = ControlRead(home+"/test", rate=100, loop=True)
+    >>> rnds = ControlRead(SNDS_PATH+"/ControlRead_example_test", rate=100, loop=True)
     >>> sines = SineLoop(freq=rnds, feedback=.05, mul=.15).out()
 
     """
@@ -958,7 +955,7 @@ class ControlRead(PyoObject):
         for i in range(len(files)):
             path = os.path.join(self._path, files[i])
             f = open(path, "r")
-            values = [float(l.split()[1]) for l in f.readlines()]
+            values = [float(l.split()[1]) for l in f.readlines() if l.strip() != ""]
             f.close()
             self._base_objs.append(ControlRead_base(values, rate, loop, interp, wrap(mul, i), wrap(add, i)))
         self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])
@@ -1158,11 +1155,9 @@ class NoteinRead(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> home = os.path.expanduser('~')
-    >>> # assuming "test_xxx" exists in the user directory
-    >>> notes = NoteinRead(home+"/test", loop=True)
-    >>> amps = Port(notes['velocity'], 0.001, 0.5, mul=.2)
-    >>> sines = SineLoop(freq=notes['pitch'], feedback=.05, mul=amps).out()
+    >>> notes = NoteinRead(SNDS_PATH+"/NoteinRead_example_test", loop=True)
+    >>> amps = Port(notes['velocity'], 0.001, 0.45, mul=.3)
+    >>> sines = SineLoop(freq=MToF(notes['pitch']), feedback=.05, mul=amps).out()
 
     """
 
@@ -1182,7 +1177,7 @@ class NoteinRead(PyoObject):
         for i in range(self._poly):
             path = os.path.join(self._path, files[i])
             f = open(path, "r")
-            vals = [l.split() for l in f.readlines()]
+            vals = [l.split() for l in f.readlines() if l.strip() != ""]
             timestamps = [float(v[0]) for v in vals]
             pitches = [float(v[1]) for v in vals]
             amps = [float(v[2]) for v in vals]
