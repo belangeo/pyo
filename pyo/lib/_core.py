@@ -2486,7 +2486,7 @@ class PyoTableObject(PyoObjectBase):
         self.graphFrame = frame
 
     def _get_current_data(self):
-        # Thid method must be override by children.
+        # Children must override this method.
         return []
 
     def refreshView(self):
@@ -2943,6 +2943,10 @@ class Mix(PyoObject):
         >>> b = a.mix()
         >>> b = Mix(a)
 
+        The `mul` and `add` arguments are relative to the number of voices,
+        ie. if `len(mul)` is bigger than `voices`, last mul values will simply 
+        be ignored, even if the number of input streams to mix is higher.
+
     >>> s = Server().boot()
     >>> s.start()
     >>> a = Sine([random.uniform(400,600) for i in range(50)], mul=.02)
@@ -2968,7 +2972,7 @@ class Mix(PyoObject):
         input_len = len(input_objs)
         if voices < 1:
             voices = 1
-            num = 1
+            num = input_len
         elif voices > input_len and voices > lmax:
             num = voices
         elif lmax > input_len:
