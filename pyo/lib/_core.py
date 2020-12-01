@@ -901,6 +901,7 @@ class PyoObjectBase(object):
         >>> len(obj)      # Return the number of streams managed by the object.
         >>> obj[x]        # Return stream `x` of the object.
         >>>               # `x` is a number from 0 to len(obj)-1.
+        >>>               # Illegal indexing returns None.
         >>> dir(obj)      # Return the list of attributes of the object.
         >>> for x in obj: # Can be used as an iterator (iterates over
         >>>               # object's audio streams).
@@ -1091,7 +1092,9 @@ class PyoObjectBase(object):
     def __getitem__(self, i):
         if i == "trig":
             return self._trig_objs
-        if type(i) == slice or i < len(self._base_objs):
+        if type(i) == slice:
+            return self._base_objs[i]
+        elif isinstance(i, int) and i < len(self._base_objs):
             return self._base_objs[i]
         else:
             if type(i) in [bytes_t, unicode_t]:
@@ -1099,7 +1102,7 @@ class PyoObjectBase(object):
                 print("Object %s has no stream named '%s'!" % args)
             else:
                 args = (self._STREAM_TYPE, self.__class__.__name__)
-                print("'i' too large in slicing %s object %s!" % args)
+                print("'i' too large in indexing %s object %s!" % args)
 
     def __len__(self):
         return len(self._base_objs)
