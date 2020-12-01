@@ -12,7 +12,26 @@ Roadmap 1.0.4
 
 - Update pyo-linux-wheels to use manylinux2010 or manylinux2014 image instead of manylinux1.
 
-- unit testing
+- unit testing with pytest
+
+- vscode integration
+
+- NewTable and DataTable mutable size attribute.
+  Overall PyoTableObject.setSize method does not behave consistently for every table.
+  Most of them re-generate the table after a resize, but the doc says that the table is zero'd.
+
+- PyoTableObject.getSize(all=False), but SndTable.getSize(all=True)
+
+- Error message when DataTable size != len(init)
+
+- PyoTableObject size attribute is int, should be at least unsigned int.
+
+- PyoMatrixObject.get(x, y) inverts arguments. Add PyoMatrixObject.getValue(x, y) with x and y in the good order (also putValue(value, x, y))
+  Really, a ne wimplementation, Pyo2DTableObject could be the best idea.
+
+- PyoMatrixObject.getMatrix() ?
+
+- Remove handling of python2 vs python3 and keep only python3 code.
 
 Internal
 --------
@@ -52,11 +71,6 @@ Objects
 - Add VBAP and LBAP spat algorithms.
 
 - Add a plate reverb.
-
-Jack
-----
-
-- Jack support for Windows and MacOS.
 
 MIDI
 ----
