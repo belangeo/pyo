@@ -823,6 +823,7 @@ typedef struct
     PyObject *arg;
     MYFLT value;
     MYFLT time;
+    MYFLT lastTime;
     MYFLT lastValue;
     MYFLT currentValue;
     long timeStep;
@@ -839,12 +840,13 @@ VarPort_generates_i(VarPort *self)
     int i;
     PyObject *tuple, *result;
 
-    if (self->value != self->lastValue)
+    if (self->value != self->lastValue || self->time != self->lastTime)
     {
         self->flag = 1;
         self->timeCount = 0;
         self->stepVal = (self->value - self->currentValue) / (self->timeStep + 1);
         self->lastValue = self->value;
+        self->lastTime = self->time;
     }
 
     if (self->flag == 1)
@@ -998,7 +1000,7 @@ VarPort_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (VarPort *)type->tp_alloc(type, 0);
 
     self->flag = 1;
-    self->time = 0.025;
+    self->time = self->lastTime = 0.025;
     self->timeStep = (long)(self->time * self->sr);
     self->timeout = (long)((self->time + 0.1) * self->sr);
     self->timeCount = 0;

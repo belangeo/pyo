@@ -3180,7 +3180,7 @@ class VarPort(PyoObject):
     :Args:
 
         value: float
-            Numerical value to convert.
+            Numerical target value to reach as an audio stream.
         time: float, optional
             Ramp time, in seconds, to reach the new value. Defaults to 0.025.
         init: float, optional
@@ -3233,7 +3233,7 @@ class VarPort(PyoObject):
 
     def setValue(self, x):
         """
-        Changes the value of the signal stream.
+        Changes the target value of the signal stream.
 
         :Args:
 
@@ -3278,7 +3278,7 @@ class VarPort(PyoObject):
 
     @property
     def value(self):
-        """float. Numerical value to convert."""
+        """float. Numerical target value."""
         return self._value
 
     @value.setter
