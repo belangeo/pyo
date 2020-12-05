@@ -212,6 +212,9 @@ jack_transport_cb(jack_transport_state_t state, jack_position_t *pos, void *arg)
 
         case JackTransportLooping:
             break;
+
+        default:
+            break;
     }
 
     server->jack_transport_state = state;
