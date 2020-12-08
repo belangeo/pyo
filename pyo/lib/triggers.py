@@ -2177,23 +2177,23 @@ class TrigXnoiseMidi(PyoObject):
 
     :Args:
 
-    input: PyoObject
-        Audio signal sending triggers.
-    dist: string of int, optional
-        Distribution type. Defaults to 0.
-    x1: float or PyoObject, optional
-        First parameter. Defaults to 0.5.
-    x2: float or PyoObject, optional
-        Second parameter. Defaults to 0.5.
-    scale: int {0, 1, 2}, optional
-        Output format. 0 = MIDI, 1 = Hertz, 2 = transposition factor.
-         Defaults to 0.
+        input: PyoObject
+            Audio signal sending triggers.
+        dist: string of int, optional
+            Distribution type. Defaults to 0.
+        x1: float or PyoObject, optional
+            First parameter. Defaults to 0.5.
+        x2: float or PyoObject, optional
+            Second parameter. Defaults to 0.5.
+        scale: int {0, 1, 2}, optional
+            Output format. 0 = MIDI, 1 = Hertz, 2 = transposition factor.
+            Defaults to 0.
 
-        In the transposition mode, the central key (the key where there
-        is no transposition) is (`minrange` + `maxrange`) / 2.
-    mrange: tuple of int, optional
-        Minimum and maximum possible values, in Midi notes. Available
-        only at initialization time. Defaults to (0, 127).
+            In the transposition mode, the central key (the key where there
+            is no transposition) is (`minrange` + `maxrange`) / 2.
+        mrange: tuple of int, optional
+            Minimum and maximum possible values, in Midi notes. Available
+            only at initialization time. Defaults to (0, 127).
 
     .. note::
 
