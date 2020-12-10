@@ -1045,9 +1045,9 @@ class Port(PyoObject):
             Initial state of the internal memory. Available at intialization
             time only. Defaults to 0.
 
-    >>> from random import uniform
     >>> s = Server().boot()
     >>> s.start()
+    >>> from random import uniform
     >>> x = Sig(value=500)
     >>> p = Port(x, risetime=.1, falltime=1)
     >>> a = Sine(freq=[p, p*1.01], mul=.2).out()

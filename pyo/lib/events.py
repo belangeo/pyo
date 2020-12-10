@@ -1726,9 +1726,9 @@ class EventConditional(EventGenerator):
             get None as value for the given parameter. It's the user
             responsability to handle this case correctly. Defaults to True.
 
-    >>> from random import randrange
     >>> s = Server().boot()
     >>> s.start()
+    >>> from random import randrange
     >>> scl = EventScale("C", "aeolian", 4, 3)
     >>> bit = EventChoice([0, 1, 1, 1])
     >>> pittrue = EventSlide(scl, segment=3, step=1, startpos=0)
