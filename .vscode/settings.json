@@ -1,0 +1,20 @@
+{
+    "python.pythonPath": "/usr/bin/python3",
+
+    "editor.tokenColorCustomizations": {
+        "textMateRules": [
+          {
+            "scope": "meta.function-call.generic.python",
+            "settings": {
+                "foreground": "#9CDCFE"
+            }
+          },
+          {
+            "scope": "meta.function-call",
+            "settings": {
+                "foreground": "#9CDCFE"
+            }
+          },
+        ]
+      },
+}

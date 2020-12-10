@@ -1,0 +1,23 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Run unit tests",
+            "isShellCommand": true,
+            "showOutput": "always",
+            "type": "shell",
+            "command": "cd ${workspaceRoot}/tests/pytests; python3 -m pytest",
+            "problemMatcher": []
+        }
+        {
+            "label": "Run unit tests with coverage",
+            "isShellCommand": true,
+            "showOutput": "always",
+            "type": "shell",
+            "command": "cd ${workspaceRoot}/tests/pytests; coverage run --source=pyo --omit=*/examples/*,*/editor/* -m pytest; coverage html",
+            "problemMatcher": []
+        }
+    ]
+}
