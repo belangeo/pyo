@@ -1,4 +1,5 @@
 import os
+import sys
 import time
 import inspect
 from pyo import *
@@ -42,7 +43,7 @@ def play_example(cls, dur=5, toprint=True, double=False):
     for line in doc:
         if not store:
             if ">>> s = Server" in line:
-                line = line + "\ns.recordOptions(filename='{}', dur={})".format(filepath, dur)
+                line = line + "\ns.recordOptions(filename=r'{}', dur={})".format(filepath, dur)
                 line = line + "\ns.recstart()"
                 store = True
         if store:
@@ -70,7 +71,7 @@ def play_example(cls, dur=5, toprint=True, double=False):
     ex += "time.sleep(%f)\ns.recstop()\ns.stop()\ntime.sleep(0.25)\ns.shutdown()\n" % dur
     f = tempfile.NamedTemporaryFile(delete=False)
     if toprint:
-        f.write(tobytes('print("""\n%s\n""")\n' % ex))
+        f.write(tobytes('print(r"""\n%s\n""")\n' % ex))
     f.write(tobytes(ex))
     f.close()
     call([executable, f.name])
@@ -84,9 +85,12 @@ _list.extend(tree["PyoMatrixObject"])
 _list.extend(tree["PyoTableObject"])
 _list.extend(tree["PyoPVObject"])
 
+if sys.platform == "win32":
+    _list.remove("SharedTable")
+
 print(_list)
 
 t = time.time()
 for i, obj in enumerate(_list):
-    play_example(eval(obj), double=True)
+    play_example(eval(obj), toprint=False, double=True)
 print("Elapsed time: {}".format(time.time() - t))
