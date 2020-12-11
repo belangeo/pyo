@@ -5900,6 +5900,8 @@ typedef struct
     int nharms;
     MYFLT damp;
     double sr;
+    MYFLT *amp;
+    MYFLT *inframe;
 } PadSynthTable;
 
 static void
@@ -5920,18 +5922,13 @@ PadSynthTable_generate(PadSynthTable *self)
 {
     int i, nh;
     int hsize = self->size / 2;
-    MYFLT bfac, i2sr, bfonsr, nhspd, bwhz, bwi, fi, gain, absv, max, x;
+    MYFLT bfac, i2sr, bfonsr, nhspd, bwhz, bwi, fi, gain, absv, max, x, phase;
     MYFLT ifsize = 1.0 / (MYFLT)self->size;
     MYFLT twopirndmax = TWOPI / (MYFLT)RAND_MAX;
-    MYFLT amp[hsize];
-    MYFLT phase[hsize];
-    MYFLT real[hsize];
-    MYFLT imag[hsize];
-    MYFLT inframe[self->size];
 
     for (i = 0; i < hsize; i++)
     {
-        amp[i] = 0.0;
+        self->amp[i] = 0.0;
     }
 
     bfac = (MYPOW(2.0, self->bw / 1200.0) - 1.0) * self->basefreq;
@@ -5953,33 +5950,24 @@ PadSynthTable_generate(PadSynthTable *self)
             x *= x;
 
             if (x < 14.71280603)
-                amp[i] += MYEXP(-x) * bwi * gain;
+                self->amp[i] += MYEXP(-x) * bwi * gain;
         }
 
         gain *= self->damp;
     }
 
-    for (i = 0; i < hsize; i++)
-    {
-        phase[i] = rand() * twopirndmax;
-    }
-
-    for (i = 0; i < hsize; i++)
-    {
-        real[i] = amp[i] * MYCOS(phase[i]);
-        imag[i] = amp[i] * MYSIN(phase[i]);
-    }
-
-    inframe[0] = real[0];
-    inframe[hsize] = 0.0;
+    phase = rand() * twopirndmax;
+    self->inframe[0] = self->amp[0] * MYCOS(phase);
+    self->inframe[hsize] = 0.0;
 
     for (i = 1; i < hsize; i++)
     {
-        inframe[i] = real[i];
-        inframe[self->size - i] = imag[i];
+        phase = rand() * twopirndmax;
+        self->inframe[i] = self->amp[i] * MYCOS(phase);
+        self->inframe[self->size - i] = self->amp[i] * MYSIN(phase);
     }
 
-    irealfft_split(inframe, self->data, self->size, self->twiddle);
+    irealfft_split(self->inframe, self->data, self->size, self->twiddle);
 
     max = 0.0;
 
@@ -6030,6 +6018,8 @@ PadSynthTable_dealloc(PadSynthTable* self)
 
     free(self->twiddle);
     free(self->data);
+    free(self->amp);
+    free(self->inframe);
     PadSynthTable_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -6071,6 +6061,8 @@ PadSynthTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     }
 
     self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
+    self->amp = (MYFLT *)realloc(self->amp, (self->size / 2) * sizeof(MYFLT));
+    self->inframe = (MYFLT *)realloc(self->inframe, self->size * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
     TableStream_setData(self->tablestream, self->data);
 
@@ -6230,6 +6222,8 @@ PadSynthTable_setSize(PadSynthTable *self, PyObject *args, PyObject *kwds)
     }
 
     self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
+    self->amp = (MYFLT *)realloc(self->amp, (self->size / 2) * sizeof(MYFLT));
+    self->inframe = (MYFLT *)realloc(self->inframe, self->size * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
 
     if (generate)

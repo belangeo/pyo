@@ -1,3 +1,7 @@
+2020-12-10 belangeo <belangeo@gmail.com>
+
+    * Fixed PadSynthTable crash on Windows.
+
 2020-11-30 belangeo <belangeo@gmail.com>
 
     * VarPort now updates its increment when the time attribute changes.
