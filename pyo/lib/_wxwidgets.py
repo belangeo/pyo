@@ -434,7 +434,7 @@ class ControlSlider(wx.Panel):
             gc.SetBrush(brush)
             gc.DrawRoundedRectangle(rec[0], rec[1], rec[2], rec[3], 3)
         else:
-            rec = wx.Rect(self.pos - self.knobHalfSize, 0, self.knobSize - 1, h)
+            rec = wx.Rect(int(self.pos) - self.knobHalfSize, 0, self.knobSize - 1, h)
             if self.selected:
                 brush = wx.Brush("#333333", wx.SOLID)
             else:
