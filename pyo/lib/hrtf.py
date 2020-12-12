@@ -97264,10 +97264,10 @@ class HRTF(PyoObject):
 
         input: PyoObject
             Input signal to process.
-        azimuth: float or PyoObject
+        azimuth: float or PyoObject, optional
             Position of the sound on the horizontal plane, between -180
             and 180 degrees. Defaults to 0.
-        elevation: float or PyoObject
+        elevation: float or PyoObject, optional
             Position of the sound on the vertical plane, between -40
             and 90 degrees. Defaults to 0.
         hrtfdata: HRTFData, optional
