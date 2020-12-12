@@ -4,6 +4,22 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "Compile linux (single, jack)",
+            "isShellCommand": true,
+            "showOutput": "always",
+            "type": "shell",
+            "command": "cd ${workspaceRoot}; sudo python3 setup.py bdist_wheel install --use-jack; sudo python3 -m pip install --force-reinstall dist/pyo-1.0.3-cp37-cp37m-linux_x86_64.whl",
+            "problemMatcher": []
+        }
+        {
+            "label": "Compile linux (double, jack)",
+            "isShellCommand": true,
+            "showOutput": "always",
+            "type": "shell",
+            "command": "cd ${workspaceRoot}; sudo python3 setup.py bdist_wheel install --use-jack --use-jack; sudo python3 -m pip install --force-reinstall dist/pyo-1.0.3-cp37-cp37m-linux_x86_64.whl",
+            "problemMatcher": []
+        }
+        {
             "label": "Run unit tests",
             "isShellCommand": true,
             "showOutput": "always",
