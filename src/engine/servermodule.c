@@ -192,6 +192,20 @@ Server_debug(Server *self, char * format, ...)
     }
 }
 
+/** Manual server. **/
+/*********************/
+int Server_manual_init(Server *self) { return 0; };
+int Server_manual_deinit(Server *self) { return 0; };
+int Server_manual_start(Server *self) { return 0; }
+int Server_manual_stop(Server *self) { return 0; }
+
+void
+Server_manual_process(Server *self)
+{
+    if (self->audio_be_type == PyoManual && self->server_started == 1)
+        Server_process_buffers(self);
+}
+
 /** Offline server. **/
 /*********************/
 
@@ -796,6 +810,10 @@ Server_init(Server *self, PyObject *args, PyObject *kwds)
     else if (strcmp(audioType, "embedded") == 0)
     {
         self->audio_be_type = PyoEmbedded;
+    }
+    else if (strcmp(audioType, "manual") == 0)
+    {
+        self->audio_be_type = PyoManual;
     }
     else
     {
@@ -1504,6 +1522,10 @@ Server_shutdown(Server *self)
         case PyoEmbedded:
             ret = Server_embedded_deinit(self);
             break;
+
+        case PyoManual:
+            ret = Server_manual_deinit(self);
+            break;
     }
 
     self->server_booted = 0;
@@ -1640,6 +1662,16 @@ Server_boot(Server *self, PyObject *arg)
             if (audioerr < 0)
             {
                 Server_embedded_deinit(self);
+            }
+
+            break;
+
+        case PyoManual:
+            audioerr = Server_manual_init(self);
+
+            if (audioerr < 0)
+            {
+                Server_manual_deinit(self);
             }
 
             break;
@@ -1781,6 +1813,10 @@ Server_start(Server *self)
         case PyoEmbedded:
             err = Server_embedded_nb_start(self);
             break;
+
+        case PyoManual:
+            err = Server_manual_start(self);
+            break;
     }
 
     if (err)
@@ -1829,6 +1865,10 @@ Server_stop(Server *self)
 
         case PyoEmbedded:
             err = Server_embedded_stop(self);
+            break;
+
+        case PyoManual:
+            err = Server_manual_stop(self);
             break;
     }
 
@@ -2596,6 +2636,12 @@ Server_getCurrentTime(Server *self)
 }
 
 static PyObject *
+Server_getCurrentTimeInSamples(Server *self)
+{
+    return PyInt_FromLong(self->elapsedSamples);
+}
+
+static PyObject *
 Server_getCurrentAmp(Server *self)
 {
     PyObject *amplist;
@@ -2645,6 +2691,14 @@ Server_getAutoStartChildren(Server *self)
     return PyInt_FromLong(self->autoStartChildren);
 }
 
+static PyObject *
+Server_manualProcess(Server *self)
+{
+    Server_manual_process(self);
+
+    Py_RETURN_NONE;
+}
+
 static PyMethodDef Server_methods[] =
 {
     {"setInputDevice", (PyCFunction)Server_setInputDevice, METH_O, "Sets audio input device."},
@@ -2689,18 +2743,9 @@ static PyMethodDef Server_methods[] =
     {"recordOptions", (PyCFunction)Server_recordOptions, METH_VARARGS | METH_KEYWORDS, "Sets format settings for offline rendering and global recording."},
     {"recstart", (PyCFunction)Server_start_rec, METH_VARARGS | METH_KEYWORDS, "Start automatic output recording."},
     {"recstop", (PyCFunction)Server_stop_rec, METH_NOARGS, "Stop automatic output recording."},
-    {
-        "addStream", (PyCFunction)Server_addStream, METH_VARARGS, "Adds an audio stream to the server. \
-                                                                This is for internal use and must never be called by the user."
-    },
-    {
-        "removeStream", (PyCFunction)Server_removeStream, METH_VARARGS, "Adds an audio stream to the server. \
-                                                                This is for internal use and must never be called by the user."
-    },
-    {
-        "changeStreamPosition", (PyCFunction)Server_changeStreamPosition, METH_VARARGS, "Puts an audio stream before another in the stack. \
-                                                                This is for internal use and must never be called by the user."
-    },
+    {"addStream", (PyCFunction)Server_addStream, METH_VARARGS, "Adds an audio stream to the server."},
+    {"removeStream", (PyCFunction)Server_removeStream, METH_VARARGS, "Removes an audio stream from the server."},
+    {"changeStreamPosition", (PyCFunction)Server_changeStreamPosition, METH_VARARGS, "Puts an audio stream before another one in the stack."},
     {"noteout", (PyCFunction)Server_noteout, METH_VARARGS, "Send a Midi note event to Portmidi output stream."},
     {"afterout", (PyCFunction)Server_afterout, METH_VARARGS, "Send an aftertouch event to Portmidi output stream."},
     {"ctlout", (PyCFunction)Server_ctlout, METH_VARARGS, "Send a control change event to Portmidi output stream."},
@@ -2729,9 +2774,11 @@ static PyMethodDef Server_methods[] =
     {"getServerAddr", (PyCFunction)Server_getServerAddr, METH_NOARGS, "Get the embedded device server memory address"},
     {"getEmbedICallbackAddr", (PyCFunction)Server_getEmbedICallbackAddr, METH_NOARGS, "Get the embedded device interleaved callback method memory address"},
     {"getCurrentTime", (PyCFunction)Server_getCurrentTime, METH_NOARGS, "Get the current time as a formatted string."},
+    {"getCurrentTimeInSamples", (PyCFunction)Server_getCurrentTimeInSamples, METH_NOARGS, "Get the current time as a number of elapsed samples."},
     {"getCurrentAmp", (PyCFunction)Server_getCurrentAmp, METH_NOARGS, "Get the current global amplitudes as a list of floats."},
     {"setAutoStartChildren", (PyCFunction)Server_setAutoStartChildren, METH_O, "Sets autoStartChildren attribute."},
     {"getAutoStartChildren", (PyCFunction)Server_getAutoStartChildren, METH_NOARGS, "Gets autoStartChildren attribute."},
+    {"process", (PyCFunction)Server_manualProcess, METH_NOARGS, "Compute one buffer size of samples in manual mode."},
     {NULL}  /* Sentinel */
 };
 
