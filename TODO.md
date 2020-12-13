@@ -22,12 +22,10 @@ Roadmap 1.0.4
 
 - PyoTableObject.getSize(all=False), but SndTable.getSize(all=True)
 
-- Error message when DataTable size != len(init)
-
 - PyoTableObject size attribute is int, should be at least unsigned int.
 
 - PyoMatrixObject.get(x, y) inverts arguments. Add PyoMatrixObject.getValue(x, y) with x and y in the good order (also putValue(value, x, y))
-  Really, a ne wimplementation, Pyo2DTableObject could be the best idea.
+  Really, a new implementation, Pyo2DTableObject, could be the best idea.
 
 - PyoMatrixObject.getMatrix() ?
 

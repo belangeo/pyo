@@ -5137,8 +5137,21 @@ NewTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     TableStream_setSize(self->tablestream, self->size);
 
-    if (inittmp && inittmp != Py_None)
+    if (inittmp && PyList_Check(inittmp))
     {
+        if (PyList_Size(inittmp) < self->size)
+        {
+            for (i = 0; i < (self->size - PyList_Size(inittmp)); i++)
+            {
+                PyList_Append(inittmp, PyFloat_FromDouble(0.0));
+            }
+            PySys_WriteStdout("Warning: NewTable data length < size... padded with 0s.\n");
+        }
+        else if (PyList_Size(inittmp) > self->size)
+        {
+            inittmp = PyList_GetSlice(inittmp, 0, self->size);
+            PySys_WriteStdout("Warning: NewTable data length > size... truncated to size.\n");
+        }
         PyObject_CallMethod((PyObject *)self, "setTable", "O", inittmp);
     }
 
