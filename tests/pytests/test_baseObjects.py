@@ -595,10 +595,15 @@ class TestPyoTableObject:
         assert t.get(0) == 0
         t.put(value=1.0, pos=0)
         assert t.get(0) == 1.0
+        t.put(value=1.0, pos=5)
+        assert t.get(5) == 1.0
+        t.put(value=1.0, pos=-5)
+        assert t.get(5) == 1.0
 
     def test_get(self):
         t = DataTable(size=4, chnls=1, init=[1, 2, 3, 4])
         assert t.get(0) == 1
+        assert t.get(-2) == 3
         t = DataTable(size=4, chnls=2, init=[[1, 2, 3, 4], [5, 6, 7, 8]])
         assert t.get(0) == [1, 5]
 
@@ -827,6 +832,11 @@ class TestPyoTableObject:
 
         dst = DataTable(size=8, chnls=1, init=[8, 9, 10, 11, 12, 13, 14, 15])
         dst.copyData(src, 2, 4, 2)
+        assert dst.getTable() == [8, 9, 10, 11, 2, 3, 14, 15]
+
+        # Can take negative indices
+        dst = DataTable(size=8, chnls=1, init=[8, 9, 10, 11, 12, 13, 14, 15])
+        dst.copyData(src, -6, -4, 2)
         assert dst.getTable() == [8, 9, 10, 11, 2, 3, 14, 15]
 
     def test_rotate(self):

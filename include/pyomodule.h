@@ -1141,6 +1141,24 @@ extern PyTypeObject MMLZStreamType;
         Py_XDECREF(table); \
         table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", ""); \
         tabsize = TableStream_getSize((TableStream *)table); \
+ \
+        if (srcpos < -tabsize || srcpos >= tabsize) { \
+            PyErr_SetString(PyExc_IndexError, "PyoTableObject: Position outside of table boundaries!."); \
+            return PyInt_FromLong(-1); \
+        } \
+    \
+        if (srcpos < 0) \
+            srcpos = tabsize + srcpos; \
+    \
+ \
+        if (destpos < -self->size || destpos >= self->size) { \
+            PyErr_SetString(PyExc_IndexError, "PyoTableObject: Position outside of table boundaries!."); \
+            return PyInt_FromLong(-1); \
+        } \
+    \
+        if (destpos < 0) \
+            destpos = self->size + destpos; \
+ \
         if (length < 0) \
             length = tabsize < self->size ? tabsize : self->size; \
         if ((srcpos + length) > tabsize) \
@@ -1369,10 +1387,13 @@ extern PyTypeObject MMLZStreamType;
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F_I, kwlist, &val, &pos)) \
         return PyInt_FromLong(-1); \
  \
-    if (pos >= self->size) \
-        pos = self->size - 1; \
-    else if (pos < 0) \
-        pos = 0; \
+    if (pos < -self->size || pos >= self->size) { \
+        PyErr_SetString(PyExc_IndexError, "PyoTableObject: Position outside of table boundaries!."); \
+        return PyInt_FromLong(-1); \
+    } \
+ \
+    if (pos < 0) \
+        pos = self->size + pos; \
  \
     self->data[pos] = val; \
  \
@@ -1385,10 +1406,13 @@ extern PyTypeObject MMLZStreamType;
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "i", kwlist, &pos)) \
         return PyInt_FromLong(-1); \
  \
-    if (pos >= self->size) { \
-        PyErr_SetString(PyExc_TypeError, "position outside of table boundaries!."); \
+    if (pos < -self->size || pos >= self->size) { \
+        PyErr_SetString(PyExc_IndexError, "PyoTableObject: Position outside of table boundaries!."); \
         return PyInt_FromLong(-1); \
     } \
+ \
+    if (pos < 0) \
+        pos = self->size + pos; \
  \
     return PyFloat_FromDouble(self->data[pos]);
 
