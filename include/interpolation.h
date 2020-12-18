@@ -22,9 +22,9 @@
 #ifndef _INTERPOLATION_
 #define _INTERPOLATION_
 
-MYFLT nointerp(MYFLT *buf, int index, MYFLT frac, int size);
-MYFLT linear(MYFLT *buf, int index, MYFLT frac, int size);
-MYFLT cosine(MYFLT *buf, int index, MYFLT frac, int size);
-MYFLT cubic(MYFLT *buf, int index, MYFLT frac, int size);
+MYFLT nointerp(MYFLT *buf, T_SIZE_T index, MYFLT frac, T_SIZE_T size);
+MYFLT linear(MYFLT *buf, T_SIZE_T index, MYFLT frac, T_SIZE_T size);
+MYFLT cosine(MYFLT *buf, T_SIZE_T index, MYFLT frac, T_SIZE_T size);
+MYFLT cubic(MYFLT *buf, T_SIZE_T index, MYFLT frac, T_SIZE_T size);
 
 #endif
