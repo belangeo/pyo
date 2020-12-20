@@ -317,8 +317,7 @@ HarmTable_setSize(HarmTable *self, PyObject *value)
 
     HarmTable_generate(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -348,8 +347,7 @@ HarmTable_replace(HarmTable *self, PyObject *value)
 
     HarmTable_generate(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef HarmTable_members[] =
@@ -651,8 +649,7 @@ ChebyTable_setSize(ChebyTable *self, PyObject *value)
 
     ChebyTable_generate(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -682,8 +679,7 @@ ChebyTable_replace(ChebyTable *self, PyObject *value)
 
     ChebyTable_generate(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -994,8 +990,7 @@ HannTable_setSize(HannTable *self, PyObject *value)
 
     HannTable_generate(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1233,8 +1228,7 @@ SincTable_setFreq(SincTable *self, PyObject *value)
 
     SincTable_generate(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1251,8 +1245,7 @@ SincTable_setWindowed(SincTable *self, PyObject *value)
 
     SincTable_generate(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1277,8 +1270,7 @@ SincTable_setSize(SincTable *self, PyObject *value)
 
     SincTable_generate(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1488,8 +1480,7 @@ WinTable_setSize(WinTable *self, PyObject *value)
 
     WinTable_generate(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1517,8 +1508,7 @@ WinTable_setType(WinTable *self, PyObject *value)
 
     WinTable_generate(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef WinTable_members[] =
@@ -1736,8 +1726,7 @@ ParaTable_setSize(ParaTable *self, PyObject *value)
 
     ParaTable_generate(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2040,8 +2029,7 @@ LinTable_setSize(LinTable *self, PyObject *value)
 
     LinTable_generate(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2078,8 +2066,7 @@ LinTable_replace(LinTable *self, PyObject *value)
 
     LinTable_generate(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef LinTable_members[] =
@@ -2411,8 +2398,7 @@ LogTable_setSize(LogTable *self, PyObject *value)
 
     LogTable_generate(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2449,8 +2435,7 @@ LogTable_replace(LogTable *self, PyObject *value)
 
     LogTable_generate(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef LogTable_members[] =
@@ -2750,8 +2735,7 @@ CosTable_setSize(CosTable *self, PyObject *value)
 
     CosTable_generate(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2788,8 +2772,7 @@ CosTable_replace(CosTable *self, PyObject *value)
 
     CosTable_generate(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef CosTable_members[] =
@@ -3122,8 +3105,7 @@ CosLogTable_setSize(CosLogTable *self, PyObject *value)
 
     CosLogTable_generate(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -3160,8 +3142,7 @@ CosLogTable_replace(CosLogTable *self, PyObject *value)
 
     CosLogTable_generate(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef CosLogTable_members[] =
@@ -3463,8 +3444,7 @@ CurveTable_setTension(CurveTable *self, PyObject *value)
 
     CurveTable_generate(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -3486,8 +3466,7 @@ CurveTable_setBias(CurveTable *self, PyObject *value)
 
     CurveTable_generate(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -3536,8 +3515,7 @@ CurveTable_setSize(CurveTable *self, PyObject *value)
 
     CurveTable_generate(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -3574,8 +3552,7 @@ CurveTable_replace(CurveTable *self, PyObject *value)
 
     CurveTable_generate(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef CurveTable_members[] =
@@ -3879,8 +3856,7 @@ ExpTable_setExp(ExpTable *self, PyObject *value)
 
     ExpTable_generate(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -3902,8 +3878,7 @@ ExpTable_setInverse(ExpTable *self, PyObject *value)
 
     ExpTable_generate(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -3952,8 +3927,7 @@ ExpTable_setSize(ExpTable *self, PyObject *value)
 
     ExpTable_generate(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -3990,8 +3964,7 @@ ExpTable_replace(ExpTable *self, PyObject *value)
 
     ExpTable_generate(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef ExpTable_members[] =
@@ -4803,8 +4776,7 @@ SndTable_getEnvelope(SndTable *self, PyObject *arg)
     }
     else
     {
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
 };
 
@@ -4818,15 +4790,13 @@ SndTable_setSound(SndTable *self, PyObject *args, PyObject *kwds)
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_P_IFF, kwlist, &self->path, &psize, &self->chnl, &self->start, &stoptmp))
     {
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
 
     self->stop = stoptmp;
     SndTable_loadSound(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -4840,8 +4810,7 @@ SndTable_append(SndTable *self, PyObject *args, PyObject *kwds)
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_P_FIFF, kwlist, &self->path, &psize, &crosstmp, &self->chnl, &self->start, &stoptmp))
     {
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
 
     self->stop = stoptmp;
@@ -4853,8 +4822,7 @@ SndTable_append(SndTable *self, PyObject *args, PyObject *kwds)
 
     SndTable_appendSound(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -4869,8 +4837,7 @@ SndTable_insert(SndTable *self, PyObject *args, PyObject *kwds)
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_P_FFIFF, kwlist, &self->path, &psize, &postmp, &crosstmp, &self->chnl, &self->start, &stoptmp))
     {
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
 
     self->stop = stoptmp;
@@ -4890,8 +4857,7 @@ SndTable_insert(SndTable *self, PyObject *args, PyObject *kwds)
         SndTable_insertSound(self);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -4914,8 +4880,7 @@ SndTable_setSize(SndTable *self, PyObject *value)
     TableStream_setSize(self->tablestream, self->size);
     TableStream_setData(self->tablestream, self->data);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -5076,8 +5041,7 @@ NewTable_recordChunk(NewTable *self, MYFLT *data, T_SIZE_T datasize)
         }
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static int
@@ -5771,8 +5735,7 @@ AtanTable_setSlope(AtanTable *self, PyObject *value)
 
     AtanTable_generate(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -5797,8 +5760,7 @@ AtanTable_setSize(AtanTable *self, PyObject *value)
 
     AtanTable_generate(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -6575,8 +6537,7 @@ static PyObject * TableRec_stop(TableRec *self, PyObject *args, PyObject *kwds)
         Stream_setDuration(self->stream, nearestBuf);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 };
 
 static PyObject *
@@ -6591,8 +6552,7 @@ TableRec_setTable(TableRec *self, PyObject *arg)
     Py_DECREF(self->table);
     self->table = (NewTable *)tmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef TableRec_members[] =
@@ -7083,8 +7043,7 @@ TableMorph_setTable(TableMorph *self, PyObject *arg)
     Py_DECREF(self->table);
     self->table = (PyObject *)tmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -7102,8 +7061,7 @@ TableMorph_setSources(TableMorph *self, PyObject *arg)
     Py_DECREF(self->sources);
     self->sources = arg;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef TableMorph_members[] =
@@ -7447,8 +7405,7 @@ TrigTableRec_setTable(TrigTableRec *self, PyObject *arg)
     Py_DECREF(self->table);
     self->table = (NewTable *)tmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef TrigTableRec_members[] =
@@ -7928,8 +7885,7 @@ TablePut_setTable(TablePut *self, PyObject *arg)
     Py_DECREF(self->table);
     self->table = (DataTable *)tmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef TablePut_members[] =
@@ -8209,8 +8165,7 @@ TableWrite_setPos(TableWrite *self, PyObject *arg)
     Py_XDECREF(self->pos_stream);
     self->pos_stream = (Stream *)streamtmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -8225,8 +8180,7 @@ TableWrite_setTable(TableWrite *self, PyObject *arg)
     Py_DECREF(self->table);
     self->table = (NewTable *)tmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef TableWrite_members[] =

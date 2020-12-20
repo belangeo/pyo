@@ -791,8 +791,7 @@ MMLMain_setSequence(MMLMain *self, PyObject *arg)
         self->num_events = PyList_Size(self->sequence);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -810,8 +809,7 @@ MMLMain_setPending(MMLMain *self, PyObject *arg)
         self->pending = tmp;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -838,8 +836,7 @@ MMLMain_update(MMLMain *self, PyObject *arg)
         }
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef MMLMain_members[] =

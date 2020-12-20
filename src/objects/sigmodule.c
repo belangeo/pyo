@@ -217,8 +217,7 @@ Sig_setValue(Sig *self, PyObject *arg)
         self->modebuffer[2] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject * Sig_getServer(Sig* self) { GET_SERVER };
@@ -1085,8 +1084,7 @@ VarPort_setValue(VarPort *self, PyObject *arg)
     else
         self->value = self->lastValue;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1108,8 +1106,7 @@ VarPort_setTime(VarPort *self, PyObject *arg)
         self->timeout = (long)((self->time + 0.1) * self->sr);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1120,8 +1117,7 @@ VarPort_setFunction(VarPort *self, PyObject *arg)
     if (! PyCallable_Check(arg))
     {
         PyErr_SetString(PyExc_TypeError, "The function attribute must be callable.");
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
 
     tmp = arg;
@@ -1129,8 +1125,7 @@ VarPort_setFunction(VarPort *self, PyObject *arg)
     Py_INCREF(tmp);
     self->callable = tmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject * VarPort_getServer(VarPort* self) { GET_SERVER };

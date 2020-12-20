@@ -215,8 +215,7 @@ NewMatrix_recordChunkAllRow(NewMatrix *self, MYFLT *data, long datasize)
         }
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static int
@@ -434,8 +433,7 @@ NewMatrix_setMatrix(NewMatrix *self, PyObject *value)
         }
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -463,8 +461,7 @@ NewMatrix_genSineTerrain(NewMatrix *self, PyObject *args, PyObject *kwds)
         }
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef NewMatrix_members[] =
@@ -737,8 +734,7 @@ MatrixRec_setMatrix(MatrixRec *self, PyObject *arg)
     Py_DECREF(self->matrix);
     self->matrix = (NewMatrix *)tmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef MatrixRec_members[] =
@@ -935,8 +931,7 @@ MatrixRecLoop_setMatrix(MatrixRecLoop *self, PyObject *arg)
     Py_DECREF(self->matrix);
     self->matrix = (NewMatrix *)tmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef MatrixRecLoop_members[] =
@@ -1150,8 +1145,7 @@ MatrixMorph_setMatrix(MatrixMorph *self, PyObject *arg)
     Py_DECREF(self->matrix);
     self->matrix = (PyObject *)tmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1169,8 +1163,7 @@ MatrixMorph_setSources(MatrixMorph *self, PyObject *arg)
     Py_DECREF(self->sources);
     self->sources = arg;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef MatrixMorph_members[] =

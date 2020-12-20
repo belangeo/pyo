@@ -1476,8 +1476,7 @@ rescale(PyObject *self, PyObject *args, PyObject *kwds)
         type = 1;
     else
     {
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
 
     if (xlog == 0 && ylog == 0)
@@ -1598,12 +1597,10 @@ rescale(PyObject *self, PyObject *args, PyObject *kwds)
     }
     else
     {
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 #define floatmap_info \

@@ -308,8 +308,7 @@ Follower_setFreq(Follower *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Follower_members[] =
@@ -846,8 +845,7 @@ Follower2_setRisetime(Follower2 *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -880,8 +878,7 @@ Follower2_setFalltime(Follower2 *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Follower2_members[] =
@@ -1203,8 +1200,7 @@ ZCross_setThresh(ZCross *self, PyObject *arg)
         self->thresh = PyFloat_AsDouble(arg);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef ZCross_members[] =
@@ -2872,8 +2868,7 @@ Scope_setLength(Scope *self, PyObject *arg)
             self->newsize = maxsize;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2884,8 +2879,7 @@ Scope_setGain(Scope *self, PyObject *arg)
         self->gain = PyFloat_AsDouble(arg);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2896,8 +2890,7 @@ Scope_setWidth(Scope *self, PyObject *arg)
         self->width = PyInt_AsLong(arg);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2908,8 +2901,7 @@ Scope_setHeight(Scope *self, PyObject *arg)
         self->height = PyInt_AsLong(arg);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2920,8 +2912,7 @@ Scope_setFunc(Scope *self, PyObject *arg)
     if (! PyCallable_Check(arg))
     {
         PyErr_SetString(PyExc_TypeError, "The function attribute must be callable.");
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
 
     tmp = arg;
@@ -2929,8 +2920,7 @@ Scope_setFunc(Scope *self, PyObject *arg)
     Py_INCREF(tmp);
     self->func = tmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2941,8 +2931,7 @@ Scope_setPoll(Scope *self, PyObject *arg)
         self->poll = PyInt_AsLong(arg);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Scope_members[] =

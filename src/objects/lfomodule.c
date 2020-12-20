@@ -1457,8 +1457,7 @@ LFO_setFreq(LFO *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1491,8 +1490,7 @@ LFO_setSharp(LFO *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1514,8 +1512,7 @@ LFO_setType(LFO *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1524,8 +1521,7 @@ LFO_reset(LFO *self)
     self->pointerPos = 0.0;
     self->sahPointerPos = 0.0;
     self->modPointerPos = 0.0;
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef LFO_members[] =

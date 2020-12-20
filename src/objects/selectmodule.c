@@ -221,8 +221,7 @@ Select_setValue(Select *self, PyObject *arg)
         self->value = PyLong_AsLong(arg);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Select_members[] =

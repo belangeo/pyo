@@ -251,8 +251,7 @@ MatrixPointer_setMatrix(MatrixPointer *self, PyObject *arg)
     Py_DECREF(self->matrix);
     self->matrix = PyObject_CallMethod((PyObject *)tmp, "getMatrixStream", "");
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -279,8 +278,7 @@ MatrixPointer_setX(MatrixPointer *self, PyObject *arg)
     Py_XDECREF(self->x_stream);
     self->x_stream = (Stream *)streamtmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -307,8 +305,7 @@ MatrixPointer_setY(MatrixPointer *self, PyObject *arg)
     Py_XDECREF(self->y_stream);
     self->y_stream = (Stream *)streamtmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef MatrixPointer_members[] =

@@ -1465,8 +1465,7 @@ SfMarkerShuffler_setSpeed(SfMarkerShuffler *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2376,8 +2375,7 @@ SfMarkerLooper_setSpeed(SfMarkerLooper *self, PyObject *arg)
         self->modebuffer[0] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2408,8 +2406,7 @@ SfMarkerLooper_setMark(SfMarkerLooper *self, PyObject *arg)
         self->modebuffer[1] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *

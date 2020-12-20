@@ -43,9 +43,7 @@ OscListener_get(OscListener *self)
 {
     while (lo_server_recv_noblock(self->osc_server, 0) != 0) {};
 
-    Py_INCREF(Py_None);
-
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 int process_osc(const char *path, const char *types, lo_arg **argv, int argc,
@@ -199,15 +197,13 @@ OscListener_setOscFunction(OscListener *self, PyObject *arg)
 
     if (arg == Py_None)
     {
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
 
     if (! PyCallable_Check(arg))
     {
         PyErr_SetString(PyExc_TypeError, "The callable attribute must be a valid Python function.");
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
 
     tmp = arg;
@@ -215,8 +211,7 @@ OscListener_setOscFunction(OscListener *self, PyObject *arg)
     Py_INCREF(tmp);
     self->osccallable = tmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef OscListener_members[] =

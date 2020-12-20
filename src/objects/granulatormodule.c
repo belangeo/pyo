@@ -943,8 +943,7 @@ Granulator_setPitch(Granulator *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -977,8 +976,7 @@ Granulator_setPos(Granulator *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1011,8 +1009,7 @@ Granulator_setDur(Granulator *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1033,8 +1030,7 @@ Granulator_setTable(Granulator *self, PyObject *arg)
     Py_DECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1055,8 +1051,7 @@ Granulator_setEnv(Granulator *self, PyObject *arg)
     Py_DECREF(self->env);
     self->env = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1065,8 +1060,7 @@ Granulator_setBaseDur(Granulator *self, PyObject *arg)
     if (arg != NULL)
         self->basedur = PyFloat_AsDouble(arg);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1098,8 +1092,7 @@ Granulator_setGrains(Granulator *self, PyObject *arg)
         }
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Granulator_members[] =
@@ -2351,8 +2344,7 @@ Looper_setPitch(Looper *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2383,8 +2375,7 @@ Looper_setStart(Looper *self, PyObject *arg)
         self->modebuffer[3] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2415,8 +2406,7 @@ Looper_setDur(Looper *self, PyObject *arg)
         self->modebuffer[4] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2447,8 +2437,7 @@ Looper_setXfade(Looper *self, PyObject *arg)
         self->modebuffer[5] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2469,8 +2458,7 @@ Looper_setTable(Looper *self, PyObject *arg)
     Py_DECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2485,8 +2473,7 @@ Looper_setStartFromLoop(Looper *self, PyObject *arg)
         self->startfromloop = PyInt_AsLong(arg);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2501,8 +2488,7 @@ Looper_setXfadeShape(Looper *self, PyObject *arg)
         self->xfadeshape = PyInt_AsLong(arg);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2522,8 +2508,7 @@ Looper_setMode(Looper *self, PyObject *arg)
             self->tmpmode = tmp;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2540,8 +2525,7 @@ Looper_setInterp(Looper *self, PyObject *arg)
 
     SET_INTERP_POINTER
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2556,8 +2540,7 @@ Looper_setAutoSmooth(Looper *self, PyObject *arg)
         self->autosmooth = PyInt_AsLong(arg);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2565,16 +2548,14 @@ Looper_on_reset(Looper *self)
 {
     self->pointerPos[0] = self->pointerPos[1] = 0.0;
     self->active[0] = self->active[1] = 0;
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 };
 
 static PyObject *
 Looper_loopnow(Looper *self)
 {
     Looper_endloop(self);
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 };
 
 static PyObject *
@@ -2589,8 +2570,7 @@ Looper_appendFadeTime(Looper *self, PyObject *arg)
         self->appendfade = PyInt_AsLong(arg) == 0 ? 0 : 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2605,8 +2585,7 @@ Looper_fadeInSeconds(Looper *self, PyObject *arg)
         self->fadeinseconds = PyInt_AsLong(arg) == 0 ? 0 : 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Looper_members[] =
@@ -3540,8 +3519,7 @@ Granule_setDens(Granule *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -3572,8 +3550,7 @@ Granule_setPitch(Granule *self, PyObject *arg)
         self->modebuffer[3] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -3604,8 +3581,7 @@ Granule_setPos(Granule *self, PyObject *arg)
         self->modebuffer[4] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -3636,8 +3612,7 @@ Granule_setDur(Granule *self, PyObject *arg)
         self->modebuffer[5] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -3658,8 +3633,7 @@ Granule_setTable(Granule *self, PyObject *arg)
     Py_DECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -3680,8 +3654,7 @@ Granule_setEnv(Granule *self, PyObject *arg)
     Py_DECREF(self->env);
     self->env = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -3697,8 +3670,7 @@ Granule_setSync(Granule *self, PyObject *arg)
             self->sync = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Granule_members[] =
@@ -4713,8 +4685,7 @@ MainParticle_setDens(MainParticle *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -4745,8 +4716,7 @@ MainParticle_setPitch(MainParticle *self, PyObject *arg)
         self->modebuffer[1] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -4777,8 +4747,7 @@ MainParticle_setPos(MainParticle *self, PyObject *arg)
         self->modebuffer[2] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -4809,8 +4778,7 @@ MainParticle_setDur(MainParticle *self, PyObject *arg)
         self->modebuffer[3] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -4841,8 +4809,7 @@ MainParticle_setDev(MainParticle *self, PyObject *arg)
         self->modebuffer[4] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -4873,8 +4840,7 @@ MainParticle_setPan(MainParticle *self, PyObject *arg)
         self->modebuffer[5] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -4896,8 +4862,7 @@ MainParticle_setTable(MainParticle *self, PyObject *arg)
     self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
     self->srScale = TableStream_getSamplingRate(self->table) / self->sr;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -4918,8 +4883,7 @@ MainParticle_setEnv(MainParticle *self, PyObject *arg)
     Py_DECREF(self->env);
     self->env = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef MainParticle_members[] =
@@ -6576,8 +6540,7 @@ MainParticle2_setDens(MainParticle2 *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -6608,8 +6571,7 @@ MainParticle2_setPitch(MainParticle2 *self, PyObject *arg)
         self->modebuffer[1] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -6640,8 +6602,7 @@ MainParticle2_setPos(MainParticle2 *self, PyObject *arg)
         self->modebuffer[2] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -6672,8 +6633,7 @@ MainParticle2_setDur(MainParticle2 *self, PyObject *arg)
         self->modebuffer[3] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -6704,8 +6664,7 @@ MainParticle2_setDev(MainParticle2 *self, PyObject *arg)
         self->modebuffer[4] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -6736,8 +6695,7 @@ MainParticle2_setPan(MainParticle2 *self, PyObject *arg)
         self->modebuffer[5] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -6768,8 +6726,7 @@ MainParticle2_setFilterfreq(MainParticle2 *self, PyObject *arg)
         self->modebuffer[6] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -6800,8 +6757,7 @@ MainParticle2_setFilterq(MainParticle2 *self, PyObject *arg)
         self->modebuffer[7] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -6832,8 +6788,7 @@ MainParticle2_setFiltertype(MainParticle2 *self, PyObject *arg)
         self->modebuffer[8] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -6855,8 +6810,7 @@ MainParticle2_setTable(MainParticle2 *self, PyObject *arg)
     self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
     self->srScale = TableStream_getSamplingRate(self->table) / self->sr;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -6877,8 +6831,7 @@ MainParticle2_setEnv(MainParticle2 *self, PyObject *arg)
     Py_DECREF(self->env);
     self->env = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef MainParticle2_members[] =

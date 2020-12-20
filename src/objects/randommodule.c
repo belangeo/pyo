@@ -533,8 +533,7 @@ Randi_setMin(Randi *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -567,8 +566,7 @@ Randi_setMax(Randi *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -601,8 +599,7 @@ Randi_setFreq(Randi *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Randi_members[] =
@@ -1210,8 +1207,7 @@ Randh_setMin(Randh *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1244,8 +1240,7 @@ Randh_setMax(Randh *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1278,8 +1273,7 @@ Randh_setFreq(Randh *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Randh_members[] =
@@ -1643,8 +1637,7 @@ Choice_setChoice(Choice *self, PyObject *arg)
     if (! PyList_Check(arg))
     {
         PyErr_SetString(PyExc_TypeError, "The choice attribute must be a list.");
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
 
     tmp = arg;
@@ -1658,8 +1651,7 @@ Choice_setChoice(Choice *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1692,8 +1684,7 @@ Choice_setFreq(Choice *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Choice_members[] =
@@ -2140,8 +2131,7 @@ RandInt_setMax(RandInt *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2174,8 +2164,7 @@ RandInt_setFreq(RandInt *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef RandInt_members[] =
@@ -2680,8 +2669,7 @@ RandDur_setMin(RandDur *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2714,8 +2702,7 @@ RandDur_setMax(RandDur *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef RandDur_members[] =
@@ -3646,8 +3633,7 @@ Xnoise_setType(Xnoise *self, PyObject *arg)
         Xnoise_setRandomType(self);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -3680,8 +3666,7 @@ Xnoise_setX1(Xnoise *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -3714,8 +3699,7 @@ Xnoise_setX2(Xnoise *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -3748,8 +3732,7 @@ Xnoise_setFreq(Xnoise *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Xnoise_members[] =
@@ -4729,8 +4712,7 @@ XnoiseMidi_setType(XnoiseMidi *self, PyObject *arg)
         XnoiseMidi_setRandomType(self);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -4752,8 +4734,7 @@ XnoiseMidi_setScale(XnoiseMidi *self, PyObject *arg)
             PySys_WriteStdout("XnoiseMidi: scale attribute must be an integer {0, 1, 2}\n");
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -4761,8 +4742,7 @@ XnoiseMidi_setRange(XnoiseMidi *self, PyObject *args)
 {
     if (args == NULL)
     {
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
 
     int isTuple = PyTuple_Check(args);
@@ -4774,8 +4754,7 @@ XnoiseMidi_setRange(XnoiseMidi *self, PyObject *args)
         self->centralkey = (int)((self->range_max + self->range_min) / 2);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -4808,8 +4787,7 @@ XnoiseMidi_setX1(XnoiseMidi *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -4842,8 +4820,7 @@ XnoiseMidi_setX2(XnoiseMidi *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -4876,8 +4853,7 @@ XnoiseMidi_setFreq(XnoiseMidi *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef XnoiseMidi_members[] =
@@ -5645,8 +5621,7 @@ XnoiseDur_setType(XnoiseDur *self, PyObject *arg)
         XnoiseDur_setRandomType(self);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -5679,8 +5654,7 @@ XnoiseDur_setX1(XnoiseDur *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -5713,8 +5687,7 @@ XnoiseDur_setX2(XnoiseDur *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -5747,8 +5720,7 @@ XnoiseDur_setMin(XnoiseDur *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -5781,8 +5753,7 @@ XnoiseDur_setMax(XnoiseDur *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef XnoiseDur_members[] =
@@ -6219,8 +6190,7 @@ Urn_setMax(Urn *self, PyObject *arg)
 
     Urn_reset(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -6253,8 +6223,7 @@ Urn_setFreq(Urn *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Urn_members[] =
@@ -6729,8 +6698,7 @@ LogiMap_setChaos(LogiMap *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -6763,8 +6731,7 @@ LogiMap_setFreq(LogiMap *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef LogiMap_members[] =

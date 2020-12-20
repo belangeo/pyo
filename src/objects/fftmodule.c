@@ -249,8 +249,7 @@ FFTMain_setSize(FFTMain *self, PyObject *args, PyObject *kwds)
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "ii", kwlist, &size, &hopsize))
     {
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
 
     if (isPowerOfTwo(size))
@@ -262,8 +261,7 @@ FFTMain_setSize(FFTMain *self, PyObject *args, PyObject *kwds)
     else
         PySys_WriteStdout("FFT size must be a power of two!\n");
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -275,8 +273,7 @@ FFTMain_setWinType(FFTMain *self, PyObject *arg)
         gen_window(self->window, self->size, self->wintype);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef FFTMain_members[] =
@@ -906,8 +903,7 @@ IFFT_setSize(IFFT *self, PyObject *args, PyObject *kwds)
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "ii", kwlist, &size, &hopsize))
     {
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
 
     if (isPowerOfTwo(size))
@@ -919,8 +915,7 @@ IFFT_setSize(IFFT *self, PyObject *args, PyObject *kwds)
     else
         PySys_WriteStdout("IFFT size must be a power of two!\n");
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -932,8 +927,7 @@ IFFT_setWinType(IFFT *self, PyObject *arg)
         gen_window(self->window, self->size, self->wintype);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef IFFT_members[] =
@@ -1841,8 +1835,7 @@ FrameDeltaMain_setInput(FrameDeltaMain *self, PyObject *arg)
     if (! PyList_Check(arg))
     {
         PyErr_SetString(PyExc_TypeError, "The inputs attribute must be a list.");
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
 
     tmp = arg;
@@ -1851,8 +1844,7 @@ FrameDeltaMain_setInput(FrameDeltaMain *self, PyObject *arg)
     Py_XDECREF(self->input);
     self->input = tmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1887,8 +1879,7 @@ FrameDeltaMain_setFrameSize(FrameDeltaMain *self, PyObject *arg)
     else
         PySys_WriteStdout("frameSize must be a power of two!\n");
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef FrameDeltaMain_members[] =
@@ -2404,8 +2395,7 @@ FrameAccumMain_setInput(FrameAccumMain *self, PyObject *arg)
     if (! PyList_Check(arg))
     {
         PyErr_SetString(PyExc_TypeError, "The inputs attribute must be a list.");
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
 
     tmp = arg;
@@ -2414,8 +2404,7 @@ FrameAccumMain_setInput(FrameAccumMain *self, PyObject *arg)
     Py_XDECREF(self->input);
     self->input = tmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2450,8 +2439,7 @@ FrameAccumMain_setFrameSize(FrameAccumMain *self, PyObject *arg)
     else
         PySys_WriteStdout("frameSize must be a power of two!\n");
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef FrameAccumMain_members[] =
@@ -3058,8 +3046,7 @@ VectralMain_setInput(VectralMain *self, PyObject *arg)
     if (! PyList_Check(arg))
     {
         PyErr_SetString(PyExc_TypeError, "The inputs attribute must be a list.");
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
 
     tmp = arg;
@@ -3068,8 +3055,7 @@ VectralMain_setInput(VectralMain *self, PyObject *arg)
     Py_XDECREF(self->input);
     self->input = tmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -3104,8 +3090,7 @@ VectralMain_setFrameSize(VectralMain *self, PyObject *arg)
     else
         PySys_WriteStdout("frameSize must be a power of two!\n");
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -3136,8 +3121,7 @@ VectralMain_setUp(VectralMain *self, PyObject *arg)
         self->modebuffer[2] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -3168,8 +3152,7 @@ VectralMain_setDown(VectralMain *self, PyObject *arg)
         self->modebuffer[3] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -3200,8 +3183,7 @@ VectralMain_setDamp(VectralMain *self, PyObject *arg)
         self->modebuffer[4] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef VectralMain_members[] =
@@ -4103,8 +4085,7 @@ CvlVerb_setBal(CvlVerb *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject * CvlVerb_getServer(CvlVerb* self) { GET_SERVER };
@@ -4574,8 +4555,7 @@ Spectrum_setSize(Spectrum *self, PyObject *arg)
             PySys_WriteStdout("FFT size must be a power of two!\n");
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -4587,8 +4567,7 @@ Spectrum_setWinType(Spectrum *self, PyObject *arg)
         gen_window(self->window, self->size, self->wintype);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -4649,8 +4628,7 @@ Spectrum_setWidth(Spectrum *self, PyObject *arg)
     if (PyInt_Check(arg) || PyLong_Check(arg))
         self->width = PyLong_AsLong(arg);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -4659,8 +4637,7 @@ Spectrum_setHeight(Spectrum *self, PyObject *arg)
     if (PyInt_Check(arg) || PyLong_Check(arg))
         self->height = PyLong_AsLong(arg);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -4669,8 +4646,7 @@ Spectrum_setFscaling(Spectrum *self, PyObject *arg)
     if (PyInt_Check(arg) || PyLong_Check(arg))
         self->fscaling = PyLong_AsLong(arg);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -4679,8 +4655,7 @@ Spectrum_setMscaling(Spectrum *self, PyObject *arg)
     if (PyInt_Check(arg) || PyLong_Check(arg))
         self->mscaling = PyLong_AsLong(arg);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -4689,8 +4664,7 @@ Spectrum_setGain(Spectrum *self, PyObject *arg)
     if (PyNumber_Check(arg))
         self->gain = PyFloat_AsDouble(arg);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Spectrum_members[] =
@@ -5066,8 +5040,7 @@ IFFTMatrix_setIndex(IFFTMatrix *self, PyObject *arg)
     Py_XDECREF(self->index_stream);
     self->index_stream = (Stream *)streamtmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -5094,8 +5067,7 @@ IFFTMatrix_setPhase(IFFTMatrix *self, PyObject *arg)
     Py_XDECREF(self->phase_stream);
     self->phase_stream = (Stream *)streamtmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -5107,8 +5079,7 @@ IFFTMatrix_setSize(IFFTMatrix *self, PyObject *args, PyObject *kwds)
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "ii", kwlist, &size, &hopsize))
     {
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
 
     if (isPowerOfTwo(size))
@@ -5120,8 +5091,7 @@ IFFTMatrix_setSize(IFFTMatrix *self, PyObject *args, PyObject *kwds)
     else
         PySys_WriteStdout("IFFTMatrix size must be a power of two!\n");
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -5133,8 +5103,7 @@ IFFTMatrix_setWinType(IFFTMatrix *self, PyObject *arg)
         gen_window(self->window, self->size, self->wintype);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef IFFTMatrix_members[] =

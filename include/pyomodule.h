@@ -694,8 +694,7 @@ extern PyTypeObject MMLZStreamType;
 
 #define ASSERT_ARG_NOT_NULL \
     if (arg == NULL) { \
-        Py_INCREF(Py_None); \
-        return Py_None; \
+        Py_RETURN_NONE; \
     }
 
 /* INIT INPUT STREAM */
@@ -769,8 +768,7 @@ extern PyTypeObject MMLZStreamType;
     self->data[self->size] = self->data[0]; \
     TableStream_setData(self->tablestream, self->data); \
  \
-    Py_INCREF(Py_None); \
-    return Py_None; \
+    Py_RETURN_NONE; \
 
 #define SET_MATRIX_DATA \
     int i, j; \
@@ -801,8 +799,7 @@ extern PyTypeObject MMLZStreamType;
  \
     MatrixStream_setData(self->matrixstream, self->data); \
  \
-    Py_INCREF(Py_None); \
-    return Py_None; \
+    Py_RETURN_NONE; \
 
 #define COPY \
     T_SIZE_T i; \
@@ -846,8 +843,7 @@ extern PyTypeObject MMLZStreamType;
  \
     self->data[self->size] = self->data[0]; \
  \
-    Py_INCREF(Py_None); \
-    return Py_None; \
+    Py_RETURN_NONE; \
 
 #define TABLE_SUB \
     T_SIZE_T i, tabsize; \
@@ -882,8 +878,7 @@ extern PyTypeObject MMLZStreamType;
  \
     self->data[self->size] = self->data[0]; \
  \
-    Py_INCREF(Py_None); \
-    return Py_None; \
+    Py_RETURN_NONE; \
 
 #define TABLE_MUL \
     T_SIZE_T i, tabsize; \
@@ -918,8 +913,7 @@ extern PyTypeObject MMLZStreamType;
  \
     self->data[self->size] = self->data[0]; \
  \
-    Py_INCREF(Py_None); \
-    return Py_None; \
+    Py_RETURN_NONE; \
 
 #define TABLE_DIV \
     T_SIZE_T i, tabsize; \
@@ -968,8 +962,7 @@ extern PyTypeObject MMLZStreamType;
  \
     self->data[self->size] = self->data[0]; \
  \
-    Py_INCREF(Py_None); \
-    return Py_None; \
+    Py_RETURN_NONE; \
 
 #define SET_TABLE \
     T_SIZE_T i; \
@@ -1057,8 +1050,7 @@ extern PyTypeObject MMLZStreamType;
         self->data[j] = tmp; \
     } \
     self->data[self->size] = self->data[0]; \
-    Py_INCREF(Py_None); \
-    return Py_None; \
+    Py_RETURN_NONE; \
 
 /* Table reset */
 #define TABLE_RESET \
@@ -1066,8 +1058,7 @@ extern PyTypeObject MMLZStreamType;
     for (i=0; i<self->size; i++) { \
         self->data[i] = 0.0; \
     } \
-    Py_INCREF(Py_None); \
-    return Py_None; \
+    Py_RETURN_NONE; \
 
 /* Table remove DC */
 #define REMOVE_DC \
@@ -1080,8 +1071,7 @@ extern PyTypeObject MMLZStreamType;
         x1 = x; \
         self->data[i] = y1 = y; \
     } \
-    Py_INCREF(Py_None); \
-    return Py_None; \
+    Py_RETURN_NONE; \
 
 /* Table amplitude reverse */
 #define INVERT \
@@ -1089,8 +1079,7 @@ extern PyTypeObject MMLZStreamType;
     for (i=0; i<self->size+1; i++) { \
         self->data[i] = -self->data[i]; \
     } \
-    Py_INCREF(Py_None); \
-    return Py_None; \
+    Py_RETURN_NONE; \
 
 /* Table positive rectify */
 #define RECTIFY \
@@ -1101,8 +1090,7 @@ extern PyTypeObject MMLZStreamType;
         if (x < 0) \
             self->data[i] = -x; \
     } \
-    Py_INCREF(Py_None); \
-    return Py_None; \
+    Py_RETURN_NONE; \
 
 /* Table rotation */
 #define TABLE_ROTATE \
@@ -1358,8 +1346,7 @@ extern PyTypeObject MMLZStreamType;
             self->data[i] *= ratio; \
         } \
     } \
-    Py_INCREF(Py_None); \
-    return Py_None; \
+    Py_RETURN_NONE; \
 
 #define NORMALIZE_MATRIX \
     int i, j; \
@@ -1392,8 +1379,7 @@ extern PyTypeObject MMLZStreamType;
             } \
         } \
     } \
-    Py_INCREF(Py_None); \
-    return Py_None; \
+    Py_RETURN_NONE; \
 
 
 #define TABLE_PUT \
@@ -1459,8 +1445,7 @@ extern PyTypeObject MMLZStreamType;
             self->data[i][j] = (tmp[i-1][j] + tmp[i][j] + tmp[i+1][j]) * 0.3333333; \
         } \
     } \
-    Py_INCREF(Py_None); \
-    return Py_None;
+    Py_RETURN_NONE;
 
 #define MATRIX_BOOST \
     int i, j; \
@@ -1481,8 +1466,7 @@ extern PyTypeObject MMLZStreamType;
             self->data[i][j] = NewMatrix_clip(val + (val-mid) * boost, min, max); \
         } \
     } \
-    Py_INCREF(Py_None); \
-    return Py_None; \
+    Py_RETURN_NONE; \
 
 #define MATRIX_PUT \
     MYFLT val; \
@@ -1512,8 +1496,7 @@ extern PyTypeObject MMLZStreamType;
     else if (y == 0) \
         self->data[self->height][x] = self->data[y][x]; \
  \
-    Py_INCREF(Py_None); \
-    return Py_None; \
+    Py_RETURN_NONE; \
 
 #define MATRIX_GET \
     int x, y; \
@@ -1606,8 +1589,7 @@ extern PyTypeObject MMLZStreamType;
     PyObject *tmp, *streamtmp; \
  \
     if (arg == NULL) { \
-        Py_INCREF(Py_None); \
-        return Py_None; \
+        Py_RETURN_NONE; \
     } \
  \
     int isNumber = PyNumber_Check(arg); \
@@ -1634,15 +1616,13 @@ extern PyTypeObject MMLZStreamType;
  \
     (*self->mode_func_ptr)(self); \
  \
-    Py_INCREF(Py_None); \
-    return Py_None;
+    Py_RETURN_NONE;
 
 #define SET_ADD \
     PyObject *tmp, *streamtmp; \
 \
     if (arg == NULL) { \
-        Py_INCREF(Py_None); \
-        return Py_None; \
+        Py_RETURN_NONE; \
     } \
 \
     int isNumber = PyNumber_Check(arg); \
@@ -1669,15 +1649,13 @@ extern PyTypeObject MMLZStreamType;
 \
     (*self->mode_func_ptr)(self); \
 \
-    Py_INCREF(Py_None); \
-    return Py_None;
+    Py_RETURN_NONE;
 
 #define SET_SUB \
     PyObject *tmp, *streamtmp; \
  \
     if (arg == NULL) { \
-        Py_INCREF(Py_None); \
-        return Py_None; \
+        Py_RETURN_NONE; \
     } \
  \
     int isNumber = PyNumber_Check(arg); \
@@ -1704,15 +1682,13 @@ extern PyTypeObject MMLZStreamType;
  \
     (*self->mode_func_ptr)(self); \
  \
-    Py_INCREF(Py_None); \
-    return Py_None;
+    Py_RETURN_NONE;
 
 #define SET_DIV \
     PyObject *tmp, *streamtmp; \
  \
     if (arg == NULL) { \
-        Py_INCREF(Py_None); \
-        return Py_None; \
+        Py_RETURN_NONE; \
     } \
  \
     int isNumber = PyNumber_Check(arg); \
@@ -1742,8 +1718,7 @@ extern PyTypeObject MMLZStreamType;
  \
     (*self->mode_func_ptr)(self); \
  \
-    Py_INCREF(Py_None); \
-    return Py_None;
+    Py_RETURN_NONE;
 
 /* Multiply, Add, inplace_multiply & inplace_add */
 #define MULTIPLY \
@@ -1915,8 +1890,7 @@ extern PyTypeObject MMLZStreamType;
         nearestBuf = (int)roundf((wait * self->sr) / self->bufsize + 0.5); \
         Stream_setDuration(self->stream, nearestBuf); \
     } \
-    Py_INCREF(Py_None); \
-    return Py_None;
+    Py_RETURN_NONE;
 
 /* Post processing (mul & add) macros */
 #define POST_PROCESSING_II \

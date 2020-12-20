@@ -396,8 +396,7 @@ Sine_setFreq(Sine *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -430,16 +429,14 @@ Sine_setPhase(Sine *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
 Sine_reset(Sine *self)
 {
     self->pointerPos = 0.0;
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Sine_members[] =
@@ -996,8 +993,7 @@ FastSine_setFreq(FastSine *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1016,16 +1012,14 @@ FastSine_setQuality(FastSine *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
 FastSine_reset(FastSine *self)
 {
     self->pointerPos = self->initphase * TWOPI;
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef FastSine_members[] =
@@ -1456,8 +1450,7 @@ SineLoop_setFreq(SineLoop *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1490,8 +1483,7 @@ SineLoop_setFeedback(SineLoop *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef SineLoop_members[] =
@@ -1980,8 +1972,7 @@ Osc_setTable(Osc *self, PyObject *arg)
     Py_DECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2014,8 +2005,7 @@ Osc_setFreq(Osc *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2048,8 +2038,7 @@ Osc_setPhase(Osc *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2066,16 +2055,14 @@ Osc_setInterp(Osc *self, PyObject *arg)
 
     SET_INTERP_POINTER
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
 Osc_reset(Osc *self)
 {
     self->pointerPos = 0.0;
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Osc_members[] =
@@ -2547,8 +2534,7 @@ OscLoop_setTable(OscLoop *self, PyObject *arg)
     Py_DECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2581,8 +2567,7 @@ OscLoop_setFreq(OscLoop *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2615,8 +2600,7 @@ OscLoop_setFeedback(OscLoop *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef OscLoop_members[] =
@@ -3132,8 +3116,7 @@ OscTrig_setTable(OscTrig *self, PyObject *arg)
     Py_DECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -3151,8 +3134,7 @@ OscTrig_setTrig(OscTrig *self, PyObject *arg)
 
     if (isNumber == 1)
     {
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
     else
     {
@@ -3163,8 +3145,7 @@ OscTrig_setTrig(OscTrig *self, PyObject *arg)
         self->trig_stream = (Stream *)streamtmp;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -3197,8 +3178,7 @@ OscTrig_setFreq(OscTrig *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -3231,8 +3211,7 @@ OscTrig_setPhase(OscTrig *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -3249,16 +3228,14 @@ OscTrig_setInterp(OscTrig *self, PyObject *arg)
 
     SET_INTERP_POINTER
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
 OscTrig_reset(OscTrig *self)
 {
     self->pointerPos = 0.0;
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef OscTrig_members[] =
@@ -3734,8 +3711,7 @@ Phasor_setFreq(Phasor *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -3768,16 +3744,14 @@ Phasor_setPhase(Phasor *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
 Phasor_reset(Phasor *self)
 {
     self->pointerPos = 0.0;
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Phasor_members[] =
@@ -4105,8 +4079,7 @@ Pointer_setTable(Pointer *self, PyObject *arg)
     Py_DECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -4133,8 +4106,7 @@ Pointer_setIndex(Pointer *self, PyObject *arg)
     Py_XDECREF(self->index_stream);
     self->index_stream = (Stream *)streamtmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Pointer_members[] =
@@ -4502,8 +4474,7 @@ Pointer2_setTable(Pointer2 *self, PyObject *arg)
     Py_DECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -4530,8 +4501,7 @@ Pointer2_setIndex(Pointer2 *self, PyObject *arg)
     Py_XDECREF(self->index_stream);
     self->index_stream = (Stream *)streamtmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -4548,8 +4518,7 @@ Pointer2_setInterp(Pointer2 *self, PyObject *arg)
 
     SET_INTERP_POINTER
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -4564,8 +4533,7 @@ Pointer2_setAutoSmooth(Pointer2 *self, PyObject *arg)
         self->autosmooth = PyInt_AsLong(PyNumber_Int(arg));
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Pointer2_members[] =
@@ -4897,8 +4865,7 @@ TableIndex_setTable(TableIndex *self, PyObject *arg)
     Py_DECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -4925,8 +4892,7 @@ TableIndex_setIndex(TableIndex *self, PyObject *arg)
     Py_XDECREF(self->index_stream);
     self->index_stream = (Stream *)streamtmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef TableIndex_members[] =
@@ -5264,8 +5230,7 @@ Lookup_setTable(Lookup *self, PyObject *arg)
     Py_DECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -5292,8 +5257,7 @@ Lookup_setIndex(Lookup *self, PyObject *arg)
     Py_XDECREF(self->index_stream);
     self->index_stream = (Stream *)streamtmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Lookup_members[] =
@@ -6115,8 +6079,7 @@ Pulsar_setTable(Pulsar *self, PyObject *arg)
     Py_DECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -6130,8 +6093,7 @@ Pulsar_setEnv(Pulsar *self, PyObject *arg)
     Py_DECREF(self->env);
     self->env = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -6164,8 +6126,7 @@ Pulsar_setFreq(Pulsar *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -6198,8 +6159,7 @@ Pulsar_setPhase(Pulsar *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -6232,8 +6192,7 @@ Pulsar_setFrac(Pulsar *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -6250,8 +6209,7 @@ Pulsar_setInterp(Pulsar *self, PyObject *arg)
 
     SET_INTERP_POINTER
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Pulsar_members[] =
@@ -6765,8 +6723,7 @@ static PyObject * TableRead_stop(TableRead *self, PyObject *args, PyObject *kwds
         Stream_setDuration(self->stream, nearestBuf);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 };
 
 static PyObject * TableRead_multiply(TableRead *self, PyObject *arg) { MULTIPLY };
@@ -6796,8 +6753,7 @@ TableRead_setTable(TableRead *self, PyObject *arg)
     Py_DECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -6830,8 +6786,7 @@ TableRead_setFreq(TableRead *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -6841,8 +6796,7 @@ TableRead_setLoop(TableRead *self, PyObject *arg)
 
     self->loop = PyInt_AsLong(arg);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -6859,8 +6813,7 @@ TableRead_setInterp(TableRead *self, PyObject *arg)
 
     SET_INTERP_POINTER
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -6870,16 +6823,14 @@ TableRead_setKeepLast(TableRead *self, PyObject *arg)
 
     self->keepLast = PyInt_AsLong(arg);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
 TableRead_reset(TableRead *self)
 {
     self->pointerPos = 0.0;
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef TableRead_members[] =
@@ -7513,8 +7464,7 @@ Fm_setCarrier(Fm *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -7547,8 +7497,7 @@ Fm_setRatio(Fm *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -7581,8 +7530,7 @@ Fm_setIndex(Fm *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Fm_members[] =
@@ -8051,8 +7999,7 @@ CrossFm_setCarrier(CrossFm *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -8085,8 +8032,7 @@ CrossFm_setRatio(CrossFm *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -8119,8 +8065,7 @@ CrossFm_setInd1(CrossFm *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -8153,8 +8098,7 @@ CrossFm_setInd2(CrossFm *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef CrossFm_members[] =
@@ -8637,8 +8581,7 @@ Blit_setFreq(Blit *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -8671,8 +8614,7 @@ Blit_setHarms(Blit *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Blit_members[] =
@@ -9203,8 +9145,7 @@ Rossler_setPitch(Rossler *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -9237,8 +9178,7 @@ Rossler_setChaos(Rossler *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 MYFLT *
@@ -10045,8 +9985,7 @@ Lorenz_setPitch(Lorenz *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -10079,8 +10018,7 @@ Lorenz_setChaos(Lorenz *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 MYFLT *
@@ -10895,8 +10833,7 @@ ChenLee_setPitch(ChenLee *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -10929,8 +10866,7 @@ ChenLee_setChaos(ChenLee *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 MYFLT *
@@ -11947,8 +11883,7 @@ SumOsc_setFreq(SumOsc *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -11981,8 +11916,7 @@ SumOsc_setRatio(SumOsc *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -12015,8 +11949,7 @@ SumOsc_setIndex(SumOsc *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef SumOsc_members[] =
@@ -12906,8 +12839,7 @@ SuperSaw_setFreq(SuperSaw *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -12940,8 +12872,7 @@ SuperSaw_setDetune(SuperSaw *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -12974,8 +12905,7 @@ SuperSaw_setBal(SuperSaw *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef SuperSaw_members[] =
@@ -13463,8 +13393,7 @@ RCOsc_setFreq(RCOsc *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -13497,16 +13426,14 @@ RCOsc_setSharp(RCOsc *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
 RCOsc_reset(RCOsc *self)
 {
     self->pointerPos = 0.0;
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef RCOsc_members[] =
@@ -13867,8 +13794,7 @@ TableScale_setTable(TableScale *self, PyObject *arg)
     Py_DECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -13889,8 +13815,7 @@ TableScale_setOuttable(TableScale *self, PyObject *arg)
     Py_DECREF(self->outtable);
     self->outtable = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef TableScale_members[] =
@@ -14122,8 +14047,7 @@ TableFill_setTable(TableFill *self, PyObject *arg)
     Py_DECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject * TableFill_getCurrentPos(TableFill *self)
@@ -14403,16 +14327,14 @@ TableScan_setTable(TableScan *self, PyObject *arg)
     Py_DECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
 TableScan_reset(TableScan *self)
 {
     self->pointerPos = 0;
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef TableScan_members[] =

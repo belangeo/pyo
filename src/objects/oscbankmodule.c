@@ -644,8 +644,7 @@ OscBank_setTable(OscBank *self, PyObject *arg)
     Py_DECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -676,8 +675,7 @@ OscBank_setFreq(OscBank *self, PyObject *arg)
         self->modebuffer[2] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -708,8 +706,7 @@ OscBank_setSpread(OscBank *self, PyObject *arg)
         self->modebuffer[3] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -740,8 +737,7 @@ OscBank_setSlope(OscBank *self, PyObject *arg)
         self->modebuffer[4] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -772,8 +768,7 @@ OscBank_setFrndf(OscBank *self, PyObject *arg)
         self->modebuffer[5] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -804,8 +799,7 @@ OscBank_setFrnda(OscBank *self, PyObject *arg)
         self->modebuffer[6] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -836,8 +830,7 @@ OscBank_setArndf(OscBank *self, PyObject *arg)
         self->modebuffer[7] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -868,8 +861,7 @@ OscBank_setArnda(OscBank *self, PyObject *arg)
         self->modebuffer[8] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -882,8 +874,7 @@ OscBank_setFjit(OscBank *self, PyObject *arg)
         self->fjit = PyInt_AS_LONG(arg);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef OscBank_members[] =

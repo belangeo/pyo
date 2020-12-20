@@ -381,8 +381,7 @@ PVAnal_setSize(PVAnal *self, PyObject *arg)
         PVAnal_realloc_memories(self);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -408,8 +407,7 @@ PVAnal_setOverlaps(PVAnal *self, PyObject *arg)
         PVAnal_realloc_memories(self);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -421,8 +419,7 @@ PVAnal_setWinType(PVAnal *self, PyObject *arg)
         gen_window(self->window, self->size, self->wintype);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -433,8 +430,7 @@ PVAnal_setCallback(PVAnal *self, PyObject *arg)
     if (! PyCallable_Check(arg) && arg != Py_None)
     {
         PyErr_SetString(PyExc_TypeError, "The callback attribute must be callable.");
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
 
     tmp = arg;
@@ -442,8 +438,7 @@ PVAnal_setCallback(PVAnal *self, PyObject *arg)
     Py_INCREF(tmp);
     self->callback = tmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef PVAnal_members[] =
@@ -838,8 +833,7 @@ PVSynth_setInput(PVSynth *self, PyObject *arg)
     Py_XDECREF(self->input_stream);
     self->input_stream = (PVStream *)input_streamtmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -851,8 +845,7 @@ PVSynth_setWinType(PVSynth *self, PyObject *arg)
         gen_window(self->window, self->size, self->wintype);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject * PVSynth_getServer(PVSynth* self) { GET_SERVER };
@@ -1384,8 +1377,7 @@ PVAddSynth_setInput(PVAddSynth *self, PyObject *arg)
     Py_XDECREF(self->input_stream);
     self->input_stream = (PVStream *)input_streamtmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1418,8 +1410,7 @@ PVAddSynth_setPitch(PVAddSynth *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1437,8 +1428,7 @@ PVAddSynth_setNum(PVAddSynth *self, PyObject *arg)
         self->update = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1456,8 +1446,7 @@ PVAddSynth_setFirst(PVAddSynth *self, PyObject *arg)
         self->update = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1475,8 +1464,7 @@ PVAddSynth_setInc(PVAddSynth *self, PyObject *arg)
         self->update = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject * PVAddSynth_getServer(PVAddSynth* self) { GET_SERVER };
@@ -1918,8 +1906,7 @@ PVTranspose_setInput(PVTranspose *self, PyObject *arg)
     Py_XDECREF(self->input_stream);
     self->input_stream = (PVStream *)input_streamtmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1952,8 +1939,7 @@ PVTranspose_setTranspo(PVTranspose *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef PVTranspose_members[] =
@@ -2532,8 +2518,7 @@ PVVerb_setInput(PVVerb *self, PyObject *arg)
     Py_XDECREF(self->input_stream);
     self->input_stream = (PVStream *)input_streamtmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2566,8 +2551,7 @@ PVVerb_setRevtime(PVVerb *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2600,8 +2584,7 @@ PVVerb_setDamp(PVVerb *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef PVVerb_members[] =
@@ -3157,8 +3140,7 @@ PVGate_setInput(PVGate *self, PyObject *arg)
     Py_XDECREF(self->input_stream);
     self->input_stream = (PVStream *)input_streamtmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -3191,8 +3173,7 @@ PVGate_setThresh(PVGate *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -3225,8 +3206,7 @@ PVGate_setDamp(PVGate *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -3239,8 +3219,7 @@ PVGate_setInverse(PVGate *self, PyObject *arg)
         self->inverse = PyInt_AsLong(arg);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef PVGate_members[] =
@@ -3614,8 +3593,7 @@ PVCross_setInput(PVCross *self, PyObject *arg)
     Py_XDECREF(self->input_stream);
     self->input_stream = (PVStream *)input_streamtmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -3639,8 +3617,7 @@ PVCross_setInput2(PVCross *self, PyObject *arg)
     Py_XDECREF(self->input2_stream);
     self->input2_stream = (PVStream *)input_streamtmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -3673,8 +3650,7 @@ PVCross_setFade(PVCross *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef PVCross_members[] =
@@ -3978,8 +3954,7 @@ PVMult_setInput(PVMult *self, PyObject *arg)
     Py_XDECREF(self->input_stream);
     self->input_stream = (PVStream *)input_streamtmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -4003,8 +3978,7 @@ PVMult_setInput2(PVMult *self, PyObject *arg)
     Py_XDECREF(self->input2_stream);
     self->input2_stream = (PVStream *)input_streamtmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef PVMult_members[] =
@@ -4385,8 +4359,7 @@ PVMorph_setInput(PVMorph *self, PyObject *arg)
     Py_XDECREF(self->input_stream);
     self->input_stream = (PVStream *)input_streamtmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -4410,8 +4383,7 @@ PVMorph_setInput2(PVMorph *self, PyObject *arg)
     Py_XDECREF(self->input2_stream);
     self->input2_stream = (PVStream *)input_streamtmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -4444,8 +4416,7 @@ PVMorph_setFade(PVMorph *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef PVMorph_members[] =
@@ -4865,8 +4836,7 @@ PVFilter_setInput(PVFilter *self, PyObject *arg)
     Py_XDECREF(self->input_stream);
     self->input_stream = (PVStream *)input_streamtmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -4899,8 +4869,7 @@ PVFilter_setGain(PVFilter *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -4921,8 +4890,7 @@ PVFilter_setTable(PVFilter *self, PyObject *arg)
     Py_DECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -4940,8 +4908,7 @@ PVFilter_setMode(PVFilter *self, PyObject *arg)
             self->mode = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef PVFilter_members[] =
@@ -5405,8 +5372,7 @@ PVDelay_setInput(PVDelay *self, PyObject *arg)
     Py_XDECREF(self->input_stream);
     self->input_stream = (PVStream *)input_streamtmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -5427,8 +5393,7 @@ PVDelay_setDeltable(PVDelay *self, PyObject *arg)
     Py_DECREF(self->deltable);
     self->deltable = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -5449,8 +5414,7 @@ PVDelay_setFeedtable(PVDelay *self, PyObject *arg)
     Py_DECREF(self->feedtable);
     self->feedtable = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -5470,8 +5434,7 @@ PVDelay_setMode(PVDelay *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef PVDelay_members[] =
@@ -5933,8 +5896,7 @@ PVBuffer_setInput(PVBuffer *self, PyObject *arg)
     Py_XDECREF(self->input_stream);
     self->input_stream = (PVStream *)input_streamtmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -5961,8 +5923,7 @@ PVBuffer_setIndex(PVBuffer *self, PyObject *arg)
     Py_XDECREF(self->index_stream);
     self->index_stream = (Stream *)streamtmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -5995,8 +5956,7 @@ PVBuffer_setPitch(PVBuffer *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -6010,8 +5970,7 @@ PVBuffer_setLength(PVBuffer *self, PyObject *arg)
         PVBuffer_realloc_memories(self);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef PVBuffer_members[] =
@@ -6391,8 +6350,7 @@ PVShift_setInput(PVShift *self, PyObject *arg)
     Py_XDECREF(self->input_stream);
     self->input_stream = (PVStream *)input_streamtmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -6425,8 +6383,7 @@ PVShift_setShift(PVShift *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef PVShift_members[] =
@@ -7031,8 +6988,7 @@ PVAmpMod_setInput(PVAmpMod *self, PyObject *arg)
     Py_XDECREF(self->input_stream);
     self->input_stream = (PVStream *)input_streamtmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -7065,8 +7021,7 @@ PVAmpMod_setBasefreq(PVAmpMod *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -7099,8 +7054,7 @@ PVAmpMod_setSpread(PVAmpMod *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -7113,8 +7067,7 @@ PVAmpMod_setShape(PVAmpMod *self, PyObject *arg)
         PVMod_setTable(self->table, PyInt_AsLong(arg));
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -7125,8 +7078,7 @@ PVAmpMod_reset(PVAmpMod *self)
     for (i = 0; i < self->hsize; i++)
         self->pointers[i] = 0.0;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef PVAmpMod_members[] =
@@ -7753,8 +7705,7 @@ PVFreqMod_setInput(PVFreqMod *self, PyObject *arg)
     Py_XDECREF(self->input_stream);
     self->input_stream = (PVStream *)input_streamtmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -7787,8 +7738,7 @@ PVFreqMod_setBasefreq(PVFreqMod *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -7821,8 +7771,7 @@ PVFreqMod_setSpread(PVFreqMod *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -7855,8 +7804,7 @@ PVFreqMod_setDepth(PVFreqMod *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -7869,8 +7817,7 @@ PVFreqMod_setShape(PVFreqMod *self, PyObject *arg)
         PVMod_setTable(self->table, PyInt_AsLong(arg));
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -7881,8 +7828,7 @@ PVFreqMod_reset(PVFreqMod *self)
     for (i = 0; i < self->hsize; i++)
         self->pointers[i] = 0.0;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef PVFreqMod_members[] =
@@ -8389,8 +8335,7 @@ PVBufLoops_setInput(PVBufLoops *self, PyObject *arg)
     Py_XDECREF(self->input_stream);
     self->input_stream = (PVStream *)input_streamtmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -8421,8 +8366,7 @@ PVBufLoops_setLow(PVBufLoops *self, PyObject *arg)
         self->modebuffer[0] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -8453,8 +8397,7 @@ PVBufLoops_setHigh(PVBufLoops *self, PyObject *arg)
         self->modebuffer[1] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -8474,8 +8417,7 @@ PVBufLoops_setMode(PVBufLoops *self, PyObject *arg)
             self->mode = tmp;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -8486,8 +8428,7 @@ PVBufLoops_reset(PVBufLoops *self)
     for (i = 0; i < self->hsize; i++)
         self->pointers[i] = 0.0;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef PVBufLoops_members[] =
@@ -8861,8 +8802,7 @@ PVBufTabLoops_setInput(PVBufTabLoops *self, PyObject *arg)
     Py_XDECREF(self->input_stream);
     self->input_stream = (PVStream *)input_streamtmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -8876,8 +8816,7 @@ PVBufTabLoops_setSpeed(PVBufTabLoops *self, PyObject *arg)
     Py_DECREF(self->speed);
     self->speed = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -8888,8 +8827,7 @@ PVBufTabLoops_reset(PVBufTabLoops *self)
     for (i = 0; i < self->hsize; i++)
         self->pointers[i] = 0.0;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef PVBufTabLoops_members[] =
@@ -9201,8 +9139,7 @@ PVMix_setInput(PVMix *self, PyObject *arg)
     Py_XDECREF(self->input_stream);
     self->input_stream = (PVStream *)input_streamtmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -9226,8 +9163,7 @@ PVMix_setInput2(PVMix *self, PyObject *arg)
     Py_XDECREF(self->input2_stream);
     self->input2_stream = (PVStream *)input_streamtmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef PVMix_members[] =

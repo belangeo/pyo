@@ -152,8 +152,7 @@ Dummy_initialize(Dummy *self)
 
     Stream_setStreamActive(self->stream, 1);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -188,8 +187,7 @@ Dummy_setInput(Dummy *self, PyObject *arg)
 
     Dummy_compute_next_data_frame(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject * Dummy_getServer(Dummy* self) { GET_SERVER };

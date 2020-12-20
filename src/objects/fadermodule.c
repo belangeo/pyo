@@ -346,8 +346,7 @@ Fader_stop(Fader *self, PyObject *args, PyObject *kwds)
     else
         Fader_internal_stop((Fader *)self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject * Fader_multiply(Fader *self, PyObject *arg) { MULTIPLY };
@@ -363,24 +362,21 @@ static PyObject *
 Fader_setFadein(Fader *self, PyObject *arg)
 {
     self->attack = PyFloat_AsDouble(arg);
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
 Fader_setFadeout(Fader *self, PyObject *arg)
 {
     self->release = PyFloat_AsDouble(arg);
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
 Fader_setDur(Fader *self, PyObject *arg)
 {
     self->duration = PyFloat_AsDouble(arg);
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -391,8 +387,7 @@ Fader_setExp(Fader *self, PyObject *arg)
     if (tmp > 0.0)
         self->exp = tmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Fader_members[] =
@@ -848,8 +843,7 @@ Adsr_stop(Adsr *self, PyObject *args, PyObject *kwds)
     else
         Adsr_internal_stop((Adsr *)self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject * Adsr_multiply(Adsr *self, PyObject *arg) { MULTIPLY };
@@ -872,8 +866,7 @@ Adsr_setAttack(Adsr *self, PyObject *arg)
             self->attack = 0.000001;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -887,8 +880,7 @@ Adsr_setDecay(Adsr *self, PyObject *arg)
             self->decay = 0.000001;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -904,8 +896,7 @@ Adsr_setSustain(Adsr *self, PyObject *arg)
             self->sustain = 1.0;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -919,8 +910,7 @@ Adsr_setRelease(Adsr *self, PyObject *arg)
             self->release = 0.000001;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -929,8 +919,7 @@ Adsr_setDur(Adsr *self, PyObject *arg)
     if (PyNumber_Check(arg))
         self->duration = PyFloat_AsDouble(arg);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -944,8 +933,7 @@ Adsr_setExp(Adsr *self, PyObject *arg)
             self->exp = tmp;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Adsr_members[] =
@@ -1330,8 +1318,7 @@ static PyObject * Linseg_pause(Linseg *self)
     if (self->okToPause == 1)
         self->flag = 1 - self->flag;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 };
 
 static PyObject * Linseg_multiply(Linseg *self, PyObject *arg) { MULTIPLY };
@@ -1364,8 +1351,7 @@ Linseg_setList(Linseg *self, PyObject *value)
 
     self->newlist = 1;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1375,8 +1361,7 @@ Linseg_setLoop(Linseg *self, PyObject *arg)
 
     self->loop = PyInt_AsLong(arg);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1390,8 +1375,7 @@ Linseg_clear_data(Linseg *self)
         self->data[i] = 0.0;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Linseg_members[] =
@@ -1801,8 +1785,7 @@ static PyObject * Expseg_pause(Expseg *self)
     if (self->okToPause == 1)
         self->flag = 1 - self->flag;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 };
 
 static PyObject * Expseg_multiply(Expseg *self, PyObject *arg) { MULTIPLY };
@@ -1835,8 +1818,7 @@ Expseg_setList(Expseg *self, PyObject *value)
 
     self->newlist = 1;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1846,8 +1828,7 @@ Expseg_setLoop(Expseg *self, PyObject *arg)
 
     self->loop = PyInt_AsLong(arg);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1858,8 +1839,7 @@ Expseg_setExp(Expseg *self, PyObject *arg)
     if (PyNumber_Check(arg))
         self->exp_tmp = PyFloat_AsDouble(arg);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1870,8 +1850,7 @@ Expseg_setInverse(Expseg *self, PyObject *arg)
     if (PyNumber_Check(arg))
         self->inverse_tmp = PyInt_AsLong(PyNumber_Int(arg));
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1885,8 +1864,7 @@ Expseg_clear_data(Linseg *self)
         self->data[i] = 0.0;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Expseg_members[] =

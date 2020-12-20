@@ -238,8 +238,7 @@ InputFader_setInput(InputFader *self, PyObject *args, PyObject *kwds)
         self->proc_func_ptr = InputFader_process_two;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject * InputFader_getServer(InputFader* self) { GET_SERVER };
