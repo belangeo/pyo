@@ -26,7 +26,7 @@
 typedef struct
 {
     PyObject_HEAD
-    int size;
+    T_SIZE_T size;
     double samplingRate;
     MYFLT *data;
     Py_ssize_t shape[1]; /* 1-dimension array (must be set to table size) needed by the buffer protocol. */
@@ -41,7 +41,7 @@ if ((self) == rt_error) { return rt_error; }    \
 
 #else
 
-int TableStream_getSize(PyObject *self);
+T_SIZE_T TableStream_getSize(PyObject *self);
 double TableStream_getSamplingRate(PyObject *self);
 MYFLT * TableStream_getData(PyObject *self);
 extern PyTypeObject TableStreamType;

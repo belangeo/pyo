@@ -1601,17 +1601,18 @@ typedef struct
     MYFLT *trigsBuffer;
     TriggerStream *trig_stream;
     int interp; /* 0 = default to 2, 1 = nointerp, 2 = linear, 3 = cos, 4 = cubic */
-    MYFLT (*interp_func_ptr)(MYFLT *, int, MYFLT, int);
+    MYFLT (*interp_func_ptr)(MYFLT *, T_SIZE_T, MYFLT, T_SIZE_T);
 } TrigEnv;
 
 static void
 TrigEnv_readframes_i(TrigEnv *self)
 {
     MYFLT fpart;
-    int i, ipart;
+    int i;
+    T_SIZE_T ipart;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *tablelist = TableStream_getData(self->table);
-    int size = TableStream_getSize(self->table);
+    T_SIZE_T size = TableStream_getSize(self->table);
 
     for (i = 0; i < self->bufsize; i++)
     {
@@ -1639,7 +1640,7 @@ TrigEnv_readframes_i(TrigEnv *self)
 
         if (self->active == 1)
         {
-            ipart = (int)self->pointerPos;
+            ipart = (T_SIZE_T)self->pointerPos;
             fpart = self->pointerPos - ipart;
             self->data[i] = (*self->interp_func_ptr)(tablelist, ipart, fpart, size);
             self->pointerPos += self->inc;
@@ -1659,11 +1660,12 @@ static void
 TrigEnv_readframes_a(TrigEnv *self)
 {
     MYFLT fpart, dur;
-    int i, ipart;
+    int i;
+    T_SIZE_T ipart;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *dur_st = Stream_getData((Stream *)self->dur_stream);
     MYFLT *tablelist = TableStream_getData(self->table);
-    int size = TableStream_getSize(self->table);
+    T_SIZE_T size = TableStream_getSize(self->table);
 
     for (i = 0; i < self->bufsize; i++)
     {
@@ -1691,7 +1693,7 @@ TrigEnv_readframes_a(TrigEnv *self)
 
         if (self->active == 1)
         {
-            ipart = (int)self->pointerPos;
+            ipart = (T_SIZE_T)self->pointerPos;
             fpart = self->pointerPos - ipart;
             self->data[i] = (*self->interp_func_ptr)(tablelist, ipart, fpart, size);
             self->pointerPos += self->inc;

@@ -22,7 +22,7 @@ Roadmap 1.0.4
 
 - PyoTableObject.getSize(all=False), but SndTable.getSize(all=True)
 
-- PyoTableObject size attribute is int, should be at least unsigned int.
+- table _setSize methods could use a macro to avoid repetition.
 
 - PyoMatrixObject.get(x, y) inverts arguments. Add PyoMatrixObject.getValue(x, y) with x and y in the good order (also putValue(value, x, y))
   Really, a new implementation, Pyo2DTableObject, could be the best idea.

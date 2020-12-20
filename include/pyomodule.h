@@ -19,9 +19,13 @@
  *************************************************************************/
 
 #include "Python.h"
+
+#include <stdint.h>
 #include <math.h>
 
 #define PYO_VERSION "1.0.3"
+
+typedef Py_ssize_t T_SIZE_T;
 
 #ifndef __MYFLT_DEF
 #define __MYFLT_DEF
@@ -32,10 +36,12 @@
 #define FLOAT_VALUE f
 #define TYPE_F "f"
 #define TYPE_F_I "f|i"
+#define TYPE_F_N "f|n"
 #define TYPE__IF "|if"
 #define TYPE__FF "|ff"
 #define TYPE__IFF "|iff"
 #define TYPE__FII "|fii"
+#define TYPE__FIN "|fin"
 #define TYPE_F_II "f|ii"
 #define TYPE__FFF "|fff"
 #define TYPE_F_FFF "f|fff"
@@ -77,7 +83,9 @@
 #define TYPE_F_O "f|O"
 #define TYPE_F_OF "f|Of"
 #define TYPE__OFFI "|Offi"
+#define TYPE__OFFN "|Offn"
 #define TYPE__OFII "|Ofii"
+#define TYPE__OFIN "|Ofin"
 #define TYPE__OFIOO "|OfiOO"
 #define TYPE__OOFOO "|OOfOO"
 #define TYPE__FIIOO "|fiiOO"
@@ -95,6 +103,7 @@
 #define TYPE_O_OOOFOO "O|OOOfOO"
 #define TYPE_OO_OOOIFOO "OO|OOOifOO"
 #define TYPE__FFFFIFI "|ffffifi"
+#define TYPE__FFFFIFN "|ffffifn"
 
 #define SF_WRITE sf_write_float
 #define SF_READ sf_read_float
@@ -123,10 +132,12 @@
 #define FLOAT_VALUE d
 #define TYPE_F "d"
 #define TYPE_F_I "d|i"
+#define TYPE_F_N "d|n"
 #define TYPE__IF "|id"
 #define TYPE__FF "|dd"
 #define TYPE__IFF "|idd"
 #define TYPE__FII "|dii"
+#define TYPE__FIN "|din"
 #define TYPE_F_II "d|ii"
 #define TYPE__FFF "|ddd"
 #define TYPE_F_FFF "d|ddd"
@@ -168,7 +179,9 @@
 #define TYPE_F_O "d|O"
 #define TYPE_F_OF "d|Od"
 #define TYPE__OFFI "|Oddi"
+#define TYPE__OFFN "|Oddn"
 #define TYPE__OFII "|Odii"
+#define TYPE__OFIN "|Odin"
 #define TYPE__OFIOO "|OdiOO"
 #define TYPE__OOFOO "|OOdOO"
 #define TYPE__FIIOO "|diiOO"
@@ -186,6 +199,7 @@
 #define TYPE_O_OOOFOO "O|OOOdOO"
 #define TYPE_OO_OOOIFOO "OO|OOOidOO"
 #define TYPE__FFFFIFI "|ddddidi"
+#define TYPE__FFFFIFN "|ddddidn"
 
 #define SF_WRITE sf_write_double
 #define SF_READ sf_read_double
@@ -611,7 +625,7 @@ extern PyTypeObject MMLZStreamType;
     PyObject_HEAD \
     PyObject *server; \
     TableStream *tablestream; \
-    int size; \
+    T_SIZE_T size; \
     MYFLT *data;
 
 #define pyo_matrix_HEAD \
@@ -740,12 +754,12 @@ extern PyTypeObject MMLZStreamType;
 
 /* Set data */
 #define SET_TABLE_DATA \
-    int i; \
+    T_SIZE_T i; \
     if (! PyList_Check(arg)) { \
         PyErr_SetString(PyExc_TypeError, "The data must be a list of floats."); \
         return PyInt_FromLong(-1); \
     } \
-    self->size = PyList_Size(arg); \
+    self->size = (T_SIZE_T)PyList_Size(arg); \
     self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT)); \
     TableStream_setSize(self->tablestream, self->size+1); \
  \
@@ -791,7 +805,7 @@ extern PyTypeObject MMLZStreamType;
     return Py_None; \
 
 #define COPY \
-    int i; \
+    T_SIZE_T i; \
     MYFLT *tab = TableStream_getData((TableStream *)PyObject_CallMethod((PyObject *)arg, "getTableStream", "")); \
     for (i=0; i<self->size; i++) { \
         self->data[i] = tab[i]; \
@@ -800,7 +814,7 @@ extern PyTypeObject MMLZStreamType;
     Py_RETURN_NONE; \
 
 #define TABLE_ADD \
-    int i, tabsize; \
+    T_SIZE_T i, tabsize; \
     MYFLT x = 0.0; \
     MYFLT *list = NULL; \
     PyObject *table = NULL; \
@@ -822,7 +836,7 @@ extern PyTypeObject MMLZStreamType;
         } \
     } \
     else if (PyList_Check(arg)) { \
-        tabsize = PyList_Size(arg); \
+        tabsize = (T_SIZE_T)PyList_Size(arg); \
         if (self->size < tabsize) \
             tabsize = self->size; \
         for (i=0; i<tabsize; i++) { \
@@ -836,7 +850,7 @@ extern PyTypeObject MMLZStreamType;
     return Py_None; \
 
 #define TABLE_SUB \
-    int i, tabsize; \
+    T_SIZE_T i, tabsize; \
     MYFLT x = 0.0; \
     MYFLT *list = NULL; \
     PyObject *table = NULL; \
@@ -858,7 +872,7 @@ extern PyTypeObject MMLZStreamType;
         } \
     } \
     else if (PyList_Check(arg)) { \
-        tabsize = PyList_Size(arg); \
+        tabsize = (T_SIZE_T)PyList_Size(arg); \
         if (self->size < tabsize) \
             tabsize = self->size; \
         for (i=0; i<tabsize; i++) { \
@@ -872,7 +886,7 @@ extern PyTypeObject MMLZStreamType;
     return Py_None; \
 
 #define TABLE_MUL \
-    int i, tabsize; \
+    T_SIZE_T i, tabsize; \
     MYFLT x = 0.0; \
     MYFLT *list = NULL; \
     PyObject *table = NULL; \
@@ -894,7 +908,7 @@ extern PyTypeObject MMLZStreamType;
         } \
     } \
     else if (PyList_Check(arg)) { \
-        tabsize = PyList_Size(arg); \
+        tabsize = (T_SIZE_T)PyList_Size(arg); \
         if (self->size < tabsize) \
             tabsize = self->size; \
         for (i=0; i<tabsize; i++) { \
@@ -908,7 +922,7 @@ extern PyTypeObject MMLZStreamType;
     return Py_None; \
 
 #define TABLE_DIV \
-    int i, tabsize; \
+    T_SIZE_T i, tabsize; \
     MYFLT x = 0.0; \
     MYFLT *list = NULL; \
     PyObject *table = NULL; \
@@ -939,7 +953,7 @@ extern PyTypeObject MMLZStreamType;
         } \
     } \
     else if (PyList_Check(arg)) { \
-        tabsize = PyList_Size(arg); \
+        tabsize = (T_SIZE_T)PyList_Size(arg); \
         if (self->size < tabsize) \
             tabsize = self->size; \
         for (i=0; i<tabsize; i++) { \
@@ -958,7 +972,7 @@ extern PyTypeObject MMLZStreamType;
     return Py_None; \
 
 #define SET_TABLE \
-    int i; \
+    T_SIZE_T i; \
     if (arg == NULL) { \
         PyErr_SetString(PyExc_TypeError, "Cannot delete the list attribute."); \
         return PyInt_FromLong(-1); \
@@ -979,7 +993,7 @@ extern PyTypeObject MMLZStreamType;
     Py_RETURN_NONE; \
 
 #define GET_TABLE \
-    int i; \
+    T_SIZE_T i; \
     PyObject *samples; \
  \
     samples = PyList_New(self->size); \
@@ -1017,13 +1031,13 @@ extern PyTypeObject MMLZStreamType;
         w = 500; \
         h = 200; \
     } \
-    h2 = h/2; \
+    h2 = h / 2; \
     amp = h2 - 2; \
     step = (float)self->size / (float)(w); \
  \
     samples = PyList_New(w); \
     for(i=0; i<w; i++) { \
-        y = self->data[(int)(i*step)] * amp + amp + 2; \
+        y = self->data[(T_SIZE_T)(i * step)] * amp + amp + 2; \
         tuple = PyTuple_New(2); \
         PyTuple_SetItem(tuple, 0, PyInt_FromLong(i)); \
         PyTuple_SetItem(tuple, 1, PyInt_FromLong(h-y)); \
@@ -1034,7 +1048,7 @@ extern PyTypeObject MMLZStreamType;
 
 /* Table reverse */
 #define REVERSE \
-    int i, j; \
+    T_SIZE_T i, j; \
     MYFLT tmp; \
     j = self->size; \
     for (i=0; i<--j; i++) { \
@@ -1048,7 +1062,7 @@ extern PyTypeObject MMLZStreamType;
 
 /* Table reset */
 #define TABLE_RESET \
-    int i; \
+    T_SIZE_T i; \
     for (i=0; i<self->size; i++) { \
         self->data[i] = 0.0; \
     } \
@@ -1057,7 +1071,7 @@ extern PyTypeObject MMLZStreamType;
 
 /* Table remove DC */
 #define REMOVE_DC \
-    int i; \
+    T_SIZE_T i; \
     MYFLT x, y, x1, y1; \
     x1 = y1 = 0.0; \
     for (i=0; i<self->size+1; i++) { \
@@ -1071,7 +1085,7 @@ extern PyTypeObject MMLZStreamType;
 
 /* Table amplitude reverse */
 #define INVERT \
-    int i; \
+    T_SIZE_T i; \
     for (i=0; i<self->size+1; i++) { \
         self->data[i] = -self->data[i]; \
     } \
@@ -1080,7 +1094,7 @@ extern PyTypeObject MMLZStreamType;
 
 /* Table positive rectify */
 #define RECTIFY \
-    int i; \
+    T_SIZE_T i; \
     MYFLT x; \
     for (i=0; i<self->size+1; i++) { \
         x = self->data[i]; \
@@ -1092,11 +1106,11 @@ extern PyTypeObject MMLZStreamType;
 
 /* Table rotation */
 #define TABLE_ROTATE \
-    int i, j, pos; \
+    T_SIZE_T i, j, pos; \
     MYFLT tmp; \
     static char *kwlist[] = {"pos", NULL}; \
  \
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "i", kwlist, &pos)) \
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "n", kwlist, &pos)) \
         return PyInt_FromLong(-1); \
  \
     pos = -pos; \
@@ -1129,12 +1143,12 @@ extern PyTypeObject MMLZStreamType;
 /* Table copy from table */
 #define TABLE_COPYDATA \
     PyObject *tabletmp; \
-    int i, tabsize, srcpos=0, destpos=0, length=-1; \
+    T_SIZE_T i, tabsize, srcpos=0, destpos=0, length=-1; \
     PyObject *table = NULL; \
     MYFLT *list = NULL; \
     static char *kwlist[] = {"table", "srcpos", "destpos", "length", NULL}; \
  \
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iii", kwlist, &tabletmp, &srcpos, &destpos, &length)) \
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|nnn", kwlist, &tabletmp, &srcpos, &destpos, &length)) \
         return PyInt_FromLong(-1); \
  \
     if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 1 ) { \
@@ -1176,7 +1190,7 @@ extern PyTypeObject MMLZStreamType;
 /* Table bipolar gain */
 #define TABLE_BIPOLAR_GAIN \
     MYFLT gpos = 1.0, gneg = 1.0; \
-    int i; \
+    T_SIZE_T i; \
     static char *kwlist[] = {"gpos", "gneg", NULL}; \
  \
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__FF, kwlist, &gpos, &gneg)) \
@@ -1194,7 +1208,8 @@ extern PyTypeObject MMLZStreamType;
 /* Table power function */
 #define TABLE_POWER \
     MYFLT x, exp; \
-    int i, sign; \
+    T_SIZE_T i; \
+    int sign; \
     static char *kwlist[] = {"exp", NULL}; \
  \
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F, kwlist, &exp)) \
@@ -1216,7 +1231,7 @@ extern PyTypeObject MMLZStreamType;
 /* Table one-pole lowpass filter */
 #define TABLE_LOWPASS \
     MYFLT freq, b, c, x, y; \
-    int i; \
+    T_SIZE_T i; \
     double sr = PyFloat_AsDouble(PyObject_CallMethod(PyServer_get_server(), "getSamplingRate", NULL)); \
     static char *kwlist[] = {"freq", NULL}; \
  \
@@ -1236,14 +1251,15 @@ extern PyTypeObject MMLZStreamType;
 /* FADE IN, FADE OUT */
 #define TABLE_FADEIN \
     MYFLT dur, inc; \
-    int i, samp, shape = 0; \
+    T_SIZE_T i, samp; \
+    int shape = 0; \
     double sr = PyFloat_AsDouble(PyObject_CallMethod(PyServer_get_server(), "getSamplingRate", NULL)); \
     static char *kwlist[] = {"dur", "shape", NULL}; \
  \
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F_I, kwlist, &dur, &shape)) \
         return PyInt_FromLong(-1); \
  \
-    samp = (int)(dur * sr + 0.5); \
+    samp = (T_SIZE_T)(dur * sr + 0.5); \
     if (samp < 0 || samp >= self->size) \
         Py_RETURN_NONE; \
  \
@@ -1275,18 +1291,19 @@ extern PyTypeObject MMLZStreamType;
 
 #define TABLE_FADEOUT \
     MYFLT dur, inc; \
-    int i, samp, shape = 0; \
+    T_SIZE_T i, samp; \
+    int shape = 0; \
     double sr = PyFloat_AsDouble(PyObject_CallMethod(PyServer_get_server(), "getSamplingRate", NULL)); \
     static char *kwlist[] = {"dur", "shape", NULL}; \
  \
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F_I, kwlist, &dur, &shape)) \
         return PyInt_FromLong(-1); \
  \
-    samp = (int)(dur * sr + 0.5); \
+    samp = (T_SIZE_T)(dur * sr + 0.5); \
     if (samp < 0 || samp >= self->size) \
         Py_RETURN_NONE; \
  \
-    int size1 = self->size - 1; \
+    T_SIZE_T size1 = self->size - 1; \
     inc = 1.0 / samp; \
     switch (shape) \
     { \
@@ -1315,7 +1332,7 @@ extern PyTypeObject MMLZStreamType;
 
 /* Normalize */
 #define NORMALIZE \
-    int i; \
+    T_SIZE_T i; \
     MYFLT level = 0.99; \
     MYFLT mi, ma, max, ratio; \
  \
@@ -1381,10 +1398,10 @@ extern PyTypeObject MMLZStreamType;
 
 #define TABLE_PUT \
     MYFLT val; \
-    int pos = 0; \
+    T_SIZE_T pos = 0; \
     static char *kwlist[] = {"value", "pos", NULL}; \
  \
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F_I, kwlist, &val, &pos)) \
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F_N, kwlist, &val, &pos)) \
         return PyInt_FromLong(-1); \
  \
     if (pos < -self->size || pos >= self->size) { \
@@ -1400,10 +1417,10 @@ extern PyTypeObject MMLZStreamType;
     Py_RETURN_NONE;
 
 #define TABLE_GET \
-    int pos; \
+    T_SIZE_T pos; \
     static char *kwlist[] = {"pos", NULL}; \
  \
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "i", kwlist, &pos)) \
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "n", kwlist, &pos)) \
         return PyInt_FromLong(-1); \
  \
     if (pos < -self->size || pos >= self->size) { \

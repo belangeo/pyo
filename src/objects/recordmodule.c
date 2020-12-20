@@ -621,13 +621,13 @@ typedef struct
     int loop;
     int go;
     int modebuffer[2];
-    long count;
+    T_SIZE_T count;
     long time;
-    long size;
+    T_SIZE_T size;
     MYFLT *trigsBuffer;
     TriggerStream *trig_stream;
     int interp; /* 0 = default to 2, 1 = nointerp, 2 = linear, 3 = cos, 4 = cubic */
-    MYFLT (*interp_func_ptr)(MYFLT *, int, MYFLT, int);
+    MYFLT (*interp_func_ptr)(MYFLT *, T_SIZE_T, MYFLT, T_SIZE_T);
 } ControlRead;
 
 static void
@@ -648,7 +648,7 @@ ControlRead_readframes_i(ControlRead *self)
         {
             mod = self->time % self->modulo;
             fpart = mod * invmodulo;
-            self->data[i] = (*self->interp_func_ptr)(self->values, (int)self->count, fpart, (int)self->size);
+            self->data[i] = (*self->interp_func_ptr)(self->values, self->count, fpart, self->size);
         }
         else
         {
