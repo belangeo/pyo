@@ -5996,7 +5996,7 @@ Resample_upsample(Resample *self)
     {
         for (i = 0; i < self->bufsize / self->factor; i++)
         {
-            for(j = 0; j < self->factor; j++) // for each polyphase sub-filter...
+            for (j = 0; j < self->factor; j++) // for each polyphase sub-filter...
             {
                 filtout = 0.0;
                 tmp_count = self->count;

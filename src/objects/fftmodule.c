@@ -74,7 +74,7 @@ FFTMain_realloc_memories(FFTMain *self)
 
     self->twiddle = (MYFLT **)realloc(self->twiddle, 4 * sizeof(MYFLT *));
 
-    for(i = 0; i < 4; i++)
+    for (i = 0; i < 4; i++)
         self->twiddle[i] = (MYFLT *)malloc(n8 * sizeof(MYFLT));
 
     fft_compute_split_twiddle(self->twiddle, self->size);
@@ -193,7 +193,7 @@ FFTMain_dealloc(FFTMain* self)
     free(self->window);
     free(self->buffer_streams);
 
-    for(i = 0; i < 4; i++)
+    for (i = 0; i < 4; i++)
     {
         free(self->twiddle[i]);
     }
@@ -645,7 +645,7 @@ IFFT_realloc_memories(IFFT *self)
 
     self->twiddle = (MYFLT **)realloc(self->twiddle, 4 * sizeof(MYFLT *));
 
-    for(i = 0; i < 4; i++)
+    for (i = 0; i < 4; i++)
         self->twiddle[i] = (MYFLT *)malloc(n8 * sizeof(MYFLT));
 
     fft_compute_split_twiddle(self->twiddle, self->size);
@@ -808,7 +808,7 @@ IFFT_dealloc(IFFT* self)
     free(self->outframe);
     free(self->window);
 
-    for(i = 0; i < 4; i++)
+    for (i = 0; i < 4; i++)
     {
         free(self->twiddle[i]);
     }
@@ -1799,7 +1799,7 @@ FrameDeltaMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->hopsize = self->frameSize / self->overlaps;
     self->frameBuffer = (MYFLT **)realloc(self->frameBuffer, self->overlaps * sizeof(MYFLT *));
 
-    for(i = 0; i < self->overlaps; i++)
+    for (i = 0; i < self->overlaps; i++)
     {
         self->frameBuffer[i] = (MYFLT *)malloc(self->frameSize * sizeof(MYFLT));
 
@@ -1863,7 +1863,7 @@ FrameDeltaMain_setFrameSize(FrameDeltaMain *self, PyObject *arg)
 
             self->frameBuffer = (MYFLT **)realloc(self->frameBuffer, self->overlaps * sizeof(MYFLT *));
 
-            for(i = 0; i < self->overlaps; i++)
+            for (i = 0; i < self->overlaps; i++)
             {
                 self->frameBuffer[i] = (MYFLT *)malloc(self->frameSize * sizeof(MYFLT));
 
@@ -2359,7 +2359,7 @@ FrameAccumMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->hopsize = self->frameSize / self->overlaps;
     self->frameBuffer = (MYFLT **)realloc(self->frameBuffer, self->overlaps * sizeof(MYFLT *));
 
-    for(i = 0; i < self->overlaps; i++)
+    for (i = 0; i < self->overlaps; i++)
     {
         self->frameBuffer[i] = (MYFLT *)malloc(self->frameSize * sizeof(MYFLT));
 
@@ -2423,7 +2423,7 @@ FrameAccumMain_setFrameSize(FrameAccumMain *self, PyObject *arg)
 
             self->frameBuffer = (MYFLT **)realloc(self->frameBuffer, self->overlaps * sizeof(MYFLT *));
 
-            for(i = 0; i < self->overlaps; i++)
+            for (i = 0; i < self->overlaps; i++)
             {
                 self->frameBuffer[i] = (MYFLT *)malloc(self->frameSize * sizeof(MYFLT));
 
@@ -3010,7 +3010,7 @@ VectralMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->hopsize = self->frameSize / self->overlaps;
     self->frameBuffer = (MYFLT **)realloc(self->frameBuffer, self->overlaps * sizeof(MYFLT *));
 
-    for(i = 0; i < self->overlaps; i++)
+    for (i = 0; i < self->overlaps; i++)
     {
         self->frameBuffer[i] = (MYFLT *)malloc(self->frameSize * sizeof(MYFLT));
 
@@ -3074,7 +3074,7 @@ VectralMain_setFrameSize(VectralMain *self, PyObject *arg)
 
             self->frameBuffer = (MYFLT **)realloc(self->frameBuffer, self->overlaps * sizeof(MYFLT *));
 
-            for(i = 0; i < self->overlaps; i++)
+            for (i = 0; i < self->overlaps; i++)
             {
                 self->frameBuffer[i] = (MYFLT *)malloc(self->frameSize * sizeof(MYFLT));
 
@@ -3580,7 +3580,7 @@ CvlVerb_alloc_memories(CvlVerb *self)
 
     self->twiddle = (MYFLT **)realloc(self->twiddle, 4 * sizeof(MYFLT *));
 
-    for(i = 0; i < 4; i++)
+    for (i = 0; i < 4; i++)
         self->twiddle[i] = (MYFLT *)malloc(n8 * sizeof(MYFLT));
 
     fft_compute_split_twiddle(self->twiddle, self->size2);
@@ -3638,7 +3638,7 @@ CvlVerb_analyse_impulse(CvlVerb *self)
     self->accum_real = (MYFLT **)realloc(self->accum_real, self->num_iter * sizeof(MYFLT *));
     self->accum_imag = (MYFLT **)realloc(self->accum_imag, self->num_iter * sizeof(MYFLT *));
 
-    for(i = 0; i < self->num_iter; i++)
+    for (i = 0; i < self->num_iter; i++)
     {
         self->impulse_real[i] = (MYFLT *)malloc(self->size * sizeof(MYFLT));
         self->impulse_imag[i] = (MYFLT *)malloc(self->size * sizeof(MYFLT));
@@ -3967,14 +3967,14 @@ CvlVerb_dealloc(CvlVerb* self)
     free(self->output_buffer);
     free(self->last_half_frame);
 
-    for(i = 0; i < 4; i++)
+    for (i = 0; i < 4; i++)
     {
         free(self->twiddle[i]);
     }
 
     free(self->twiddle);
 
-    for(i = 0; i < self->num_iter; i++)
+    for (i = 0; i < self->num_iter; i++)
     {
         free(self->impulse_real[i]);
         free(self->impulse_imag[i]);
@@ -4270,7 +4270,7 @@ Spectrum_realloc_memories(Spectrum *self)
 
     self->twiddle = (MYFLT **)realloc(self->twiddle, 4 * sizeof(MYFLT *));
 
-    for(i = 0; i < 4; i++)
+    for (i = 0; i < 4; i++)
         self->twiddle[i] = (MYFLT *)malloc(n8 * sizeof(MYFLT));
 
     fft_compute_split_twiddle(self->twiddle, self->size);
@@ -4470,7 +4470,7 @@ Spectrum_dealloc(Spectrum* self)
     free(self->last_magnitude);
     free(self->tmpmag);
 
-    for(i = 0; i < 4; i++)
+    for (i = 0; i < 4; i++)
     {
         free(self->twiddle[i]);
     }
@@ -4772,7 +4772,7 @@ IFFTMatrix_realloc_memories(IFFTMatrix *self)
 
     self->twiddle = (MYFLT **)realloc(self->twiddle, 4 * sizeof(MYFLT *));
 
-    for(i = 0; i < 4; i++)
+    for (i = 0; i < 4; i++)
         self->twiddle[i] = (MYFLT *)malloc(n8 * sizeof(MYFLT));
 
     fft_compute_split_twiddle(self->twiddle, self->size);
@@ -4926,7 +4926,7 @@ IFFTMatrix_dealloc(IFFTMatrix* self)
     free(self->outframe);
     free(self->window);
 
-    for(i = 0; i < 4; i++)
+    for (i = 0; i < 4; i++)
     {
         free(self->twiddle[i]);
     }

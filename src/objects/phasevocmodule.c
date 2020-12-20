@@ -107,7 +107,7 @@ PVAnal_realloc_memories(PVAnal *self)
 
     self->twiddle = (MYFLT **)realloc(self->twiddle, 4 * sizeof(MYFLT *));
 
-    for(i = 0; i < 4; i++)
+    for (i = 0; i < 4; i++)
         self->twiddle[i] = (MYFLT *)malloc(n8 * sizeof(MYFLT));
 
     fft_compute_split_twiddle(self->twiddle, self->size);
@@ -277,7 +277,7 @@ PVAnal_dealloc(PVAnal* self)
     free(self->imag);
     free(self->lastPhase);
 
-    for(i = 0; i < 4; i++)
+    for (i = 0; i < 4; i++)
     {
         free(self->twiddle[i]);
     }
@@ -285,7 +285,7 @@ PVAnal_dealloc(PVAnal* self)
     free(self->twiddle);
     free(self->window);
 
-    for(i = 0; i < self->olaps; i++)
+    for (i = 0; i < self->olaps; i++)
     {
         free(self->magn[i]);
         free(self->freq[i]);
@@ -570,7 +570,7 @@ PVSynth_realloc_memories(PVSynth *self)
 
     self->twiddle = (MYFLT **)realloc(self->twiddle, 4 * sizeof(MYFLT *));
 
-    for(i = 0; i < 4; i++)
+    for (i = 0; i < 4; i++)
         self->twiddle[i] = (MYFLT *)malloc(n8 * sizeof(MYFLT));
 
     fft_compute_split_twiddle(self->twiddle, self->size);
@@ -744,7 +744,7 @@ PVSynth_dealloc(PVSynth* self)
     free(self->imag);
     free(self->sumPhase);
 
-    for(i = 0; i < 4; i++)
+    for (i = 0; i < 4; i++)
     {
         free(self->twiddle[i]);
     }
@@ -1810,7 +1810,7 @@ PVTranspose_dealloc(PVTranspose* self)
     int i;
     pyo_DEALLOC
 
-    for(i = 0; i < self->olaps; i++)
+    for (i = 0; i < self->olaps; i++)
     {
         free(self->magn[i]);
         free(self->freq[i]);
@@ -2414,7 +2414,7 @@ PVVerb_dealloc(PVVerb* self)
     int i;
     pyo_DEALLOC
 
-    for(i = 0; i < self->olaps; i++)
+    for (i = 0; i < self->olaps; i++)
     {
         free(self->magn[i]);
         free(self->freq[i]);
@@ -3037,7 +3037,7 @@ PVGate_dealloc(PVGate* self)
     int i;
     pyo_DEALLOC
 
-    for(i = 0; i < self->olaps; i++)
+    for (i = 0; i < self->olaps; i++)
     {
         free(self->magn[i]);
         free(self->freq[i]);
@@ -3483,7 +3483,7 @@ PVCross_dealloc(PVCross* self)
     int i;
     pyo_DEALLOC
 
-    for(i = 0; i < self->olaps; i++)
+    for (i = 0; i < self->olaps; i++)
     {
         free(self->magn[i]);
         free(self->freq[i]);
@@ -3850,7 +3850,7 @@ PVMult_dealloc(PVMult* self)
     int i;
     pyo_DEALLOC
 
-    for(i = 0; i < self->olaps; i++)
+    for (i = 0; i < self->olaps; i++)
     {
         free(self->magn[i]);
         free(self->freq[i]);
@@ -4249,7 +4249,7 @@ PVMorph_dealloc(PVMorph* self)
     int i;
     pyo_DEALLOC
 
-    for(i = 0; i < self->olaps; i++)
+    for (i = 0; i < self->olaps; i++)
     {
         free(self->magn[i]);
         free(self->freq[i]);
@@ -4735,7 +4735,7 @@ PVFilter_dealloc(PVFilter* self)
     int i;
     pyo_DEALLOC
 
-    for(i = 0; i < self->olaps; i++)
+    for (i = 0; i < self->olaps; i++)
     {
         free(self->magn[i]);
         free(self->freq[i]);
@@ -5264,7 +5264,7 @@ PVDelay_dealloc(PVDelay* self)
     int i;
     pyo_DEALLOC
 
-    for(i = 0; i < self->olaps; i++)
+    for (i = 0; i < self->olaps; i++)
     {
         free(self->magn[i]);
         free(self->freq[i]);
@@ -5273,7 +5273,7 @@ PVDelay_dealloc(PVDelay* self)
     free(self->magn);
     free(self->freq);
 
-    for(i = 0; i < self->numFrames; i++)
+    for (i = 0; i < self->numFrames; i++)
     {
         free(self->magn_buf[i]);
         free(self->freq_buf[i]);
@@ -5780,7 +5780,7 @@ PVBuffer_dealloc(PVBuffer* self)
     int i;
     pyo_DEALLOC
 
-    for(i = 0; i < self->olaps; i++)
+    for (i = 0; i < self->olaps; i++)
     {
         free(self->magn[i]);
         free(self->freq[i]);
@@ -5789,7 +5789,7 @@ PVBuffer_dealloc(PVBuffer* self)
     free(self->magn);
     free(self->freq);
 
-    for(i = 0; i < self->numFrames; i++)
+    for (i = 0; i < self->numFrames; i++)
     {
         free(self->magn_buf[i]);
         free(self->freq_buf[i]);
@@ -6254,7 +6254,7 @@ PVShift_dealloc(PVShift* self)
     int i;
     pyo_DEALLOC
 
-    for(i = 0; i < self->olaps; i++)
+    for (i = 0; i < self->olaps; i++)
     {
         free(self->magn[i]);
         free(self->freq[i]);
@@ -6881,7 +6881,7 @@ PVAmpMod_dealloc(PVAmpMod* self)
     int i;
     pyo_DEALLOC
 
-    for(i = 0; i < self->olaps; i++)
+    for (i = 0; i < self->olaps; i++)
     {
         free(self->magn[i]);
         free(self->freq[i]);
@@ -7592,7 +7592,7 @@ PVFreqMod_dealloc(PVFreqMod* self)
     int i;
     pyo_DEALLOC
 
-    for(i = 0; i < self->olaps; i++)
+    for (i = 0; i < self->olaps; i++)
     {
         free(self->magn[i]);
         free(self->freq[i]);
@@ -8208,7 +8208,7 @@ PVBufLoops_dealloc(PVBufLoops* self)
     int i;
     pyo_DEALLOC
 
-    for(i = 0; i < self->olaps; i++)
+    for (i = 0; i < self->olaps; i++)
     {
         free(self->magn[i]);
         free(self->freq[i]);
@@ -8217,7 +8217,7 @@ PVBufLoops_dealloc(PVBufLoops* self)
     free(self->magn);
     free(self->freq);
 
-    for(i = 0; i < self->numFrames; i++)
+    for (i = 0; i < self->numFrames; i++)
     {
         free(self->magn_buf[i]);
         free(self->freq_buf[i]);
@@ -8688,7 +8688,7 @@ PVBufTabLoops_dealloc(PVBufTabLoops* self)
     int i;
     pyo_DEALLOC
 
-    for(i = 0; i < self->olaps; i++)
+    for (i = 0; i < self->olaps; i++)
     {
         free(self->magn[i]);
         free(self->freq[i]);
@@ -8697,7 +8697,7 @@ PVBufTabLoops_dealloc(PVBufTabLoops* self)
     free(self->magn);
     free(self->freq);
 
-    for(i = 0; i < self->numFrames; i++)
+    for (i = 0; i < self->numFrames; i++)
     {
         free(self->magn_buf[i]);
         free(self->freq_buf[i]);
@@ -9035,7 +9035,7 @@ PVMix_dealloc(PVMix* self)
     int i;
     pyo_DEALLOC
 
-    for(i = 0; i < self->olaps; i++)
+    for (i = 0; i < self->olaps; i++)
     {
         free(self->magn[i]);
         free(self->freq[i]);

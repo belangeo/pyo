@@ -57,7 +57,7 @@ Convolve_filters(Convolve *self)
         self->data[i] = 0.0;
         tmp_count = self->count;
 
-        for(j = 0; j < self->size; j++)
+        for (j = 0; j < self->size; j++)
         {
             if (tmp_count < 0)
                 tmp_count += self->size;
@@ -579,7 +579,7 @@ IRWinSinc_filters(IRWinSinc *self)
         self->data[i] = 0.0;
         tmp_count = self->count;
 
-        for(j = 0; j < self->size; j++)
+        for (j = 0; j < self->size; j++)
         {
             if (tmp_count < 0)
                 tmp_count += self->size;
@@ -1029,7 +1029,7 @@ IRAverage_filters(IRAverage *self)
         self->data[i] = 0.0;
         tmp_count = self->count;
 
-        for(j = 0; j < self->size; j++)
+        for (j = 0; j < self->size; j++)
         {
             if (tmp_count < 0)
                 tmp_count += self->size;
@@ -1547,7 +1547,7 @@ IRPulse_filters(IRPulse *self)
         self->data[i] = 0.0;
         tmp_count = self->count;
 
-        for(j = 0; j < self->size; j++)
+        for (j = 0; j < self->size; j++)
         {
             if (tmp_count < 0)
                 tmp_count += self->size;
@@ -2069,7 +2069,7 @@ IRFM_filters(IRFM *self)
         self->data[i] = 0.0;
         tmp_count = self->count;
 
-        for(j = 0; j < self->size; j++)
+        for (j = 0; j < self->size; j++)
         {
             if (tmp_count < 0)
                 tmp_count += self->size;

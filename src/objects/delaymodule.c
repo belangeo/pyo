@@ -1626,7 +1626,7 @@ Waveguide_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->in_count = 0;
     self->lpsamp = 0.0;
 
-    for(i = 0; i < 4; i++)
+    for (i = 0; i < 4; i++)
     {
         self->lagrange[i] = 0.0;
     }
@@ -1718,7 +1718,7 @@ Waveguide_reset(Waveguide *self)
         self->buffer[i] = 0.;
     }
 
-    for(i = 0; i < 4; i++)
+    for (i = 0; i < 4; i++)
     {
         self->lagrange[i] = 0.0;
     }
@@ -2812,7 +2812,7 @@ AllpassWG_dealloc(AllpassWG* self)
     pyo_DEALLOC
     free(self->buffer);
 
-    for(i = 0; i < 3; i++)
+    for (i = 0; i < 3; i++)
     {
         free(self->alpbuffer[i]);
     }

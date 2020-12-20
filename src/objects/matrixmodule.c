@@ -340,7 +340,7 @@ NewMatrix_getData(NewMatrix *self)
 
     matrix = PyList_New(self->height);
 
-    for(i = 0; i < self->height; i++)
+    for (i = 0; i < self->height; i++)
     {
         samples = PyList_New(self->width);
 
@@ -363,7 +363,7 @@ NewMatrix_getViewData(NewMatrix *self)
 
     matrix = PyList_New(self->width * self->height);
 
-    for(i = 0; i < self->height; i++)
+    for (i = 0; i < self->height; i++)
     {
         for (j = 0; j < self->width; j++)
         {
@@ -383,7 +383,7 @@ NewMatrix_getImageData(NewMatrix *self)
 
     w3 = self->width * 3;
 
-    for(i = 0; i < self->height; i++)
+    for (i = 0; i < self->height; i++)
     {
         for (j = 0; j < self->width; j++)
         {
@@ -423,7 +423,7 @@ NewMatrix_setMatrix(NewMatrix *self, PyObject *value)
         return PyInt_FromLong(-1);
     }
 
-    for(i = 0; i < self->height; i++)
+    for (i = 0; i < self->height; i++)
     {
         innerlist = PyList_GetItem(value, i);
 

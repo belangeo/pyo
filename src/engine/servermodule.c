@@ -700,7 +700,7 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     }
 
     /* find the first free serverID */
-    for(serverID = 0; serverID < MAX_NBR_SERVER; serverID++)
+    for (serverID = 0; serverID < MAX_NBR_SERVER; serverID++)
     {
         if (my_server[serverID] == NULL)
         {

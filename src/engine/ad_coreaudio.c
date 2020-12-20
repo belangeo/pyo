@@ -77,7 +77,7 @@ OSStatus coreaudio_output_callback(AudioDeviceID device, const AudioTimeStamp* i
         off1chnls = i * bufchnls + server->output_offset;
         off2chnls = i * servchnls;
 
-        for(j = 0; j < servchnls; j++)
+        for (j = 0; j < servchnls; j++)
         {
             bufdata[off1chnls + j] = server->output_buffer[off2chnls + j];
         }

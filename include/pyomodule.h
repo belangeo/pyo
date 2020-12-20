@@ -790,7 +790,7 @@ extern PyTypeObject MMLZStreamType;
     MatrixStream_setWidth(self->matrixstream, self->width); \
     MatrixStream_setHeight(self->matrixstream, self->height); \
  \
-    for(i=0; i<self->height; i++) { \
+    for (i=0; i<self->height; i++) { \
         innerlist = PyList_GetItem(arg, i); \
         for (j=0; j<self->width; j++) { \
             self->data[i][j] = PyFloat_AsDouble(PyList_GET_ITEM(innerlist, j)); \
@@ -979,7 +979,7 @@ extern PyTypeObject MMLZStreamType;
         PyErr_SetString(PyExc_TypeError, "New table must be of the same size as actual table."); \
         return PyInt_FromLong(-1); \
     } \
-    for(i=0; i<self->size; i++) { \
+    for (i=0; i<self->size; i++) { \
         self->data[i] = PyFloat_AsDouble(PyList_GET_ITEM(arg, i)); \
     } \
     self->data[self->size] = self->data[0]; \
@@ -990,7 +990,7 @@ extern PyTypeObject MMLZStreamType;
     PyObject *samples; \
  \
     samples = PyList_New(self->size); \
-    for(i=0; i<self->size; i++) { \
+    for (i=0; i<self->size; i++) { \
         PyList_SetItem(samples, i, PyFloat_FromDouble(self->data[i])); \
     } \
  \
@@ -1029,7 +1029,7 @@ extern PyTypeObject MMLZStreamType;
     step = (float)self->size / (float)(w); \
  \
     samples = PyList_New(w); \
-    for(i=0; i<w; i++) { \
+    for (i=0; i<w; i++) { \
         y = self->data[(T_SIZE_T)(i * step)] * amp + amp + 2; \
         tuple = PyTuple_New(2); \
         PyTuple_SetItem(tuple, 0, PyInt_FromLong(i)); \

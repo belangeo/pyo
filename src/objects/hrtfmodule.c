@@ -220,7 +220,7 @@ HRTFData_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     MYFLT **twiddle = (MYFLT **)malloc(4 * sizeof(MYFLT *));
 
-    for(i = 0; i < 4; i++)
+    for (i = 0; i < 4; i++)
         twiddle[i] = (MYFLT *)malloc(n8 * sizeof(MYFLT));
 
     fft_compute_split_twiddle(twiddle, self->length);
@@ -644,7 +644,7 @@ HRTFSpatter_dealloc(HRTFSpatter* self)
     free(self->current_impulses);
     free(self->previous_impulses);
 
-    for(i = 0; i < 4; i++)
+    for (i = 0; i < 4; i++)
     {
         free(self->twiddle[i]);
     }
@@ -730,7 +730,7 @@ HRTFSpatter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     int n8 = self->length >> 3;
     self->twiddle = (MYFLT **)realloc(self->twiddle, 4 * sizeof(MYFLT *));
 
-    for(i = 0; i < 4; i++)
+    for (i = 0; i < 4; i++)
         self->twiddle[i] = (MYFLT *)malloc(n8 * sizeof(MYFLT));
 
     fft_compute_split_twiddle(self->twiddle, self->length);

@@ -1823,7 +1823,7 @@ Centroid_alloc_memories(Centroid *self)
 
     self->twiddle = (MYFLT **)realloc(self->twiddle, 4 * sizeof(MYFLT *));
 
-    for(i = 0; i < 4; i++)
+    for (i = 0; i < 4; i++)
         self->twiddle[i] = (MYFLT *)malloc(n8 * sizeof(MYFLT));
 
     fft_compute_split_twiddle(self->twiddle, self->size);
@@ -1974,7 +1974,7 @@ Centroid_dealloc(Centroid* self)
     free(self->outframe);
     free(self->input_buffer);
 
-    for(i = 0; i < 4; i++)
+    for (i = 0; i < 4; i++)
     {
         free(self->twiddle[i]);
     }

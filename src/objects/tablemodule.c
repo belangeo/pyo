@@ -177,18 +177,18 @@ HarmTable_generate(HarmTable *self)
     ampsize = PyList_Size(self->amplist);
     MYFLT array[ampsize];
 
-    for(j = 0; j < ampsize; j++)
+    for (j = 0; j < ampsize; j++)
     {
         array[j] =  PyFloat_AsDouble(PyList_GET_ITEM(self->amplist, j));
     }
 
     factor = 1. / (self->size * 0.5) * PI;
 
-    for(i = 0; i < self->size; i++)
+    for (i = 0; i < self->size; i++)
     {
         val = 0;
 
-        for(j = 0; j < ampsize; j++)
+        for (j = 0; j < ampsize; j++)
         {
             amplitude = array[j];
 
@@ -457,7 +457,7 @@ ChebyTable_generate(ChebyTable *self)
 
     MYFLT array[ampsize];
 
-    for(j = 0; j < ampsize; j++)
+    for (j = 0; j < ampsize; j++)
     {
         array[j] =  PyFloat_AsDouble(PyList_GET_ITEM(self->amplist, j));
     }
@@ -467,12 +467,12 @@ ChebyTable_generate(ChebyTable *self)
 
     x = 0.0;
 
-    for(i = 0; i < self->size; i++)
+    for (i = 0; i < self->size; i++)
     {
         val = 0;
         index = (i - halfsize) * ihalfsize;
 
-        for(j = 0; j < ampsize; j++)
+        for (j = 0; j < ampsize; j++)
         {
             amplitude = array[j];
 
@@ -880,7 +880,7 @@ HannTable_generate(HannTable *self)
 
     halfSize = self->size / 2 - 1;
 
-    for(i = 0; i < self->size; i++)
+    for (i = 0; i < self->size; i++)
     {
         val = 0.5 + (MYCOS(TWOPI * (i - halfSize) / self->size) * 0.5);
         self->data[i] = val;
@@ -1103,7 +1103,7 @@ SincTable_generate(SincTable *self)
     {
         halfMinusOne = half - 1;
 
-        for(i = 0; i < self->size; i++)
+        for (i = 0; i < self->size; i++)
         {
             scl = (MYFLT)(i - half) / half * self->freq;
 
@@ -1118,7 +1118,7 @@ SincTable_generate(SincTable *self)
     }
     else
     {
-        for(i = 0; i < self->size; i++)
+        for (i = 0; i < self->size; i++)
         {
             scl = (MYFLT)(i - half) / half * self->freq;
 
@@ -1615,7 +1615,7 @@ ParaTable_generate(ParaTable *self)
     slope = 4.0 * (rdur - rdur2);
     curve = -8.0 * rdur2;
 
-    for(i = 0; i < sizeMinusOne; i++)
+    for (i = 0; i < sizeMinusOne; i++)
     {
         self->data[i] = level;
         level += slope;
@@ -1846,7 +1846,7 @@ LinTable_generate(LinTable *self)
         return;
     }
 
-    for(i = 0; i < (listsize - 1); i++)
+    for (i = 0; i < (listsize - 1); i++)
     {
         tup = PyList_GET_ITEM(self->pointslist, i);
         x1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
@@ -1865,7 +1865,7 @@ LinTable_generate(LinTable *self)
 
         diff = (y2 - x2) / steps;
 
-        for(j = 0; j < steps; j++)
+        for (j = 0; j < steps; j++)
         {
             self->data[x1 + j] = x2 + diff * j;
         }
@@ -2015,7 +2015,7 @@ LinTable_setSize(LinTable *self, PyObject *value)
 
     PyObject *listtemp = PyList_New(0);
 
-    for(i = 0; i < (listsize); i++)
+    for (i = 0; i < (listsize); i++)
     {
         tup = PyList_GET_ITEM(self->pointslist, i);
         x1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
@@ -2183,7 +2183,7 @@ LogTable_generate(LogTable *self)
         return;
     }
 
-    for(i = 0; i < (listsize - 1); i++)
+    for (i = 0; i < (listsize - 1); i++)
     {
         tup = PyList_GET_ITEM(self->pointslist, i);
         x1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
@@ -2223,7 +2223,7 @@ LogTable_generate(LogTable *self)
 
         if (range == 0)
         {
-            for(j = 0; j < steps; j++)
+            for (j = 0; j < steps; j++)
             {
                 self->data[x1 + j] = x2;
             }
@@ -2232,7 +2232,7 @@ LogTable_generate(LogTable *self)
         {
             diff = (y2 - x2) / steps;
 
-            for(j = 0; j < steps; j++)
+            for (j = 0; j < steps; j++)
             {
                 ratio = ((x2 + diff * j) - low) / range;
                 self->data[x1 + j] = MYPOW(10, ratio * logrange + logmin);
@@ -2384,7 +2384,7 @@ LogTable_setSize(LogTable *self, PyObject *value)
 
     PyObject *listtemp = PyList_New(0);
 
-    for(i = 0; i < (listsize); i++)
+    for (i = 0; i < (listsize); i++)
     {
         tup = PyList_GET_ITEM(self->pointslist, i);
         x1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
@@ -2552,7 +2552,7 @@ CosTable_generate(CosTable *self)
         return;
     }
 
-    for(i = 0; i < (listsize - 1); i++)
+    for (i = 0; i < (listsize - 1); i++)
     {
         tup = PyList_GET_ITEM(self->pointslist, i);
         x1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
@@ -2569,7 +2569,7 @@ CosTable_generate(CosTable *self)
             return;
         }
 
-        for(j = 0; j < steps; j++)
+        for (j = 0; j < steps; j++)
         {
             mu = (MYFLT)j / steps;
             mu2 = (1.0 - MYCOS(mu * PI)) / 2.0;
@@ -2721,7 +2721,7 @@ CosTable_setSize(CosTable *self, PyObject *value)
 
     PyObject *listtemp = PyList_New(0);
 
-    for(i = 0; i < (listsize); i++)
+    for (i = 0; i < (listsize); i++)
     {
         tup = PyList_GET_ITEM(self->pointslist, i);
         x1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
@@ -2889,7 +2889,7 @@ CosLogTable_generate(CosLogTable *self)
         return;
     }
 
-    for(i = 0; i < (listsize - 1); i++)
+    for (i = 0; i < (listsize - 1); i++)
     {
         tup = PyList_GET_ITEM(self->pointslist, i);
         x1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
@@ -2929,14 +2929,14 @@ CosLogTable_generate(CosLogTable *self)
 
         if (range == 0)
         {
-            for(j = 0; j < steps; j++)
+            for (j = 0; j < steps; j++)
             {
                 self->data[x1 + j] = x2;
             }
         }
         else
         {
-            for(j = 0; j < steps; j++)
+            for (j = 0; j < steps; j++)
             {
                 mu = (MYFLT)j / steps;
                 mu = (1.0 - MYCOS(mu * PI)) * 0.5;
@@ -3091,7 +3091,7 @@ CosLogTable_setSize(CosLogTable *self, PyObject *value)
 
     PyObject *listtemp = PyList_New(0);
 
-    for(i = 0; i < (listsize); i++)
+    for (i = 0; i < (listsize); i++)
     {
         tup = PyList_GET_ITEM(self->pointslist, i);
         x1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
@@ -3291,7 +3291,7 @@ CurveTable_generate(CurveTable *self)
     else
         values[endP] = values[endP - 1] - values[endP - 2];
 
-    for(i = 1; i < listsize; i++)
+    for (i = 1; i < listsize; i++)
     {
         x1 = times[i];
         x2 = times[i + 1];
@@ -3308,7 +3308,7 @@ CurveTable_generate(CurveTable *self)
             return;
         }
 
-        for(j = 0; j < steps; j++)
+        for (j = 0; j < steps; j++)
         {
             mu = (MYFLT)j / steps;
             mu2 = mu * mu;
@@ -3501,7 +3501,7 @@ CurveTable_setSize(CurveTable *self, PyObject *value)
 
     PyObject *listtemp = PyList_New(0);
 
-    for(i = 0; i < (listsize); i++)
+    for (i = 0; i < (listsize); i++)
     {
         tup = PyList_GET_ITEM(self->pointslist, i);
         x1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
@@ -3687,7 +3687,7 @@ ExpTable_generate(ExpTable *self)
 
     y1 = y2 = 0.0;
 
-    for(i = 0; i < (listsize - 1); i++)
+    for (i = 0; i < (listsize - 1); i++)
     {
         x1 = times[i];
         x2 = times[i + 1];
@@ -3710,7 +3710,7 @@ ExpTable_generate(ExpTable *self)
         {
             if (range >= 0)
             {
-                for(j = 0; j < steps; j++)
+                for (j = 0; j < steps; j++)
                 {
                     scl = MYPOW(pointer, self->exp);
                     self->data[x1 + j] = scl * range + y1;
@@ -3719,7 +3719,7 @@ ExpTable_generate(ExpTable *self)
             }
             else
             {
-                for(j = 0; j < steps; j++)
+                for (j = 0; j < steps; j++)
                 {
                     scl = 1.0 - MYPOW(1.0 - pointer, self->exp);
                     self->data[x1 + j] = scl * range + y1;
@@ -3729,7 +3729,7 @@ ExpTable_generate(ExpTable *self)
         }
         else
         {
-            for(j = 0; j < steps; j++)
+            for (j = 0; j < steps; j++)
             {
                 scl = MYPOW(pointer, self->exp);
                 self->data[x1 + j] = scl * range + y1;
@@ -3913,7 +3913,7 @@ ExpTable_setSize(ExpTable *self, PyObject *value)
 
     PyObject *listtemp = PyList_New(0);
 
-    for(i = 0; i < (listsize); i++)
+    for (i = 0; i < (listsize); i++)
     {
         tup = PyList_GET_ITEM(self->pointslist, i);
         x1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
@@ -4690,7 +4690,7 @@ SndTable_getViewTable(SndTable *self, PyObject *args, PyObject *kwds)
     {
         samples = PyList_New(w);
 
-        for(i = 0; i < w; i++)
+        for (i = 0; i < w; i++)
         {
             absin = 0.0;
 
@@ -4711,7 +4711,7 @@ SndTable_getViewTable(SndTable *self, PyObject *args, PyObject *kwds)
     {
         samples = PyList_New(w * 2);
 
-        for(i = 0; i < w; i++)
+        for (i = 0; i < w; i++)
         {
             absin = 0.0;
 
@@ -4757,7 +4757,7 @@ SndTable_getEnvelope(SndTable *self, PyObject *arg)
         step = self->size / points;
         samples = PyList_New(points);
 
-        for(i = 0; i < points; i++)
+        for (i = 0; i < points; i++)
         {
             last = 0.0;
             absin = 0.0;
@@ -4869,7 +4869,7 @@ SndTable_setSize(SndTable *self, PyObject *value)
 
     self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
 
-    for(i = 0; i < self->size; i++)
+    for (i = 0; i < self->size; i++)
     {
         self->data[i] = 0.0;
     }
@@ -5231,7 +5231,7 @@ NewTable_getViewTable(NewTable *self, PyObject *args, PyObject *kwds)
     {
         samples = PyList_New(w);
 
-        for(i = 0; i < w; i++)
+        for (i = 0; i < w; i++)
         {
             absin = 0.0;
 
@@ -5252,7 +5252,7 @@ NewTable_getViewTable(NewTable *self, PyObject *args, PyObject *kwds)
     {
         samples = PyList_New(w * 2);
 
-        for(i = 0; i < w; i++)
+        for (i = 0; i < w; i++)
         {
             absin = 0.0;
 
@@ -5623,7 +5623,7 @@ AtanTable_generate(AtanTable *self)
     drv = 1 - self->slope;
     drv = drv * drv * drv * PI;
 
-    for(i = 0; i <= hsize; i++)
+    for (i = 0; i <= hsize; i++)
     {
         t = i * invhsize - 1;
         val = MYATAN2(t, drv);
@@ -5883,7 +5883,7 @@ PadSynthTable_gen_twiddle(PadSynthTable *self)
     n8 = self->size >> 3;
     self->twiddle = (MYFLT **)realloc(self->twiddle, 4 * sizeof(MYFLT *));
 
-    for(i = 0; i < 4; i++)
+    for (i = 0; i < 4; i++)
         self->twiddle[i] = (MYFLT *)malloc(n8 * sizeof(MYFLT));
 
     fft_compute_split_twiddle(self->twiddle, self->size);
@@ -5983,7 +5983,7 @@ PadSynthTable_dealloc(PadSynthTable* self)
 {
     int i;
 
-    for(i = 0; i < 4; i++)
+    for (i = 0; i < 4; i++)
     {
         free(self->twiddle[i]);
     }
