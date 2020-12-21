@@ -1418,7 +1418,7 @@ class LogiMap(PyoObject):
     growth curve) is a model of population growth first published by Pierre
     Verhulst (1845, 1847). The logistic map is a discrete quadratic recurrence
     equation derived from the logistic equation that can be effectively used
-    as a number generator that exibit chaotic behavior. This object uses the
+    as a number generator that exhibit chaotic behavior. This object uses the
     following equation:
 
         x[n] = (r + 3) * x[n-1] * (1.0 - x[n-1])
