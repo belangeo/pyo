@@ -298,22 +298,7 @@ static PyObject * HarmTable_div(HarmTable *self, PyObject *arg) { TABLE_DIV };
 static PyObject *
 HarmTable_setSize(HarmTable *self, PyObject *value)
 {
-    if (value == NULL)
-    {
-        PyErr_SetString(PyExc_TypeError, "Cannot delete the size attribute.");
-        return PyInt_FromLong(-1);
-    }
-
-    if (! PyInt_Check(value))
-    {
-        PyErr_SetString(PyExc_TypeError, "The size attribute value must be an integer.");
-        return PyInt_FromLong(-1);
-    }
-
-    self->size = PyInt_AsLong(value);
-
-    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
-    TableStream_setSize(self->tablestream, self->size);
+    TABLE_SET_SIZE
 
     HarmTable_generate(self);
 
@@ -630,22 +615,7 @@ static PyObject * ChebyTable_div(ChebyTable *self, PyObject *arg) { TABLE_DIV };
 static PyObject *
 ChebyTable_setSize(ChebyTable *self, PyObject *value)
 {
-    if (value == NULL)
-    {
-        PyErr_SetString(PyExc_TypeError, "Cannot delete the size attribute.");
-        return PyInt_FromLong(-1);
-    }
-
-    if (! PyInt_Check(value))
-    {
-        PyErr_SetString(PyExc_TypeError, "The size attribute value must be an integer.");
-        return PyInt_FromLong(-1);
-    }
-
-    self->size = PyInt_AsLong(value);
-
-    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
-    TableStream_setSize(self->tablestream, self->size);
+    TABLE_SET_SIZE
 
     ChebyTable_generate(self);
 
@@ -971,22 +941,7 @@ static PyObject * HannTable_div(HannTable *self, PyObject *arg) { TABLE_DIV };
 static PyObject *
 HannTable_setSize(HannTable *self, PyObject *value)
 {
-    if (value == NULL)
-    {
-        PyErr_SetString(PyExc_TypeError, "Cannot delete the size attribute.");
-        return PyInt_FromLong(-1);
-    }
-
-    if (! PyInt_Check(value))
-    {
-        PyErr_SetString(PyExc_TypeError, "The size attribute value must be an integer.");
-        return PyInt_FromLong(-1);
-    }
-
-    self->size = PyInt_AsLong(value);
-
-    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
-    TableStream_setSize(self->tablestream, self->size);
+    TABLE_SET_SIZE
 
     HannTable_generate(self);
 
@@ -1251,22 +1206,7 @@ SincTable_setWindowed(SincTable *self, PyObject *value)
 static PyObject *
 SincTable_setSize(SincTable *self, PyObject *value)
 {
-    if (value == NULL)
-    {
-        PyErr_SetString(PyExc_TypeError, "Cannot delete the size attribute.");
-        return PyInt_FromLong(-1);
-    }
-
-    if (! PyInt_Check(value))
-    {
-        PyErr_SetString(PyExc_TypeError, "The size attribute value must be an integer.");
-        return PyInt_FromLong(-1);
-    }
-
-    self->size = PyInt_AsLong(value);
-
-    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
-    TableStream_setSize(self->tablestream, self->size);
+    TABLE_SET_SIZE
 
     SincTable_generate(self);
 
@@ -1461,22 +1401,7 @@ static PyObject * WinTable_div(WinTable *self, PyObject *arg) { TABLE_DIV };
 static PyObject *
 WinTable_setSize(WinTable *self, PyObject *value)
 {
-    if (value == NULL)
-    {
-        PyErr_SetString(PyExc_TypeError, "Cannot delete the size attribute.");
-        return PyInt_FromLong(-1);
-    }
-
-    if (! PyInt_Check(value))
-    {
-        PyErr_SetString(PyExc_TypeError, "The size attribute value must be an integer.");
-        return PyInt_FromLong(-1);
-    }
-
-    self->size = PyInt_AsLong(value);
-
-    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
-    TableStream_setSize(self->tablestream, self->size);
+    TABLE_SET_SIZE
 
     WinTable_generate(self);
 
@@ -1707,22 +1632,7 @@ static PyObject * ParaTable_div(ParaTable *self, PyObject *arg) { TABLE_DIV };
 static PyObject *
 ParaTable_setSize(ParaTable *self, PyObject *value)
 {
-    if (value == NULL)
-    {
-        PyErr_SetString(PyExc_TypeError, "Cannot delete the size attribute.");
-        return PyInt_FromLong(-1);
-    }
-
-    if (! PyInt_Check(value))
-    {
-        PyErr_SetString(PyExc_TypeError, "The size attribute value must be an integer.");
-        return PyInt_FromLong(-1);
-    }
-
-    self->size = PyInt_AsLong(value);
-
-    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
-    TableStream_setSize(self->tablestream, self->size);
+    TABLE_SET_SIZE
 
     ParaTable_generate(self);
 
@@ -1986,46 +1896,7 @@ static PyObject * LinTable_div(LinTable *self, PyObject *arg) { TABLE_DIV };
 static PyObject *
 LinTable_setSize(LinTable *self, PyObject *value)
 {
-    Py_ssize_t i;
-    PyObject *tup, *x2;
-    T_SIZE_T old_size, x1;
-    MYFLT factor;
-
-    if (value == NULL)
-    {
-        PyErr_SetString(PyExc_TypeError, "Cannot delete the size attribute.");
-        return PyInt_FromLong(-1);
-    }
-
-    if (! PyInt_Check(value))
-    {
-        PyErr_SetString(PyExc_TypeError, "The size attribute value must be an integer.");
-        return PyInt_FromLong(-1);
-    }
-
-    old_size = self->size;
-    self->size = PyInt_AsLong(value);
-
-    factor = (MYFLT)(self->size) / old_size;
-
-    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
-    TableStream_setSize(self->tablestream, self->size);
-
-    T_SIZE_T listsize = PyList_Size(self->pointslist);
-
-    PyObject *listtemp = PyList_New(0);
-
-    for (i = 0; i < (listsize); i++)
-    {
-        tup = PyList_GET_ITEM(self->pointslist, i);
-        x1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
-        x2 = PyNumber_Float(PyTuple_GET_ITEM(tup, 1));
-        PyList_Append(listtemp, PyTuple_Pack(2, PyInt_FromLong((T_SIZE_T)(x1 * factor)), x2));
-    }
-
-    Py_INCREF(listtemp);
-    Py_DECREF(self->pointslist);
-    self->pointslist = listtemp;
+    TABLE_SET_SIZE_WITH_POINT_LIST
 
     LinTable_generate(self);
 
@@ -2355,46 +2226,7 @@ static PyObject * LogTable_div(LogTable *self, PyObject *arg) { TABLE_DIV };
 static PyObject *
 LogTable_setSize(LogTable *self, PyObject *value)
 {
-    T_SIZE_T i;
-    PyObject *tup, *x2;
-    T_SIZE_T old_size, x1;
-    MYFLT factor;
-
-    if (value == NULL)
-    {
-        PyErr_SetString(PyExc_TypeError, "Cannot delete the size attribute.");
-        return PyInt_FromLong(-1);
-    }
-
-    if (! PyInt_Check(value))
-    {
-        PyErr_SetString(PyExc_TypeError, "The size attribute value must be an integer.");
-        return PyInt_FromLong(-1);
-    }
-
-    old_size = self->size;
-    self->size = PyInt_AsLong(value);
-
-    factor = (MYFLT)(self->size) / old_size;
-
-    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
-    TableStream_setSize(self->tablestream, self->size);
-
-    T_SIZE_T listsize = PyList_Size(self->pointslist);
-
-    PyObject *listtemp = PyList_New(0);
-
-    for (i = 0; i < (listsize); i++)
-    {
-        tup = PyList_GET_ITEM(self->pointslist, i);
-        x1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
-        x2 = PyNumber_Float(PyTuple_GET_ITEM(tup, 1));
-        PyList_Append(listtemp, PyTuple_Pack(2, PyInt_FromLong((T_SIZE_T)(x1 * factor)), x2));
-    }
-
-    Py_INCREF(listtemp);
-    Py_DECREF(self->pointslist);
-    self->pointslist = listtemp;
+    TABLE_SET_SIZE_WITH_POINT_LIST
 
     LogTable_generate(self);
 
@@ -2692,46 +2524,7 @@ static PyObject * CosTable_div(CosTable *self, PyObject *arg) { TABLE_DIV };
 static PyObject *
 CosTable_setSize(CosTable *self, PyObject *value)
 {
-    T_SIZE_T i;
-    PyObject *tup, *x2;
-    T_SIZE_T old_size, x1;
-    MYFLT factor;
-
-    if (value == NULL)
-    {
-        PyErr_SetString(PyExc_TypeError, "Cannot delete the size attribute.");
-        return PyInt_FromLong(-1);
-    }
-
-    if (! PyInt_Check(value))
-    {
-        PyErr_SetString(PyExc_TypeError, "The size attribute value must be an integer.");
-        return PyInt_FromLong(-1);
-    }
-
-    old_size = self->size;
-    self->size = PyInt_AsLong(value);
-
-    factor = (MYFLT)(self->size) / old_size;
-
-    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
-    TableStream_setSize(self->tablestream, self->size);
-
-    T_SIZE_T listsize = PyList_Size(self->pointslist);
-
-    PyObject *listtemp = PyList_New(0);
-
-    for (i = 0; i < (listsize); i++)
-    {
-        tup = PyList_GET_ITEM(self->pointslist, i);
-        x1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
-        x2 = PyNumber_Float(PyTuple_GET_ITEM(tup, 1));
-        PyList_Append(listtemp, PyTuple_Pack(2, PyInt_FromLong((T_SIZE_T)(x1 * factor)), x2));
-    }
-
-    Py_INCREF(listtemp);
-    Py_DECREF(self->pointslist);
-    self->pointslist = listtemp;
+    TABLE_SET_SIZE_WITH_POINT_LIST
 
     CosTable_generate(self);
 
@@ -3062,46 +2855,7 @@ static PyObject * CosLogTable_div(CosLogTable *self, PyObject *arg) { TABLE_DIV 
 static PyObject *
 CosLogTable_setSize(CosLogTable *self, PyObject *value)
 {
-    T_SIZE_T i;
-    PyObject *tup, *x2;
-    T_SIZE_T old_size, x1;
-    MYFLT factor;
-
-    if (value == NULL)
-    {
-        PyErr_SetString(PyExc_TypeError, "Cannot delete the size attribute.");
-        return PyInt_FromLong(-1);
-    }
-
-    if (! PyInt_Check(value))
-    {
-        PyErr_SetString(PyExc_TypeError, "The size attribute value must be an integer.");
-        return PyInt_FromLong(-1);
-    }
-
-    old_size = self->size;
-    self->size = PyInt_AsLong(value);
-
-    factor = (MYFLT)(self->size) / old_size;
-
-    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
-    TableStream_setSize(self->tablestream, self->size);
-
-    T_SIZE_T listsize = PyList_Size(self->pointslist);
-
-    PyObject *listtemp = PyList_New(0);
-
-    for (i = 0; i < (listsize); i++)
-    {
-        tup = PyList_GET_ITEM(self->pointslist, i);
-        x1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
-        x2 = PyNumber_Float(PyTuple_GET_ITEM(tup, 1));
-        PyList_Append(listtemp, PyTuple_Pack(2, PyInt_FromLong((T_SIZE_T)(x1 * factor)), x2));
-    }
-
-    Py_INCREF(listtemp);
-    Py_DECREF(self->pointslist);
-    self->pointslist = listtemp;
+    TABLE_SET_SIZE_WITH_POINT_LIST
 
     CosLogTable_generate(self);
 
@@ -3472,46 +3226,7 @@ CurveTable_setBias(CurveTable *self, PyObject *value)
 static PyObject *
 CurveTable_setSize(CurveTable *self, PyObject *value)
 {
-    T_SIZE_T i;
-    PyObject *tup, *x2;
-    T_SIZE_T old_size, x1;
-    MYFLT factor;
-
-    if (value == NULL)
-    {
-        PyErr_SetString(PyExc_TypeError, "Cannot delete the size attribute.");
-        return PyInt_FromLong(-1);
-    }
-
-    if (! PyInt_Check(value))
-    {
-        PyErr_SetString(PyExc_TypeError, "The size attribute value must be an integer.");
-        return PyInt_FromLong(-1);
-    }
-
-    old_size = self->size;
-    self->size = PyInt_AsLong(value);
-
-    factor = (MYFLT)(self->size) / old_size;
-
-    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
-    TableStream_setSize(self->tablestream, self->size);
-
-    T_SIZE_T listsize = PyList_Size(self->pointslist);
-
-    PyObject *listtemp = PyList_New(0);
-
-    for (i = 0; i < (listsize); i++)
-    {
-        tup = PyList_GET_ITEM(self->pointslist, i);
-        x1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
-        x2 = PyNumber_Float(PyTuple_GET_ITEM(tup, 1));
-        PyList_Append(listtemp, PyTuple_Pack(2, PyInt_FromLong((T_SIZE_T)(x1 * factor)), x2));
-    }
-
-    Py_INCREF(listtemp);
-    Py_DECREF(self->pointslist);
-    self->pointslist = listtemp;
+    TABLE_SET_SIZE_WITH_POINT_LIST
 
     CurveTable_generate(self);
 
@@ -3884,46 +3599,7 @@ ExpTable_setInverse(ExpTable *self, PyObject *value)
 static PyObject *
 ExpTable_setSize(ExpTable *self, PyObject *value)
 {
-    T_SIZE_T i;
-    PyObject *tup, *x2;
-    T_SIZE_T old_size, x1;
-    MYFLT factor;
-
-    if (value == NULL)
-    {
-        PyErr_SetString(PyExc_TypeError, "Cannot delete the size attribute.");
-        return PyInt_FromLong(-1);
-    }
-
-    if (! PyInt_Check(value))
-    {
-        PyErr_SetString(PyExc_TypeError, "The size attribute value must be an integer.");
-        return PyInt_FromLong(-1);
-    }
-
-    old_size = self->size;
-    self->size = PyInt_AsLong(value);
-
-    factor = (MYFLT)(self->size) / old_size;
-
-    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
-    TableStream_setSize(self->tablestream, self->size);
-
-    T_SIZE_T listsize = PyList_Size(self->pointslist);
-
-    PyObject *listtemp = PyList_New(0);
-
-    for (i = 0; i < (listsize); i++)
-    {
-        tup = PyList_GET_ITEM(self->pointslist, i);
-        x1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
-        x2 = PyNumber_Float(PyTuple_GET_ITEM(tup, 1));
-        PyList_Append(listtemp, PyTuple_Pack(2, PyInt_FromLong((int)(x1 * factor)), x2));
-    }
-
-    Py_INCREF(listtemp);
-    Py_DECREF(self->pointslist);
-    self->pointslist = listtemp;
+    TABLE_SET_SIZE_WITH_POINT_LIST
 
     ExpTable_generate(self);
 
@@ -4068,6 +3744,21 @@ typedef struct
     MYFLT crossfade;
     MYFLT insertPos;
 } SndTable;
+
+static void
+SndTable_full_reset(SndTable *self)
+{
+    T_SIZE_T i;
+
+    for (i = 0; i < self->size; i++)
+    {
+        self->data[i] = 0.0;
+    }
+
+    self->data[self->size] = 0.0;
+    self->start = 0.0;
+    self->stop = -1.0;
+}
 
 static void
 SndTable_loadSound(SndTable *self)
@@ -4533,7 +4224,7 @@ SndTable_dealloc(SndTable* self)
 static PyObject *
 SndTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-    T_SIZE_T i, psize;
+    T_SIZE_T psize;
     SndTable *self;
 
     self = (SndTable *)type->tp_alloc(type, 0);
@@ -4560,14 +4251,8 @@ SndTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         self->size = (T_SIZE_T)self->sr;
         self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
 
-        for (i = 0; i < self->size; i++)
-        {
-            self->data[i] = 0.0;
-        }
+        SndTable_full_reset(self);
 
-        self->data[self->size] = self->data[0];
-        self->start = 0.0;
-        self->stop = -1.0;
         self->sndSr = (int)self->sr;
         TableStream_setSize(self->tablestream, self->size);
         TableStream_setSamplingRate(self->tablestream, (int)self->sr);
@@ -4863,22 +4548,10 @@ SndTable_insert(SndTable *self, PyObject *args, PyObject *kwds)
 static PyObject *
 SndTable_setSize(SndTable *self, PyObject *value)
 {
-    T_SIZE_T i;
 
-    self->size = PyInt_AsLong(value);
+    TABLE_SET_SIZE
 
-    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
-
-    for (i = 0; i < self->size; i++)
-    {
-        self->data[i] = 0.0;
-    }
-
-    self->data[self->size] = 0.0;
-    self->start = 0.0;
-    self->stop = -1.0;
-    TableStream_setSize(self->tablestream, self->size);
-    TableStream_setData(self->tablestream, self->data);
+    SndTable_full_reset(self);
 
     Py_RETURN_NONE;
 }
@@ -5741,22 +5414,7 @@ AtanTable_setSlope(AtanTable *self, PyObject *value)
 static PyObject *
 AtanTable_setSize(AtanTable *self, PyObject *value)
 {
-    if (value == NULL)
-    {
-        PyErr_SetString(PyExc_TypeError, "Cannot delete the size attribute.");
-        return PyInt_FromLong(-1);
-    }
-
-    if (! PyInt_Check(value))
-    {
-        PyErr_SetString(PyExc_TypeError, "The size attribute value must be an integer.");
-        return PyInt_FromLong(-1);
-    }
-
-    self->size = PyInt_AsLong(value);
-
-    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
-    TableStream_setSize(self->tablestream, self->size);
+    TABLE_SET_SIZE
 
     AtanTable_generate(self);
 

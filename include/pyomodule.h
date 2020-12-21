@@ -1419,6 +1419,65 @@ extern PyTypeObject MMLZStreamType;
  \
     return PyFloat_FromDouble(self->data[pos]);
 
+#define TABLE_SET_SIZE \
+    if (value == NULL) \
+    { \
+        PyErr_SetString(PyExc_TypeError, "Cannot delete the size attribute."); \
+        return PyInt_FromLong(-1); \
+    } \
+ \
+    if (! PyInt_Check(value)) \
+    { \
+        PyErr_SetString(PyExc_TypeError, "The size attribute value must be an integer."); \
+        return PyInt_FromLong(-1); \
+    } \
+ \
+    self->size = PyInt_AsLong(value); \
+ \
+    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT)); \
+    TableStream_setSize(self->tablestream, self->size);
+
+#define TABLE_SET_SIZE_WITH_POINT_LIST \
+    T_SIZE_T i, old_size, x1; \
+    MYFLT factor; \
+    PyObject *tup, *x2; \
+ \
+    if (value == NULL) \
+    { \
+        PyErr_SetString(PyExc_TypeError, "Cannot delete the size attribute."); \
+        return PyInt_FromLong(-1); \
+    } \
+ \
+    if (! PyInt_Check(value)) \
+    { \
+        PyErr_SetString(PyExc_TypeError, "The size attribute value must be an integer."); \
+        return PyInt_FromLong(-1); \
+    } \
+ \
+    old_size = self->size; \
+    self->size = PyInt_AsLong(value); \
+ \
+    factor = (MYFLT)(self->size) / old_size; \
+ \
+    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT)); \
+    TableStream_setSize(self->tablestream, self->size); \
+ \
+    T_SIZE_T listsize = PyList_Size(self->pointslist); \
+ \
+    PyObject *listtemp = PyList_New(0); \
+ \
+    for (i = 0; i < (listsize); i++) \
+    { \
+        tup = PyList_GET_ITEM(self->pointslist, i); \
+        x1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0))); \
+        x2 = PyNumber_Float(PyTuple_GET_ITEM(tup, 1)); \
+        PyList_Append(listtemp, PyTuple_Pack(2, PyInt_FromLong((T_SIZE_T)(x1 * factor)), x2)); \
+    } \
+ \
+    Py_INCREF(listtemp); \
+    Py_DECREF(self->pointslist); \
+    self->pointslist = listtemp;
+
 /* Matrix macros */
 #define MATRIX_BLUR \
     int i,j; \
