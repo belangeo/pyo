@@ -57,7 +57,7 @@ Convolve_filters(Convolve *self)
         self->data[i] = 0.0;
         tmp_count = self->count;
 
-        for(j = 0; j < self->size; j++)
+        for (j = 0; j < self->size; j++)
         {
             if (tmp_count < 0)
                 tmp_count += self->size;
@@ -262,8 +262,7 @@ Convolve_setTable(Convolve *self, PyObject *arg)
     Py_DECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Convolve_members[] =
@@ -580,7 +579,7 @@ IRWinSinc_filters(IRWinSinc *self)
         self->data[i] = 0.0;
         tmp_count = self->count;
 
-        for(j = 0; j < self->size; j++)
+        for (j = 0; j < self->size; j++)
         {
             if (tmp_count < 0)
                 tmp_count += self->size;
@@ -808,8 +807,7 @@ IRWinSinc_setFreq(IRWinSinc *self, PyObject *arg)
         self->modebuffer[2] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -840,8 +838,7 @@ IRWinSinc_setBandwidth(IRWinSinc *self, PyObject *arg)
         self->modebuffer[3] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -857,8 +854,7 @@ IRWinSinc_setType(IRWinSinc *self, PyObject *arg)
         self->changed = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef IRWinSinc_members[] =
@@ -1033,7 +1029,7 @@ IRAverage_filters(IRAverage *self)
         self->data[i] = 0.0;
         tmp_count = self->count;
 
-        for(j = 0; j < self->size; j++)
+        for (j = 0; j < self->size; j++)
         {
             if (tmp_count < 0)
                 tmp_count += self->size;
@@ -1551,7 +1547,7 @@ IRPulse_filters(IRPulse *self)
         self->data[i] = 0.0;
         tmp_count = self->count;
 
-        for(j = 0; j < self->size; j++)
+        for (j = 0; j < self->size; j++)
         {
             if (tmp_count < 0)
                 tmp_count += self->size;
@@ -1778,8 +1774,7 @@ IRPulse_setFreq(IRPulse *self, PyObject *arg)
         self->modebuffer[2] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1810,8 +1805,7 @@ IRPulse_setBandwidth(IRPulse *self, PyObject *arg)
         self->modebuffer[3] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1828,8 +1822,7 @@ IRPulse_setType(IRPulse *self, PyObject *arg)
         self->changed = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef IRPulse_members[] =
@@ -2076,7 +2069,7 @@ IRFM_filters(IRFM *self)
         self->data[i] = 0.0;
         tmp_count = self->count;
 
-        for(j = 0; j < self->size; j++)
+        for (j = 0; j < self->size; j++)
         {
             if (tmp_count < 0)
                 tmp_count += self->size;
@@ -2313,8 +2306,7 @@ IRFM_setCarrier(IRFM *self, PyObject *arg)
         self->modebuffer[2] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2345,8 +2337,7 @@ IRFM_setRatio(IRFM *self, PyObject *arg)
         self->modebuffer[3] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2377,8 +2368,7 @@ IRFM_setIndex(IRFM *self, PyObject *arg)
         self->modebuffer[4] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef IRFM_members[] =

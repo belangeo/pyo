@@ -32,9 +32,9 @@
 #include "pyomodule.h"
 #include <math.h>
 
-void gen_window(MYFLT *window, int size, int wintype)
+void gen_window(MYFLT *window, T_SIZE_T size, int wintype)
 {
-    int i;
+    T_SIZE_T i;
     MYFLT arg;
 
     switch (wintype)

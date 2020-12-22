@@ -265,8 +265,7 @@ Pattern_setFunction(Pattern *self, PyObject *arg)
     if (! PyCallable_Check(arg))
     {
         PyErr_SetString(PyExc_TypeError, "The callable attribute must be a valid Python function.");
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
 
     tmp = arg;
@@ -274,8 +273,7 @@ Pattern_setFunction(Pattern *self, PyObject *arg)
     Py_INCREF(tmp);
     self->callable = tmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -308,8 +306,7 @@ Pattern_setTime(Pattern *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -322,8 +319,7 @@ Pattern_setArg(Pattern *self, PyObject *arg)
     Py_INCREF(tmp);
     self->arg = tmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Pattern_members[] =
@@ -697,8 +693,7 @@ CallAfter_setTime(CallAfter *self, PyObject *arg)
         self->time = PyFloat_AsDouble(arg);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -711,8 +706,7 @@ CallAfter_setArg(CallAfter *self, PyObject *arg)
     Py_INCREF(tmp);
     self->arg = tmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef CallAfter_members[] =

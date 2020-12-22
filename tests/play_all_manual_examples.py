@@ -43,12 +43,14 @@ def play_example(cls, dur=5, toprint=True, double=False):
     for line in doc:
         if not store:
             if ">>> s = Server" in line:
+                line = line.replace("Server()", 'Server(audio="offline")')
                 line = line + "\ns.recordOptions(filename=r'{}', dur={})".format(filepath, dur)
-                line = line + "\ns.recstart()"
                 store = True
         if store:
             if line.strip() == "":
                 store = False
+            elif 's.start()' in line:
+                pass
             else:
                 lines.append(line)
 
@@ -67,8 +69,7 @@ def play_example(cls, dur=5, toprint=True, double=False):
         if "..." in line:
             line = "    " + line.lstrip("... ")
         ex += line + "\n"
-
-    ex += "time.sleep(%f)\ns.recstop()\ns.stop()\ntime.sleep(0.25)\ns.shutdown()\n" % dur
+    ex += "s.start()\n"
     f = tempfile.NamedTemporaryFile(delete=False)
     if toprint:
         f.write(tobytes('print(r"""\n%s\n""")\n' % ex))

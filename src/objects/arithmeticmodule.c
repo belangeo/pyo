@@ -2596,8 +2596,7 @@ M_Pow_setBase(M_Pow *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2630,8 +2629,7 @@ M_Pow_setExponent(M_Pow *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef M_Pow_members[] =
@@ -3029,8 +3027,7 @@ M_Atan2_setB(M_Atan2 *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -3063,8 +3060,7 @@ M_Atan2_setA(M_Atan2 *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef M_Atan2_members[] =
@@ -4899,8 +4895,7 @@ M_Div_setA(M_Div *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -4933,8 +4928,7 @@ M_Div_setB(M_Div *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef M_Div_members[] =
@@ -5332,8 +5326,7 @@ M_Sub_setA(M_Sub *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -5366,8 +5359,7 @@ M_Sub_setB(M_Sub *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef M_Sub_members[] =

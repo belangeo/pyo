@@ -723,8 +723,7 @@ WGVerb_setFeedback(WGVerb *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -757,8 +756,7 @@ WGVerb_setCutoff(WGVerb *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -791,8 +789,7 @@ WGVerb_setMix(WGVerb *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef WGVerb_members[] =
@@ -1944,8 +1941,7 @@ STReverb_setInpos(STReverb *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1978,8 +1974,7 @@ STReverb_setRevtime(STReverb *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2012,8 +2007,7 @@ STReverb_setCutoff(STReverb *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2046,8 +2040,7 @@ STReverb_setMix(STReverb *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2109,8 +2102,7 @@ STReverb_setRoomSize(STReverb *self, PyObject *arg)
         }
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2128,8 +2120,7 @@ STReverb_setFirstRefGain(STReverb *self, PyObject *arg)
         self->firstRefGain = MYPOW(10.0, tmp * 0.05);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef STReverb_members[] =

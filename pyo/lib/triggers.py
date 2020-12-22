@@ -3920,7 +3920,7 @@ class TrigBurst(PyoObject):
 
         input: PyoObject
             Input signal sending triggers.
-        time: float or PyoObject, optional
+        time: float, optional
             Base time, in seconds, between each trig of the serie. Defaults to 0.25.
         count: int, optional
             Number of trigs generated (length of the serie). Defaults to 10.
@@ -4065,11 +4065,11 @@ class TrigBurst(PyoObject):
 
         :Args:
 
-            x: float or PyoObject
+            x: float
                 New `time` attribute.
 
         """
-        pyoArgsAssert(self, "O", x)
+        pyoArgsAssert(self, "n", x)
         self._time = x
         x, lmax = convertArgsToLists(x)
         [obj.setTime(wrap(x, i)) for i, obj in enumerate(self._base_players)]
@@ -4169,7 +4169,7 @@ class TrigBurst(PyoObject):
 
     @property
     def time(self):
-        """float or PyoObject. Base time, in seconds, between each trig."""
+        """float. Base time, in seconds, between each trig."""
         return self._time
 
     @time.setter

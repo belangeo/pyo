@@ -283,8 +283,7 @@ TrigRandInt_setMax(TrigRandInt *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef TrigRandInt_members[] =
@@ -797,8 +796,7 @@ TrigRand_setMin(TrigRand *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -831,8 +829,7 @@ TrigRand_setMax(TrigRand *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -853,8 +850,7 @@ TrigRand_setPort(TrigRand *self, PyObject *arg)
         self->timeStep = (int)(self->time * self->sr);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef TrigRand_members[] =
@@ -1199,8 +1195,7 @@ TrigChoice_setChoice(TrigChoice *self, PyObject *arg)
     if (! PyList_Check(arg))
     {
         PyErr_SetString(PyExc_TypeError, "The choice attribute must be a list.");
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
 
     tmp = arg;
@@ -1214,8 +1209,7 @@ TrigChoice_setChoice(TrigChoice *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1236,8 +1230,7 @@ TrigChoice_setPort(TrigChoice *self, PyObject *arg)
         self->timeStep = (int)(self->time * self->sr);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef TrigChoice_members[] =
@@ -1494,8 +1487,7 @@ TrigFunc_setFunction(TrigFunc *self, PyObject *arg)
     if (! PyCallable_Check(arg))
     {
         PyErr_SetString(PyExc_TypeError, "The function attribute must be callable.");
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
 
     tmp = arg;
@@ -1503,8 +1495,7 @@ TrigFunc_setFunction(TrigFunc *self, PyObject *arg)
     Py_INCREF(tmp);
     self->func = tmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1517,8 +1508,7 @@ TrigFunc_setArg(TrigFunc *self, PyObject *arg)
     Py_INCREF(tmp);
     self->arg = tmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef TrigFunc_members[] =
@@ -1601,17 +1591,18 @@ typedef struct
     MYFLT *trigsBuffer;
     TriggerStream *trig_stream;
     int interp; /* 0 = default to 2, 1 = nointerp, 2 = linear, 3 = cos, 4 = cubic */
-    MYFLT (*interp_func_ptr)(MYFLT *, int, MYFLT, int);
+    MYFLT (*interp_func_ptr)(MYFLT *, T_SIZE_T, MYFLT, T_SIZE_T);
 } TrigEnv;
 
 static void
 TrigEnv_readframes_i(TrigEnv *self)
 {
     MYFLT fpart;
-    int i, ipart;
+    int i;
+    T_SIZE_T ipart;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *tablelist = TableStream_getData(self->table);
-    int size = TableStream_getSize(self->table);
+    T_SIZE_T size = TableStream_getSize(self->table);
 
     for (i = 0; i < self->bufsize; i++)
     {
@@ -1639,7 +1630,7 @@ TrigEnv_readframes_i(TrigEnv *self)
 
         if (self->active == 1)
         {
-            ipart = (int)self->pointerPos;
+            ipart = (T_SIZE_T)self->pointerPos;
             fpart = self->pointerPos - ipart;
             self->data[i] = (*self->interp_func_ptr)(tablelist, ipart, fpart, size);
             self->pointerPos += self->inc;
@@ -1659,11 +1650,12 @@ static void
 TrigEnv_readframes_a(TrigEnv *self)
 {
     MYFLT fpart, dur;
-    int i, ipart;
+    int i;
+    T_SIZE_T ipart;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *dur_st = Stream_getData((Stream *)self->dur_stream);
     MYFLT *tablelist = TableStream_getData(self->table);
-    int size = TableStream_getSize(self->table);
+    T_SIZE_T size = TableStream_getSize(self->table);
 
     for (i = 0; i < self->bufsize; i++)
     {
@@ -1691,7 +1683,7 @@ TrigEnv_readframes_a(TrigEnv *self)
 
         if (self->active == 1)
         {
-            ipart = (int)self->pointerPos;
+            ipart = (T_SIZE_T)self->pointerPos;
             fpart = self->pointerPos - ipart;
             self->data[i] = (*self->interp_func_ptr)(tablelist, ipart, fpart, size);
             self->pointerPos += self->inc;
@@ -1929,8 +1921,7 @@ TrigEnv_setTable(TrigEnv *self, PyObject *arg)
     Py_DECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1963,8 +1954,7 @@ TrigEnv_setDur(TrigEnv *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1981,8 +1971,7 @@ TrigEnv_setInterp(TrigEnv *self, PyObject *arg)
 
     SET_INTERP_POINTER
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef TrigEnv_members[] =
@@ -2396,8 +2385,7 @@ TrigLinseg_setList(TrigLinseg *self, PyObject *value)
 
     self->newlist = 1;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef TrigLinseg_members[] =
@@ -2837,8 +2825,7 @@ TrigExpseg_setList(TrigExpseg *self, PyObject *value)
 
     self->newlist = 1;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2849,8 +2836,7 @@ TrigExpseg_setExp(TrigExpseg *self, PyObject *arg)
     // TODO: PyNumber_Check()
     self->exp_tmp = PyFloat_AsDouble(arg);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2860,8 +2846,7 @@ TrigExpseg_setInverse(TrigExpseg *self, PyObject *arg)
 
     self->inverse_tmp = PyInt_AsLong(PyNumber_Int(arg));
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef TrigExpseg_members[] =
@@ -3632,8 +3617,7 @@ TrigXnoise_setType(TrigXnoise *self, PyObject *arg)
         TrigXnoise_setRandomType(self);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -3666,8 +3650,7 @@ TrigXnoise_setX1(TrigXnoise *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -3700,8 +3683,7 @@ TrigXnoise_setX2(TrigXnoise *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef TrigXnoise_members[] =
@@ -4518,8 +4500,7 @@ TrigXnoiseMidi_setType(TrigXnoiseMidi *self, PyObject *arg)
         TrigXnoiseMidi_setRandomType(self);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -4541,8 +4522,7 @@ TrigXnoiseMidi_setScale(TrigXnoiseMidi *self, PyObject *arg)
             PySys_WriteStdout("TrigXnoiseMidi: scale attribute must be an integer {0, 1, 2}\n");
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -4550,8 +4530,7 @@ TrigXnoiseMidi_setRange(TrigXnoiseMidi *self, PyObject *args)
 {
     if (args == NULL)
     {
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
 
     int isTuple = PyTuple_Check(args);
@@ -4563,8 +4542,7 @@ TrigXnoiseMidi_setRange(TrigXnoiseMidi *self, PyObject *args)
         self->centralkey = (int)((self->range_max + self->range_min) / 2);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -4597,8 +4575,7 @@ TrigXnoiseMidi_setX1(TrigXnoiseMidi *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -4631,8 +4608,7 @@ TrigXnoiseMidi_setX2(TrigXnoiseMidi *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef TrigXnoiseMidi_members[] =
@@ -4984,8 +4960,7 @@ Counter_setMin(Counter *self, PyObject *arg)
         self->min = PyLong_AsLong(arg);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -4998,8 +4973,7 @@ Counter_setMax(Counter *self, PyObject *arg)
         self->max = PyLong_AsLong(arg);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -5012,8 +4986,7 @@ Counter_setDir(Counter *self, PyObject *arg)
         self->dir = PyInt_AsLong(arg);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -5037,8 +5010,7 @@ Counter_reset(Counter *self, PyObject *arg)
         self->tmp = val;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Counter_members[] =
@@ -5492,8 +5464,7 @@ Thresh_setThreshold(Thresh *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -5506,8 +5477,7 @@ Thresh_setDir(Thresh *self, PyObject *arg)
         self->dir = PyInt_AsLong(arg);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Thresh_members[] =
@@ -5881,8 +5851,7 @@ Percent_setPercent(Percent *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Percent_members[] =
@@ -6919,8 +6888,7 @@ Count_setMin(Count *self, PyObject *arg)
     if (PyLong_Check(arg) || PyInt_Check(arg))
         self->min = PyLong_AsLong(arg);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -6931,8 +6899,7 @@ Count_setMax(Count *self, PyObject *arg)
     else if (PyLong_Check(arg) || PyInt_Check(arg))
         self->max = PyLong_AsLong(arg);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Count_members[] =
@@ -7595,8 +7562,7 @@ TrigVal_setValue(TrigVal *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef TrigVal_members[] =

@@ -783,7 +783,7 @@ p_upsamp(PyObject *self, PyObject *args, PyObject *kwds)
     sf_close(sf);
     samples = (MYFLT **)malloc(snd_chnls * sizeof(MYFLT *));
 
-    for(i = 0; i < snd_chnls; i++)
+    for (i = 0; i < snd_chnls; i++)
         samples[i] = (MYFLT *)malloc(snd_size * sizeof(MYFLT));
 
     for (i = 0; i < num_items; i++)
@@ -794,7 +794,7 @@ p_upsamp(PyObject *self, PyObject *args, PyObject *kwds)
     /* upsampling */
     upsamples = (MYFLT **)malloc(snd_chnls * sizeof(MYFLT *));
 
-    for(i = 0; i < snd_chnls; i++)
+    for (i = 0; i < snd_chnls; i++)
         upsamples[i] = (MYFLT *)malloc(snd_size * up * sizeof(MYFLT));
 
     for (i = 0; i < snd_size; i++)
@@ -911,7 +911,7 @@ p_downsamp(PyObject *self, PyObject *args, PyObject *kwds)
     sf_close(sf);
     samples = (MYFLT **)malloc(snd_chnls * sizeof(MYFLT *));
 
-    for(i = 0; i < snd_chnls; i++)
+    for (i = 0; i < snd_chnls; i++)
         samples[i] = (MYFLT *)malloc(snd_size * sizeof(MYFLT));
 
     for (i = 0; i < num_items; i++)
@@ -937,7 +937,7 @@ p_downsamp(PyObject *self, PyObject *args, PyObject *kwds)
     samples_per_channels = (snd_size / down) + (snd_size % down);
     downsamples = (MYFLT **)malloc(snd_chnls * sizeof(MYFLT *));
 
-    for(i = 0; i < snd_chnls; i++)
+    for (i = 0; i < snd_chnls; i++)
     {
         downsamples[i] = (MYFLT *)malloc(samples_per_channels * sizeof(MYFLT));
 
@@ -1476,8 +1476,7 @@ rescale(PyObject *self, PyObject *args, PyObject *kwds)
         type = 1;
     else
     {
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
 
     if (xlog == 0 && ylog == 0)
@@ -1598,12 +1597,10 @@ rescale(PyObject *self, PyObject *args, PyObject *kwds)
     }
     else
     {
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 #define floatmap_info \

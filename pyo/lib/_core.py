@@ -2094,7 +2094,8 @@ class PyoTableObject(PyoObjectBase):
             value: float
                 Value, as floating-point, to record in the table.
             pos: int, optional
-                Position, in samples, where to record value. Defaults to 0.
+                Position, in samples, where to record value.
+                Can write backward with negative position. Defaults to 0.
 
         """
         pyoArgsAssert(self, "NI", value, pos)
@@ -2112,7 +2113,8 @@ class PyoTableObject(PyoObjectBase):
         :Args:
 
             pos: int, optional
-                Position, in samples, where to read the value. Defaults to 0.
+                Position, in samples, where to read the value.
+                Can read backward with negative position. Defaults to 0.
 
         """
         pyoArgsAssert(self, "I", pos)
@@ -2407,10 +2409,10 @@ class PyoTableObject(PyoObjectBase):
                 The source table.
             srcpos: int, optional
                 The start position, in samples, in the source table.
-                Defaults to 0.
+                Can read backward with negative position. Defaults to 0.
             destpos ; int, optional
                 The start position, in samples, in the destination (self) table.
-                Defaults to 0.
+                Can read backward with negative position. Defaults to 0.
             length: int, optional
                 The number of samples to copy from source to destination. if
                 length is negative, the length of the smallest table is used.

@@ -33,5 +33,5 @@
 
 #ifndef _WIND_
 #define _WIND_
-void gen_window(MYFLT *window, int size, int wintype);
+void gen_window(MYFLT *window, T_SIZE_T size, int wintype);
 #endif

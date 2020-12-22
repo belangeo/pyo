@@ -2083,6 +2083,16 @@ class NewTable(PyoTableObject):
             self._base_objs = [NewTable_base(length, wrap(init, i), feedback) for i in range(chnls)]
         self._size = self._base_objs[0].getSize()
 
+    def _check_data_size(self, lst):
+        # Validate that the data passed to the object has the same size as self._size.
+        if len(lst) < self._size:
+            lst += [0] * (self._size - len(lst))
+            print("Warning: NewTable data length < size... padded with 0s.")
+        elif len(lst) > self._size:
+            lst = lst[:self._size]
+            print("Warning: NewTable data length > size... truncated to size.")
+        return lst
+
     def replace(self, x):
         """
         Replaces the actual table.
@@ -2099,7 +2109,7 @@ class NewTable(PyoTableObject):
         pyoArgsAssert(self, "l", x)
         if type(x[0]) != list:
             x = [x]
-        [obj.setTable(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setTable(self._check_data_size(wrap(x, i))) for i, obj in enumerate(self._base_objs)]
         self.refreshView()
 
     def setFeedback(self, x):
@@ -2282,7 +2292,17 @@ class DataTable(PyoTableObject):
         else:
             if type(init[0]) != list:
                 init = [init]
-            self._base_objs = [DataTable_base(size, wrap(init, i)) for i in range(chnls)]
+            self._base_objs = [DataTable_base(size, self._check_data_size(wrap(init, i))) for i in range(chnls)]
+
+    def _check_data_size(self, lst):
+        # Validate that the data passed to the object has the same size as self._size.
+        if len(lst) < self._size:
+            lst += [0] * (self._size - len(lst))
+            print("Warning: DataTable data length < size... padded with 0s.")
+        elif len(lst) > self._size:
+            lst = lst[:self._size]
+            print("Warning: DataTable data length > size... truncated to size.")
+        return lst
 
     def replace(self, x):
         """
@@ -2300,7 +2320,7 @@ class DataTable(PyoTableObject):
         pyoArgsAssert(self, "l", x)
         if type(x[0]) != list:
             x = [x]
-        [obj.setTable(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setTable(self._check_data_size(wrap(x, i))) for i, obj in enumerate(self._base_objs)]
         self.refreshView()
 
     def getRate(self):

@@ -407,8 +407,7 @@ Compress_setThresh(Compress *self, PyObject *arg)
         self->modebuffer[4] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -439,8 +438,7 @@ Compress_setRatio(Compress *self, PyObject *arg)
         self->modebuffer[5] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -471,8 +469,7 @@ Compress_setRiseTime(Compress *self, PyObject *arg)
         self->modebuffer[2] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -503,8 +500,7 @@ Compress_setFallTime(Compress *self, PyObject *arg)
         self->modebuffer[3] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -524,8 +520,7 @@ Compress_setLookAhead(Compress *self, PyObject *arg)
             PySys_WriteStdout("Compress: lookahead argument must be less than 25.0 ms.\n");
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -545,8 +540,7 @@ Compress_setKnee(Compress *self, PyObject *arg)
             PySys_WriteStdout("Compress: knee argument must be in range 0 (hard) -> 1 (soft).\n");
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Compress_members[] =
@@ -1517,8 +1511,7 @@ Gate_setThresh(Gate *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1551,8 +1544,7 @@ Gate_setRiseTime(Gate *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1585,8 +1577,7 @@ Gate_setFallTime(Gate *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1606,8 +1597,7 @@ Gate_setLookAhead(Gate *self, PyObject *arg)
             PySys_WriteStdout("Gate: lookahead argument must be less than 25.0 ms.\n");
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Gate_members[] =
@@ -2042,8 +2032,7 @@ Balance_setFreq(Balance *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Balance_members[] =
@@ -2537,8 +2526,7 @@ Expand_setDownThresh(Expand *self, PyObject *arg)
         self->modebuffer[5] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2569,8 +2557,7 @@ Expand_setUpThresh(Expand *self, PyObject *arg)
         self->modebuffer[4] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2601,8 +2588,7 @@ Expand_setRatio(Expand *self, PyObject *arg)
         self->modebuffer[6] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2633,8 +2619,7 @@ Expand_setRiseTime(Expand *self, PyObject *arg)
         self->modebuffer[2] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2665,8 +2650,7 @@ Expand_setFallTime(Expand *self, PyObject *arg)
         self->modebuffer[3] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2686,8 +2670,7 @@ Expand_setLookAhead(Expand *self, PyObject *arg)
             PySys_WriteStdout("Expand: lookahead argument must be less than 25.0 ms.\n");
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Expand_members[] =

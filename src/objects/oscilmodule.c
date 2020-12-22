@@ -396,8 +396,7 @@ Sine_setFreq(Sine *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -430,16 +429,14 @@ Sine_setPhase(Sine *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
 Sine_reset(Sine *self)
 {
     self->pointerPos = 0.0;
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Sine_members[] =
@@ -996,8 +993,7 @@ FastSine_setFreq(FastSine *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1016,16 +1012,14 @@ FastSine_setQuality(FastSine *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
 FastSine_reset(FastSine *self)
 {
     self->pointerPos = self->initphase * TWOPI;
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef FastSine_members[] =
@@ -1456,8 +1450,7 @@ SineLoop_setFreq(SineLoop *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1490,8 +1483,7 @@ SineLoop_setFeedback(SineLoop *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef SineLoop_members[] =
@@ -1610,15 +1602,15 @@ PyTypeObject SineLoopType =
 /* Osc objects */
 /***************/
 static double
-Osc_clip(double x, int size)
+Osc_clip(double x, T_SIZE_T size)
 {
     if (x < 0)
     {
-        x += ((int)(-x / size) + 1) * size;
+        x += ((T_SIZE_T)(-x / size) + 1) * size;
     }
     else if (x >= size)
     {
-        x -= (int)(x / size) * size;
+        x -= (T_SIZE_T)(x / size) * size;
     }
 
     return x;
@@ -1635,17 +1627,18 @@ typedef struct
     int modebuffer[4];
     double pointerPos;
     int interp; /* 0 = default to 2, 1 = nointerp, 2 = linear, 3 = cos, 4 = cubic */
-    MYFLT (*interp_func_ptr)(MYFLT *, int, MYFLT, int);
+    MYFLT (*interp_func_ptr)(MYFLT *, T_SIZE_T, MYFLT, T_SIZE_T);
 } Osc;
 
 static void
 Osc_readframes_ii(Osc *self)
 {
+    int i;
     MYFLT fr, ph, fpart;
     double inc, pos;
-    int i, ipart;
+    T_SIZE_T ipart;
     MYFLT *tablelist = TableStream_getData(self->table);
-    int size = TableStream_getSize(self->table);
+    T_SIZE_T size = TableStream_getSize(self->table);
 
     fr = PyFloat_AS_DOUBLE(self->freq);
     ph = PyFloat_AS_DOUBLE(self->phase);
@@ -1662,7 +1655,7 @@ Osc_readframes_ii(Osc *self)
         if (pos >= size)
             pos -= size;
 
-        ipart = (int)pos;
+        ipart = (T_SIZE_T)pos;
         fpart = pos - ipart;
         self->data[i] = (*self->interp_func_ptr)(tablelist, ipart, fpart, size);
     }
@@ -1671,11 +1664,12 @@ Osc_readframes_ii(Osc *self)
 static void
 Osc_readframes_ai(Osc *self)
 {
+    int i;
     MYFLT ph, fpart, sizeOnSr;
     double inc, pos;
-    int i, ipart;
+    T_SIZE_T ipart;
     MYFLT *tablelist = TableStream_getData(self->table);
-    int size = TableStream_getSize(self->table);
+    T_SIZE_T size = TableStream_getSize(self->table);
 
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
     ph = PyFloat_AS_DOUBLE(self->phase);
@@ -1693,7 +1687,7 @@ Osc_readframes_ai(Osc *self)
         if (pos >= size)
             pos -= size;
 
-        ipart = (int)pos;
+        ipart = (T_SIZE_T)pos;
         fpart = pos - ipart;
         self->data[i] = (*self->interp_func_ptr)(tablelist, ipart, fpart, size);
     }
@@ -1702,11 +1696,12 @@ Osc_readframes_ai(Osc *self)
 static void
 Osc_readframes_ia(Osc *self)
 {
+    int i;
     MYFLT fr, pha, fpart;
     double inc, pos;
-    int i, ipart;
+    T_SIZE_T ipart;
     MYFLT *tablelist = TableStream_getData(self->table);
-    int size = TableStream_getSize(self->table);
+    T_SIZE_T size = TableStream_getSize(self->table);
 
     fr = PyFloat_AS_DOUBLE(self->freq);
     MYFLT *ph = Stream_getData((Stream *)self->phase_stream);
@@ -1722,7 +1717,7 @@ Osc_readframes_ia(Osc *self)
         if (pos >= size)
             pos -= size;
 
-        ipart = (int)pos;
+        ipart = (T_SIZE_T)pos;
         fpart = pos - ipart;
         self->data[i] = (*self->interp_func_ptr)(tablelist, ipart, fpart, size);
     }
@@ -1731,11 +1726,12 @@ Osc_readframes_ia(Osc *self)
 static void
 Osc_readframes_aa(Osc *self)
 {
+    int i;
     MYFLT pha, fpart, sizeOnSr;
     double inc, pos;
-    int i, ipart;
+    T_SIZE_T ipart;
     MYFLT *tablelist = TableStream_getData(self->table);
-    int size = TableStream_getSize(self->table);
+    T_SIZE_T size = TableStream_getSize(self->table);
 
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
     MYFLT *ph = Stream_getData((Stream *)self->phase_stream);
@@ -1753,7 +1749,7 @@ Osc_readframes_aa(Osc *self)
         if (pos >= size)
             pos -= size;
 
-        ipart = (int)pos;
+        ipart = (T_SIZE_T)pos;
         fpart = pos - ipart;
         self->data[i] = (*self->interp_func_ptr)(tablelist, ipart, fpart, size);
     }
@@ -1976,8 +1972,7 @@ Osc_setTable(Osc *self, PyObject *arg)
     Py_DECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2010,8 +2005,7 @@ Osc_setFreq(Osc *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2044,8 +2038,7 @@ Osc_setPhase(Osc *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2062,16 +2055,14 @@ Osc_setInterp(Osc *self, PyObject *arg)
 
     SET_INTERP_POINTER
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
 Osc_reset(Osc *self)
 {
     self->pointerPos = 0.0;
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Osc_members[] =
@@ -2210,10 +2201,11 @@ typedef struct
 static void
 OscLoop_readframes_ii(OscLoop *self)
 {
+    int i;
     MYFLT fr, feed, pos, inc;
-    int i, ipart;
+    T_SIZE_T ipart;
     MYFLT *tablelist = TableStream_getData(self->table);
-    int size = TableStream_getSize(self->table);
+    T_SIZE_T size = TableStream_getSize(self->table);
 
     fr = PyFloat_AS_DOUBLE(self->freq);
     feed = _clip(PyFloat_AS_DOUBLE(self->feedback)) * size;
@@ -2230,7 +2222,7 @@ OscLoop_readframes_ii(OscLoop *self)
         else if (pos < 0)
             pos += size;
 
-        ipart = (int)pos;
+        ipart = (T_SIZE_T)pos;
         self->data[i] = self->lastValue = tablelist[ipart] + (tablelist[ipart + 1] - tablelist[ipart]) * (pos - ipart);
     }
 }
@@ -2238,10 +2230,11 @@ OscLoop_readframes_ii(OscLoop *self)
 static void
 OscLoop_readframes_ai(OscLoop *self)
 {
+    int i;
     MYFLT inc, feed, pos, sizeOnSr;
-    int i, ipart;
+    T_SIZE_T ipart;
     MYFLT *tablelist = TableStream_getData(self->table);
-    int size = TableStream_getSize(self->table);
+    T_SIZE_T size = TableStream_getSize(self->table);
 
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
     feed = _clip(PyFloat_AS_DOUBLE(self->feedback)) * size;
@@ -2260,7 +2253,7 @@ OscLoop_readframes_ai(OscLoop *self)
         else if (pos < 0)
             pos += size;
 
-        ipart = (int)pos;
+        ipart = (T_SIZE_T)pos;
         self->data[i] = self->lastValue = tablelist[ipart] + (tablelist[ipart + 1] - tablelist[ipart]) * (pos - ipart);
     }
 }
@@ -2268,10 +2261,11 @@ OscLoop_readframes_ai(OscLoop *self)
 static void
 OscLoop_readframes_ia(OscLoop *self)
 {
+    int i;
     MYFLT fr, feed, pos, inc;
-    int i, ipart;
+    T_SIZE_T ipart;
     MYFLT *tablelist = TableStream_getData(self->table);
-    int size = TableStream_getSize(self->table);
+    T_SIZE_T size = TableStream_getSize(self->table);
 
     fr = PyFloat_AS_DOUBLE(self->freq);
     MYFLT *fd = Stream_getData((Stream *)self->feedback_stream);
@@ -2289,7 +2283,7 @@ OscLoop_readframes_ia(OscLoop *self)
         else if (pos < 0)
             pos += size;
 
-        ipart = (int)pos;
+        ipart = (T_SIZE_T)pos;
         self->data[i] = self->lastValue = tablelist[ipart] + (tablelist[ipart + 1] - tablelist[ipart]) * (pos - ipart);
     }
 }
@@ -2297,10 +2291,11 @@ OscLoop_readframes_ia(OscLoop *self)
 static void
 OscLoop_readframes_aa(OscLoop *self)
 {
+    int i;
     MYFLT inc, feed, pos, sizeOnSr;
-    int i, ipart;
+    T_SIZE_T ipart;
     MYFLT *tablelist = TableStream_getData(self->table);
-    int size = TableStream_getSize(self->table);
+    T_SIZE_T size = TableStream_getSize(self->table);
 
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
     MYFLT *fd = Stream_getData((Stream *)self->feedback_stream);
@@ -2320,7 +2315,7 @@ OscLoop_readframes_aa(OscLoop *self)
         else if (pos < 0)
             pos += size;
 
-        ipart = (int)pos;
+        ipart = (T_SIZE_T)pos;
         self->data[i] = self->lastValue = tablelist[ipart] + (tablelist[ipart + 1] - tablelist[ipart]) * (pos - ipart);
     }
 }
@@ -2539,8 +2534,7 @@ OscLoop_setTable(OscLoop *self, PyObject *arg)
     Py_DECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2573,8 +2567,7 @@ OscLoop_setFreq(OscLoop *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2607,8 +2600,7 @@ OscLoop_setFeedback(OscLoop *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef OscLoop_members[] =
@@ -2739,17 +2731,18 @@ typedef struct
     int modebuffer[4];
     double pointerPos;
     int interp; /* 0 = default to 2, 1 = nointerp, 2 = linear, 3 = cos, 4 = cubic */
-    MYFLT (*interp_func_ptr)(MYFLT *, int, MYFLT, int);
+    MYFLT (*interp_func_ptr)(MYFLT *, T_SIZE_T, MYFLT, T_SIZE_T);
 } OscTrig;
 
 static void
 OscTrig_readframes_ii(OscTrig *self)
 {
+    int i;
     MYFLT fr, ph, fpart;
     double inc, pos;
-    int i, ipart;
+    T_SIZE_T ipart;
     MYFLT *tablelist = TableStream_getData(self->table);
-    int size = TableStream_getSize(self->table);
+    T_SIZE_T size = TableStream_getSize(self->table);
 
     fr = PyFloat_AS_DOUBLE(self->freq);
     ph = PyFloat_AS_DOUBLE(self->phase);
@@ -2773,7 +2766,7 @@ OscTrig_readframes_ii(OscTrig *self)
         if (pos >= size)
             pos -= size;
 
-        ipart = (int)pos;
+        ipart = (T_SIZE_T)pos;
         fpart = pos - ipart;
         self->data[i] = (*self->interp_func_ptr)(tablelist, ipart, fpart, size);
     }
@@ -2782,11 +2775,12 @@ OscTrig_readframes_ii(OscTrig *self)
 static void
 OscTrig_readframes_ai(OscTrig *self)
 {
+    int i;
     MYFLT ph, fpart, sizeOnSr;
     double inc, pos;
-    int i, ipart;
+    T_SIZE_T ipart;
     MYFLT *tablelist = TableStream_getData(self->table);
-    int size = TableStream_getSize(self->table);
+    T_SIZE_T size = TableStream_getSize(self->table);
 
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
     ph = PyFloat_AS_DOUBLE(self->phase);
@@ -2812,7 +2806,7 @@ OscTrig_readframes_ai(OscTrig *self)
         if (pos >= size)
             pos -= size;
 
-        ipart = (int)pos;
+        ipart = (T_SIZE_T)pos;
         fpart = pos - ipart;
         self->data[i] = (*self->interp_func_ptr)(tablelist, ipart, fpart, size);
     }
@@ -2821,11 +2815,12 @@ OscTrig_readframes_ai(OscTrig *self)
 static void
 OscTrig_readframes_ia(OscTrig *self)
 {
+    int i;
     MYFLT fr, pha, fpart;
     double inc, pos;
-    int i, ipart;
+    T_SIZE_T ipart;
     MYFLT *tablelist = TableStream_getData(self->table);
-    int size = TableStream_getSize(self->table);
+    T_SIZE_T size = TableStream_getSize(self->table);
 
     fr = PyFloat_AS_DOUBLE(self->freq);
     MYFLT *ph = Stream_getData((Stream *)self->phase_stream);
@@ -2849,7 +2844,7 @@ OscTrig_readframes_ia(OscTrig *self)
         if (pos >= size)
             pos -= size;
 
-        ipart = (int)pos;
+        ipart = (T_SIZE_T)pos;
         fpart = pos - ipart;
         self->data[i] = (*self->interp_func_ptr)(tablelist, ipart, fpart, size);
     }
@@ -2858,11 +2853,12 @@ OscTrig_readframes_ia(OscTrig *self)
 static void
 OscTrig_readframes_aa(OscTrig *self)
 {
+    int i;
     MYFLT pha, fpart, sizeOnSr;
     double inc, pos;
-    int i, ipart;
+    T_SIZE_T ipart;
     MYFLT *tablelist = TableStream_getData(self->table);
-    int size = TableStream_getSize(self->table);
+    T_SIZE_T size = TableStream_getSize(self->table);
 
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
     MYFLT *ph = Stream_getData((Stream *)self->phase_stream);
@@ -2888,7 +2884,7 @@ OscTrig_readframes_aa(OscTrig *self)
         if (pos >= size)
             pos -= size;
 
-        ipart = (int)pos;
+        ipart = (T_SIZE_T)pos;
         fpart = pos - ipart;
         self->data[i] = (*self->interp_func_ptr)(tablelist, ipart, fpart, size);
     }
@@ -3120,8 +3116,7 @@ OscTrig_setTable(OscTrig *self, PyObject *arg)
     Py_DECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -3139,8 +3134,7 @@ OscTrig_setTrig(OscTrig *self, PyObject *arg)
 
     if (isNumber == 1)
     {
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
     else
     {
@@ -3151,8 +3145,7 @@ OscTrig_setTrig(OscTrig *self, PyObject *arg)
         self->trig_stream = (Stream *)streamtmp;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -3185,8 +3178,7 @@ OscTrig_setFreq(OscTrig *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -3219,8 +3211,7 @@ OscTrig_setPhase(OscTrig *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -3237,16 +3228,14 @@ OscTrig_setInterp(OscTrig *self, PyObject *arg)
 
     SET_INTERP_POINTER
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
 OscTrig_reset(OscTrig *self)
 {
     self->pointerPos = 0.0;
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef OscTrig_members[] =
@@ -3722,8 +3711,7 @@ Phasor_setFreq(Phasor *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -3756,16 +3744,14 @@ Phasor_setPhase(Phasor *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
 Phasor_reset(Phasor *self)
 {
     self->pointerPos = 0.0;
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Phasor_members[] =
@@ -3896,18 +3882,19 @@ typedef struct
 static void
 Pointer_readframes_a(Pointer *self)
 {
+    int i;
     MYFLT fpart;
     double ph;
-    int i, ipart;
+    T_SIZE_T ipart;
     MYFLT *tablelist = TableStream_getData(self->table);
-    int size = TableStream_getSize(self->table);
+    T_SIZE_T size = TableStream_getSize(self->table);
 
     MYFLT *pha = Stream_getData((Stream *)self->index_stream);
 
     for (i = 0; i < self->bufsize; i++)
     {
         ph = Osc_clip(pha[i] * size, size);
-        ipart = (int)ph;
+        ipart = (T_SIZE_T)ph;
         fpart = ph - ipart;
         self->data[i] = tablelist[ipart] + (tablelist[ipart + 1] - tablelist[ipart]) * fpart;
     }
@@ -4092,8 +4079,7 @@ Pointer_setTable(Pointer *self, PyObject *arg)
     Py_DECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -4120,8 +4106,7 @@ Pointer_setIndex(Pointer *self, PyObject *arg)
     Py_XDECREF(self->index_stream);
     self->index_stream = (Stream *)streamtmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Pointer_members[] =
@@ -4253,17 +4238,18 @@ typedef struct
     MYFLT y2;
     MYFLT lastPh;
     MYFLT mTwoPiOverSr;
-    MYFLT (*interp_func_ptr)(MYFLT *, int, MYFLT, int);
+    MYFLT (*interp_func_ptr)(MYFLT *, T_SIZE_T, MYFLT, T_SIZE_T);
 } Pointer2;
 
 static void
 Pointer2_readframes_a(Pointer2 *self)
 {
+    int i;
     MYFLT fpart, phdiff, c, fr;
     double ph;
-    int i, ipart;
+    T_SIZE_T ipart;
     MYFLT *tablelist = TableStream_getData(self->table);
-    int size = TableStream_getSize(self->table);
+    T_SIZE_T size = TableStream_getSize(self->table);
     double tableSr = TableStream_getSamplingRate(self->table);
 
     MYFLT *pha = Stream_getData((Stream *)self->index_stream);
@@ -4273,7 +4259,7 @@ Pointer2_readframes_a(Pointer2 *self)
         for (i = 0; i < self->bufsize; i++)
         {
             ph = Osc_clip(pha[i] * size, size);
-            ipart = (int)ph;
+            ipart = (T_SIZE_T)ph;
             fpart = ph - ipart;
             self->y1 = self->y2 = self->data[i] = (*self->interp_func_ptr)(tablelist, ipart, fpart, size);
         }
@@ -4283,7 +4269,7 @@ Pointer2_readframes_a(Pointer2 *self)
         for (i = 0; i < self->bufsize; i++)
         {
             ph = Osc_clip(pha[i] * size, size);
-            ipart = (int)ph;
+            ipart = (T_SIZE_T)ph;
             fpart = ph - ipart;
             self->data[i] = (*self->interp_func_ptr)(tablelist, ipart, fpart, size);
             phdiff = MYFABS(ph - self->lastPh);
@@ -4488,8 +4474,7 @@ Pointer2_setTable(Pointer2 *self, PyObject *arg)
     Py_DECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -4516,8 +4501,7 @@ Pointer2_setIndex(Pointer2 *self, PyObject *arg)
     Py_XDECREF(self->index_stream);
     self->index_stream = (Stream *)streamtmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -4534,8 +4518,7 @@ Pointer2_setInterp(Pointer2 *self, PyObject *arg)
 
     SET_INTERP_POINTER
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -4550,8 +4533,7 @@ Pointer2_setAutoSmooth(Pointer2 *self, PyObject *arg)
         self->autosmooth = PyInt_AsLong(PyNumber_Int(arg));
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Pointer2_members[] =
@@ -4684,15 +4666,16 @@ typedef struct
 static void
 TableIndex_readframes_a(TableIndex *self)
 {
-    int i, ind;
+    int i;
+    T_SIZE_T ind;
     MYFLT *tablelist = TableStream_getData(self->table);
-    int size = TableStream_getSize(self->table);
+    T_SIZE_T size = TableStream_getSize(self->table);
 
     MYFLT *phase = Stream_getData((Stream *)self->index_stream);
 
     for (i = 0; i < self->bufsize; i++)
     {
-        ind = (int)phase[i];
+        ind = (T_SIZE_T)phase[i];
 
         if (ind < 0)
             ind = 0;
@@ -4882,8 +4865,7 @@ TableIndex_setTable(TableIndex *self, PyObject *arg)
     Py_DECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -4910,8 +4892,7 @@ TableIndex_setIndex(TableIndex *self, PyObject *arg)
     Py_XDECREF(self->index_stream);
     self->index_stream = (Stream *)streamtmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef TableIndex_members[] =
@@ -5053,17 +5034,18 @@ Lookup_clip(MYFLT x)
 static void
 Lookup_readframes_a(Lookup *self)
 {
+    int i;
     MYFLT ph, fpart;
-    int i, ipart;
+    T_SIZE_T ipart;
     MYFLT *tablelist = TableStream_getData(self->table);
-    int size = TableStream_getSize(self->table);
+    T_SIZE_T size = TableStream_getSize(self->table);
 
     MYFLT *pha = Stream_getData((Stream *)self->index_stream);
 
     for (i = 0; i < self->bufsize; i++)
     {
         ph = (Lookup_clip(pha[i]) * 0.495 + 0.5) * size;
-        ipart = (int)ph;
+        ipart = (T_SIZE_T)ph;
         fpart = ph - ipart;
         self->data[i] = tablelist[ipart] + (tablelist[ipart + 1] - tablelist[ipart]) * fpart;
     }
@@ -5248,8 +5230,7 @@ Lookup_setTable(Lookup *self, PyObject *arg)
     Py_DECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -5276,8 +5257,7 @@ Lookup_setIndex(Lookup *self, PyObject *arg)
     Py_XDECREF(self->index_stream);
     self->index_stream = (Stream *)streamtmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Lookup_members[] =
@@ -5410,19 +5390,20 @@ typedef struct
     int modebuffer[5];
     MYFLT pointerPos;
     int interp; /* 0 = default to 2, 1 = nointerp, 2 = linear, 3 = cos, 4 = cubic */
-    MYFLT (*interp_func_ptr)(MYFLT *, int, MYFLT, int);
+    MYFLT (*interp_func_ptr)(MYFLT *, T_SIZE_T, MYFLT, T_SIZE_T);
 } Pulsar;
 
 static void
 Pulsar_readframes_iii(Pulsar *self)
 {
+    int i;
     MYFLT fr, ph, frac, invfrac, pos, scl_pos, t_pos, e_pos, fpart, tmp;
     double inc;
-    int i, ipart;
+    T_SIZE_T ipart;
     MYFLT *tablelist = TableStream_getData(self->table);
     MYFLT *envlist = TableStream_getData(self->env);
-    int size = TableStream_getSize(self->table);
-    int envsize = TableStream_getSize(self->env);
+    T_SIZE_T size = TableStream_getSize(self->table);
+    T_SIZE_T envsize = TableStream_getSize(self->env);
 
     fr = PyFloat_AS_DOUBLE(self->freq);
     ph = PyFloat_AS_DOUBLE(self->phase);
@@ -5448,12 +5429,12 @@ Pulsar_readframes_iii(Pulsar *self)
         {
             scl_pos = pos * invfrac;
             t_pos = scl_pos * size;
-            ipart = (int)t_pos;
+            ipart = (T_SIZE_T)t_pos;
             fpart = t_pos - ipart;
             tmp = (*self->interp_func_ptr)(tablelist, ipart, fpart, size);
 
             e_pos = scl_pos * envsize;
-            ipart = (int)e_pos;
+            ipart = (T_SIZE_T)e_pos;
             fpart = e_pos - ipart;
             self->data[i] = tmp * (envlist[ipart] + (envlist[ipart + 1] - envlist[ipart]) * fpart);
         }
@@ -5467,13 +5448,14 @@ Pulsar_readframes_iii(Pulsar *self)
 static void
 Pulsar_readframes_aii(Pulsar *self)
 {
+    int i;
     MYFLT ph, frac, invfrac, pos, scl_pos, t_pos, e_pos, fpart, tmp, oneOnSr;
     double inc;
-    int i, ipart;
+    T_SIZE_T ipart;
     MYFLT *tablelist = TableStream_getData(self->table);
     MYFLT *envlist = TableStream_getData(self->env);
-    int size = TableStream_getSize(self->table);
-    int envsize = TableStream_getSize(self->env);
+    T_SIZE_T size = TableStream_getSize(self->table);
+    T_SIZE_T envsize = TableStream_getSize(self->env);
 
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
     ph = PyFloat_AS_DOUBLE(self->phase);
@@ -5501,12 +5483,12 @@ Pulsar_readframes_aii(Pulsar *self)
         {
             scl_pos = pos * invfrac;
             t_pos = scl_pos * size;
-            ipart = (int)t_pos;
+            ipart = (T_SIZE_T)t_pos;
             fpart = t_pos - ipart;
             tmp = (*self->interp_func_ptr)(tablelist, ipart, fpart, size);
 
             e_pos = scl_pos * envsize;
-            ipart = (int)e_pos;
+            ipart = (T_SIZE_T)e_pos;
             fpart = e_pos - ipart;
             self->data[i] = tmp * (envlist[ipart] + (envlist[ipart + 1] - envlist[ipart]) * fpart);
         }
@@ -5520,13 +5502,14 @@ Pulsar_readframes_aii(Pulsar *self)
 static void
 Pulsar_readframes_iai(Pulsar *self)
 {
+    int i;
     MYFLT fr, frac, invfrac, pos, scl_pos, t_pos, e_pos, fpart, tmp;
     double inc;
-    int i, ipart;
+    T_SIZE_T ipart;
     MYFLT *tablelist = TableStream_getData(self->table);
     MYFLT *envlist = TableStream_getData(self->env);
-    int size = TableStream_getSize(self->table);
-    int envsize = TableStream_getSize(self->env);
+    T_SIZE_T size = TableStream_getSize(self->table);
+    T_SIZE_T envsize = TableStream_getSize(self->env);
 
     fr = PyFloat_AS_DOUBLE(self->freq);
     MYFLT *ph = Stream_getData((Stream *)self->phase_stream);
@@ -5552,12 +5535,12 @@ Pulsar_readframes_iai(Pulsar *self)
         {
             scl_pos = pos * invfrac;
             t_pos = scl_pos * size;
-            ipart = (int)t_pos;
+            ipart = (T_SIZE_T)t_pos;
             fpart = t_pos - ipart;
             tmp = (*self->interp_func_ptr)(tablelist, ipart, fpart, size);
 
             e_pos = scl_pos * envsize;
-            ipart = (int)e_pos;
+            ipart = (T_SIZE_T)e_pos;
             fpart = e_pos - ipart;
             self->data[i] = tmp * (envlist[ipart] + (envlist[ipart + 1] - envlist[ipart]) * fpart);
         }
@@ -5571,13 +5554,14 @@ Pulsar_readframes_iai(Pulsar *self)
 static void
 Pulsar_readframes_aai(Pulsar *self)
 {
+    int i;
     MYFLT frac, invfrac, pos, scl_pos, t_pos, e_pos, fpart, tmp, oneOnSr;
     double inc;
-    int i, ipart;
+    T_SIZE_T ipart;
     MYFLT *tablelist = TableStream_getData(self->table);
     MYFLT *envlist = TableStream_getData(self->env);
-    int size = TableStream_getSize(self->table);
-    int envsize = TableStream_getSize(self->env);
+    T_SIZE_T size = TableStream_getSize(self->table);
+    T_SIZE_T envsize = TableStream_getSize(self->env);
 
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
     MYFLT *ph = Stream_getData((Stream *)self->phase_stream);
@@ -5605,12 +5589,12 @@ Pulsar_readframes_aai(Pulsar *self)
         {
             scl_pos = pos * invfrac;
             t_pos = scl_pos * size;
-            ipart = (int)t_pos;
+            ipart = (T_SIZE_T)t_pos;
             fpart = t_pos - ipart;
             tmp = (*self->interp_func_ptr)(tablelist, ipart, fpart, size);
 
             e_pos = scl_pos * envsize;
-            ipart = (int)e_pos;
+            ipart = (T_SIZE_T)e_pos;
             fpart = e_pos - ipart;
             self->data[i] = tmp * (envlist[ipart] + (envlist[ipart + 1] - envlist[ipart]) * fpart);
         }
@@ -5624,13 +5608,14 @@ Pulsar_readframes_aai(Pulsar *self)
 static void
 Pulsar_readframes_iia(Pulsar *self)
 {
+    int i;
     MYFLT fr, ph, pos, curfrac, scl_pos, t_pos, e_pos, fpart, tmp;
     double inc;
-    int i, ipart;
+    T_SIZE_T ipart;
     MYFLT *tablelist = TableStream_getData(self->table);
     MYFLT *envlist = TableStream_getData(self->env);
-    int size = TableStream_getSize(self->table);
-    int envsize = TableStream_getSize(self->env);
+    T_SIZE_T size = TableStream_getSize(self->table);
+    T_SIZE_T envsize = TableStream_getSize(self->env);
 
     fr = PyFloat_AS_DOUBLE(self->freq);
     ph = PyFloat_AS_DOUBLE(self->phase);
@@ -5656,12 +5641,12 @@ Pulsar_readframes_iia(Pulsar *self)
         {
             scl_pos = pos / curfrac;
             t_pos = scl_pos * size;
-            ipart = (int)t_pos;
+            ipart = (T_SIZE_T)t_pos;
             fpart = t_pos - ipart;
             tmp = (*self->interp_func_ptr)(tablelist, ipart, fpart, size);
 
             e_pos = scl_pos * envsize;
-            ipart = (int)e_pos;
+            ipart = (T_SIZE_T)e_pos;
             fpart = e_pos - ipart;
             self->data[i] = tmp * (envlist[ipart] + (envlist[ipart + 1] - envlist[ipart]) * fpart);
         }
@@ -5675,13 +5660,14 @@ Pulsar_readframes_iia(Pulsar *self)
 static void
 Pulsar_readframes_aia(Pulsar *self)
 {
+    int i;
     MYFLT ph, pos, curfrac, scl_pos, t_pos, e_pos, fpart, tmp, oneOnSr;
     double inc;
-    int i, ipart;
+    T_SIZE_T ipart;
     MYFLT *tablelist = TableStream_getData(self->table);
     MYFLT *envlist = TableStream_getData(self->env);
-    int size = TableStream_getSize(self->table);
-    int envsize = TableStream_getSize(self->env);
+    T_SIZE_T size = TableStream_getSize(self->table);
+    T_SIZE_T envsize = TableStream_getSize(self->env);
 
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
     ph = PyFloat_AS_DOUBLE(self->phase);
@@ -5709,12 +5695,12 @@ Pulsar_readframes_aia(Pulsar *self)
         {
             scl_pos = pos / curfrac;
             t_pos = scl_pos * size;
-            ipart = (int)t_pos;
+            ipart = (T_SIZE_T)t_pos;
             fpart = t_pos - ipart;
             tmp = (*self->interp_func_ptr)(tablelist, ipart, fpart, size);
 
             e_pos = scl_pos * envsize;
-            ipart = (int)e_pos;
+            ipart = (T_SIZE_T)e_pos;
             fpart = e_pos - ipart;
             self->data[i] = tmp * (envlist[ipart] + (envlist[ipart + 1] - envlist[ipart]) * fpart);
         }
@@ -5728,13 +5714,14 @@ Pulsar_readframes_aia(Pulsar *self)
 static void
 Pulsar_readframes_iaa(Pulsar *self)
 {
+    int i;
     MYFLT fr, pos, curfrac, scl_pos, t_pos, e_pos, fpart, tmp;
     double inc;
-    int i, ipart;
+    T_SIZE_T ipart;
     MYFLT *tablelist = TableStream_getData(self->table);
     MYFLT *envlist = TableStream_getData(self->env);
-    int size = TableStream_getSize(self->table);
-    int envsize = TableStream_getSize(self->env);
+    T_SIZE_T size = TableStream_getSize(self->table);
+    T_SIZE_T envsize = TableStream_getSize(self->env);
 
     fr = PyFloat_AS_DOUBLE(self->freq);
     MYFLT *ph = Stream_getData((Stream *)self->phase_stream);
@@ -5760,12 +5747,12 @@ Pulsar_readframes_iaa(Pulsar *self)
         {
             scl_pos = pos / curfrac;
             t_pos = scl_pos * size;
-            ipart = (int)t_pos;
+            ipart = (T_SIZE_T)t_pos;
             fpart = t_pos - ipart;
             tmp = (*self->interp_func_ptr)(tablelist, ipart, fpart, size);
 
             e_pos = scl_pos * envsize;
-            ipart = (int)e_pos;
+            ipart = (T_SIZE_T)e_pos;
             fpart = e_pos - ipart;
             self->data[i] = tmp * (envlist[ipart] + (envlist[ipart + 1] - envlist[ipart]) * fpart);
         }
@@ -5779,13 +5766,14 @@ Pulsar_readframes_iaa(Pulsar *self)
 static void
 Pulsar_readframes_aaa(Pulsar *self)
 {
+    int i;
     MYFLT pos, curfrac, scl_pos, t_pos, e_pos, fpart, tmp, oneOnSr;
     double inc;
-    int i, ipart;
+    T_SIZE_T ipart;
     MYFLT *tablelist = TableStream_getData(self->table);
     MYFLT *envlist = TableStream_getData(self->env);
-    int size = TableStream_getSize(self->table);
-    int envsize = TableStream_getSize(self->env);
+    T_SIZE_T size = TableStream_getSize(self->table);
+    T_SIZE_T envsize = TableStream_getSize(self->env);
 
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
     MYFLT *ph = Stream_getData((Stream *)self->phase_stream);
@@ -5813,12 +5801,12 @@ Pulsar_readframes_aaa(Pulsar *self)
         {
             scl_pos = pos / curfrac;
             t_pos = scl_pos * size;
-            ipart = (int)t_pos;
+            ipart = (T_SIZE_T)t_pos;
             fpart = t_pos - ipart;
             tmp = (*self->interp_func_ptr)(tablelist, ipart, fpart, size);
 
             e_pos = scl_pos * envsize;
-            ipart = (int)e_pos;
+            ipart = (T_SIZE_T)e_pos;
             fpart = e_pos - ipart;
             self->data[i] = tmp * (envlist[ipart] + (envlist[ipart + 1] - envlist[ipart]) * fpart);
         }
@@ -6091,8 +6079,7 @@ Pulsar_setTable(Pulsar *self, PyObject *arg)
     Py_DECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -6106,8 +6093,7 @@ Pulsar_setEnv(Pulsar *self, PyObject *arg)
     Py_DECREF(self->env);
     self->env = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -6140,8 +6126,7 @@ Pulsar_setFreq(Pulsar *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -6174,8 +6159,7 @@ Pulsar_setPhase(Pulsar *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -6208,8 +6192,7 @@ Pulsar_setFrac(Pulsar *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -6226,8 +6209,7 @@ Pulsar_setInterp(Pulsar *self, PyObject *arg)
 
     SET_INTERP_POINTER
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Pulsar_members[] =
@@ -6369,16 +6351,17 @@ typedef struct
     TriggerStream *trig_stream;
     int init;
     int interp; /* 0 = default to 2, 1 = nointerp, 2 = linear, 3 = cos, 4 = cubic */
-    MYFLT (*interp_func_ptr)(MYFLT *, int, MYFLT, int);
+    MYFLT (*interp_func_ptr)(MYFLT *, T_SIZE_T, MYFLT, T_SIZE_T);
 } TableRead;
 
 static void
 TableRead_readframes_i(TableRead *self)
 {
+    int i;
     MYFLT fr, inc, fpart;
-    int i, ipart;
+    T_SIZE_T ipart;
     MYFLT *tablelist = TableStream_getData(self->table);
-    int size = TableStream_getSize(self->table);
+    T_SIZE_T size = TableStream_getSize(self->table);
 
     fr = PyFloat_AS_DOUBLE(self->freq);
     inc = fr * size / self->sr;
@@ -6416,7 +6399,7 @@ TableRead_readframes_i(TableRead *self)
 
         if (self->go == 1)
         {
-            ipart = (int)self->pointerPos;
+            ipart = (T_SIZE_T)self->pointerPos;
             fpart = self->pointerPos - ipart;
             self->lastValue = self->data[i] = (*self->interp_func_ptr)(tablelist, ipart, fpart, size);
         }
@@ -6435,10 +6418,11 @@ TableRead_readframes_i(TableRead *self)
 static void
 TableRead_readframes_a(TableRead *self)
 {
+    int i;
     MYFLT inc, fpart, sizeOnSr;
-    int i, ipart;
+    T_SIZE_T ipart;
     MYFLT *tablelist = TableStream_getData(self->table);
-    int size = TableStream_getSize(self->table);
+    T_SIZE_T size = TableStream_getSize(self->table);
 
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
 
@@ -6477,7 +6461,7 @@ TableRead_readframes_a(TableRead *self)
 
         if (self->go == 1)
         {
-            ipart = (int)self->pointerPos;
+            ipart = (T_SIZE_T)self->pointerPos;
             fpart = self->pointerPos - ipart;
             self->lastValue = self->data[i] = (*self->interp_func_ptr)(tablelist, ipart, fpart, size);
         }
@@ -6739,8 +6723,7 @@ static PyObject * TableRead_stop(TableRead *self, PyObject *args, PyObject *kwds
         Stream_setDuration(self->stream, nearestBuf);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 };
 
 static PyObject * TableRead_multiply(TableRead *self, PyObject *arg) { MULTIPLY };
@@ -6770,8 +6753,7 @@ TableRead_setTable(TableRead *self, PyObject *arg)
     Py_DECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -6804,8 +6786,7 @@ TableRead_setFreq(TableRead *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -6815,8 +6796,7 @@ TableRead_setLoop(TableRead *self, PyObject *arg)
 
     self->loop = PyInt_AsLong(arg);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -6833,8 +6813,7 @@ TableRead_setInterp(TableRead *self, PyObject *arg)
 
     SET_INTERP_POINTER
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -6844,16 +6823,14 @@ TableRead_setKeepLast(TableRead *self, PyObject *arg)
 
     self->keepLast = PyInt_AsLong(arg);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
 TableRead_reset(TableRead *self)
 {
     self->pointerPos = 0.0;
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef TableRead_members[] =
@@ -7487,8 +7464,7 @@ Fm_setCarrier(Fm *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -7521,8 +7497,7 @@ Fm_setRatio(Fm *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -7555,8 +7530,7 @@ Fm_setIndex(Fm *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Fm_members[] =
@@ -8025,8 +7999,7 @@ CrossFm_setCarrier(CrossFm *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -8059,8 +8032,7 @@ CrossFm_setRatio(CrossFm *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -8093,8 +8065,7 @@ CrossFm_setInd1(CrossFm *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -8127,8 +8098,7 @@ CrossFm_setInd2(CrossFm *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef CrossFm_members[] =
@@ -8611,8 +8581,7 @@ Blit_setFreq(Blit *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -8645,8 +8614,7 @@ Blit_setHarms(Blit *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Blit_members[] =
@@ -9177,8 +9145,7 @@ Rossler_setPitch(Rossler *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -9211,8 +9178,7 @@ Rossler_setChaos(Rossler *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 MYFLT *
@@ -10019,8 +9985,7 @@ Lorenz_setPitch(Lorenz *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -10053,8 +10018,7 @@ Lorenz_setChaos(Lorenz *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 MYFLT *
@@ -10869,8 +10833,7 @@ ChenLee_setPitch(ChenLee *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -10903,8 +10866,7 @@ ChenLee_setChaos(ChenLee *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 MYFLT *
@@ -11921,8 +11883,7 @@ SumOsc_setFreq(SumOsc *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -11955,8 +11916,7 @@ SumOsc_setRatio(SumOsc *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -11989,8 +11949,7 @@ SumOsc_setIndex(SumOsc *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef SumOsc_members[] =
@@ -12880,8 +12839,7 @@ SuperSaw_setFreq(SuperSaw *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -12914,8 +12872,7 @@ SuperSaw_setDetune(SuperSaw *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -12948,8 +12905,7 @@ SuperSaw_setBal(SuperSaw *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef SuperSaw_members[] =
@@ -13437,8 +13393,7 @@ RCOsc_setFreq(RCOsc *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -13471,16 +13426,14 @@ RCOsc_setSharp(RCOsc *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
 RCOsc_reset(RCOsc *self)
 {
     self->pointerPos = 0.0;
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef RCOsc_members[] =
@@ -13610,12 +13563,12 @@ typedef struct
 static void
 TableScale_readframes_ii(TableScale *self)
 {
-    int i, num;
+    T_SIZE_T i, num;
     MYFLT mul, add;
     MYFLT *tablelist = TableStream_getData(self->table);
-    int size = TableStream_getSize(self->table);
+    T_SIZE_T size = TableStream_getSize(self->table);
     MYFLT *outlist = TableStream_getData(self->outtable);
-    int osize = TableStream_getSize(self->outtable);
+    T_SIZE_T osize = TableStream_getSize(self->outtable);
 
     mul = PyFloat_AS_DOUBLE(self->mul);
     add = PyFloat_AS_DOUBLE(self->add);
@@ -13631,12 +13584,12 @@ TableScale_readframes_ii(TableScale *self)
 static void
 TableScale_readframes_ai(TableScale *self)
 {
-    int i, num;
+    T_SIZE_T i, num;
     MYFLT add;
     MYFLT *tablelist = TableStream_getData(self->table);
-    int size = TableStream_getSize(self->table);
+    T_SIZE_T size = TableStream_getSize(self->table);
     MYFLT *outlist = TableStream_getData(self->outtable);
-    int osize = TableStream_getSize(self->outtable);
+    T_SIZE_T osize = TableStream_getSize(self->outtable);
 
     MYFLT *mul = Stream_getData((Stream *)self->mul_stream);
     add = PyFloat_AS_DOUBLE(self->add);
@@ -13652,12 +13605,12 @@ TableScale_readframes_ai(TableScale *self)
 static void
 TableScale_readframes_ia(TableScale *self)
 {
-    int i, num;
+    T_SIZE_T i, num;
     MYFLT mul;
     MYFLT *tablelist = TableStream_getData(self->table);
-    int size = TableStream_getSize(self->table);
+    T_SIZE_T size = TableStream_getSize(self->table);
     MYFLT *outlist = TableStream_getData(self->outtable);
-    int osize = TableStream_getSize(self->outtable);
+    T_SIZE_T osize = TableStream_getSize(self->outtable);
 
     mul = PyFloat_AS_DOUBLE(self->mul);
     MYFLT *add = Stream_getData((Stream *)self->add_stream);
@@ -13673,11 +13626,11 @@ TableScale_readframes_ia(TableScale *self)
 static void
 TableScale_readframes_aa(TableScale *self)
 {
-    int i, num;
+    T_SIZE_T i, num;
     MYFLT *tablelist = TableStream_getData(self->table);
-    int size = TableStream_getSize(self->table);
+    T_SIZE_T size = TableStream_getSize(self->table);
     MYFLT *outlist = TableStream_getData(self->outtable);
-    int osize = TableStream_getSize(self->outtable);
+    T_SIZE_T osize = TableStream_getSize(self->outtable);
 
     MYFLT *mul = Stream_getData((Stream *)self->mul_stream);
     MYFLT *add = Stream_getData((Stream *)self->add_stream);
@@ -13841,8 +13794,7 @@ TableScale_setTable(TableScale *self, PyObject *arg)
     Py_DECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -13863,8 +13815,7 @@ TableScale_setOuttable(TableScale *self, PyObject *arg)
     Py_DECREF(self->outtable);
     self->outtable = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef TableScale_members[] =
@@ -13990,14 +13941,14 @@ typedef struct
     PyObject *input;
     Stream *input_stream;
     PyObject *table;
-    int pointer;
+    T_SIZE_T pointer;
 } TableFill;
 
 static void
 TableFill_compute_next_data_frame(TableFill *self)
 {
     int i;
-    int size = TableStream_getSize(self->table);
+    T_SIZE_T size = TableStream_getSize(self->table);
     MYFLT *tablelist = TableStream_getData(self->table);
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
 
@@ -14096,8 +14047,7 @@ TableFill_setTable(TableFill *self, PyObject *arg)
     Py_DECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject * TableFill_getCurrentPos(TableFill *self)
@@ -14175,7 +14125,7 @@ typedef struct
     pyo_audio_HEAD
     PyObject *table;
     int modebuffer[2];
-    int pointerPos;
+    T_SIZE_T pointerPos;
 } TableScan;
 
 static void
@@ -14183,7 +14133,7 @@ TableScan_readframes(TableScan *self)
 {
     int i;
     MYFLT *tablelist = TableStream_getData(self->table);
-    int size = TableStream_getSize(self->table);
+    T_SIZE_T size = TableStream_getSize(self->table);
 
     for (i = 0; i < self->bufsize; i++)
     {
@@ -14377,16 +14327,14 @@ TableScan_setTable(TableScan *self, PyObject *arg)
     Py_DECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
 TableScan_reset(TableScan *self)
 {
     self->pointerPos = 0;
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef TableScan_members[] =

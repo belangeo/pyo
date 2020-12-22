@@ -522,8 +522,7 @@ Snap_setChoice(Snap *self, PyObject *arg)
     if (! PyList_Check(arg))
     {
         PyErr_SetString(PyExc_TypeError, "The choice attribute must be a list.");
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
 
     tmp = arg;
@@ -548,8 +547,7 @@ Snap_setChoice(Snap *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -571,8 +569,7 @@ Snap_setScale(Snap *self, PyObject *arg)
             PySys_WriteStdout("Snap: scale attribute must be an integer {0, 1, 2}\n");
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Snap_members[] =
@@ -954,8 +951,7 @@ Interp_setInterp(Interp *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Interp_members[] =
@@ -1358,8 +1354,7 @@ SampHold_setValue(SampHold *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef SampHold_members[] =
@@ -1768,8 +1763,7 @@ TrackHold_setValue(TrackHold *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef TrackHold_members[] =
@@ -2172,8 +2166,7 @@ Compare_setComp(Compare *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2632,8 +2625,7 @@ Between_setMin(Between *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2666,8 +2658,7 @@ Between_setMax(Between *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Between_members[] =
@@ -4087,8 +4078,7 @@ Scale_setInMin(Scale *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -4121,8 +4111,7 @@ Scale_setInMax(Scale *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -4155,8 +4144,7 @@ Scale_setOutMin(Scale *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -4189,8 +4177,7 @@ Scale_setOutMax(Scale *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -4223,8 +4210,7 @@ Scale_setExp(Scale *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Scale_members[] =
@@ -5704,8 +5690,7 @@ MToT_setCentralKey(MToT *self, PyObject *arg)
         self->centralkey = PyFloat_AsDouble(arg);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject * MToT_getServer(MToT* self) { GET_SERVER };
@@ -6011,7 +5996,7 @@ Resample_upsample(Resample *self)
     {
         for (i = 0; i < self->bufsize / self->factor; i++)
         {
-            for(j = 0; j < self->factor; j++) // for each polyphase sub-filter...
+            for (j = 0; j < self->factor; j++) // for each polyphase sub-filter...
             {
                 filtout = 0.0;
                 tmp_count = self->count;
@@ -6246,8 +6231,7 @@ Resample_setMode(Resample *self, PyObject *arg)
         Resample_update_mode(self);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject * Resample_getServer(Resample* self) { GET_SERVER };

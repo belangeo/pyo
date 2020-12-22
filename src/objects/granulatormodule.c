@@ -59,13 +59,14 @@ static void
 Granulator_transform_iii(Granulator *self)
 {
     MYFLT val, x, x1, inc, index, fpart, amp, ppos;
-    int i, j, ipart;
+    int i, j;
+    T_SIZE_T ipart;
 
     MYFLT *tablelist = TableStream_getData(self->table);
-    int size = TableStream_getSize(self->table);
+    T_SIZE_T size = TableStream_getSize(self->table);
 
     MYFLT *envlist = TableStream_getData(self->env);
-    int envsize = TableStream_getSize(self->env);
+    T_SIZE_T envsize = TableStream_getSize(self->env);
 
     MYFLT pit = PyFloat_AS_DOUBLE(self->pitch);
     MYFLT pos = PyFloat_AS_DOUBLE(self->pos);
@@ -89,7 +90,7 @@ Granulator_transform_iii(Granulator *self)
 
             // compute envelope
             index = ppos * envsize;
-            ipart = (int)index;
+            ipart = (T_SIZE_T)index;
             fpart = index - ipart;
             x = envlist[ipart];
             x1 = envlist[ipart + 1];
@@ -108,7 +109,7 @@ Granulator_transform_iii(Granulator *self)
 
             if (index >= 0 && index < size)
             {
-                ipart = (int)index;
+                ipart = (T_SIZE_T)index;
                 fpart = index - ipart;
                 x = tablelist[ipart];
                 x1 = tablelist[ipart + 1];
@@ -131,13 +132,14 @@ static void
 Granulator_transform_aii(Granulator *self)
 {
     MYFLT val, x, x1, inc, index, fpart, amp, ppos, frtosamps;
-    int i, j, ipart;
+    int i, j;
+    T_SIZE_T ipart;
 
     MYFLT *tablelist = TableStream_getData(self->table);
-    int size = TableStream_getSize(self->table);
+    T_SIZE_T size = TableStream_getSize(self->table);
 
     MYFLT *envlist = TableStream_getData(self->env);
-    int envsize = TableStream_getSize(self->env);
+    T_SIZE_T envsize = TableStream_getSize(self->env);
 
     MYFLT *pit = Stream_getData((Stream *)self->pitch_stream);
     MYFLT pos = PyFloat_AS_DOUBLE(self->pos);
@@ -162,7 +164,7 @@ Granulator_transform_aii(Granulator *self)
 
             // compute envelope
             index = ppos * envsize;
-            ipart = (int)index;
+            ipart = (T_SIZE_T)index;
             fpart = index - ipart;
             x = envlist[ipart];
             x1 = envlist[ipart + 1];
@@ -181,7 +183,7 @@ Granulator_transform_aii(Granulator *self)
 
             if (index >= 0 && index < size)
             {
-                ipart = (int)index;
+                ipart = (T_SIZE_T)index;
                 fpart = index - ipart;
                 x = tablelist[ipart];
                 x1 = tablelist[ipart + 1];
@@ -204,13 +206,14 @@ static void
 Granulator_transform_iai(Granulator *self)
 {
     MYFLT val, x, x1, inc, index, fpart, amp, ppos;
-    int i, j, ipart;
+    int i, j;
+    T_SIZE_T ipart;
 
     MYFLT *tablelist = TableStream_getData(self->table);
-    int size = TableStream_getSize(self->table);
+    T_SIZE_T size = TableStream_getSize(self->table);
 
     MYFLT *envlist = TableStream_getData(self->env);
-    int envsize = TableStream_getSize(self->env);
+    T_SIZE_T envsize = TableStream_getSize(self->env);
 
     MYFLT pit = PyFloat_AS_DOUBLE(self->pitch);
     MYFLT *pos = Stream_getData((Stream *)self->pos_stream);
@@ -241,7 +244,7 @@ Granulator_transform_iai(Granulator *self)
 
             // compute envelope
             index = ppos * envsize;
-            ipart = (int)index;
+            ipart = (T_SIZE_T)index;
             fpart = index - ipart;
             x = envlist[ipart];
             x1 = envlist[ipart + 1];
@@ -259,7 +262,7 @@ Granulator_transform_iai(Granulator *self)
 
             if (index >= 0 && index < size)
             {
-                ipart = (int)index;
+                ipart = (T_SIZE_T)index;
                 fpart = index - ipart;
                 x = tablelist[ipart];
                 x1 = tablelist[ipart + 1];
@@ -282,13 +285,14 @@ static void
 Granulator_transform_aai(Granulator *self)
 {
     MYFLT val, x, x1, inc, index, fpart, amp, ppos, frtosamps;
-    int i, j, ipart;
+    int i, j;
+    T_SIZE_T ipart;
 
     MYFLT *tablelist = TableStream_getData(self->table);
-    int size = TableStream_getSize(self->table);
+    T_SIZE_T size = TableStream_getSize(self->table);
 
     MYFLT *envlist = TableStream_getData(self->env);
-    int envsize = TableStream_getSize(self->env);
+    T_SIZE_T envsize = TableStream_getSize(self->env);
 
     MYFLT *pit = Stream_getData((Stream *)self->pitch_stream);
     MYFLT *pos = Stream_getData((Stream *)self->pos_stream);
@@ -313,7 +317,7 @@ Granulator_transform_aai(Granulator *self)
 
             // compute envelope
             index = ppos * envsize;
-            ipart = (int)index;
+            ipart = (T_SIZE_T)index;
             fpart = index - ipart;
             x = envlist[ipart];
             x1 = envlist[ipart + 1];
@@ -332,7 +336,7 @@ Granulator_transform_aai(Granulator *self)
 
             if (index >= 0 && index < size)
             {
-                ipart = (int)index;
+                ipart = (T_SIZE_T)index;
                 fpart = index - ipart;
                 x = tablelist[ipart];
                 x1 = tablelist[ipart + 1];
@@ -355,13 +359,14 @@ static void
 Granulator_transform_iia(Granulator *self)
 {
     MYFLT val, x, x1, inc, index, fpart, amp, ppos;
-    int i, j, ipart;
+    int i, j;
+    T_SIZE_T ipart;
 
     MYFLT *tablelist = TableStream_getData(self->table);
-    int size = TableStream_getSize(self->table);
+    T_SIZE_T size = TableStream_getSize(self->table);
 
     MYFLT *envlist = TableStream_getData(self->env);
-    int envsize = TableStream_getSize(self->env);
+    T_SIZE_T envsize = TableStream_getSize(self->env);
 
     MYFLT pit = PyFloat_AS_DOUBLE(self->pitch);
     MYFLT pos = PyFloat_AS_DOUBLE(self->pos);
@@ -385,7 +390,7 @@ Granulator_transform_iia(Granulator *self)
 
             // compute envelope
             index = ppos * envsize;
-            ipart = (int)index;
+            ipart = (T_SIZE_T)index;
             fpart = index - ipart;
             x = envlist[ipart];
             x1 = envlist[ipart + 1];
@@ -404,7 +409,7 @@ Granulator_transform_iia(Granulator *self)
 
             if (index >= 0 && index < size)
             {
-                ipart = (int)index;
+                ipart = (T_SIZE_T)index;
                 fpart = index - ipart;
                 x = tablelist[ipart];
                 x1 = tablelist[ipart + 1];
@@ -427,13 +432,14 @@ static void
 Granulator_transform_aia(Granulator *self)
 {
     MYFLT val, x, x1, inc, index, fpart, amp, ppos, frtosamps;
-    int i, j, ipart;
+    int i, j;
+    T_SIZE_T ipart;
 
     MYFLT *tablelist = TableStream_getData(self->table);
-    int size = TableStream_getSize(self->table);
+    T_SIZE_T size = TableStream_getSize(self->table);
 
     MYFLT *envlist = TableStream_getData(self->env);
-    int envsize = TableStream_getSize(self->env);
+    T_SIZE_T envsize = TableStream_getSize(self->env);
 
     MYFLT *pit = Stream_getData((Stream *)self->pitch_stream);
     MYFLT pos = PyFloat_AS_DOUBLE(self->pos);
@@ -458,7 +464,7 @@ Granulator_transform_aia(Granulator *self)
 
             // compute envelope
             index = ppos * envsize;
-            ipart = (int)index;
+            ipart = (T_SIZE_T)index;
             fpart = index - ipart;
             x = envlist[ipart];
             x1 = envlist[ipart + 1];
@@ -477,7 +483,7 @@ Granulator_transform_aia(Granulator *self)
 
             if (index >= 0 && index < size)
             {
-                ipart = (int)index;
+                ipart = (T_SIZE_T)index;
                 fpart = index - ipart;
                 x = tablelist[ipart];
                 x1 = tablelist[ipart + 1];
@@ -500,13 +506,14 @@ static void
 Granulator_transform_iaa(Granulator *self)
 {
     MYFLT val, x, x1, inc, index, fpart, amp, ppos;
-    int i, j, ipart;
+    int i, j;
+    T_SIZE_T ipart;
 
     MYFLT *tablelist = TableStream_getData(self->table);
-    int size = TableStream_getSize(self->table);
+    T_SIZE_T size = TableStream_getSize(self->table);
 
     MYFLT *envlist = TableStream_getData(self->env);
-    int envsize = TableStream_getSize(self->env);
+    T_SIZE_T envsize = TableStream_getSize(self->env);
 
     MYFLT pit = PyFloat_AS_DOUBLE(self->pitch);
     MYFLT *pos = Stream_getData((Stream *)self->pos_stream);
@@ -530,7 +537,7 @@ Granulator_transform_iaa(Granulator *self)
 
             // compute envelope
             index = ppos * envsize;
-            ipart = (int)index;
+            ipart = (T_SIZE_T)index;
             fpart = index - ipart;
             x = envlist[ipart];
             x1 = envlist[ipart + 1];
@@ -549,7 +556,7 @@ Granulator_transform_iaa(Granulator *self)
 
             if (index >= 0 && index < size)
             {
-                ipart = (int)index;
+                ipart = (T_SIZE_T)index;
                 fpart = index - ipart;
                 x = tablelist[ipart];
                 x1 = tablelist[ipart + 1];
@@ -572,13 +579,14 @@ static void
 Granulator_transform_aaa(Granulator *self)
 {
     MYFLT val, x, x1, inc, index, fpart, amp, ppos, frtosamps;
-    int i, j, ipart;
+    int i, j;
+    T_SIZE_T ipart;
 
     MYFLT *tablelist = TableStream_getData(self->table);
-    int size = TableStream_getSize(self->table);
+    T_SIZE_T size = TableStream_getSize(self->table);
 
     MYFLT *envlist = TableStream_getData(self->env);
-    int envsize = TableStream_getSize(self->env);
+    T_SIZE_T envsize = TableStream_getSize(self->env);
 
     MYFLT *pit = Stream_getData((Stream *)self->pitch_stream);
     MYFLT *pos = Stream_getData((Stream *)self->pos_stream);
@@ -603,7 +611,7 @@ Granulator_transform_aaa(Granulator *self)
 
             // compute envelope
             index = ppos * envsize;
-            ipart = (int)index;
+            ipart = (T_SIZE_T)index;
             fpart = index - ipart;
             x = envlist[ipart];
             x1 = envlist[ipart + 1];
@@ -622,7 +630,7 @@ Granulator_transform_aaa(Granulator *self)
 
             if (index >= 0 && index < size)
             {
-                ipart = (int)index;
+                ipart = (T_SIZE_T)index;
                 fpart = index - ipart;
                 x = tablelist[ipart];
                 x1 = tablelist[ipart + 1];
@@ -935,8 +943,7 @@ Granulator_setPitch(Granulator *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -969,8 +976,7 @@ Granulator_setPos(Granulator *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1003,8 +1009,7 @@ Granulator_setDur(Granulator *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1025,8 +1030,7 @@ Granulator_setTable(Granulator *self, PyObject *arg)
     Py_DECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1047,8 +1051,7 @@ Granulator_setEnv(Granulator *self, PyObject *arg)
     Py_DECREF(self->env);
     self->env = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1057,8 +1060,7 @@ Granulator_setBaseDur(Granulator *self, PyObject *arg)
     if (arg != NULL)
         self->basedur = PyFloat_AsDouble(arg);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1090,8 +1092,7 @@ Granulator_setGrains(Granulator *self, PyObject *arg)
         }
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Granulator_members[] =
@@ -1249,7 +1250,7 @@ typedef struct
     long maxfadepoint[2];
     MYFLT *fader;
     int interp; /* 0 = default to 2, 1 = nointerp, 2 = linear, 3 = cos, 4 = cubic */
-    MYFLT (*interp_func_ptr)(MYFLT *, int, MYFLT, int);
+    MYFLT (*interp_func_ptr)(MYFLT *, T_SIZE_T, MYFLT, T_SIZE_T);
     int modebuffer[6];
     int autosmooth;
     int appendfade;
@@ -1305,7 +1306,7 @@ Looper_reset(Looper *self, int x, int which, int init)
 {
     MYFLT start, dur, xfade;
 
-    int size = TableStream_getSize(self->table) - 1;
+    T_SIZE_T size = TableStream_getSize(self->table) - 1;
     double tableSr = TableStream_getSamplingRate(self->table);
 
     if (self->modebuffer[3] == 0)
@@ -1515,10 +1516,11 @@ Looper_transform_i(Looper *self)
 {
     MYFLT fpart, amp, fr;
     double pit;
-    int i, j, k, ipart;
+    int i, j, k;
+    T_SIZE_T ipart;
 
     MYFLT *tablelist = TableStream_getData(self->table);
-    int size = TableStream_getSize(self->table);
+    T_SIZE_T size = TableStream_getSize(self->table);
     double tableSr = TableStream_getSamplingRate(self->table);
 
     MYFLT pitval = PyFloat_AS_DOUBLE(self->pitch);
@@ -1564,7 +1566,7 @@ Looper_transform_i(Looper *self)
                             else
                                 amp = 1.0;
 
-                            ipart = (int)self->pointerPos[j];
+                            ipart = (T_SIZE_T)self->pointerPos[j];
                             fpart = self->pointerPos[j] - ipart;
                             self->data[i] += (*self->interp_func_ptr)(tablelist, ipart, fpart, size) * amp;
                         }
@@ -1613,7 +1615,7 @@ Looper_transform_i(Looper *self)
                             else
                                 amp = 1.0;
 
-                            ipart = (int)self->pointerPos[j];
+                            ipart = (T_SIZE_T)self->pointerPos[j];
                             fpart = self->pointerPos[j] - ipart;
                             self->data[i] += (*self->interp_func_ptr)(tablelist, ipart, fpart, size) * amp;
                         }
@@ -1652,7 +1654,7 @@ Looper_transform_i(Looper *self)
                             else
                                 amp = 1.0;
 
-                            ipart = (int)self->pointerPos[j];
+                            ipart = (T_SIZE_T)self->pointerPos[j];
                             fpart = self->pointerPos[j] - ipart;
                             self->data[i] += (*self->interp_func_ptr)(tablelist, ipart, fpart, size) * amp;
                         }
@@ -1694,7 +1696,7 @@ Looper_transform_i(Looper *self)
                                 else
                                     amp = 1.0;
 
-                                ipart = (int)self->pointerPos[j];
+                                ipart = (T_SIZE_T)self->pointerPos[j];
                                 fpart = self->pointerPos[j] - ipart;
                                 self->data[i] += (*self->interp_func_ptr)(tablelist, ipart, fpart, size) * amp;
                             }
@@ -1732,7 +1734,7 @@ Looper_transform_i(Looper *self)
                                 else
                                     amp = 1.0;
 
-                                ipart = (int)self->pointerPos[j];
+                                ipart = (T_SIZE_T)self->pointerPos[j];
                                 fpart = self->pointerPos[j] - ipart;
                                 self->data[i] += (*self->interp_func_ptr)(tablelist, ipart, fpart, size) * amp;
                             }
@@ -1789,10 +1791,11 @@ Looper_transform_a(Looper *self)
 {
     MYFLT fpart, amp, fr, pitval;
     double pit, srFactor;
-    int i, j, k, ipart;
+    int i, j, k;
+    T_SIZE_T ipart;
 
     MYFLT *tablelist = TableStream_getData(self->table);
-    int size = TableStream_getSize(self->table);
+    T_SIZE_T size = TableStream_getSize(self->table);
     double tableSr = TableStream_getSamplingRate(self->table);
 
     MYFLT *pitch = Stream_getData((Stream *)self->pitch_stream);
@@ -1841,7 +1844,7 @@ Looper_transform_a(Looper *self)
                             else
                                 amp = 1.0;
 
-                            ipart = (int)self->pointerPos[j];
+                            ipart = (T_SIZE_T)self->pointerPos[j];
                             fpart = self->pointerPos[j] - ipart;
                             self->data[i] += (*self->interp_func_ptr)(tablelist, ipart, fpart, size) * amp;
                         }
@@ -1886,7 +1889,7 @@ Looper_transform_a(Looper *self)
                             else
                                 amp = 1.0;
 
-                            ipart = (int)self->pointerPos[j];
+                            ipart = (T_SIZE_T)self->pointerPos[j];
                             fpart = self->pointerPos[j] - ipart;
                             self->data[i] += (*self->interp_func_ptr)(tablelist, ipart, fpart, size) * amp;
                         }
@@ -1925,7 +1928,7 @@ Looper_transform_a(Looper *self)
                             else
                                 amp = 1.0;
 
-                            ipart = (int)self->pointerPos[j];
+                            ipart = (T_SIZE_T)self->pointerPos[j];
                             fpart = self->pointerPos[j] - ipart;
                             self->data[i] += (*self->interp_func_ptr)(tablelist, ipart, fpart, size) * amp;
                         }
@@ -1967,7 +1970,7 @@ Looper_transform_a(Looper *self)
                                 else
                                     amp = 1.0;
 
-                                ipart = (int)self->pointerPos[j];
+                                ipart = (T_SIZE_T)self->pointerPos[j];
                                 fpart = self->pointerPos[j] - ipart;
                                 self->data[i] += (*self->interp_func_ptr)(tablelist, ipart, fpart, size) * amp;
                             }
@@ -2005,7 +2008,7 @@ Looper_transform_a(Looper *self)
                                 else
                                     amp = 1.0;
 
-                                ipart = (int)self->pointerPos[j];
+                                ipart = (T_SIZE_T)self->pointerPos[j];
                                 fpart = self->pointerPos[j] - ipart;
                                 self->data[i] += (*self->interp_func_ptr)(tablelist, ipart, fpart, size) * amp;
                             }
@@ -2341,8 +2344,7 @@ Looper_setPitch(Looper *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2373,8 +2375,7 @@ Looper_setStart(Looper *self, PyObject *arg)
         self->modebuffer[3] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2405,8 +2406,7 @@ Looper_setDur(Looper *self, PyObject *arg)
         self->modebuffer[4] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2437,8 +2437,7 @@ Looper_setXfade(Looper *self, PyObject *arg)
         self->modebuffer[5] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2459,8 +2458,7 @@ Looper_setTable(Looper *self, PyObject *arg)
     Py_DECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2475,8 +2473,7 @@ Looper_setStartFromLoop(Looper *self, PyObject *arg)
         self->startfromloop = PyInt_AsLong(arg);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2491,8 +2488,7 @@ Looper_setXfadeShape(Looper *self, PyObject *arg)
         self->xfadeshape = PyInt_AsLong(arg);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2512,8 +2508,7 @@ Looper_setMode(Looper *self, PyObject *arg)
             self->tmpmode = tmp;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2530,8 +2525,7 @@ Looper_setInterp(Looper *self, PyObject *arg)
 
     SET_INTERP_POINTER
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2546,8 +2540,7 @@ Looper_setAutoSmooth(Looper *self, PyObject *arg)
         self->autosmooth = PyInt_AsLong(arg);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2555,16 +2548,14 @@ Looper_on_reset(Looper *self)
 {
     self->pointerPos[0] = self->pointerPos[1] = 0.0;
     self->active[0] = self->active[1] = 0;
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 };
 
 static PyObject *
 Looper_loopnow(Looper *self)
 {
     Looper_endloop(self);
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 };
 
 static PyObject *
@@ -2579,8 +2570,7 @@ Looper_appendFadeTime(Looper *self, PyObject *arg)
         self->appendfade = PyInt_AsLong(arg) == 0 ? 0 : 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2595,8 +2585,7 @@ Looper_fadeInSeconds(Looper *self, PyObject *arg)
         self->fadeinseconds = PyInt_AsLong(arg) == 0 ? 0 : 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Looper_members[] =
@@ -3021,14 +3010,15 @@ static void
 Granule_transform_i(Granule *self)
 {
     MYFLT dens, inc, index, amp, phase;
-    int i, j, ipart, flag = 0;
+    int i, j, flag = 0;
+    T_SIZE_T ipart;
     MYFLT pit = 0, pos = 0, dur = 0;
 
     MYFLT *tablelist = TableStream_getData(self->table);
-    int size = TableStream_getSize(self->table);
+    T_SIZE_T size = TableStream_getSize(self->table);
 
     MYFLT *envlist = TableStream_getData(self->env);
-    int envsize = TableStream_getSize(self->env);
+    T_SIZE_T envsize = TableStream_getSize(self->env);
 
     dens = PyFloat_AS_DOUBLE(self->dens);
 
@@ -3118,11 +3108,11 @@ Granule_transform_i(Granule *self)
                 phase = self->phase[j];
                 /* compute envelope */
                 index = phase * envsize;
-                ipart = (int)index;
+                ipart = (T_SIZE_T)index;
                 amp = envlist[ipart] + (envlist[ipart + 1] - envlist[ipart]) * (index - ipart);
                 /* compute sampling */
                 index = phase * self->glen[j] + self->gpos[j];
-                ipart = (int)index;
+                ipart = (T_SIZE_T)index;
                 self->data[i] += (tablelist[ipart] + (tablelist[ipart + 1] - tablelist[ipart]) * (index - ipart)) * amp;
                 phase += self->inc[j];
 
@@ -3141,14 +3131,15 @@ static void
 Granule_transform_a(Granule *self)
 {
     MYFLT index, amp, phase;
-    int i, j, ipart, flag = 0;
+    int i, j, flag = 0;
+    T_SIZE_T ipart;
     MYFLT pit = 0, pos = 0, dur = 0;
 
     MYFLT *tablelist = TableStream_getData(self->table);
-    int size = TableStream_getSize(self->table);
+    T_SIZE_T size = TableStream_getSize(self->table);
 
     MYFLT *envlist = TableStream_getData(self->env);
-    int envsize = TableStream_getSize(self->env);
+    T_SIZE_T envsize = TableStream_getSize(self->env);
 
     MYFLT *density = Stream_getData((Stream *)self->dens_stream);
 
@@ -3233,11 +3224,11 @@ Granule_transform_a(Granule *self)
                 phase = self->phase[j];
                 // compute envelope
                 index = phase * envsize;
-                ipart = (int)index;
+                ipart = (T_SIZE_T)index;
                 amp = envlist[ipart] + (envlist[ipart + 1] - envlist[ipart]) * (index - ipart);
                 // compute sampling
                 index = phase * self->glen[j] + self->gpos[j];
-                ipart = (int)index;
+                ipart = (T_SIZE_T)index;
                 self->data[i] += (tablelist[ipart] + (tablelist[ipart + 1] - tablelist[ipart]) * (index - ipart)) * amp;
                 phase += self->inc[j];
 
@@ -3528,8 +3519,7 @@ Granule_setDens(Granule *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -3560,8 +3550,7 @@ Granule_setPitch(Granule *self, PyObject *arg)
         self->modebuffer[3] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -3592,8 +3581,7 @@ Granule_setPos(Granule *self, PyObject *arg)
         self->modebuffer[4] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -3624,8 +3612,7 @@ Granule_setDur(Granule *self, PyObject *arg)
         self->modebuffer[5] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -3646,8 +3633,7 @@ Granule_setTable(Granule *self, PyObject *arg)
     Py_DECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -3668,8 +3654,7 @@ Granule_setEnv(Granule *self, PyObject *arg)
     Py_DECREF(self->env);
     self->env = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -3685,8 +3670,7 @@ Granule_setSync(Granule *self, PyObject *arg)
             self->sync = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Granule_members[] =
@@ -3854,14 +3838,15 @@ static void
 MainParticle_transform_mono_i(MainParticle *self)
 {
     MYFLT dens, inc, index, amp, phase, val;
-    int i, j, ipart, flag = 0;
+    int i, j, flag = 0;
+    T_SIZE_T ipart;
     MYFLT pit = 0, pos = 0, dur = 0, dev = 0;
 
     MYFLT *tablelist = TableStream_getData(self->table);
-    int size = TableStream_getSize(self->table);
+    T_SIZE_T size = TableStream_getSize(self->table);
 
     MYFLT *envlist = TableStream_getData(self->env);
-    int envsize = TableStream_getSize(self->env);
+    T_SIZE_T envsize = TableStream_getSize(self->env);
 
     dens = PyFloat_AS_DOUBLE(self->dens);
 
@@ -3955,11 +3940,11 @@ MainParticle_transform_mono_i(MainParticle *self)
                 phase = self->phase[j];
                 /* compute envelope */
                 index = phase * envsize;
-                ipart = (int)index;
+                ipart = (T_SIZE_T)index;
                 amp = envlist[ipart] + (envlist[ipart + 1] - envlist[ipart]) * (index - ipart);
                 /* compute sampling */
                 index = phase * self->glen[j] + self->gpos[j];
-                ipart = (int)index;
+                ipart = (T_SIZE_T)index;
                 val = (tablelist[ipart] + (tablelist[ipart + 1] - tablelist[ipart]) * (index - ipart)) * amp;
                 self->buffer_streams[i] += val;
                 phase += self->inc[j];
@@ -3979,14 +3964,15 @@ static void
 MainParticle_transform_mono_a(MainParticle *self)
 {
     MYFLT dens, index, amp, phase, val;
-    int i, j, ipart, flag = 0;
+    int i, j, flag = 0;
+    T_SIZE_T ipart;
     MYFLT pit = 0, pos = 0, dur = 0, dev = 0;
 
     MYFLT *tablelist = TableStream_getData(self->table);
-    int size = TableStream_getSize(self->table);
+    T_SIZE_T size = TableStream_getSize(self->table);
 
     MYFLT *envlist = TableStream_getData(self->env);
-    int envsize = TableStream_getSize(self->env);
+    T_SIZE_T envsize = TableStream_getSize(self->env);
 
     MYFLT *density = Stream_getData((Stream *)self->dens_stream);
 
@@ -4080,11 +4066,11 @@ MainParticle_transform_mono_a(MainParticle *self)
                 phase = self->phase[j];
                 /* compute envelope */
                 index = phase * envsize;
-                ipart = (int)index;
+                ipart = (T_SIZE_T)index;
                 amp = envlist[ipart] + (envlist[ipart + 1] - envlist[ipart]) * (index - ipart);
                 /* compute sampling */
                 index = phase * self->glen[j] + self->gpos[j];
-                ipart = (int)index;
+                ipart = (T_SIZE_T)index;
                 val = (tablelist[ipart] + (tablelist[ipart + 1] - tablelist[ipart]) * (index - ipart)) * amp;
                 self->buffer_streams[i] += val;
                 phase += self->inc[j];
@@ -4104,14 +4090,15 @@ static void
 MainParticle_transform_i(MainParticle *self)
 {
     MYFLT dens, inc, index, amp, phase, val, min = 0;
-    int i, j, l, l1, ipart, flag = 0;
+    int i, j, l, l1, flag = 0;
+    T_SIZE_T ipart;
     MYFLT pit = 0, pos = 0, dur = 0, dev = 0, pan = 0;
 
     MYFLT *tablelist = TableStream_getData(self->table);
-    int size = TableStream_getSize(self->table);
+    T_SIZE_T size = TableStream_getSize(self->table);
 
     MYFLT *envlist = TableStream_getData(self->env);
-    int envsize = TableStream_getSize(self->env);
+    T_SIZE_T envsize = TableStream_getSize(self->env);
 
     dens = PyFloat_AS_DOUBLE(self->dens);
 
@@ -4250,11 +4237,11 @@ MainParticle_transform_i(MainParticle *self)
                 phase = self->phase[j];
                 /* compute envelope */
                 index = phase * envsize;
-                ipart = (int)index;
+                ipart = (T_SIZE_T)index;
                 amp = envlist[ipart] + (envlist[ipart + 1] - envlist[ipart]) * (index - ipart);
                 /* compute sampling */
                 index = phase * self->glen[j] + self->gpos[j];
-                ipart = (int)index;
+                ipart = (T_SIZE_T)index;
                 val = (tablelist[ipart] + (tablelist[ipart + 1] - tablelist[ipart]) * (index - ipart)) * amp;
                 self->buffer_streams[i + self->k1[j]] += val * self->amp1[j];
                 self->buffer_streams[i + self->k2[j]] += val * self->amp2[j];
@@ -4275,14 +4262,15 @@ static void
 MainParticle_transform_a(MainParticle *self)
 {
     MYFLT dens, index, amp, phase, val, min = 0;
-    int i, j, l, l1, ipart, flag = 0;
+    int i, j, l, l1, flag = 0;
+    T_SIZE_T ipart;
     MYFLT pit = 0, pos = 0, dur = 0, dev = 0, pan = 0;
 
     MYFLT *tablelist = TableStream_getData(self->table);
-    int size = TableStream_getSize(self->table);
+    T_SIZE_T size = TableStream_getSize(self->table);
 
     MYFLT *envlist = TableStream_getData(self->env);
-    int envsize = TableStream_getSize(self->env);
+    T_SIZE_T envsize = TableStream_getSize(self->env);
 
     MYFLT *density = Stream_getData((Stream *)self->dens_stream);
 
@@ -4421,11 +4409,11 @@ MainParticle_transform_a(MainParticle *self)
                 phase = self->phase[j];
                 /* compute envelope */
                 index = phase * envsize;
-                ipart = (int)index;
+                ipart = (T_SIZE_T)index;
                 amp = envlist[ipart] + (envlist[ipart + 1] - envlist[ipart]) * (index - ipart);
                 /* compute sampling */
                 index = phase * self->glen[j] + self->gpos[j];
-                ipart = (int)index;
+                ipart = (T_SIZE_T)index;
                 val = (tablelist[ipart] + (tablelist[ipart + 1] - tablelist[ipart]) * (index - ipart)) * amp;
                 self->buffer_streams[i + self->k1[j]] += val * self->amp1[j];
                 self->buffer_streams[i + self->k2[j]] += val * self->amp2[j];
@@ -4697,8 +4685,7 @@ MainParticle_setDens(MainParticle *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -4729,8 +4716,7 @@ MainParticle_setPitch(MainParticle *self, PyObject *arg)
         self->modebuffer[1] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -4761,8 +4747,7 @@ MainParticle_setPos(MainParticle *self, PyObject *arg)
         self->modebuffer[2] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -4793,8 +4778,7 @@ MainParticle_setDur(MainParticle *self, PyObject *arg)
         self->modebuffer[3] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -4825,8 +4809,7 @@ MainParticle_setDev(MainParticle *self, PyObject *arg)
         self->modebuffer[4] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -4857,8 +4840,7 @@ MainParticle_setPan(MainParticle *self, PyObject *arg)
         self->modebuffer[5] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -4880,8 +4862,7 @@ MainParticle_setTable(MainParticle *self, PyObject *arg)
     self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
     self->srScale = TableStream_getSamplingRate(self->table) / self->sr;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -4902,8 +4883,7 @@ MainParticle_setEnv(MainParticle *self, PyObject *arg)
     Py_DECREF(self->env);
     self->env = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef MainParticle_members[] =
@@ -5384,14 +5364,15 @@ static void
 MainParticle2_transform_mono_i(MainParticle2 *self)
 {
     MYFLT dens, inc, index, amp, phase, val, fval;
-    int i, j, ipart, flag = 0;
+    int i, j, flag = 0;
+    T_SIZE_T ipart;
     MYFLT pit = 0, pos = 0, dur = 0, dev = 0, filterfreq = 0, filterq = 0, filtertype = 0;
 
     MYFLT *tablelist = TableStream_getData(self->table);
-    int size = TableStream_getSize(self->table);
+    T_SIZE_T size = TableStream_getSize(self->table);
 
     MYFLT *envlist = TableStream_getData(self->env);
-    int envsize = TableStream_getSize(self->env);
+    T_SIZE_T envsize = TableStream_getSize(self->env);
 
     dens = PyFloat_AS_DOUBLE(self->dens);
 
@@ -5540,11 +5521,11 @@ MainParticle2_transform_mono_i(MainParticle2 *self)
                 phase = self->phase[j];
                 /* compute envelope */
                 index = phase * envsize;
-                ipart = (int)index;
+                ipart = (T_SIZE_T)index;
                 amp = envlist[ipart] + (envlist[ipart + 1] - envlist[ipart]) * (index - ipart);
                 /* compute sampling */
                 index = phase * self->glen[j] + self->gpos[j];
-                ipart = (int)index;
+                ipart = (T_SIZE_T)index;
                 val = (tablelist[ipart] + (tablelist[ipart + 1] - tablelist[ipart]) * (index - ipart));
                 /* filtering */
                 fval = ( (self->b0[j] * val) + (self->b1[j] * self->x1[j]) + (self->b2[j] * self->x2[j]) - (self->a1[j] * self->y1[j]) - (self->a2[j] * self->y2[j]) ) * self->a0[j];
@@ -5573,14 +5554,15 @@ static void
 MainParticle2_transform_mono_a(MainParticle2 *self)
 {
     MYFLT dens, index, amp, phase, val, fval;
-    int i, j, ipart, flag = 0;
+    int i, j, flag = 0;
+    T_SIZE_T ipart;
     MYFLT pit = 0, pos = 0, dur = 0, dev = 0, filterfreq = 0, filterq = 0, filtertype = 0;
 
     MYFLT *tablelist = TableStream_getData(self->table);
-    int size = TableStream_getSize(self->table);
+    T_SIZE_T size = TableStream_getSize(self->table);
 
     MYFLT *envlist = TableStream_getData(self->env);
-    int envsize = TableStream_getSize(self->env);
+    T_SIZE_T envsize = TableStream_getSize(self->env);
 
     MYFLT *density = Stream_getData((Stream *)self->dens_stream);
 
@@ -5729,11 +5711,11 @@ MainParticle2_transform_mono_a(MainParticle2 *self)
                 phase = self->phase[j];
                 /* compute envelope */
                 index = phase * envsize;
-                ipart = (int)index;
+                ipart = (T_SIZE_T)index;
                 amp = envlist[ipart] + (envlist[ipart + 1] - envlist[ipart]) * (index - ipart);
                 /* compute sampling */
                 index = phase * self->glen[j] + self->gpos[j];
-                ipart = (int)index;
+                ipart = (T_SIZE_T)index;
                 val = (tablelist[ipart] + (tablelist[ipart + 1] - tablelist[ipart]) * (index - ipart));
                 /* filtering */
                 fval = ( (self->b0[j] * val) + (self->b1[j] * self->x1[j]) + (self->b2[j] * self->x2[j]) - (self->a1[j] * self->y1[j]) - (self->a2[j] * self->y2[j]) ) * self->a0[j];
@@ -5762,14 +5744,15 @@ static void
 MainParticle2_transform_i(MainParticle2 *self)
 {
     MYFLT dens, inc, index, amp, phase, val, fval, min = 0;
-    int i, j, l, l1, ipart, flag = 0;
+    int i, j, l, l1, flag = 0;
+    T_SIZE_T ipart;
     MYFLT pit = 0, pos = 0, dur = 0, dev = 0, pan = 0, filterfreq = 0, filterq = 0, filtertype = 0;
 
     MYFLT *tablelist = TableStream_getData(self->table);
-    int size = TableStream_getSize(self->table);
+    T_SIZE_T size = TableStream_getSize(self->table);
 
     MYFLT *envlist = TableStream_getData(self->env);
-    int envsize = TableStream_getSize(self->env);
+    T_SIZE_T envsize = TableStream_getSize(self->env);
 
     dens = PyFloat_AS_DOUBLE(self->dens);
 
@@ -5962,11 +5945,11 @@ MainParticle2_transform_i(MainParticle2 *self)
                 phase = self->phase[j];
                 /* compute envelope */
                 index = phase * envsize;
-                ipart = (int)index;
+                ipart = (T_SIZE_T)index;
                 amp = envlist[ipart] + (envlist[ipart + 1] - envlist[ipart]) * (index - ipart);
                 /* compute sampling */
                 index = phase * self->glen[j] + self->gpos[j];
-                ipart = (int)index;
+                ipart = (T_SIZE_T)index;
                 val = (tablelist[ipart] + (tablelist[ipart + 1] - tablelist[ipart]) * (index - ipart));
                 /* filtering */
                 fval = ( (self->b0[j] * val) + (self->b1[j] * self->x1[j]) + (self->b2[j] * self->x2[j]) - (self->a1[j] * self->y1[j]) - (self->a2[j] * self->y2[j]) ) * self->a0[j];
@@ -5996,14 +5979,15 @@ static void
 MainParticle2_transform_a(MainParticle2 *self)
 {
     MYFLT dens, index, amp, phase, val, fval, min = 0;
-    int i, j, l, l1, ipart, flag = 0;
+    int i, j, l, l1, flag = 0;
+    T_SIZE_T ipart;
     MYFLT pit = 0, pos = 0, dur = 0, dev = 0, pan = 0, filterfreq = 0, filterq = 0, filtertype = 0;
 
     MYFLT *tablelist = TableStream_getData(self->table);
-    int size = TableStream_getSize(self->table);
+    T_SIZE_T size = TableStream_getSize(self->table);
 
     MYFLT *envlist = TableStream_getData(self->env);
-    int envsize = TableStream_getSize(self->env);
+    T_SIZE_T envsize = TableStream_getSize(self->env);
 
     MYFLT *density = Stream_getData((Stream *)self->dens_stream);
 
@@ -6196,11 +6180,11 @@ MainParticle2_transform_a(MainParticle2 *self)
                 phase = self->phase[j];
                 /* compute envelope */
                 index = phase * envsize;
-                ipart = (int)index;
+                ipart = (T_SIZE_T)index;
                 amp = envlist[ipart] + (envlist[ipart + 1] - envlist[ipart]) * (index - ipart);
                 /* compute sampling */
                 index = phase * self->glen[j] + self->gpos[j];
-                ipart = (int)index;
+                ipart = (T_SIZE_T)index;
                 val = (tablelist[ipart] + (tablelist[ipart + 1] - tablelist[ipart]) * (index - ipart));
                 /* filtering */
                 fval = ( (self->b0[j] * val) + (self->b1[j] * self->x1[j]) + (self->b2[j] * self->x2[j]) - (self->a1[j] * self->y1[j]) - (self->a2[j] * self->y2[j]) ) * self->a0[j];
@@ -6556,8 +6540,7 @@ MainParticle2_setDens(MainParticle2 *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -6588,8 +6571,7 @@ MainParticle2_setPitch(MainParticle2 *self, PyObject *arg)
         self->modebuffer[1] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -6620,8 +6602,7 @@ MainParticle2_setPos(MainParticle2 *self, PyObject *arg)
         self->modebuffer[2] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -6652,8 +6633,7 @@ MainParticle2_setDur(MainParticle2 *self, PyObject *arg)
         self->modebuffer[3] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -6684,8 +6664,7 @@ MainParticle2_setDev(MainParticle2 *self, PyObject *arg)
         self->modebuffer[4] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -6716,8 +6695,7 @@ MainParticle2_setPan(MainParticle2 *self, PyObject *arg)
         self->modebuffer[5] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -6748,8 +6726,7 @@ MainParticle2_setFilterfreq(MainParticle2 *self, PyObject *arg)
         self->modebuffer[6] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -6780,8 +6757,7 @@ MainParticle2_setFilterq(MainParticle2 *self, PyObject *arg)
         self->modebuffer[7] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -6812,8 +6788,7 @@ MainParticle2_setFiltertype(MainParticle2 *self, PyObject *arg)
         self->modebuffer[8] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -6835,8 +6810,7 @@ MainParticle2_setTable(MainParticle2 *self, PyObject *arg)
     self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
     self->srScale = TableStream_getSamplingRate(self->table) / self->sr;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -6857,8 +6831,7 @@ MainParticle2_setEnv(MainParticle2 *self, PyObject *arg)
     Py_DECREF(self->env);
     self->env = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef MainParticle2_members[] =

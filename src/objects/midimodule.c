@@ -138,8 +138,7 @@ static PyObject *
 CtlScan_reset(CtlScan *self)
 {
     self->ctlnumber = -1;
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 };
 
 static PyObject *
@@ -150,8 +149,7 @@ CtlScan_setFunction(CtlScan *self, PyObject *arg)
     if (! PyCallable_Check(arg))
     {
         PyErr_SetString(PyExc_TypeError, "The callable attribute must be a valid Python function.");
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
 
     tmp = arg;
@@ -159,8 +157,7 @@ CtlScan_setFunction(CtlScan *self, PyObject *arg)
     Py_INCREF(tmp);
     self->callable = tmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -172,8 +169,7 @@ CtlScan_setToprint(CtlScan *self, PyObject *arg)
         self->toprint = PyInt_AsLong(arg);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 static PyMemberDef CtlScan_members[] =
 {
@@ -352,8 +348,7 @@ static PyObject *
 CtlScan2_reset(CtlScan2 *self)
 {
     self->ctlnumber = self->midichnl = -1;
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 };
 
 static PyObject *
@@ -364,8 +359,7 @@ CtlScan2_setFunction(CtlScan2 *self, PyObject *arg)
     if (! PyCallable_Check(arg))
     {
         PyErr_SetString(PyExc_TypeError, "The callable attribute must be a valid Python function.");
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
 
     tmp = arg;
@@ -373,8 +367,7 @@ CtlScan2_setFunction(CtlScan2 *self, PyObject *arg)
     Py_INCREF(tmp);
     self->callable = tmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -386,8 +379,7 @@ CtlScan2_setToprint(CtlScan2 *self, PyObject *arg)
         self->toprint = PyInt_AsLong(arg);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 static PyMemberDef CtlScan2_members[] =
 {
@@ -717,8 +709,7 @@ Midictl_setValue(Midictl *self, PyObject *arg)
         self->value = PyFloat_AsDouble(arg);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -733,8 +724,7 @@ Midictl_setMinScale(Midictl *self, PyObject *arg)
         self->minscale = PyFloat_AsDouble(arg);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -749,8 +739,7 @@ Midictl_setMaxScale(Midictl *self, PyObject *arg)
         self->maxscale = PyFloat_AsDouble(arg);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -770,8 +759,7 @@ Midictl_setCtlNumber(Midictl *self, PyObject *arg)
             self->ctlnumber = tmp;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -791,8 +779,7 @@ Midictl_setChannel(Midictl *self, PyObject *arg)
             self->channel = tmp;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Midictl_members[] =
@@ -1159,8 +1146,7 @@ Bendin_setBrange(Bendin *self, PyObject *arg)
             self->range = tmp;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1180,8 +1166,7 @@ Bendin_setChannel(Bendin *self, PyObject *arg)
             self->channel = tmp;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1203,8 +1188,7 @@ Bendin_setScale(Bendin *self, PyObject *arg)
             self->scale = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Bendin_members[] =
@@ -1550,8 +1534,7 @@ Touchin_setMinScale(Touchin *self, PyObject *arg)
         self->minscale = PyFloat_AsDouble(arg);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1564,8 +1547,7 @@ Touchin_setMaxScale(Touchin *self, PyObject *arg)
         self->maxscale = PyFloat_AsDouble(arg);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1583,8 +1565,7 @@ Touchin_setChannel(Touchin *self, PyObject *arg)
             self->channel = tmp;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Touchin_members[] =
@@ -1911,8 +1892,7 @@ Programin_setChannel(Programin *self, PyObject *arg)
             self->channel = tmp;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Programin_members[] =
@@ -2437,8 +2417,7 @@ MidiNote_setCentralKey(MidiNote *self, PyObject *arg)
             self->centralkey = tmp;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2451,8 +2430,7 @@ MidiNote_setStealing(MidiNote *self, PyObject *arg)
     if (isInt == 1)
         self->stealing = PyInt_AsLong(arg);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef MidiNote_members[] =
@@ -3409,8 +3387,7 @@ MidiAdsr_setAttack(MidiAdsr *self, PyObject *arg)
         self->attackPlusDecay = self->attack + self->decay;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -3427,8 +3404,7 @@ MidiAdsr_setDecay(MidiAdsr *self, PyObject *arg)
         self->attackPlusDecay = self->attack + self->decay;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -3444,8 +3420,7 @@ MidiAdsr_setSustain(MidiAdsr *self, PyObject *arg)
             self->sustain = 1.0;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -3461,8 +3436,7 @@ MidiAdsr_setRelease(MidiAdsr *self, PyObject *arg)
         self->invRelease = 1.0 / self->release;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -3476,8 +3450,7 @@ MidiAdsr_setExp(MidiAdsr *self, PyObject *arg)
             self->exp = tmp;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef MidiAdsr_members[] =
@@ -3890,8 +3863,7 @@ MidiDelAdsr_setDelay(MidiDelAdsr *self, PyObject *arg)
         self->delayPlusAttackPlusDecay = self->delay + self->attack + self->decay;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -3909,8 +3881,7 @@ MidiDelAdsr_setAttack(MidiDelAdsr *self, PyObject *arg)
         self->delayPlusAttackPlusDecay = self->delay + self->attack + self->decay;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -3927,8 +3898,7 @@ MidiDelAdsr_setDecay(MidiDelAdsr *self, PyObject *arg)
         self->delayPlusAttackPlusDecay = self->delay + self->attack + self->decay;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -3944,8 +3914,7 @@ MidiDelAdsr_setSustain(MidiDelAdsr *self, PyObject *arg)
             self->sustain = 1.0;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -3961,8 +3930,7 @@ MidiDelAdsr_setRelease(MidiDelAdsr *self, PyObject *arg)
         self->invRelease = 1.0 / self->release;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -3976,8 +3944,7 @@ MidiDelAdsr_setExp(MidiDelAdsr *self, PyObject *arg)
             self->exp = tmp;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef MidiDelAdsr_members[] =
@@ -4195,8 +4162,7 @@ RawMidi_setFunction(RawMidi *self, PyObject *arg)
     if (! PyCallable_Check(arg))
     {
         PyErr_SetString(PyExc_TypeError, "The callable attribute must be a valid Python function.");
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
 
     tmp = arg;
@@ -4204,8 +4170,7 @@ RawMidi_setFunction(RawMidi *self, PyObject *arg)
     Py_INCREF(tmp);
     self->callable = tmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef RawMidi_members[] =
@@ -4633,8 +4598,7 @@ MidiLinseg_setList(MidiLinseg *self, PyObject *value)
 
     self->newlist = 1;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -4645,8 +4609,7 @@ MidiLinseg_setHold(MidiLinseg *self, PyObject *arg)
         self->tmphold = PyInt_AsLong(arg);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef MidiLinseg_members[] =

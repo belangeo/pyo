@@ -1,3 +1,11 @@
+2020-12-13 belangeo <belangeo@gmail.com>
+
+    * PyoTableObject get(), put() and copyData() methods can read backward with negative indices.
+
+2020-12-12 belangeo <belangeo@gmail.com>
+
+    * Fixed crash when DataTable or NewTable size != len(init).
+
 2020-12-10 belangeo <belangeo@gmail.com>
 
     * Fixed PadSynthTable crash on Windows.

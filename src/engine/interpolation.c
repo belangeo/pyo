@@ -22,19 +22,19 @@
 #include "pyomodule.h"
 #include <math.h>
 
-MYFLT nointerp(MYFLT *buf, int index, MYFLT frac, int size)
+MYFLT nointerp(MYFLT *buf, T_SIZE_T index, MYFLT frac, T_SIZE_T size)
 {
     return  buf[index];
 }
 
-MYFLT linear(MYFLT *buf, int index, MYFLT frac, int size)
+MYFLT linear(MYFLT *buf, T_SIZE_T index, MYFLT frac, T_SIZE_T size)
 {
     MYFLT x1 = buf[index];
     MYFLT x2 = buf[index + 1];
     return (x1 + (x2 - x1) * frac);
 }
 
-MYFLT cosine(MYFLT *buf, int index, MYFLT frac, int size)
+MYFLT cosine(MYFLT *buf, T_SIZE_T index, MYFLT frac, T_SIZE_T size)
 {
     MYFLT frac2;
     MYFLT x1 = buf[index];
@@ -44,7 +44,7 @@ MYFLT cosine(MYFLT *buf, int index, MYFLT frac, int size)
     return (x1 + (x2 - x1) * frac2);
 }
 
-MYFLT cubic(MYFLT *buf, int index, MYFLT frac, int size)
+MYFLT cubic(MYFLT *buf, T_SIZE_T index, MYFLT frac, T_SIZE_T size)
 {
     MYFLT x0, x3, a0, a1, a2, a3;
     MYFLT x1 = buf[index];

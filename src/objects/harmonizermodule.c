@@ -642,8 +642,7 @@ Harmonizer_setTranspo(Harmonizer *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -676,8 +675,7 @@ Harmonizer_setFeedback(Harmonizer *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -699,8 +697,7 @@ Harmonizer_setWinsize(Harmonizer *self, PyObject *arg)
             PySys_WriteStdout("Harmonizer: winsize lower than 0.0 or larger than 1.0 second!\n");
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Harmonizer_members[] =

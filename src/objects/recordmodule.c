@@ -294,8 +294,7 @@ static PyObject * Record_stop(Record *self, PyObject *args, PyObject *kwds)
         Stream_setDuration(self->stream, nearestBuf);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 };
 
 static PyMemberDef Record_members[] =
@@ -621,13 +620,13 @@ typedef struct
     int loop;
     int go;
     int modebuffer[2];
-    long count;
+    T_SIZE_T count;
     long time;
-    long size;
+    T_SIZE_T size;
     MYFLT *trigsBuffer;
     TriggerStream *trig_stream;
     int interp; /* 0 = default to 2, 1 = nointerp, 2 = linear, 3 = cos, 4 = cubic */
-    MYFLT (*interp_func_ptr)(MYFLT *, int, MYFLT, int);
+    MYFLT (*interp_func_ptr)(MYFLT *, T_SIZE_T, MYFLT, T_SIZE_T);
 } ControlRead;
 
 static void
@@ -648,7 +647,7 @@ ControlRead_readframes_i(ControlRead *self)
         {
             mod = self->time % self->modulo;
             fpart = mod * invmodulo;
-            self->data[i] = (*self->interp_func_ptr)(self->values, (int)self->count, fpart, (int)self->size);
+            self->data[i] = (*self->interp_func_ptr)(self->values, self->count, fpart, self->size);
         }
         else
         {
@@ -871,8 +870,7 @@ ControlRead_setValues(ControlRead *self, PyObject *arg)
         self->values[i] = PyFloat_AsDouble(PyList_GET_ITEM(arg, i));
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -883,8 +881,7 @@ ControlRead_setRate(ControlRead *self, PyObject *arg)
     self->rate = PyInt_AsLong(arg);
     self->modulo = (int)(self->sr / self->rate);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -894,8 +891,7 @@ ControlRead_setLoop(ControlRead *self, PyObject *arg)
 
     self->loop = PyInt_AsLong(arg);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -912,8 +908,7 @@ ControlRead_setInterp(ControlRead *self, PyObject *arg)
 
     SET_INTERP_POINTER
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef ControlRead_members[] =
@@ -1514,8 +1509,7 @@ NoteinRead_setValues(NoteinRead *self, PyObject *arg)
         self->values[i] = PyFloat_AsDouble(PyList_GET_ITEM(arg, i));
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1533,8 +1527,7 @@ NoteinRead_setTimestamps(NoteinRead *self, PyObject *arg)
         self->timestamps[i] = (long)(PyFloat_AsDouble(PyList_GET_ITEM(arg, i)) * self->sr);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1544,8 +1537,7 @@ NoteinRead_setLoop(NoteinRead *self, PyObject *arg)
 
     self->loop = PyInt_AsLong(arg);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef NoteinRead_members[] =

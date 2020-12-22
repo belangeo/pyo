@@ -220,7 +220,7 @@ HRTFData_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     MYFLT **twiddle = (MYFLT **)malloc(4 * sizeof(MYFLT *));
 
-    for(i = 0; i < 4; i++)
+    for (i = 0; i < 4; i++)
         twiddle[i] = (MYFLT *)malloc(n8 * sizeof(MYFLT));
 
     fft_compute_split_twiddle(twiddle, self->length);
@@ -644,7 +644,7 @@ HRTFSpatter_dealloc(HRTFSpatter* self)
     free(self->current_impulses);
     free(self->previous_impulses);
 
-    for(i = 0; i < 4; i++)
+    for (i = 0; i < 4; i++)
     {
         free(self->twiddle[i]);
     }
@@ -730,7 +730,7 @@ HRTFSpatter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     int n8 = self->length >> 3;
     self->twiddle = (MYFLT **)realloc(self->twiddle, 4 * sizeof(MYFLT *));
 
-    for(i = 0; i < 4; i++)
+    for (i = 0; i < 4; i++)
         self->twiddle[i] = (MYFLT *)malloc(n8 * sizeof(MYFLT));
 
     fft_compute_split_twiddle(self->twiddle, self->length);
@@ -776,8 +776,7 @@ HRTFSpatter_setAzimuth(HRTFSpatter *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -810,8 +809,7 @@ HRTFSpatter_setElevation(HRTFSpatter *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef HRTFSpatter_members[] =
@@ -1560,8 +1558,7 @@ Binauraler_setAzimuth(Binauraler *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1594,8 +1591,7 @@ Binauraler_setElevation(Binauraler *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1628,8 +1624,7 @@ Binauraler_setAzispan(Binauraler *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1662,8 +1657,7 @@ Binauraler_setElespan(Binauraler *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Binauraler_members[] =

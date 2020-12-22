@@ -50,7 +50,7 @@ void fft_compute_split_twiddle(MYFLT **twiddle, int size)
     MYFLT a = e;
     MYFLT a3;
 
-    for(j = 2; j <= n8; j++)
+    for (j = 2; j <= n8; j++)
     {
         a3 = 3 * a;
         twiddle[0][j - 1] = MYCOS(a);
@@ -144,7 +144,7 @@ void realfft_split(MYFLT *data, MYFLT *outdata, int n, MYFLT **twiddle)
     /* L shaped butterflies */
     n2 = 2;
 
-    for(k = n; k > 2; k >>= 1)
+    for (k = n; k > 2; k >>= 1)
     {
         n2 <<= 1; /* power of two from 4 to n */
         n4 = n2 >> 2;
@@ -239,7 +239,7 @@ void realfft_split(MYFLT *data, MYFLT *outdata, int n, MYFLT **twiddle)
     }
 
     /* division with array length */
-    for(i = 0; i < n; i++)
+    for (i = 0; i < n; i++)
         outdata[i] = data[i] / n;
 }
 
@@ -269,7 +269,7 @@ void irealfft_split(MYFLT *data, MYFLT *outdata, int n, MYFLT **twiddle)
     n1 = n - 1;
     n2 = n << 1;
 
-    for(k = n; k > 2; k >>= 1)
+    for (k = n; k > 2; k >>= 1)
     {
         id = n2;
         n2 >>= 1;
@@ -428,16 +428,16 @@ void dif_butterfly(MYFLT *data, int size, MYFLT *twiddle)
     astep = 1;
     end = data + size + size;
 
-    for(dl = size; dl > 1; dl >>= 1, astep += astep)
+    for (dl = size; dl > 1; dl >>= 1, astep += astep)
     {
         l1 = data;
         l2 = data + dl;
 
-        for(; l2 < end; l1 = l2, l2 = l2 + dl)
+        for (; l2 < end; l1 = l2, l2 = l2 + dl)
         {
             ol2 = l2;
 
-            for(angle = 0; l1 < ol2; l1 += 2, l2 += 2)
+            for (angle = 0; l1 < ol2; l1 += 2, l2 += 2)
             {
                 wr = twiddle[angle];
                 wi = -twiddle[size + angle]; /* size here is half the FFT size */
@@ -480,16 +480,16 @@ void inverse_dit_butterfly(MYFLT *data, int size, MYFLT *twiddle)
     astep = size >> 1;
     end = data + size + size;
 
-    for(dl = 2; astep > 0; dl += dl, astep >>= 1)
+    for (dl = 2; astep > 0; dl += dl, astep >>= 1)
     {
         l1 = data;
         l2 = data + dl;
 
-        for(; l2 < end; l1 = l2, l2 = l2 + dl)
+        for (; l2 < end; l1 = l2, l2 = l2 + dl)
         {
             ol2 = l2;
 
-            for(angle = 0; l1 < ol2; l1 += 2, l2 += 2)
+            for (angle = 0; l1 < ol2; l1 += 2, l2 += 2)
             {
                 wr = twiddle[angle];
                 wi = twiddle[size + angle]; /* size here is half the FFT size */
@@ -573,7 +573,7 @@ void realize(MYFLT *data, int size)
     l1 += 2;
     astep = PI / size;
 
-    for(ang = astep; l1 <= l2; l1 += 2, l2 -= 2, ang += astep)
+    for (ang = astep; l1 <= l2; l1 += 2, l2 -= 2, ang += astep)
     {
         xr = (*l1 + *l2) / 2;
         yi = (-(*l1) + (*l2)) / 2;
@@ -612,7 +612,7 @@ void unrealize(MYFLT *data, int size)
     l1 += 2;
     astep = PI / size;
 
-    for(ang = astep; l1 <= l2; l1 += 2, l2 -= 2, ang += astep)
+    for (ang = astep; l1 <= l2; l1 += 2, l2 -= 2, ang += astep)
     {
         xr = (*l1 + *l2) / 2;
         yi = -(-(*l1) + (*l2)) / 2;

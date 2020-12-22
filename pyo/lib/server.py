@@ -80,6 +80,10 @@ class Server(object):
             will ask jack to start in the background. Note that pyo never ask jack to close. It is
             the user's responsability to manage the audio configuration of its system.
 
+            If 'manual' is selected, the server waits for a call to its `process` method to compute
+            a single buffer size of audio samples. Successive calls to `process` can simulate a
+            real computation (probably only useful in the context of internal testing).
+
             User can set an environment variable named PYO_SERVER_AUDIO to set this value globally.
         jackname: string, optional
             Name of jack client. Defaults to 'pyo'
@@ -1356,6 +1360,12 @@ class Server(object):
         """
         return self._server.getCurrentTime()
 
+    def getCurrentTimeInSamples(self):
+        """
+        Return the current time in number of elapsed samples since the server was started.
+        """
+        return self._server.getCurrentTimeInSamples()
+
     def getCurrentAmp(self):
         """
         Return the current amplitudes as a tuple of `nchnls` length.
@@ -1429,6 +1439,16 @@ class Server(object):
 
         """
         self._server.setAutoStartChildren(state)
+
+    def process(self):
+        """
+        Tell the server to compute a single buffer size of audio samples.
+
+        The audio backend of the server must be set to `manual` to use this method.
+        It's probably only useful in the context of internal testing.
+
+        """
+        self._server.process()
 
     @property
     def amp(self):

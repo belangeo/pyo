@@ -56,13 +56,13 @@ static int any_ls_inside_triplet(int a, int b, int c,
 
     any_ls_inside = 0;
 
-    for(i = 0; i < ls_amount; i++)
+    for (i = 0; i < ls_amount; i++)
     {
         if (i != a && i != b && i != c)
         {
             this_inside = 1;
 
-            for(j = 0; j < 3; j++)
+            for (j = 0; j < 3; j++)
             {
                 tmp = lss[i].coords.x * invmx[0 + j * 3];
                 tmp += lss[i].coords.y * invmx[1 + j * 3];
@@ -384,7 +384,7 @@ static void spreadit(float azi, float spread, VBAP_DATA *data)
     vec_mean(data->cart_dir, spreadbase[10], &spreadbase[14]);
     vec_mean(data->cart_dir, spreadbase[11], &spreadbase[15]);
 
-    for(i = 1; i < spreaddirnum; i++)
+    for (i = 1; i < spreaddirnum; i++)
     {
         new_spread_dir(&spreaddir[i], data->cart_dir, spreadbase[i],
                        azi, spread);
@@ -413,7 +413,7 @@ static void spreadit(float azi, float spread, VBAP_DATA *data)
 
     sum = sqrtf(sum);
 
-    for(i = 0; i < cnt; i++)
+    for (i = 0; i < cnt; i++)
     {
         data->gains[i] /= sum;
     }
@@ -919,7 +919,7 @@ void build_speakers_list(SPEAKERS_SETUP *setup, ls lss[MAX_LS_AMOUNT])
     ANG_VEC a_vector;
     CART_VEC c_vector;
 
-    for(i = 0; i < setup->count; i++)
+    for (i = 0; i < setup->count; i++)
     {
         a_vector.azi = setup->azimuth[i];
         a_vector.ele = setup->elevation[i];
@@ -1027,7 +1027,7 @@ void choose_ls_tuplets(ls lss[MAX_LS_AMOUNT],
     struct ls_triplet_chain *prev, *tr_ptr = *ls_triplets;
     prev = NULL;
 
-    for(i = 0; i < MAX_LS_AMOUNT; i++)
+    for (i = 0; i < MAX_LS_AMOUNT; i++)
     {
         exist[i] = 0;
     }
@@ -1036,7 +1036,7 @@ void choose_ls_tuplets(ls lss[MAX_LS_AMOUNT],
     sort_2D_lss(lss, sorted_lss, ls_amount);
 
     /* Adjacent loudspeakers are the loudspeaker pairs to be used. */
-    for(i = 0; i < (ls_amount - 1); i++)
+    for (i = 0; i < (ls_amount - 1); i++)
     {
         if ((lss[sorted_lss[i + 1]].angles.azi -
                 lss[sorted_lss[i]].angles.azi) <= (M_PI - 0.175f))
@@ -1084,7 +1084,7 @@ void choose_ls_tuplets(ls lss[MAX_LS_AMOUNT],
             tr_ptr->ls_nos[0] = sorted_lss[i] + 1;
             tr_ptr->ls_nos[1] = sorted_lss[i + 1] + 1;
 
-            for(j = 0; j < 4; j++)
+            for (j = 0; j < 4; j++)
             {
                 tr_ptr->inv_mx[j] = inv_mat[i][j];
             }
@@ -1110,7 +1110,7 @@ void choose_ls_tuplets(ls lss[MAX_LS_AMOUNT],
         tr_ptr->ls_nos[0] = sorted_lss[ls_amount - 1] + 1;
         tr_ptr->ls_nos[1] = sorted_lss[0] + 1;
 
-        for(j = 0; j < 4; j++)
+        for (j = 0; j < 4; j++)
         {
             tr_ptr->inv_mx[j] = inv_mat[ls_amount - 1][j];
         }
@@ -1142,11 +1142,11 @@ void choose_ls_triplets(ls lss[MAX_LS_AMOUNT],
         exit(-1);
     }
 
-    for(i = 0; i < ls_amount; i++)
+    for (i = 0; i < ls_amount; i++)
     {
-        for(j = i + 1; j < ls_amount; j++)
+        for (j = i + 1; j < ls_amount; j++)
         {
-            for(k = j + 1; k < ls_amount; k++)
+            for (k = j + 1; k < ls_amount; k++)
             {
                 if(vol_p_side_lgth(i, j, k, lss) > MIN_VOL_P_SIDE_LGTH)
                 {
@@ -1165,14 +1165,14 @@ void choose_ls_triplets(ls lss[MAX_LS_AMOUNT],
     /* Calculate distancies between all lss and sorting them. */
     table_size = (((ls_amount - 1) * (ls_amount)) / 2);
 
-    for(i = 0; i < table_size; i++)
+    for (i = 0; i < table_size; i++)
     {
         distance_table[i] = 100000.0;
     }
 
-    for(i = 0; i < ls_amount; i++)
+    for (i = 0; i < ls_amount; i++)
     {
-        for(j = (i + 1); j < ls_amount; j++)
+        for (j = (i + 1); j < ls_amount; j++)
         {
             if(connections[i][j] == 1)
             {
@@ -1212,9 +1212,9 @@ void choose_ls_triplets(ls lss[MAX_LS_AMOUNT],
 
         if (connections[fst_ls][sec_ls] == 1)
         {
-            for(j = 0; j < ls_amount; j++)
+            for (j = 0; j < ls_amount; j++)
             {
-                for(k = j + 1; k < ls_amount; k++)
+                for (k = j + 1; k < ls_amount; k++)
                 {
                     if ((j != fst_ls) && (k != sec_ls) &&
                             (k != fst_ls) && (j != sec_ls))

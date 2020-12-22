@@ -10,7 +10,55 @@
             "type": "shell",
             "command": "cd ${workspaceRoot}/tests/pytests; py -3.8 -m pytest",
             "problemMatcher": []
-        }
+        },
+        {
+            "label": "Compile linux (single, jack)",
+            "isShellCommand": true,
+            "showOutput": "always",
+            "type": "shell",
+            "command": "cd ${workspaceRoot}; sudo python3 setup.py bdist_wheel install --use-jack; sudo python3 -m pip install --force-reinstall dist/pyo-1.0.3-cp37-cp37m-linux_x86_64.whl",
+            "problemMatcher": [],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            }
+        },
+        {
+            "label": "Compile linux (double, jack)",
+            "isShellCommand": true,
+            "showOutput": "always",
+            "type": "shell",
+            "command": "cd ${workspaceRoot}; sudo python3 setup.py bdist_wheel install --use-jack --use-double; sudo python3 -m pip install --force-reinstall dist/pyo-1.0.3-cp37-cp37m-linux_x86_64.whl",
+            "problemMatcher": [],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            }
+        },
+        {
+            "label": "Clean up",
+            "isShellCommand": true,
+            "showOutput": "always",
+            "type": "shell",
+            "command": "cd ${workspaceRoot}; sudo rm -rf build",
+            "problemMatcher": [],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            }
+        },
         {
             "label": "Run unit tests",
             "isShellCommand": true,
@@ -18,7 +66,7 @@
             "type": "shell",
             "command": "cd ${workspaceRoot}/tests/pytests; python3 -m pytest",
             "problemMatcher": []
-        }
+        },
         {
             "label": "Run unit tests with coverage",
             "isShellCommand": true,

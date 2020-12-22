@@ -356,8 +356,7 @@ Gain_setDB(Gain *self, PyObject *arg)
 
     if (arg == NULL)
     {
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
 
     int isNumber = PyNumber_Check(arg);
@@ -386,8 +385,7 @@ Gain_setDB(Gain *self, PyObject *arg)
     /* Reassign processing function pointers */
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 /**********************************************************************

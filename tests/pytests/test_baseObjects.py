@@ -120,7 +120,7 @@ class TestPyoObject:
         i_div = Sig(1)
         i_div /= 2
 
-        with StartAndWaitOneBuf(audio_server):
+        with StartAndAdvanceOneBuf(audio_server):
             assert i_add.get() == 2
             assert i_sub.get() == 0
             assert i_mul.get() == 2
@@ -149,7 +149,7 @@ class TestPyoObject:
         i_div = Sig(1)
         i_div /= b
 
-        with StartAndWaitOneBuf(audio_server):
+        with StartAndAdvanceOneBuf(audio_server):
             # in-place aritmetic doesn't change the number of streams managed by the object.
             assert i_add.get() == 1.5
             assert i_sub.get() == 0.5
@@ -205,7 +205,7 @@ class TestPyoObject:
         i_div = Sig(1)
         i_div /= b2
 
-        with StartAndWaitOneBuf(audio_server):
+        with StartAndAdvanceOneBuf(audio_server):
             assert i_add.get() == 2
             assert i_sub.get() == 0
             assert i_mul.get() == 2
@@ -234,7 +234,7 @@ class TestPyoObject:
         i_div = Sig(1)
         i_div /= b
 
-        with StartAndWaitOneBuf(audio_server):
+        with StartAndAdvanceOneBuf(audio_server):
             # in-place aritmetic doesn't change the number of streams managed by the object.
             assert i_add.get() == 1.5
             assert i_sub.get() == 0.5
@@ -249,7 +249,7 @@ class TestPyoObject:
         m_mod = a % 2
         m_neg = -a
 
-        with StartAndWaitOneBuf(audio_server):
+        with StartAndAdvanceOneBuf(audio_server):
             assert m_exp.get() == 4
             assert m_rexp.get() == 4
             assert m_mod.get() == 0
@@ -262,7 +262,7 @@ class TestPyoObject:
         m_exp = a ** b
         m_mod = a % b
 
-        with StartAndWaitOneBuf(audio_server):
+        with StartAndAdvanceOneBuf(audio_server):
             assert m_exp.get() == 4
             assert m_mod.get() == 0
 
@@ -277,7 +277,7 @@ class TestPyoObject:
         m_eq = a == b
         m_ne = a != b
 
-        with StartAndWaitOneBuf(audio_server):
+        with StartAndAdvanceOneBuf(audio_server):
             assert m_lt.get() == 1
             assert m_lte.get() == 1
             assert m_gt.get() == 0
@@ -296,7 +296,7 @@ class TestPyoObject:
         m_eq = a == b
         m_ne = a != b
 
-        with StartAndWaitOneBuf(audio_server):
+        with StartAndAdvanceOneBuf(audio_server):
             assert m_lt.get() == 1
             assert m_lte.get() == 1
             assert m_gt.get() == 0
@@ -345,7 +345,7 @@ class TestPyoObject:
 
         a.value = [25, 50]
 
-        with StartAndWaitOneBuf(audio_server):
+        with StartAndAdvanceOneBuf(audio_server):
             assert a.get() == 25
             assert a.get(all=True) == [25, 50]
 
@@ -358,11 +358,11 @@ class TestPyoObject:
         with Start(audio_server) as cxt:
             # wait 0.5 second before playing and play for 0.5 second
             a.play(dur=0.5, delay=0.5)
-            cxt.wait(0.25)
+            cxt.advance(0.25)
             assert a.isPlaying() == False
-            cxt.wait(0.5)
+            cxt.advance(0.5)
             assert a.isPlaying() == True
-            cxt.wait(0.5)
+            cxt.advance(0.5)
             assert a.isPlaying() == False
 
     def test_out(self, audio_server):
@@ -371,11 +371,11 @@ class TestPyoObject:
         with Start(audio_server) as cxt:
             # wait 0.5 second before playing and play for 0.5 second
             a.out(dur=0.5, delay=0.5)
-            cxt.wait(0.25)
+            cxt.advance(0.25)
             assert a.isPlaying() == False
-            cxt.wait(0.5)
+            cxt.advance(0.5)
             assert a.isPlaying() == True
-            cxt.wait(0.5)
+            cxt.advance(0.5)
             assert a.isPlaying() == False
 
         num_chnls = 4
@@ -428,7 +428,7 @@ class TestPyoObject:
         with Start(audio_server) as cxt:
             a.stop(wait=0.25)
             assert a.isPlaying() == True
-            cxt.wait(0.5)
+            cxt.advance(0.5)
             assert a.isPlaying() == False
 
     def test_mix(self):
@@ -462,7 +462,7 @@ class TestPyoObject:
         a.set(attr="freq", value=500, port=0.3, callback=None)
         self.set_b.set(attr="mul", value=[0, 0.25, 0.5, 0.75], port=0.3, callback=func)
 
-        with StartAndWait(audio_server, wait_time=0.5):
+        with StartAndAdvance(audio_server, adv_time=0.5):
             assert a.freq == 500
             assert self.set_b.mul == [0, 0.25, 0.5, 0.75]
             func.assert_called()
@@ -473,9 +473,9 @@ class TestPyoObject:
         self.set_b = Sine(mul=[1,1,1,1])
         self.set_b.set(attr="mul", value=[0, 0.25, 0.5, 0.75], port=0.5, callback=func)
 
-        with StartAndWait(audio_server, wait_time=0.25) as cxt:
+        with StartAndAdvance(audio_server, adv_time=0.25) as cxt:
             self.set_b.set(attr="mul", value=[0.125, 0.5, 0, 0.25], port=0.3, callback=func)
-            cxt.wait(0.5)
+            cxt.advance(0.5)
             assert self.set_b.mul == [0.125, 0.5, 0, 0.25]
             func.assert_called_once()
 
@@ -595,10 +595,15 @@ class TestPyoTableObject:
         assert t.get(0) == 0
         t.put(value=1.0, pos=0)
         assert t.get(0) == 1.0
+        t.put(value=1.0, pos=5)
+        assert t.get(5) == 1.0
+        t.put(value=1.0, pos=-5)
+        assert t.get(5) == 1.0
 
     def test_get(self):
         t = DataTable(size=4, chnls=1, init=[1, 2, 3, 4])
         assert t.get(0) == 1
+        assert t.get(-2) == 3
         t = DataTable(size=4, chnls=2, init=[[1, 2, 3, 4], [5, 6, 7, 8]])
         assert t.get(0) == [1, 5]
 
@@ -829,6 +834,11 @@ class TestPyoTableObject:
         dst.copyData(src, 2, 4, 2)
         assert dst.getTable() == [8, 9, 10, 11, 2, 3, 14, 15]
 
+        # Can take negative indices
+        dst = DataTable(size=8, chnls=1, init=[8, 9, 10, 11, 12, 13, 14, 15])
+        dst.copyData(src, -6, -4, 2)
+        assert dst.getTable() == [8, 9, 10, 11, 2, 3, 14, 15]
+
     def test_rotate(self):
         t = DataTable(size=8, chnls=1, init=[0, 1, 2, 3, 4, 5, 6, 7])
         t.rotate(3)
@@ -975,11 +985,11 @@ class TestPyoPVObject:
         with Start(audio_server) as cxt:
             # wait 0.5 second before playing and play for 0.5 second
             pva.play(dur=0.5, delay=0.5)
-            cxt.wait(0.25)
+            cxt.advance(0.25)
             assert pva.isPlaying() == False
-            cxt.wait(0.5)
+            cxt.advance(0.5)
             assert pva.isPlaying() == True
-            cxt.wait(0.5)
+            cxt.advance(0.5)
             assert pva.isPlaying() == False
 
     def test_stop(self, audio_server):
@@ -994,7 +1004,7 @@ class TestPyoPVObject:
         with Start(audio_server) as cxt:
             pva.stop(wait=0.25)
             assert pva.isPlaying() == True
-            cxt.wait(0.5)
+            cxt.advance(0.5)
             assert pva.isPlaying() == False
 
     def test_set(self, audio_server):
@@ -1003,7 +1013,7 @@ class TestPyoPVObject:
 
         pvt.set(attr="transpo", value=0.5, port=0.3)
 
-        with StartAndWait(audio_server, wait_time=0.5):
+        with StartAndAdvance(audio_server, adv_time=0.5):
             assert pvt.transpo == 0.5
 
     def test_set_interupted(self, audio_server):
@@ -1012,9 +1022,9 @@ class TestPyoPVObject:
 
         pvt.set(attr="transpo", value=0.5, port=0.5)
 
-        with StartAndWait(audio_server, wait_time=0.25) as cxt:
+        with StartAndAdvance(audio_server, adv_time=0.25) as cxt:
             pvt.set(attr="transpo", value=0.25, port=0.3)
-            cxt.wait(0.5)
+            cxt.advance(0.5)
             assert pvt.transpo == 0.25
 
 
@@ -1036,7 +1046,7 @@ class TestMix:
         b = Sig([300, 400])
         c = Mix([a, b], voices=2)
 
-        with StartAndWaitOneBuf(audio_server):
+        with StartAndAdvanceOneBuf(audio_server):
             assert c.get(all=True) == [400, 600]
 
     def test_invalid_voices(self, audio_server):
@@ -1044,7 +1054,7 @@ class TestMix:
         b = Mix(a, voices=-1)
         assert len(b) == 1
 
-        with StartAndWaitOneBuf(audio_server):
+        with StartAndAdvanceOneBuf(audio_server):
             assert b.get() == 300
 
     def test_lmax_bigger_than_input_length(self, audio_server):
@@ -1052,7 +1062,7 @@ class TestMix:
         b = Mix(a, voices=3, mul=[1, 1, 0.5])
         assert len(b) == 3
 
-        with StartAndWaitOneBuf(audio_server):
+        with StartAndAdvanceOneBuf(audio_server):
             assert b.get(all=True)[0] == 100
             assert b.get(all=True)[1] == 200
             assert b.get(all=True)[2] == 50
@@ -1069,7 +1079,7 @@ class TestDummy:
         d = a + b + c
         e = Dummy([Dummy(d)])
 
-        with StartAndWaitOneBuf(audio_server):
+        with StartAndAdvanceOneBuf(audio_server):
             assert d.get() == 6
             assert e.get() == 6
 
@@ -1080,19 +1090,19 @@ class TestInputFader:
     def test_setInput(self, audio_server):
         a = InputFader(Sig(1))
 
-        with StartAndWaitOneBuf(audio_server) as cxt:
+        with StartAndAdvanceOneBuf(audio_server) as cxt:
             assert a.get() == 1
             a.setInput(Sig(2), fadetime=0.005)
-            cxt.wait(0.01)
+            cxt.advance(0.01)
             assert a.get() == 2
 
     def test_attr_input(self, audio_server):
         a = InputFader(Sig(1))
 
-        with StartAndWaitOneBuf(audio_server) as cxt:
+        with StartAndAdvanceOneBuf(audio_server) as cxt:
             assert a.get() == 1
             a.input = Sig(2)
-            cxt.wait(0.06)
+            cxt.advance(0.06)
             assert isinstance(a.input, Sig)
             assert a.get() == 2
 
@@ -1104,10 +1114,10 @@ class TestSig:
         a = Sig(0)
         a.setValue(1)
 
-        with StartAndWaitOneBuf(audio_server) as cxt:
+        with StartAndAdvanceOneBuf(audio_server) as cxt:
             assert a.get() == 1
             a.value = 2
-            cxt.wait(audio_server.getBufferSize() / audio_server.getSamplingRate() + 0.005)
+            cxt.advanceOneBuf()
             assert a.get() == 2
             assert a.value == 2
 
@@ -1118,22 +1128,22 @@ class TestVarPort:
     def test_setValue(self, audio_server):
         a = VarPort(value=1, time=0.5, init=0)
 
-        with StartAndWait(audio_server, wait_time=0.25) as cxt:
+        with StartAndAdvance(audio_server, adv_time=0.25) as cxt:
             a.value = 2
-            cxt.wait(0.3)
+            cxt.advance(0.3)
             assert a.get() != 2
-            cxt.wait(0.3)
+            cxt.advance(0.3)
             assert a.get() == 2
             assert a.value == 2
 
     def test_setTime(self, audio_server):
         a = VarPort(value=1, time=0.5, init=0)
 
-        with StartAndWait(audio_server, wait_time=0.25) as cxt:
+        with StartAndAdvance(audio_server, adv_time=0.25) as cxt:
             a.time = 1
-            cxt.wait(0.5)
+            cxt.advance(0.5)
             assert a.get() < 1
-            cxt.wait(0.6)
+            cxt.advance(0.6)
             assert a.get() == 1
             assert a.time == 1
 
@@ -1143,12 +1153,12 @@ class TestVarPort:
 
         a = VarPort(value=1, time=0.5, init=0, function=func1)
 
-        with Start(audio_server):
-            time.sleep(0.3)
+        with Start(audio_server) as cxt:
+            cxt.advance(0.3)
 
             a.function = func2
 
-            time.sleep(0.4)
+            cxt.advance(0.4)
 
             assert not func1.called
             func2.assert_called_once()
@@ -1165,11 +1175,11 @@ class TestPow:
         p = Pow(exponent=16)
         p.base = a1
 
-        with StartAndWaitOneBuf(audio_server) as cxt:
+        with StartAndAdvanceOneBuf(audio_server) as cxt:
             assert p.base == 2
             assert p.get() == 65536
             p.base = a2
-            cxt.waitOneBuf()
+            cxt.advanceOneBuf()
             assert p.base.value == 2
             assert p.get() == 65536
 
@@ -1180,11 +1190,11 @@ class TestPow:
         p = Pow(base=2)
         p.exponent = a1
 
-        with StartAndWaitOneBuf(audio_server) as cxt:
+        with StartAndAdvanceOneBuf(audio_server) as cxt:
             assert p.exponent == 16
             assert p.get() == 65536
             p.exponent = a2
-            cxt.waitOneBuf()
+            cxt.advanceOneBuf()
             assert p.exponent.value == 16
             assert p.get() == 65536
 

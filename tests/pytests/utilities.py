@@ -1,10 +1,12 @@
-import time
+import math
 
 class BaseStart(object):
     "Base class for context manager to start and stop the audio server automatically."
 
     def __init__(self, audio_server):
         self._audio_server = audio_server
+        self._sr = audio_server.getSamplingRate()
+        self._bs = audio_server.getBufferSize()
 
     def __enter__(self):
         self._audio_server.start()
@@ -13,11 +15,13 @@ class BaseStart(object):
     def __exit__(self, type, value, traceback):
         self._audio_server.stop()
 
-    def wait(self, dur):
-        time.sleep(dur)
+    def advance(self, dur):
+        numbuf = int(math.ceil(dur * self._sr / self._bs))
+        for i in range(numbuf):
+            self._audio_server.process()
 
-    def waitOneBuf(self):
-        time.sleep(self._audio_server.getBufferSize() / self._audio_server.getSamplingRate() + 0.005)
+    def advanceOneBuf(self):
+        self._audio_server.process()
 
 class Start(BaseStart):
     "Context manager to start and stop the audio server automatically."
@@ -26,29 +30,30 @@ class Start(BaseStart):
         BaseStart.__init__(self, audio_server)
 
 
-class StartAndWait(BaseStart):
+class StartAndAdvance(BaseStart):
     """
     Context manager to start and stop the audio server automatically.
     
-    Use os.sleep() to wait `wait_time` just after entering the context.
+    Advance `adv_time` seconds just after entering the context.
 
     """
 
-    def __init__(self, audio_server, wait_time):
+    def __init__(self, audio_server, adv_time):
         BaseStart.__init__(self, audio_server)
-        self._wait_time = wait_time
+        self._numbuf = int(math.ceil(adv_time * self._sr / self._bs))
 
     def __enter__(self):
         self._audio_server.start()
-        time.sleep(self._wait_time)
+        for i in range(self._numbuf):
+            self._audio_server.process()
         return self
 
 
-class StartAndWaitOneBuf(BaseStart):
+class StartAndAdvanceOneBuf(BaseStart):
     """
     Context manager to start and stop the audio server automatically.
     
-    Use os.sleep() to wait at least one buffer size just after entering the context.
+    Advance one buffer size just after entering the context.
 
     """
 
@@ -57,5 +62,5 @@ class StartAndWaitOneBuf(BaseStart):
 
     def __enter__(self):
         self._audio_server.start()
-        time.sleep(self._audio_server.getBufferSize() / self._audio_server.getSamplingRate() + 0.005)
+        self._audio_server.process()
         return self

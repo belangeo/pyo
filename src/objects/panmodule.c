@@ -384,8 +384,7 @@ Panner_setPan(Panner *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -418,8 +417,7 @@ Panner_setSpread(Panner *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Panner_members[] =
@@ -1088,8 +1086,7 @@ SPanner_setPan(SPanner *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef SPanner_members[] =
@@ -1676,8 +1673,7 @@ Switcher_setVoice(Switcher *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Switcher_members[] =
@@ -2252,8 +2248,7 @@ VoiceManager_setTriggers(VoiceManager *self, PyObject *arg)
     if (! PyList_Check(arg))
     {
         PyErr_SetString(PyExc_TypeError, "The triggers attribute must be a list.");
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
 
     self->maxVoices = PyList_Size(arg);
@@ -2600,8 +2595,7 @@ Mixer_setTime(Mixer *self, PyObject *arg)
         }
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2620,8 +2614,7 @@ Mixer_addInput(Mixer *self, PyObject *args, PyObject *kwds)
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO", kwlist, &voice, &tmp))
     {
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
 
     PyDict_SetItem(self->inputs, voice, tmp);
@@ -2646,8 +2639,7 @@ Mixer_addInput(Mixer *self, PyObject *args, PyObject *kwds)
     PyDict_SetItem(self->stepVals, voice, initStepVals);
     PyDict_SetItem(self->timeCounts, voice, initTimeCounts);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2668,12 +2660,10 @@ Mixer_delInput(Mixer *self, PyObject *arg)
     }
     else
     {
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2685,22 +2675,19 @@ Mixer_setAmp(Mixer *self, PyObject *args, PyObject *kwds)
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "OiO", kwlist, &tmpin, &tmpout, &amp))
     {
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
 
     if (! PyNumber_Check(amp))
     {
         PySys_WriteStdout("Mixer: amp argument must be a number!n");
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
 
     Py_INCREF(amp);
     PyList_SET_ITEM(PyDict_GetItem(self->gains, tmpin), tmpout, PyNumber_Float(amp));
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Mixer_members[] =
@@ -3400,8 +3387,7 @@ Selector_setInputs(Selector *self, PyObject *arg)
     if (! PyList_Check(arg))
     {
         PyErr_SetString(PyExc_TypeError, "The inputs attribute must be a list.");
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
 
     tmp = arg;
@@ -3410,8 +3396,7 @@ Selector_setInputs(Selector *self, PyObject *arg)
     Py_XDECREF(self->inputs);
     self->inputs = tmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -3444,8 +3429,7 @@ Selector_setVoice(Selector *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -3460,8 +3444,7 @@ Selector_setMode(Selector *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Selector_members[] =

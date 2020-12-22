@@ -295,8 +295,7 @@ Metro_setTime(Metro *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Metro_members[] =
@@ -841,8 +840,7 @@ Seqer_setTime(Seqer *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -875,8 +873,7 @@ Seqer_setSpeed(Seqer *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -897,8 +894,7 @@ Seqer_setSeq(Seqer *self, PyObject *arg)
         self->newseq = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -913,8 +909,7 @@ Seqer_setOnlyonce(Seqer *self, PyObject *arg)
         self->onlyonce = PyLong_AsLong(arg);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Seqer_members[] =
@@ -1464,8 +1459,7 @@ Clouder_setDensity(Clouder *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Clouder_members[] =
@@ -2784,8 +2778,7 @@ Beater_setTime(Beater *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2795,8 +2788,7 @@ Beater_reset(Beater *self)
     self->tapCount = 0;
     self->currentTap = 0;
     self->currentTime = -1.0;
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2805,8 +2797,7 @@ Beater_setTaps(Beater *self, PyObject *arg)
     if (PyInt_Check(arg))
         self->taps = PyInt_AS_LONG(arg);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2818,8 +2809,7 @@ Beater_setWeights(Beater *self, PyObject *args, PyObject *kwds)
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOO", kwlist, &w1, &w2, &w3))
     {
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
 
     if (PyInt_Check(w1))
@@ -2831,8 +2821,7 @@ Beater_setWeights(Beater *self, PyObject *args, PyObject *kwds)
     if (PyInt_Check(w3))
         self->weight3 = PyInt_AS_LONG(w3);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2851,16 +2840,14 @@ Beater_newPattern(Beater *self, PyObject *arg)
         }
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
 Beater_fillPattern(Beater *self)
 {
     self->fillStart = 1;
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2879,8 +2866,7 @@ Beater_storePreset(Beater *self, PyObject *arg)
         }
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2899,8 +2885,7 @@ Beater_recallPreset(Beater *self, PyObject *arg)
     if (Stream_getStreamActive(self->stream) == 0)
         Beater_makePresetActive(self, self->preCall);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 
 }
 
@@ -2958,8 +2943,7 @@ Beater_setPresets(Beater *self, PyObject *arg)
         }
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -2974,8 +2958,7 @@ Beater_setOnlyonce(Beater *self, PyObject *arg)
         self->onlyonce = PyLong_AsLong(arg);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef Beater_members[] =
@@ -4631,8 +4614,7 @@ TrigBurster_setTime(TrigBurster *self, PyObject *arg)
     if (self->time <= 0.01)
         self->time = 0.01;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -4644,8 +4626,7 @@ TrigBurster_setCount(TrigBurster *self, PyObject *arg)
     if (self->count < 1)
         self->count = 1;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -4657,8 +4638,7 @@ TrigBurster_setExpand(TrigBurster *self, PyObject *arg)
     if (self->expand <= 0.1)
         self->expand = 0.1;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -4670,8 +4650,7 @@ TrigBurster_setAmpfade(TrigBurster *self, PyObject *arg)
     if (self->ampfade <= 0.1)
         self->ampfade = 0.1;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyMemberDef TrigBurster_members[] =

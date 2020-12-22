@@ -38,7 +38,8 @@ typedef enum
     PyoJack,
     PyoOffline,
     PyoOfflineNB,
-    PyoEmbedded
+    PyoEmbedded,
+    PyoManual
 } PyoAudioBackendType;
 
 typedef enum

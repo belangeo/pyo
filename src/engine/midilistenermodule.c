@@ -167,8 +167,7 @@ static PyObject * MidiListener_play(MidiListener *self)
             Pt_Stop();
         }
 
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
 
     lsize = PyList_Size(self->mididev);
@@ -293,8 +292,7 @@ static PyObject * MidiListener_play(MidiListener *self)
         }
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 };
 
 static PyObject * MidiListener_stop(MidiListener *self)
@@ -317,8 +315,7 @@ static PyObject * MidiListener_stop(MidiListener *self)
     Py_END_ALLOW_THREADS
 
     self->active = 0;
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 };
 
 static PyObject *
@@ -329,8 +326,7 @@ MidiListener_setMidiFunction(MidiListener *self, PyObject *arg)
     if (! PyCallable_Check(arg))
     {
         PyErr_SetString(PyExc_TypeError, "Pyo error: MidiListener callable attribute must be a valid Python function.");
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
 
     tmp = arg;
@@ -338,8 +334,7 @@ MidiListener_setMidiFunction(MidiListener *self, PyObject *arg)
     Py_INCREF(tmp);
     self->midicallable = tmp;
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 PyObject *
@@ -493,8 +488,7 @@ static PyObject * MidiDispatcher_play(MidiDispatcher *self)
             Pt_Stop();
         }
 
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
 
     lsize = PyList_Size(self->mididev);
@@ -614,8 +608,7 @@ static PyObject * MidiDispatcher_play(MidiDispatcher *self)
         }
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 };
 
 static PyObject * MidiDispatcher_stop(MidiDispatcher *self)
@@ -638,8 +631,7 @@ static PyObject * MidiDispatcher_stop(MidiDispatcher *self)
     Py_END_ALLOW_THREADS
 
     self->active = 0;
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 };
 
 PyObject *

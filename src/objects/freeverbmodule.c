@@ -699,12 +699,12 @@ Freeverb_dealloc(Freeverb* self)
     int i;
     pyo_DEALLOC
 
-    for(i = 0; i < NUM_COMB; i++)
+    for (i = 0; i < NUM_COMB; i++)
     {
         free(self->comb_buf[i]);
     }
 
-    for(i = 0; i < NUM_ALLPASS; i++)
+    for (i = 0; i < NUM_ALLPASS; i++)
     {
         free(self->allpass_buf[i]);
     }
@@ -777,7 +777,7 @@ Freeverb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     rndSamps = (RANDOM_UNIFORM * 20 + 10) / DEFAULT_SRATE;
 
-    for(i = 0; i < NUM_COMB; i++)
+    for (i = 0; i < NUM_COMB; i++)
     {
         nsamps = Freeverb_calc_nsamples((Freeverb *)self, comb_delays[i] + rndSamps);
         self->comb_buf[i] = (MYFLT *)realloc(self->comb_buf[i], (nsamps + 1) * sizeof(MYFLT));
@@ -785,20 +785,20 @@ Freeverb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         self->comb_bufPos[i] = 0;
         self->comb_filterState[i] = 0.0;
 
-        for(j = 0; j < nsamps; j++)
+        for (j = 0; j < nsamps; j++)
         {
             self->comb_buf[i][j] = 0.0;
         }
     }
 
-    for(i = 0; i < NUM_ALLPASS; i++)
+    for (i = 0; i < NUM_ALLPASS; i++)
     {
         nsamps = Freeverb_calc_nsamples((Freeverb *)self, allpass_delays[i] + rndSamps);
         self->allpass_buf[i] = (MYFLT *)realloc(self->allpass_buf[i], (nsamps + 1) * sizeof(MYFLT));
         self->allpass_nSamples[i] = nsamps;
         self->allpass_bufPos[i] = 0;
 
-        for(j = 0; j < nsamps; j++)
+        for (j = 0; j < nsamps; j++)
         {
             self->allpass_buf[i][j] = 0.0;
         }
@@ -832,22 +832,22 @@ Freeverb_reset(Freeverb *self)
 {
     int i, j;
 
-    for(i = 0; i < NUM_COMB; i++)
+    for (i = 0; i < NUM_COMB; i++)
     {
         self->comb_bufPos[i] = 0;
         self->comb_filterState[i] = 0.0;
 
-        for(j = 0; j < self->comb_nSamples[i]; j++)
+        for (j = 0; j < self->comb_nSamples[i]; j++)
         {
             self->comb_buf[i][j] = 0.0;
         }
     }
 
-    for(i = 0; i < NUM_ALLPASS; i++)
+    for (i = 0; i < NUM_ALLPASS; i++)
     {
         self->allpass_bufPos[i] = 0;
 
-        for(j = 0; j < self->allpass_nSamples[i]; j++)
+        for (j = 0; j < self->allpass_nSamples[i]; j++)
         {
             self->allpass_buf[i][j] = 0.0;
         }
@@ -886,8 +886,7 @@ Freeverb_setSize(Freeverb *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -920,8 +919,7 @@ Freeverb_setDamp(Freeverb *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -954,8 +952,7 @@ Freeverb_setMix(Freeverb *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 static PyMemberDef Freeverb_members[] =
 {

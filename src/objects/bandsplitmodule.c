@@ -318,8 +318,7 @@ BandSplitter_setQ(BandSplitter *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject * BandSplitter_getServer(BandSplitter* self) { GET_SERVER };
@@ -1046,8 +1045,7 @@ FourBandMain_setFreq1(FourBandMain *self, PyObject *arg)
         self->modebuffer[0] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1078,8 +1076,7 @@ FourBandMain_setFreq2(FourBandMain *self, PyObject *arg)
         self->modebuffer[1] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1110,8 +1107,7 @@ FourBandMain_setFreq3(FourBandMain *self, PyObject *arg)
         self->modebuffer[2] = 1;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject * FourBandMain_getServer(FourBandMain* self) { GET_SERVER };
@@ -1780,8 +1776,7 @@ MultiBandMain_setFrequencies(MultiBandMain* self, PyObject *arg)
         }
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 static PyObject * MultiBandMain_getServer(MultiBandMain* self) { GET_SERVER };
