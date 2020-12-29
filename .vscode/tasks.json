@@ -36,7 +36,23 @@
             }
         },
         {
-            "label": "Clean up",
+            "label": "Compile Windows py 3.8 (single)",
+            "isShellCommand": true,
+            "showOutput": "always",
+            "type": "shell",
+            "command": "cd ${workspaceRoot} & py -3.8 setup.py bdist_wheel & py -3.8 -m pip install --force-reinstall dist\\pyo-1.0.3-cp38-cp38-win_amd64.whl",
+            "problemMatcher": []
+        },
+        {
+            "label": "Compile Windows py 3.8 (double)",
+            "isShellCommand": true,
+            "showOutput": "always",
+            "type": "shell",
+            "command": "cd ${workspaceRoot} & py -3.8 setup.py bdist_wheel --use-double & py -3.8 -m pip install --force-reinstall dist\\pyo-1.0.3-cp38-cp38-win_amd64.whl",
+            "problemMatcher": []
+        },
+        {
+            "label": "Clean up linux",
             "isShellCommand": true,
             "showOutput": "always",
             "type": "shell",
@@ -52,7 +68,15 @@
             }
         },
         {
-            "label": "Run unit tests",
+            "label": "Clean up Windows",
+            "isShellCommand": true,
+            "showOutput": "always",
+            "type": "shell",
+            "command": "cd ${workspaceRoot} & rd /s /q build dist",
+            "problemMatcher": []
+        },
+        {
+            "label": "Run unit tests linux",
             "isShellCommand": true,
             "showOutput": "always",
             "type": "shell",
@@ -60,7 +84,15 @@
             "problemMatcher": []
         },
         {
-            "label": "Run unit tests with coverage",
+            "label": "Run unit tests Windows py 3.8",
+            "isShellCommand": true,
+            "showOutput": "always",
+            "type": "shell",
+            "command": "cd ${workspaceRoot}/tests/pytests; py -3.8 -m pytest",
+            "problemMatcher": []
+        },
+        {
+            "label": "Run unit tests with coverage (linux)",
             "isShellCommand": true,
             "showOutput": "always",
             "type": "shell",
