@@ -2022,8 +2022,8 @@ class PyoTableObject(PyoObjectBase):
         without copying the data, with numpy functions. To create an array
         using the same memory as the table:
 
-            t = SndTable(SNDS_PATH+"/transparent.aif")
-            arr = numpy.asarray(t.getBuffer())
+            >>> t = SndTable(SNDS_PATH+"/transparent.aif")
+            >>> arr = numpy.asarray(t.getBuffer())
 
         Now, every changes applied to the array will be reflected in
         the SndTable. This method works for a single channel only.

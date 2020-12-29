@@ -22,12 +22,14 @@ Roadmap 1.0.4
 
 - PyoTableObject.getSize(all=False), but SndTable.getSize(all=True)
 
-- PyoMatrixObject.get(x, y) inverts arguments. Add PyoMatrixObject.getValue(x, y) with x and y in the good order (also putValue(value, x, y))
-  Really, a new implementation, Pyo2DTableObject, could be the best idea.
-
-- PyoMatrixObject.getMatrix() ?
+Roadmap 1.0.5
+-------------
 
 - Remove handling of python2 vs python3 and keep only python3 code.
+
+- PyoMatrixObject.get(x, y) inverts arguments. Add PyoMatrixObject.getValue(x, y) with x and y in the good order (also putValue(value, x, y))
+- PyoMatrixObject.getMatrix()
+- A new implementation, Pyo2DTableObject, doint the right things.
 
 Internal
 --------
