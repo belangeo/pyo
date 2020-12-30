@@ -5,8 +5,6 @@
     "tasks": [
         {
             "label": "Compile linux (single, jack)",
-            "isShellCommand": true,
-            "showOutput": "always",
             "type": "shell",
             "command": "cd ${workspaceRoot}; sudo python3 setup.py bdist_wheel install --use-jack; sudo python3 -m pip install --force-reinstall dist/pyo-1.0.3-cp37-cp37m-linux_x86_64.whl",
             "problemMatcher": [],
@@ -21,8 +19,6 @@
         },
         {
             "label": "Compile linux (double, jack)",
-            "isShellCommand": true,
-            "showOutput": "always",
             "type": "shell",
             "command": "cd ${workspaceRoot}; sudo python3 setup.py bdist_wheel install --use-jack --use-double; sudo python3 -m pip install --force-reinstall dist/pyo-1.0.3-cp37-cp37m-linux_x86_64.whl",
             "problemMatcher": [],
@@ -36,20 +32,32 @@
             }
         },
         {
-            "label": "Compile Windows py 3.8 (single)",
-            "isShellCommand": true,
-            "showOutput": "always",
+            "label": "Compile Windows (single)",
             "type": "shell",
-            "command": "cd ${workspaceRoot} & py -3.8 setup.py bdist_wheel & py -3.8 -m pip install --force-reinstall dist\\pyo-1.0.3-cp38-cp38-win_amd64.whl",
-            "problemMatcher": []
+            "command": "cd ${workspaceRoot} & py -3.${input:pythonMinorVersion} setup.py bdist_wheel & py -3.${input:pythonMinorVersion} -m pip install --force-reinstall dist\\pyo-1.0.3-cp3${input:pythonMinorVersion}-cp3${input:pythonMinorVersion}-win_amd64.whl",
+            "problemMatcher": [],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            }
         },
         {
-            "label": "Compile Windows py 3.8 (double)",
-            "isShellCommand": true,
-            "showOutput": "always",
+            "label": "Compile Windows (double)",
             "type": "shell",
-            "command": "cd ${workspaceRoot} & py -3.8 setup.py bdist_wheel --use-double & py -3.8 -m pip install --force-reinstall dist\\pyo-1.0.3-cp38-cp38-win_amd64.whl",
-            "problemMatcher": []
+            "command": "cd ${workspaceRoot} & py -3.${input:pythonMinorVersion} setup.py bdist_wheel --use-double & py -3.${input:pythonMinorVersion} -m pip install --force-reinstall dist\\pyo-1.0.3-cp3${input:pythonMinorVersion}-cp3${input:pythonMinorVersion}-win_amd64.whl",
+            "problemMatcher": [],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            }
         },
         {
             "label": "Clean up linux",
@@ -69,35 +77,68 @@
         },
         {
             "label": "Clean up Windows",
-            "isShellCommand": true,
-            "showOutput": "always",
             "type": "shell",
             "command": "cd ${workspaceRoot} & rd /s /q build dist",
-            "problemMatcher": []
+            "problemMatcher": [],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            }
         },
         {
             "label": "Run unit tests linux",
-            "isShellCommand": true,
-            "showOutput": "always",
             "type": "shell",
             "command": "cd ${workspaceRoot}/tests/pytests; python3 -m pytest",
-            "problemMatcher": []
+            "problemMatcher": [],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            }
         },
         {
-            "label": "Run unit tests Windows py 3.8",
-            "isShellCommand": true,
-            "showOutput": "always",
+            "label": "Run unit tests Windows",
             "type": "shell",
-            "command": "cd ${workspaceRoot}/tests/pytests; py -3.8 -m pytest",
-            "problemMatcher": []
+            "command": "cd ${workspaceRoot}/tests/pytests; py -3.${input:pythonMinorVersion} -m pytest",
+            "problemMatcher": [],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            }
         },
         {
             "label": "Run unit tests with coverage (linux)",
-            "isShellCommand": true,
-            "showOutput": "always",
             "type": "shell",
             "command": "cd ${workspaceRoot}/tests/pytests; coverage run --source=pyo --omit=*/examples/*,*/editor/* -m pytest; coverage html",
-            "problemMatcher": []
+            "problemMatcher": [],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            }
+        }
+    ]
+    "inputs": [
+        {
+            "type": "pickString",
+            "id": "pythonMinorVersion",
+            "description": "Choose your python minor version...",
+            "options": ["6", "7", "8", "9"],
+            "default": "8"
         }
     ]
 }
