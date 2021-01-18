@@ -8705,10 +8705,11 @@ SVF2_filters_ii(SVF2 *self)
         deflt[9] = ubp;
         deflt[10] = lp;
 
-        for (j = 0; j < 11; j++)
+        for (j = 0; j < 10; j++)
         {
             interp[j] = deflt[self->order[j]];
         }
+        interp[10] = interp[0];
 
         ipart = (int)type;
         fpart = type - ipart;
@@ -8815,10 +8816,11 @@ SVF2_filters_ai(SVF2 *self)
         deflt[9] = ubp;
         deflt[10] = lp;
 
-        for (j = 0; j < 11; j++)
+        for (j = 0; j < 10; j++)
         {
             interp[j] = deflt[self->order[j]];
         }
+        interp[10] = interp[0];
 
         ipart = (int)type;
         fpart = type - ipart;
@@ -8918,10 +8920,11 @@ SVF2_filters_ia(SVF2 *self)
         deflt[9] = ubp;
         deflt[10] = lp;
 
-        for (j = 0; j < 11; j++)
+        for (j = 0; j < 10; j++)
         {
             interp[j] = deflt[self->order[j]];
         }
+        interp[10] = interp[0];
 
         type = tp[i];
 
@@ -9030,10 +9033,11 @@ SVF2_filters_aa(SVF2 *self)
         deflt[9] = ubp;
         deflt[10] = lp;
 
-        for (j = 0; j < 11; j++)
+        for (j = 0; j < 10; j++)
         {
             interp[j] = deflt[self->order[j]];
         }
+        interp[10] = interp[0];
 
         type = tp[i];
 
