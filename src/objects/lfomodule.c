@@ -164,7 +164,7 @@ LFO_generates_ii(LFO *self)
                 if (pointer > 1.0)
                     pointer -= 1.0;
 
-                v2 = 4.0 * (0.5 - MYFABS(pointer - 0.5)) - 1.0;
+                v2 = 4.0 * (0.5 - MYFABS(pointer - (MYFLT)0.5)) - 1.0;
                 val = v1 * (1 - numh) + v2 * numh;
                 self->data[i] = val;
                 self->pointerPos += inc;
@@ -430,7 +430,7 @@ LFO_generates_ai(LFO *self)
                 if (pointer > 1.0)
                     pointer -= 1.0;
 
-                v2 = 4.0 * (0.5 - MYFABS(pointer - 0.5)) - 1.0;
+                v2 = 4.0 * (0.5 - MYFABS(pointer - (MYFLT)0.5)) - 1.0;
                 val = v1 * (1 - numh) + v2 * numh;
                 self->data[i] = val;
                 self->pointerPos += inc;
@@ -730,7 +730,7 @@ LFO_generates_ia(LFO *self)
                 if (pointer > 1.0)
                     pointer -= 1.0;
 
-                v2 = 4.0 * (0.5 - MYFABS(pointer - 0.5)) - 1.0;
+                v2 = 4.0 * (0.5 - MYFABS(pointer - (MYFLT)0.5)) - 1.0;
                 val = v1 * (1 - numh) + v2 * numh;
                 self->data[i] = val;
                 self->pointerPos += inc;
@@ -1047,7 +1047,7 @@ LFO_generates_aa(LFO *self)
                 if (pointer > 1.0)
                     pointer -= 1.0;
 
-                v2 = 4.0 * (0.5 - MYFABS(pointer - 0.5)) - 1.0;
+                v2 = 4.0 * (0.5 - MYFABS(pointer - (MYFLT)0.5)) - 1.0;
                 val = v1 * (1 - numh) + v2 * numh;
                 self->data[i] = val;
                 self->pointerPos += inc;

@@ -4272,7 +4272,7 @@ Pointer2_readframes_a(Pointer2 *self)
             ipart = (T_SIZE_T)ph;
             fpart = ph - ipart;
             self->data[i] = (*self->interp_func_ptr)(tablelist, ipart, fpart, size);
-            phdiff = MYFABS(ph - self->lastPh);
+            phdiff = fabs(ph - self->lastPh);
             self->lastPh = ph;
 
             if (phdiff < 1)
