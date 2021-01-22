@@ -1,2 +1,0 @@
-snippet = {'shortcut': u'Shift-Alt-1',
- 'value': u'sffade = Fader(fadein=`0.05`, fadeout=`1`, dur=`0`, mul=`0.5`).play()\nsfplay = SfPlayer(`path`, speed=`1`, loop=`True`, mul=sffade).out()'}
