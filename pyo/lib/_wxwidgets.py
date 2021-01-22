@@ -2070,11 +2070,16 @@ class ScopePanel(wx.Panel):
 
     def setPens(self):
         self.pens = []
-        for x in range(self.chnls):
-            hue = rescale(x, xmin=0, xmax=self.chnls - 1, ymin=0, ymax=2.0 / 3)
-            hsv = wx.Image_HSVValue(hue, 1.0, 0.6)
-            rgb = wx.Image_HSVtoRGB(hsv)
+        if self.chnls < 2:
+            hsv = wx.Image.HSVValue(0.0, 1.0, 0.6)
+            rgb = wx.Image.HSVtoRGB(hsv)
             self.pens.append(wx.Pen(wx.Colour(rgb.red, rgb.green, rgb.blue), 1))
+        else:
+            for x in range(self.chnls):
+                hue = rescale(x, xmin=0, xmax=self.chnls - 1, ymin=0, ymax=2.0 / 3)
+                hsv = wx.Image.HSVValue(hue, 0.99, 0.6)
+                rgb = wx.Image.HSVtoRGB(hsv)
+                self.pens.append(wx.Pen(wx.Colour(rgb.red, rgb.green, rgb.blue), 1))
 
     def setGain(self, gain):
         self.gain = gain
