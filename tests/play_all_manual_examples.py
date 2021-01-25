@@ -69,7 +69,7 @@ def play_example(cls, dur=5, toprint=True, double=False):
         if "..." in line:
             line = "    " + line.lstrip("... ")
         ex += line + "\n"
-    ex += "s.start()\n"
+    ex += "s.start()\ns.shutdown()\n"
     f = tempfile.NamedTemporaryFile(delete=False)
     if toprint:
         f.write(tobytes('print(r"""\n%s\n""")\n' % ex))

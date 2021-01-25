@@ -10,11 +10,9 @@ Roadmap 1.0.4
 
 - Install m_pyo.h configured for the target version in pythonlib/pyo/include/.
 
-- Update pyo-linux-wheels to use manylinux2010 or manylinux2014 image instead of manylinux1.
+- Update pyo-linux-wheels to use manylinux2010 image instead of manylinux1.
 
 - unit testing with pytest
-
-- vscode integration
 
 - NewTable and DataTable mutable size attribute.
   Overall PyoTableObject.setSize method does not behave consistently for every table.
@@ -98,11 +96,6 @@ Matrices
 --------
 
 - Implement the buffer protocol as in the PyoTableObject.
-
-E-Pyo
------
-
-- We need a way to let the user interact with the script with input() function.
 
 Link
 ----

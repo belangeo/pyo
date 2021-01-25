@@ -60,6 +60,34 @@
             }
         },
         {
+            "label": "Compile MacOS (single)",
+            "type": "shell",
+            "command": "cd ${workspaceRoot} && sudo /usr/local/bin/python3.${input:pythonMinorVersion} setup.py bdist_wheel --use-coreaudio && sudo /usr/local/bin/python3.${input:pythonMinorVersion} -m pip install --force-reinstall dist/pyo-1.0.3-cp3${input:pythonMinorVersion}-cp3${input:pythonMinorVersion}-macosx_10_12_x86_64.whl",
+            "problemMatcher": [],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            }
+        },
+        {
+            "label": "Compile MacOS (double)",
+            "type": "shell",
+            "command": "cd ${workspaceRoot} && sudo /usr/local/bin/python3.${input:pythonMinorVersion} setup.py bdist_wheel --use-coreaudio --use-double && sudo /usr/local/bin/python3.${input:pythonMinorVersion} -m pip install --force-reinstall dist/pyo-1.0.3-cp3${input:pythonMinorVersion}-cp3${input:pythonMinorVersion}-macosx_10_12_x86_64.whl",
+            "problemMatcher": [],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            }
+        },
+        {
             "label": "Clean up linux",
             "isShellCommand": true,
             "showOutput": "always",
@@ -90,6 +118,22 @@
             }
         },
         {
+            "label": "Clean up MacOS",
+            "isShellCommand": true,
+            "showOutput": "always",
+            "type": "shell",
+            "command": "cd ${workspaceRoot}; sudo rm -rf build dist",
+            "problemMatcher": [],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            }
+        },
+        {
             "label": "Run unit tests linux",
             "type": "shell",
             "command": "cd ${workspaceRoot}/tests/pytests; python3 -m pytest",
@@ -107,6 +151,20 @@
             "label": "Run unit tests Windows",
             "type": "shell",
             "command": "cd ${workspaceRoot}/tests/pytests; py -3.${input:pythonMinorVersion} -m pytest",
+            "problemMatcher": [],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            }
+        },
+        {
+            "label": "Run unit tests MacOS",
+            "type": "shell",
+            "command": "cd ${workspaceRoot}/tests/pytests; /usr/local/bin/python3.${input:pythonMinorVersion} -m pytest",
             "problemMatcher": [],
             "presentation": {
                 "echo": true,

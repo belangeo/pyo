@@ -51,7 +51,7 @@ jackMidiEventSort(PyoJackMidiEvent *orig, PyoJackMidiEvent *new, Server *server)
 
     for (i = 0; i < 512; i++)
     {
-        if (orig[i].timestamp != -1 && orig[i].timestamp < (server->elapsedSamples + server->bufferSize))
+        if (orig[i].timestamp != (unsigned long)-1 && orig[i].timestamp < (server->elapsedSamples + server->bufferSize))
         {
             time = orig[i].timestamp % server->bufferSize;
             new[count] = orig[i];
@@ -139,9 +139,10 @@ jack_callback(jack_nframes_t nframes, void *arg)
 
         if (event_count > 0)
         {
-            for (i = 0; i < event_count; i++)
+            jack_nframes_t evt;
+            for (evt = 0; evt < event_count; evt++)
             {
-                jack_midi_event_get(&in_event, port_buf_in, i);
+                jack_midi_event_get(&in_event, port_buf_in, evt);
                 server->midiEvents[server->midi_count++] = JackMidiEventToPyoMidiEvent(in_event);
             }
         }
@@ -182,7 +183,7 @@ jack_transport_cb(jack_transport_state_t state, jack_position_t *pos, void *arg)
 {
     Server *server = (Server *) arg;
 
-    if (server->jack_transport_state == state)
+    if ((jack_transport_state_t)server->jack_transport_state == state)
         return 0;
 
     switch (state)
@@ -507,7 +508,7 @@ Server_jack_init(Server *self)
     PyoJackBackendData *be_data = (PyoJackBackendData *) malloc(sizeof(PyoJackBackendData));
     self->audio_be_data = (void *) be_data;
     be_data->activated = 0;
-    strncpy(client_name, self->serverName, 32);
+    strncpy(client_name, self->serverName, 31);
 
     Py_BEGIN_ALLOW_THREADS
     be_data->midi_event_count = 0;
@@ -935,7 +936,7 @@ jack_noteout(Server *self, int pit, int vel, int chan, long timestamp)
 
     for (i = 0; i < 512; i++)
     {
-        if (be_data->midi_events[i].timestamp == -1)
+        if (be_data->midi_events[i].timestamp == (unsigned long)-1)
         {
             be_data->midi_events[i] = event;
             be_data->midi_event_count++;
@@ -965,7 +966,7 @@ jack_afterout(Server *self, int pit, int vel, int chan, long timestamp)
 
     for (i = 0; i < 512; i++)
     {
-        if (be_data->midi_events[i].timestamp == -1)
+        if (be_data->midi_events[i].timestamp == (unsigned long)-1)
         {
             be_data->midi_events[i] = event;
             be_data->midi_event_count++;
@@ -995,7 +996,7 @@ jack_ctlout(Server *self, int ctlnum, int value, int chan, long timestamp)
 
     for (i = 0; i < 512; i++)
     {
-        if (be_data->midi_events[i].timestamp == -1)
+        if (be_data->midi_events[i].timestamp == (unsigned long)-1)
         {
             be_data->midi_events[i] = event;
             be_data->midi_event_count++;
@@ -1025,7 +1026,7 @@ jack_programout(Server *self, int value, int chan, long timestamp)
 
     for (i = 0; i < 512; i++)
     {
-        if (be_data->midi_events[i].timestamp == -1)
+        if (be_data->midi_events[i].timestamp == (unsigned long)-1)
         {
             be_data->midi_events[i] = event;
             be_data->midi_event_count++;
@@ -1055,7 +1056,7 @@ jack_pressout(Server *self, int value, int chan, long timestamp)
 
     for (i = 0; i < 512; i++)
     {
-        if (be_data->midi_events[i].timestamp == -1)
+        if (be_data->midi_events[i].timestamp == (unsigned long)-1)
         {
             be_data->midi_events[i] = event;
             be_data->midi_event_count++;
@@ -1088,7 +1089,7 @@ jack_bendout(Server *self, int value, int chan, long timestamp)
 
     for (i = 0; i < 512; i++)
     {
-        if (be_data->midi_events[i].timestamp == -1)
+        if (be_data->midi_events[i].timestamp == (unsigned long)-1)
         {
             be_data->midi_events[i] = event;
             be_data->midi_event_count++;
@@ -1117,7 +1118,7 @@ jack_makenote(Server *self, int pit, int vel, int dur, int chan)
 
     for (i = 0; i < 512; i++)
     {
-        if (be_data->midi_events[i].timestamp == -1)
+        if (be_data->midi_events[i].timestamp == (unsigned long)-1)
         {
             be_data->midi_events[i] = eventon;
             be_data->midi_event_count++;
@@ -1133,7 +1134,7 @@ jack_makenote(Server *self, int pit, int vel, int dur, int chan)
 
     for (i = 0; i < 512; i++)
     {
-        if (be_data->midi_events[i].timestamp == -1)
+        if (be_data->midi_events[i].timestamp == (unsigned long)-1)
         {
             be_data->midi_events[i] = eventoff;
             be_data->midi_event_count++;

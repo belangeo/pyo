@@ -18,6 +18,7 @@
  * License along with pyo.  If not, see <http://www.gnu.org/licenses/>.   *
  *************************************************************************/
 
+#define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #include <object.h>
 #include "py2to3.h"

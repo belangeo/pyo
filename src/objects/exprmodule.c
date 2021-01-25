@@ -221,14 +221,14 @@ initexpr(const char *op, int size)
 
     ex.type_op = value;
     ex.num = num;
-    ex.nodes = (int *)malloc(num);
-    ex.vars = (int *)malloc(num);
-    ex.input = (int *)malloc(num);
-    ex.inchnls = (int *)malloc(num);
-    ex.output = (int *)malloc(num);
-    ex.outchnls = (int *)malloc(num);
-    ex.values = (MYFLT *)malloc(num);
-    ex.previous = (MYFLT *)malloc(num);
+    ex.nodes = (int *)malloc(num * sizeof(int));
+    ex.vars = (int *)malloc(num * sizeof(int));
+    ex.input = (int *)malloc(num * sizeof(int));
+    ex.inchnls = (int *)malloc(num * sizeof(int));
+    ex.output = (int *)malloc(num * sizeof(int));
+    ex.outchnls = (int *)malloc(num * sizeof(int));
+    ex.values = (MYFLT *)malloc(num * sizeof(MYFLT));
+    ex.previous = (MYFLT *)malloc(num * sizeof(MYFLT));
 
     for (i = 0; i < num; i++)
     {

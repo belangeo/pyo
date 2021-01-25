@@ -2053,7 +2053,7 @@ class FreqShift(PyoObject):
             self._cos_objs.append(Sine(freq=wrap(shift, i), phase=0.25, mul=0.707))
             self._mod_objs.append(
                 Mix(
-                    self._hilb_objs[-1]["real"] * self._sin_objs[-1] + self._hilb_objs[-1]["imag"] * self._cos_objs[-1],
+                    self._hilb_objs[-1]["real"] * self._sin_objs[-1] - self._hilb_objs[-1]["imag"] * self._cos_objs[-1],
                     mul=wrap(mul, i),
                     add=wrap(add, i),
                 )

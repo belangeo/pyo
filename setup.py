@@ -271,6 +271,8 @@ else:
     include_dirs = ["include", "/usr/include", "/usr/local/include"]
     if sys.platform == "darwin":
         include_dirs.append("/opt/local/include")
+    else:
+        libraries += ["rt"]
     library_dirs = ["/usr/lib", "/usr/local/lib"]
     libraries += ["sndfile"]
     if build_with_jack_support:
