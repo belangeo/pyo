@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Copyright 2009-2018 Olivier Belanger
+Copyright 2009-2020 Olivier Belanger
 
 This file is part of pyo, a python module to help digital signal
 processing script creation.
@@ -152,7 +152,7 @@ else:
     ad_files.append("osclistenermodule.c")
     obj_files.append("oscmodule.c")
     if sys.platform == "win32":
-        libraries += ["liblo-7"]
+        libraries += ["liblo"]
     else:
         libraries += ["lo"]
 
@@ -240,41 +240,32 @@ else:
 # Platform-specific build settings for the pyo extension(s).
 if sys.platform == "win32":
     if win_arch == "32bit":
-        include_dirs = [
-            "C:\portaudio\include",
-            "C:\portmidi\pm_common",
-            "include",
-            "C:\Program Files (x86)\Mega-Nerd\libsndfile\include",
-            "C:\liblo-0.28",
-            "C:\pthreads\include",
-            "C:\portmidi\porttime",
-        ]
-        library_dirs = [
-            "C:\portaudio",
-            "C:\portmidi",
-            "C:\liblo-0.28\src\.libs",
-            "C:\pthreads\lib",
-            "C:/Program Files (x86)/Mega-Nerd/libsndfile/bin",
-        ]
-        libraries += ["libsndfile-1", "pthreadGC2"]
-        if "portmidi" in libraries:
-            libraries.append("porttime")
+        print("setup.py is no more configured to compile on 32-bit windows.")
+        sys.exit()
     else:
         include_dirs = [
-            "C:/Users/Admin/git/vcpkg/packages/portmidi_x64-windows/include",
-            "C:\msys64\mingw64\include",
+            "../vcpkg/packages/portmidi_x64-windows/include",
+            "../vcpkg/packages/portaudio_x64-windows/include",
+            "../vcpkg/packages/libsndfile_x64-windows/include",
+            "../vcpkg/packages/liblo_x64-windows/include",
+            "../vcpkg/packages/pthreads_x64-windows/include",
+            r"C:\msys64\mingw64\include",
             "include",
-            "C:\liblo-0.29",
-            "C:\pthreads\include",
         ]
         library_dirs = [
-            "C:/Users/Admin/git/vcpkg/packages/portmidi_x64-windows/bin",
-            "C:/Users/Admin/git/vcpkg/packages/portmidi_x64-windows/lib",
-            "C:\msys64\mingw64\\bin",
-            "C:\liblo-0.29\src\.libs",
-            "C:\pthreads\lib",
+            "../vcpkg/packages/portmidi_x64-windows/bin",
+            "../vcpkg/packages/portmidi_x64-windows/lib",
+            "../vcpkg/packages/portaudio_x64-windows/bin",
+            "../vcpkg/packages/portaudio_x64-windows/lib",
+            "../vcpkg/packages/libsndfile_x64-windows/bin",
+            "../vcpkg/packages/libsndfile_x64-windows/lib",
+            "../vcpkg/packages/liblo_x64-windows/bin",
+            "../vcpkg/packages/liblo_x64-windows/lib",
+            "../vcpkg/packages/pthreads_x64-windows/bin",
+            "../vcpkg/packages/pthreads_x64-windows/lib",
+            r"C:\msys64\mingw64\\bin",
         ]
-        libraries += ["libsndfile-1", "pthreadGC2"]
+        libraries += ["sndfile", "pthreadVC3"]
         macros.append(("MS_WIN64", None))
 else:
     include_dirs = ["include", "/usr/include", "/usr/local/include"]
@@ -291,35 +282,17 @@ if sys.platform == "win32":
         data_files_dest = os.path.join("Lib", "site-packages", "pyo")
     else:
         data_files_dest = "pyo"
-    if win_arch == "32bit":
-        data_files_common_path = os.path.join("win32dlls", "win32_pyo_data_files_common")
-        data_files_path = os.path.join("win32dlls", "win32_pyo_data_files_py%d" % sys.version_info.major)
-        data_files = [
-            (
-                data_files_dest,
-                [
-                    os.path.join(data_files_common_path, f)
-                    for f in os.listdir(data_files_common_path)
-                    if f.endswith(".dll")
-                ],
-            ),
-            (
-                data_files_dest,
-                [os.path.join(data_files_path, f) for f in os.listdir(data_files_path) if f.endswith(".dll")],
-            ),
-        ]
-    else:
-        data_files_common_path = os.path.join("win64dlls", "win64_pyo_data_files_common")
-        data_files = [
-            (
-                data_files_dest,
-                [
-                    os.path.join(data_files_common_path, f)
-                    for f in os.listdir(data_files_common_path)
-                    if f.endswith(".dll")
-                ],
-            )
-        ]
+    data_files_common_path = os.path.join("win64dlls", "win64_pyo_data_files_common")
+    data_files = [
+        (
+            data_files_dest,
+            [
+                os.path.join(data_files_common_path, f)
+                for f in os.listdir(data_files_common_path)
+                if f.endswith(".dll")
+            ],
+        )
+    ]
 elif sys.platform == "darwin":
     if "bdist_wheel" in sys.argv:
         data_files = [
@@ -408,6 +381,7 @@ classifiers = [
     "Programming Language :: Python :: 3.6",
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
 ]
 
 setup(

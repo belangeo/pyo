@@ -14,23 +14,8 @@ autoconf
 automake
 libtool
 subversion
-git
-mingw-w64-x86_64-libsndfile
-mingw-w64-x86_64-portaudio
-mingw-w64-x86_64-portmidi
 
 === STEP 3 ===
-Compile liblo:
-    
-Close your MSYS2 shell and open a MinGW64 MSYS2 shell.
-
-cd ~/Downloads
-git clone https://github.com/guysherman/MINGW-packages.git  
-cd MINGW-packages  
-git checkout guypkgs  
-cd mingw-w64-liblo && makepkg-mingw --install && cd ..  
-
-=== STEP 4 ===
 Add the MinGW and MSYS2 bin dirs to your Windows PATH:
 
 Open System Properties, click Environment Variables,
@@ -39,44 +24,52 @@ Then edit the system Path variable. Add these two paths in this order:
 C:\msys64\mingw64\bin  
 C:\msys64\usr\bin  
 
+=== STEP 4 ===
+--- Install Git
+https://git-scm.com/download/win
+
 === STEP 5 ===
---- Install pthreads (just copy files from ftp):
-ftp://sourceware.org/pub/pthreads-win32/dll-latest/
-C:\pthreads\bin, C:\pthreads\include, C:\pthreads\lib
+--- Visual Studio Community
 
 === STEP 6 ===
---- Install Python 2.7 and 3.5+ 64-bit.
---- Add PythonXX and PythonXX\Scripts paths to environment variables.
+--- Clone vcpkg repo and bootstrap it.
 
 === STEP 7 ===
+From vcpkg repo, install portaudio, portmidi, libsndfile, liblo and pthreads
+
+=== STEP 8 ===
+--- Install Python 3.6+ 64-bit.
+--- Add PythonXX and PythonXX\Scripts paths to environment variables.
+
+=== STEP 9 ===
 --- Install wxPython Phoenix. From a command prompt:
     
 py -X.X -m pip install -U wxPython
 
-=== STEP 8 ===
+=== STEP 10 ===
 --- Copy PythonXX/vcruntime140.dll in PythonXX/libs/
 
-=== STEP 9 ===
+=== STEP 11 ===
 --- Patch PythonXX/Lib/distutils/cygwinccompiler.py to add missing msc_ver:
     
     elif msc_ver == "1700":
         return ['msvcr110']
     elif msc_ver == "1800":
         return ['msvcr120']
-    elif msc_ver in ["1900", "1915", "1916"]:
+    elif msc_ver in ["1900", "1915", "1916", "1924"]:
         return ['vcruntime140']
 
-=== STEP 10 ===
+=== STEP 12 ===
 --- create a file PythonXX/Lib/distutils/distutils.cfg with these lines in it:
 
 [build]
 compiler = mingw32
 
-=== STEP 11 ===
+=== STEP 13 ===
 --- Install Git
 https://git-scm.com/download/win
 
-=== STEP 12 ===
+=== STEP 14 ===
 --- Download pyo sources from git and build it with (in a standard command prompt):
 
 py -X.X setup.py install --use-double
