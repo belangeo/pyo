@@ -150,7 +150,7 @@
         {
             "label": "Run unit tests Windows",
             "type": "shell",
-            "command": "cd ${workspaceRoot}/tests/pytests; py -3.${input:pythonMinorVersion} -m pytest",
+            "command": "cd ${workspaceRoot}/tests/pytests & py -3.${input:pythonMinorVersion} -m pytest",
             "problemMatcher": [],
             "presentation": {
                 "echo": true,
@@ -196,7 +196,7 @@
             "id": "pythonMinorVersion",
             "description": "Choose your python minor version...",
             "options": ["6", "7", "8", "9"],
-            "default": "8"
+            "default": "9"
         }
     ]
 }
