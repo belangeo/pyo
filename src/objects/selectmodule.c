@@ -19,7 +19,6 @@
  *************************************************************************/
 
 #include <Python.h>
-#include "py2to3.h"
 #include "structmember.h"
 #include "pyomodule.h"
 #include "streammodule.h"
@@ -216,7 +215,7 @@ Select_setValue(Select *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    if (PyLong_Check(arg) || PyInt_Check(arg))
+    if (PyLong_Check(arg))
     {
         self->value = PyLong_AsLong(arg);
     }
@@ -252,7 +251,6 @@ static PyNumberMethods Select_as_number =
     (binaryfunc)Select_add,                         /*nb_add*/
     (binaryfunc)Select_sub,                         /*nb_subtract*/
     (binaryfunc)Select_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -266,16 +264,12 @@ static PyNumberMethods Select_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)Select_inplace_add,                 /*inplace_add*/
     (binaryfunc)Select_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Select_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -311,7 +305,7 @@ PyTypeObject SelectType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Select objects. Watch input and send a trig on a selected value.",           /* tp_doc */
     (traverseproc)Select_traverse,   /* tp_traverse */
     (inquiry)Select_clear,           /* tp_clear */
@@ -542,7 +536,6 @@ static PyNumberMethods Change_as_number =
     (binaryfunc)Change_add,                         /*nb_add*/
     (binaryfunc)Change_sub,                         /*nb_subtract*/
     (binaryfunc)Change_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -556,16 +549,12 @@ static PyNumberMethods Change_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)Change_inplace_add,                 /*inplace_add*/
     (binaryfunc)Change_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Change_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -601,7 +590,7 @@ PyTypeObject ChangeType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Change objects. Send a trig whenever input value changed.",           /* tp_doc */
     (traverseproc)Change_traverse,   /* tp_traverse */
     (inquiry)Change_clear,           /* tp_clear */

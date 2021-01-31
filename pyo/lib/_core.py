@@ -3,9 +3,6 @@
 This module defines the base classes for all objects in the library.
 
 """
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
 
 """
 Copyright 2009-2016 Olivier Belanger
@@ -36,28 +33,14 @@ import locale
 from subprocess import call
 from weakref import proxy
 
-if sys.version_info[0] < 3:
-    import __builtin__
+import builtins
 
-    builtins = __builtin__
-    bytes_t = str
-    unicode_t = unicode
+bytes_t = bytes
+unicode_t = str
 
-    def tobytes(strng, encoding=None):
-        "Convert unicode string to bytes."
-        return bytes(strng)
-
-
-else:
-    import builtins
-
-    bytes_t = bytes
-    unicode_t = str
-
-    def tobytes(strng, encoding="utf-8"):
-        "Convert unicode string to bytes."
-        return bytes(strng, encoding=encoding)
-
+def tobytes(strng, encoding="utf-8"):
+    "Convert unicode string to bytes."
+    return bytes(strng, encoding=encoding)
 
 if hasattr(builtins, "pyo_use_double"):
     from .._pyo64 import *
@@ -445,22 +428,13 @@ def pyoArgsAssert(obj, format, *args):
             Arguments passed to the object's method.
 
     """
-    if sys.version_info[0] < 3:
-        # Python 2
-        longType = int
-    else:
-        # Python 3
-        # Not used in Python 3, ignore it
-        longType = None
-
     i = 0
     expected = ""
     for i, arg in enumerate(args):
         f = format[i]
         argtype = type(arg)
         if f == "O":
-            atypes = [list, int, longType, float]
-            if not isAudioObject(arg) and argtype not in atypes:
+            if not isAudioObject(arg) and argtype not in [list, int, float]:
                 expected = "float or PyoObject"
         elif f == "o":
             if not isAudioObject(arg) and argtype not in [list]:
@@ -478,10 +452,10 @@ def pyoArgsAssert(obj, format, *args):
             if not isPVObject(arg) and argtype not in [list]:
                 expected = "PyoPVObject"
         elif f == "n":
-            if argtype not in [list, int, longType, float]:
+            if argtype not in [list, int, float]:
                 expected = "any number"
         elif f == "N":
-            if argtype not in [int, longType, float]:
+            if argtype not in [int, float]:
                 expected = "any number - list not allowed"
         elif f == "f":
             if argtype not in [list, float]:
@@ -490,10 +464,10 @@ def pyoArgsAssert(obj, format, *args):
             if argtype not in [float]:
                 expected = "float - list not allowed"
         elif f == "i":
-            if argtype not in [list, int, longType]:
+            if argtype not in [list, int]:
                 expected = "integer"
         elif f == "I":
-            if argtype not in [int, longType]:
+            if argtype not in [int]:
                 expected = "integer - list not allowed"
         elif f == "s":
             if argtype not in [list, bytes_t, unicode_t]:
@@ -502,10 +476,10 @@ def pyoArgsAssert(obj, format, *args):
             if argtype not in [bytes_t, unicode_t]:
                 expected = "string - list not allowed"
         elif f == "b":
-            if argtype not in [bool, list, int, longType]:
+            if argtype not in [bool, list, int]:
                 expected = "boolean"
         elif f == "B":
-            if argtype not in [bool, int, longType]:
+            if argtype not in [bool, int]:
                 expected = "boolean - list not allowed"
         elif f == "l":
             if argtype not in [list]:

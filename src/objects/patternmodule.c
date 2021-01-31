@@ -19,7 +19,6 @@
  *************************************************************************/
 
 #include <Python.h>
-#include "py2to3.h"
 #include "structmember.h"
 #include "pyomodule.h"
 #include "streammodule.h"
@@ -363,7 +362,7 @@ PyTypeObject PatternType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Pattern objects. Create a metronome.",           /* tp_doc */
     (traverseproc)Pattern_traverse,   /* tp_traverse */
     (inquiry)Pattern_clear,           /* tp_clear */
@@ -526,7 +525,7 @@ PyTypeObject ScoreType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Score objects. Calls numbered function from an integer count.",           /* tp_doc */
     (traverseproc)Score_traverse,   /* tp_traverse */
     (inquiry)Score_clear,           /* tp_clear */
@@ -748,7 +747,7 @@ PyTypeObject CallAfterType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "CallAfter objects. Create a metronome.",           /* tp_doc */
     (traverseproc)CallAfter_traverse,   /* tp_traverse */
     (inquiry)CallAfter_clear,           /* tp_clear */

@@ -15,8 +15,6 @@ An all-pass filter, passes all frequencies, but affects the phase of any given
 sinusoidal component according to its frequency.
 
 """
-from __future__ import print_function
-from __future__ import absolute_import
 
 """
 Copyright 2009-2015 Olivier Belanger

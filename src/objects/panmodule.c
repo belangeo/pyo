@@ -19,7 +19,6 @@
  *************************************************************************/
 
 #include <Python.h>
-#include "py2to3.h"
 #include "structmember.h"
 #include <math.h>
 #include "pyomodule.h"
@@ -462,7 +461,7 @@ PyTypeObject PannerType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Panner main objects.",           /* tp_doc */
     (traverseproc)Panner_traverse,                  /* tp_traverse */
     (inquiry)Panner_clear,                          /* tp_clear */
@@ -679,7 +678,6 @@ static PyNumberMethods Pan_as_number =
     (binaryfunc)Pan_add,                      /*nb_add*/
     (binaryfunc)Pan_sub,                 /*nb_subtract*/
     (binaryfunc)Pan_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -693,16 +691,12 @@ static PyNumberMethods Pan_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)Pan_inplace_add,              /*inplace_add*/
     (binaryfunc)Pan_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Pan_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -738,7 +732,7 @@ PyTypeObject PanType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "Pan objects. Reads one band from a Panner.",           /* tp_doc */
     (traverseproc)Pan_traverse,   /* tp_traverse */
     (inquiry)Pan_clear,           /* tp_clear */
@@ -1129,7 +1123,7 @@ PyTypeObject SPannerType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "SPanner main objects. Simple equal power panner",           /* tp_doc */
     (traverseproc)SPanner_traverse,                  /* tp_traverse */
     (inquiry)SPanner_clear,                          /* tp_clear */
@@ -1346,7 +1340,6 @@ static PyNumberMethods SPan_as_number =
     (binaryfunc)SPan_add,                      /*nb_add*/
     (binaryfunc)SPan_sub,                 /*nb_subtract*/
     (binaryfunc)SPan_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -1360,16 +1353,12 @@ static PyNumberMethods SPan_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)SPan_inplace_add,              /*inplace_add*/
     (binaryfunc)SPan_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)SPan_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -1405,7 +1394,7 @@ PyTypeObject SPanType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "SPan objects. Reads one band from a SPanner.",           /* tp_doc */
     (traverseproc)SPan_traverse,   /* tp_traverse */
     (inquiry)SPan_clear,           /* tp_clear */
@@ -1716,7 +1705,7 @@ PyTypeObject SwitcherType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Switcher main objects. Simple equal power voicener",           /* tp_doc */
     (traverseproc)Switcher_traverse,                  /* tp_traverse */
     (inquiry)Switcher_clear,                          /* tp_clear */
@@ -1933,7 +1922,6 @@ static PyNumberMethods Switch_as_number =
     (binaryfunc)Switch_add,                      /*nb_add*/
     (binaryfunc)Switch_sub,                 /*nb_subtract*/
     (binaryfunc)Switch_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -1947,16 +1935,12 @@ static PyNumberMethods Switch_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)Switch_inplace_add,              /*inplace_add*/
     (binaryfunc)Switch_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Switch_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -1992,7 +1976,7 @@ PyTypeObject SwitchType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "Switch objects. Reads one band from a Switchner.",           /* tp_doc */
     (traverseproc)Switch_traverse,   /* tp_traverse */
     (inquiry)Switch_clear,           /* tp_clear */
@@ -2294,7 +2278,6 @@ static PyNumberMethods VoiceManager_as_number =
     (binaryfunc)VoiceManager_add,                         /*nb_add*/
     (binaryfunc)VoiceManager_sub,                         /*nb_subtract*/
     (binaryfunc)VoiceManager_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -2308,16 +2291,12 @@ static PyNumberMethods VoiceManager_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)VoiceManager_inplace_add,                 /*inplace_add*/
     (binaryfunc)VoiceManager_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)VoiceManager_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -2353,7 +2332,7 @@ PyTypeObject VoiceManagerType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "VoiceManager objects. Return the first free voices when receiving a trigger signal.",           /* tp_doc */
     (traverseproc)VoiceManager_traverse,                  /* tp_traverse */
     (inquiry)VoiceManager_clear,                          /* tp_clear */
@@ -2630,7 +2609,7 @@ Mixer_addInput(Mixer *self, PyObject *args, PyObject *kwds)
         PyList_SET_ITEM(initLastGains, i, PyFloat_FromDouble(0.0));
         PyList_SET_ITEM(initCurrentGains, i, PyFloat_FromDouble(0.0));
         PyList_SET_ITEM(initStepVals, i, PyFloat_FromDouble(0.0));
-        PyList_SET_ITEM(initTimeCounts, i, PyInt_FromLong(0));
+        PyList_SET_ITEM(initTimeCounts, i, PyLong_FromLong(0));
     }
 
     PyDict_SetItem(self->gains, voice, initGains);
@@ -2733,7 +2712,7 @@ PyTypeObject MixerType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Mixer objects. Mixes multiple inputs toward multiple outputs.",           /* tp_doc */
     (traverseproc)Mixer_traverse,                  /* tp_traverse */
     (inquiry)Mixer_clear,                          /* tp_clear */
@@ -2948,7 +2927,6 @@ static PyNumberMethods MixerVoice_as_number =
     (binaryfunc)MixerVoice_add,                      /*nb_add*/
     (binaryfunc)MixerVoice_sub,                 /*nb_subtract*/
     (binaryfunc)MixerVoice_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -2962,16 +2940,12 @@ static PyNumberMethods MixerVoice_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)MixerVoice_inplace_add,              /*inplace_add*/
     (binaryfunc)MixerVoice_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)MixerVoice_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -3007,7 +2981,7 @@ PyTypeObject MixerVoiceType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "MixerVoice objects. Reads one band from a Mixer.",           /* tp_doc */
     (traverseproc)MixerVoice_traverse,   /* tp_traverse */
     (inquiry)MixerVoice_clear,           /* tp_clear */
@@ -3437,7 +3411,7 @@ Selector_setMode(Selector *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    if (PyInt_Check(arg) == 1)
+    if (PyLong_Check(arg) == 1)
     {
         self->mode = PyLong_AsLong(arg);
     }
@@ -3480,7 +3454,6 @@ static PyNumberMethods Selector_as_number =
     (binaryfunc)Selector_add,                         /*nb_add*/
     (binaryfunc)Selector_sub,                         /*nb_subtract*/
     (binaryfunc)Selector_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -3494,16 +3467,12 @@ static PyNumberMethods Selector_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)Selector_inplace_add,                 /*inplace_add*/
     (binaryfunc)Selector_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Selector_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -3539,7 +3508,7 @@ PyTypeObject SelectorType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Selector objects. Audio interpolation between multiple inputs.",           /* tp_doc */
     (traverseproc)Selector_traverse,                  /* tp_traverse */
     (inquiry)Selector_clear,                          /* tp_clear */

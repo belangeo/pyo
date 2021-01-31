@@ -4,8 +4,6 @@ This module is the interface between pyo's display demands and the different
 available GUI toolkits (wxpython of tkinter).
 
 """
-from __future__ import print_function
-from __future__ import absolute_import
 
 """
 Copyright 2009-2015 Olivier Belanger
@@ -59,10 +57,7 @@ if PYO_USE_WX:
 PYO_USE_TK = False
 if not PYO_USE_WX:
     try:
-        if sys.version_info[0] < 3:
-            import Tkinter as tk
-        else:
-            import tkinter as tk
+        import tkinter as tk
         PYO_USE_TK = True
     except:
         PYO_USE_TK = False

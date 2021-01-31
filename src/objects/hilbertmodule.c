@@ -19,7 +19,6 @@
  *************************************************************************/
 
 #include <Python.h>
-#include "py2to3.h"
 #include "structmember.h"
 #include <math.h>
 #include "pyomodule.h"
@@ -221,7 +220,7 @@ PyTypeObject HilbertMainType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "HilbertMain objects. Hilbert transform. Created real and imaginary parts from an audio stream",           /* tp_doc */
     (traverseproc)HilbertMain_traverse,                  /* tp_traverse */
     (inquiry)HilbertMain_clear,                          /* tp_clear */
@@ -438,7 +437,6 @@ static PyNumberMethods Hilbert_as_number =
     (binaryfunc)Hilbert_add,                      /*nb_add*/
     (binaryfunc)Hilbert_sub,                 /*nb_subtract*/
     (binaryfunc)Hilbert_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -452,16 +450,12 @@ static PyNumberMethods Hilbert_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)Hilbert_inplace_add,              /*inplace_add*/
     (binaryfunc)Hilbert_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Hilbert_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -497,7 +491,7 @@ PyTypeObject HilbertType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "Hilbert objects. Reads one band from a Hilbert transform.",           /* tp_doc */
     (traverseproc)Hilbert_traverse,   /* tp_traverse */
     (inquiry)Hilbert_clear,           /* tp_clear */

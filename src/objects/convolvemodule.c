@@ -19,7 +19,6 @@
  *************************************************************************/
 
 #include <Python.h>
-#include "py2to3.h"
 #include "structmember.h"
 #include "pyomodule.h"
 #include "streammodule.h"
@@ -296,7 +295,6 @@ static PyNumberMethods Convolve_as_number =
     (binaryfunc)Convolve_add,                         /*nb_add*/
     (binaryfunc)Convolve_sub,                         /*nb_subtract*/
     (binaryfunc)Convolve_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -310,16 +308,12 @@ static PyNumberMethods Convolve_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)Convolve_inplace_add,                 /*inplace_add*/
     (binaryfunc)Convolve_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Convolve_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -355,7 +349,7 @@ PyTypeObject ConvolveType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Convolve objects. Implements a circular convolution.",           /* tp_doc */
     (traverseproc)Convolve_traverse,                  /* tp_traverse */
     (inquiry)Convolve_clear,                          /* tp_clear */
@@ -846,11 +840,11 @@ IRWinSinc_setType(IRWinSinc *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isInt = PyInt_Check(arg);
+    int isInt = PyLong_Check(arg);
 
     if (isInt == 1)
     {
-        self->filtertype = PyInt_AsLong(arg);
+        self->filtertype = PyLong_AsLong(arg);
         self->changed = 1;
     }
 
@@ -891,7 +885,6 @@ static PyNumberMethods IRWinSinc_as_number =
     (binaryfunc)IRWinSinc_add,                         /*nb_add*/
     (binaryfunc)IRWinSinc_sub,                         /*nb_subtract*/
     (binaryfunc)IRWinSinc_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -905,16 +898,12 @@ static PyNumberMethods IRWinSinc_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)IRWinSinc_inplace_add,                 /*inplace_add*/
     (binaryfunc)IRWinSinc_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)IRWinSinc_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -950,7 +939,7 @@ PyTypeObject IRWinSincType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "IRWinSinc objects. Windowed-sinc filter.",           /* tp_doc */
     (traverseproc)IRWinSinc_traverse,                  /* tp_traverse */
     (inquiry)IRWinSinc_clear,                          /* tp_clear */
@@ -1231,7 +1220,6 @@ static PyNumberMethods IRAverage_as_number =
     (binaryfunc)IRAverage_add,                         /*nb_add*/
     (binaryfunc)IRAverage_sub,                         /*nb_subtract*/
     (binaryfunc)IRAverage_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -1245,16 +1233,12 @@ static PyNumberMethods IRAverage_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)IRAverage_inplace_add,                 /*inplace_add*/
     (binaryfunc)IRAverage_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)IRAverage_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -1290,7 +1274,7 @@ PyTypeObject IRAverageType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "IRAverage objects. Moving average FIR filter.",           /* tp_doc */
     (traverseproc)IRAverage_traverse,                  /* tp_traverse */
     (inquiry)IRAverage_clear,                          /* tp_clear */
@@ -1814,11 +1798,11 @@ IRPulse_setType(IRPulse *self, PyObject *arg)
 
     ASSERT_ARG_NOT_NULL
 
-    int isInt = PyInt_Check(arg);
+    int isInt = PyLong_Check(arg);
 
     if (isInt == 1)
     {
-        self->filtertype = PyInt_AsLong(arg);
+        self->filtertype = PyLong_AsLong(arg);
         self->changed = 1;
     }
 
@@ -1859,7 +1843,6 @@ static PyNumberMethods IRPulse_as_number =
     (binaryfunc)IRPulse_add,                         /*nb_add*/
     (binaryfunc)IRPulse_sub,                         /*nb_subtract*/
     (binaryfunc)IRPulse_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -1873,16 +1856,12 @@ static PyNumberMethods IRPulse_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)IRPulse_inplace_add,                 /*inplace_add*/
     (binaryfunc)IRPulse_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)IRPulse_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -1918,7 +1897,7 @@ PyTypeObject IRPulseType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "IRPulse objects. Windowed-sinc filter.",           /* tp_doc */
     (traverseproc)IRPulse_traverse,                  /* tp_traverse */
     (inquiry)IRPulse_clear,                          /* tp_clear */
@@ -2406,7 +2385,6 @@ static PyNumberMethods IRFM_as_number =
     (binaryfunc)IRFM_add,                         /*nb_add*/
     (binaryfunc)IRFM_sub,                         /*nb_subtract*/
     (binaryfunc)IRFM_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -2420,16 +2398,12 @@ static PyNumberMethods IRFM_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)IRFM_inplace_add,                 /*inplace_add*/
     (binaryfunc)IRFM_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)IRFM_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -2465,7 +2439,7 @@ PyTypeObject IRFMType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "IRFM objects. Convolve an input signal with a frequency modulation spectrum.",           /* tp_doc */
     (traverseproc)IRFM_traverse,                  /* tp_traverse */
     (inquiry)IRFM_clear,                          /* tp_clear */

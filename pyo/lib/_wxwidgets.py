@@ -1,6 +1,3 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
 
 """
 Copyright 2009-2015 Olivier Belanger
@@ -33,10 +30,7 @@ if "phoenix" in wx.version():
     wx.Image_HSVValue = wx.Image.HSVValue
     wx.Image_HSVtoRGB = wx.Image.HSVtoRGB
 
-if sys.version_info[0] < 3:
-    unicode_t = unicode
-else:
-    unicode_t = str
+unicode_t = str
 
 BACKGROUND_COLOUR = "#EBEBEB"
 

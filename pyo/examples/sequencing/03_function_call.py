@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # encoding: utf-8
-from __future__ import print_function
 
 """
 Python function regularly called with a Pattern object.

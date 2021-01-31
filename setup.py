@@ -22,19 +22,9 @@ from distutils.sysconfig import get_python_lib
 from setuptools import setup, Extension
 import os, sys, py_compile, subprocess, platform
 
-if sys.version_info[0] < 3:
-
-    def tobytes(strng, encoding=None):
-        "Convert unicode string to bytes."
-        return bytes(strng)
-
-
-else:
-
-    def tobytes(strng, encoding="utf-8"):
-        "Convert unicode string to bytes."
-        return bytes(strng, encoding=encoding)
-
+def tobytes(strng, encoding="utf-8"):
+    "Convert unicode string to bytes."
+    return bytes(strng, encoding=encoding)
 
 def get_jack_api():
     try:

@@ -5,9 +5,6 @@ SfMarkerXXX objects use markers features (store in the header) from
 an AIFF file to create more specific reading patterns.
 
 """
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
 
 """
 Copyright 2009-2015 Olivier Belanger

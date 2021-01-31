@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # encoding: utf-8
-from __future__ import print_function
 
 """
 Wave terrain synthesis of a live recording of FM synthesis in the matrix.

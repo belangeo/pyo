@@ -19,7 +19,6 @@
  *************************************************************************/
 
 #include <Python.h>
-#include "py2to3.h"
 #include "structmember.h"
 #include <math.h>
 #include "pyomodule.h"
@@ -1069,7 +1068,7 @@ Granulator_setGrains(Granulator *self, PyObject *arg)
     int i;
     MYFLT phase;
 
-    if (PyLong_Check(arg) || PyInt_Check(arg))
+    if (PyLong_Check(arg))
     {
         self->ngrains = PyLong_AsLong(arg);
         self->startPos = (MYFLT *)realloc(self->startPos, self->ngrains * sizeof(MYFLT));
@@ -1137,7 +1136,6 @@ static PyNumberMethods Granulator_as_number =
     (binaryfunc)Granulator_add,                      /*nb_add*/
     (binaryfunc)Granulator_sub,                 /*nb_subtract*/
     (binaryfunc)Granulator_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -1151,16 +1149,12 @@ static PyNumberMethods Granulator_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)Granulator_inplace_add,              /*inplace_add*/
     (binaryfunc)Granulator_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Granulator_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -1196,7 +1190,7 @@ PyTypeObject GranulatorType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Granulator objects. Accumulation of multiples grains of sound.",           /* tp_doc */
     (traverseproc)Granulator_traverse,   /* tp_traverse */
     (inquiry)Granulator_clear,           /* tp_clear */
@@ -2466,11 +2460,11 @@ Looper_setStartFromLoop(Looper *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isInt = PyInt_Check(arg);
+    int isInt = PyLong_Check(arg);
 
     if (isInt == 1)
     {
-        self->startfromloop = PyInt_AsLong(arg);
+        self->startfromloop = PyLong_AsLong(arg);
     }
 
     Py_RETURN_NONE;
@@ -2481,11 +2475,11 @@ Looper_setXfadeShape(Looper *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isInt = PyInt_Check(arg);
+    int isInt = PyLong_Check(arg);
 
     if (isInt == 1)
     {
-        self->xfadeshape = PyInt_AsLong(arg);
+        self->xfadeshape = PyLong_AsLong(arg);
     }
 
     Py_RETURN_NONE;
@@ -2498,11 +2492,11 @@ Looper_setMode(Looper *self, PyObject *arg)
 
     ASSERT_ARG_NOT_NULL
 
-    int isInt = PyInt_Check(arg);
+    int isInt = PyLong_Check(arg);
 
     if (isInt == 1)
     {
-        tmp = PyInt_AsLong(arg);
+        tmp = PyLong_AsLong(arg);
 
         if (tmp >= 0 && tmp < 4)
             self->tmpmode = tmp;
@@ -2520,7 +2514,7 @@ Looper_setInterp(Looper *self, PyObject *arg)
 
     if (isNumber == 1)
     {
-        self->interp = PyInt_AsLong(PyNumber_Int(arg));
+        self->interp = PyLong_AsLong(PyNumber_Long(arg));
     }
 
     SET_INTERP_POINTER
@@ -2533,11 +2527,11 @@ Looper_setAutoSmooth(Looper *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isInt = PyInt_Check(arg);
+    int isInt = PyLong_Check(arg);
 
     if (isInt == 1)
     {
-        self->autosmooth = PyInt_AsLong(arg);
+        self->autosmooth = PyLong_AsLong(arg);
     }
 
     Py_RETURN_NONE;
@@ -2563,11 +2557,11 @@ Looper_appendFadeTime(Looper *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isInt = PyInt_Check(arg);
+    int isInt = PyLong_Check(arg);
 
     if (isInt == 1)
     {
-        self->appendfade = PyInt_AsLong(arg) == 0 ? 0 : 1;
+        self->appendfade = PyLong_AsLong(arg) == 0 ? 0 : 1;
     }
 
     Py_RETURN_NONE;
@@ -2578,11 +2572,11 @@ Looper_fadeInSeconds(Looper *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isInt = PyInt_Check(arg);
+    int isInt = PyLong_Check(arg);
 
     if (isInt == 1)
     {
-        self->fadeinseconds = PyInt_AsLong(arg) == 0 ? 0 : 1;
+        self->fadeinseconds = PyLong_AsLong(arg) == 0 ? 0 : 1;
     }
 
     Py_RETURN_NONE;
@@ -2638,7 +2632,6 @@ static PyNumberMethods Looper_as_number =
     (binaryfunc)Looper_add,                      /*nb_add*/
     (binaryfunc)Looper_sub,                 /*nb_subtract*/
     (binaryfunc)Looper_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -2652,16 +2645,12 @@ static PyNumberMethods Looper_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)Looper_inplace_add,              /*inplace_add*/
     (binaryfunc)Looper_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Looper_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -2697,7 +2686,7 @@ PyTypeObject LooperType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Looper objects. Sound looper with crossfade.",           /* tp_doc */
     (traverseproc)Looper_traverse,   /* tp_traverse */
     (inquiry)Looper_clear,           /* tp_clear */
@@ -2899,7 +2888,6 @@ static PyNumberMethods LooperTimeStream_as_number =
     (binaryfunc)LooperTimeStream_add,                         /*nb_add*/
     (binaryfunc)LooperTimeStream_sub,                         /*nb_subtract*/
     (binaryfunc)LooperTimeStream_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -2913,16 +2901,12 @@ static PyNumberMethods LooperTimeStream_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)LooperTimeStream_inplace_add,                 /*inplace_add*/
     (binaryfunc)LooperTimeStream_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)LooperTimeStream_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -2958,7 +2942,7 @@ PyTypeObject LooperTimeStreamType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "LooperTimeStream objects. Returns the current recording time, in samples, of a Looper object.",           /* tp_doc */
     (traverseproc)LooperTimeStream_traverse,   /* tp_traverse */
     (inquiry)LooperTimeStream_clear,           /* tp_clear */
@@ -3660,7 +3644,7 @@ Granule_setEnv(Granule *self, PyObject *arg)
 static PyObject *
 Granule_setSync(Granule *self, PyObject *arg)
 {
-    if (PyLong_Check(arg) || PyInt_Check(arg))
+    if (PyLong_Check(arg))
     {
         self->sync = PyLong_AsLong(arg);
 
@@ -3716,7 +3700,6 @@ static PyNumberMethods Granule_as_number =
     (binaryfunc)Granule_add,                      /*nb_add*/
     (binaryfunc)Granule_sub,                 /*nb_subtract*/
     (binaryfunc)Granule_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -3730,16 +3713,12 @@ static PyNumberMethods Granule_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)Granule_inplace_add,              /*inplace_add*/
     (binaryfunc)Granule_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Granule_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -3775,7 +3754,7 @@ PyTypeObject GranuleType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Granule objects. Accumulation of multiples grains of sound.",           /* tp_doc */
     (traverseproc)Granule_traverse,   /* tp_traverse */
     (inquiry)Granule_clear,           /* tp_clear */
@@ -4941,7 +4920,7 @@ PyTypeObject MainParticleType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "MainParticle objects. Accumulation of multiples grains of sound.",           /* tp_doc */
     (traverseproc)MainParticle_traverse,   /* tp_traverse */
     (inquiry)MainParticle_clear,           /* tp_clear */
@@ -5155,7 +5134,6 @@ static PyNumberMethods Particle_as_number =
     (binaryfunc)Particle_add,                      /*nb_add*/
     (binaryfunc)Particle_sub,                 /*nb_subtract*/
     (binaryfunc)Particle_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -5169,16 +5147,12 @@ static PyNumberMethods Particle_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)Particle_inplace_add,              /*inplace_add*/
     (binaryfunc)Particle_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Particle_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -5214,7 +5188,7 @@ PyTypeObject ParticleType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "Particle objects. Reads one band from a MainParticle object.",           /* tp_doc */
     (traverseproc)Particle_traverse,   /* tp_traverse */
     (inquiry)Particle_clear,           /* tp_clear */
@@ -6895,7 +6869,7 @@ PyTypeObject MainParticle2Type =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "MainParticle2 objects. Accumulation of multiples bandpass filtered grains of sound.",           /* tp_doc */
     (traverseproc)MainParticle2_traverse,   /* tp_traverse */
     (inquiry)MainParticle2_clear,           /* tp_clear */
@@ -7109,7 +7083,6 @@ static PyNumberMethods Particle2_as_number =
     (binaryfunc)Particle2_add,                      /*nb_add*/
     (binaryfunc)Particle2_sub,                 /*nb_subtract*/
     (binaryfunc)Particle2_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -7123,16 +7096,12 @@ static PyNumberMethods Particle2_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)Particle2_inplace_add,              /*inplace_add*/
     (binaryfunc)Particle2_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Particle2_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -7168,7 +7137,7 @@ PyTypeObject Particle2Type =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "Particle2 objects. Reads one band from a MainParticle2 object.",           /* tp_doc */
     (traverseproc)Particle2_traverse,   /* tp_traverse */
     (inquiry)Particle2_clear,           /* tp_clear */

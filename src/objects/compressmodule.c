@@ -19,7 +19,6 @@
  *************************************************************************/
 
 #include <Python.h>
-#include "py2to3.h"
 #include "structmember.h"
 #include <math.h>
 #include "pyomodule.h"
@@ -582,7 +581,6 @@ static PyNumberMethods Compress_as_number =
     (binaryfunc)Compress_add,                         /*nb_add*/
     (binaryfunc)Compress_sub,                         /*nb_subtract*/
     (binaryfunc)Compress_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -596,16 +594,12 @@ static PyNumberMethods Compress_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)Compress_inplace_add,                 /*inplace_add*/
     (binaryfunc)Compress_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Compress_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -641,7 +635,7 @@ PyTypeObject CompressType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Compress objects. Compress audio signal by a certain ratio above a threshold.",           /* tp_doc */
     (traverseproc)Compress_traverse,                  /* tp_traverse */
     (inquiry)Compress_clear,                          /* tp_clear */
@@ -1636,7 +1630,6 @@ static PyNumberMethods Gate_as_number =
     (binaryfunc)Gate_add,                         /*nb_add*/
     (binaryfunc)Gate_sub,                         /*nb_subtract*/
     (binaryfunc)Gate_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -1650,16 +1643,12 @@ static PyNumberMethods Gate_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)Gate_inplace_add,                 /*inplace_add*/
     (binaryfunc)Gate_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Gate_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -1695,7 +1684,7 @@ PyTypeObject GateType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Gate objects. Noise gate dynamic processor.",           /* tp_doc */
     (traverseproc)Gate_traverse,                  /* tp_traverse */
     (inquiry)Gate_clear,                          /* tp_clear */
@@ -2067,7 +2056,6 @@ static PyNumberMethods Balance_as_number =
     (binaryfunc)Balance_add,                         /*nb_add*/
     (binaryfunc)Balance_sub,                         /*nb_subtract*/
     (binaryfunc)Balance_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -2081,16 +2069,12 @@ static PyNumberMethods Balance_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)Balance_inplace_add,                 /*inplace_add*/
     (binaryfunc)Balance_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Balance_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -2126,7 +2110,7 @@ PyTypeObject BalanceType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Balance objects. The rms power of a signal is adjusted to match that of a comparator signal.",           /* tp_doc */
     (traverseproc)Balance_traverse,                  /* tp_traverse */
     (inquiry)Balance_clear,                          /* tp_clear */
@@ -2713,7 +2697,6 @@ static PyNumberMethods Expand_as_number =
     (binaryfunc)Expand_add,                         /*nb_add*/
     (binaryfunc)Expand_sub,                         /*nb_subtract*/
     (binaryfunc)Expand_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -2727,16 +2710,12 @@ static PyNumberMethods Expand_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)Expand_inplace_add,                 /*inplace_add*/
     (binaryfunc)Expand_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Expand_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -2772,7 +2751,7 @@ PyTypeObject ExpandType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Expand objects. Expand audio signal by a certain ratio when below or above certain thresholds.", /* tp_doc */
     (traverseproc)Expand_traverse,                  /* tp_traverse */
     (inquiry)Expand_clear,                          /* tp_clear */

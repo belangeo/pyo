@@ -19,7 +19,6 @@
  *************************************************************************/
 
 #include <Python.h>
-#include "py2to3.h"
 #include "structmember.h"
 #include <math.h>
 #include "pyomodule.h"
@@ -240,7 +239,6 @@ static PyNumberMethods Dummy_as_number =
     (binaryfunc)Dummy_add,                         /*nb_add*/
     (binaryfunc)Dummy_sub,                         /*nb_subtract*/
     (binaryfunc)Dummy_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO   /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -254,16 +252,12 @@ static PyNumberMethods Dummy_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)Dummy_inplace_add,                 /*inplace_add*/
     (binaryfunc)Dummy_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Dummy_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO               /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -299,7 +293,7 @@ PyTypeObject DummyType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Dummy objects.",                               /* tp_doc */
     (traverseproc)Dummy_traverse,                  /* tp_traverse */
     (inquiry)Dummy_clear,                          /* tp_clear */
@@ -501,7 +495,6 @@ static PyNumberMethods TriggerDummy_as_number =
     (binaryfunc)TriggerDummy_add,                         /*nb_add*/
     (binaryfunc)TriggerDummy_sub,                         /*nb_subtract*/
     (binaryfunc)TriggerDummy_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -515,16 +508,12 @@ static PyNumberMethods TriggerDummy_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)TriggerDummy_inplace_add,                 /*inplace_add*/
     (binaryfunc)TriggerDummy_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)TriggerDummy_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -560,7 +549,7 @@ PyTypeObject TriggerDummyType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "TriggerDummy objects. Sends trigger at the end of playback.",           /* tp_doc */
     (traverseproc)TriggerDummy_traverse,   /* tp_traverse */
     (inquiry)TriggerDummy_clear,           /* tp_clear */

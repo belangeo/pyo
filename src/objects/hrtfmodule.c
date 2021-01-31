@@ -19,7 +19,6 @@
  *************************************************************************/
 
 #include <Python.h>
-#include "py2to3.h"
 #include "structmember.h"
 #include <math.h>
 #include "pyomodule.h"
@@ -333,7 +332,7 @@ PyTypeObject HRTFDataType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "HRTFData objects. Store the HRIRs for a given set.",           /* tp_doc */
     (traverseproc)HRTFData_traverse,   /* tp_traverse */
     (inquiry)HRTFData_clear,           /* tp_clear */
@@ -855,7 +854,7 @@ PyTypeObject HRTFSpatterType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "HRTFSpatter main objects.",           /* tp_doc */
     (traverseproc)HRTFSpatter_traverse,                  /* tp_traverse */
     (inquiry)HRTFSpatter_clear,                          /* tp_clear */
@@ -1072,7 +1071,6 @@ static PyNumberMethods HRTF_as_number =
     (binaryfunc)HRTF_add,                      /*nb_add*/
     (binaryfunc)HRTF_sub,                 /*nb_subtract*/
     (binaryfunc)HRTF_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -1086,16 +1084,12 @@ static PyNumberMethods HRTF_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)HRTF_inplace_add,              /*inplace_add*/
     (binaryfunc)HRTF_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)HRTF_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -1131,7 +1125,7 @@ PyTypeObject HRTFType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "HRTF objects. Reads one channel from a HRTFter.",           /* tp_doc */
     (traverseproc)HRTF_traverse,   /* tp_traverse */
     (inquiry)HRTF_clear,           /* tp_clear */
@@ -1706,7 +1700,7 @@ PyTypeObject BinauralerType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Binauraler main objects.",           /* tp_doc */
     (traverseproc)Binauraler_traverse,                  /* tp_traverse */
     (inquiry)Binauraler_clear,                          /* tp_clear */
@@ -1923,7 +1917,6 @@ static PyNumberMethods Binaural_as_number =
     (binaryfunc)Binaural_add,                      /*nb_add*/
     (binaryfunc)Binaural_sub,                 /*nb_subtract*/
     (binaryfunc)Binaural_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -1937,16 +1930,12 @@ static PyNumberMethods Binaural_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)Binaural_inplace_add,              /*inplace_add*/
     (binaryfunc)Binaural_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Binaural_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -1982,7 +1971,7 @@ PyTypeObject BinauralType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "Binaural objects. Reads one channel from a Binauralter.",           /* tp_doc */
     (traverseproc)Binaural_traverse,   /* tp_traverse */
     (inquiry)Binaural_clear,           /* tp_clear */

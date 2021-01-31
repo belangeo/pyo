@@ -21,7 +21,6 @@
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #include <object.h>
-#include "py2to3.h"
 #include "structmember.h"
 #include <math.h>
 #include "pyomodule.h"
@@ -138,7 +137,7 @@ PyTypeObject TableStreamType =
     0, /*tp_getattro*/
     0, /*tp_setattro*/
     &TableStream_as_buffer,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_NEWBUFFER, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /*tp_flags*/
     "TableStream objects. For internal use only. Must never be instantiated by the user.", /* tp_doc */
     0, /* tp_traverse */
     0, /* tp_clear */
@@ -309,7 +308,7 @@ HarmTable_setSize(HarmTable *self, PyObject *value)
 static PyObject *
 HarmTable_getSize(HarmTable *self)
 {
-    return PyInt_FromLong(self->size);
+    return PyLong_FromLong(self->size);
 };
 
 static PyObject *
@@ -318,13 +317,13 @@ HarmTable_replace(HarmTable *self, PyObject *value)
     if (value == NULL)
     {
         PyErr_SetString(PyExc_TypeError, "Cannot delete the list attribute.");
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
     }
 
     if (! PyList_Check(value))
     {
         PyErr_SetString(PyExc_TypeError, "The amplitude list attribute value must be a list.");
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
     }
 
     Py_INCREF(value);
@@ -626,7 +625,7 @@ ChebyTable_setSize(ChebyTable *self, PyObject *value)
 static PyObject *
 ChebyTable_getSize(ChebyTable *self)
 {
-    return PyInt_FromLong(self->size);
+    return PyLong_FromLong(self->size);
 };
 
 static PyObject *
@@ -635,13 +634,13 @@ ChebyTable_replace(ChebyTable *self, PyObject *value)
     if (value == NULL)
     {
         PyErr_SetString(PyExc_TypeError, "Cannot delete the list attribute.");
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
     }
 
     if (! PyList_Check(value))
     {
         PyErr_SetString(PyExc_TypeError, "The amplitude list attribute value must be a list.");
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
     }
 
     Py_INCREF(value);
@@ -660,7 +659,7 @@ ChebyTable_getNormTable(ChebyTable *self, PyObject *value)
     MYFLT maxval = 0.0;
     MYFLT val = 0.0, val2 = 0.0;
     MYFLT last = 0.0;
-    long sym = PyInt_AS_LONG(value);
+    long sym = PyLong_AsLong(value);
     MYFLT samps[halfsize];  // FIXME: Very large table would cause stack overflow.
     PyObject *samples = PyList_New(halfsize);
 
@@ -952,7 +951,7 @@ HannTable_setSize(HannTable *self, PyObject *value)
 static PyObject *
 HannTable_getSize(HannTable *self)
 {
-    return PyInt_FromLong(self->size);
+    return PyLong_FromLong(self->size);
 };
 
 static PyMemberDef HannTable_members[] =
@@ -1177,7 +1176,7 @@ SincTable_setFreq(SincTable *self, PyObject *value)
     if (! PyNumber_Check(value))
     {
         PyErr_SetString(PyExc_TypeError, "The freq attribute value must be a number.");
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
     }
 
     self->freq = PyFloat_AsDouble(value);
@@ -1191,13 +1190,13 @@ static PyObject *
 SincTable_setWindowed(SincTable *self, PyObject *value)
 {
 
-    if (! PyInt_Check(value))
+    if (! PyLong_Check(value))
     {
         PyErr_SetString(PyExc_TypeError, "The windowed attribute value must be a boolean.");
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
     }
 
-    self->windowed = PyInt_AsLong(value);
+    self->windowed = PyLong_AsLong(value);
 
     SincTable_generate(self);
 
@@ -1217,7 +1216,7 @@ SincTable_setSize(SincTable *self, PyObject *value)
 static PyObject *
 SincTable_getSize(SincTable *self)
 {
-    return PyInt_FromLong(self->size);
+    return PyLong_FromLong(self->size);
 };
 
 static PyMemberDef SincTable_members[] =
@@ -1412,7 +1411,7 @@ WinTable_setSize(WinTable *self, PyObject *value)
 static PyObject *
 WinTable_getSize(WinTable *self)
 {
-    return PyInt_FromLong(self->size);
+    return PyLong_FromLong(self->size);
 };
 
 static PyObject *
@@ -1421,16 +1420,16 @@ WinTable_setType(WinTable *self, PyObject *value)
     if (value == NULL)
     {
         PyErr_SetString(PyExc_TypeError, "Cannot delete the type attribute.");
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
     }
 
-    if (! PyInt_Check(value))
+    if (! PyLong_Check(value))
     {
         PyErr_SetString(PyExc_TypeError, "The type attribute value must be an integer.");
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
     }
 
-    self->type = PyInt_AsLong(value);
+    self->type = PyLong_AsLong(value);
 
     WinTable_generate(self);
 
@@ -1643,7 +1642,7 @@ ParaTable_setSize(ParaTable *self, PyObject *value)
 static PyObject *
 ParaTable_getSize(ParaTable *self)
 {
-    return PyInt_FromLong(self->size);
+    return PyLong_FromLong(self->size);
 };
 
 static PyMemberDef ParaTable_members[] =
@@ -1760,10 +1759,10 @@ LinTable_generate(LinTable *self)
     for (i = 0; i < (listsize - 1); i++)
     {
         tup = PyList_GET_ITEM(self->pointslist, i);
-        x1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
+        x1 = PyLong_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
         x2 = PyFloat_AsDouble(PyTuple_GET_ITEM(tup, 1));
         tup2 = PyList_GET_ITEM(self->pointslist, i + 1);
-        y1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup2, 0)));
+        y1 = PyLong_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup2, 0)));
         y2 = PyFloat_AsDouble(PyTuple_GET_ITEM(tup2, 1));
 
         steps = y1 - x1;
@@ -1852,8 +1851,8 @@ LinTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     }
     else
     {
-        PyList_Append(self->pointslist, PyTuple_Pack(2, PyInt_FromLong(0), PyFloat_FromDouble(0.)));
-        PyList_Append(self->pointslist, PyTuple_Pack(2, PyInt_FromLong(self->size), PyFloat_FromDouble(1.)));
+        PyList_Append(self->pointslist, PyTuple_Pack(2, PyLong_FromLong(0), PyFloat_FromDouble(0.)));
+        PyList_Append(self->pointslist, PyTuple_Pack(2, PyLong_FromLong(self->size), PyFloat_FromDouble(1.)));
     }
 
     self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
@@ -1907,7 +1906,7 @@ LinTable_setSize(LinTable *self, PyObject *value)
 static PyObject *
 LinTable_getSize(LinTable *self)
 {
-    return PyInt_FromLong(self->size);
+    return PyLong_FromLong(self->size);
 };
 
 static PyObject *
@@ -1923,13 +1922,13 @@ LinTable_replace(LinTable *self, PyObject *value)
     if (value == NULL)
     {
         PyErr_SetString(PyExc_TypeError, "Cannot delete the list attribute.");
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
     }
 
     if (! PyList_Check(value))
     {
         PyErr_SetString(PyExc_TypeError, "The amplitude list attribute value must be a list of tuples.");
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
     }
 
     Py_INCREF(value);
@@ -2058,10 +2057,10 @@ LogTable_generate(LogTable *self)
     for (i = 0; i < (listsize - 1); i++)
     {
         tup = PyList_GET_ITEM(self->pointslist, i);
-        x1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
+        x1 = PyLong_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
         x2 = PyFloat_AsDouble(PyTuple_GET_ITEM(tup, 1));
         tup2 = PyList_GET_ITEM(self->pointslist, i + 1);
-        y1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup2, 0)));
+        y1 = PyLong_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup2, 0)));
         y2 = PyFloat_AsDouble(PyTuple_GET_ITEM(tup2, 1));
 
         if (x2 <= 0)
@@ -2182,8 +2181,8 @@ LogTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     }
     else
     {
-        PyList_Append(self->pointslist, PyTuple_Pack(2, PyInt_FromLong(0), PyFloat_FromDouble(0.)));
-        PyList_Append(self->pointslist, PyTuple_Pack(2, PyInt_FromLong(self->size), PyFloat_FromDouble(1.)));
+        PyList_Append(self->pointslist, PyTuple_Pack(2, PyLong_FromLong(0), PyFloat_FromDouble(0.)));
+        PyList_Append(self->pointslist, PyTuple_Pack(2, PyLong_FromLong(self->size), PyFloat_FromDouble(1.)));
     }
 
     self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
@@ -2237,7 +2236,7 @@ LogTable_setSize(LogTable *self, PyObject *value)
 static PyObject *
 LogTable_getSize(LogTable *self)
 {
-    return PyInt_FromLong(self->size);
+    return PyLong_FromLong(self->size);
 };
 
 static PyObject *
@@ -2253,13 +2252,13 @@ LogTable_replace(LogTable *self, PyObject *value)
     if (value == NULL)
     {
         PyErr_SetString(PyExc_TypeError, "Cannot delete the list attribute.");
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
     }
 
     if (! PyList_Check(value))
     {
         PyErr_SetString(PyExc_TypeError, "The amplitude list attribute value must be a list of tuples.");
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
     }
 
     Py_INCREF(value);
@@ -2388,10 +2387,10 @@ CosTable_generate(CosTable *self)
     for (i = 0; i < (listsize - 1); i++)
     {
         tup = PyList_GET_ITEM(self->pointslist, i);
-        x1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
+        x1 = PyLong_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
         x2 = PyFloat_AsDouble(PyTuple_GET_ITEM(tup, 1));
         tup2 = PyList_GET_ITEM(self->pointslist, i + 1);
-        y1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup2, 0)));
+        y1 = PyLong_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup2, 0)));
         y2 = PyFloat_AsDouble(PyTuple_GET_ITEM(tup2, 1));
 
         steps = y1 - x1;
@@ -2480,8 +2479,8 @@ CosTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     }
     else
     {
-        PyList_Append(self->pointslist, PyTuple_Pack(2, PyInt_FromLong(0), PyFloat_FromDouble(0.)));
-        PyList_Append(self->pointslist, PyTuple_Pack(2, PyInt_FromLong(self->size), PyFloat_FromDouble(1.)));
+        PyList_Append(self->pointslist, PyTuple_Pack(2, PyLong_FromLong(0), PyFloat_FromDouble(0.)));
+        PyList_Append(self->pointslist, PyTuple_Pack(2, PyLong_FromLong(self->size), PyFloat_FromDouble(1.)));
     }
 
     self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
@@ -2535,7 +2534,7 @@ CosTable_setSize(CosTable *self, PyObject *value)
 static PyObject *
 CosTable_getSize(CosTable *self)
 {
-    return PyInt_FromLong(self->size);
+    return PyLong_FromLong(self->size);
 };
 
 static PyObject *
@@ -2551,13 +2550,13 @@ CosTable_replace(CosTable *self, PyObject *value)
     if (value == NULL)
     {
         PyErr_SetString(PyExc_TypeError, "Cannot delete the list attribute.");
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
     }
 
     if (! PyList_Check(value))
     {
         PyErr_SetString(PyExc_TypeError, "The amplitude list attribute value must be a list of tuples.");
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
     }
 
     Py_INCREF(value);
@@ -2686,10 +2685,10 @@ CosLogTable_generate(CosLogTable *self)
     for (i = 0; i < (listsize - 1); i++)
     {
         tup = PyList_GET_ITEM(self->pointslist, i);
-        x1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
+        x1 = PyLong_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
         x2 = PyFloat_AsDouble(PyTuple_GET_ITEM(tup, 1));
         tup2 = PyList_GET_ITEM(self->pointslist, i + 1);
-        y1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup2, 0)));
+        y1 = PyLong_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup2, 0)));
         y2 = PyFloat_AsDouble(PyTuple_GET_ITEM(tup2, 1));
 
         if (x2 <= 0)
@@ -2811,8 +2810,8 @@ CosLogTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     }
     else
     {
-        PyList_Append(self->pointslist, PyTuple_Pack(2, PyInt_FromLong(0), PyFloat_FromDouble(0.)));
-        PyList_Append(self->pointslist, PyTuple_Pack(2, PyInt_FromLong(self->size), PyFloat_FromDouble(1.)));
+        PyList_Append(self->pointslist, PyTuple_Pack(2, PyLong_FromLong(0), PyFloat_FromDouble(0.)));
+        PyList_Append(self->pointslist, PyTuple_Pack(2, PyLong_FromLong(self->size), PyFloat_FromDouble(1.)));
     }
 
     self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
@@ -2866,7 +2865,7 @@ CosLogTable_setSize(CosLogTable *self, PyObject *value)
 static PyObject *
 CosLogTable_getSize(CosLogTable *self)
 {
-    return PyInt_FromLong(self->size);
+    return PyLong_FromLong(self->size);
 };
 
 static PyObject *
@@ -2882,13 +2881,13 @@ CosLogTable_replace(CosLogTable *self, PyObject *value)
     if (value == NULL)
     {
         PyErr_SetString(PyExc_TypeError, "Cannot delete the list attribute.");
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
     }
 
     if (! PyList_Check(value))
     {
         PyErr_SetString(PyExc_TypeError, "The amplitude list attribute value must be a list of tuples.");
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
     }
 
     Py_INCREF(value);
@@ -3026,7 +3025,7 @@ CurveTable_generate(CurveTable *self)
     for (i = 0; i < listsize; i++)
     {
         tup = PyList_GET_ITEM(self->pointslist, i);
-        times[i + 1] = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
+        times[i + 1] = PyLong_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
         values[i + 1] = PyFloat_AsDouble(PyTuple_GET_ITEM(tup, 1));
     }
 
@@ -3138,8 +3137,8 @@ CurveTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     }
     else
     {
-        PyList_Append(self->pointslist, PyTuple_Pack(2, PyInt_FromLong(0), PyFloat_FromDouble(0.)));
-        PyList_Append(self->pointslist, PyTuple_Pack(2, PyInt_FromLong(self->size), PyFloat_FromDouble(1.)));
+        PyList_Append(self->pointslist, PyTuple_Pack(2, PyLong_FromLong(0), PyFloat_FromDouble(0.)));
+        PyList_Append(self->pointslist, PyTuple_Pack(2, PyLong_FromLong(self->size), PyFloat_FromDouble(1.)));
     }
 
     self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
@@ -3186,13 +3185,13 @@ CurveTable_setTension(CurveTable *self, PyObject *value)
     if (value == NULL)
     {
         PyErr_SetString(PyExc_TypeError, "Cannot delete the tension attribute.");
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
     }
 
     if (! PyNumber_Check(value))
     {
         PyErr_SetString(PyExc_TypeError, "The tension attribute value must be a float.");
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
     }
 
     self->tension = PyFloat_AsDouble(value);
@@ -3208,13 +3207,13 @@ CurveTable_setBias(CurveTable *self, PyObject *value)
     if (value == NULL)
     {
         PyErr_SetString(PyExc_TypeError, "Cannot delete the bias attribute.");
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
     }
 
     if (! PyNumber_Check(value))
     {
         PyErr_SetString(PyExc_TypeError, "The bias attribute value must be a float.");
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
     }
 
     self->bias = PyFloat_AsDouble(value);
@@ -3237,7 +3236,7 @@ CurveTable_setSize(CurveTable *self, PyObject *value)
 static PyObject *
 CurveTable_getSize(CurveTable *self)
 {
-    return PyInt_FromLong(self->size);
+    return PyLong_FromLong(self->size);
 };
 
 static PyObject *
@@ -3253,13 +3252,13 @@ CurveTable_replace(CurveTable *self, PyObject *value)
     if (value == NULL)
     {
         PyErr_SetString(PyExc_TypeError, "Cannot delete the list attribute.");
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
     }
 
     if (! PyList_Check(value))
     {
         PyErr_SetString(PyExc_TypeError, "The amplitude list attribute value must be a list of tuples.");
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
     }
 
     Py_INCREF(value);
@@ -3397,7 +3396,7 @@ ExpTable_generate(ExpTable *self)
     for (i = 0; i < listsize; i++)
     {
         tup = PyList_GET_ITEM(self->pointslist, i);
-        times[i] = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
+        times[i] = PyLong_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
         values[i] = PyFloat_AsDouble(PyTuple_GET_ITEM(tup, 1));
     }
 
@@ -3511,8 +3510,8 @@ ExpTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     }
     else
     {
-        PyList_Append(self->pointslist, PyTuple_Pack(2, PyInt_FromLong(0), PyFloat_FromDouble(0.)));
-        PyList_Append(self->pointslist, PyTuple_Pack(2, PyInt_FromLong(self->size), PyFloat_FromDouble(1.)));
+        PyList_Append(self->pointslist, PyTuple_Pack(2, PyLong_FromLong(0), PyFloat_FromDouble(0.)));
+        PyList_Append(self->pointslist, PyTuple_Pack(2, PyLong_FromLong(self->size), PyFloat_FromDouble(1.)));
     }
 
     self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
@@ -3559,13 +3558,13 @@ ExpTable_setExp(ExpTable *self, PyObject *value)
     if (value == NULL)
     {
         PyErr_SetString(PyExc_TypeError, "Cannot delete the exp attribute.");
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
     }
 
     if (! PyNumber_Check(value))
     {
         PyErr_SetString(PyExc_TypeError, "The exp attribute value must be a float.");
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
     }
 
     self->exp = PyFloat_AsDouble(value);
@@ -3581,16 +3580,16 @@ ExpTable_setInverse(ExpTable *self, PyObject *value)
     if (value == NULL)
     {
         PyErr_SetString(PyExc_TypeError, "Cannot delete the inverse attribute.");
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
     }
 
-    if (! PyInt_Check(value))
+    if (! PyLong_Check(value))
     {
         PyErr_SetString(PyExc_TypeError, "The inverse attribute value must be a boolean (True or False or 0 or 1).");
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
     }
 
-    self->inverse = PyInt_AsLong(value);
+    self->inverse = PyLong_AsLong(value);
 
     ExpTable_generate(self);
 
@@ -3610,7 +3609,7 @@ ExpTable_setSize(ExpTable *self, PyObject *value)
 static PyObject *
 ExpTable_getSize(ExpTable *self)
 {
-    return PyInt_FromLong(self->size);
+    return PyLong_FromLong(self->size);
 };
 
 static PyObject *
@@ -3626,13 +3625,13 @@ ExpTable_replace(ExpTable *self, PyObject *value)
     if (value == NULL)
     {
         PyErr_SetString(PyExc_TypeError, "Cannot delete the list attribute.");
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
     }
 
     if (! PyList_Check(value))
     {
         PyErr_SetString(PyExc_TypeError, "The amplitude list attribute value must be a list of tuples.");
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
     }
 
     Py_INCREF(value);
@@ -4245,7 +4244,7 @@ SndTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     static char *kwlist[] = {"path", "chnl", "start", "stop", NULL};
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_P_IFF, kwlist, &self->path, &psize, &self->chnl, &self->start, &self->stop))
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
 
     if (strcmp(self->path, "") == 0)
     {
@@ -4308,7 +4307,7 @@ SndTable_getViewTable(SndTable *self, PyObject *args, PyObject *kwds)
     static char *kwlist[] = {"size", "begin", "end", "yOffset", NULL};
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__OFFI, kwlist, &sizetmp, &begin, &end, &yOffset))
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
 
     if (end <= 0.0)
         end = self->size;
@@ -4336,13 +4335,13 @@ SndTable_getViewTable(SndTable *self, PyObject *args, PyObject *kwds)
     {
         if (PyTuple_Check(sizetmp))
         {
-            w = PyInt_AsLong(PyTuple_GET_ITEM(sizetmp, 0));
-            h = PyInt_AsLong(PyTuple_GET_ITEM(sizetmp, 1));
+            w = PyLong_AsLong(PyTuple_GET_ITEM(sizetmp, 0));
+            h = PyLong_AsLong(PyTuple_GET_ITEM(sizetmp, 1));
         }
         else if (PyList_Check(sizetmp))
         {
-            w = PyInt_AsLong(PyList_GET_ITEM(sizetmp, 0));
-            h = PyInt_AsLong(PyList_GET_ITEM(sizetmp, 1));
+            w = PyLong_AsLong(PyList_GET_ITEM(sizetmp, 0));
+            h = PyLong_AsLong(PyList_GET_ITEM(sizetmp, 1));
         }
         else
         {
@@ -4367,8 +4366,8 @@ SndTable_getViewTable(SndTable *self, PyObject *args, PyObject *kwds)
         for (i = 0; i < size; i++)
         {
             tuple = PyTuple_New(2);
-            PyTuple_SetItem(tuple, 0, PyInt_FromLong((int)(i * fstep)));
-            PyTuple_SetItem(tuple, 1, PyInt_FromLong(-self->data[i + (int)(begin)]*h2 + h2 + yOffset));
+            PyTuple_SetItem(tuple, 0, PyLong_FromLong((int)(i * fstep)));
+            PyTuple_SetItem(tuple, 1, PyLong_FromLong(-self->data[i + (int)(begin)]*h2 + h2 + yOffset));
             PyList_SetItem(samples, i, tuple);
         }
     }
@@ -4388,8 +4387,8 @@ SndTable_getViewTable(SndTable *self, PyObject *args, PyObject *kwds)
 
             y = (T_SIZE_T)(absin / step * h2);
             tuple = PyTuple_New(2);
-            PyTuple_SetItem(tuple, 0, PyInt_FromLong(i));
-            PyTuple_SetItem(tuple, 1, PyInt_FromLong(h2 + y + yOffset));
+            PyTuple_SetItem(tuple, 0, PyLong_FromLong(i));
+            PyTuple_SetItem(tuple, 1, PyLong_FromLong(h2 + y + yOffset));
             PyList_SetItem(samples, i, tuple);
         }
     }
@@ -4411,12 +4410,12 @@ SndTable_getViewTable(SndTable *self, PyObject *args, PyObject *kwds)
 
             y = (T_SIZE_T)(absin * h2);
             tuple = PyTuple_New(2);
-            PyTuple_SetItem(tuple, 0, PyInt_FromLong(i));
-            PyTuple_SetItem(tuple, 1, PyInt_FromLong(h2 - y + yOffset));
+            PyTuple_SetItem(tuple, 0, PyLong_FromLong(i));
+            PyTuple_SetItem(tuple, 1, PyLong_FromLong(h2 - y + yOffset));
             PyList_SetItem(samples, i * 2, tuple);
             tuple = PyTuple_New(2);
-            PyTuple_SetItem(tuple, 0, PyInt_FromLong(i));
-            PyTuple_SetItem(tuple, 1, PyInt_FromLong(h2 + y + yOffset));
+            PyTuple_SetItem(tuple, 0, PyLong_FromLong(i));
+            PyTuple_SetItem(tuple, 1, PyLong_FromLong(h2 + y + yOffset));
             PyList_SetItem(samples, i * 2 + 1, tuple);
         }
     }
@@ -4434,12 +4433,12 @@ SndTable_getEnvelope(SndTable *self, PyObject *arg)
 
     ASSERT_ARG_NOT_NULL
 
-    int isInt = PyInt_Check(arg);
+    int isInt = PyLong_Check(arg);
 
     if (isInt)
     {
         count = 0;
-        points = PyInt_AsLong(arg);
+        points = PyLong_AsLong(arg);
         step = self->size / points;
         samples = PyList_New(points);
 
@@ -4560,7 +4559,7 @@ SndTable_setSize(SndTable *self, PyObject *value)
 static PyObject *
 SndTable_getSize(SndTable *self)
 {
-    return PyInt_FromLong(self->size);
+    return PyLong_FromLong(self->size);
 };
 
 static PyObject *
@@ -4837,7 +4836,7 @@ NewTable_getViewTable(NewTable *self, PyObject *args, PyObject *kwds)
     static char *kwlist[] = {"size", "begin", "end", "yOffset", NULL};
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__OFFI, kwlist, &sizetmp, &begin, &end, &yOffset))
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
 
     if (end <= 0.0)
         end = self->size;
@@ -4865,13 +4864,13 @@ NewTable_getViewTable(NewTable *self, PyObject *args, PyObject *kwds)
     {
         if (PyTuple_Check(sizetmp))
         {
-            w = PyInt_AsLong(PyTuple_GET_ITEM(sizetmp, 0));
-            h = PyInt_AsLong(PyTuple_GET_ITEM(sizetmp, 1));
+            w = PyLong_AsLong(PyTuple_GET_ITEM(sizetmp, 0));
+            h = PyLong_AsLong(PyTuple_GET_ITEM(sizetmp, 1));
         }
         else if (PyList_Check(sizetmp))
         {
-            w = PyInt_AsLong(PyList_GET_ITEM(sizetmp, 0));
-            h = PyInt_AsLong(PyList_GET_ITEM(sizetmp, 1));
+            w = PyLong_AsLong(PyList_GET_ITEM(sizetmp, 0));
+            h = PyLong_AsLong(PyList_GET_ITEM(sizetmp, 1));
         }
         else
         {
@@ -4896,8 +4895,8 @@ NewTable_getViewTable(NewTable *self, PyObject *args, PyObject *kwds)
         for (i = 0; i < size; i++)
         {
             tuple = PyTuple_New(2);
-            PyTuple_SetItem(tuple, 0, PyInt_FromLong((T_SIZE_T)(i * fstep)));
-            PyTuple_SetItem(tuple, 1, PyInt_FromLong(-self->data[i + (T_SIZE_T)(begin)]*h2 + h2 + yOffset));
+            PyTuple_SetItem(tuple, 0, PyLong_FromLong((T_SIZE_T)(i * fstep)));
+            PyTuple_SetItem(tuple, 1, PyLong_FromLong(-self->data[i + (T_SIZE_T)(begin)]*h2 + h2 + yOffset));
             PyList_SetItem(samples, i, tuple);
         }
     }
@@ -4917,8 +4916,8 @@ NewTable_getViewTable(NewTable *self, PyObject *args, PyObject *kwds)
 
             y = (int)(absin / step * h2);
             tuple = PyTuple_New(2);
-            PyTuple_SetItem(tuple, 0, PyInt_FromLong(i));
-            PyTuple_SetItem(tuple, 1, PyInt_FromLong(h2 + y + yOffset));
+            PyTuple_SetItem(tuple, 0, PyLong_FromLong(i));
+            PyTuple_SetItem(tuple, 1, PyLong_FromLong(h2 + y + yOffset));
             PyList_SetItem(samples, i, tuple);
         }
     }
@@ -4940,12 +4939,12 @@ NewTable_getViewTable(NewTable *self, PyObject *args, PyObject *kwds)
 
             y = (T_SIZE_T)(absin * h2);
             tuple = PyTuple_New(2);
-            PyTuple_SetItem(tuple, 0, PyInt_FromLong(i));
-            PyTuple_SetItem(tuple, 1, PyInt_FromLong(h2 - y + yOffset));
+            PyTuple_SetItem(tuple, 0, PyLong_FromLong(i));
+            PyTuple_SetItem(tuple, 1, PyLong_FromLong(h2 - y + yOffset));
             PyList_SetItem(samples, i * 2, tuple);
             tuple = PyTuple_New(2);
-            PyTuple_SetItem(tuple, 0, PyInt_FromLong(i));
-            PyTuple_SetItem(tuple, 1, PyInt_FromLong(h2 + y + yOffset));
+            PyTuple_SetItem(tuple, 0, PyLong_FromLong(i));
+            PyTuple_SetItem(tuple, 1, PyLong_FromLong(h2 + y + yOffset));
             PyList_SetItem(samples, i * 2 + 1, tuple);
         }
     }
@@ -4956,7 +4955,7 @@ NewTable_getViewTable(NewTable *self, PyObject *args, PyObject *kwds)
 static PyObject *
 NewTable_getSize(NewTable *self)
 {
-    return PyInt_FromLong(self->size);
+    return PyLong_FromLong(self->size);
 };
 
 static PyObject *
@@ -5183,7 +5182,7 @@ static PyObject * DataTable_div(DataTable *self, PyObject *arg) { TABLE_DIV };
 static PyObject *
 DataTable_getSize(DataTable *self)
 {
-    return PyInt_FromLong(self->size);
+    return PyLong_FromLong(self->size);
 };
 
 static PyObject *
@@ -5397,7 +5396,7 @@ AtanTable_setSlope(AtanTable *self, PyObject *value)
     if (! PyNumber_Check(value))
     {
         PyErr_SetString(PyExc_TypeError, "The slope attribute value must be a number.");
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
     }
 
     self->slope = PyFloat_AsDouble(value);
@@ -5425,7 +5424,7 @@ AtanTable_setSize(AtanTable *self, PyObject *value)
 static PyObject *
 AtanTable_getSize(AtanTable *self)
 {
-    return PyInt_FromLong(self->size);
+    return PyLong_FromLong(self->size);
 };
 
 static PyMemberDef AtanTable_members[] =
@@ -5866,7 +5865,7 @@ PadSynthTable_setSize(PadSynthTable *self, PyObject *args, PyObject *kwds)
 static PyObject *
 PadSynthTable_getSize(PadSynthTable *self)
 {
-    return PyInt_FromLong(self->size);
+    return PyLong_FromLong(self->size);
 };
 
 static PyMemberDef PadSynthTable_members[] =
@@ -5981,7 +5980,7 @@ TableRec_compute_next_data_frame(TableRec *self)
 {
     int i;
     MYFLT val;
-    T_SIZE_T num, upBound, size = PyInt_AsLong(NewTable_getSize((NewTable *)self->table));
+    T_SIZE_T num, upBound, size = PyLong_AsLong(NewTable_getSize((NewTable *)self->table));
 
     for (i = 0; i < self->bufsize; i++)
     {
@@ -6135,7 +6134,7 @@ TableRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     MAKE_NEW_TRIGGER_STREAM(self->trig_stream, &TriggerStreamType, NULL);
     TriggerStream_setData(self->trig_stream, self->trigsBuffer);
 
-    int size = PyInt_AsLong(NewTable_getSize((NewTable *)self->table));
+    int size = PyLong_AsLong(NewTable_getSize((NewTable *)self->table));
 
     if ((self->fadetime * self->sr) >= (size * 0.5))
         self->fadetime = size * 0.499 / self->sr;
@@ -6175,7 +6174,7 @@ static PyObject * TableRec_stop(TableRec *self, PyObject *args, PyObject *kwds)
     static char *kwlist[] = {"wait", NULL};
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|f", kwlist, &wait))
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
 
     if (wait == 0)
     {
@@ -6256,7 +6255,7 @@ PyTypeObject TableRecType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "TableRec objects. Record audio input in a table object.",           /* tp_doc */
     (traverseproc)TableRec_traverse,   /* tp_traverse */
     (inquiry)TableRec_clear,           /* tp_clear */
@@ -6458,7 +6457,6 @@ static PyNumberMethods TableRecTimeStream_as_number =
     (binaryfunc)TableRecTimeStream_add,                         /*nb_add*/
     (binaryfunc)TableRecTimeStream_sub,                         /*nb_subtract*/
     (binaryfunc)TableRecTimeStream_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -6472,16 +6470,12 @@ static PyNumberMethods TableRecTimeStream_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)TableRecTimeStream_inplace_add,                 /*inplace_add*/
     (binaryfunc)TableRecTimeStream_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)TableRecTimeStream_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -6517,7 +6511,7 @@ PyTypeObject TableRecTimeStreamType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "TableRecTimeStream objects. Returns the current recording time, in samples, of a TableRec object.",           /* tp_doc */
     (traverseproc)TableRecTimeStream_traverse,   /* tp_traverse */
     (inquiry)TableRecTimeStream_clear,           /* tp_clear */
@@ -6567,7 +6561,7 @@ static void
 TableMorph_alloc_memories(TableMorph *self)
 {
     T_SIZE_T i, size;
-    size = PyInt_AsLong(NewTable_getSize((NewTable *)self->table));
+    size = PyLong_AsLong(NewTable_getSize((NewTable *)self->table));
     self->last_size = size;
     self->buffer = (MYFLT *)realloc(self->buffer, size * sizeof(MYFLT));
 
@@ -6585,7 +6579,7 @@ TableMorph_compute_next_data_frame(TableMorph *self)
     MYFLT input, interp, interp1, interp2;
 
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    T_SIZE_T size = PyInt_AsLong(NewTable_getSize((NewTable *)self->table));
+    T_SIZE_T size = PyLong_AsLong(NewTable_getSize((NewTable *)self->table));
     int len = PyList_Size(self->sources);
 
     if (size != self->last_size)
@@ -6713,7 +6707,7 @@ TableMorph_setSources(TableMorph *self, PyObject *arg)
     if (! PyList_Check(arg))
     {
         PyErr_SetString(PyExc_TypeError, "The amplitude list attribute value must be a list.");
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
     }
 
     Py_INCREF(arg);
@@ -6765,7 +6759,7 @@ PyTypeObject TableMorphType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "TableMorph objects. Interpolation contents of different table objects.",           /* tp_doc */
     (traverseproc)TableMorph_traverse,   /* tp_traverse */
     (inquiry)TableMorph_clear,           /* tp_clear */
@@ -6811,7 +6805,7 @@ TrigTableRec_compute_next_data_frame(TrigTableRec *self)
 {
     int i, j, num;
     MYFLT val;
-    T_SIZE_T upBound, size = PyInt_AsLong(NewTable_getSize((NewTable *)self->table));
+    T_SIZE_T upBound, size = PyLong_AsLong(NewTable_getSize((NewTable *)self->table));
 
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *trig = Stream_getData((Stream *)self->trigger_stream);
@@ -7032,7 +7026,7 @@ TrigTableRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     MAKE_NEW_TRIGGER_STREAM(self->trig_stream, &TriggerStreamType, NULL);
     TriggerStream_setData(self->trig_stream, self->trigsBuffer);
 
-    T_SIZE_T size = PyInt_AsLong(NewTable_getSize((NewTable *)self->table));
+    T_SIZE_T size = PyLong_AsLong(NewTable_getSize((NewTable *)self->table));
 
     if ((self->fadetime * self->sr) >= (size * 0.5))
         self->fadetime = size * 0.499 / self->sr;
@@ -7110,7 +7104,7 @@ PyTypeObject TrigTableRecType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "TrigTableRec objects. Record audio input in a table object.",           /* tp_doc */
     (traverseproc)TrigTableRec_traverse,   /* tp_traverse */
     (inquiry)TrigTableRec_clear,           /* tp_clear */
@@ -7312,7 +7306,6 @@ static PyNumberMethods TrigTableRecTimeStream_as_number =
     (binaryfunc)TrigTableRecTimeStream_add,                         /*nb_add*/
     (binaryfunc)TrigTableRecTimeStream_sub,                         /*nb_subtract*/
     (binaryfunc)TrigTableRecTimeStream_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -7326,16 +7319,12 @@ static PyNumberMethods TrigTableRecTimeStream_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)TrigTableRecTimeStream_inplace_add,                 /*inplace_add*/
     (binaryfunc)TrigTableRecTimeStream_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)TrigTableRecTimeStream_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -7371,7 +7360,7 @@ PyTypeObject TrigTableRecTimeStreamType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "TrigTableRecTimeStream objects. Returns the current recording time, in samples, of a TableRec object.",           /* tp_doc */
     (traverseproc)TrigTableRecTimeStream_traverse,   /* tp_traverse */
     (inquiry)TrigTableRecTimeStream_clear,           /* tp_clear */
@@ -7412,7 +7401,7 @@ static void
 TablePut_compute_next_data_frame(TablePut *self)
 {
     int i;
-    T_SIZE_T size = PyInt_AsLong(DataTable_getSize((DataTable *)self->table));
+    T_SIZE_T size = PyLong_AsLong(DataTable_getSize((DataTable *)self->table));
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
 
     for (i = 0; i < self->bufsize; i++)
@@ -7589,7 +7578,7 @@ PyTypeObject TablePutType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "TablePut objects. Record new value in input in a data table object.",           /* tp_doc */
     (traverseproc)TablePut_traverse,   /* tp_traverse */
     (inquiry)TablePut_clear,           /* tp_clear */
@@ -7884,7 +7873,7 @@ PyTypeObject TableWriteType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "TableWrite objects. Record audio input in a table object.",           /* tp_doc */
     (traverseproc)TableWrite_traverse,   /* tp_traverse */
     (inquiry)TableWrite_clear,           /* tp_clear */
@@ -8058,7 +8047,7 @@ static PyObject * SharedTable_div(SharedTable *self, PyObject *arg) { TABLE_DIV 
 static PyObject *
 SharedTable_getSize(SharedTable *self)
 {
-    return PyInt_FromLong(self->size);
+    return PyLong_FromLong(self->size);
 };
 
 static PyObject *

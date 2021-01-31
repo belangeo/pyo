@@ -305,7 +305,6 @@ A triangle waveform generator (use Sig(0) as input argument to bypass input):
     (triangle #freq)
 
 """
-from __future__ import absolute_import
 
 """
 Copyright 2015-19 Olivier Belanger
@@ -331,22 +330,6 @@ import os, sys
 from ._core import *
 from ._maps import *
 from ._widgets import createExprEditorWindow
-
-if sys.version_info[0] < 3:
-
-    def to_unicode(s):
-        try:
-            s = unicode(s.replace(r"\\", r"\\\\"), "unicode_escape")
-        except:
-            pass
-        return s
-
-
-else:
-
-    def to_unicode(s):
-        return s
-
 
 class Expr(PyoObject):
     """
@@ -405,7 +388,7 @@ class Expr(PyoObject):
         self._initout = initout
         expr = self._preproc(expr)
         mul, add, lmax = convertArgsToLists(mul, add)
-        self._base_players = [Exprer_base(input_objs, to_unicode(expr), outs, initout)]
+        self._base_players = [Exprer_base(input_objs, expr, outs, initout)]
         self._base_objs = []
         for j in range(outs):
             self._base_objs.append(Expr_base(self._base_players[0], j, wrap(mul, j), wrap(add, j)))
@@ -426,7 +409,6 @@ class Expr(PyoObject):
         if self._editor is not None:
             self._editor.update(x)
         x = self._preproc(x)
-        x = to_unicode(x)
         x, lmax = convertArgsToLists(x)
         [obj.setExpr(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 

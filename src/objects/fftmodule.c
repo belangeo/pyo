@@ -19,7 +19,6 @@
  *************************************************************************/
 
 #include <Python.h>
-#include "py2to3.h"
 #include "structmember.h"
 #include <math.h>
 #include "pyomodule.h"
@@ -267,7 +266,7 @@ FFTMain_setSize(FFTMain *self, PyObject *args, PyObject *kwds)
 static PyObject *
 FFTMain_setWinType(FFTMain *self, PyObject *arg)
 {
-    if (PyLong_Check(arg) || PyInt_Check(arg))
+    if (PyLong_Check(arg))
     {
         self->wintype = PyLong_AsLong(arg);
         gen_window(self->window, self->size, self->wintype);
@@ -316,7 +315,7 @@ PyTypeObject FFTMainType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "FFTMain objects. FFT transform.",           /* tp_doc */
     (traverseproc)FFTMain_traverse,                  /* tp_traverse */
     (inquiry)FFTMain_clear,                          /* tp_clear */
@@ -531,7 +530,6 @@ static PyNumberMethods FFT_as_number =
     (binaryfunc)FFT_add,                      /*nb_add*/
     (binaryfunc)FFT_sub,                 /*nb_subtract*/
     (binaryfunc)FFT_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -545,16 +543,12 @@ static PyNumberMethods FFT_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)FFT_inplace_add,              /*inplace_add*/
     (binaryfunc)FFT_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)FFT_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -590,7 +584,7 @@ PyTypeObject FFTType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "FFT objects. Reads one band (real, imag or bins) from a FFT transform.",           /* tp_doc */
     (traverseproc)FFT_traverse,   /* tp_traverse */
     (inquiry)FFT_clear,           /* tp_clear */
@@ -921,7 +915,7 @@ IFFT_setSize(IFFT *self, PyObject *args, PyObject *kwds)
 static PyObject *
 IFFT_setWinType(IFFT *self, PyObject *arg)
 {
-    if (PyLong_Check(arg) || PyInt_Check(arg))
+    if (PyLong_Check(arg))
     {
         self->wintype = PyLong_AsLong(arg);
         gen_window(self->window, self->size, self->wintype);
@@ -962,7 +956,6 @@ static PyNumberMethods IFFT_as_number =
     (binaryfunc)IFFT_add,                      /*nb_add*/
     (binaryfunc)IFFT_sub,                 /*nb_subtract*/
     (binaryfunc)IFFT_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -976,16 +969,12 @@ static PyNumberMethods IFFT_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)IFFT_inplace_add,              /*inplace_add*/
     (binaryfunc)IFFT_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)IFFT_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -1021,7 +1010,7 @@ PyTypeObject IFFTType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "IFFT objects. Synthesize audio from an FFT real and imaginary parts.",           /* tp_doc */
     (traverseproc)IFFT_traverse,   /* tp_traverse */
     (inquiry)IFFT_clear,           /* tp_clear */
@@ -1265,7 +1254,6 @@ static PyNumberMethods CarToPol_as_number =
     (binaryfunc)CarToPol_add,                      /*nb_add*/
     (binaryfunc)CarToPol_sub,                 /*nb_subtract*/
     (binaryfunc)CarToPol_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -1279,16 +1267,12 @@ static PyNumberMethods CarToPol_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)CarToPol_inplace_add,              /*inplace_add*/
     (binaryfunc)CarToPol_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)CarToPol_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -1324,7 +1308,7 @@ PyTypeObject CarToPolType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "CarToPol objects. Cartesian to polar transform.",           /* tp_doc */
     (traverseproc)CarToPol_traverse,   /* tp_traverse */
     (inquiry)CarToPol_clear,           /* tp_clear */
@@ -1568,7 +1552,6 @@ static PyNumberMethods PolToCar_as_number =
     (binaryfunc)PolToCar_add,                      /*nb_add*/
     (binaryfunc)PolToCar_sub,                 /*nb_subtract*/
     (binaryfunc)PolToCar_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -1582,16 +1565,12 @@ static PyNumberMethods PolToCar_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)PolToCar_inplace_add,              /*inplace_add*/
     (binaryfunc)PolToCar_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)PolToCar_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -1627,7 +1606,7 @@ PyTypeObject PolToCarType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "PolToCar objects. Polar to cartesian transform.",           /* tp_doc */
     (traverseproc)PolToCar_traverse,   /* tp_traverse */
     (inquiry)PolToCar_clear,           /* tp_clear */
@@ -1852,7 +1831,7 @@ FrameDeltaMain_setFrameSize(FrameDeltaMain *self, PyObject *arg)
 {
     int i, j, tmp;
 
-    if (PyInt_Check(arg))
+    if (PyLong_Check(arg))
     {
         tmp = PyLong_AsLong(arg);
 
@@ -1922,7 +1901,7 @@ PyTypeObject FrameDeltaMainType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "FrameDeltaMain objects. Compute the phase difference between successive frames.",           /* tp_doc */
     (traverseproc)FrameDeltaMain_traverse,   /* tp_traverse */
     (inquiry)FrameDeltaMain_clear,           /* tp_clear */
@@ -2139,7 +2118,6 @@ static PyNumberMethods FrameDelta_as_number =
     (binaryfunc)FrameDelta_add,                      /*nb_add*/
     (binaryfunc)FrameDelta_sub,                 /*nb_subtract*/
     (binaryfunc)FrameDelta_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -2153,16 +2131,12 @@ static PyNumberMethods FrameDelta_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)FrameDelta_inplace_add,              /*inplace_add*/
     (binaryfunc)FrameDelta_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)FrameDelta_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -2198,7 +2172,7 @@ PyTypeObject FrameDeltaType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "FrameDelta objects. Reads one band from a FrameDeltaMain object.",           /* tp_doc */
     (traverseproc)FrameDelta_traverse,   /* tp_traverse */
     (inquiry)FrameDelta_clear,           /* tp_clear */
@@ -2412,7 +2386,7 @@ FrameAccumMain_setFrameSize(FrameAccumMain *self, PyObject *arg)
 {
     int i, j, tmp;
 
-    if (PyInt_Check(arg))
+    if (PyLong_Check(arg))
     {
         tmp = PyLong_AsLong(arg);
 
@@ -2482,7 +2456,7 @@ PyTypeObject FrameAccumMainType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "FrameAccumMain objects. Integrate the phase difference between successive frames.",           /* tp_doc */
     (traverseproc)FrameAccumMain_traverse,   /* tp_traverse */
     (inquiry)FrameAccumMain_clear,           /* tp_clear */
@@ -2699,7 +2673,6 @@ static PyNumberMethods FrameAccum_as_number =
     (binaryfunc)FrameAccum_add,                      /*nb_add*/
     (binaryfunc)FrameAccum_sub,                 /*nb_subtract*/
     (binaryfunc)FrameAccum_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -2713,16 +2686,12 @@ static PyNumberMethods FrameAccum_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)FrameAccum_inplace_add,              /*inplace_add*/
     (binaryfunc)FrameAccum_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)FrameAccum_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -2758,7 +2727,7 @@ PyTypeObject FrameAccumType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "FrameAccum objects. Reads one band from a FrameAccumMain object.",           /* tp_doc */
     (traverseproc)FrameAccum_traverse,   /* tp_traverse */
     (inquiry)FrameAccum_clear,           /* tp_clear */
@@ -3063,7 +3032,7 @@ VectralMain_setFrameSize(VectralMain *self, PyObject *arg)
 {
     int i, j, tmp;
 
-    if (PyInt_Check(arg))
+    if (PyLong_Check(arg))
     {
         tmp = PyLong_AsLong(arg);
 
@@ -3229,7 +3198,7 @@ PyTypeObject VectralMainType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "VectralMain objects. Smoothing between successive magnitude FFT frames.",           /* tp_doc */
     (traverseproc)VectralMain_traverse,   /* tp_traverse */
     (inquiry)VectralMain_clear,           /* tp_clear */
@@ -3446,7 +3415,6 @@ static PyNumberMethods Vectral_as_number =
     (binaryfunc)Vectral_add,                      /*nb_add*/
     (binaryfunc)Vectral_sub,                 /*nb_subtract*/
     (binaryfunc)Vectral_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -3460,16 +3428,12 @@ static PyNumberMethods Vectral_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)Vectral_inplace_add,              /*inplace_add*/
     (binaryfunc)Vectral_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Vectral_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -3505,7 +3469,7 @@ PyTypeObject VectralType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "Vectral objects. Reads one band from a VectralMain object.",           /* tp_doc */
     (traverseproc)Vectral_traverse,   /* tp_traverse */
     (inquiry)Vectral_clear,           /* tp_clear */
@@ -4140,7 +4104,6 @@ static PyNumberMethods CvlVerb_as_number =
     (binaryfunc)CvlVerb_add,                      /*nb_add*/
     (binaryfunc)CvlVerb_sub,                 /*nb_subtract*/
     (binaryfunc)CvlVerb_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -4154,16 +4117,12 @@ static PyNumberMethods CvlVerb_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)CvlVerb_inplace_add,              /*inplace_add*/
     (binaryfunc)CvlVerb_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)CvlVerb_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -4199,7 +4158,7 @@ PyTypeObject CvlVerbType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "CvlVerb objects. FFT transform.",           /* tp_doc */
     (traverseproc)CvlVerb_traverse,                  /* tp_traverse */
     (inquiry)CvlVerb_clear,                          /* tp_clear */
@@ -4298,12 +4257,12 @@ Spectrum_display(Spectrum *self)
     points = PyList_New(self->width + 2);
 
     tuple = PyTuple_New(2);
-    PyTuple_SET_ITEM(tuple, 0, PyInt_FromLong(0));
-    PyTuple_SET_ITEM(tuple, 1, PyInt_FromLong(self->height));
+    PyTuple_SET_ITEM(tuple, 0, PyLong_FromLong(0));
+    PyTuple_SET_ITEM(tuple, 1, PyLong_FromLong(self->height));
     PyList_SET_ITEM(points, 0, tuple);
     tuple = PyTuple_New(2);
-    PyTuple_SET_ITEM(tuple, 0, PyInt_FromLong(self->width));
-    PyTuple_SET_ITEM(tuple, 1, PyInt_FromLong(self->height));
+    PyTuple_SET_ITEM(tuple, 0, PyLong_FromLong(self->width));
+    PyTuple_SET_ITEM(tuple, 1, PyLong_FromLong(self->height));
     PyList_SET_ITEM(points, self->width + 1, tuple);
 
     if (!self->fscaling && !self->mscaling)
@@ -4315,8 +4274,8 @@ Spectrum_display(Spectrum *self)
             frac = pos - p1;
             tuple = PyTuple_New(2);
             mag = ((self->magnitude[p1] + (self->magnitude[p1 + 1] - self->magnitude[p1]) * frac) * self->gain * 4 * h4);
-            PyTuple_SET_ITEM(tuple, 0, PyInt_FromLong(i));
-            PyTuple_SET_ITEM(tuple, 1, PyInt_FromLong(self->height - (int)mag));
+            PyTuple_SET_ITEM(tuple, 0, PyLong_FromLong(i));
+            PyTuple_SET_ITEM(tuple, 1, PyLong_FromLong(self->height - (int)mag));
             PyList_SET_ITEM(points, i + 1, tuple);
         }
     }
@@ -4331,8 +4290,8 @@ Spectrum_display(Spectrum *self)
             mag = ((self->magnitude[p1] + (self->magnitude[p1 + 1] - self->magnitude[p1]) * frac) * 0.7 * self->gain);
             mag = mag > 0.001 ? mag : 0.001;
             mag = (60.0 + (20.0 * MYLOG10(mag))) * 0.01666 * h4;
-            PyTuple_SET_ITEM(tuple, 0, PyInt_FromLong(i));
-            PyTuple_SET_ITEM(tuple, 1, PyInt_FromLong(self->height - (int)mag));
+            PyTuple_SET_ITEM(tuple, 0, PyLong_FromLong(i));
+            PyTuple_SET_ITEM(tuple, 1, PyLong_FromLong(self->height - (int)mag));
             PyList_SET_ITEM(points, i + 1, tuple);
         }
     }
@@ -4351,8 +4310,8 @@ Spectrum_display(Spectrum *self)
             frac = pos - p1;
             tuple = PyTuple_New(2);
             mag = ((self->magnitude[p1] + (self->magnitude[p1 + 1] - self->magnitude[p1]) * frac) * self->gain * 4 * h4);
-            PyTuple_SET_ITEM(tuple, 0, PyInt_FromLong(i));
-            PyTuple_SET_ITEM(tuple, 1, PyInt_FromLong(self->height - (int)mag));
+            PyTuple_SET_ITEM(tuple, 0, PyLong_FromLong(i));
+            PyTuple_SET_ITEM(tuple, 1, PyLong_FromLong(self->height - (int)mag));
             PyList_SET_ITEM(points, i + 1, tuple);
         }
     }
@@ -4373,8 +4332,8 @@ Spectrum_display(Spectrum *self)
             mag = ((self->magnitude[p1] + (self->magnitude[p1 + 1] - self->magnitude[p1]) * frac) * 0.7 * self->gain);
             mag = mag > 0.001 ? mag : 0.001;
             mag = (60.0 + (20.0 * MYLOG10(mag))) * 0.01666 * self->height;
-            PyTuple_SET_ITEM(tuple, 0, PyInt_FromLong(i));
-            PyTuple_SET_ITEM(tuple, 1, PyInt_FromLong(self->height - (int)mag));
+            PyTuple_SET_ITEM(tuple, 0, PyLong_FromLong(i));
+            PyTuple_SET_ITEM(tuple, 1, PyLong_FromLong(self->height - (int)mag));
             PyList_SET_ITEM(points, i + 1, tuple);
         }
     }
@@ -4542,9 +4501,9 @@ Spectrum_setSize(Spectrum *self, PyObject *arg)
 {
     int tmp;
 
-    if (PyLong_Check(arg) || PyInt_Check(arg))
+    if (PyLong_Check(arg))
     {
-        tmp = PyInt_AsLong(arg);
+        tmp = PyLong_AsLong(arg);
 
         if (isPowerOfTwo(tmp))
         {
@@ -4561,7 +4520,7 @@ Spectrum_setSize(Spectrum *self, PyObject *arg)
 static PyObject *
 Spectrum_setWinType(Spectrum *self, PyObject *arg)
 {
-    if (PyLong_Check(arg) || PyInt_Check(arg))
+    if (PyLong_Check(arg))
     {
         self->wintype = PyLong_AsLong(arg);
         gen_window(self->window, self->size, self->wintype);
@@ -4625,7 +4584,7 @@ Spectrum_getHighfreq(Spectrum *self)
 static PyObject *
 Spectrum_setWidth(Spectrum *self, PyObject *arg)
 {
-    if (PyInt_Check(arg) || PyLong_Check(arg))
+    if (PyLong_Check(arg))
         self->width = PyLong_AsLong(arg);
 
     Py_RETURN_NONE;
@@ -4634,7 +4593,7 @@ Spectrum_setWidth(Spectrum *self, PyObject *arg)
 static PyObject *
 Spectrum_setHeight(Spectrum *self, PyObject *arg)
 {
-    if (PyInt_Check(arg) || PyLong_Check(arg))
+    if (PyLong_Check(arg))
         self->height = PyLong_AsLong(arg);
 
     Py_RETURN_NONE;
@@ -4643,7 +4602,7 @@ Spectrum_setHeight(Spectrum *self, PyObject *arg)
 static PyObject *
 Spectrum_setFscaling(Spectrum *self, PyObject *arg)
 {
-    if (PyInt_Check(arg) || PyLong_Check(arg))
+    if (PyLong_Check(arg))
         self->fscaling = PyLong_AsLong(arg);
 
     Py_RETURN_NONE;
@@ -4652,7 +4611,7 @@ Spectrum_setFscaling(Spectrum *self, PyObject *arg)
 static PyObject *
 Spectrum_setMscaling(Spectrum *self, PyObject *arg)
 {
-    if (PyInt_Check(arg) || PyLong_Check(arg))
+    if (PyLong_Check(arg))
         self->mscaling = PyLong_AsLong(arg);
 
     Py_RETURN_NONE;
@@ -4717,7 +4676,7 @@ PyTypeObject SpectrumType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Spectrum objects. FFT spectrum analyser.",           /* tp_doc */
     (traverseproc)Spectrum_traverse,                  /* tp_traverse */
     (inquiry)Spectrum_clear,                          /* tp_clear */
@@ -5097,7 +5056,7 @@ IFFTMatrix_setSize(IFFTMatrix *self, PyObject *args, PyObject *kwds)
 static PyObject *
 IFFTMatrix_setWinType(IFFTMatrix *self, PyObject *arg)
 {
-    if (PyLong_Check(arg) || PyInt_Check(arg))
+    if (PyLong_Check(arg))
     {
         self->wintype = PyLong_AsLong(arg);
         gen_window(self->window, self->size, self->wintype);
@@ -5141,7 +5100,6 @@ static PyNumberMethods IFFTMatrix_as_number =
     (binaryfunc)IFFTMatrix_add,                      /*nb_add*/
     (binaryfunc)IFFTMatrix_sub,                 /*nb_subtract*/
     (binaryfunc)IFFTMatrix_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -5155,16 +5113,12 @@ static PyNumberMethods IFFTMatrix_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)IFFTMatrix_inplace_add,              /*inplace_add*/
     (binaryfunc)IFFTMatrix_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)IFFTMatrix_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -5200,7 +5154,7 @@ PyTypeObject IFFTMatrixType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "IFFTMatrix objects. Synthesize audio from a Matrix object.",           /* tp_doc */
     (traverseproc)IFFTMatrix_traverse,   /* tp_traverse */
     (inquiry)IFFTMatrix_clear,           /* tp_clear */

@@ -726,10 +726,10 @@ extern PyTypeObject MMLZStreamType;
     Py_INCREF(self->server); \
     self->mul = PyFloat_FromDouble(1); \
     self->add = PyFloat_FromDouble(0); \
-    self->bufsize = PyInt_AsLong(PyObject_CallMethod(self->server, "getBufferSize", NULL)); \
+    self->bufsize = PyLong_AsLong(PyObject_CallMethod(self->server, "getBufferSize", NULL)); \
     self->sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL)); \
-    self->nchnls = PyInt_AsLong(PyObject_CallMethod(self->server, "getNchnls", NULL)); \
-    self->ichnls = PyInt_AsLong(PyObject_CallMethod(self->server, "getIchnls", NULL)); \
+    self->nchnls = PyLong_AsLong(PyObject_CallMethod(self->server, "getNchnls", NULL)); \
+    self->ichnls = PyLong_AsLong(PyObject_CallMethod(self->server, "getIchnls", NULL)); \
     self->data = (MYFLT *)realloc(self->data, (self->bufsize) * sizeof(MYFLT)); \
     for (i=0; i<self->bufsize; i++) \
         self->data[i] = 0.0; \
@@ -756,7 +756,7 @@ extern PyTypeObject MMLZStreamType;
     T_SIZE_T i; \
     if (! PyList_Check(arg)) { \
         PyErr_SetString(PyExc_TypeError, "The data must be a list of floats."); \
-        return PyInt_FromLong(-1); \
+        return PyLong_FromLong(-1); \
     } \
     self->size = (T_SIZE_T)PyList_Size(arg); \
     self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT)); \
@@ -776,7 +776,7 @@ extern PyTypeObject MMLZStreamType;
  \
     if (! PyList_Check(arg)) { \
         PyErr_SetString(PyExc_TypeError, "The data must be a list of list of floats."); \
-        return PyInt_FromLong(-1); \
+        return PyLong_FromLong(-1); \
     } \
     for (i = 0; i < (self->height + 1); i++) { \
         free(self->data[i]); \
@@ -968,16 +968,16 @@ extern PyTypeObject MMLZStreamType;
     T_SIZE_T i; \
     if (arg == NULL) { \
         PyErr_SetString(PyExc_TypeError, "Cannot delete the list attribute."); \
-        return PyInt_FromLong(-1); \
+        return PyLong_FromLong(-1); \
     } \
     if (! PyList_Check(arg)) { \
         PyErr_SetString(PyExc_TypeError, "arg must be a list."); \
-        return PyInt_FromLong(-1); \
+        return PyLong_FromLong(-1); \
     } \
     int size = PyList_Size(arg); \
     if (size != self->size) { \
         PyErr_SetString(PyExc_TypeError, "New table must be of the same size as actual table."); \
-        return PyInt_FromLong(-1); \
+        return PyLong_FromLong(-1); \
     } \
     for (i=0; i<self->size; i++) { \
         self->data[i] = PyFloat_AsDouble(PyList_GET_ITEM(arg, i)); \
@@ -1004,16 +1004,16 @@ extern PyTypeObject MMLZStreamType;
     static char *kwlist[] = {"size", NULL}; \
  \
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &sizetmp)) \
-        return PyInt_FromLong(-1); \
+        return PyLong_FromLong(-1); \
  \
     if (sizetmp) { \
         if (PyTuple_Check(sizetmp)) { \
-            w = PyInt_AsLong(PyTuple_GET_ITEM(sizetmp, 0)); \
-            h = PyInt_AsLong(PyTuple_GET_ITEM(sizetmp, 1)); \
+            w = PyLong_AsLong(PyTuple_GET_ITEM(sizetmp, 0)); \
+            h = PyLong_AsLong(PyTuple_GET_ITEM(sizetmp, 1)); \
         } \
         else if (PyList_Check(sizetmp)) { \
-            w = PyInt_AsLong(PyList_GET_ITEM(sizetmp, 0)); \
-            h = PyInt_AsLong(PyList_GET_ITEM(sizetmp, 1)); \
+            w = PyLong_AsLong(PyList_GET_ITEM(sizetmp, 0)); \
+            h = PyLong_AsLong(PyList_GET_ITEM(sizetmp, 1)); \
         } \
         else { \
             w = 500; \
@@ -1032,8 +1032,8 @@ extern PyTypeObject MMLZStreamType;
     for (i=0; i<w; i++) { \
         y = self->data[(T_SIZE_T)(i * step)] * amp + amp + 2; \
         tuple = PyTuple_New(2); \
-        PyTuple_SetItem(tuple, 0, PyInt_FromLong(i)); \
-        PyTuple_SetItem(tuple, 1, PyInt_FromLong(h-y)); \
+        PyTuple_SetItem(tuple, 0, PyLong_FromLong(i)); \
+        PyTuple_SetItem(tuple, 1, PyLong_FromLong(h-y)); \
         PyList_SetItem(samples, i, tuple); \
     } \
  \
@@ -1099,7 +1099,7 @@ extern PyTypeObject MMLZStreamType;
     static char *kwlist[] = {"pos", NULL}; \
  \
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "n", kwlist, &pos)) \
-        return PyInt_FromLong(-1); \
+        return PyLong_FromLong(-1); \
  \
     pos = -pos; \
     while (pos > self->size) pos -= self->size; \
@@ -1137,7 +1137,7 @@ extern PyTypeObject MMLZStreamType;
     static char *kwlist[] = {"table", "srcpos", "destpos", "length", NULL}; \
  \
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|nnn", kwlist, &tabletmp, &srcpos, &destpos, &length)) \
-        return PyInt_FromLong(-1); \
+        return PyLong_FromLong(-1); \
  \
     if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 1 ) { \
         Py_XDECREF(table); \
@@ -1146,7 +1146,7 @@ extern PyTypeObject MMLZStreamType;
  \
         if (srcpos < -tabsize || srcpos >= tabsize) { \
             PyErr_SetString(PyExc_IndexError, "PyoTableObject: Position outside of table boundaries!."); \
-            return PyInt_FromLong(-1); \
+            return PyLong_FromLong(-1); \
         } \
     \
         if (srcpos < 0) \
@@ -1155,7 +1155,7 @@ extern PyTypeObject MMLZStreamType;
  \
         if (destpos < -self->size || destpos >= self->size) { \
             PyErr_SetString(PyExc_IndexError, "PyoTableObject: Position outside of table boundaries!."); \
-            return PyInt_FromLong(-1); \
+            return PyLong_FromLong(-1); \
         } \
     \
         if (destpos < 0) \
@@ -1182,7 +1182,7 @@ extern PyTypeObject MMLZStreamType;
     static char *kwlist[] = {"gpos", "gneg", NULL}; \
  \
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__FF, kwlist, &gpos, &gneg)) \
-        return PyInt_FromLong(-1); \
+        return PyLong_FromLong(-1); \
  \
     for (i=0; i<self->size+1; i++) { \
         if (self->data[i] < 0) \
@@ -1201,7 +1201,7 @@ extern PyTypeObject MMLZStreamType;
     static char *kwlist[] = {"exp", NULL}; \
  \
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F, kwlist, &exp)) \
-        return PyInt_FromLong(-1); \
+        return PyLong_FromLong(-1); \
  \
     for (i=0; i<self->size+1; i++) { \
         x = self->data[i]; \
@@ -1224,7 +1224,7 @@ extern PyTypeObject MMLZStreamType;
     static char *kwlist[] = {"freq", NULL}; \
  \
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F, kwlist, &freq)) \
-        return PyInt_FromLong(-1); \
+        return PyLong_FromLong(-1); \
  \
     b = 2.0 - MYCOS(TWOPI * freq / sr); \
     c = b - MYSQRT(b * b - 1.0); \
@@ -1245,7 +1245,7 @@ extern PyTypeObject MMLZStreamType;
     static char *kwlist[] = {"dur", "shape", NULL}; \
  \
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F_I, kwlist, &dur, &shape)) \
-        return PyInt_FromLong(-1); \
+        return PyLong_FromLong(-1); \
  \
     samp = (T_SIZE_T)(dur * sr + 0.5); \
     if (samp < 0 || samp >= self->size) \
@@ -1285,7 +1285,7 @@ extern PyTypeObject MMLZStreamType;
     static char *kwlist[] = {"dur", "shape", NULL}; \
  \
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F_I, kwlist, &dur, &shape)) \
-        return PyInt_FromLong(-1); \
+        return PyLong_FromLong(-1); \
  \
     samp = (T_SIZE_T)(dur * sr + 0.5); \
     if (samp < 0 || samp >= self->size) \
@@ -1326,7 +1326,7 @@ extern PyTypeObject MMLZStreamType;
  \
     static char *kwlist[] = {"level", NULL}; \
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F, kwlist, &level)) \
-        return PyInt_FromLong(-1); \
+        return PyLong_FromLong(-1); \
  \
     mi = ma = *self->data; \
     for (i=1; i<self->size; i++) { \
@@ -1355,7 +1355,7 @@ extern PyTypeObject MMLZStreamType;
  \
      static char *kwlist[] = {"level", NULL}; \
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F, kwlist, &level)) \
-        return PyInt_FromLong(-1); \
+        return PyLong_FromLong(-1); \
  \
     mi = ma = self->data[0][0]; \
     for (i=1; i<self->height; i++) { \
@@ -1388,11 +1388,11 @@ extern PyTypeObject MMLZStreamType;
     static char *kwlist[] = {"value", "pos", NULL}; \
  \
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F_N, kwlist, &val, &pos)) \
-        return PyInt_FromLong(-1); \
+        return PyLong_FromLong(-1); \
  \
     if (pos < -self->size || pos >= self->size) { \
         PyErr_SetString(PyExc_IndexError, "PyoTableObject: Position outside of table boundaries!."); \
-        return PyInt_FromLong(-1); \
+        return PyLong_FromLong(-1); \
     } \
  \
     if (pos < 0) \
@@ -1407,11 +1407,11 @@ extern PyTypeObject MMLZStreamType;
     static char *kwlist[] = {"pos", NULL}; \
  \
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "n", kwlist, &pos)) \
-        return PyInt_FromLong(-1); \
+        return PyLong_FromLong(-1); \
  \
     if (pos < -self->size || pos >= self->size) { \
         PyErr_SetString(PyExc_IndexError, "PyoTableObject: Position outside of table boundaries!."); \
-        return PyInt_FromLong(-1); \
+        return PyLong_FromLong(-1); \
     } \
  \
     if (pos < 0) \
@@ -1423,16 +1423,16 @@ extern PyTypeObject MMLZStreamType;
     if (value == NULL) \
     { \
         PyErr_SetString(PyExc_TypeError, "Cannot delete the size attribute."); \
-        return PyInt_FromLong(-1); \
+        return PyLong_FromLong(-1); \
     } \
  \
-    if (! PyInt_Check(value)) \
+    if (! PyLong_Check(value)) \
     { \
         PyErr_SetString(PyExc_TypeError, "The size attribute value must be an integer."); \
-        return PyInt_FromLong(-1); \
+        return PyLong_FromLong(-1); \
     } \
  \
-    self->size = PyInt_AsLong(value); \
+    self->size = PyLong_AsLong(value); \
  \
     self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT)); \
     TableStream_setSize(self->tablestream, self->size);
@@ -1445,17 +1445,17 @@ extern PyTypeObject MMLZStreamType;
     if (value == NULL) \
     { \
         PyErr_SetString(PyExc_TypeError, "Cannot delete the size attribute."); \
-        return PyInt_FromLong(-1); \
+        return PyLong_FromLong(-1); \
     } \
  \
-    if (! PyInt_Check(value)) \
+    if (! PyLong_Check(value)) \
     { \
         PyErr_SetString(PyExc_TypeError, "The size attribute value must be an integer."); \
-        return PyInt_FromLong(-1); \
+        return PyLong_FromLong(-1); \
     } \
  \
     old_size = self->size; \
-    self->size = PyInt_AsLong(value); \
+    self->size = PyLong_AsLong(value); \
  \
     factor = (MYFLT)(self->size) / old_size; \
  \
@@ -1469,9 +1469,9 @@ extern PyTypeObject MMLZStreamType;
     for (i = 0; i < (listsize); i++) \
     { \
         tup = PyList_GET_ITEM(self->pointslist, i); \
-        x1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0))); \
+        x1 = PyLong_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0))); \
         x2 = PyNumber_Float(PyTuple_GET_ITEM(tup, 1)); \
-        PyList_Append(listtemp, PyTuple_Pack(2, PyInt_FromLong((T_SIZE_T)(x1 * factor)), x2)); \
+        PyList_Append(listtemp, PyTuple_Pack(2, PyLong_FromLong((T_SIZE_T)(x1 * factor)), x2)); \
     } \
  \
     Py_INCREF(listtemp); \
@@ -1515,7 +1515,7 @@ extern PyTypeObject MMLZStreamType;
     static char *kwlist[] = {"min", "max", "boost", NULL}; \
  \
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__FFF, kwlist, &min, &max, &boost)) \
-        return PyInt_FromLong(-1); \
+        return PyLong_FromLong(-1); \
  \
     float mid = (min + max) * 0.5; \
  \
@@ -1534,16 +1534,16 @@ extern PyTypeObject MMLZStreamType;
     static char *kwlist[] = {"value", "x", "y", NULL}; \
  \
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F_II, kwlist, &val, &x, &y)) \
-        return PyInt_FromLong(-1); \
+        return PyLong_FromLong(-1); \
  \
     if (x >= self->width) { \
         PyErr_SetString(PyExc_TypeError, "X position outside of matrix boundaries!."); \
-        return PyInt_FromLong(-1); \
+        return PyLong_FromLong(-1); \
     } \
  \
     if (y >= self->height) { \
         PyErr_SetString(PyExc_TypeError, "Y position outside of matrix boundaries!."); \
-        return PyInt_FromLong(-1); \
+        return PyLong_FromLong(-1); \
     } \
  \
     self->data[y][x] = val; \
@@ -1562,16 +1562,16 @@ extern PyTypeObject MMLZStreamType;
     static char *kwlist[] = {"x", "y", NULL}; \
  \
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "ii", kwlist, &x, &y)) \
-        return PyInt_FromLong(-1); \
+        return PyLong_FromLong(-1); \
  \
     if (x >= self->width) { \
         PyErr_SetString(PyExc_TypeError, "X position outside of matrix boundaries!."); \
-        return PyInt_FromLong(-1); \
+        return PyLong_FromLong(-1); \
     } \
  \
     if (y >= self->height) { \
         PyErr_SetString(PyExc_TypeError, "Y position outside of matrix boundaries!."); \
-        return PyInt_FromLong(-1); \
+        return PyLong_FromLong(-1); \
     } \
  \
     return PyFloat_FromDouble(self->data[y][x]); \
@@ -1581,16 +1581,16 @@ extern PyTypeObject MMLZStreamType;
     static char *kwlist[] = {"x", "y", NULL}; \
  \
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__FF, kwlist, &x, &y)) \
-        return PyInt_FromLong(-1); \
+        return PyLong_FromLong(-1); \
  \
     if (x < 0.0 || x > 1.0) { \
         PyErr_SetString(PyExc_TypeError, "X position outside of matrix boundaries!."); \
-        return PyInt_FromLong(-1); \
+        return PyLong_FromLong(-1); \
     } \
  \
     if (y < 0.0 || y > 1.0) { \
         PyErr_SetString(PyExc_TypeError, "Y position outside of matrix boundaries!."); \
-        return PyInt_FromLong(-1); \
+        return PyLong_FromLong(-1); \
     } \
  \
     return PyFloat_FromDouble(MatrixStream_getInterpPointFromPos(self->matrixstream, x, y)); \
@@ -1599,7 +1599,7 @@ extern PyTypeObject MMLZStreamType;
 #define GET_SERVER \
     if (self->server == NULL) { \
         PyErr_SetString(PyExc_TypeError, "No server founded!"); \
-        return PyInt_FromLong(-1); \
+        return PyLong_FromLong(-1); \
     } \
     Py_INCREF(self->server); \
     return self->server;
@@ -1607,7 +1607,7 @@ extern PyTypeObject MMLZStreamType;
 #define GET_STREAM \
     if (self->stream == NULL) { \
         PyErr_SetString(PyExc_TypeError, "No stream founded!"); \
-        return PyInt_FromLong(-1); \
+        return PyLong_FromLong(-1); \
     } \
     Py_INCREF(self->stream); \
     return (PyObject *)self->stream;
@@ -1615,7 +1615,7 @@ extern PyTypeObject MMLZStreamType;
 #define GET_TRIGGER_STREAM \
     if (self->trig_stream == NULL) { \
         PyErr_SetString(PyExc_TypeError, "No trigger stream founded!"); \
-        return PyInt_FromLong(-1); \
+        return PyLong_FromLong(-1); \
     } \
     Py_INCREF(self->trig_stream); \
     return (PyObject *)self->trig_stream;
@@ -1623,7 +1623,7 @@ extern PyTypeObject MMLZStreamType;
 #define GET_TABLE_STREAM \
     if (self->tablestream == NULL) { \
         PyErr_SetString(PyExc_TypeError, "No table stream founded!"); \
-        return PyInt_FromLong(-1); \
+        return PyLong_FromLong(-1); \
     } \
     Py_INCREF(self->tablestream); \
     return (PyObject *)self->tablestream; \
@@ -1631,7 +1631,7 @@ extern PyTypeObject MMLZStreamType;
 #define GET_MATRIX_STREAM \
     if (self->matrixstream == NULL) { \
         PyErr_SetString(PyExc_TypeError, "No matrix stream founded!"); \
-        return PyInt_FromLong(-1); \
+        return PyLong_FromLong(-1); \
     } \
     Py_INCREF(self->matrixstream); \
     return (PyObject *)self->matrixstream; \
@@ -1639,7 +1639,7 @@ extern PyTypeObject MMLZStreamType;
 #define GET_PV_STREAM \
     if (self->pv_stream == NULL) { \
         PyErr_SetString(PyExc_TypeError, "No pv stream founded!"); \
-        return PyInt_FromLong(-1); \
+        return PyLong_FromLong(-1); \
     } \
     Py_INCREF(self->pv_stream); \
     return (PyObject *)self->pv_stream;
@@ -1840,7 +1840,7 @@ extern PyTypeObject MMLZStreamType;
     static char *kwlist[] = {"dur", "delay", NULL}; \
  \
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|ff", kwlist, &dur, &del)) \
-        return PyInt_FromLong(-1); \
+        return PyLong_FromLong(-1); \
  \
     globdel = PyFloat_AsDouble(PyObject_CallMethod(PyServer_get_server(), "getGlobalDel", NULL)); \
     globdur = PyFloat_AsDouble(PyObject_CallMethod(PyServer_get_server(), "getGlobalDur", NULL)); \
@@ -1889,7 +1889,7 @@ extern PyTypeObject MMLZStreamType;
     static char *kwlist[] = {"chnl", "dur", "delay", NULL}; \
  \
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|iff", kwlist, &chnltmp, &dur, &del)) \
-        return PyInt_FromLong(-1); \
+        return PyLong_FromLong(-1); \
  \
     globdel = PyFloat_AsDouble(PyObject_CallMethod(PyServer_get_server(), "getGlobalDel", NULL)); \
     globdur = PyFloat_AsDouble(PyObject_CallMethod(PyServer_get_server(), "getGlobalDur", NULL)); \
@@ -1934,7 +1934,7 @@ extern PyTypeObject MMLZStreamType;
     static char *kwlist[] = {"wait", NULL}; \
  \
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|f", kwlist, &wait)) \
-        return PyInt_FromLong(-1); \
+        return PyLong_FromLong(-1); \
  \
     if (wait == 0) { \
         Stream_setStreamActive(self->stream, 0); \

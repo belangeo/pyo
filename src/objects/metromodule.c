@@ -19,7 +19,6 @@
  *************************************************************************/
 
 #include <Python.h>
-#include "py2to3.h"
 #include "structmember.h"
 #include "pyomodule.h"
 #include "streammodule.h"
@@ -327,7 +326,6 @@ static PyNumberMethods Metro_as_number =
     (binaryfunc)Metro_add,                         /*nb_add*/
     (binaryfunc)Metro_sub,                         /*nb_subtract*/
     (binaryfunc)Metro_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -341,16 +339,12 @@ static PyNumberMethods Metro_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)Metro_inplace_add,                 /*inplace_add*/
     (binaryfunc)Metro_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Metro_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -386,7 +380,7 @@ PyTypeObject MetroType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Metro objects. Create a metronome.",           /* tp_doc */
     (traverseproc)Metro_traverse,   /* tp_traverse */
     (inquiry)Metro_clear,           /* tp_clear */
@@ -902,7 +896,7 @@ Seqer_setOnlyonce(Seqer *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isInt = PyInt_Check(arg);
+    int isInt = PyLong_Check(arg);
 
     if (isInt == 1)
     {
@@ -955,7 +949,7 @@ PyTypeObject SeqerType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Seqer objects. Creates a metronome with a duration sequence.",           /* tp_doc */
     (traverseproc)Seqer_traverse,   /* tp_traverse */
     (inquiry)Seqer_clear,           /* tp_clear */
@@ -1163,7 +1157,6 @@ static PyNumberMethods Seq_as_number =
     (binaryfunc)Seq_add,                         /*nb_add*/
     (binaryfunc)Seq_sub,                         /*nb_subtract*/
     (binaryfunc)Seq_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -1177,16 +1170,12 @@ static PyNumberMethods Seq_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)Seq_inplace_add,                 /*inplace_add*/
     (binaryfunc)Seq_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Seq_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -1222,7 +1211,7 @@ PyTypeObject SeqType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "Seq objects. Reads a channel from a Seqer.",           /* tp_doc */
     (traverseproc)Seq_traverse,   /* tp_traverse */
     (inquiry)Seq_clear,           /* tp_clear */
@@ -1501,7 +1490,7 @@ PyTypeObject ClouderType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Clouder objects. Create a cloud of triggers.",           /* tp_doc */
     (traverseproc)Clouder_traverse,   /* tp_traverse */
     (inquiry)Clouder_clear,           /* tp_clear */
@@ -1709,7 +1698,6 @@ static PyNumberMethods Cloud_as_number =
     (binaryfunc)Cloud_add,                         /*nb_add*/
     (binaryfunc)Cloud_sub,                         /*nb_subtract*/
     (binaryfunc)Cloud_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -1723,16 +1711,12 @@ static PyNumberMethods Cloud_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)Cloud_inplace_add,                 /*inplace_add*/
     (binaryfunc)Cloud_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Cloud_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -1768,7 +1752,7 @@ PyTypeObject CloudType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "Cloud objects. Reads a channel from a Clouder.",           /* tp_doc */
     (traverseproc)Cloud_traverse,   /* tp_traverse */
     (inquiry)Cloud_clear,           /* tp_clear */
@@ -1969,7 +1953,6 @@ static PyNumberMethods Trig_as_number =
     (binaryfunc)Trig_add,                         /*nb_add*/
     (binaryfunc)Trig_sub,                         /*nb_subtract*/
     (binaryfunc)Trig_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -1983,16 +1966,12 @@ static PyNumberMethods Trig_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)Trig_inplace_add,                 /*inplace_add*/
     (binaryfunc)Trig_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Trig_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -2028,7 +2007,7 @@ PyTypeObject TrigType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Trig objects. Sends one trig.",           /* tp_doc */
     (traverseproc)Trig_traverse,   /* tp_traverse */
     (inquiry)Trig_clear,           /* tp_clear */
@@ -2794,8 +2773,8 @@ Beater_reset(Beater *self)
 static PyObject *
 Beater_setTaps(Beater *self, PyObject *arg)
 {
-    if (PyInt_Check(arg))
-        self->taps = PyInt_AS_LONG(arg);
+    if (PyLong_Check(arg))
+        self->taps = PyLong_AsLong(arg);
 
     Py_RETURN_NONE;
 }
@@ -2812,14 +2791,14 @@ Beater_setWeights(Beater *self, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    if (PyInt_Check(w1))
-        self->weight1 = PyInt_AS_LONG(w1);
+    if (PyLong_Check(w1))
+        self->weight1 = PyLong_AsLong(w1);
 
-    if (PyInt_Check(w2))
-        self->weight2 = PyInt_AS_LONG(w2);
+    if (PyLong_Check(w2))
+        self->weight2 = PyLong_AsLong(w2);
 
-    if (PyInt_Check(w3))
-        self->weight3 = PyInt_AS_LONG(w3);
+    if (PyLong_Check(w3))
+        self->weight3 = PyLong_AsLong(w3);
 
     Py_RETURN_NONE;
 }
@@ -2827,9 +2806,9 @@ Beater_setWeights(Beater *self, PyObject *args, PyObject *kwds)
 static PyObject *
 Beater_newPattern(Beater *self, PyObject *arg)
 {
-    if (PyInt_Check(arg))
+    if (PyLong_Check(arg))
     {
-        if (PyInt_AsLong(arg))
+        if (PyLong_AsLong(arg))
         {
             Beater_makeTable(self, 0);
             Beater_makeSequence(self);
@@ -2855,9 +2834,9 @@ Beater_storePreset(Beater *self, PyObject *arg)
 {
     int i, n;
 
-    if (PyInt_Check(arg))
+    if (PyLong_Check(arg))
     {
-        n = PyInt_AS_LONG(arg);
+        n = PyLong_AsLong(arg);
         self->preset[n][0] = self->taps;
 
         for (i = 0; i < self->taps; i++)
@@ -2874,9 +2853,9 @@ Beater_recallPreset(Beater *self, PyObject *arg)
 {
     int x;
 
-    if (PyInt_Check(arg))
+    if (PyLong_Check(arg))
     {
-        x = PyInt_AS_LONG(arg);
+        x = PyLong_AsLong(arg);
 
         if (x >= 0 && x < 32)
             self->preCall = x;
@@ -2902,11 +2881,11 @@ Beater_getPresets(Beater *self)
         if (self->preset[i][0] != 0)
         {
             tmp = PyList_New(0);
-            PyList_Append(tmp, PyInt_FromLong(self->preset[i][0]));
+            PyList_Append(tmp, PyLong_FromLong(self->preset[i][0]));
 
             for (j = 0; j < self->preset[i][0]; j++)
             {
-                PyList_Append(tmp, PyInt_FromLong(self->preset[i][j + 1]));
+                PyList_Append(tmp, PyLong_FromLong(self->preset[i][j + 1]));
             }
 
             PyList_Append(list, tmp);
@@ -2932,12 +2911,12 @@ Beater_setPresets(Beater *self, PyObject *arg)
 
             if (PyList_Check(tmp))
             {
-                len2 = PyInt_AsLong(PyList_GetItem(tmp, 0));
+                len2 = PyLong_AsLong(PyList_GetItem(tmp, 0));
                 self->preset[i][0] = len2;
 
                 for (j = 0; j < len2; j++)
                 {
-                    self->preset[i][j + 1] = PyInt_AsLong(PyList_GetItem(tmp, j + 1));
+                    self->preset[i][j + 1] = PyLong_AsLong(PyList_GetItem(tmp, j + 1));
                 }
             }
         }
@@ -2951,7 +2930,7 @@ Beater_setOnlyonce(Beater *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isInt = PyInt_Check(arg);
+    int isInt = PyLong_Check(arg);
 
     if (isInt == 1)
     {
@@ -3010,7 +2989,7 @@ PyTypeObject BeaterType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Beater objects. Create an algorithmic beat sequence.",           /* tp_doc */
     (traverseproc)Beater_traverse,   /* tp_traverse */
     (inquiry)Beater_clear,           /* tp_clear */
@@ -3218,7 +3197,6 @@ static PyNumberMethods Beat_as_number =
     (binaryfunc)Beat_add,                         /*nb_add*/
     (binaryfunc)Beat_sub,                         /*nb_subtract*/
     (binaryfunc)Beat_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -3232,16 +3210,12 @@ static PyNumberMethods Beat_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)Beat_inplace_add,                 /*inplace_add*/
     (binaryfunc)Beat_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Beat_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -3277,7 +3251,7 @@ PyTypeObject BeatType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "Beat objects. Reads a channel from a Beater.",           /* tp_doc */
     (traverseproc)Beat_traverse,   /* tp_traverse */
     (inquiry)Beat_clear,           /* tp_clear */
@@ -3485,7 +3459,6 @@ static PyNumberMethods BeatTapStream_as_number =
     (binaryfunc)BeatTapStream_add,                         /*nb_add*/
     (binaryfunc)BeatTapStream_sub,                         /*nb_subtract*/
     (binaryfunc)BeatTapStream_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -3499,16 +3472,12 @@ static PyNumberMethods BeatTapStream_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)BeatTapStream_inplace_add,                 /*inplace_add*/
     (binaryfunc)BeatTapStream_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)BeatTapStream_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -3544,7 +3513,7 @@ PyTypeObject BeatTapStreamType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "BeatTapStream objects. Reads the current tap from a Beater object.",           /* tp_doc */
     (traverseproc)BeatTapStream_traverse,   /* tp_traverse */
     (inquiry)BeatTapStream_clear,           /* tp_clear */
@@ -3752,7 +3721,6 @@ static PyNumberMethods BeatAmpStream_as_number =
     (binaryfunc)BeatAmpStream_add,                         /*nb_add*/
     (binaryfunc)BeatAmpStream_sub,                         /*nb_subtract*/
     (binaryfunc)BeatAmpStream_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -3766,16 +3734,12 @@ static PyNumberMethods BeatAmpStream_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)BeatAmpStream_inplace_add,                 /*inplace_add*/
     (binaryfunc)BeatAmpStream_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)BeatAmpStream_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -3811,7 +3775,7 @@ PyTypeObject BeatAmpStreamType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "BeatAmpStream objects. Reads a amplitude channel from a Beater object.",           /* tp_doc */
     (traverseproc)BeatAmpStream_traverse,   /* tp_traverse */
     (inquiry)BeatAmpStream_clear,           /* tp_clear */
@@ -4019,7 +3983,6 @@ static PyNumberMethods BeatDurStream_as_number =
     (binaryfunc)BeatDurStream_add,                         /*nb_add*/
     (binaryfunc)BeatDurStream_sub,                         /*nb_subtract*/
     (binaryfunc)BeatDurStream_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -4033,16 +3996,12 @@ static PyNumberMethods BeatDurStream_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)BeatDurStream_inplace_add,                 /*inplace_add*/
     (binaryfunc)BeatDurStream_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)BeatDurStream_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -4078,7 +4037,7 @@ PyTypeObject BeatDurStreamType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "BeatDurStream objects. Reads a duration channel from a Beater object.",           /* tp_doc */
     (traverseproc)BeatDurStream_traverse,   /* tp_traverse */
     (inquiry)BeatDurStream_clear,           /* tp_clear */
@@ -4286,7 +4245,6 @@ static PyNumberMethods BeatEndStream_as_number =
     (binaryfunc)BeatEndStream_add,                         /*nb_add*/
     (binaryfunc)BeatEndStream_sub,                         /*nb_subtract*/
     (binaryfunc)BeatEndStream_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -4300,16 +4258,12 @@ static PyNumberMethods BeatEndStream_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)BeatEndStream_inplace_add,                 /*inplace_add*/
     (binaryfunc)BeatEndStream_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)BeatEndStream_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -4345,7 +4299,7 @@ PyTypeObject BeatEndStreamType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "BeatEndStream objects. Reads a duration channel from a Beater object.",           /* tp_doc */
     (traverseproc)BeatEndStream_traverse,   /* tp_traverse */
     (inquiry)BeatEndStream_clear,           /* tp_clear */
@@ -4620,8 +4574,8 @@ TrigBurster_setTime(TrigBurster *self, PyObject *arg)
 static PyObject *
 TrigBurster_setCount(TrigBurster *self, PyObject *arg)
 {
-    if (PyInt_Check(arg))
-        self->count = PyInt_AS_LONG(arg);
+    if (PyLong_Check(arg))
+        self->count = PyLong_AsLong(arg);
 
     if (self->count < 1)
         self->count = 1;
@@ -4695,7 +4649,7 @@ PyTypeObject TrigBursterType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "TrigBurster objects. Create an algorithmic beat sequence.",           /* tp_doc */
     (traverseproc)TrigBurster_traverse,   /* tp_traverse */
     (inquiry)TrigBurster_clear,           /* tp_clear */
@@ -4903,7 +4857,6 @@ static PyNumberMethods TrigBurst_as_number =
     (binaryfunc)TrigBurst_add,                         /*nb_add*/
     (binaryfunc)TrigBurst_sub,                         /*nb_subtract*/
     (binaryfunc)TrigBurst_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -4917,16 +4870,12 @@ static PyNumberMethods TrigBurst_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)TrigBurst_inplace_add,                 /*inplace_add*/
     (binaryfunc)TrigBurst_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)TrigBurst_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -4962,7 +4911,7 @@ PyTypeObject TrigBurstType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "TrigBurst objects. Reads a channel from a TrigBurster.",           /* tp_doc */
     (traverseproc)TrigBurst_traverse,   /* tp_traverse */
     (inquiry)TrigBurst_clear,           /* tp_clear */
@@ -5170,7 +5119,6 @@ static PyNumberMethods TrigBurstTapStream_as_number =
     (binaryfunc)TrigBurstTapStream_add,                         /*nb_add*/
     (binaryfunc)TrigBurstTapStream_sub,                         /*nb_subtract*/
     (binaryfunc)TrigBurstTapStream_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -5184,16 +5132,12 @@ static PyNumberMethods TrigBurstTapStream_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)TrigBurstTapStream_inplace_add,                 /*inplace_add*/
     (binaryfunc)TrigBurstTapStream_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)TrigBurstTapStream_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -5229,7 +5173,7 @@ PyTypeObject TrigBurstTapStreamType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "TrigBurstTapStream objects. Reads the current tap from a TrigBurster object.",           /* tp_doc */
     (traverseproc)TrigBurstTapStream_traverse,   /* tp_traverse */
     (inquiry)TrigBurstTapStream_clear,           /* tp_clear */
@@ -5437,7 +5381,6 @@ static PyNumberMethods TrigBurstAmpStream_as_number =
     (binaryfunc)TrigBurstAmpStream_add,                         /*nb_add*/
     (binaryfunc)TrigBurstAmpStream_sub,                         /*nb_subtract*/
     (binaryfunc)TrigBurstAmpStream_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -5451,16 +5394,12 @@ static PyNumberMethods TrigBurstAmpStream_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)TrigBurstAmpStream_inplace_add,                 /*inplace_add*/
     (binaryfunc)TrigBurstAmpStream_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)TrigBurstAmpStream_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -5496,7 +5435,7 @@ PyTypeObject TrigBurstAmpStreamType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "TrigBurstAmpStream objects. Reads a amplitude channel from a TrigBurster object.",           /* tp_doc */
     (traverseproc)TrigBurstAmpStream_traverse,   /* tp_traverse */
     (inquiry)TrigBurstAmpStream_clear,           /* tp_clear */
@@ -5704,7 +5643,6 @@ static PyNumberMethods TrigBurstDurStream_as_number =
     (binaryfunc)TrigBurstDurStream_add,                         /*nb_add*/
     (binaryfunc)TrigBurstDurStream_sub,                         /*nb_subtract*/
     (binaryfunc)TrigBurstDurStream_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -5718,16 +5656,12 @@ static PyNumberMethods TrigBurstDurStream_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)TrigBurstDurStream_inplace_add,                 /*inplace_add*/
     (binaryfunc)TrigBurstDurStream_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)TrigBurstDurStream_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -5763,7 +5697,7 @@ PyTypeObject TrigBurstDurStreamType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "TrigBurstDurStream objects. Reads a duration channel from a TrigBurster object.",           /* tp_doc */
     (traverseproc)TrigBurstDurStream_traverse,   /* tp_traverse */
     (inquiry)TrigBurstDurStream_clear,           /* tp_clear */
@@ -5971,7 +5905,6 @@ static PyNumberMethods TrigBurstEndStream_as_number =
     (binaryfunc)TrigBurstEndStream_add,                         /*nb_add*/
     (binaryfunc)TrigBurstEndStream_sub,                         /*nb_subtract*/
     (binaryfunc)TrigBurstEndStream_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -5985,16 +5918,12 @@ static PyNumberMethods TrigBurstEndStream_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)TrigBurstEndStream_inplace_add,                 /*inplace_add*/
     (binaryfunc)TrigBurstEndStream_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)TrigBurstEndStream_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -6030,7 +5959,7 @@ PyTypeObject TrigBurstEndStreamType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "TrigBurstEndStream objects. Reads a duration channel from a TrigBurster object.",           /* tp_doc */
     (traverseproc)TrigBurstEndStream_traverse,   /* tp_traverse */
     (inquiry)TrigBurstEndStream_clear,           /* tp_clear */

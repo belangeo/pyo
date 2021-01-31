@@ -19,7 +19,6 @@
  *************************************************************************/
 
 #include <Python.h>
-#include "py2to3.h"
 #include "structmember.h"
 #include "pyomodule.h"
 #include "streammodule.h"
@@ -270,7 +269,6 @@ static PyNumberMethods Sig_as_number =
     (binaryfunc)Sig_add,                      /*nb_add*/
     (binaryfunc)Sig_sub,                 /*nb_subtract*/
     (binaryfunc)Sig_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -284,16 +282,12 @@ static PyNumberMethods Sig_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)Sig_inplace_add,              /*inplace_add*/
     (binaryfunc)Sig_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Sig_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -329,7 +323,7 @@ PyTypeObject SigType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Sig objects. Converts number into a signal stream.",           /* tp_doc */
     (traverseproc)Sig_traverse,   /* tp_traverse */
     (inquiry)Sig_clear,           /* tp_clear */
@@ -732,7 +726,6 @@ static PyNumberMethods SigTo_as_number =
     (binaryfunc)SigTo_add,                      /*nb_add*/
     (binaryfunc)SigTo_sub,                 /*nb_subtract*/
     (binaryfunc)SigTo_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -746,16 +739,12 @@ static PyNumberMethods SigTo_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)SigTo_inplace_add,              /*inplace_add*/
     (binaryfunc)SigTo_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)SigTo_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -791,7 +780,7 @@ PyTypeObject SigToType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "SigTo objects. Converts number into a signal stream and apply a ramp from last value.",           /* tp_doc */
     (traverseproc)SigTo_traverse,   /* tp_traverse */
     (inquiry)SigTo_clear,           /* tp_clear */
@@ -1177,7 +1166,6 @@ static PyNumberMethods VarPort_as_number =
     (binaryfunc)VarPort_add,                      /*nb_add*/
     (binaryfunc)VarPort_sub,                 /*nb_subtract*/
     (binaryfunc)VarPort_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -1191,16 +1179,12 @@ static PyNumberMethods VarPort_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)VarPort_inplace_add,              /*inplace_add*/
     (binaryfunc)VarPort_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)VarPort_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -1236,7 +1220,7 @@ PyTypeObject VarPortType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "VarPort objects. Converts number into a signal stream and apply a ramp from last value.",           /* tp_doc */
     (traverseproc)VarPort_traverse,   /* tp_traverse */
     (inquiry)VarPort_clear,           /* tp_clear */

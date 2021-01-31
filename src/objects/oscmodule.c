@@ -19,7 +19,6 @@
  *************************************************************************/
 
 #include <Python.h>
-#include "py2to3.h"
 #include "structmember.h"
 #include <math.h>
 #include "pyomodule.h"
@@ -144,7 +143,7 @@ OscReceiver_addAddress(OscReceiver *self, PyObject *arg)
 {
     int i;
 
-    if (PY_STRING_CHECK(arg))
+    if (PyUnicode_Check(arg))
     {
         PyDict_SetItem(self->dict, arg, PyFloat_FromDouble(0.));
     }
@@ -166,7 +165,7 @@ OscReceiver_delAddress(OscReceiver *self, PyObject *arg)
 {
     int i;
 
-    if (PY_STRING_CHECK(arg))
+    if (PyUnicode_Check(arg))
     {
         PyDict_DelItem(self->dict, arg);
     }
@@ -243,7 +242,7 @@ PyTypeObject OscReceiverType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "OscReceiver objects. Receive values via Open Sound Control protocol.",           /* tp_doc */
     (traverseproc)OscReceiver_traverse,   /* tp_traverse */
     (inquiry)OscReceiver_clear,           /* tp_clear */
@@ -423,7 +422,7 @@ OscReceive_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    if (!PY_STRING_CHECK(pathtmp))
+    if (!PyUnicode_Check(pathtmp))
     {
         PyErr_SetString(PyExc_TypeError, "The address attributes must be a string or a unicode.");
         Py_RETURN_NONE;
@@ -443,7 +442,7 @@ OscReceive_setInterpolation(OscReceive *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    self->interpolation = PyInt_AsLong(arg);
+    self->interpolation = PyLong_AsLong(arg);
 
     Py_RETURN_NONE;
 }
@@ -495,7 +494,6 @@ static PyNumberMethods OscReceive_as_number =
     (binaryfunc)OscReceive_add,                      /*nb_add*/
     (binaryfunc)OscReceive_sub,                 /*nb_subtract*/
     (binaryfunc)OscReceive_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -509,16 +507,12 @@ static PyNumberMethods OscReceive_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)OscReceive_inplace_add,              /*inplace_add*/
     (binaryfunc)OscReceive_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)OscReceive_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -554,7 +548,7 @@ PyTypeObject OscReceiveType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "OscReceive objects. Receive values via Open Sound Control protocol.",           /* tp_doc */
     (traverseproc)OscReceive_traverse,   /* tp_traverse */
     (inquiry)OscReceive_clear,           /* tp_clear */
@@ -604,7 +598,7 @@ OscSend_compute_next_data_frame(OscSend *self)
         if (PyBytes_Check(self->address_path))
             path = PyBytes_AsString(self->address_path);
         else
-            path = PY_UNICODE_AS_UNICODE(self->address_path);
+            path = PyUnicode_AsUTF8(self->address_path);
 
         if (lo_send(self->address, path, "f", value) == -1)
         {
@@ -667,7 +661,7 @@ OscSend_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    if (!PY_STRING_CHECK(pathtmp))
+    if (!PyUnicode_Check(pathtmp))
     {
         PyErr_SetString(PyExc_TypeError, "The address attributes must be a string or a unicode (bytes or string in Python 3).");
         Py_RETURN_NONE;
@@ -689,7 +683,7 @@ OscSend_setBufferRate(OscSend *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    self->bufrate = PyInt_AsLong(arg);
+    self->bufrate = PyLong_AsLong(arg);
 
     if (self->bufrate < 1)
         self->bufrate = 1;
@@ -742,7 +736,7 @@ PyTypeObject OscSendType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "OscSend objects. Send values via Open Sound Control protocol.",           /* tp_doc */
     (traverseproc)OscSend_traverse,   /* tp_traverse */
     (inquiry)OscSend_clear,           /* tp_clear */
@@ -795,7 +789,7 @@ OscDataSend_compute_next_data_frame(OscDataSend *self)
         if (PyBytes_Check(self->address_path))
             path = PyBytes_AsString(self->address_path);
         else
-            path = PY_UNICODE_AS_UNICODE(self->address_path);
+            path = PyUnicode_AsUTF8(self->address_path);
 
         msg = lo_message_new();
 
@@ -807,7 +801,7 @@ OscDataSend_compute_next_data_frame(OscDataSend *self)
             switch (self->types[i])
             {
                 case LO_INT32:
-                    lo_message_add_int32(msg, PyInt_AS_LONG(PyList_GET_ITEM(inlist, i)));
+                    lo_message_add_int32(msg, PyLong_AsLong(PyList_GET_ITEM(inlist, i)));
                     break;
 
                 case LO_INT64:
@@ -823,11 +817,11 @@ OscDataSend_compute_next_data_frame(OscDataSend *self)
                     break;
 
                 case LO_STRING:
-                    lo_message_add_string(msg, PY_STRING_AS_STRING(PyList_GET_ITEM(inlist, i)));
+                    lo_message_add_string(msg, PyUnicode_AsUTF8(PyList_GET_ITEM(inlist, i)));
                     break;
 
                 case LO_CHAR:
-                    lo_message_add_char(msg, (char)PY_STRING_AS_STRING(PyList_GET_ITEM(inlist, i))[0]);
+                    lo_message_add_char(msg, (char)PyUnicode_AsUTF8(PyList_GET_ITEM(inlist, i))[0]);
                     break;
 
                 case LO_BLOB:
@@ -837,7 +831,7 @@ OscDataSend_compute_next_data_frame(OscDataSend *self)
 
                     for (j = 0; j < blobsize; j++)
                     {
-                        blobdata[j] = (char)PY_STRING_AS_STRING(PyList_GET_ITEM(datalist, j))[0];
+                        blobdata[j] = (char)PyUnicode_AsUTF8(PyList_GET_ITEM(datalist, j))[0];
                     }
 
                     blob = lo_blob_new(blobsize * sizeof(char), blobdata);
@@ -849,7 +843,7 @@ OscDataSend_compute_next_data_frame(OscDataSend *self)
 
                     for (j = 0; j < 4; j++)
                     {
-                        midi[j] = (uint8_t)PyInt_AS_LONG(PyList_GET_ITEM(datalist, j));
+                        midi[j] = (uint8_t)PyLong_AsLong(PyList_GET_ITEM(datalist, j));
                     }
 
                     lo_message_add_midi(msg, midi);
@@ -938,7 +932,7 @@ OscDataSend_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    if (!PY_STRING_CHECK(pathtmp))
+    if (!PyUnicode_Check(pathtmp))
     {
         PyErr_SetString(PyExc_TypeError, "The address attributes must be of type string or unicode (bytes or string in Python 3).");
         Py_RETURN_NONE;
@@ -1021,7 +1015,7 @@ PyTypeObject OscDataSendType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "OscDataSend objects. Send data values via Open Sound Control protocol.",           /* tp_doc */
     (traverseproc)OscDataSend_traverse,   /* tp_traverse */
     (inquiry)OscDataSend_clear,           /* tp_clear */
@@ -1079,7 +1073,7 @@ int OscDataReceive_handler(const char *path, const char *types, lo_arg **argv, i
         }
         else
         {
-            if (lo_pattern_match(path, PY_UNICODE_AS_UNICODE(PyList_GET_ITEM(self->address_path, i))))
+            if (lo_pattern_match(path, PyUnicode_AsUTF8(PyList_GET_ITEM(self->address_path, i))))
             {
                 ok = 1;
                 break;
@@ -1096,7 +1090,7 @@ int OscDataReceive_handler(const char *path, const char *types, lo_arg **argv, i
             switch (types[i])
             {
                 case LO_INT32:
-                    PyTuple_SET_ITEM(tup, i + 1, PyInt_FromLong(argv[i]->i));
+                    PyTuple_SET_ITEM(tup, i + 1, PyLong_FromLong(argv[i]->i));
                     break;
 
                 case LO_INT64:
@@ -1138,7 +1132,7 @@ int OscDataReceive_handler(const char *path, const char *types, lo_arg **argv, i
 
                     for (j = 0; j < 4; j++)
                     {
-                        PyList_SET_ITEM(charlist, j, PyInt_FromLong(argv[i]->m[j]));
+                        PyList_SET_ITEM(charlist, j, PyLong_FromLong(argv[i]->m[j]));
                     }
 
                     PyTuple_SET_ITEM(tup, i + 1, charlist);
@@ -1263,7 +1257,7 @@ OscDataReceive_addAddress(OscDataReceive *self, PyObject *arg)
 
     if (arg != NULL)
     {
-        if (PY_STRING_CHECK(arg))
+        if (PyUnicode_Check(arg))
             PyList_Append(self->address_path, arg);
         else if (PyList_Check(arg))
         {
@@ -1284,9 +1278,9 @@ OscDataReceive_delAddress(OscDataReceive *self, PyObject *arg)
 {
     if (arg != NULL)
     {
-        if (PyInt_Check(arg))
+        if (PyLong_Check(arg))
         {
-            PySequence_DelItem(self->address_path, PyInt_AsLong(arg));
+            PySequence_DelItem(self->address_path, PyLong_AsLong(arg));
         }
     }
 
@@ -1332,7 +1326,7 @@ PyTypeObject OscDataReceiveType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "OscDataReceive objects. Receive values via Open Sound Control protocol.",           /* tp_doc */
     (traverseproc)OscDataReceive_traverse,   /* tp_traverse */
     (inquiry)OscDataReceive_clear,           /* tp_clear */
@@ -1486,7 +1480,7 @@ OscListReceiver_addAddress(OscListReceiver *self, PyObject *arg)
     PyObject *flist;
     int i, j;
 
-    if (PY_STRING_CHECK(arg))
+    if (PyUnicode_Check(arg))
     {
         flist = PyList_New(self->num);
 
@@ -1522,7 +1516,7 @@ OscListReceiver_delAddress(OscListReceiver *self, PyObject *arg)
 {
     int i;
 
-    if (PY_STRING_CHECK(arg))
+    if (PyUnicode_Check(arg))
     {
         PyDict_DelItem(self->dict, arg);
     }
@@ -1600,7 +1594,7 @@ PyTypeObject OscListReceiverType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "OscListReceiver objects. Receive list of values via Open Sound Control protocol.",           /* tp_doc */
     (traverseproc)OscListReceiver_traverse,   /* tp_traverse */
     (inquiry)OscListReceiver_clear,           /* tp_clear */
@@ -1784,7 +1778,7 @@ OscListReceive_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    if (!PY_STRING_CHECK(pathtmp))
+    if (!PyUnicode_Check(pathtmp))
     {
         PyErr_SetString(PyExc_TypeError, "OscListReceive: the address attributes must be a string or a unicode.");
         Py_RETURN_NONE;
@@ -1804,7 +1798,7 @@ OscListReceive_setInterpolation(OscListReceive *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    self->interpolation = PyInt_AsLong(arg);
+    self->interpolation = PyLong_AsLong(arg);
 
     Py_RETURN_NONE;
 }
@@ -1856,7 +1850,6 @@ static PyNumberMethods OscListReceive_as_number =
     (binaryfunc)OscListReceive_add,                      /*nb_add*/
     (binaryfunc)OscListReceive_sub,                 /*nb_subtract*/
     (binaryfunc)OscListReceive_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -1870,16 +1863,12 @@ static PyNumberMethods OscListReceive_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)OscListReceive_inplace_add,              /*inplace_add*/
     (binaryfunc)OscListReceive_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)OscListReceive_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -1915,7 +1904,7 @@ PyTypeObject OscListReceiveType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "OscListReceive objects. Receive one value from a list of floats via Open Sound Control protocol.",           /* tp_doc */
     (traverseproc)OscListReceive_traverse,   /* tp_traverse */
     (inquiry)OscListReceive_clear,           /* tp_clear */

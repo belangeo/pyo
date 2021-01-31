@@ -19,7 +19,6 @@
  *************************************************************************/
 
 #include <Python.h>
-#include "py2to3.h"
 #include <math.h>
 #include "structmember.h"
 #include "pyomodule.h"
@@ -636,7 +635,6 @@ static PyNumberMethods Randi_as_number =
     (binaryfunc)Randi_add,                         /*nb_add*/
     (binaryfunc)Randi_sub,                         /*nb_subtract*/
     (binaryfunc)Randi_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -650,16 +648,12 @@ static PyNumberMethods Randi_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)Randi_inplace_add,                 /*inplace_add*/
     (binaryfunc)Randi_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Randi_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -695,7 +689,7 @@ PyTypeObject RandiType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Randi objects. Periodically generates a new random value with interpolation.",           /* tp_doc */
     (traverseproc)Randi_traverse,                  /* tp_traverse */
     (inquiry)Randi_clear,                          /* tp_clear */
@@ -1310,7 +1304,6 @@ static PyNumberMethods Randh_as_number =
     (binaryfunc)Randh_add,                         /*nb_add*/
     (binaryfunc)Randh_sub,                         /*nb_subtract*/
     (binaryfunc)Randh_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -1324,16 +1317,12 @@ static PyNumberMethods Randh_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)Randh_inplace_add,                 /*inplace_add*/
     (binaryfunc)Randh_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Randh_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -1369,7 +1358,7 @@ PyTypeObject RandhType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Randh objects. Periodically generates a new random value.",           /* tp_doc */
     (traverseproc)Randh_traverse,                  /* tp_traverse */
     (inquiry)Randh_clear,                          /* tp_clear */
@@ -1718,7 +1707,6 @@ static PyNumberMethods Choice_as_number =
     (binaryfunc)Choice_add,                         /*nb_add*/
     (binaryfunc)Choice_sub,                         /*nb_subtract*/
     (binaryfunc)Choice_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -1732,16 +1720,12 @@ static PyNumberMethods Choice_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)Choice_inplace_add,                 /*inplace_add*/
     (binaryfunc)Choice_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Choice_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -1777,7 +1761,7 @@ PyTypeObject ChoiceType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Choice objects. Periodically generates a new random value from a list.",           /* tp_doc */
     (traverseproc)Choice_traverse,                  /* tp_traverse */
     (inquiry)Choice_clear,                          /* tp_clear */
@@ -2199,7 +2183,6 @@ static PyNumberMethods RandInt_as_number =
     (binaryfunc)RandInt_add,                         /*nb_add*/
     (binaryfunc)RandInt_sub,                         /*nb_subtract*/
     (binaryfunc)RandInt_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -2213,16 +2196,12 @@ static PyNumberMethods RandInt_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)RandInt_inplace_add,                 /*inplace_add*/
     (binaryfunc)RandInt_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)RandInt_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -2258,7 +2237,7 @@ PyTypeObject RandIntType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "RandInt objects. Periodically generates a new integer random value.",           /* tp_doc */
     (traverseproc)RandInt_traverse,                  /* tp_traverse */
     (inquiry)RandInt_clear,                          /* tp_clear */
@@ -2737,7 +2716,6 @@ static PyNumberMethods RandDur_as_number =
     (binaryfunc)RandDur_add,                         /*nb_add*/
     (binaryfunc)RandDur_sub,                         /*nb_subtract*/
     (binaryfunc)RandDur_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -2751,16 +2729,12 @@ static PyNumberMethods RandDur_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)RandDur_inplace_add,                 /*inplace_add*/
     (binaryfunc)RandDur_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)RandDur_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -2796,7 +2770,7 @@ PyTypeObject RandDurType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "RandDur objects. Recursive time varying generation of random values.",           /* tp_doc */
     (traverseproc)RandDur_traverse,                  /* tp_traverse */
     (inquiry)RandDur_clear,                          /* tp_clear */
@@ -3625,11 +3599,11 @@ Xnoise_setType(Xnoise *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyInt_Check(arg);
+    int isNumber = PyLong_Check(arg);
 
     if (isNumber == 1)
     {
-        self->type = PyInt_AsLong(arg);
+        self->type = PyLong_AsLong(arg);
         Xnoise_setRandomType(self);
     }
 
@@ -3770,7 +3744,6 @@ static PyNumberMethods Xnoise_as_number =
     (binaryfunc)Xnoise_add,                         /*nb_add*/
     (binaryfunc)Xnoise_sub,                         /*nb_subtract*/
     (binaryfunc)Xnoise_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -3784,16 +3757,12 @@ static PyNumberMethods Xnoise_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)Xnoise_inplace_add,                 /*inplace_add*/
     (binaryfunc)Xnoise_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Xnoise_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -3829,7 +3798,7 @@ PyTypeObject XnoiseType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Xnoise objects. Periodically generates a new random value.",           /* tp_doc */
     (traverseproc)Xnoise_traverse,                  /* tp_traverse */
     (inquiry)Xnoise_clear,                          /* tp_clear */
@@ -4704,11 +4673,11 @@ XnoiseMidi_setType(XnoiseMidi *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyInt_Check(arg);
+    int isNumber = PyLong_Check(arg);
 
     if (isNumber == 1)
     {
-        self->type = PyInt_AsLong(arg);
+        self->type = PyLong_AsLong(arg);
         XnoiseMidi_setRandomType(self);
     }
 
@@ -4722,11 +4691,11 @@ XnoiseMidi_setScale(XnoiseMidi *self, PyObject *arg)
 
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyInt_Check(arg);
+    int isNumber = PyLong_Check(arg);
 
     if (isNumber == 1)
     {
-        tmp = PyInt_AsLong(arg);
+        tmp = PyLong_AsLong(arg);
 
         if (tmp >= 0 && tmp <= 2)
             self->scale = tmp;
@@ -4749,8 +4718,8 @@ XnoiseMidi_setRange(XnoiseMidi *self, PyObject *args)
 
     if (isTuple == 1)
     {
-        self->range_min = PyInt_AsLong(PyTuple_GET_ITEM(args, 0));
-        self->range_max = PyInt_AsLong(PyTuple_GET_ITEM(args, 1));
+        self->range_min = PyLong_AsLong(PyTuple_GET_ITEM(args, 0));
+        self->range_max = PyLong_AsLong(PyTuple_GET_ITEM(args, 1));
         self->centralkey = (int)((self->range_max + self->range_min) / 2);
     }
 
@@ -4893,7 +4862,6 @@ static PyNumberMethods XnoiseMidi_as_number =
     (binaryfunc)XnoiseMidi_add,                         /*nb_add*/
     (binaryfunc)XnoiseMidi_sub,                         /*nb_subtract*/
     (binaryfunc)XnoiseMidi_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -4907,16 +4875,12 @@ static PyNumberMethods XnoiseMidi_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)XnoiseMidi_inplace_add,                 /*inplace_add*/
     (binaryfunc)XnoiseMidi_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)XnoiseMidi_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -4952,7 +4916,7 @@ PyTypeObject XnoiseMidiType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "XnoiseMidi objects. Periodically generates a new random value.",           /* tp_doc */
     (traverseproc)XnoiseMidi_traverse,                  /* tp_traverse */
     (inquiry)XnoiseMidi_clear,                          /* tp_clear */
@@ -5613,11 +5577,11 @@ XnoiseDur_setType(XnoiseDur *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyInt_Check(arg);
+    int isNumber = PyLong_Check(arg);
 
     if (isNumber == 1)
     {
-        self->type = PyInt_AsLong(arg);
+        self->type = PyLong_AsLong(arg);
         XnoiseDur_setRandomType(self);
     }
 
@@ -5793,7 +5757,6 @@ static PyNumberMethods XnoiseDur_as_number =
     (binaryfunc)XnoiseDur_add,                         /*nb_add*/
     (binaryfunc)XnoiseDur_sub,                         /*nb_subtract*/
     (binaryfunc)XnoiseDur_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -5807,16 +5770,12 @@ static PyNumberMethods XnoiseDur_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)XnoiseDur_inplace_add,                 /*inplace_add*/
     (binaryfunc)XnoiseDur_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)XnoiseDur_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -5852,7 +5811,7 @@ PyTypeObject XnoiseDurType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "XnoiseDur objects. Generates a random value and uses this value as time base for the next generation.",           /* tp_doc */
     (traverseproc)XnoiseDur_traverse,                  /* tp_traverse */
     (inquiry)XnoiseDur_clear,                          /* tp_clear */
@@ -6186,7 +6145,7 @@ static PyObject *
 Urn_setMax(Urn *self, PyObject *arg)
 {
     if (PyNumber_Check(arg) == 1)
-        self->max = PyInt_AsLong(arg);
+        self->max = PyLong_AsLong(arg);
 
     Urn_reset(self);
 
@@ -6259,7 +6218,6 @@ static PyNumberMethods Urn_as_number =
     (binaryfunc)Urn_add,                         /*nb_add*/
     (binaryfunc)Urn_sub,                         /*nb_subtract*/
     (binaryfunc)Urn_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -6273,16 +6231,12 @@ static PyNumberMethods Urn_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)Urn_inplace_add,                 /*inplace_add*/
     (binaryfunc)Urn_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Urn_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -6318,7 +6272,7 @@ PyTypeObject UrnType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Urn objects. Periodically generates a new integer random value without repetition.",           /* tp_doc */
     (traverseproc)Urn_traverse,                  /* tp_traverse */
     (inquiry)Urn_clear,                          /* tp_clear */
@@ -6766,7 +6720,6 @@ static PyNumberMethods LogiMap_as_number =
     (binaryfunc)LogiMap_add,                         /*nb_add*/
     (binaryfunc)LogiMap_sub,                         /*nb_subtract*/
     (binaryfunc)LogiMap_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -6780,16 +6733,12 @@ static PyNumberMethods LogiMap_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)LogiMap_inplace_add,                 /*inplace_add*/
     (binaryfunc)LogiMap_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)LogiMap_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -6825,7 +6774,7 @@ PyTypeObject LogiMapType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "LogiMap objects. Random generator based on the logistic equation.",           /* tp_doc */
     (traverseproc)LogiMap_traverse,                  /* tp_traverse */
     (inquiry)LogiMap_clear,                          /* tp_clear */

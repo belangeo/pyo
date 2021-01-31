@@ -19,7 +19,6 @@
  *************************************************************************/
 
 #include <Python.h>
-#include "py2to3.h"
 #include "structmember.h"
 #include <math.h>
 #include "pyomodule.h"
@@ -229,7 +228,6 @@ static PyNumberMethods M_Sin_as_number =
     (binaryfunc)M_Sin_add,                         /*nb_add*/
     (binaryfunc)M_Sin_sub,                         /*nb_subtract*/
     (binaryfunc)M_Sin_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -243,16 +241,12 @@ static PyNumberMethods M_Sin_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)M_Sin_inplace_add,                 /*inplace_add*/
     (binaryfunc)M_Sin_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)M_Sin_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -288,7 +282,7 @@ PyTypeObject M_SinType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "M_Sin objects. Performs sin function on audio samples.",           /* tp_doc */
     (traverseproc)M_Sin_traverse,                  /* tp_traverse */
     (inquiry)M_Sin_clear,                          /* tp_clear */
@@ -511,7 +505,6 @@ static PyNumberMethods M_Cos_as_number =
     (binaryfunc)M_Cos_add,                         /*nb_add*/
     (binaryfunc)M_Cos_sub,                         /*nb_subtract*/
     (binaryfunc)M_Cos_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -525,16 +518,12 @@ static PyNumberMethods M_Cos_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)M_Cos_inplace_add,                 /*inplace_add*/
     (binaryfunc)M_Cos_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)M_Cos_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -570,7 +559,7 @@ PyTypeObject M_CosType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "M_Cos objects. Performs sin function on audio samples.",           /* tp_doc */
     (traverseproc)M_Cos_traverse,                  /* tp_traverse */
     (inquiry)M_Cos_clear,                          /* tp_clear */
@@ -793,7 +782,6 @@ static PyNumberMethods M_Tan_as_number =
     (binaryfunc)M_Tan_add,                         /*nb_add*/
     (binaryfunc)M_Tan_sub,                         /*nb_subtract*/
     (binaryfunc)M_Tan_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -807,16 +795,12 @@ static PyNumberMethods M_Tan_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)M_Tan_inplace_add,                 /*inplace_add*/
     (binaryfunc)M_Tan_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)M_Tan_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -852,7 +836,7 @@ PyTypeObject M_TanType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "M_Tan objects. Performs sin function on audio samples.",           /* tp_doc */
     (traverseproc)M_Tan_traverse,                  /* tp_traverse */
     (inquiry)M_Tan_clear,                          /* tp_clear */
@@ -1081,7 +1065,6 @@ static PyNumberMethods M_Abs_as_number =
     (binaryfunc)M_Abs_add,                         /*nb_add*/
     (binaryfunc)M_Abs_sub,                         /*nb_subtract*/
     (binaryfunc)M_Abs_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -1095,16 +1078,12 @@ static PyNumberMethods M_Abs_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)M_Abs_inplace_add,                 /*inplace_add*/
     (binaryfunc)M_Abs_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)M_Abs_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -1140,7 +1119,7 @@ PyTypeObject M_AbsType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "M_Abs objects. Performs abs function on audio samples.",           /* tp_doc */
     (traverseproc)M_Abs_traverse,                  /* tp_traverse */
     (inquiry)M_Abs_clear,                          /* tp_clear */
@@ -1369,7 +1348,6 @@ static PyNumberMethods M_Sqrt_as_number =
     (binaryfunc)M_Sqrt_add,                         /*nb_add*/
     (binaryfunc)M_Sqrt_sub,                         /*nb_subtract*/
     (binaryfunc)M_Sqrt_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -1383,16 +1361,12 @@ static PyNumberMethods M_Sqrt_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)M_Sqrt_inplace_add,                 /*inplace_add*/
     (binaryfunc)M_Sqrt_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)M_Sqrt_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -1428,7 +1402,7 @@ PyTypeObject M_SqrtType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "M_Sqrt objects. Performs sqrt function on audio samples.",           /* tp_doc */
     (traverseproc)M_Sqrt_traverse,                  /* tp_traverse */
     (inquiry)M_Sqrt_clear,                          /* tp_clear */
@@ -1657,7 +1631,6 @@ static PyNumberMethods M_Log_as_number =
     (binaryfunc)M_Log_add,                         /*nb_add*/
     (binaryfunc)M_Log_sub,                         /*nb_subtract*/
     (binaryfunc)M_Log_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -1671,16 +1644,12 @@ static PyNumberMethods M_Log_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)M_Log_inplace_add,                 /*inplace_add*/
     (binaryfunc)M_Log_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)M_Log_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -1716,7 +1685,7 @@ PyTypeObject M_LogType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "M_Log objects. Performs natural log function on audio samples.",           /* tp_doc */
     (traverseproc)M_Log_traverse,                  /* tp_traverse */
     (inquiry)M_Log_clear,                          /* tp_clear */
@@ -1945,7 +1914,6 @@ static PyNumberMethods M_Log10_as_number =
     (binaryfunc)M_Log10_add,                         /*nb_add*/
     (binaryfunc)M_Log10_sub,                         /*nb_subtract*/
     (binaryfunc)M_Log10_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -1959,16 +1927,12 @@ static PyNumberMethods M_Log10_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)M_Log10_inplace_add,                 /*inplace_add*/
     (binaryfunc)M_Log10_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)M_Log10_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -2004,7 +1968,7 @@ PyTypeObject M_Log10Type =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "M_Log10 objects. Performs base 10 log function on audio samples.",           /* tp_doc */
     (traverseproc)M_Log10_traverse,                  /* tp_traverse */
     (inquiry)M_Log10_clear,                          /* tp_clear */
@@ -2233,7 +2197,6 @@ static PyNumberMethods M_Log2_as_number =
     (binaryfunc)M_Log2_add,                         /*nb_add*/
     (binaryfunc)M_Log2_sub,                         /*nb_subtract*/
     (binaryfunc)M_Log2_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -2247,16 +2210,12 @@ static PyNumberMethods M_Log2_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)M_Log2_inplace_add,                 /*inplace_add*/
     (binaryfunc)M_Log2_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)M_Log2_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -2292,7 +2251,7 @@ PyTypeObject M_Log2Type =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "M_Log2 objects. Performs base 2 log function on audio samples.",           /* tp_doc */
     (traverseproc)M_Log2_traverse,                  /* tp_traverse */
     (inquiry)M_Log2_clear,                          /* tp_clear */
@@ -2664,7 +2623,6 @@ static PyNumberMethods M_Pow_as_number =
     (binaryfunc)M_Pow_add,                      /*nb_add*/
     (binaryfunc)M_Pow_sub,                 /*nb_subtract*/
     (binaryfunc)M_Pow_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -2678,16 +2636,12 @@ static PyNumberMethods M_Pow_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)M_Pow_inplace_add,              /*inplace_add*/
     (binaryfunc)M_Pow_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)M_Pow_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -2723,7 +2677,7 @@ PyTypeObject M_PowType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "M_Pow objects. Power function.",           /* tp_doc */
     (traverseproc)M_Pow_traverse,   /* tp_traverse */
     (inquiry)M_Pow_clear,           /* tp_clear */
@@ -3095,7 +3049,6 @@ static PyNumberMethods M_Atan2_as_number =
     (binaryfunc)M_Atan2_add,                      /*nb_add*/
     (binaryfunc)M_Atan2_sub,                 /*nb_subtract*/
     (binaryfunc)M_Atan2_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -3109,16 +3062,12 @@ static PyNumberMethods M_Atan2_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)M_Atan2_inplace_add,              /*inplace_add*/
     (binaryfunc)M_Atan2_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)M_Atan2_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -3154,7 +3103,7 @@ PyTypeObject M_Atan2Type =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "M_Atan2 objects. Atan2er function.",           /* tp_doc */
     (traverseproc)M_Atan2_traverse,   /* tp_traverse */
     (inquiry)M_Atan2_clear,           /* tp_clear */
@@ -3377,7 +3326,6 @@ static PyNumberMethods M_Floor_as_number =
     (binaryfunc)M_Floor_add,                         /*nb_add*/
     (binaryfunc)M_Floor_sub,                         /*nb_subtract*/
     (binaryfunc)M_Floor_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -3391,16 +3339,12 @@ static PyNumberMethods M_Floor_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)M_Floor_inplace_add,                 /*inplace_add*/
     (binaryfunc)M_Floor_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)M_Floor_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -3436,7 +3380,7 @@ PyTypeObject M_FloorType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "M_Floor objects. Performs sqrt function on audio samples.",           /* tp_doc */
     (traverseproc)M_Floor_traverse,                  /* tp_traverse */
     (inquiry)M_Floor_clear,                          /* tp_clear */
@@ -3659,7 +3603,6 @@ static PyNumberMethods M_Ceil_as_number =
     (binaryfunc)M_Ceil_add,                         /*nb_add*/
     (binaryfunc)M_Ceil_sub,                         /*nb_subtract*/
     (binaryfunc)M_Ceil_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -3673,16 +3616,12 @@ static PyNumberMethods M_Ceil_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)M_Ceil_inplace_add,                 /*inplace_add*/
     (binaryfunc)M_Ceil_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)M_Ceil_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -3718,7 +3657,7 @@ PyTypeObject M_CeilType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "M_Ceil objects. Performs ceil function on audio samples.",           /* tp_doc */
     (traverseproc)M_Ceil_traverse,                  /* tp_traverse */
     (inquiry)M_Ceil_clear,                          /* tp_clear */
@@ -3941,7 +3880,6 @@ static PyNumberMethods M_Round_as_number =
     (binaryfunc)M_Round_add,                         /*nb_add*/
     (binaryfunc)M_Round_sub,                         /*nb_subtract*/
     (binaryfunc)M_Round_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -3955,16 +3893,12 @@ static PyNumberMethods M_Round_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)M_Round_inplace_add,                 /*inplace_add*/
     (binaryfunc)M_Round_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)M_Round_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -4000,7 +3934,7 @@ PyTypeObject M_RoundType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "M_Round objects. Performs sqrt function on audio samples.",           /* tp_doc */
     (traverseproc)M_Round_traverse,                  /* tp_traverse */
     (inquiry)M_Round_clear,                          /* tp_clear */
@@ -4223,7 +4157,6 @@ static PyNumberMethods M_Tanh_as_number =
     (binaryfunc)M_Tanh_add,                         /*nb_add*/
     (binaryfunc)M_Tanh_sub,                         /*nb_subtract*/
     (binaryfunc)M_Tanh_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -4237,16 +4170,12 @@ static PyNumberMethods M_Tanh_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)M_Tanh_inplace_add,                 /*inplace_add*/
     (binaryfunc)M_Tanh_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)M_Tanh_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -4282,7 +4211,7 @@ PyTypeObject M_TanhType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "M_Tanh objects. Performs tanh function on audio samples.",           /* tp_doc */
     (traverseproc)M_Tanh_traverse,                  /* tp_traverse */
     (inquiry)M_Tanh_clear,                          /* tp_clear */
@@ -4505,7 +4434,6 @@ static PyNumberMethods M_Exp_as_number =
     (binaryfunc)M_Exp_add,                         /*nb_add*/
     (binaryfunc)M_Exp_sub,                         /*nb_subtract*/
     (binaryfunc)M_Exp_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -4519,16 +4447,12 @@ static PyNumberMethods M_Exp_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)M_Exp_inplace_add,                 /*inplace_add*/
     (binaryfunc)M_Exp_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)M_Exp_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -4564,7 +4488,7 @@ PyTypeObject M_ExpType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "M_Exp objects. Performs exp function on audio samples.",           /* tp_doc */
     (traverseproc)M_Exp_traverse,                  /* tp_traverse */
     (inquiry)M_Exp_clear,                          /* tp_clear */
@@ -4963,7 +4887,6 @@ static PyNumberMethods M_Div_as_number =
     (binaryfunc)M_Div_add,                      /*nb_add*/
     (binaryfunc)M_Div_sub,                 /*nb_subtract*/
     (binaryfunc)M_Div_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -4977,16 +4900,12 @@ static PyNumberMethods M_Div_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)M_Div_inplace_add,              /*inplace_add*/
     (binaryfunc)M_Div_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)M_Div_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -5022,7 +4941,7 @@ PyTypeObject M_DivType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "M_Div objects. Divide function.",           /* tp_doc */
     (traverseproc)M_Div_traverse,   /* tp_traverse */
     (inquiry)M_Div_clear,           /* tp_clear */
@@ -5394,7 +5313,6 @@ static PyNumberMethods M_Sub_as_number =
     (binaryfunc)M_Sub_add,                      /*nb_add*/
     (binaryfunc)M_Sub_sub,                 /*nb_subtract*/
     (binaryfunc)M_Sub_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -5408,16 +5326,12 @@ static PyNumberMethods M_Sub_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)M_Sub_inplace_add,              /*inplace_add*/
     (binaryfunc)M_Sub_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)M_Sub_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -5453,7 +5367,7 @@ PyTypeObject M_SubType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "M_Sub objects. Substract function.",           /* tp_doc */
     (traverseproc)M_Sub_traverse,   /* tp_traverse */
     (inquiry)M_Sub_clear,           /* tp_clear */

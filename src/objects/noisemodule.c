@@ -19,7 +19,6 @@
  *************************************************************************/
 
 #include <Python.h>
-#include "py2to3.h"
 #include "structmember.h"
 #include "pyomodule.h"
 #include "streammodule.h"
@@ -220,9 +219,9 @@ Noise_setType(Noise *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    if (PyInt_AS_LONG(arg) == 0)
+    if (PyLong_AsLong(arg) == 0)
         self->type = 0;
-    else if (PyInt_AS_LONG(arg) == 1)
+    else if (PyLong_AsLong(arg) == 1)
         self->type = 1;
 
     (*self->mode_func_ptr)(self);
@@ -259,7 +258,6 @@ static PyNumberMethods Noise_as_number =
     (binaryfunc)Noise_add,                      /*nb_add*/
     (binaryfunc)Noise_sub,                 /*nb_subtract*/
     (binaryfunc)Noise_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -273,16 +271,12 @@ static PyNumberMethods Noise_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)Noise_inplace_add,              /*inplace_add*/
     (binaryfunc)Noise_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Noise_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -318,7 +312,7 @@ PyTypeObject NoiseType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Noise objects. White noise generator.",           /* tp_doc */
     (traverseproc)Noise_traverse,   /* tp_traverse */
     (inquiry)Noise_clear,           /* tp_clear */
@@ -546,7 +540,6 @@ static PyNumberMethods PinkNoise_as_number =
     (binaryfunc)PinkNoise_add,                      /*nb_add*/
     (binaryfunc)PinkNoise_sub,                 /*nb_subtract*/
     (binaryfunc)PinkNoise_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -560,16 +553,12 @@ static PyNumberMethods PinkNoise_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)PinkNoise_inplace_add,              /*inplace_add*/
     (binaryfunc)PinkNoise_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)PinkNoise_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -605,7 +594,7 @@ PyTypeObject PinkNoiseType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "PinkNoise objects. Pink noise generator.",           /* tp_doc */
     (traverseproc)PinkNoise_traverse,   /* tp_traverse */
     (inquiry)PinkNoise_clear,           /* tp_clear */
@@ -825,7 +814,6 @@ static PyNumberMethods BrownNoise_as_number =
     (binaryfunc)BrownNoise_add,                      /*nb_add*/
     (binaryfunc)BrownNoise_sub,                 /*nb_subtract*/
     (binaryfunc)BrownNoise_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -839,16 +827,12 @@ static PyNumberMethods BrownNoise_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)BrownNoise_inplace_add,              /*inplace_add*/
     (binaryfunc)BrownNoise_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)BrownNoise_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -884,7 +868,7 @@ PyTypeObject BrownNoiseType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "BrownNoise objects. Brown noise generator (-6dB/octave rolloff).",           /* tp_doc */
     (traverseproc)BrownNoise_traverse,   /* tp_traverse */
     (inquiry)BrownNoise_clear,           /* tp_clear */

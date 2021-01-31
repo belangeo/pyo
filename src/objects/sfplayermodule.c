@@ -19,7 +19,6 @@
  *************************************************************************/
 
 #include <Python.h>
-#include "py2to3.h"
 #include "structmember.h"
 #include <math.h>
 #include "pyomodule.h"
@@ -468,7 +467,7 @@ SfPlayer_setSound(SfPlayer *self, PyObject *args)
     if (! PyArg_ParseTuple(args, "s#", &self->path, &psize))
         Py_RETURN_NONE;
 
-    //self->path = PY_STRING_AS_STRING(arg);
+    //self->path = PyUnicode_AsUTF8(arg);
 
     sf_close(self->sf);
 
@@ -499,7 +498,7 @@ SfPlayer_setLoop(SfPlayer *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    self->loop = PyInt_AsLong(arg);
+    self->loop = PyLong_AsLong(arg);
 
     Py_RETURN_NONE;
 }
@@ -531,7 +530,7 @@ SfPlayer_setInterp(SfPlayer *self, PyObject *arg)
 
     if (isNumber == 1)
     {
-        self->interp = PyInt_AsLong(PyNumber_Int(arg));
+        self->interp = PyLong_AsLong(PyNumber_Long(arg));
     }
 
     SET_INTERP_POINTER
@@ -591,7 +590,7 @@ PyTypeObject SfPlayerType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "SfPlayer objects. Reads a soundfile directly from disk.",           /* tp_doc */
     (traverseproc)SfPlayer_traverse,   /* tp_traverse */
     (inquiry)SfPlayer_clear,           /* tp_clear */
@@ -809,7 +808,6 @@ static PyNumberMethods SfPlay_as_number =
     (binaryfunc)SfPlay_add,                      /*nb_add*/
     (binaryfunc)SfPlay_sub,                 /*nb_subtract*/
     (binaryfunc)SfPlay_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -823,16 +821,12 @@ static PyNumberMethods SfPlay_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)SfPlay_inplace_add,              /*inplace_add*/
     (binaryfunc)SfPlay_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)SfPlay_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -868,7 +862,7 @@ PyTypeObject SfPlayType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "SfPlay objects. Reads a channel from a soundfile directly from disk.",           /* tp_doc */
     (traverseproc)SfPlay_traverse,   /* tp_traverse */
     (inquiry)SfPlay_clear,           /* tp_clear */
@@ -1477,7 +1471,7 @@ SfMarkerShuffler_setInterp(SfMarkerShuffler *self, PyObject *arg)
 
     if (isNumber == 1)
     {
-        self->interp = PyInt_AsLong(PyNumber_Int(arg));
+        self->interp = PyLong_AsLong(PyNumber_Long(arg));
     }
 
     if (self->interp == 0)
@@ -1620,7 +1614,7 @@ PyTypeObject SfMarkerShufflerType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "SfMarkerShuffler objects. Shuffle an AIFF soundfile from markers points.",           /* tp_doc */
     (traverseproc)SfMarkerShuffler_traverse,   /* tp_traverse */
     (inquiry)SfMarkerShuffler_clear,           /* tp_clear */
@@ -1838,7 +1832,6 @@ static PyNumberMethods SfMarkerShuffle_as_number =
     (binaryfunc)SfMarkerShuffle_add,                      /*nb_add*/
     (binaryfunc)SfMarkerShuffle_sub,                 /*nb_subtract*/
     (binaryfunc)SfMarkerShuffle_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -1852,16 +1845,12 @@ static PyNumberMethods SfMarkerShuffle_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)SfMarkerShuffle_inplace_add,              /*inplace_add*/
     (binaryfunc)SfMarkerShuffle_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)SfMarkerShuffle_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -1897,7 +1886,7 @@ PyTypeObject SfMarkerShuffleType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "SfMarkerShuffle objects. Reads a channel from a soundfile directly from disk.",           /* tp_doc */
     (traverseproc)SfMarkerShuffle_traverse,   /* tp_traverse */
     (inquiry)SfMarkerShuffle_clear,           /* tp_clear */
@@ -2418,7 +2407,7 @@ SfMarkerLooper_setInterp(SfMarkerLooper *self, PyObject *arg)
 
     if (isNumber == 1)
     {
-        self->interp = PyInt_AsLong(PyNumber_Int(arg));
+        self->interp = PyLong_AsLong(PyNumber_Long(arg));
     }
 
     if (self->interp == 0)
@@ -2485,7 +2474,7 @@ PyTypeObject SfMarkerLooperType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "SfMarkerLooper objects. Shuffle an AIFF soundfile from markers points.",           /* tp_doc */
     (traverseproc)SfMarkerLooper_traverse,   /* tp_traverse */
     (inquiry)SfMarkerLooper_clear,           /* tp_clear */
@@ -2703,7 +2692,6 @@ static PyNumberMethods SfMarkerLoop_as_number =
     (binaryfunc)SfMarkerLoop_add,                      /*nb_add*/
     (binaryfunc)SfMarkerLoop_sub,                 /*nb_subtract*/
     (binaryfunc)SfMarkerLoop_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -2717,16 +2705,12 @@ static PyNumberMethods SfMarkerLoop_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)SfMarkerLoop_inplace_add,              /*inplace_add*/
     (binaryfunc)SfMarkerLoop_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)SfMarkerLoop_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -2762,7 +2746,7 @@ PyTypeObject SfMarkerLoopType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "SfMarkerLoop objects. Reads a channel from a soundfile directly from disk.",           /* tp_doc */
     (traverseproc)SfMarkerLoop_traverse,   /* tp_traverse */
     (inquiry)SfMarkerLoop_clear,           /* tp_clear */

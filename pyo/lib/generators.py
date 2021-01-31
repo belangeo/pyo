@@ -6,7 +6,6 @@ processing chain or as parameter's modifiers.
 
 """
 
-from __future__ import absolute_import
 
 """
 Copyright 2009-2015 Olivier Belanger

@@ -19,7 +19,6 @@
  *************************************************************************/
 
 #include <Python.h>
-#include "py2to3.h"
 #include "structmember.h"
 #include "pyomodule.h"
 #include "streammodule.h"
@@ -880,7 +879,7 @@ PyTypeObject MMLMainType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "MMLMain objects. Read a MML sequence.",           /* tp_doc */
     (traverseproc)MMLMain_traverse,   /* tp_traverse */
     (inquiry)MMLMain_clear,           /* tp_clear */
@@ -1088,7 +1087,6 @@ static PyNumberMethods MML_as_number =
     (binaryfunc)MML_add,                         /*nb_add*/
     (binaryfunc)MML_sub,                         /*nb_subtract*/
     (binaryfunc)MML_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -1102,16 +1100,12 @@ static PyNumberMethods MML_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)MML_inplace_add,                 /*inplace_add*/
     (binaryfunc)MML_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)MML_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -1147,7 +1141,7 @@ PyTypeObject MMLType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "MML objects. Reads a channel from a MMLMain.",           /* tp_doc */
     (traverseproc)MML_traverse,   /* tp_traverse */
     (inquiry)MML_clear,           /* tp_clear */
@@ -1355,7 +1349,6 @@ static PyNumberMethods MMLFreqStream_as_number =
     (binaryfunc)MMLFreqStream_add,                         /*nb_add*/
     (binaryfunc)MMLFreqStream_sub,                         /*nb_subtract*/
     (binaryfunc)MMLFreqStream_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -1369,16 +1362,12 @@ static PyNumberMethods MMLFreqStream_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)MMLFreqStream_inplace_add,                 /*inplace_add*/
     (binaryfunc)MMLFreqStream_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)MMLFreqStream_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -1414,7 +1403,7 @@ PyTypeObject MMLFreqStreamType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "MMLFreqStream objects. Reads the current Freq from a MMLMain object.",           /* tp_doc */
     (traverseproc)MMLFreqStream_traverse,   /* tp_traverse */
     (inquiry)MMLFreqStream_clear,           /* tp_clear */
@@ -1622,7 +1611,6 @@ static PyNumberMethods MMLAmpStream_as_number =
     (binaryfunc)MMLAmpStream_add,                         /*nb_add*/
     (binaryfunc)MMLAmpStream_sub,                         /*nb_subtract*/
     (binaryfunc)MMLAmpStream_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -1636,16 +1624,12 @@ static PyNumberMethods MMLAmpStream_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)MMLAmpStream_inplace_add,                 /*inplace_add*/
     (binaryfunc)MMLAmpStream_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)MMLAmpStream_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -1681,7 +1665,7 @@ PyTypeObject MMLAmpStreamType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "MMLAmpStream objects. Reads a amplitude channel from a MMLMain object.",           /* tp_doc */
     (traverseproc)MMLAmpStream_traverse,   /* tp_traverse */
     (inquiry)MMLAmpStream_clear,           /* tp_clear */
@@ -1889,7 +1873,6 @@ static PyNumberMethods MMLDurStream_as_number =
     (binaryfunc)MMLDurStream_add,                         /*nb_add*/
     (binaryfunc)MMLDurStream_sub,                         /*nb_subtract*/
     (binaryfunc)MMLDurStream_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -1903,16 +1886,12 @@ static PyNumberMethods MMLDurStream_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)MMLDurStream_inplace_add,                 /*inplace_add*/
     (binaryfunc)MMLDurStream_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)MMLDurStream_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -1948,7 +1927,7 @@ PyTypeObject MMLDurStreamType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "MMLDurStream objects. Reads a duration channel from a MMLMain object.",           /* tp_doc */
     (traverseproc)MMLDurStream_traverse,   /* tp_traverse */
     (inquiry)MMLDurStream_clear,           /* tp_clear */
@@ -2156,7 +2135,6 @@ static PyNumberMethods MMLEndStream_as_number =
     (binaryfunc)MMLEndStream_add,                         /*nb_add*/
     (binaryfunc)MMLEndStream_sub,                         /*nb_subtract*/
     (binaryfunc)MMLEndStream_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -2170,16 +2148,12 @@ static PyNumberMethods MMLEndStream_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)MMLEndStream_inplace_add,                 /*inplace_add*/
     (binaryfunc)MMLEndStream_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)MMLEndStream_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -2215,7 +2189,7 @@ PyTypeObject MMLEndStreamType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "MMLEndStream objects. Reads a duration channel from a MMLMain object.",           /* tp_doc */
     (traverseproc)MMLEndStream_traverse,   /* tp_traverse */
     (inquiry)MMLEndStream_clear,           /* tp_clear */
@@ -2423,7 +2397,6 @@ static PyNumberMethods MMLXStream_as_number =
     (binaryfunc)MMLXStream_add,                         /*nb_add*/
     (binaryfunc)MMLXStream_sub,                         /*nb_subtract*/
     (binaryfunc)MMLXStream_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -2437,16 +2410,12 @@ static PyNumberMethods MMLXStream_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)MMLXStream_inplace_add,                 /*inplace_add*/
     (binaryfunc)MMLXStream_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)MMLXStream_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -2482,7 +2451,7 @@ PyTypeObject MMLXStreamType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "MMLXStream objects. Reads a Xation channel from a MMLMain object.",           /* tp_doc */
     (traverseproc)MMLXStream_traverse,   /* tp_traverse */
     (inquiry)MMLXStream_clear,           /* tp_clear */
@@ -2690,7 +2659,6 @@ static PyNumberMethods MMLYStream_as_number =
     (binaryfunc)MMLYStream_add,                         /*nb_add*/
     (binaryfunc)MMLYStream_sub,                         /*nb_subtract*/
     (binaryfunc)MMLYStream_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -2704,16 +2672,12 @@ static PyNumberMethods MMLYStream_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)MMLYStream_inplace_add,                 /*inplace_add*/
     (binaryfunc)MMLYStream_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)MMLYStream_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -2749,7 +2713,7 @@ PyTypeObject MMLYStreamType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "MMLYStream objects. Reads a Yation channel from a MMLMain object.",           /* tp_doc */
     (traverseproc)MMLYStream_traverse,   /* tp_traverse */
     (inquiry)MMLYStream_clear,           /* tp_clear */
@@ -2957,7 +2921,6 @@ static PyNumberMethods MMLZStream_as_number =
     (binaryfunc)MMLZStream_add,                         /*nb_add*/
     (binaryfunc)MMLZStream_sub,                         /*nb_subtract*/
     (binaryfunc)MMLZStream_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -2971,16 +2934,12 @@ static PyNumberMethods MMLZStream_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)MMLZStream_inplace_add,                 /*inplace_add*/
     (binaryfunc)MMLZStream_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)MMLZStream_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -3016,7 +2975,7 @@ PyTypeObject MMLZStreamType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "MMLZStream objects. Reads a Zation channel from a MMLMain object.",           /* tp_doc */
     (traverseproc)MMLZStream_traverse,   /* tp_traverse */
     (inquiry)MMLZStream_clear,           /* tp_clear */

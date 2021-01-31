@@ -19,7 +19,6 @@
  *************************************************************************/
 
 #include <Python.h>
-#include "py2to3.h"
 #include "structmember.h"
 #include "pyomodule.h"
 #include "streammodule.h"
@@ -317,7 +316,6 @@ static PyNumberMethods TrigRandInt_as_number =
     (binaryfunc)TrigRandInt_add,                         /*nb_add*/
     (binaryfunc)TrigRandInt_sub,                         /*nb_subtract*/
     (binaryfunc)TrigRandInt_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -331,16 +329,12 @@ static PyNumberMethods TrigRandInt_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)TrigRandInt_inplace_add,                 /*inplace_add*/
     (binaryfunc)TrigRandInt_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)TrigRandInt_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -376,7 +370,7 @@ PyTypeObject TrigRandIntType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "TrigRandInt objects. Generates a new random integer value on a trigger signal.",           /* tp_doc */
     (traverseproc)TrigRandInt_traverse,                  /* tp_traverse */
     (inquiry)TrigRandInt_clear,                          /* tp_clear */
@@ -887,7 +881,6 @@ static PyNumberMethods TrigRand_as_number =
     (binaryfunc)TrigRand_add,                         /*nb_add*/
     (binaryfunc)TrigRand_sub,                         /*nb_subtract*/
     (binaryfunc)TrigRand_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -901,16 +894,12 @@ static PyNumberMethods TrigRand_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)TrigRand_inplace_add,                 /*inplace_add*/
     (binaryfunc)TrigRand_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)TrigRand_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -946,7 +935,7 @@ PyTypeObject TrigRandType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "TrigRand objects. Generates a new random value on a trigger signal.",           /* tp_doc */
     (traverseproc)TrigRand_traverse,                  /* tp_traverse */
     (inquiry)TrigRand_clear,                          /* tp_clear */
@@ -1264,7 +1253,6 @@ static PyNumberMethods TrigChoice_as_number =
     (binaryfunc)TrigChoice_add,                         /*nb_add*/
     (binaryfunc)TrigChoice_sub,                         /*nb_subtract*/
     (binaryfunc)TrigChoice_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -1278,16 +1266,12 @@ static PyNumberMethods TrigChoice_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)TrigChoice_inplace_add,                 /*inplace_add*/
     (binaryfunc)TrigChoice_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)TrigChoice_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -1323,7 +1307,7 @@ PyTypeObject TrigChoiceType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "TrigChoice objects. Generates a new random value pick in a user choice on a trigger signal.",           /* tp_doc */
     (traverseproc)TrigChoice_traverse,                  /* tp_traverse */
     (inquiry)TrigChoice_clear,                          /* tp_clear */
@@ -1551,7 +1535,7 @@ PyTypeObject TrigFuncType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "TrigFunc objects. Called a function on a trigger signal.",           /* tp_doc */
     (traverseproc)TrigFunc_traverse,                  /* tp_traverse */
     (inquiry)TrigFunc_clear,                          /* tp_clear */
@@ -1966,7 +1950,7 @@ TrigEnv_setInterp(TrigEnv *self, PyObject *arg)
 
     if (isNumber == 1)
     {
-        self->interp = PyInt_AsLong(PyNumber_Int(arg));
+        self->interp = PyLong_AsLong(PyNumber_Long(arg));
     }
 
     SET_INTERP_POINTER
@@ -2010,7 +1994,6 @@ static PyNumberMethods TrigEnv_as_number =
     (binaryfunc)TrigEnv_add,                      /*nb_add*/
     (binaryfunc)TrigEnv_sub,                 /*nb_subtract*/
     (binaryfunc)TrigEnv_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -2024,16 +2007,12 @@ static PyNumberMethods TrigEnv_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)TrigEnv_inplace_add,              /*inplace_add*/
     (binaryfunc)TrigEnv_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)TrigEnv_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -2069,7 +2048,7 @@ PyTypeObject TrigEnvType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "TrigEnv objects. Starts an envelope on a trigger signal.",           /* tp_doc */
     (traverseproc)TrigEnv_traverse,   /* tp_traverse */
     (inquiry)TrigEnv_clear,           /* tp_clear */
@@ -2370,13 +2349,13 @@ TrigLinseg_setList(TrigLinseg *self, PyObject *value)
     if (value == NULL)
     {
         PyErr_SetString(PyExc_TypeError, "Cannot delete the list attribute.");
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
     }
 
     if (! PyList_Check(value))
     {
         PyErr_SetString(PyExc_TypeError, "The points list attribute value must be a list of tuples.");
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
     }
 
     Py_INCREF(value);
@@ -2419,7 +2398,6 @@ static PyNumberMethods TrigLinseg_as_number =
     (binaryfunc)TrigLinseg_add,                      /*nb_add*/
     (binaryfunc)TrigLinseg_sub,                 /*nb_subtract*/
     (binaryfunc)TrigLinseg_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -2433,16 +2411,12 @@ static PyNumberMethods TrigLinseg_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)TrigLinseg_inplace_add,              /*inplace_add*/
     (binaryfunc)TrigLinseg_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)TrigLinseg_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -2478,7 +2452,7 @@ PyTypeObject TrigLinsegType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "TrigLinseg objects. Generates a linear segments break-points line.",           /* tp_doc */
     (traverseproc)TrigLinseg_traverse,   /* tp_traverse */
     (inquiry)TrigLinseg_clear,           /* tp_clear */
@@ -2810,13 +2784,13 @@ TrigExpseg_setList(TrigExpseg *self, PyObject *value)
     if (value == NULL)
     {
         PyErr_SetString(PyExc_TypeError, "Cannot delete the list attribute.");
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
     }
 
     if (! PyList_Check(value))
     {
         PyErr_SetString(PyExc_TypeError, "The points list attribute value must be a list of tuples.");
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
     }
 
     Py_INCREF(value);
@@ -2844,7 +2818,7 @@ TrigExpseg_setInverse(TrigExpseg *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    self->inverse_tmp = PyInt_AsLong(PyNumber_Int(arg));
+    self->inverse_tmp = PyLong_AsLong(PyNumber_Long(arg));
 
     Py_RETURN_NONE;
 }
@@ -2882,7 +2856,6 @@ static PyNumberMethods TrigExpseg_as_number =
     (binaryfunc)TrigExpseg_add,                      /*nb_add*/
     (binaryfunc)TrigExpseg_sub,                 /*nb_subtract*/
     (binaryfunc)TrigExpseg_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -2896,16 +2869,12 @@ static PyNumberMethods TrigExpseg_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)TrigExpseg_inplace_add,              /*inplace_add*/
     (binaryfunc)TrigExpseg_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)TrigExpseg_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -2941,7 +2910,7 @@ PyTypeObject TrigExpsegType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "TrigExpseg objects. Generates a linear segments break-points line.",           /* tp_doc */
     (traverseproc)TrigExpseg_traverse,   /* tp_traverse */
     (inquiry)TrigExpseg_clear,           /* tp_clear */
@@ -3609,11 +3578,11 @@ TrigXnoise_setType(TrigXnoise *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyInt_Check(arg);
+    int isNumber = PyLong_Check(arg);
 
     if (isNumber == 1)
     {
-        self->type = PyInt_AsLong(arg);
+        self->type = PyLong_AsLong(arg);
         TrigXnoise_setRandomType(self);
     }
 
@@ -3720,7 +3689,6 @@ static PyNumberMethods TrigXnoise_as_number =
     (binaryfunc)TrigXnoise_add,                         /*nb_add*/
     (binaryfunc)TrigXnoise_sub,                         /*nb_subtract*/
     (binaryfunc)TrigXnoise_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -3734,16 +3702,12 @@ static PyNumberMethods TrigXnoise_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)TrigXnoise_inplace_add,                 /*inplace_add*/
     (binaryfunc)TrigXnoise_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)TrigXnoise_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -3779,7 +3743,7 @@ PyTypeObject TrigXnoiseType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "TrigXnoise objects. Periodically generates a new random value.",           /* tp_doc */
     (traverseproc)TrigXnoise_traverse,                  /* tp_traverse */
     (inquiry)TrigXnoise_clear,                          /* tp_clear */
@@ -4492,11 +4456,11 @@ TrigXnoiseMidi_setType(TrigXnoiseMidi *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyInt_Check(arg);
+    int isNumber = PyLong_Check(arg);
 
     if (isNumber == 1)
     {
-        self->type = PyInt_AsLong(arg);
+        self->type = PyLong_AsLong(arg);
         TrigXnoiseMidi_setRandomType(self);
     }
 
@@ -4510,11 +4474,11 @@ TrigXnoiseMidi_setScale(TrigXnoiseMidi *self, PyObject *arg)
 
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyInt_Check(arg);
+    int isNumber = PyLong_Check(arg);
 
     if (isNumber == 1)
     {
-        tmp = PyInt_AsLong(arg);
+        tmp = PyLong_AsLong(arg);
 
         if (tmp >= 0 && tmp <= 2)
             self->scale = tmp;
@@ -4537,8 +4501,8 @@ TrigXnoiseMidi_setRange(TrigXnoiseMidi *self, PyObject *args)
 
     if (isTuple == 1)
     {
-        self->range_min = PyInt_AsLong(PyTuple_GET_ITEM(args, 0));
-        self->range_max = PyInt_AsLong(PyTuple_GET_ITEM(args, 1));
+        self->range_min = PyLong_AsLong(PyTuple_GET_ITEM(args, 0));
+        self->range_max = PyLong_AsLong(PyTuple_GET_ITEM(args, 1));
         self->centralkey = (int)((self->range_max + self->range_min) / 2);
     }
 
@@ -4647,7 +4611,6 @@ static PyNumberMethods TrigXnoiseMidi_as_number =
     (binaryfunc)TrigXnoiseMidi_add,                         /*nb_add*/
     (binaryfunc)TrigXnoiseMidi_sub,                         /*nb_subtract*/
     (binaryfunc)TrigXnoiseMidi_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -4661,16 +4624,12 @@ static PyNumberMethods TrigXnoiseMidi_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)TrigXnoiseMidi_inplace_add,                 /*inplace_add*/
     (binaryfunc)TrigXnoiseMidi_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)TrigXnoiseMidi_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -4706,7 +4665,7 @@ PyTypeObject TrigXnoiseMidiType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "TrigXnoiseMidi objects. Periodically generates a new random value.",           /* tp_doc */
     (traverseproc)TrigXnoiseMidi_traverse,                  /* tp_traverse */
     (inquiry)TrigXnoiseMidi_clear,                          /* tp_clear */
@@ -4955,7 +4914,7 @@ Counter_setMin(Counter *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    if (PyLong_Check(arg) || PyInt_Check(arg))
+    if (PyLong_Check(arg))
     {
         self->min = PyLong_AsLong(arg);
     }
@@ -4968,7 +4927,7 @@ Counter_setMax(Counter *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    if (PyLong_Check(arg) || PyInt_Check(arg))
+    if (PyLong_Check(arg))
     {
         self->max = PyLong_AsLong(arg);
     }
@@ -4981,9 +4940,9 @@ Counter_setDir(Counter *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    if (PyInt_Check(arg))
+    if (PyLong_Check(arg))
     {
-        self->dir = PyInt_AsLong(arg);
+        self->dir = PyLong_AsLong(arg);
     }
 
     Py_RETURN_NONE;
@@ -5004,9 +4963,9 @@ Counter_reset(Counter *self, PyObject *arg)
         self->tmp = val;
     }
 
-    else if (PyInt_Check(arg))
+    else if (PyLong_Check(arg))
     {
-        val = PyInt_AsLong(arg);
+        val = PyLong_AsLong(arg);
         self->tmp = val;
     }
 
@@ -5045,7 +5004,6 @@ static PyNumberMethods Counter_as_number =
     (binaryfunc)Counter_add,                         /*nb_add*/
     (binaryfunc)Counter_sub,                         /*nb_subtract*/
     (binaryfunc)Counter_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -5059,16 +5017,12 @@ static PyNumberMethods Counter_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)Counter_inplace_add,                 /*inplace_add*/
     (binaryfunc)Counter_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Counter_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -5104,7 +5058,7 @@ PyTypeObject CounterType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Counter objects. Integer incrementor.",           /* tp_doc */
     (traverseproc)Counter_traverse,                  /* tp_traverse */
     (inquiry)Counter_clear,                          /* tp_clear */
@@ -5472,9 +5426,9 @@ Thresh_setDir(Thresh *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    if (PyInt_Check(arg))
+    if (PyLong_Check(arg))
     {
-        self->dir = PyInt_AsLong(arg);
+        self->dir = PyLong_AsLong(arg);
     }
 
     Py_RETURN_NONE;
@@ -5511,7 +5465,6 @@ static PyNumberMethods Thresh_as_number =
     (binaryfunc)Thresh_add,                         /*nb_add*/
     (binaryfunc)Thresh_sub,                         /*nb_subtract*/
     (binaryfunc)Thresh_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -5525,16 +5478,12 @@ static PyNumberMethods Thresh_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)Thresh_inplace_add,                 /*inplace_add*/
     (binaryfunc)Thresh_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Thresh_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -5570,7 +5519,7 @@ PyTypeObject ThreshType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Thresh objects. Threshold detector.",           /* tp_doc */
     (traverseproc)Thresh_traverse,                  /* tp_traverse */
     (inquiry)Thresh_clear,                          /* tp_clear */
@@ -5884,7 +5833,6 @@ static PyNumberMethods Percent_as_number =
     (binaryfunc)Percent_add,                         /*nb_add*/
     (binaryfunc)Percent_sub,                         /*nb_subtract*/
     (binaryfunc)Percent_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -5898,16 +5846,12 @@ static PyNumberMethods Percent_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)Percent_inplace_add,                 /*inplace_add*/
     (binaryfunc)Percent_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Percent_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -5943,7 +5887,7 @@ PyTypeObject PercentType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Percent objects. Looks for input triggers and sets how much percentage of it to let pass.",           /* tp_doc */
     (traverseproc)Percent_traverse,                  /* tp_traverse */
     (inquiry)Percent_clear,                          /* tp_clear */
@@ -6201,7 +6145,6 @@ static PyNumberMethods Timer_as_number =
     (binaryfunc)Timer_add,                         /*nb_add*/
     (binaryfunc)Timer_sub,                         /*nb_subtract*/
     (binaryfunc)Timer_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -6215,16 +6158,12 @@ static PyNumberMethods Timer_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)Timer_inplace_add,                 /*inplace_add*/
     (binaryfunc)Timer_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Timer_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -6260,7 +6199,7 @@ PyTypeObject TimerType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Timer objects. Returns elapsed time between two triggers.",           /* tp_doc */
     (traverseproc)Timer_traverse,                  /* tp_traverse */
     (inquiry)Timer_clear,                          /* tp_clear */
@@ -6561,9 +6500,9 @@ Iter_reset(Iter *self, PyObject *arg)
 {
     int tmp;
 
-    if (PyInt_Check(arg))
+    if (PyLong_Check(arg))
     {
-        tmp = PyInt_AsLong(arg);
+        tmp = PyLong_AsLong(arg);
 
         if (tmp < self->chSize)
             self->chCount = tmp;
@@ -6607,7 +6546,6 @@ static PyNumberMethods Iter_as_number =
     (binaryfunc)Iter_add,                         /*nb_add*/
     (binaryfunc)Iter_sub,                         /*nb_subtract*/
     (binaryfunc)Iter_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -6621,16 +6559,12 @@ static PyNumberMethods Iter_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)Iter_inplace_add,                 /*inplace_add*/
     (binaryfunc)Iter_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Iter_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -6666,7 +6600,7 @@ PyTypeObject IterType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Iter objects. Triggers iterate over a list of values.",           /* tp_doc */
     (traverseproc)Iter_traverse,                  /* tp_traverse */
     (inquiry)Iter_clear,                          /* tp_clear */
@@ -6885,7 +6819,7 @@ static PyObject * Count_inplace_div(Count *self, PyObject *arg) { INPLACE_DIV };
 static PyObject *
 Count_setMin(Count *self, PyObject *arg)
 {
-    if (PyLong_Check(arg) || PyInt_Check(arg))
+    if (PyLong_Check(arg))
         self->min = PyLong_AsLong(arg);
 
     Py_RETURN_NONE;
@@ -6896,7 +6830,7 @@ Count_setMax(Count *self, PyObject *arg)
 {
     if (arg == Py_None)
         self->max = 0;
-    else if (PyLong_Check(arg) || PyInt_Check(arg))
+    else if (PyLong_Check(arg))
         self->max = PyLong_AsLong(arg);
 
     Py_RETURN_NONE;
@@ -6932,7 +6866,6 @@ static PyNumberMethods Count_as_number =
     (binaryfunc)Count_add,                         /*nb_add*/
     (binaryfunc)Count_sub,                         /*nb_subtract*/
     (binaryfunc)Count_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -6946,16 +6879,12 @@ static PyNumberMethods Count_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)Count_inplace_add,                 /*inplace_add*/
     (binaryfunc)Count_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Count_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -6991,7 +6920,7 @@ PyTypeObject CountType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Count objects. Counts integer at audio rate.",           /* tp_doc */
     (traverseproc)Count_traverse,                  /* tp_traverse */
     (inquiry)Count_clear,                          /* tp_clear */
@@ -7237,7 +7166,6 @@ static PyNumberMethods NextTrig_as_number =
     (binaryfunc)NextTrig_add,                         /*nb_add*/
     (binaryfunc)NextTrig_sub,                         /*nb_subtract*/
     (binaryfunc)NextTrig_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -7251,16 +7179,12 @@ static PyNumberMethods NextTrig_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)NextTrig_inplace_add,                 /*inplace_add*/
     (binaryfunc)NextTrig_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)NextTrig_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -7296,7 +7220,7 @@ PyTypeObject NextTrigType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "NextTrig objects. A trig opens a gate only for the next one.",           /* tp_doc */
     (traverseproc)NextTrig_traverse,                  /* tp_traverse */
     (inquiry)NextTrig_clear,                          /* tp_clear */
@@ -7596,7 +7520,6 @@ static PyNumberMethods TrigVal_as_number =
     (binaryfunc)TrigVal_add,                         /*nb_add*/
     (binaryfunc)TrigVal_sub,                         /*nb_subtract*/
     (binaryfunc)TrigVal_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -7610,16 +7533,12 @@ static PyNumberMethods TrigVal_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)TrigVal_inplace_add,                 /*inplace_add*/
     (binaryfunc)TrigVal_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)TrigVal_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -7655,7 +7574,7 @@ PyTypeObject TrigValType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "TrigVal objects. Outputs a previously defined value on a trigger signal.",           /* tp_doc */
     (traverseproc)TrigVal_traverse,                  /* tp_traverse */
     (inquiry)TrigVal_clear,                          /* tp_clear */
