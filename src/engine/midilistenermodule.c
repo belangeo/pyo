@@ -19,7 +19,6 @@
  *************************************************************************/
 
 #include <Python.h>
-#include "py2to3.h"
 #include "structmember.h"
 #include <math.h>
 #include "pyomodule.h"
@@ -68,18 +67,18 @@ void process_midi(PtTimestamp timestamp, void *userData)
                 if (server->reportdevice)
                 {
                     tup = PyTuple_New(4);
-                    PyTuple_SetItem(tup, 0, PyInt_FromLong(status));
-                    PyTuple_SetItem(tup, 1, PyInt_FromLong(data1));
-                    PyTuple_SetItem(tup, 2, PyInt_FromLong(data2));
-                    PyTuple_SetItem(tup, 3, PyInt_FromLong(server->ids[i]));
+                    PyTuple_SetItem(tup, 0, PyLong_FromLong(status));
+                    PyTuple_SetItem(tup, 1, PyLong_FromLong(data1));
+                    PyTuple_SetItem(tup, 2, PyLong_FromLong(data2));
+                    PyTuple_SetItem(tup, 3, PyLong_FromLong(server->ids[i]));
                     PyObject_Call((PyObject *)server->midicallable, tup, NULL);
                 }
                 else
                 {
                     tup = PyTuple_New(3);
-                    PyTuple_SetItem(tup, 0, PyInt_FromLong(status));
-                    PyTuple_SetItem(tup, 1, PyInt_FromLong(data1));
-                    PyTuple_SetItem(tup, 2, PyInt_FromLong(data2));
+                    PyTuple_SetItem(tup, 0, PyLong_FromLong(status));
+                    PyTuple_SetItem(tup, 1, PyLong_FromLong(data1));
+                    PyTuple_SetItem(tup, 2, PyLong_FromLong(data2));
                     PyObject_Call((PyObject *)server->midicallable, tup, NULL);
                 }
             }
@@ -389,7 +388,7 @@ PyTypeObject MidiListenerType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "MidiListener objects. Calls a function with midi data as arguments.",           /* tp_doc */
     (traverseproc)MidiListener_traverse,   /* tp_traverse */
     (inquiry)MidiListener_clear,           /* tp_clear */
@@ -643,7 +642,7 @@ MidiDispatcher_send(MidiDispatcher *self, PyObject *args)
     PmEvent buffer[1];
 
     if (! PyArg_ParseTuple(args, "iiili", &status, &data1, &data2, &timestamp, &device))
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
 
     curtime = Pt_Time();
     buffer[0].timestamp = curtime + timestamp;
@@ -687,7 +686,7 @@ MidiDispatcher_sendx(MidiDispatcher *self, PyObject *args)
     PmTimestamp timestamp;
 
     if (! PyArg_ParseTuple(args, "s#li", &msg, &size, &timestamp, &device))
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
 
     curtime = Pt_Time();
 
@@ -773,7 +772,7 @@ PyTypeObject MidiDispatcherType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "MidiDispatcher objects. Calls a function with midi data as arguments.",           /* tp_doc */
     (traverseproc)MidiDispatcher_traverse,   /* tp_traverse */
     (inquiry)MidiDispatcher_clear,           /* tp_clear */

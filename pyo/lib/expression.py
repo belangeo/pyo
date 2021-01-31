@@ -331,7 +331,6 @@ from ._core import *
 from ._maps import *
 from ._widgets import createExprEditorWindow
 
-
 class Expr(PyoObject):
     """
     Prefix audio expression evaluator.

@@ -34,10 +34,11 @@ import locale
 from subprocess import call
 from weakref import proxy
 
+import builtins
+
 def tobytes(strng, encoding="utf-8"):
     "Convert unicode string to bytes."
     return bytes(strng, encoding=encoding)
-
 
 if hasattr(builtins, "pyo_use_double"):
     from .._pyo64 import *
@@ -420,8 +421,7 @@ def pyoArgsAssert(obj, format, *args):
         f = format[i]
         argtype = type(arg)
         if f == "O":
-            atypes = [list, int, float]
-            if not isAudioObject(arg) and argtype not in atypes:
+            if not isAudioObject(arg) and argtype not in [list, int, float]:
                 expected = "float or PyoObject"
         elif f == "o":
             if not isAudioObject(arg) and argtype not in [list]:

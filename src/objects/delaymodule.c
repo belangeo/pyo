@@ -19,7 +19,6 @@
  *************************************************************************/
 
 #include <Python.h>
-#include "py2to3.h"
 #include "structmember.h"
 #include <math.h>
 #include "pyomodule.h"
@@ -561,7 +560,6 @@ static PyNumberMethods Delay_as_number =
     (binaryfunc)Delay_add,                      /*nb_add*/
     (binaryfunc)Delay_sub,                 /*nb_subtract*/
     (binaryfunc)Delay_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -575,16 +573,12 @@ static PyNumberMethods Delay_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)Delay_inplace_add,              /*inplace_add*/
     (binaryfunc)Delay_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Delay_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -620,7 +614,7 @@ PyTypeObject DelayType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Delay objects. Delay signal by x samples.",           /* tp_doc */
     (traverseproc)Delay_traverse,   /* tp_traverse */
     (inquiry)Delay_clear,           /* tp_clear */
@@ -1007,7 +1001,6 @@ static PyNumberMethods SDelay_as_number =
     (binaryfunc)SDelay_add,                      /*nb_add*/
     (binaryfunc)SDelay_sub,                 /*nb_subtract*/
     (binaryfunc)SDelay_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -1021,16 +1014,12 @@ static PyNumberMethods SDelay_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)SDelay_inplace_add,              /*inplace_add*/
     (binaryfunc)SDelay_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)SDelay_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -1066,7 +1055,7 @@ PyTypeObject SDelayType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "SDelay objects. Simple Delay with no interpolation and no feedback.",           /* tp_doc */
     (traverseproc)SDelay_traverse,   /* tp_traverse */
     (inquiry)SDelay_clear,           /* tp_clear */
@@ -1833,7 +1822,6 @@ static PyNumberMethods Waveguide_as_number =
     (binaryfunc)Waveguide_add,                      /*nb_add*/
     (binaryfunc)Waveguide_sub,                 /*nb_subtract*/
     (binaryfunc)Waveguide_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -1847,16 +1835,12 @@ static PyNumberMethods Waveguide_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)Waveguide_inplace_add,              /*inplace_add*/
     (binaryfunc)Waveguide_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Waveguide_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -1892,7 +1876,7 @@ PyTypeObject WaveguideType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Waveguide objects. Waveguide signal by x samples.",           /* tp_doc */
     (traverseproc)Waveguide_traverse,   /* tp_traverse */
     (inquiry)Waveguide_clear,           /* tp_clear */
@@ -3091,7 +3075,6 @@ static PyNumberMethods AllpassWG_as_number =
     (binaryfunc)AllpassWG_add,                      /*nb_add*/
     (binaryfunc)AllpassWG_sub,                 /*nb_subtract*/
     (binaryfunc)AllpassWG_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -3105,16 +3088,12 @@ static PyNumberMethods AllpassWG_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)AllpassWG_inplace_add,              /*inplace_add*/
     (binaryfunc)AllpassWG_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)AllpassWG_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -3150,7 +3129,7 @@ PyTypeObject AllpassWGType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "AllpassWG objects. Waveguide model with builtin allpass circuit to detune resonance frequencies.", /* tp_doc */
     (traverseproc)AllpassWG_traverse,   /* tp_traverse */
     (inquiry)AllpassWG_clear,           /* tp_clear */
@@ -3377,7 +3356,6 @@ static PyNumberMethods Delay1_as_number =
     (binaryfunc)Delay1_add,                         /*nb_add*/
     (binaryfunc)Delay1_sub,                         /*nb_subtract*/
     (binaryfunc)Delay1_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -3391,16 +3369,12 @@ static PyNumberMethods Delay1_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)Delay1_inplace_add,                 /*inplace_add*/
     (binaryfunc)Delay1_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Delay1_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -3436,7 +3410,7 @@ PyTypeObject Delay1Type =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Delay1 objects. Delays a signal by one sample.",           /* tp_doc */
     (traverseproc)Delay1_traverse,                  /* tp_traverse */
     (inquiry)Delay1_clear,                          /* tp_clear */
@@ -4217,7 +4191,6 @@ static PyNumberMethods SmoothDelay_as_number =
     (binaryfunc)SmoothDelay_add,                      /*nb_add*/
     (binaryfunc)SmoothDelay_sub,                 /*nb_subtract*/
     (binaryfunc)SmoothDelay_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -4231,16 +4204,12 @@ static PyNumberMethods SmoothDelay_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)SmoothDelay_inplace_add,              /*inplace_add*/
     (binaryfunc)SmoothDelay_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)SmoothDelay_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -4276,7 +4245,7 @@ PyTypeObject SmoothDelayType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "SmoothDelay objects. Delay signal by x samples.",           /* tp_doc */
     (traverseproc)SmoothDelay_traverse,   /* tp_traverse */
     (inquiry)SmoothDelay_clear,           /* tp_clear */

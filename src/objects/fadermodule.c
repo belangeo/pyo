@@ -19,7 +19,6 @@
  *************************************************************************/
 
 #include <Python.h>
-#include "py2to3.h"
 #include "structmember.h"
 #include "pyomodule.h"
 #include "streammodule.h"
@@ -425,7 +424,6 @@ static PyNumberMethods Fader_as_number =
     (binaryfunc)Fader_add,                      /*nb_add*/
     (binaryfunc)Fader_sub,                 /*nb_subtract*/
     (binaryfunc)Fader_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -439,16 +437,12 @@ static PyNumberMethods Fader_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)Fader_inplace_add,              /*inplace_add*/
     (binaryfunc)Fader_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Fader_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -484,7 +478,7 @@ PyTypeObject FaderType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Fader objects. Generates fadin and fadeout signal.",           /* tp_doc */
     (traverseproc)Fader_traverse,   /* tp_traverse */
     (inquiry)Fader_clear,           /* tp_clear */
@@ -975,7 +969,6 @@ static PyNumberMethods Adsr_as_number =
     (binaryfunc)Adsr_add,                      /*nb_add*/
     (binaryfunc)Adsr_sub,                 /*nb_subtract*/
     (binaryfunc)Adsr_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -989,16 +982,12 @@ static PyNumberMethods Adsr_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)Adsr_inplace_add,              /*inplace_add*/
     (binaryfunc)Adsr_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Adsr_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -1034,7 +1023,7 @@ PyTypeObject AdsrType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Adsr objects. Generates Adsr envelope signal.",           /* tp_doc */
     (traverseproc)Adsr_traverse,   /* tp_traverse */
     (inquiry)Adsr_clear,           /* tp_clear */
@@ -1343,13 +1332,13 @@ Linseg_setList(Linseg *self, PyObject *value)
     if (value == NULL)
     {
         PyErr_SetString(PyExc_TypeError, "Cannot delete the list attribute.");
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
     }
 
     if (! PyList_Check(value))
     {
         PyErr_SetString(PyExc_TypeError, "The points list attribute value must be a list of tuples.");
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
     }
 
     Py_INCREF(value);
@@ -1366,7 +1355,7 @@ Linseg_setLoop(Linseg *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    self->loop = PyInt_AsLong(arg);
+    self->loop = PyLong_AsLong(arg);
 
     Py_RETURN_NONE;
 }
@@ -1417,7 +1406,6 @@ static PyNumberMethods Linseg_as_number =
     (binaryfunc)Linseg_add,                      /*nb_add*/
     (binaryfunc)Linseg_sub,                 /*nb_subtract*/
     (binaryfunc)Linseg_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -1431,16 +1419,12 @@ static PyNumberMethods Linseg_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)Linseg_inplace_add,              /*inplace_add*/
     (binaryfunc)Linseg_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Linseg_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -1476,7 +1460,7 @@ PyTypeObject LinsegType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Linseg objects. Generates a linear segments break-points line.",           /* tp_doc */
     (traverseproc)Linseg_traverse,   /* tp_traverse */
     (inquiry)Linseg_clear,           /* tp_clear */
@@ -1813,13 +1797,13 @@ Expseg_setList(Expseg *self, PyObject *value)
     if (value == NULL)
     {
         PyErr_SetString(PyExc_TypeError, "Cannot delete the list attribute.");
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
     }
 
     if (! PyList_Check(value))
     {
         PyErr_SetString(PyExc_TypeError, "The points list attribute value must be a list of tuples.");
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
     }
 
     Py_INCREF(value);
@@ -1836,7 +1820,7 @@ Expseg_setLoop(Expseg *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    self->loop = PyInt_AsLong(arg);
+    self->loop = PyLong_AsLong(arg);
 
     Py_RETURN_NONE;
 }
@@ -1858,7 +1842,7 @@ Expseg_setInverse(Expseg *self, PyObject *arg)
     ASSERT_ARG_NOT_NULL
 
     if (PyNumber_Check(arg))
-        self->inverse_tmp = PyInt_AsLong(PyNumber_Int(arg));
+        self->inverse_tmp = PyLong_AsLong(PyNumber_Long(arg));
 
     Py_RETURN_NONE;
 }
@@ -1911,7 +1895,6 @@ static PyNumberMethods Expseg_as_number =
     (binaryfunc)Expseg_add,                      /*nb_add*/
     (binaryfunc)Expseg_sub,                 /*nb_subtract*/
     (binaryfunc)Expseg_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -1925,16 +1908,12 @@ static PyNumberMethods Expseg_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)Expseg_inplace_add,              /*inplace_add*/
     (binaryfunc)Expseg_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Expseg_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -1970,7 +1949,7 @@ PyTypeObject ExpsegType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Expseg objects. Generates a linear segments break-points line.",           /* tp_doc */
     (traverseproc)Expseg_traverse,   /* tp_traverse */
     (inquiry)Expseg_clear,           /* tp_clear */

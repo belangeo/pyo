@@ -19,7 +19,6 @@
  *************************************************************************/
 
 #include <Python.h>
-#include "py2to3.h"
 #include "structmember.h"
 #include <math.h>
 #include "pyomodule.h"
@@ -379,9 +378,9 @@ PVAnal_setSize(PVAnal *self, PyObject *arg)
 {
     int k;
 
-    if (PyLong_Check(arg) || PyInt_Check(arg))
+    if (PyLong_Check(arg))
     {
-        self->size = PyInt_AsLong(arg);
+        self->size = PyLong_AsLong(arg);
 
         if (!isPowerOfTwo(self->size))
         {
@@ -405,9 +404,9 @@ PVAnal_setOverlaps(PVAnal *self, PyObject *arg)
 {
     int k;
 
-    if (PyLong_Check(arg) || PyInt_Check(arg))
+    if (PyLong_Check(arg))
     {
-        self->olaps = PyInt_AsLong(arg);
+        self->olaps = PyLong_AsLong(arg);
 
         if (!isPowerOfTwo(self->olaps))
         {
@@ -429,9 +428,9 @@ PVAnal_setOverlaps(PVAnal *self, PyObject *arg)
 static PyObject *
 PVAnal_setWinType(PVAnal *self, PyObject *arg)
 {
-    if (PyLong_Check(arg) || PyInt_Check(arg))
+    if (PyLong_Check(arg))
     {
-        self->wintype = PyInt_AsLong(arg);
+        self->wintype = PyLong_AsLong(arg);
         gen_window(self->window, self->size, self->wintype);
     }
 
@@ -501,7 +500,7 @@ PyTypeObject PVAnalType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "PVAnal objects. Phase Vocoder analysis object.",           /* tp_doc */
     (traverseproc)PVAnal_traverse,                  /* tp_traverse */
     (inquiry)PVAnal_clear,                          /* tp_clear */
@@ -866,9 +865,9 @@ PVSynth_setInput(PVSynth *self, PyObject *arg)
 static PyObject *
 PVSynth_setWinType(PVSynth *self, PyObject *arg)
 {
-    if (PyLong_Check(arg) || PyInt_Check(arg))
+    if (PyLong_Check(arg))
     {
-        self->wintype = PyInt_AsLong(arg);
+        self->wintype = PyLong_AsLong(arg);
         gen_window(self->window, self->size, self->wintype);
     }
 
@@ -927,7 +926,6 @@ static PyNumberMethods PVSynth_as_number =
     (binaryfunc)PVSynth_add,                         /*nb_add*/
     (binaryfunc)PVSynth_sub,                         /*nb_subtract*/
     (binaryfunc)PVSynth_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO  /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -941,16 +939,12 @@ static PyNumberMethods PVSynth_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)PVSynth_inplace_add,                 /*inplace_add*/
     (binaryfunc)PVSynth_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)PVSynth_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -986,7 +980,7 @@ PyTypeObject PVSynthType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "PVSynth objects. Phase Vocoder synthesis object.",           /* tp_doc */
     (traverseproc)PVSynth_traverse,                  /* tp_traverse */
     (inquiry)PVSynth_clear,                          /* tp_clear */
@@ -1444,9 +1438,9 @@ PVAddSynth_setPitch(PVAddSynth *self, PyObject *arg)
 static PyObject *
 PVAddSynth_setNum(PVAddSynth *self, PyObject *arg)
 {
-    if (PyLong_Check(arg) || PyInt_Check(arg))
+    if (PyLong_Check(arg))
     {
-        self->num = PyInt_AsLong(arg);
+        self->num = PyLong_AsLong(arg);
 
         if (self->num < 1)
             self->num = 1;
@@ -1462,9 +1456,9 @@ PVAddSynth_setNum(PVAddSynth *self, PyObject *arg)
 static PyObject *
 PVAddSynth_setFirst(PVAddSynth *self, PyObject *arg)
 {
-    if (PyLong_Check(arg) || PyInt_Check(arg))
+    if (PyLong_Check(arg))
     {
-        self->first = PyInt_AsLong(arg);
+        self->first = PyLong_AsLong(arg);
 
         if (self->first < 0)
             self->first = 0;
@@ -1480,9 +1474,9 @@ PVAddSynth_setFirst(PVAddSynth *self, PyObject *arg)
 static PyObject *
 PVAddSynth_setInc(PVAddSynth *self, PyObject *arg)
 {
-    if (PyLong_Check(arg) || PyInt_Check(arg))
+    if (PyLong_Check(arg))
     {
-        self->inc = PyInt_AsLong(arg);
+        self->inc = PyLong_AsLong(arg);
 
         if (self->inc < 1)
             self->inc = 1;
@@ -1550,7 +1544,6 @@ static PyNumberMethods PVAddSynth_as_number =
     (binaryfunc)PVAddSynth_add,                         /*nb_add*/
     (binaryfunc)PVAddSynth_sub,                         /*nb_subtract*/
     (binaryfunc)PVAddSynth_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO  /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -1564,16 +1557,12 @@ static PyNumberMethods PVAddSynth_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)PVAddSynth_inplace_add,                 /*inplace_add*/
     (binaryfunc)PVAddSynth_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)PVAddSynth_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -1609,7 +1598,7 @@ PyTypeObject PVAddSynthType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "PVAddSynth objects. Phase Vocoder additive resynthesis object.",           /* tp_doc */
     (traverseproc)PVAddSynth_traverse,                  /* tp_traverse */
     (inquiry)PVAddSynth_clear,                          /* tp_clear */
@@ -2027,7 +2016,7 @@ PyTypeObject PVTransposeType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "PVTranspose objects. Spectral domain transposition.",           /* tp_doc */
     (traverseproc)PVTranspose_traverse,                  /* tp_traverse */
     (inquiry)PVTranspose_clear,                          /* tp_clear */
@@ -2687,7 +2676,7 @@ PyTypeObject PVVerbType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "PVVerb objects. Spectral reverberation.",           /* tp_doc */
     (traverseproc)PVVerb_traverse,                  /* tp_traverse */
     (inquiry)PVVerb_clear,                          /* tp_clear */
@@ -3283,9 +3272,9 @@ PVGate_setInverse(PVGate *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    if (PyInt_Check(arg))
+    if (PyLong_Check(arg))
     {
-        self->inverse = PyInt_AsLong(arg);
+        self->inverse = PyLong_AsLong(arg);
     }
 
     Py_RETURN_NONE;
@@ -3337,7 +3326,7 @@ PyTypeObject PVGateType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "PVGate objects. Spectral gate.",           /* tp_doc */
     (traverseproc)PVGate_traverse,                  /* tp_traverse */
     (inquiry)PVGate_clear,                          /* tp_clear */
@@ -3779,7 +3768,7 @@ PyTypeObject PVCrossType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "PVCross objects. Cross-synthesis.",           /* tp_doc */
     (traverseproc)PVCross_traverse,                  /* tp_traverse */
     (inquiry)PVCross_clear,                          /* tp_clear */
@@ -4117,7 +4106,7 @@ PyTypeObject PVMultType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "PVMult objects. Multiply magnitudes from two pv streams.",           /* tp_doc */
     (traverseproc)PVMult_traverse,                  /* tp_traverse */
     (inquiry)PVMult_clear,                          /* tp_clear */
@@ -4569,7 +4558,7 @@ PyTypeObject PVMorphType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "PVMorph objects. Cross-synthesis.",           /* tp_doc */
     (traverseproc)PVMorph_traverse,                  /* tp_traverse */
     (inquiry)PVMorph_clear,                          /* tp_clear */
@@ -5015,9 +5004,9 @@ PVFilter_setMode(PVFilter *self, PyObject *arg)
 {
     int tmp;
 
-    if (PyLong_Check(arg) || PyInt_Check(arg))
+    if (PyLong_Check(arg))
     {
-        tmp = PyInt_AsLong(arg);
+        tmp = PyLong_AsLong(arg);
 
         if (tmp <= 0)
             self->mode = 0;
@@ -5075,7 +5064,7 @@ PyTypeObject PVFilterType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "PVFilter objects. Spectral domain gainsition.",           /* tp_doc */
     (traverseproc)PVFilter_traverse,                  /* tp_traverse */
     (inquiry)PVFilter_clear,                          /* tp_clear */
@@ -5557,9 +5546,9 @@ PVDelay_setMode(PVDelay *self, PyObject *arg)
 {
     int tmp;
 
-    if (PyLong_Check(arg) || PyInt_Check(arg))
+    if (PyLong_Check(arg))
     {
-        tmp = PyInt_AsLong(arg);
+        tmp = PyLong_AsLong(arg);
 
         if (tmp <= 0)
             self->mode = 0;
@@ -5620,7 +5609,7 @@ PyTypeObject PVDelayType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "PVDelay objects. Spectral delay.",           /* tp_doc */
     (traverseproc)PVDelay_traverse,                  /* tp_traverse */
     (inquiry)PVDelay_clear,                          /* tp_clear */
@@ -6178,7 +6167,7 @@ PyTypeObject PVBufferType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "PVBuffer objects. Phase vocoder buffer and playback reader.",           /* tp_doc */
     (traverseproc)PVBuffer_traverse,                  /* tp_traverse */
     (inquiry)PVBuffer_clear,                          /* tp_clear */
@@ -6602,7 +6591,7 @@ PyTypeObject PVShiftType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "PVShift objects. Frequency shifter in the spectral domain.",           /* tp_doc */
     (traverseproc)PVShift_traverse,                  /* tp_traverse */
     (inquiry)PVShift_clear,                          /* tp_clear */
@@ -7251,7 +7240,7 @@ PVAmpMod_setShape(PVAmpMod *self, PyObject *arg)
 
     if (PyNumber_Check(arg))
     {
-        PVMod_setTable(self->table, PyInt_AsLong(arg));
+        PVMod_setTable(self->table, PyLong_AsLong(arg));
     }
 
     Py_RETURN_NONE;
@@ -7315,7 +7304,7 @@ PyTypeObject PVAmpModType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "PVAmpMod objects. Frequency independent modulators.",           /* tp_doc */
     (traverseproc)PVAmpMod_traverse,                  /* tp_traverse */
     (inquiry)PVAmpMod_clear,                          /* tp_clear */
@@ -8015,7 +8004,7 @@ PVFreqMod_setShape(PVFreqMod *self, PyObject *arg)
 
     if (PyNumber_Check(arg))
     {
-        PVMod_setTable(self->table, PyInt_AsLong(arg));
+        PVMod_setTable(self->table, PyLong_AsLong(arg));
     }
 
     Py_RETURN_NONE;
@@ -8081,7 +8070,7 @@ PyTypeObject PVFreqModType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "PVFreqMod objects. Spectral reverberation.",           /* tp_doc */
     (traverseproc)PVFreqMod_traverse,                  /* tp_traverse */
     (inquiry)PVFreqMod_clear,                          /* tp_clear */
@@ -8630,11 +8619,11 @@ PVBufLoops_setMode(PVBufLoops *self, PyObject *arg)
 
     ASSERT_ARG_NOT_NULL
 
-    int isInt = PyInt_Check(arg);
+    int isInt = PyLong_Check(arg);
 
     if (isInt == 1)
     {
-        tmp = PyInt_AsLong(arg);
+        tmp = PyLong_AsLong(arg);
 
         if (tmp >= 0 && tmp < 7)
             self->mode = tmp;
@@ -8701,7 +8690,7 @@ PyTypeObject PVBufLoopsType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "PVBufLoops objects. Phase vocoder buffer and playback reader.",           /* tp_doc */
     (traverseproc)PVBufLoops_traverse,                  /* tp_traverse */
     (inquiry)PVBufLoops_clear,                          /* tp_clear */
@@ -9117,7 +9106,7 @@ PyTypeObject PVBufTabLoopsType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "PVBufTabLoops objects. Phase vocoder buffer and playback reader.",           /* tp_doc */
     (traverseproc)PVBufTabLoops_traverse,                  /* tp_traverse */
     (inquiry)PVBufTabLoops_clear,                          /* tp_clear */
@@ -9464,7 +9453,7 @@ PyTypeObject PVMixType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "PVMix objects. Mix two pv streams.",           /* tp_doc */
     (traverseproc)PVMix_traverse,                  /* tp_traverse */
     (inquiry)PVMix_clear,                          /* tp_clear */

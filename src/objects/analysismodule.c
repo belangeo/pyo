@@ -18,7 +18,6 @@
  * License along with pyo.  If not, see <http://www.gnu.org/licenses/>.   *
  *************************************************************************/
 #include <Python.h>
-#include "py2to3.h"
 #include "structmember.h"
 #include <math.h>
 #include "pyomodule.h"
@@ -342,7 +341,6 @@ static PyNumberMethods Follower_as_number =
     (binaryfunc)Follower_add,                         /*nb_add*/
     (binaryfunc)Follower_sub,                         /*nb_subtract*/
     (binaryfunc)Follower_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -356,16 +354,12 @@ static PyNumberMethods Follower_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)Follower_inplace_add,                 /*inplace_add*/
     (binaryfunc)Follower_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Follower_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -401,7 +395,7 @@ PyTypeObject FollowerType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Follower objects. Envelope follower.",           /* tp_doc */
     (traverseproc)Follower_traverse,                  /* tp_traverse */
     (inquiry)Follower_clear,                          /* tp_clear */
@@ -915,7 +909,6 @@ static PyNumberMethods Follower2_as_number =
     (binaryfunc)Follower2_add,                         /*nb_add*/
     (binaryfunc)Follower2_sub,                         /*nb_subtract*/
     (binaryfunc)Follower2_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -929,16 +922,12 @@ static PyNumberMethods Follower2_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)Follower2_inplace_add,                 /*inplace_add*/
     (binaryfunc)Follower2_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Follower2_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -974,7 +963,7 @@ PyTypeObject Follower2Type =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Follower2 objects. Envelope follower.",           /* tp_doc */
     (traverseproc)Follower2_traverse,                  /* tp_traverse */
     (inquiry)Follower2_clear,                          /* tp_clear */
@@ -1235,7 +1224,6 @@ static PyNumberMethods ZCross_as_number =
     (binaryfunc)ZCross_add,                         /*nb_add*/
     (binaryfunc)ZCross_sub,                         /*nb_subtract*/
     (binaryfunc)ZCross_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -1249,16 +1237,12 @@ static PyNumberMethods ZCross_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)ZCross_inplace_add,                 /*inplace_add*/
     (binaryfunc)ZCross_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)ZCross_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -1294,7 +1278,7 @@ PyTypeObject ZCrossType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "ZCross objects. Returns number of zero crossing.",           /* tp_doc */
     (traverseproc)ZCross_traverse,                  /* tp_traverse */
     (inquiry)ZCross_clear,                          /* tp_clear */
@@ -1711,7 +1695,6 @@ static PyNumberMethods Yin_as_number =
     (binaryfunc)Yin_add,                         /*nb_add*/
     (binaryfunc)Yin_sub,                         /*nb_subtract*/
     (binaryfunc)Yin_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -1725,16 +1708,12 @@ static PyNumberMethods Yin_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)Yin_inplace_add,                 /*inplace_add*/
     (binaryfunc)Yin_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Yin_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -1770,7 +1749,7 @@ PyTypeObject YinType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Yin objects. Pitch tracker using the Yin algorithm.",           /* tp_doc */
     (traverseproc)Yin_traverse,                  /* tp_traverse */
     (inquiry)Yin_clear,                          /* tp_clear */
@@ -2093,7 +2072,6 @@ static PyNumberMethods Centroid_as_number =
     (binaryfunc)Centroid_add,                      /*nb_add*/
     (binaryfunc)Centroid_sub,                 /*nb_subtract*/
     (binaryfunc)Centroid_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -2107,16 +2085,12 @@ static PyNumberMethods Centroid_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)Centroid_inplace_add,              /*inplace_add*/
     (binaryfunc)Centroid_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Centroid_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -2152,7 +2126,7 @@ PyTypeObject CentroidType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Centroid objects. FFT transform.",           /* tp_doc */
     (traverseproc)Centroid_traverse,                  /* tp_traverse */
     (inquiry)Centroid_clear,                          /* tp_clear */
@@ -2594,7 +2568,6 @@ static PyNumberMethods AttackDetector_as_number =
     (binaryfunc)AttackDetector_add,                         /*nb_add*/
     (binaryfunc)AttackDetector_sub,                         /*nb_subtract*/
     (binaryfunc)AttackDetector_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -2608,16 +2581,12 @@ static PyNumberMethods AttackDetector_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)AttackDetector_inplace_add,                 /*inplace_add*/
     (binaryfunc)AttackDetector_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)AttackDetector_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -2653,7 +2622,7 @@ PyTypeObject AttackDetectorType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "AttackDetector objects. Audio signal peak detection.",           /* tp_doc */
     (traverseproc)AttackDetector_traverse,                  /* tp_traverse */
     (inquiry)AttackDetector_clear,                          /* tp_clear */
@@ -2737,8 +2706,8 @@ Scope_display(Scope *self)
         ipos = (int)pos;
         tuple = PyTuple_New(2);
         mag = ((self->buffer[ipos] + (self->buffer[ipos + 1] - self->buffer[ipos]) * (pos - ipos)) * self->gain * h2 + h2);
-        PyTuple_SET_ITEM(tuple, 0, PyInt_FromLong(i));
-        PyTuple_SET_ITEM(tuple, 1, PyInt_FromLong(self->height - (int)mag));
+        PyTuple_SET_ITEM(tuple, 0, PyLong_FromLong(i));
+        PyTuple_SET_ITEM(tuple, 1, PyLong_FromLong(self->height - (int)mag));
         PyList_SET_ITEM(points, i, tuple);
     }
 
@@ -2890,9 +2859,9 @@ Scope_setGain(Scope *self, PyObject *arg)
 static PyObject *
 Scope_setWidth(Scope *self, PyObject *arg)
 {
-    if (PyInt_Check(arg))
+    if (PyLong_Check(arg))
     {
-        self->width = PyInt_AsLong(arg);
+        self->width = PyLong_AsLong(arg);
     }
 
     Py_RETURN_NONE;
@@ -2901,9 +2870,9 @@ Scope_setWidth(Scope *self, PyObject *arg)
 static PyObject *
 Scope_setHeight(Scope *self, PyObject *arg)
 {
-    if (PyInt_Check(arg))
+    if (PyLong_Check(arg))
     {
-        self->height = PyInt_AsLong(arg);
+        self->height = PyLong_AsLong(arg);
     }
 
     Py_RETURN_NONE;
@@ -2931,9 +2900,9 @@ Scope_setFunc(Scope *self, PyObject *arg)
 static PyObject *
 Scope_setPoll(Scope *self, PyObject *arg)
 {
-    if (PyInt_Check(arg))
+    if (PyLong_Check(arg))
     {
-        self->poll = PyInt_AsLong(arg);
+        self->poll = PyLong_AsLong(arg);
     }
 
     Py_RETURN_NONE;
@@ -2984,7 +2953,7 @@ PyTypeObject ScopeType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Scope objects. Show the waveform of an input signal.",           /* tp_doc */
     (traverseproc)Scope_traverse,                  /* tp_traverse */
     (inquiry)Scope_clear,                          /* tp_clear */
@@ -3229,7 +3198,6 @@ static PyNumberMethods PeakAmp_as_number =
     (binaryfunc)PeakAmp_add,                         /*nb_add*/
     (binaryfunc)PeakAmp_sub,                         /*nb_subtract*/
     (binaryfunc)PeakAmp_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -3243,16 +3211,12 @@ static PyNumberMethods PeakAmp_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)PeakAmp_inplace_add,                 /*inplace_add*/
     (binaryfunc)PeakAmp_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)PeakAmp_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -3288,7 +3252,7 @@ PyTypeObject PeakAmpType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "PeakAmp objects. Envelope follower.",           /* tp_doc */
     (traverseproc)PeakAmp_traverse,                  /* tp_traverse */
     (inquiry)PeakAmp_clear,                          /* tp_clear */
@@ -3524,7 +3488,6 @@ static PyNumberMethods RMS_as_number =
     (binaryfunc)RMS_add,                         /*nb_add*/
     (binaryfunc)RMS_sub,                         /*nb_subtract*/
     (binaryfunc)RMS_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -3538,16 +3501,12 @@ static PyNumberMethods RMS_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)RMS_inplace_add,                 /*inplace_add*/
     (binaryfunc)RMS_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)RMS_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -3583,7 +3542,7 @@ PyTypeObject RMSType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "RMS objects. Envelope follower.",           /* tp_doc */
     (traverseproc)RMS_traverse,                  /* tp_traverse */
     (inquiry)RMS_clear,                          /* tp_clear */

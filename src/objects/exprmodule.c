@@ -19,7 +19,6 @@
  *************************************************************************/
 
 #include <Python.h>
-#include "py2to3.h"
 #include "structmember.h"
 #include <math.h>
 #include "pyomodule.h"
@@ -831,12 +830,12 @@ Exprer_setExpr(Exprer *self, PyObject *arg)
     PyObject *sentence = NULL, *explist = NULL, *tmpchnl = NULL, *waitingList = NULL;
     Py_ssize_t len, start, end, chpos = 0;
 
-    if (PY_STRING_CHECK(arg))
+    if (PyUnicode_Check(arg))
     {
         Py_INCREF(arg);
         Py_XDECREF(sentence);
         sentence = arg;
-        len = PY_UNICODE_GET_SIZE(sentence);
+        len = PyUnicode_GetLength(sentence);
 
         if (len == 0)
         {
@@ -887,7 +886,7 @@ Exprer_setExpr(Exprer *self, PyObject *arg)
             else
             {
                 PyObject *placeHolder = PyUnicode_FromString("_%d");
-                PyObject *placeHolderFormat = PyUnicode_Format(placeHolder, PyInt_FromLong(self->count));
+                PyObject *placeHolderFormat = PyUnicode_Format(placeHolder, PyLong_FromLong(self->count));
                 PyObject* new_sentence = PyUnicode_Replace(sentence, exp, placeHolderFormat, 1);
                 Py_DECREF(sentence);
                 sentence = new_sentence;
@@ -909,7 +908,7 @@ Exprer_setExpr(Exprer *self, PyObject *arg)
             {
                 Py_INCREF(constToken);
                 PyList_SetItem(explist, 0, constToken);
-                PyDict_SetItem(self->variables, PyList_GetItem(explist, 1), PyInt_FromLong(self->count));
+                PyDict_SetItem(self->variables, PyList_GetItem(explist, 1), PyLong_FromLong(self->count));
                 PySequence_DelItem(explist, 1);
             }
             Py_DECREF(varToken);
@@ -927,21 +926,21 @@ Exprer_setExpr(Exprer *self, PyObject *arg)
 
                     for (j = 0; j < PyList_Size(waitingList); j++)
                     {
-                        count = PyInt_AsLong(PyTuple_GetItem(PyList_GetItem(waitingList, j), 0));
-                        i = PyInt_AsLong(PyTuple_GetItem(PyList_GetItem(waitingList, j), 1));
+                        count = PyLong_AsLong(PyTuple_GetItem(PyList_GetItem(waitingList, j), 0));
+                        i = PyLong_AsLong(PyTuple_GetItem(PyList_GetItem(waitingList, j), 1));
                         self->lexp[count].vars[i] = self->count;
                     }
 
                     PyDict_DelItem(waitingDict, PyList_GetItem(explist, 1));
                 }
 
-                PyDict_SetItem(varDict, PyList_GetItem(explist, 1), PyInt_FromLong(self->count));
+                PyDict_SetItem(varDict, PyList_GetItem(explist, 1), PyLong_FromLong(self->count));
                 PySequence_DelItem(explist, 1);
             }
             Py_DECREF(letToken);
 
             // Initialize expression node
-            self->lexp[self->count] = initexpr(PY_STRING_AS_STRING(PyList_GetItem(explist, 0)), PyList_Size(explist));
+            self->lexp[self->count] = initexpr(PyUnicode_AsUTF8(PyList_GetItem(explist, 0)), PyList_Size(explist));
 
             if (PyList_Size(explist) == 1 && self->lexp[self->count].type_op == OP_CONST)
             {
@@ -958,18 +957,18 @@ Exprer_setExpr(Exprer *self, PyObject *arg)
                 if (PyUnicode_Contains(PyList_GetItem(explist, i + 1), PyUnicode_FromString("_")))
                 {
                     PyObject *tmpstr = PyUnicode_Replace(PyList_GetItem(explist, i + 1), PyUnicode_FromString("_"), PyUnicode_FromString(""), -1);
-                    self->lexp[self->count].nodes[i] = PyInt_AsLong(PyInt_FromString(PY_STRING_AS_STRING(tmpstr), NULL, 0));
+                    self->lexp[self->count].nodes[i] = PyLong_AsLong(PyLong_FromString(PyUnicode_AsUTF8(tmpstr), NULL, 0));
                     Py_DECREF(tmpstr);
                 }
                 else if (PyUnicode_Contains(PyList_GetItem(explist, i + 1), PyUnicode_FromString("#")))
                 {
                     if (PyDict_GetItem(self->variables, PyList_GetItem(explist, i + 1)) != NULL)
                     {
-                        self->lexp[self->count].vars[i] = PyInt_AsLong(PyDict_GetItem(self->variables, PyList_GetItem(explist, i + 1)));
+                        self->lexp[self->count].vars[i] = PyLong_AsLong(PyDict_GetItem(self->variables, PyList_GetItem(explist, i + 1)));
                     }
                     else if (PyDict_GetItem(varDict, PyList_GetItem(explist, i + 1)) != NULL)
                     {
-                        self->lexp[self->count].vars[i] = PyInt_AsLong(PyDict_GetItem(varDict, PyList_GetItem(explist, i + 1)));
+                        self->lexp[self->count].vars[i] = PyLong_AsLong(PyDict_GetItem(varDict, PyList_GetItem(explist, i + 1)));
                     }
                     else
                     {
@@ -978,7 +977,7 @@ Exprer_setExpr(Exprer *self, PyObject *arg)
                         else
                             waitingList = PyDict_GetItem(waitingDict, PyList_GetItem(explist, i + 1));
 
-                        PyObject *tmptup = PyTuple_Pack(2, PyInt_FromLong(self->count), PyInt_FromLong(i));
+                        PyObject *tmptup = PyTuple_Pack(2, PyLong_FromLong(self->count), PyLong_FromLong(i));
                         PyList_Append(waitingList, tmptup);
                         PyDict_SetItem(waitingDict, PyList_GetItem(explist, i + 1), waitingList);
                         Py_DECREF(tmptup);
@@ -987,7 +986,7 @@ Exprer_setExpr(Exprer *self, PyObject *arg)
                 else if (PyUnicode_Contains(PyList_GetItem(explist, i + 1), xargToken))
                 {
                     PyObject *tmpstr = PyUnicode_Replace(PyList_GetItem(explist, i + 1), xargToken, PyUnicode_FromString(""), -1);
-                    chpos = PyUnicode_Find(tmpstr, PyUnicode_FromString("["), 0, PY_UNICODE_GET_SIZE(tmpstr), 1);
+                    chpos = PyUnicode_Find(tmpstr, PyUnicode_FromString("["), 0, PyUnicode_GetLength(tmpstr), 1);
 
                     if (chpos == 0)
                     {
@@ -995,15 +994,15 @@ Exprer_setExpr(Exprer *self, PyObject *arg)
                     }
                     else
                     {
-                        self->lexp[self->count].inchnls[i] = PyInt_AsLong(PyInt_FromString(PY_STRING_AS_STRING(PyUnicode_Substring(tmpstr, 0, chpos)), NULL, 0));
-                        PyObject *substr = PyUnicode_Substring(tmpstr, chpos, PY_UNICODE_GET_SIZE(tmpstr));
+                        self->lexp[self->count].inchnls[i] = PyLong_AsLong(PyLong_FromString(PyUnicode_AsUTF8(PyUnicode_Substring(tmpstr, 0, chpos)), NULL, 0));
+                        PyObject *substr = PyUnicode_Substring(tmpstr, chpos, PyUnicode_GetLength(tmpstr));
                         Py_DECREF(tmpstr);
                         tmpstr = substr;
                     }
 
                     PyObject *new_tmpstr = PyUnicode_Replace(tmpstr, PyUnicode_FromString("["), PyUnicode_FromString(""), -1);
                     PyObject *new_tmpstr2 = PyUnicode_Replace(new_tmpstr, PyUnicode_FromString("]"), PyUnicode_FromString(""), -1);
-                    self->lexp[self->count].input[i] = PyInt_AsLong(PyInt_FromString(PY_STRING_AS_STRING(new_tmpstr2), NULL, 0));
+                    self->lexp[self->count].input[i] = PyLong_AsLong(PyLong_FromString(PyUnicode_AsUTF8(new_tmpstr2), NULL, 0));
                     Py_DECREF(tmpstr);
                     Py_DECREF(new_tmpstr);
                     Py_DECREF(new_tmpstr2);
@@ -1011,7 +1010,7 @@ Exprer_setExpr(Exprer *self, PyObject *arg)
                 else if (PyUnicode_Contains(PyList_GetItem(explist, i + 1), yargToken))
                 {
                     PyObject *tmpstr = PyUnicode_Replace(PyList_GetItem(explist, i + 1), yargToken, PyUnicode_FromString(""), -1);
-                    chpos = PyUnicode_Find(tmpstr, PyUnicode_FromString("["), 0, PY_UNICODE_GET_SIZE(tmpstr), 1);
+                    chpos = PyUnicode_Find(tmpstr, PyUnicode_FromString("["), 0, PyUnicode_GetLength(tmpstr), 1);
 
                     if (chpos == 0)
                     {
@@ -1019,22 +1018,22 @@ Exprer_setExpr(Exprer *self, PyObject *arg)
                     }
                     else
                     {
-                        self->lexp[self->count].outchnls[i] = PyInt_AsLong(PyInt_FromString(PY_STRING_AS_STRING(PyUnicode_Substring(tmpstr, 0, chpos)), NULL, 0));
-                        PyObject *substr = PyUnicode_Substring(tmpstr, chpos, PY_UNICODE_GET_SIZE(tmpstr));
+                        self->lexp[self->count].outchnls[i] = PyLong_AsLong(PyLong_FromString(PyUnicode_AsUTF8(PyUnicode_Substring(tmpstr, 0, chpos)), NULL, 0));
+                        PyObject *substr = PyUnicode_Substring(tmpstr, chpos, PyUnicode_GetLength(tmpstr));
                         Py_DECREF(tmpstr);
                         tmpstr = substr;
                     }
 
                     PyObject *new_tmpstr = PyUnicode_Replace(tmpstr, PyUnicode_FromString("["), PyUnicode_FromString(""), -1);
                     PyObject *new_tmpstr2 = PyUnicode_Replace(new_tmpstr, PyUnicode_FromString("]"), PyUnicode_FromString(""), -1);
-                    self->lexp[self->count].output[i] = PyInt_AsLong(PyInt_FromString(PY_STRING_AS_STRING(new_tmpstr2), NULL, 0));
+                    self->lexp[self->count].output[i] = PyLong_AsLong(PyLong_FromString(PyUnicode_AsUTF8(new_tmpstr2), NULL, 0));
                     Py_DECREF(tmpstr);
                     Py_DECREF(new_tmpstr);
                     Py_DECREF(new_tmpstr2);
                 }
                 else
                 {
-                    PyObject *valueAsFloat = PyFloat_FromString(PyList_GetItem(explist, i + 1), NULL);
+                    PyObject *valueAsFloat = PyFloat_FromString(PyList_GetItem(explist, i + 1));
                     self->lexp[self->count].values[i] = PyFloat_AsDouble(valueAsFloat);
                     Py_DECREF(valueAsFloat);
                 }
@@ -1042,7 +1041,7 @@ Exprer_setExpr(Exprer *self, PyObject *arg)
 
             Py_DECREF(exp);
 
-            len = PY_UNICODE_GET_SIZE(sentence);
+            len = PyUnicode_GetLength(sentence);
             self->count++;
         }
 
@@ -1052,24 +1051,24 @@ Exprer_setExpr(Exprer *self, PyObject *arg)
             PyList_Insert(explist, 0, constToken);
 
         // Initialize last expression node
-        self->lexp[self->count] = initexpr(PY_STRING_AS_STRING(PyList_GetItem(explist, 0)), PyList_Size(explist));
+        self->lexp[self->count] = initexpr(PyUnicode_AsUTF8(PyList_GetItem(explist, 0)), PyList_Size(explist));
 
         for (i = 0; i < self->lexp[self->count].num; i++)
         {
             if (PyUnicode_Contains(PyList_GetItem(explist, i + 1), PyUnicode_FromString("_")))
             {
                 PyObject *tmpstr = PyUnicode_Replace(PyList_GetItem(explist, i + 1), PyUnicode_FromString("_"), PyUnicode_FromString(""), -1);
-                self->lexp[self->count].nodes[i] = PyInt_AsLong(PyInt_FromString(PY_STRING_AS_STRING(tmpstr), NULL, 0));
+                self->lexp[self->count].nodes[i] = PyLong_AsLong(PyLong_FromString(PyUnicode_AsUTF8(tmpstr), NULL, 0));
                 Py_DECREF(tmpstr);
             }
             else if (PyUnicode_Contains(PyList_GetItem(explist, i + 1), PyUnicode_FromString("#")))
             {
-                self->lexp[self->count].vars[i] = PyInt_AsLong(PyDict_GetItem(varDict, PyList_GetItem(explist, i + 1)));
+                self->lexp[self->count].vars[i] = PyLong_AsLong(PyDict_GetItem(varDict, PyList_GetItem(explist, i + 1)));
             }
             else if (PyUnicode_Contains(PyList_GetItem(explist, i + 1), xargToken))
             {
                 PyObject *tmpstr = PyUnicode_Replace(PyList_GetItem(explist, i + 1), xargToken, PyUnicode_FromString(""), -1);
-                chpos = PyUnicode_Find(tmpstr, PyUnicode_FromString("["), 0, PY_UNICODE_GET_SIZE(tmpstr), 1);
+                chpos = PyUnicode_Find(tmpstr, PyUnicode_FromString("["), 0, PyUnicode_GetLength(tmpstr), 1);
 
                 if (chpos == 0)
                 {
@@ -1077,15 +1076,15 @@ Exprer_setExpr(Exprer *self, PyObject *arg)
                 }
                 else
                 {
-                    self->lexp[self->count].inchnls[i] = PyInt_AsLong(PyInt_FromString(PY_STRING_AS_STRING(PyUnicode_Substring(tmpstr, 0, chpos)), NULL, 0));
-                    PyObject *substr = PyUnicode_Substring(tmpstr, chpos, PY_UNICODE_GET_SIZE(tmpstr));
+                    self->lexp[self->count].inchnls[i] = PyLong_AsLong(PyLong_FromString(PyUnicode_AsUTF8(PyUnicode_Substring(tmpstr, 0, chpos)), NULL, 0));
+                    PyObject *substr = PyUnicode_Substring(tmpstr, chpos, PyUnicode_GetLength(tmpstr));
                     Py_DECREF(tmpstr);
                     tmpstr = substr;
                 }
 
                 PyObject *new_tmpstr = PyUnicode_Replace(tmpstr, PyUnicode_FromString("["), PyUnicode_FromString(""), -1);
                 PyObject *new_tmpstr2 = PyUnicode_Replace(new_tmpstr, PyUnicode_FromString("]"), PyUnicode_FromString(""), -1);
-                self->lexp[self->count].input[i] = PyInt_AsLong(PyInt_FromString(PY_STRING_AS_STRING(new_tmpstr2), NULL, 0));
+                self->lexp[self->count].input[i] = PyLong_AsLong(PyLong_FromString(PyUnicode_AsUTF8(new_tmpstr2), NULL, 0));
                 Py_DECREF(tmpstr);
                 Py_DECREF(new_tmpstr);
                 Py_DECREF(new_tmpstr2);
@@ -1093,7 +1092,7 @@ Exprer_setExpr(Exprer *self, PyObject *arg)
             else if (PyUnicode_Contains(PyList_GetItem(explist, i + 1), yargToken))
             {
                 PyObject *tmpstr = PyUnicode_Replace(PyList_GetItem(explist, i + 1), yargToken, PyUnicode_FromString(""), -1);
-                chpos = PyUnicode_Find(tmpstr, PyUnicode_FromString("["), 0, PY_UNICODE_GET_SIZE(tmpstr), 1);
+                chpos = PyUnicode_Find(tmpstr, PyUnicode_FromString("["), 0, PyUnicode_GetLength(tmpstr), 1);
 
                 if (chpos == 0)
                 {
@@ -1101,22 +1100,22 @@ Exprer_setExpr(Exprer *self, PyObject *arg)
                 }
                 else
                 {
-                    self->lexp[self->count].outchnls[i] = PyInt_AsLong(PyInt_FromString(PY_STRING_AS_STRING(PyUnicode_Substring(tmpstr, 0, chpos)), NULL, 0));
-                    PyObject *substr = PyUnicode_Substring(tmpstr, chpos, PY_UNICODE_GET_SIZE(tmpstr));
+                    self->lexp[self->count].outchnls[i] = PyLong_AsLong(PyLong_FromString(PyUnicode_AsUTF8(PyUnicode_Substring(tmpstr, 0, chpos)), NULL, 0));
+                    PyObject *substr = PyUnicode_Substring(tmpstr, chpos, PyUnicode_GetLength(tmpstr));
                     Py_DECREF(tmpstr);
                     tmpstr = substr;
                 }
 
                 PyObject *new_tmpstr = PyUnicode_Replace(tmpstr, PyUnicode_FromString("["), PyUnicode_FromString(""), -1);
                 PyObject *new_tmpstr2 = PyUnicode_Replace(new_tmpstr, PyUnicode_FromString("]"), PyUnicode_FromString(""), -1);
-                self->lexp[self->count].output[i] = PyInt_AsLong(PyInt_FromString(PY_STRING_AS_STRING(new_tmpstr2), NULL, 0));
+                self->lexp[self->count].output[i] = PyLong_AsLong(PyLong_FromString(PyUnicode_AsUTF8(new_tmpstr2), NULL, 0));
                 Py_DECREF(tmpstr);
                 Py_DECREF(new_tmpstr);
                 Py_DECREF(new_tmpstr2);
             }
             else
             {
-                PyObject *valueAsFloat = PyFloat_FromString(PyList_GetItem(explist, i + 1), NULL);
+                PyObject *valueAsFloat = PyFloat_FromString(PyList_GetItem(explist, i + 1));
                 self->lexp[self->count].values[i] = PyFloat_AsDouble(valueAsFloat);
                 Py_DECREF(valueAsFloat);
             }
@@ -1153,7 +1152,7 @@ Exprer_setVar(Exprer *self, PyObject *args, PyObject *kwds)
 
     if (PyDict_GetItem(self->variables, varname))
     {
-        index = PyInt_AsLong(PyDict_GetItem(self->variables, varname));
+        index = PyLong_AsLong(PyDict_GetItem(self->variables, varname));
         self->lexp[index].values[0] = PyFloat_AsDouble(value);
     }
 
@@ -1214,7 +1213,7 @@ PyTypeObject ExprerType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Exprer objects. Resolve a prefix notation sentence at audio rate.",           /* tp_doc */
     (traverseproc)Exprer_traverse,   /* tp_traverse */
     (inquiry)Exprer_clear,           /* tp_clear */
@@ -1434,7 +1433,6 @@ static PyNumberMethods Expr_as_number =
     (binaryfunc)Expr_add,                      /*nb_add*/
     (binaryfunc)Expr_sub,                 /*nb_subtract*/
     (binaryfunc)Expr_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -1448,16 +1446,12 @@ static PyNumberMethods Expr_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)Expr_inplace_add,              /*inplace_add*/
     (binaryfunc)Expr_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Expr_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -1493,7 +1487,7 @@ PyTypeObject ExprType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "Expr objects. Reads one channel from a Exprer.",           /* tp_doc */
     (traverseproc)Expr_traverse,   /* tp_traverse */
     (inquiry)Expr_clear,           /* tp_clear */

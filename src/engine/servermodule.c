@@ -26,7 +26,6 @@
 #include <stdlib.h>
 #include <pthread.h>
 
-#include "py2to3.h"
 #include "structmember.h"
 #include "sndfile.h"
 #include "streammodule.h"
@@ -712,10 +711,10 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->jackautoin = 1;
     self->jackautoout = 1;
     self->streams = PyList_New(0);
-    self->jackInputPortNames = PY_BYTES_FROM_STRING("");
-    self->jackOutputPortNames = PY_BYTES_FROM_STRING("");
-    self->jackMidiInputPortName = PY_BYTES_FROM_STRING("");
-    self->jackMidiOutputPortName = PY_BYTES_FROM_STRING("");
+    self->jackInputPortNames = PyBytes_FromString("");
+    self->jackOutputPortNames = PyBytes_FromString("");
+    self->jackMidiInputPortName = PyBytes_FromString("");
+    self->jackMidiOutputPortName = PyBytes_FromString("");
     self->jackAutoConnectInputPorts = PyList_New(0);
     self->jackAutoConnectOutputPorts = PyList_New(0);
     self->jackAutoConnectMidiInputPort = PyList_New(0);
@@ -846,7 +845,7 @@ Server_setDefaultRecPath(Server *self, PyObject *args, PyObject *kwds)
     static char *kwlist[] = {"path", NULL};
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "s", kwlist, &self->recpath))
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
 
     Py_RETURN_NONE;
 }
@@ -862,8 +861,8 @@ Server_setInputOffset(Server *self, PyObject *arg)
 
     if (arg != NULL)
     {
-        if (PyInt_Check(arg))
-            self->input_offset = PyInt_AsLong(arg);
+        if (PyLong_Check(arg))
+            self->input_offset = PyLong_AsLong(arg);
     }
 
     Py_RETURN_NONE;
@@ -880,8 +879,8 @@ Server_setOutputOffset(Server *self, PyObject *arg)
 
     if (arg != NULL)
     {
-        if (PyInt_Check(arg))
-            self->output_offset = PyInt_AsLong(arg);
+        if (PyLong_Check(arg))
+            self->output_offset = PyLong_AsLong(arg);
     }
 
     Py_RETURN_NONE;
@@ -892,8 +891,8 @@ Server_setInputDevice(Server *self, PyObject *arg)
 {
     if (arg != NULL)
     {
-        if (PyInt_Check(arg))
-            self->input = PyInt_AsLong(arg);
+        if (PyLong_Check(arg))
+            self->input = PyLong_AsLong(arg);
     }
 
     Py_RETURN_NONE;
@@ -904,10 +903,10 @@ Server_setInOutDevice(Server *self, PyObject *arg)
 {
     if (arg != NULL)
     {
-        if (PyInt_Check(arg))
+        if (PyLong_Check(arg))
         {
-            self->input = PyInt_AsLong(arg);
-            self->output = PyInt_AsLong(arg);
+            self->input = PyLong_AsLong(arg);
+            self->output = PyLong_AsLong(arg);
         }
     }
 
@@ -919,8 +918,8 @@ Server_setOutputDevice(Server *self, PyObject *arg)
 {
     if (arg != NULL)
     {
-        if (PyInt_Check(arg))
-            self->output = PyInt_AsLong(arg);
+        if (PyLong_Check(arg))
+            self->output = PyLong_AsLong(arg);
     }
 
     Py_RETURN_NONE;
@@ -931,8 +930,8 @@ Server_setMidiInputDevice(Server *self, PyObject *arg)
 {
     if (arg != NULL)
     {
-        if (PyInt_Check(arg))
-            self->midi_input = PyInt_AsLong(arg);
+        if (PyLong_Check(arg))
+            self->midi_input = PyLong_AsLong(arg);
     }
 
     Py_RETURN_NONE;
@@ -943,8 +942,8 @@ Server_setMidiOutputDevice(Server *self, PyObject *arg)
 {
     if (arg != NULL)
     {
-        if (PyInt_Check(arg))
-            self->midi_output = PyInt_AsLong(arg);
+        if (PyLong_Check(arg))
+            self->midi_output = PyLong_AsLong(arg);
     }
 
     Py_RETURN_NONE;
@@ -987,9 +986,9 @@ Server_setNchnls(Server *self, PyObject *arg)
         Py_RETURN_NONE;
     }
 
-    if (arg != NULL && PyInt_Check(arg))
+    if (arg != NULL && PyLong_Check(arg))
     {
-        self->nchnls = PyInt_AsLong(arg);
+        self->nchnls = PyLong_AsLong(arg);
     }
     else
     {
@@ -1008,9 +1007,9 @@ Server_setIchnls(Server *self, PyObject *arg)
         Py_RETURN_NONE;
     }
 
-    if (arg != NULL && PyInt_Check(arg))
+    if (arg != NULL && PyLong_Check(arg))
     {
-        self->ichnls = PyInt_AsLong(arg);
+        self->ichnls = PyLong_AsLong(arg);
     }
     else
     {
@@ -1029,9 +1028,9 @@ Server_setBufferSize(Server *self, PyObject *arg)
         Py_RETURN_NONE;
     }
 
-    if (arg != NULL && PyInt_Check(arg))
+    if (arg != NULL && PyLong_Check(arg))
     {
-        self->bufferSize = PyInt_AsLong(arg);
+        self->bufferSize = PyLong_AsLong(arg);
     }
     else
     {
@@ -1074,8 +1073,8 @@ Server_setDuplex(Server *self, PyObject *arg)
 
     if (arg != NULL)
     {
-        if (PyInt_Check(arg))
-            self->duplex = PyInt_AsLong(arg);
+        if (PyLong_Check(arg))
+            self->duplex = PyLong_AsLong(arg);
     }
 
     Py_RETURN_NONE;
@@ -1180,7 +1179,7 @@ Server_setJackInputPortNames(Server *self, PyObject *arg)
 
     if (arg != NULL)
     {
-        if (PyList_Check(arg) || PY_STRING_CHECK(arg))
+        if (PyList_Check(arg) || PyUnicode_Check(arg))
         {
             tmp = arg;
             Py_XDECREF(self->jackInputPortNames);
@@ -1201,7 +1200,7 @@ Server_setJackOutputPortNames(Server *self, PyObject *arg)
 
     if (arg != NULL)
     {
-        if (PyList_Check(arg) || PY_STRING_CHECK(arg))
+        if (PyList_Check(arg) || PyUnicode_Check(arg))
         {
             tmp = arg;
             Py_XDECREF(self->jackOutputPortNames);
@@ -1222,7 +1221,7 @@ Server_setJackMidiInputPortName(Server *self, PyObject *arg)
 
     if (arg != NULL)
     {
-        if (PY_STRING_CHECK(arg))
+        if (PyUnicode_Check(arg))
         {
             tmp = arg;
             Py_XDECREF(self->jackMidiInputPortName);
@@ -1243,7 +1242,7 @@ Server_setJackMidiOutputPortName(Server *self, PyObject *arg)
 
     if (arg != NULL)
     {
-        if (PY_STRING_CHECK(arg))
+        if (PyUnicode_Check(arg))
         {
             tmp = arg;
             Py_XDECREF(self->jackMidiOutputPortName);
@@ -1268,8 +1267,8 @@ Server_setIsJackTransportSlave(Server *self, PyObject *arg)
 
     if (arg != NULL)
     {
-        if (PyInt_Check(arg))
-            self->isJackTransportSlave = PyInt_AsLong(arg);
+        if (PyLong_Check(arg))
+            self->isJackTransportSlave = PyLong_AsLong(arg);
     }
 
     Py_RETURN_NONE;
@@ -1282,7 +1281,7 @@ Server_setGlobalSeed(Server *self, PyObject *arg)
 
     if (arg != NULL && PyLong_Check(arg))
     {
-        self->globalSeed = (int)PyInt_AsLong(arg);
+        self->globalSeed = (int)PyLong_AsLong(arg);
         self->globalSeed = self->globalSeed > 0 ? self->globalSeed : 0;
     }
 
@@ -1414,11 +1413,11 @@ Server_setVerbosity(Server *self, PyObject *arg)
 {
     if (arg != NULL)
     {
-        int check = PyInt_Check(arg);
+        int check = PyLong_Check(arg);
 
         if (check)
         {
-            self->verbosity = PyInt_AsLong(arg);
+            self->verbosity = PyLong_AsLong(arg);
         }
     }
 
@@ -1885,7 +1884,7 @@ Server_recordOptions(Server *self, PyObject *args, PyObject *kwds)
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "d|siid", kwlist, &self->recdur, &self->recpath, &self->recformat, &self->rectype, &self->recquality))
     {
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
     }
 
     Py_RETURN_NONE;
@@ -1901,7 +1900,7 @@ Server_start_rec(Server *self, PyObject *args, PyObject *kwds)
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|s#", kwlist, &filename, &psize))
     {
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
     }
 
     Server_start_rec_internal(self, filename);
@@ -2039,12 +2038,12 @@ Server_addStream(Server *self, PyObject *args)
     PyObject *tmp;
 
     if (! PyArg_ParseTuple(args, "O", &tmp))
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
 
     if (tmp == NULL)
     {
         Server_error(self, "Server_addStream function needs a PyoObject as argument.\n");
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
     }
 
     PyList_Append(self->streams, tmp);
@@ -2102,7 +2101,7 @@ Server_changeStreamPosition(Server *self, PyObject *args)
     Stream *ref_stream_tmp, *cur_stream_tmp, *stream_tmp;
 
     if (! PyArg_ParseTuple(args, "OO", &ref_stream_tmp, &cur_stream_tmp))
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
 
     rsid = Stream_getStreamId(ref_stream_tmp);
     csid = Stream_getStreamId(cur_stream_tmp);
@@ -2165,7 +2164,7 @@ Server_noteout(Server *self, PyObject *args)
     PyoMidiTimestamp timestamp;
 
     if (! PyArg_ParseTuple(args, "iiil", &pit, &vel, &chan, &timestamp))
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
 
     switch (self->midi_be_type)
     {
@@ -2195,7 +2194,7 @@ Server_afterout(Server *self, PyObject *args)
     PyoMidiTimestamp timestamp;
 
     if (! PyArg_ParseTuple(args, "iiil", &pit, &vel, &chan, &timestamp))
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
 
     switch (self->midi_be_type)
     {
@@ -2225,7 +2224,7 @@ Server_ctlout(Server *self, PyObject *args)
     PyoMidiTimestamp timestamp;
 
     if (! PyArg_ParseTuple(args, "iiil", &ctlnum, &value, &chan, &timestamp))
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
 
     switch (self->midi_be_type)
     {
@@ -2255,7 +2254,7 @@ Server_programout(Server *self, PyObject *args)
     PyoMidiTimestamp timestamp;
 
     if (! PyArg_ParseTuple(args, "iil", &value, &chan, &timestamp))
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
 
     switch (self->midi_be_type)
     {
@@ -2285,7 +2284,7 @@ Server_pressout(Server *self, PyObject *args)
     PyoMidiTimestamp timestamp;
 
     if (! PyArg_ParseTuple(args, "iil", &value, &chan, &timestamp))
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
 
     switch (self->midi_be_type)
     {
@@ -2315,7 +2314,7 @@ Server_bendout(Server *self, PyObject *args)
     PyoMidiTimestamp timestamp;
 
     if (! PyArg_ParseTuple(args, "iil", &value, &chan, &timestamp))
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
 
     switch (self->midi_be_type)
     {
@@ -2346,7 +2345,7 @@ Server_sysexout(Server *self, PyObject *args)
     PyoMidiTimestamp timestamp;
 
     if (! PyArg_ParseTuple(args, "s#l", &msg, &size, &timestamp))
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
 
     if (self->withPortMidiOut)
     {
@@ -2370,7 +2369,7 @@ Server_makenote(Server *self, PyObject *args)
     int pit, vel, dur, chan;
 
     if (! PyArg_ParseTuple(args, "iiii", &pit, &vel, &dur, &chan))
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
 
     switch (self->midi_be_type)
     {
@@ -2429,7 +2428,7 @@ Server_addMidiEvent(Server *self, PyObject *args)
     PyoMidiEvent buffer;
 
     if (! PyArg_ParseTuple(args, "iii", &status, &data1, &data2))
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
 
     buffer.timestamp = 0;
     buffer.message = PyoMidi_Message(status, data1, data2);
@@ -2461,28 +2460,28 @@ Server_getSamplingRate(Server *self)
 static PyObject *
 Server_getNchnls(Server *self)
 {
-    return PyInt_FromLong(self->nchnls);
+    return PyLong_FromLong(self->nchnls);
 }
 
 static PyObject *
 Server_getIchnls(Server *self)
 {
-    return PyInt_FromLong(self->ichnls);
+    return PyLong_FromLong(self->ichnls);
 }
 
 static PyObject *
 Server_getGlobalSeed(Server *self)
 {
-    return PyInt_FromLong(self->globalSeed);
+    return PyLong_FromLong(self->globalSeed);
 }
 
 static PyObject *
 Server_getBufferSize(Server *self)
 {
     if (self->currentResampling < 0)
-        return PyInt_FromLong(self->bufferSize / -self->currentResampling);
+        return PyLong_FromLong(self->bufferSize / -self->currentResampling);
     else
-        return PyInt_FromLong(self->bufferSize * self->currentResampling);
+        return PyLong_FromLong(self->bufferSize * self->currentResampling);
 }
 
 static PyObject *
@@ -2500,10 +2499,10 @@ Server_getGlobalDel(Server *self)
 static PyObject *
 Server_beginResamplingBlock(Server *self, PyObject *arg)
 {
-    if (PyInt_Check(arg))
+    if (PyLong_Check(arg))
     {
         self->lastResampling = self->currentResampling;
-        self->currentResampling = PyInt_AsLong(arg);
+        self->currentResampling = PyLong_AsLong(arg);
     }
 
     Py_RETURN_NONE;
@@ -2520,19 +2519,19 @@ Server_endResamplingBlock(Server *self)
 static PyObject *
 Server_getIsStarted(Server *self)
 {
-    return PyInt_FromLong(self->server_started);
+    return PyLong_FromLong(self->server_started);
 }
 
 static PyObject *
 Server_getIsBooted(Server *self)
 {
-    return PyInt_FromLong(self->server_booted);
+    return PyLong_FromLong(self->server_booted);
 }
 
 static PyObject *
 Server_getMidiActive(Server *self)
 {
-    return PyInt_FromLong(self->withPortMidi);
+    return PyLong_FromLong(self->withPortMidi);
 }
 
 static PyObject *
@@ -2546,7 +2545,7 @@ static PyObject *
 Server_setServer(Server *self)
 {
     serverID = self->thisServerID;
-    return PyInt_FromLong(serverID);
+    return PyLong_FromLong(serverID);
 }
 
 
@@ -2570,7 +2569,7 @@ Server_getOutputAddr(Server *self)
 static PyObject *
 Server_getServerID(Server *self)
 {
-    return PyInt_FromLong(self->thisServerID);
+    return PyLong_FromLong(self->thisServerID);
 }
 
 static PyObject *
@@ -2627,7 +2626,7 @@ Server_getCurrentTime(Server *self)
 static PyObject *
 Server_getCurrentTimeInSamples(Server *self)
 {
-    return PyInt_FromLong(self->elapsedSamples);
+    return PyLong_FromLong(self->elapsedSamples);
 }
 
 static PyObject *
@@ -2666,9 +2665,9 @@ Server_getCurrentAmp(Server *self)
 static PyObject *
 Server_setAutoStartChildren(Server *self, PyObject *arg)
 {
-    if (PyInt_Check(arg))
+    if (PyLong_Check(arg))
     {
-        self->autoStartChildren = PyInt_AsLong(arg);
+        self->autoStartChildren = PyLong_AsLong(arg);
     }
 
     Py_RETURN_NONE;
@@ -2677,7 +2676,7 @@ Server_setAutoStartChildren(Server *self, PyObject *arg)
 static PyObject *
 Server_getAutoStartChildren(Server *self)
 {
-    return PyInt_FromLong(self->autoStartChildren);
+    return PyLong_FromLong(self->autoStartChildren);
 }
 
 static PyObject *

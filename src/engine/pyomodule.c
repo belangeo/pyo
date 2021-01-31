@@ -21,7 +21,6 @@
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #include <math.h>
-#include "py2to3.h"
 #include "sndfile.h"
 #include "pyomodule.h"
 #include "servermodule.h"
@@ -441,7 +440,7 @@ p_savefile(PyObject *self, PyObject *args, PyObject *kwds)
     static char *kwlist[] = {"samples", "path", "sr", "channels", "fileformat", "sampletype", "quality", NULL};
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "Os#|iiiid", kwlist, &samples, &recpath, &psize, &sr, &channels, &fileformat, &sampletype, &quality))
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
 
     recinfo.samplerate = sr;
     recinfo.channels = channels;
@@ -462,7 +461,7 @@ p_savefile(PyObject *self, PyObject *args, PyObject *kwds)
         if (PyList_Size(samples) != channels)
         {
             PySys_WriteStdout("Pyo error: savefile's samples list size and channels number must be the same!\n");
-            return PyInt_FromLong(-1);
+            return PyLong_FromLong(-1);
         }
 
         size = PyList_Size(PyList_GET_ITEM(samples, 0)) * channels;
@@ -480,7 +479,7 @@ p_savefile(PyObject *self, PyObject *args, PyObject *kwds)
     if (! (recfile = sf_open(recpath, SFM_WRITE, &recinfo)))
     {
         PySys_WriteStdout("Pyo error: savefile failed to open output file %s.\n", recpath);
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
     }
 
     // Sets the encoding quality for FLAC and OGG compressed formats
@@ -518,7 +517,7 @@ p_savefileFromTable(PyObject *self, PyObject *args, PyObject *kwds)
     static char *kwlist[] = {"table", "path", "fileformat", "sampletype", "quality", NULL};
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "Os#|iid", kwlist, &table, &recpath, &psize, &fileformat, &sampletype, &quality))
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
 
     base_objs = PyObject_GetAttrString(table, "_base_objs");
     channels = PyList_Size(base_objs);
@@ -541,7 +540,7 @@ p_savefileFromTable(PyObject *self, PyObject *args, PyObject *kwds)
         PySys_WriteStdout("Pyo error: savefileFromTable failed to open output file %s.\n", recpath);
         Py_XDECREF(base_objs);
         Py_XDECREF(tablestreamlist);
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
     }
 
     // Sets the encoding quality for FLAC and OGG compressed formats
@@ -760,7 +759,7 @@ p_upsamp(PyObject *self, PyObject *args, PyObject *kwds)
     static char *kwlist[] = {"path", "outfile", "up", "order", NULL};
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "s#s#|ii", kwlist, &inpath, &psize, &outpath, &psize2, &up, &order))
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
 
     /* opening input soundfile */
     info.format = 0;
@@ -769,7 +768,7 @@ p_upsamp(PyObject *self, PyObject *args, PyObject *kwds)
     if (sf == NULL)
     {
         PySys_WriteStdout("Pyo error: upsamp failed to open the input file %s.\n", inpath);
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
     }
 
     snd_size = info.frames;
@@ -848,7 +847,7 @@ p_upsamp(PyObject *self, PyObject *args, PyObject *kwds)
 
         PyMem_RawFree(samples);
         PyMem_RawFree(upsamples);
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
     }
 
     SF_WRITE(sf, tmp, num_items * up);
@@ -888,7 +887,7 @@ p_downsamp(PyObject *self, PyObject *args, PyObject *kwds)
     static char *kwlist[] = {"path", "outfile", "down", "order", NULL};
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "s#s#|ii", kwlist, &inpath, &psize, &outpath, &psize2, &down, &order))
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
 
     /* opening input soundfile */
     info.format = 0;
@@ -897,7 +896,7 @@ p_downsamp(PyObject *self, PyObject *args, PyObject *kwds)
     if (sf == NULL)
     {
         PySys_WriteStdout("Pyo error: downsamp failed to open the input file %s.\n", inpath);
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
     }
 
     snd_size = info.frames;
@@ -982,7 +981,7 @@ p_downsamp(PyObject *self, PyObject *args, PyObject *kwds)
 
         PyMem_RawFree(samples);
         PyMem_RawFree(downsamples);
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
     }
 
     SF_WRITE(sf, tmp, snd_chnls * samples_per_channels);
@@ -1067,7 +1066,7 @@ reducePoints(PyObject *self, PyObject *args, PyObject *kwds)
     static char *kwlist[] = {"pointlist", "tolerance", NULL};
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_F, kwlist, &pointlist, &dTolerance))
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
 
     nPointsCount = PyList_Size(pointlist);
 
@@ -1232,7 +1231,7 @@ distanceToSegment(PyObject *self, PyObject *args, PyObject *kwds)
     static char *kwlist[] = {"p", "p1", "p2", "xmin", "xmax", "ymin", "ymax", "xlog", "ylog", NULL};
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_OOO_FFFFII, kwlist, &p, &p1, &p2, &xmin, &xmax, &ymin, &ymax, &xlog, &ylog))
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
 
     pf = PySequence_Fast(p, NULL);
     pf1 = PySequence_Fast(p1, NULL);
@@ -1473,7 +1472,7 @@ rescale(PyObject *self, PyObject *args, PyObject *kwds)
     static char *kwlist[] = {"data", "xmin", "xmax", "ymin", "ymax", "xlog", "ylog", NULL};
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_FFFFII, kwlist, &data, &xmin, &xmax, &ymin, &ymax, &xlog, &ylog))
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
 
     if (PyNumber_Check(data))
         type = 0;
@@ -1632,7 +1631,7 @@ floatmap(PyObject *self, PyObject *args, PyObject *kwds)
     static char *kwlist[] = {"x", "min", "max", "exp", NULL};
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F_FFF, kwlist, &x, &min, &max, &exp))
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
 
     if (x < 0.0)
         x = 0.0;
@@ -1925,7 +1924,7 @@ secToSamps(PyObject *self, PyObject *arg)
         for (i = 0; i < count; i++)
         {
             x = PyFloat_AsDouble(PyList_GET_ITEM(arg, i));
-            PyList_SET_ITEM(newseq, i, PyInt_FromLong((long)(x * sr)));
+            PyList_SET_ITEM(newseq, i, PyLong_FromLong((long)(x * sr)));
         }
 
         return newseq;
@@ -1938,7 +1937,7 @@ secToSamps(PyObject *self, PyObject *arg)
         for (i = 0; i < count; i++)
         {
             x = PyFloat_AsDouble(PyTuple_GET_ITEM(arg, i));
-            PyTuple_SET_ITEM(newseq, i, PyInt_FromLong((long)(x * sr)));
+            PyTuple_SET_ITEM(newseq, i, PyLong_FromLong((long)(x * sr)));
         }
 
         return newseq;
@@ -1989,7 +1988,7 @@ serverBooted(PyObject *self)
     if (PyServer_get_server() != NULL)
     {
         server = PyServer_get_server();
-        boot = PyInt_AsLong(PyObject_CallMethod(server, "getIsBooted", NULL));
+        boot = PyLong_AsLong(PyObject_CallMethod(server, "getIsBooted", NULL));
 
         if (boot == 0)
         {

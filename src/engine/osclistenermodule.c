@@ -19,7 +19,6 @@
  *************************************************************************/
 
 #include <Python.h>
-#include "py2to3.h"
 #include "structmember.h"
 #include <math.h>
 #include "pyomodule.h"
@@ -67,7 +66,7 @@ int process_osc(const char *path, const char *types, lo_arg **argv, int argc,
         switch (types[i])
         {
             case LO_INT32:
-                PyTuple_SET_ITEM(tup, i + 1, PyInt_FromLong(argv[i]->i));
+                PyTuple_SET_ITEM(tup, i + 1, PyLong_FromLong(argv[i]->i));
                 break;
 
             case LO_INT64:
@@ -109,7 +108,7 @@ int process_osc(const char *path, const char *types, lo_arg **argv, int argc,
 
                 for (j = 0; j < 4; j++)
                 {
-                    PyList_SET_ITEM(charlist, j, PyInt_FromLong(argv[i]->m[j]));
+                    PyList_SET_ITEM(charlist, j, PyLong_FromLong(argv[i]->m[j]));
                 }
 
                 PyTuple_SET_ITEM(tup, i + 1, charlist);
@@ -247,7 +246,7 @@ PyTypeObject OscListenerType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "OscListener objects. Calls a function with OSC data as arguments.",           /* tp_doc */
     (traverseproc)OscListener_traverse,   /* tp_traverse */
     (inquiry)OscListener_clear,           /* tp_clear */

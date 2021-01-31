@@ -19,7 +19,6 @@
  *************************************************************************/
 
 #include "md_portmidi.h"
-#include "py2to3.h"
 
 static PyoMidiEvent PmEventToPyoMidiEvent(PmEvent buffer)
 {
@@ -595,7 +594,7 @@ portmidi_count_devices()
 {
     int numDevices;
     numDevices = Pm_CountDevices();
-    return PyInt_FromLong(numDevices);
+    return PyLong_FromLong(numDevices);
 }
 
 PyObject *
@@ -642,7 +641,7 @@ portmidi_get_input_devices()
             if (info->input)
             {
                 PyList_Append(list, PyUnicode_FromString(info->name));
-                PyList_Append(list_index, PyInt_FromLong(i));
+                PyList_Append(list_index, PyLong_FromLong(i));
             }
         }
 
@@ -674,7 +673,7 @@ portmidi_get_output_devices()
             if (info->output)
             {
                 PyList_Append(list, PyUnicode_FromString(info->name));
-                PyList_Append(list_index, PyInt_FromLong(i));
+                PyList_Append(list_index, PyLong_FromLong(i));
             }
         }
 
@@ -694,7 +693,7 @@ portmidi_get_default_input()
     if (i < 0)
         PySys_WriteStdout("Portmidi warning in pm_get_default_input: no midi input device found.\n");
 
-    return PyInt_FromLong(i);
+    return PyLong_FromLong(i);
 }
 
 
@@ -707,5 +706,5 @@ portmidi_get_default_output()
     if (i < 0)
         PySys_WriteStdout("Portmidi warning in pm_get_default_output: no midi output device found.\n");
 
-    return PyInt_FromLong(i);
+    return PyLong_FromLong(i);
 }

@@ -19,7 +19,6 @@
  *************************************************************************/
 
 #include <Python.h>
-#include "py2to3.h"
 #include "structmember.h"
 #include <math.h>
 #include "pyomodule.h"
@@ -366,7 +365,7 @@ PyTypeObject BandSplitterType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "BandSplitter objects. Split audio stream in multiple frequency bands.",           /* tp_doc */
     (traverseproc)BandSplitter_traverse,                  /* tp_traverse */
     (inquiry)BandSplitter_clear,                          /* tp_clear */
@@ -587,7 +586,6 @@ static PyNumberMethods BandSplit_as_number =
     (binaryfunc)BandSplit_add,                      /*nb_add*/
     (binaryfunc)BandSplit_sub,                 /*nb_subtract*/
     (binaryfunc)BandSplit_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -601,16 +599,12 @@ static PyNumberMethods BandSplit_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)BandSplit_inplace_add,              /*inplace_add*/
     (binaryfunc)BandSplit_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)BandSplit_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -646,7 +640,7 @@ PyTypeObject BandSplitType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "BandSplit objects. Reads one band from a BandSplitter process.",           /* tp_doc */
     (traverseproc)BandSplit_traverse,   /* tp_traverse */
     (inquiry)BandSplit_clear,           /* tp_clear */
@@ -1161,7 +1155,7 @@ PyTypeObject FourBandMainType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "FourBandMain objects. Split audio stream in four flat frequency and phase bands.",           /* tp_doc */
     (traverseproc)FourBandMain_traverse,                  /* tp_traverse */
     (inquiry)FourBandMain_clear,                          /* tp_clear */
@@ -1382,7 +1376,6 @@ static PyNumberMethods FourBand_as_number =
     (binaryfunc)FourBand_add,                      /*nb_add*/
     (binaryfunc)FourBand_sub,                 /*nb_subtract*/
     (binaryfunc)FourBand_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -1396,16 +1389,12 @@ static PyNumberMethods FourBand_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)FourBand_inplace_add,              /*inplace_add*/
     (binaryfunc)FourBand_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)FourBand_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -1441,7 +1430,7 @@ PyTypeObject FourBandType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "FourBand objects. Reads one band from a FourBandMain process.",           /* tp_doc */
     (traverseproc)FourBand_traverse,   /* tp_traverse */
     (inquiry)FourBand_clear,           /* tp_clear */
@@ -1827,7 +1816,7 @@ PyTypeObject MultiBandMainType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "MultiBandMain objects. Split audio stream in four flat frequency and phase bands.",           /* tp_doc */
     (traverseproc)MultiBandMain_traverse,                  /* tp_traverse */
     (inquiry)MultiBandMain_clear,                          /* tp_clear */
@@ -2048,7 +2037,6 @@ static PyNumberMethods MultiBand_as_number =
     (binaryfunc)MultiBand_add,                      /*nb_add*/
     (binaryfunc)MultiBand_sub,                 /*nb_subtract*/
     (binaryfunc)MultiBand_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -2062,16 +2050,12 @@ static PyNumberMethods MultiBand_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)MultiBand_inplace_add,              /*inplace_add*/
     (binaryfunc)MultiBand_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)MultiBand_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -2107,7 +2091,7 @@ PyTypeObject MultiBandType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "MultiBand objects. Reads one band from a MultiBandMain process.",           /* tp_doc */
     (traverseproc)MultiBand_traverse,   /* tp_traverse */
     (inquiry)MultiBand_clear,           /* tp_clear */

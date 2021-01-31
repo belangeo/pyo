@@ -1,13 +1,8 @@
-#! -*- encoding: utf-8 -*-
 import os
 import sys
 import locale
 from random import uniform
 from pyo import *
-
-### The encoding line is for E-Pyo tempfile only.
-### sys.getfilesystemencoding() should be used to set
-### the encoding line added by E-Pyo.
 
 print("Default encoding: ", sys.getdefaultencoding())
 print("File system encoding: ", sys.getfilesystemencoding())
@@ -17,10 +12,6 @@ print("Locale default encoding: ", locale.getdefaultlocale())
 s = Server().boot()
 s.verbosity = 15
 
-### Need a python layer to encode the path in python 3.
-# Python 3
-# p = 'bébêtte/noise.aif'.encode(sys.getfilesystemencoding())
-# Python 2
 p = "bébêtte/noise.aif"
 
 ########## SNDINFO ###############
@@ -80,25 +71,17 @@ cv = CvlVerb(tabplay, impl, size=1024, bal=0.7).out()
 ######### Record ###########
 recfile = os.path.join("bébêtte", "recfile.wav")
 rec = Record(cv, recfile, chnls=2, fileformat=0, sampletype=0, buffering=4, quality=0.40)
-recplay = None
-
 
 def reccallback():
-    global rec, recplay
+    global rec
     rec.stop()
     del rec
 
-
-#    recplay = SfPlayer(recfile, loop=True).out()
-#   print("Start playback!")
-# print("Recording 4 seconds of sounds...")
 after = CallAfter(reccallback, 4)
 
 ######### Server ###########
 servrecfile = os.path.join("bébêtte", "servrecfile.wav")
 s.recordOptions(dur=-1, filename=servrecfile)
-# servrecfile = os.path.join("bébêtte", 'servrecfile2.wav')
-# s.recstart(servrecfile)
 
 s.gui(locals(), exit=False)
 
@@ -110,7 +93,6 @@ def delfile(f):
 
 # On windows, we should delete Sf* objects before deleting the audio files.
 del sf1
-del recplay
 delfile(os.path.join("bébêtte", "savefile.aif"))
 delfile(os.path.join("bébêtte", "savefileFromTable.aif"))
 delfile(os.path.join("bébêtte", "upsamp.aif"))
@@ -118,32 +100,3 @@ delfile(os.path.join("bébêtte", "downsamp.aif"))
 delfile(os.path.join("bébêtte", "recfile.wav"))
 delfile(os.path.join("bébêtte", "servrecfile.wav"))
 delfile(os.path.join("bébêtte", "servrecfile2.wav"))
-
-"""
-1 - Adapt encoding line for E-Pyo tempfile. **done**
-
-2 - Use widestring in C layer.
-
-3 - "if sys.version > 2" -> path.encode(sys.getfilesystemencoding())
-    For python2, don't do anything.
-    Function stringencode(strng) in _core.py
- 
-Objects with file input:
-sndinfo, savefile, savefileFromTable, upsamp, downsamp **done**
-Sf_family **done**
-CvlVerb **done**
-SndTable **done**
-Record **done**
-Server: recordOptions, recstart **Not working yet on Windows with python 3.5**
-
-ControlRead, ControlRec *nothing to do?*
-Expr *to_unicode?* *nothing to do?*
-NoteinRead, NoteinRec *nothing to do?*
-PyoTableObject: write, read *nothing to do?*
-PyoMatrixObject: write, read *nothing to do?*
-
-4 - For method of a C class, use stringencode(st) before the call and
-    PyArg_ParseTuple(args, "s#", &self->path, &psize) in the method body.
-    METH_VARARGS must be used as the method flag.
-
-"""

@@ -35,16 +35,6 @@ extern "C" {
 #define INLINE
 #endif
 
-/* Unicode/string handling. */
-#if PY_MAJOR_VERSION >= 3
-#define PyInt_AsLong PyLong_AsLong
-#define PY_STRING_CHECK(a) PyUnicode_Check(arg) 
-#define PY_STRING_AS_STRING(a) PyUnicode_AsUTF8(a)
-#else
-#define PY_STRING_CHECK(a) (PyUnicode_Check(a) || PyBytes_Check(a))
-#define PY_STRING_AS_STRING(a) PyBytes_AsString(a)
-#endif
-
 #if !defined(_WIN32)
 /* libpython handle. libpython must be made available to the program loaded
 ** in a new interpreter. */
@@ -72,7 +62,7 @@ INLINE PyThreadState * pyo_new_interpreter(float sr, int bufsize, int chnls) {
     }
 
 #if !defined(_WIN32)
-    /* This call hardcodes 2.7 as the python version to be used to embed pyo in
+    /* This call hardcodes 3.7 as the python version to be used to embed pyo in
        a C or C++ program. This is not a good idea and must be fixed when everthing
        is stable.
     */
@@ -139,7 +129,7 @@ INLINE unsigned long pyo_get_input_buffer_address(PyThreadState *interp) {
     PyEval_AcquireThread(interp);
     module = PyImport_AddModule("__main__");
     obj = PyObject_GetAttrString(module, "_in_address_");
-    address = PY_STRING_AS_STRING(obj);
+    address = PyUnicode_AsUTF8(obj);
     uadd = strtoul(address, NULL, 0);
     PyEval_ReleaseThread(interp);
     return uadd;
@@ -161,7 +151,7 @@ INLINE unsigned long long pyo_get_input_buffer_address_64(PyThreadState *interp)
     PyEval_AcquireThread(interp);
     module = PyImport_AddModule("__main__");
     obj = PyObject_GetAttrString(module, "_in_address_");
-    address = PY_STRING_AS_STRING(obj);
+    address = PyUnicode_AsUTF8(obj);
     uadd = strtoull(address, NULL, 0);
     PyEval_ReleaseThread(interp);
     return uadd;
@@ -183,7 +173,7 @@ INLINE unsigned long pyo_get_output_buffer_address(PyThreadState *interp) {
     PyEval_AcquireThread(interp);
     module = PyImport_AddModule("__main__");
     obj = PyObject_GetAttrString(module, "_out_address_");
-    address = PY_STRING_AS_STRING(obj);
+    address = PyUnicode_AsUTF8(obj);
     uadd = strtoul(address, NULL, 0);
     PyEval_ReleaseThread(interp);
     return uadd;
@@ -205,7 +195,7 @@ INLINE unsigned long long pyo_get_output_buffer_address_64(PyThreadState *interp
     PyEval_AcquireThread(interp);
     module = PyImport_AddModule("__main__");
     obj = PyObject_GetAttrString(module, "_out_address_");
-    address = PY_STRING_AS_STRING(obj);
+    address = PyUnicode_AsUTF8(obj);
     uadd = strtoull(address, NULL, 0);
     PyEval_ReleaseThread(interp);
     return uadd;
@@ -233,7 +223,7 @@ INLINE unsigned long pyo_get_embedded_callback_address(PyThreadState *interp) {
     PyEval_AcquireThread(interp);
     module = PyImport_AddModule("__main__");
     obj = PyObject_GetAttrString(module, "_emb_callback_");
-    address = PY_STRING_AS_STRING(obj);
+    address = PyUnicode_AsUTF8(obj);
     uadd = strtoul(address, NULL, 0);
     PyEval_ReleaseThread(interp);
     return uadd;
@@ -261,7 +251,7 @@ INLINE unsigned long long pyo_get_embedded_callback_address_64(PyThreadState *in
     PyEval_AcquireThread(interp);
     module = PyImport_AddModule("__main__");
     obj = PyObject_GetAttrString(module, "_emb_callback_");
-    address = PY_STRING_AS_STRING(obj);
+    address = PyUnicode_AsUTF8(obj);
     uadd = strtoull(address, NULL, 0);
     PyEval_ReleaseThread(interp);
     return uadd;
@@ -282,7 +272,7 @@ INLINE int pyo_get_server_id(PyThreadState *interp) {
     PyEval_AcquireThread(interp);
     module = PyImport_AddModule("__main__");
     obj = PyObject_GetAttrString(module, "_server_id_");
-    id = PyInt_AsLong(obj);
+    id = PyLong_AsLong(obj);
     PyEval_ReleaseThread(interp);
     return id;
 }
@@ -400,7 +390,7 @@ INLINE int pyo_is_server_started(PyThreadState *interp) {
     PyRun_SimpleString("started = _s_.getIsStarted()");
     module = PyImport_AddModule("__main__");
     obj = PyObject_GetAttrString(module, "started");
-    started = PyInt_AsLong(obj);
+    started = PyLong_AsLong(obj);
     PyEval_ReleaseThread(interp);
     return started;
 }
@@ -433,8 +423,8 @@ INLINE int pyo_exec_file(PyThreadState *interp, const char *file, char *msg, int
     sprintf(msg, "if not _ok_:\n    _isrel_ = False\n    _ok_ = os.path.isfile('%s')", file);
     PyRun_SimpleString(msg);
     module = PyImport_AddModule("__main__");
-    ok = PyInt_AsLong(PyObject_GetAttrString(module, "_ok_"));
-    isrel = PyInt_AsLong(PyObject_GetAttrString(module, "_isrel_"));
+    ok = PyLong_AsLong(PyObject_GetAttrString(module, "_ok_"));
+    isrel = PyLong_AsLong(PyObject_GetAttrString(module, "_isrel_"));
     if (ok) {
         if (!add) {
             PyRun_SimpleString("_s_.setServer()\n_s_.stop()\n_s_.shutdown()");
@@ -446,7 +436,7 @@ INLINE int pyo_exec_file(PyThreadState *interp, const char *file, char *msg, int
             sprintf(msg, "_badcode_ = False\ntry:\n    exec(open('%s').read())\nexcept:\n    _badcode_ = True", file);
         }
         PyRun_SimpleString(msg);
-        badcode = PyInt_AsLong(PyObject_GetAttrString(module, "_badcode_"));
+        badcode = PyLong_AsLong(PyObject_GetAttrString(module, "_badcode_"));
         if (badcode) {
             err = 2; // err = 2 means bad code in the file.
         }
@@ -490,7 +480,7 @@ INLINE int pyo_exec_statement(PyThreadState *interp, char *msg, int debug) {
         module = PyImport_AddModule("__main__");
         obj = PyObject_GetAttrString(module, "_error_");
         if (obj != Py_None) {
-            strcpy(msg, PY_STRING_AS_STRING(obj));
+            strcpy(msg, PyUnicode_AsUTF8(obj));
             err = 1;
         }
         PyEval_ReleaseThread(interp);

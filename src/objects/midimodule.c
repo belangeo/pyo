@@ -19,7 +19,6 @@
  *************************************************************************/
 
 #include <Python.h>
-#include "py2to3.h"
 #include "structmember.h"
 #include <math.h>
 #include "pyomodule.h"
@@ -63,7 +62,7 @@ CtlScan_compute_next_data_frame(CtlScan *self)
                 {
                     self->ctlnumber = number;
                     tup = PyTuple_New(1);
-                    PyTuple_SetItem(tup, 0, PyInt_FromLong(self->ctlnumber));
+                    PyTuple_SetItem(tup, 0, PyLong_FromLong(self->ctlnumber));
                     PyObject_Call((PyObject *)self->callable, tup, NULL);
                 }
 
@@ -165,9 +164,9 @@ static PyObject *
 CtlScan_setToprint(CtlScan *self, PyObject *arg)
 {
 
-    if (PyInt_Check(arg))
+    if (PyLong_Check(arg))
     {
-        self->toprint = PyInt_AsLong(arg);
+        self->toprint = PyLong_AsLong(arg);
     }
 
     Py_RETURN_NONE;
@@ -212,7 +211,7 @@ PyTypeObject CtlScanType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "CtlScan objects. Retreive controller numbers from a Midi input.",           /* tp_doc */
     (traverseproc)CtlScan_traverse,   /* tp_traverse */
     (inquiry)CtlScan_clear,           /* tp_clear */
@@ -273,8 +272,8 @@ CtlScan2_compute_next_data_frame(CtlScan2 *self)
                     self->ctlnumber = number;
                     self->midichnl = midichnl;
                     tup = PyTuple_New(2);
-                    PyTuple_SetItem(tup, 0, PyInt_FromLong(self->ctlnumber));
-                    PyTuple_SetItem(tup, 1, PyInt_FromLong(self->midichnl));
+                    PyTuple_SetItem(tup, 0, PyLong_FromLong(self->ctlnumber));
+                    PyTuple_SetItem(tup, 1, PyLong_FromLong(self->midichnl));
                     PyObject_Call((PyObject *)self->callable, tup, NULL);
                 }
 
@@ -376,9 +375,9 @@ static PyObject *
 CtlScan2_setToprint(CtlScan2 *self, PyObject *arg)
 {
 
-    if (PyInt_Check(arg))
+    if (PyLong_Check(arg))
     {
-        self->toprint = PyInt_AsLong(arg);
+        self->toprint = PyLong_AsLong(arg);
     }
 
     Py_RETURN_NONE;
@@ -423,7 +422,7 @@ PyTypeObject CtlScan2Type =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "CtlScan2 objects. Retreive midi channel and controller numbers from a midi input.",           /* tp_doc */
     (traverseproc)CtlScan2_traverse,   /* tp_traverse */
     (inquiry)CtlScan2_clear,           /* tp_clear */
@@ -754,11 +753,11 @@ Midictl_setCtlNumber(Midictl *self, PyObject *arg)
 
     ASSERT_ARG_NOT_NULL
 
-    int isInt = PyInt_Check(arg);
+    int isInt = PyLong_Check(arg);
 
     if (isInt == 1)
     {
-        tmp = PyInt_AsLong(arg);
+        tmp = PyLong_AsLong(arg);
 
         if (tmp >= 0 && tmp < 128)
             self->ctlnumber = tmp;
@@ -774,11 +773,11 @@ Midictl_setChannel(Midictl *self, PyObject *arg)
 
     ASSERT_ARG_NOT_NULL
 
-    int isInt = PyInt_Check(arg);
+    int isInt = PyLong_Check(arg);
 
     if (isInt == 1)
     {
-        tmp = PyInt_AsLong(arg);
+        tmp = PyLong_AsLong(arg);
 
         if (tmp >= 0 && tmp < 128)
             self->channel = tmp;
@@ -819,7 +818,6 @@ static PyNumberMethods Midictl_as_number =
     (binaryfunc)Midictl_add,                      /*nb_add*/
     (binaryfunc)Midictl_sub,                 /*nb_subtract*/
     (binaryfunc)Midictl_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -833,16 +831,12 @@ static PyNumberMethods Midictl_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)Midictl_inplace_add,              /*inplace_add*/
     (binaryfunc)Midictl_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Midictl_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -878,7 +872,7 @@ PyTypeObject MidictlType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Midictl objects. Retreive audio from an input channel.",           /* tp_doc */
     (traverseproc)Midictl_traverse,   /* tp_traverse */
     (inquiry)Midictl_clear,           /* tp_clear */
@@ -1164,11 +1158,11 @@ Bendin_setChannel(Bendin *self, PyObject *arg)
 
     ASSERT_ARG_NOT_NULL
 
-    int isInt = PyInt_Check(arg);
+    int isInt = PyLong_Check(arg);
 
     if (isInt == 1)
     {
-        tmp = PyInt_AsLong(arg);
+        tmp = PyLong_AsLong(arg);
 
         if (tmp >= 0 && tmp < 128)
             self->channel = tmp;
@@ -1184,11 +1178,11 @@ Bendin_setScale(Bendin *self, PyObject *arg)
 
     ASSERT_ARG_NOT_NULL
 
-    int isInt = PyInt_Check(arg);
+    int isInt = PyLong_Check(arg);
 
     if (isInt == 1)
     {
-        tmp = PyInt_AsLong(arg);
+        tmp = PyLong_AsLong(arg);
 
         if (tmp == 0)
             self->scale = 0;
@@ -1229,7 +1223,6 @@ static PyNumberMethods Bendin_as_number =
     (binaryfunc)Bendin_add,                      /*nb_add*/
     (binaryfunc)Bendin_sub,                 /*nb_subtract*/
     (binaryfunc)Bendin_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -1243,16 +1236,12 @@ static PyNumberMethods Bendin_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)Bendin_inplace_add,              /*inplace_add*/
     (binaryfunc)Bendin_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Bendin_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -1288,7 +1277,7 @@ PyTypeObject BendinType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Bendin objects. Retreive audio from an input channel.",           /* tp_doc */
     (traverseproc)Bendin_traverse,   /* tp_traverse */
     (inquiry)Bendin_clear,           /* tp_clear */
@@ -1568,9 +1557,9 @@ Touchin_setChannel(Touchin *self, PyObject *arg)
 
     ASSERT_ARG_NOT_NULL
 
-    if (PyInt_Check(arg) == 1)
+    if (PyLong_Check(arg) == 1)
     {
-        tmp = PyInt_AsLong(arg);
+        tmp = PyLong_AsLong(arg);
 
         if (tmp >= 0 && tmp < 128)
             self->channel = tmp;
@@ -1609,7 +1598,6 @@ static PyNumberMethods Touchin_as_number =
     (binaryfunc)Touchin_add,                      /*nb_add*/
     (binaryfunc)Touchin_sub,                 /*nb_subtract*/
     (binaryfunc)Touchin_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -1623,16 +1611,12 @@ static PyNumberMethods Touchin_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)Touchin_inplace_add,              /*inplace_add*/
     (binaryfunc)Touchin_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Touchin_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -1668,7 +1652,7 @@ PyTypeObject TouchinType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Touchin objects. Retrieve the signal of an aftertouch midi controller.",           /* tp_doc */
     (traverseproc)Touchin_traverse,   /* tp_traverse */
     (inquiry)Touchin_clear,           /* tp_clear */
@@ -1896,11 +1880,11 @@ Programin_setChannel(Programin *self, PyObject *arg)
 
     ASSERT_ARG_NOT_NULL
 
-    int isInt = PyInt_Check(arg);
+    int isInt = PyLong_Check(arg);
 
     if (isInt == 1)
     {
-        tmp = PyInt_AsLong(arg);
+        tmp = PyLong_AsLong(arg);
 
         if (tmp >= 0 && tmp < 128)
             self->channel = tmp;
@@ -1937,7 +1921,6 @@ static PyNumberMethods Programin_as_number =
     (binaryfunc)Programin_add,                      /*nb_add*/
     (binaryfunc)Programin_sub,                 /*nb_subtract*/
     (binaryfunc)Programin_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -1951,16 +1934,12 @@ static PyNumberMethods Programin_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)Programin_inplace_add,              /*inplace_add*/
     (binaryfunc)Programin_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Programin_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -1996,7 +1975,7 @@ PyTypeObject PrograminType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Programin objects. Retrieve the signal of a program change midi controller.",           /* tp_doc */
     (traverseproc)Programin_traverse,   /* tp_traverse */
     (inquiry)Programin_clear,           /* tp_clear */
@@ -2322,7 +2301,7 @@ MidiNote_addMidiEvent(MidiNote *self, PyObject *args)
     PyoMidiEvent buffer;
 
     if (! PyArg_ParseTuple(args, "ii", &data1, &data2))
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
 
     if (self->channel == 0)
     {
@@ -2356,9 +2335,9 @@ MidiNote_setScale(MidiNote *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    if (PyInt_Check(arg) == 1)
+    if (PyLong_Check(arg) == 1)
     {
-        int tmp = PyInt_AsLong(arg);
+        int tmp = PyLong_AsLong(arg);
 
         if (tmp >= 0 && tmp < 3)
             self->scale = tmp;
@@ -2372,9 +2351,9 @@ MidiNote_setFirst(MidiNote *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    if (PyInt_Check(arg) == 1)
+    if (PyLong_Check(arg) == 1)
     {
-        int tmp = PyInt_AsLong(arg);
+        int tmp = PyLong_AsLong(arg);
 
         if (tmp >= 0 && tmp < 128)
             self->first = tmp;
@@ -2388,9 +2367,9 @@ MidiNote_setLast(MidiNote *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    if (PyInt_Check(arg) == 1)
+    if (PyLong_Check(arg) == 1)
     {
-        int tmp = PyInt_AsLong(arg);
+        int tmp = PyLong_AsLong(arg);
 
         if (tmp >= 0 && tmp < 128)
             self->last = tmp;
@@ -2404,9 +2383,9 @@ MidiNote_setChannel(MidiNote *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    if (PyInt_Check(arg) == 1)
+    if (PyLong_Check(arg) == 1)
     {
-        int tmp = PyInt_AsLong(arg);
+        int tmp = PyLong_AsLong(arg);
 
         if (tmp >= 0 && tmp < 128)
             self->channel = tmp;
@@ -2422,11 +2401,11 @@ MidiNote_setCentralKey(MidiNote *self, PyObject *arg)
 
     ASSERT_ARG_NOT_NULL
 
-    int isInt = PyInt_Check(arg);
+    int isInt = PyLong_Check(arg);
 
     if (isInt == 1)
     {
-        tmp = PyInt_AsLong(arg);
+        tmp = PyLong_AsLong(arg);
 
         if (tmp >= self->first && tmp <= self->last)
             self->centralkey = tmp;
@@ -2440,10 +2419,10 @@ MidiNote_setStealing(MidiNote *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isInt = PyInt_Check(arg);
+    int isInt = PyLong_Check(arg);
 
     if (isInt == 1)
-        self->stealing = PyInt_AsLong(arg);
+        self->stealing = PyLong_AsLong(arg);
 
     Py_RETURN_NONE;
 }
@@ -2492,7 +2471,7 @@ PyTypeObject MidiNoteType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "MidiNote objects. Retreive midi note from a midi input.",           /* tp_doc */
     (traverseproc)MidiNote_traverse,   /* tp_traverse */
     (inquiry)MidiNote_clear,           /* tp_clear */
@@ -2757,7 +2736,6 @@ static PyNumberMethods Notein_as_number =
     (binaryfunc)Notein_add,                      /*nb_add*/
     (binaryfunc)Notein_sub,                 /*nb_subtract*/
     (binaryfunc)Notein_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -2771,16 +2749,12 @@ static PyNumberMethods Notein_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)Notein_inplace_add,              /*inplace_add*/
     (binaryfunc)Notein_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Notein_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -2816,7 +2790,7 @@ PyTypeObject NoteinType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "Notein objects. Stream pitch or velocity from a Notein voice.",           /* tp_doc */
     (traverseproc)Notein_traverse,   /* tp_traverse */
     (inquiry)Notein_clear,           /* tp_clear */
@@ -3033,7 +3007,6 @@ static PyNumberMethods NoteinTrig_as_number =
     (binaryfunc)NoteinTrig_add,                      /*nb_add*/
     (binaryfunc)NoteinTrig_sub,                 /*nb_subtract*/
     (binaryfunc)NoteinTrig_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -3047,16 +3020,12 @@ static PyNumberMethods NoteinTrig_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)NoteinTrig_inplace_add,              /*inplace_add*/
     (binaryfunc)NoteinTrig_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)NoteinTrig_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -3092,7 +3061,7 @@ PyTypeObject NoteinTrigType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "NoteinTrig objects. Stream noteon or noteoff trigger from a Notein voice.",           /* tp_doc */
     (traverseproc)NoteinTrig_traverse,   /* tp_traverse */
     (inquiry)NoteinTrig_clear,           /* tp_clear */
@@ -3508,7 +3477,6 @@ static PyNumberMethods MidiAdsr_as_number =
     (binaryfunc)MidiAdsr_add,                      /*nb_add*/
     (binaryfunc)MidiAdsr_sub,                 /*nb_subtract*/
     (binaryfunc)MidiAdsr_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -3522,16 +3490,12 @@ static PyNumberMethods MidiAdsr_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)MidiAdsr_inplace_add,              /*inplace_add*/
     (binaryfunc)MidiAdsr_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)MidiAdsr_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -3567,7 +3531,7 @@ PyTypeObject MidiAdsrType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "MidiAdsr objects. Generates MidiAdsr envelope signal.",           /* tp_doc */
     (traverseproc)MidiAdsr_traverse,   /* tp_traverse */
     (inquiry)MidiAdsr_clear,           /* tp_clear */
@@ -4004,7 +3968,6 @@ static PyNumberMethods MidiDelAdsr_as_number =
     (binaryfunc)MidiDelAdsr_add,                      /*nb_add*/
     (binaryfunc)MidiDelAdsr_sub,                 /*nb_subtract*/
     (binaryfunc)MidiDelAdsr_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -4018,16 +3981,12 @@ static PyNumberMethods MidiDelAdsr_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)MidiDelAdsr_inplace_add,              /*inplace_add*/
     (binaryfunc)MidiDelAdsr_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)MidiDelAdsr_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -4063,7 +4022,7 @@ PyTypeObject MidiDelAdsrType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "MidiDelAdsr objects. Generates MidiDelAdsr envelope signal.",           /* tp_doc */
     (traverseproc)MidiDelAdsr_traverse,   /* tp_traverse */
     (inquiry)MidiDelAdsr_clear,           /* tp_clear */
@@ -4112,9 +4071,9 @@ RawMidi_compute_next_data_frame(RawMidi *self)
             data1 = PyoMidi_MessageData1(buffer[i].message);
             data2 = PyoMidi_MessageData2(buffer[i].message);
             tup = PyTuple_New(3);
-            PyTuple_SetItem(tup, 0, PyInt_FromLong(status));
-            PyTuple_SetItem(tup, 1, PyInt_FromLong(data1));
-            PyTuple_SetItem(tup, 2, PyInt_FromLong(data2));
+            PyTuple_SetItem(tup, 0, PyLong_FromLong(status));
+            PyTuple_SetItem(tup, 1, PyLong_FromLong(data1));
+            PyTuple_SetItem(tup, 2, PyLong_FromLong(data2));
             PyObject_Call((PyObject *)self->callable, tup, NULL);
         }
     }
@@ -4235,7 +4194,7 @@ PyTypeObject RawMidiType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "RawMidi objects. Calls a function with midi data as arguments.",           /* tp_doc */
     (traverseproc)RawMidi_traverse,   /* tp_traverse */
     (inquiry)RawMidi_clear,           /* tp_clear */
@@ -4607,13 +4566,13 @@ MidiLinseg_setList(MidiLinseg *self, PyObject *value)
     if (value == NULL)
     {
         PyErr_SetString(PyExc_TypeError, "Cannot delete the list attribute.");
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
     }
 
     if (! PyList_Check(value))
     {
         PyErr_SetString(PyExc_TypeError, "The points list attribute value must be a list of tuples.");
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
     }
 
     Py_INCREF(value);
@@ -4628,9 +4587,9 @@ MidiLinseg_setList(MidiLinseg *self, PyObject *value)
 static PyObject *
 MidiLinseg_setHold(MidiLinseg *self, PyObject *arg)
 {
-    if (PyInt_Check(arg))
+    if (PyLong_Check(arg))
     {
-        self->tmphold = PyInt_AsLong(arg);
+        self->tmphold = PyLong_AsLong(arg);
     }
 
     Py_RETURN_NONE;
@@ -4668,7 +4627,6 @@ static PyNumberMethods MidiLinseg_as_number =
     (binaryfunc)MidiLinseg_add,                      /*nb_add*/
     (binaryfunc)MidiLinseg_sub,                 /*nb_subtract*/
     (binaryfunc)MidiLinseg_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -4682,16 +4640,12 @@ static PyNumberMethods MidiLinseg_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)MidiLinseg_inplace_add,              /*inplace_add*/
     (binaryfunc)MidiLinseg_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)MidiLinseg_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -4727,7 +4681,7 @@ PyTypeObject MidiLinsegType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "MidiLinseg objects. Generates a linear segments break-points line.",           /* tp_doc */
     (traverseproc)MidiLinseg_traverse,   /* tp_traverse */
     (inquiry)MidiLinseg_clear,           /* tp_clear */

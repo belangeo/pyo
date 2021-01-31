@@ -19,7 +19,6 @@
  *************************************************************************/
 
 #include <Python.h>
-#include "py2to3.h"
 #include "structmember.h"
 #include "pyomodule.h"
 #include "streammodule.h"
@@ -266,7 +265,7 @@ static PyObject * Record_stop(Record *self, PyObject *args, PyObject *kwds)
     static char *kwlist[] = {"wait", NULL};
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|f", kwlist, &wait))
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
 
     if (wait == 0)
     {
@@ -328,7 +327,7 @@ PyTypeObject RecordType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Record objects. Records its audio input in a file.",           /* tp_doc */
     (traverseproc)Record_traverse,                  /* tp_traverse */
     (inquiry)Record_clear,                          /* tp_clear */
@@ -583,7 +582,7 @@ PyTypeObject ControlRecType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "ControlRec objects. Records control signal with user-defined sampling rate.",           /* tp_doc */
     (traverseproc)ControlRec_traverse,                  /* tp_traverse */
     (inquiry)ControlRec_clear,                          /* tp_clear */
@@ -876,7 +875,7 @@ ControlRead_setRate(ControlRead *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    self->rate = PyInt_AsLong(arg);
+    self->rate = PyLong_AsLong(arg);
     self->modulo = (int)(self->sr / self->rate);
 
     Py_RETURN_NONE;
@@ -887,7 +886,7 @@ ControlRead_setLoop(ControlRead *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    self->loop = PyInt_AsLong(arg);
+    self->loop = PyLong_AsLong(arg);
 
     Py_RETURN_NONE;
 }
@@ -901,7 +900,7 @@ ControlRead_setInterp(ControlRead *self, PyObject *arg)
 
     if (isNumber == 1)
     {
-        self->interp = PyInt_AsLong(PyNumber_Int(arg));
+        self->interp = PyLong_AsLong(PyNumber_Long(arg));
     }
 
     SET_INTERP_POINTER
@@ -942,7 +941,6 @@ static PyNumberMethods ControlRead_as_number =
     (binaryfunc)ControlRead_add,                      /*nb_add*/
     (binaryfunc)ControlRead_sub,                 /*nb_subtract*/
     (binaryfunc)ControlRead_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -956,16 +954,12 @@ static PyNumberMethods ControlRead_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)ControlRead_inplace_add,              /*inplace_add*/
     (binaryfunc)ControlRead_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)ControlRead_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -1001,7 +995,7 @@ PyTypeObject ControlReadType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "ControlRead objects. Generates an oscillatory waveform.",           /* tp_doc */
     (traverseproc)ControlRead_traverse,   /* tp_traverse */
     (inquiry)ControlRead_clear,           /* tp_clear */
@@ -1231,7 +1225,7 @@ PyTypeObject NoteinRecType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "NoteinRec objects. Records Notein signal with user-defined sampling rate.",           /* tp_doc */
     (traverseproc)NoteinRec_traverse,                  /* tp_traverse */
     (inquiry)NoteinRec_clear,                          /* tp_clear */
@@ -1535,7 +1529,7 @@ NoteinRead_setLoop(NoteinRead *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    self->loop = PyInt_AsLong(arg);
+    self->loop = PyLong_AsLong(arg);
 
     Py_RETURN_NONE;
 }
@@ -1572,7 +1566,6 @@ static PyNumberMethods NoteinRead_as_number =
     (binaryfunc)NoteinRead_add,                      /*nb_add*/
     (binaryfunc)NoteinRead_sub,                 /*nb_subtract*/
     (binaryfunc)NoteinRead_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -1586,16 +1579,12 @@ static PyNumberMethods NoteinRead_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)NoteinRead_inplace_add,              /*inplace_add*/
     (binaryfunc)NoteinRead_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)NoteinRead_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -1631,7 +1620,7 @@ PyTypeObject NoteinReadType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "NoteinRead objects. Reads a NoteinRec file.",           /* tp_doc */
     (traverseproc)NoteinRead_traverse,   /* tp_traverse */
     (inquiry)NoteinRead_clear,           /* tp_clear */

@@ -19,7 +19,6 @@
  *************************************************************************/
 
 #include <Python.h>
-#include "py2to3.h"
 #include "structmember.h"
 #include <math.h>
 #include "pyomodule.h"
@@ -475,7 +474,6 @@ static PyNumberMethods Sine_as_number =
     (binaryfunc)Sine_add,                      /*nb_add*/
     (binaryfunc)Sine_sub,                 /*nb_subtract*/
     (binaryfunc)Sine_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -489,16 +487,12 @@ static PyNumberMethods Sine_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)Sine_inplace_add,              /*inplace_add*/
     (binaryfunc)Sine_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Sine_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -534,7 +528,7 @@ PyTypeObject SineType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "Sine objects. Generates a sinewave.",           /* tp_doc */
     (traverseproc)Sine_traverse,   /* tp_traverse */
     (inquiry)Sine_clear,           /* tp_clear */
@@ -1008,9 +1002,9 @@ FastSine_setQuality(FastSine *self, PyObject *arg)
     int tmp;
     ASSERT_ARG_NOT_NULL
 
-    if (PyInt_Check(arg))
+    if (PyLong_Check(arg))
     {
-        tmp = PyInt_AsLong(arg);
+        tmp = PyLong_AsLong(arg);
 
         if (tmp >= 0 && tmp < 2)
             self->quality = tmp;
@@ -1060,7 +1054,6 @@ static PyNumberMethods FastSine_as_number =
     (binaryfunc)FastSine_add,                      /*nb_add*/
     (binaryfunc)FastSine_sub,                 /*nb_subtract*/
     (binaryfunc)FastSine_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -1074,16 +1067,12 @@ static PyNumberMethods FastSine_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)FastSine_inplace_add,              /*inplace_add*/
     (binaryfunc)FastSine_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)FastSine_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -1119,7 +1108,7 @@ PyTypeObject FastSineType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "FastSine objects. Generates a sinewave.",           /* tp_doc */
     (traverseproc)FastSine_traverse,   /* tp_traverse */
     (inquiry)FastSine_clear,           /* tp_clear */
@@ -1527,7 +1516,6 @@ static PyNumberMethods SineLoop_as_number =
     (binaryfunc)SineLoop_add,                      /*nb_add*/
     (binaryfunc)SineLoop_sub,                 /*nb_subtract*/
     (binaryfunc)SineLoop_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -1541,16 +1529,12 @@ static PyNumberMethods SineLoop_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)SineLoop_inplace_add,              /*inplace_add*/
     (binaryfunc)SineLoop_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)SineLoop_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -1586,7 +1570,7 @@ PyTypeObject SineLoopType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "SineLoop objects. Generates a looped sinewave.",           /* tp_doc */
     (traverseproc)SineLoop_traverse,   /* tp_traverse */
     (inquiry)SineLoop_clear,           /* tp_clear */
@@ -2060,7 +2044,7 @@ Osc_setInterp(Osc *self, PyObject *arg)
 
     if (isNumber == 1)
     {
-        self->interp = PyInt_AsLong(PyNumber_Int(arg));
+        self->interp = PyLong_AsLong(PyNumber_Long(arg));
     }
 
     SET_INTERP_POINTER
@@ -2112,7 +2096,6 @@ static PyNumberMethods Osc_as_number =
     (binaryfunc)Osc_add,                      /*nb_add*/
     (binaryfunc)Osc_sub,                 /*nb_subtract*/
     (binaryfunc)Osc_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -2126,16 +2109,12 @@ static PyNumberMethods Osc_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)Osc_inplace_add,              /*inplace_add*/
     (binaryfunc)Osc_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Osc_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -2171,7 +2150,7 @@ PyTypeObject OscType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Osc objects. Generates an oscillatory waveform.",           /* tp_doc */
     (traverseproc)Osc_traverse,   /* tp_traverse */
     (inquiry)Osc_clear,           /* tp_clear */
@@ -2649,7 +2628,6 @@ static PyNumberMethods OscLoop_as_number =
     (binaryfunc)OscLoop_add,                      /*nb_add*/
     (binaryfunc)OscLoop_sub,                 /*nb_subtract*/
     (binaryfunc)OscLoop_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -2663,16 +2641,12 @@ static PyNumberMethods OscLoop_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)OscLoop_inplace_add,              /*inplace_add*/
     (binaryfunc)OscLoop_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)OscLoop_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -2708,7 +2682,7 @@ PyTypeObject OscLoopType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "OscLoop objects. Generates an oscillatory waveform.",           /* tp_doc */
     (traverseproc)OscLoop_traverse,   /* tp_traverse */
     (inquiry)OscLoop_clear,           /* tp_clear */
@@ -3233,7 +3207,7 @@ OscTrig_setInterp(OscTrig *self, PyObject *arg)
 
     if (isNumber == 1)
     {
-        self->interp = PyInt_AsLong(PyNumber_Int(arg));
+        self->interp = PyLong_AsLong(PyNumber_Long(arg));
     }
 
     SET_INTERP_POINTER
@@ -3287,7 +3261,6 @@ static PyNumberMethods OscTrig_as_number =
     (binaryfunc)OscTrig_add,                      /*nb_add*/
     (binaryfunc)OscTrig_sub,                 /*nb_subtract*/
     (binaryfunc)OscTrig_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -3301,16 +3274,12 @@ static PyNumberMethods OscTrig_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)OscTrig_inplace_add,              /*inplace_add*/
     (binaryfunc)OscTrig_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)OscTrig_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -3346,7 +3315,7 @@ PyTypeObject OscTrigType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "OscTrig objects. Generates an oscillatory waveform with sample accurate reset signal.",           /* tp_doc */
     (traverseproc)OscTrig_traverse,   /* tp_traverse */
     (inquiry)OscTrig_clear,           /* tp_clear */
@@ -3800,7 +3769,6 @@ static PyNumberMethods Phasor_as_number =
     (binaryfunc)Phasor_add,                      /*nb_add*/
     (binaryfunc)Phasor_sub,                 /*nb_subtract*/
     (binaryfunc)Phasor_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -3814,16 +3782,12 @@ static PyNumberMethods Phasor_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)Phasor_inplace_add,              /*inplace_add*/
     (binaryfunc)Phasor_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Phasor_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -3859,7 +3823,7 @@ PyTypeObject PhasorType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Phasor objects. Phase incrementor from 0 to 1.",           /* tp_doc */
     (traverseproc)Phasor_traverse,   /* tp_traverse */
     (inquiry)Phasor_clear,           /* tp_clear */
@@ -4159,7 +4123,6 @@ static PyNumberMethods Pointer_as_number =
     (binaryfunc)Pointer_add,                      /*nb_add*/
     (binaryfunc)Pointer_sub,                 /*nb_subtract*/
     (binaryfunc)Pointer_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -4173,16 +4136,12 @@ static PyNumberMethods Pointer_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)Pointer_inplace_add,              /*inplace_add*/
     (binaryfunc)Pointer_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Pointer_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -4218,7 +4177,7 @@ PyTypeObject PointerType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Pointer objects. Read a waveform table with a pointer index.",           /* tp_doc */
     (traverseproc)Pointer_traverse,   /* tp_traverse */
     (inquiry)Pointer_clear,           /* tp_clear */
@@ -4534,7 +4493,7 @@ Pointer2_setInterp(Pointer2 *self, PyObject *arg)
 
     if (isNumber == 1)
     {
-        self->interp = PyInt_AsLong(PyNumber_Int(arg));
+        self->interp = PyLong_AsLong(PyNumber_Long(arg));
     }
 
     SET_INTERP_POINTER
@@ -4551,7 +4510,7 @@ Pointer2_setAutoSmooth(Pointer2 *self, PyObject *arg)
 
     if (isNumber == 1)
     {
-        self->autosmooth = PyInt_AsLong(PyNumber_Int(arg));
+        self->autosmooth = PyLong_AsLong(PyNumber_Long(arg));
     }
 
     Py_RETURN_NONE;
@@ -4592,7 +4551,6 @@ static PyNumberMethods Pointer2_as_number =
     (binaryfunc)Pointer2_add,                      /*nb_add*/
     (binaryfunc)Pointer2_sub,                 /*nb_subtract*/
     (binaryfunc)Pointer2_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -4606,16 +4564,12 @@ static PyNumberMethods Pointer2_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)Pointer2_inplace_add,              /*inplace_add*/
     (binaryfunc)Pointer2_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Pointer2_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -4651,7 +4605,7 @@ PyTypeObject Pointer2Type =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Pointer2 objects. High quality table reader with a pointer index.",           /* tp_doc */
     (traverseproc)Pointer2_traverse,   /* tp_traverse */
     (inquiry)Pointer2_clear,           /* tp_clear */
@@ -4953,7 +4907,6 @@ static PyNumberMethods TableIndex_as_number =
     (binaryfunc)TableIndex_add,                      /*nb_add*/
     (binaryfunc)TableIndex_sub,                 /*nb_subtract*/
     (binaryfunc)TableIndex_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -4967,16 +4920,12 @@ static PyNumberMethods TableIndex_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)TableIndex_inplace_add,              /*inplace_add*/
     (binaryfunc)TableIndex_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)TableIndex_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -5012,7 +4961,7 @@ PyTypeObject TableIndexType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "TableIndex objects. Read a table by indexing without interpolation.",           /* tp_doc */
     (traverseproc)TableIndex_traverse,   /* tp_traverse */
     (inquiry)TableIndex_clear,           /* tp_clear */
@@ -5322,7 +5271,6 @@ static PyNumberMethods Lookup_as_number =
     (binaryfunc)Lookup_add,                      /*nb_add*/
     (binaryfunc)Lookup_sub,                 /*nb_subtract*/
     (binaryfunc)Lookup_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -5336,16 +5284,12 @@ static PyNumberMethods Lookup_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)Lookup_inplace_add,              /*inplace_add*/
     (binaryfunc)Lookup_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Lookup_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -5381,7 +5325,7 @@ PyTypeObject LookupType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Lookup objects. Modify a signal by reading a table with the signal as the index.",           /* tp_doc */
     (traverseproc)Lookup_traverse,   /* tp_traverse */
     (inquiry)Lookup_clear,           /* tp_clear */
@@ -6232,7 +6176,7 @@ Pulsar_setInterp(Pulsar *self, PyObject *arg)
 
     if (isNumber == 1)
     {
-        self->interp = PyInt_AsLong(PyNumber_Int(arg));
+        self->interp = PyLong_AsLong(PyNumber_Long(arg));
     }
 
     SET_INTERP_POINTER
@@ -6280,7 +6224,6 @@ static PyNumberMethods Pulsar_as_number =
     (binaryfunc)Pulsar_add,                      /*nb_add*/
     (binaryfunc)Pulsar_sub,                 /*nb_subtract*/
     (binaryfunc)Pulsar_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -6294,16 +6237,12 @@ static PyNumberMethods Pulsar_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)Pulsar_inplace_add,              /*inplace_add*/
     (binaryfunc)Pulsar_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Pulsar_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -6339,7 +6278,7 @@ PyTypeObject PulsarType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Pulsar objects. Generates pulsar synthesis oscillator.",           /* tp_doc */
     (traverseproc)Pulsar_traverse,   /* tp_traverse */
     (inquiry)Pulsar_clear,           /* tp_clear */
@@ -6719,7 +6658,7 @@ static PyObject * TableRead_stop(TableRead *self, PyObject *args, PyObject *kwds
     static char *kwlist[] = {"wait", NULL};
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|f", kwlist, &wait))
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
 
     if (wait == 0)
     {
@@ -6822,7 +6761,7 @@ TableRead_setLoop(TableRead *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    self->loop = PyInt_AsLong(arg);
+    self->loop = PyLong_AsLong(arg);
 
     Py_RETURN_NONE;
 }
@@ -6836,7 +6775,7 @@ TableRead_setInterp(TableRead *self, PyObject *arg)
 
     if (isNumber == 1)
     {
-        self->interp = PyInt_AsLong(PyNumber_Int(arg));
+        self->interp = PyLong_AsLong(PyNumber_Long(arg));
     }
 
     SET_INTERP_POINTER
@@ -6849,7 +6788,7 @@ TableRead_setKeepLast(TableRead *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    self->keepLast = PyInt_AsLong(arg);
+    self->keepLast = PyLong_AsLong(arg);
 
     Py_RETURN_NONE;
 }
@@ -6900,7 +6839,6 @@ static PyNumberMethods TableRead_as_number =
     (binaryfunc)TableRead_add,                      /*nb_add*/
     (binaryfunc)TableRead_sub,                 /*nb_subtract*/
     (binaryfunc)TableRead_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -6914,16 +6852,12 @@ static PyNumberMethods TableRead_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)TableRead_inplace_add,              /*inplace_add*/
     (binaryfunc)TableRead_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)TableRead_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -6959,7 +6893,7 @@ PyTypeObject TableReadType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "TableRead objects. Generates an oscillatory waveform.",           /* tp_doc */
     (traverseproc)TableRead_traverse,   /* tp_traverse */
     (inquiry)TableRead_clear,           /* tp_clear */
@@ -7598,7 +7532,6 @@ static PyNumberMethods Fm_as_number =
     (binaryfunc)Fm_add,                      /*nb_add*/
     (binaryfunc)Fm_sub,                 /*nb_subtract*/
     (binaryfunc)Fm_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -7612,16 +7545,12 @@ static PyNumberMethods Fm_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)Fm_inplace_add,              /*inplace_add*/
     (binaryfunc)Fm_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Fm_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -7657,7 +7586,7 @@ PyTypeObject FmType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "Fm objects. Generates a frequency modulation synthesis.",           /* tp_doc */
     (traverseproc)Fm_traverse,   /* tp_traverse */
     (inquiry)Fm_clear,           /* tp_clear */
@@ -8171,7 +8100,6 @@ static PyNumberMethods CrossFm_as_number =
     (binaryfunc)CrossFm_add,                      /*nb_add*/
     (binaryfunc)CrossFm_sub,                 /*nb_subtract*/
     (binaryfunc)CrossFm_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -8185,16 +8113,12 @@ static PyNumberMethods CrossFm_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)CrossFm_inplace_add,              /*inplace_add*/
     (binaryfunc)CrossFm_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)CrossFm_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -8230,7 +8154,7 @@ PyTypeObject CrossFmType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "CrossFm objects. Generates a cross frequency modulation synthesis.",           /* tp_doc */
     (traverseproc)CrossFm_traverse,   /* tp_traverse */
     (inquiry)CrossFm_clear,           /* tp_clear */
@@ -8686,7 +8610,6 @@ static PyNumberMethods Blit_as_number =
     (binaryfunc)Blit_add,                      /*nb_add*/
     (binaryfunc)Blit_sub,                 /*nb_subtract*/
     (binaryfunc)Blit_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -8700,16 +8623,12 @@ static PyNumberMethods Blit_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)Blit_inplace_add,              /*inplace_add*/
     (binaryfunc)Blit_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Blit_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -8745,7 +8664,7 @@ PyTypeObject BlitType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "Blit objects. Generates a band limited impulse train.",           /* tp_doc */
     (traverseproc)Blit_traverse,   /* tp_traverse */
     (inquiry)Blit_clear,           /* tp_clear */
@@ -9259,7 +9178,6 @@ static PyNumberMethods Rossler_as_number =
     (binaryfunc)Rossler_add,                      /*nb_add*/
     (binaryfunc)Rossler_sub,                 /*nb_subtract*/
     (binaryfunc)Rossler_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -9273,16 +9191,12 @@ static PyNumberMethods Rossler_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)Rossler_inplace_add,              /*inplace_add*/
     (binaryfunc)Rossler_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Rossler_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -9318,7 +9232,7 @@ PyTypeObject RosslerType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "Rossler objects. Rossler attractor.",           /* tp_doc */
     (traverseproc)Rossler_traverse,   /* tp_traverse */
     (inquiry)Rossler_clear,           /* tp_clear */
@@ -9532,7 +9446,6 @@ static PyNumberMethods RosslerAlt_as_number =
     (binaryfunc)RosslerAlt_add,                         /*nb_add*/
     (binaryfunc)RosslerAlt_sub,                         /*nb_subtract*/
     (binaryfunc)RosslerAlt_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -9546,16 +9459,12 @@ static PyNumberMethods RosslerAlt_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)RosslerAlt_inplace_add,                 /*inplace_add*/
     (binaryfunc)RosslerAlt_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)RosslerAlt_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -9591,7 +9500,7 @@ PyTypeObject RosslerAltType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "RosslerAlt objects. Sends the alternate signal of a Rossler attractor.",           /* tp_doc */
     (traverseproc)RosslerAlt_traverse,   /* tp_traverse */
     (inquiry)RosslerAlt_clear,           /* tp_clear */
@@ -10105,7 +10014,6 @@ static PyNumberMethods Lorenz_as_number =
     (binaryfunc)Lorenz_add,                      /*nb_add*/
     (binaryfunc)Lorenz_sub,                 /*nb_subtract*/
     (binaryfunc)Lorenz_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -10119,16 +10027,12 @@ static PyNumberMethods Lorenz_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)Lorenz_inplace_add,              /*inplace_add*/
     (binaryfunc)Lorenz_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Lorenz_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -10164,7 +10068,7 @@ PyTypeObject LorenzType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "Lorenz objects. Lorenz attractor.",           /* tp_doc */
     (traverseproc)Lorenz_traverse,   /* tp_traverse */
     (inquiry)Lorenz_clear,           /* tp_clear */
@@ -10378,7 +10282,6 @@ static PyNumberMethods LorenzAlt_as_number =
     (binaryfunc)LorenzAlt_add,                         /*nb_add*/
     (binaryfunc)LorenzAlt_sub,                         /*nb_subtract*/
     (binaryfunc)LorenzAlt_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -10392,16 +10295,12 @@ static PyNumberMethods LorenzAlt_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)LorenzAlt_inplace_add,                 /*inplace_add*/
     (binaryfunc)LorenzAlt_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)LorenzAlt_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -10437,7 +10336,7 @@ PyTypeObject LorenzAltType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "LorenzAlt objects. Sends the alternate signal of a Lorenz attractor.",           /* tp_doc */
     (traverseproc)LorenzAlt_traverse,   /* tp_traverse */
     (inquiry)LorenzAlt_clear,           /* tp_clear */
@@ -10959,7 +10858,6 @@ static PyNumberMethods ChenLee_as_number =
     (binaryfunc)ChenLee_add,                      /*nb_add*/
     (binaryfunc)ChenLee_sub,                 /*nb_subtract*/
     (binaryfunc)ChenLee_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -10973,16 +10871,12 @@ static PyNumberMethods ChenLee_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)ChenLee_inplace_add,              /*inplace_add*/
     (binaryfunc)ChenLee_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)ChenLee_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -11018,7 +10912,7 @@ PyTypeObject ChenLeeType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "ChenLee objects. ChenLee attractor.",           /* tp_doc */
     (traverseproc)ChenLee_traverse,   /* tp_traverse */
     (inquiry)ChenLee_clear,           /* tp_clear */
@@ -11232,7 +11126,6 @@ static PyNumberMethods ChenLeeAlt_as_number =
     (binaryfunc)ChenLeeAlt_add,                         /*nb_add*/
     (binaryfunc)ChenLeeAlt_sub,                         /*nb_subtract*/
     (binaryfunc)ChenLeeAlt_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -11246,16 +11139,12 @@ static PyNumberMethods ChenLeeAlt_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)ChenLeeAlt_inplace_add,                 /*inplace_add*/
     (binaryfunc)ChenLeeAlt_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)ChenLeeAlt_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -11291,7 +11180,7 @@ PyTypeObject ChenLeeAltType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "ChenLeeAlt objects. Sends the alternate signal of a ChenLee attractor.",           /* tp_doc */
     (traverseproc)ChenLeeAlt_traverse,   /* tp_traverse */
     (inquiry)ChenLeeAlt_clear,           /* tp_clear */
@@ -12044,7 +11933,6 @@ static PyNumberMethods SumOsc_as_number =
     (binaryfunc)SumOsc_add,                      /*nb_add*/
     (binaryfunc)SumOsc_sub,                 /*nb_subtract*/
     (binaryfunc)SumOsc_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -12058,16 +11946,12 @@ static PyNumberMethods SumOsc_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)SumOsc_inplace_add,              /*inplace_add*/
     (binaryfunc)SumOsc_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)SumOsc_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -12103,7 +11987,7 @@ PyTypeObject SumOscType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
     "SumOsc objects. Infite summation oscillator.",           /* tp_doc */
     (traverseproc)SumOsc_traverse,   /* tp_traverse */
     (inquiry)SumOsc_clear,           /* tp_clear */
@@ -13003,7 +12887,6 @@ static PyNumberMethods SuperSaw_as_number =
     (binaryfunc)SuperSaw_add,                      /*nb_add*/
     (binaryfunc)SuperSaw_sub,                 /*nb_subtract*/
     (binaryfunc)SuperSaw_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -13017,16 +12900,12 @@ static PyNumberMethods SuperSaw_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)SuperSaw_inplace_add,              /*inplace_add*/
     (binaryfunc)SuperSaw_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)SuperSaw_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -13062,7 +12941,7 @@ PyTypeObject SuperSawType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "SuperSaw objects. detune incrementor from 0 to 1.",           /* tp_doc */
     (traverseproc)SuperSaw_traverse,   /* tp_traverse */
     (inquiry)SuperSaw_clear,           /* tp_clear */
@@ -13533,7 +13412,6 @@ static PyNumberMethods RCOsc_as_number =
     (binaryfunc)RCOsc_add,                      /*nb_add*/
     (binaryfunc)RCOsc_sub,                 /*nb_subtract*/
     (binaryfunc)RCOsc_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -13547,16 +13425,12 @@ static PyNumberMethods RCOsc_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)RCOsc_inplace_add,              /*inplace_add*/
     (binaryfunc)RCOsc_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)RCOsc_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -13592,7 +13466,7 @@ PyTypeObject RCOscType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "RCOsc objects. Waveform simulation of of a RC circuit.",           /* tp_doc */
     (traverseproc)RCOsc_traverse,   /* tp_traverse */
     (inquiry)RCOsc_clear,           /* tp_clear */
@@ -13915,7 +13789,6 @@ static PyNumberMethods TableScale_as_number =
     (binaryfunc)TableScale_add,                      /*nb_add*/
     (binaryfunc)TableScale_sub,                 /*nb_subtract*/
     (binaryfunc)TableScale_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -13929,16 +13802,12 @@ static PyNumberMethods TableScale_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)TableScale_inplace_add,              /*inplace_add*/
     (binaryfunc)TableScale_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)TableScale_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -13974,7 +13843,7 @@ PyTypeObject TableScaleType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "TableScale objects. Scale a PyoTable and save the result in another table.",           /* tp_doc */
     (traverseproc)TableScale_traverse,   /* tp_traverse */
     (inquiry)TableScale_clear,           /* tp_clear */
@@ -14156,7 +14025,7 @@ PyTypeObject TableFillType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "TableFill objects. Fill a table object with values in input.",           /* tp_doc */
     (traverseproc)TableFill_traverse,   /* tp_traverse */
     (inquiry)TableFill_clear,           /* tp_clear */
@@ -14430,7 +14299,6 @@ static PyNumberMethods TableScan_as_number =
     (binaryfunc)TableScan_add,                      /*nb_add*/
     (binaryfunc)TableScan_sub,                 /*nb_subtract*/
     (binaryfunc)TableScan_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -14444,16 +14312,12 @@ static PyNumberMethods TableScan_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)TableScan_inplace_add,              /*inplace_add*/
     (binaryfunc)TableScan_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)TableScan_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -14489,7 +14353,7 @@ PyTypeObject TableScanType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "TableScan objects. Scan the content of a table in loop.",           /* tp_doc */
     (traverseproc)TableScan_traverse,   /* tp_traverse */
     (inquiry)TableScan_clear,           /* tp_clear */

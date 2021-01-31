@@ -19,7 +19,6 @@
  *************************************************************************/
 
 #include <Python.h>
-#include "py2to3.h"
 #include "structmember.h"
 #include <math.h>
 #include "pyomodule.h"
@@ -445,7 +444,6 @@ static PyNumberMethods Disto_as_number =
     (binaryfunc)Disto_add,                      /*nb_add*/
     (binaryfunc)Disto_sub,                 /*nb_subtract*/
     (binaryfunc)Disto_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -459,16 +457,12 @@ static PyNumberMethods Disto_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)Disto_inplace_add,              /*inplace_add*/
     (binaryfunc)Disto_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Disto_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -504,7 +498,7 @@ PyTypeObject DistoType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Disto objects. Arctan distortion.",           /* tp_doc */
     (traverseproc)Disto_traverse,   /* tp_traverse */
     (inquiry)Disto_clear,           /* tp_clear */
@@ -923,7 +917,6 @@ static PyNumberMethods Clip_as_number =
     (binaryfunc)Clip_add,                      /*nb_add*/
     (binaryfunc)Clip_sub,                 /*nb_subtract*/
     (binaryfunc)Clip_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -937,16 +930,12 @@ static PyNumberMethods Clip_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)Clip_inplace_add,              /*inplace_add*/
     (binaryfunc)Clip_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Clip_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -982,7 +971,7 @@ PyTypeObject ClipType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Clip objects. Clips a signal to a predefined limit.",           /* tp_doc */
     (traverseproc)Clip_traverse,   /* tp_traverse */
     (inquiry)Clip_clear,           /* tp_clear */
@@ -1449,7 +1438,6 @@ static PyNumberMethods Mirror_as_number =
     (binaryfunc)Mirror_add,                      /*nb_add*/
     (binaryfunc)Mirror_sub,                 /*nb_subtract*/
     (binaryfunc)Mirror_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -1463,16 +1451,12 @@ static PyNumberMethods Mirror_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)Mirror_inplace_add,              /*inplace_add*/
     (binaryfunc)Mirror_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Mirror_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -1508,7 +1492,7 @@ PyTypeObject MirrorType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Mirror objects. Reflects the signal that exceeds the min and max thresholds.",           /* tp_doc */
     (traverseproc)Mirror_traverse,   /* tp_traverse */
     (inquiry)Mirror_clear,           /* tp_clear */
@@ -2011,7 +1995,6 @@ static PyNumberMethods Wrap_as_number =
     (binaryfunc)Wrap_add,                      /*nb_add*/
     (binaryfunc)Wrap_sub,                 /*nb_subtract*/
     (binaryfunc)Wrap_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -2025,16 +2008,12 @@ static PyNumberMethods Wrap_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)Wrap_inplace_add,              /*inplace_add*/
     (binaryfunc)Wrap_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Wrap_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -2070,7 +2049,7 @@ PyTypeObject WrapType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Wrap objects. Wraps-around the signal that exceeds the min and max thresholds.",           /* tp_doc */
     (traverseproc)Wrap_traverse,   /* tp_traverse */
     (inquiry)Wrap_clear,           /* tp_clear */
@@ -2544,7 +2523,6 @@ static PyNumberMethods Degrade_as_number =
     (binaryfunc)Degrade_add,                      /*nb_add*/
     (binaryfunc)Degrade_sub,                 /*nb_subtract*/
     (binaryfunc)Degrade_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -2558,16 +2536,12 @@ static PyNumberMethods Degrade_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)Degrade_inplace_add,              /*inplace_add*/
     (binaryfunc)Degrade_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Degrade_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -2603,7 +2577,7 @@ PyTypeObject DegradeType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Degrade objects. Applies different bitdepth and sr on a signal.",           /* tp_doc */
     (traverseproc)Degrade_traverse,   /* tp_traverse */
     (inquiry)Degrade_clear,           /* tp_clear */
@@ -2900,7 +2874,6 @@ static PyNumberMethods Min_as_number =
     (binaryfunc)Min_add,                         /*nb_add*/
     (binaryfunc)Min_sub,                         /*nb_subtract*/
     (binaryfunc)Min_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -2914,16 +2887,12 @@ static PyNumberMethods Min_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)Min_inplace_add,                 /*inplace_add*/
     (binaryfunc)Min_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Min_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -2959,7 +2928,7 @@ PyTypeObject MinType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Min objects. Outputs the minimum of two values.",           /* tp_doc */
     (traverseproc)Min_traverse,                  /* tp_traverse */
     (inquiry)Min_clear,                          /* tp_clear */
@@ -3256,7 +3225,6 @@ static PyNumberMethods Max_as_number =
     (binaryfunc)Max_add,                         /*nb_add*/
     (binaryfunc)Max_sub,                         /*nb_subtract*/
     (binaryfunc)Max_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -3270,16 +3238,12 @@ static PyNumberMethods Max_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)Max_inplace_add,                 /*inplace_add*/
     (binaryfunc)Max_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Max_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -3315,7 +3279,7 @@ PyTypeObject MaxType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Max objects. Outputs the Maximum of two values.",           /* tp_doc */
     (traverseproc)Max_traverse,                  /* tp_traverse */
     (inquiry)Max_clear,                          /* tp_clear */

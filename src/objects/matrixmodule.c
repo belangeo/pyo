@@ -19,7 +19,6 @@
  *************************************************************************/
 
 #include <Python.h>
-#include "py2to3.h"
 #include "structmember.h"
 #include "pyomodule.h"
 #include "servermodule.h"
@@ -403,13 +402,13 @@ NewMatrix_setMatrix(NewMatrix *self, PyObject *value)
     if (value == NULL)
     {
         PyErr_SetString(PyExc_TypeError, "Cannot delete the list attribute.");
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
     }
 
     if (! PyList_Check(value))
     {
         PyErr_SetString(PyExc_TypeError, "The matrix value value must be a list.");
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
     }
 
     int height = PyList_Size(value);
@@ -418,7 +417,7 @@ NewMatrix_setMatrix(NewMatrix *self, PyObject *value)
     if (height != self->height || width != self->width)
     {
         PyErr_SetString(PyExc_TypeError, "New matrix must be of the same size as actual matrix.");
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
     }
 
     for (i = 0; i < self->height; i++)
@@ -444,7 +443,7 @@ NewMatrix_genSineTerrain(NewMatrix *self, PyObject *args, PyObject *kwds)
     static char *kwlist[] = {"freq", "phase", NULL};
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__FF, kwlist, &freq, &phase))
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
 
     xfreq = TWOPI * freq;
     xsize = 1.0 / self->width;
@@ -775,7 +774,7 @@ PyTypeObject MatrixRecType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "MatrixRec objects. Record audio input in a Matrix object.",           /* tp_doc */
     (traverseproc)MatrixRec_traverse,   /* tp_traverse */
     (inquiry)MatrixRec_clear,           /* tp_clear */
@@ -970,7 +969,7 @@ PyTypeObject MatrixRecLoopType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "MatrixRecLoop objects. Record circular audio input in a Matrix object.",           /* tp_doc */
     (traverseproc)MatrixRecLoop_traverse,   /* tp_traverse */
     (inquiry)MatrixRecLoop_clear,           /* tp_clear */
@@ -1149,7 +1148,7 @@ MatrixMorph_setSources(MatrixMorph *self, PyObject *arg)
     if (! PyList_Check(arg))
     {
         PyErr_SetString(PyExc_TypeError, "The amplitude list attribute value must be a list.");
-        return PyInt_FromLong(-1);
+        return PyLong_FromLong(-1);
     }
 
     Py_INCREF(arg);
@@ -1201,7 +1200,7 @@ PyTypeObject MatrixMorphType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "MatrixMorph objects. Interpolation contents of different matrix objects.",           /* tp_doc */
     (traverseproc)MatrixMorph_traverse,   /* tp_traverse */
     (inquiry)MatrixMorph_clear,           /* tp_clear */

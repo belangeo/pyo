@@ -19,7 +19,6 @@
  *************************************************************************/
 
 #include <Python.h>
-#include "py2to3.h"
 #include "structmember.h"
 #include <math.h>
 #include "pyomodule.h"
@@ -184,7 +183,7 @@ Print_setMethod(Print *self, PyObject *arg)
 
     if (PyNumber_Check(arg) == 1)
     {
-        self->method = PyInt_AsLong(arg);
+        self->method = PyLong_AsLong(arg);
         (*self->mode_func_ptr)(self);
     }
 
@@ -207,8 +206,8 @@ Print_setMessage(Print *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    if (PY_STRING_CHECK(arg))
-        self->message = PY_STRING_AS_STRING(arg);
+    if (PyUnicode_Check(arg))
+        self->message = PyUnicode_AsUTF8(arg);
 
     Py_RETURN_NONE;
 }
@@ -254,7 +253,7 @@ PyTypeObject PrintType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Print objects. Print the current value of the input object.",           /* tp_doc */
     (traverseproc)Print_traverse,                  /* tp_traverse */
     (inquiry)Print_clear,                          /* tp_clear */
@@ -557,11 +556,11 @@ Snap_setScale(Snap *self, PyObject *arg)
 
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyInt_Check(arg);
+    int isNumber = PyLong_Check(arg);
 
     if (isNumber == 1)
     {
-        tmp = PyInt_AsLong(arg);
+        tmp = PyLong_AsLong(arg);
 
         if (tmp >= 0 && tmp <= 2)
             self->scale = tmp;
@@ -603,7 +602,6 @@ static PyNumberMethods Snap_as_number =
     (binaryfunc)Snap_add,                         /*nb_add*/
     (binaryfunc)Snap_sub,                         /*nb_subtract*/
     (binaryfunc)Snap_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -617,16 +615,12 @@ static PyNumberMethods Snap_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)Snap_inplace_add,                 /*inplace_add*/
     (binaryfunc)Snap_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Snap_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -662,7 +656,7 @@ PyTypeObject SnapType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Snap objects. Snap input values on an arbitrary Midi scale.",           /* tp_doc */
     (traverseproc)Snap_traverse,                  /* tp_traverse */
     (inquiry)Snap_clear,                          /* tp_clear */
@@ -986,7 +980,6 @@ static PyNumberMethods Interp_as_number =
     (binaryfunc)Interp_add,                         /*nb_add*/
     (binaryfunc)Interp_sub,                         /*nb_subtract*/
     (binaryfunc)Interp_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -1000,16 +993,12 @@ static PyNumberMethods Interp_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)Interp_inplace_add,                 /*inplace_add*/
     (binaryfunc)Interp_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Interp_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -1045,7 +1034,7 @@ PyTypeObject InterpType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Interp objects. Interpolates between 2 audio streams.",           /* tp_doc */
     (traverseproc)Interp_traverse,                  /* tp_traverse */
     (inquiry)Interp_clear,                          /* tp_clear */
@@ -1389,7 +1378,6 @@ static PyNumberMethods SampHold_as_number =
     (binaryfunc)SampHold_add,                         /*nb_add*/
     (binaryfunc)SampHold_sub,                         /*nb_subtract*/
     (binaryfunc)SampHold_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -1403,16 +1391,12 @@ static PyNumberMethods SampHold_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)SampHold_inplace_add,                 /*inplace_add*/
     (binaryfunc)SampHold_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)SampHold_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -1448,7 +1432,7 @@ PyTypeObject SampHoldType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "SampHold objects. SampHoldolates between 2 audio streams.",           /* tp_doc */
     (traverseproc)SampHold_traverse,                  /* tp_traverse */
     (inquiry)SampHold_clear,                          /* tp_clear */
@@ -1798,7 +1782,6 @@ static PyNumberMethods TrackHold_as_number =
     (binaryfunc)TrackHold_add,                         /*nb_add*/
     (binaryfunc)TrackHold_sub,                         /*nb_subtract*/
     (binaryfunc)TrackHold_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -1812,16 +1795,12 @@ static PyNumberMethods TrackHold_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)TrackHold_inplace_add,                 /*inplace_add*/
     (binaryfunc)TrackHold_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)TrackHold_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -1857,7 +1836,7 @@ PyTypeObject TrackHoldType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "TrackHold objects. Let pass and freeze an audio stream.",           /* tp_doc */
     (traverseproc)TrackHold_traverse,                  /* tp_traverse */
     (inquiry)TrackHold_clear,                          /* tp_clear */
@@ -2175,13 +2154,13 @@ Compare_setMode(Compare *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    if (! PyInt_Check(arg))
+    if (! PyLong_Check(arg))
     {
         PySys_WriteStdout("Compare: mode attribute should be a comparison operator as a string\n");
         Py_RETURN_NONE;
     }
 
-    int tmp = PyInt_AsLong(arg);
+    int tmp = PyLong_AsLong(arg);
 
     if (tmp == 0)
         self->compare_func_ptr = Compare_lt;
@@ -2230,7 +2209,6 @@ static PyNumberMethods Compare_as_number =
     (binaryfunc)Compare_add,                         /*nb_add*/
     (binaryfunc)Compare_sub,                         /*nb_subtract*/
     (binaryfunc)Compare_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO  /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -2244,16 +2222,12 @@ static PyNumberMethods Compare_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)Compare_inplace_add,                 /*inplace_add*/
     (binaryfunc)Compare_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Compare_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO              /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -2289,7 +2263,7 @@ PyTypeObject CompareType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Compare objects. Comparison between 2 audio streams.",           /* tp_doc */
     (traverseproc)Compare_traverse,                  /* tp_traverse */
     (inquiry)Compare_clear,                          /* tp_clear */
@@ -2696,7 +2670,6 @@ static PyNumberMethods Between_as_number =
     (binaryfunc)Between_add,                      /*nb_add*/
     (binaryfunc)Between_sub,                 /*nb_subtract*/
     (binaryfunc)Between_multiply,                 /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO               /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -2710,16 +2683,12 @@ static PyNumberMethods Between_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                   /*nb_coerce*/
     0,                       /*nb_int*/
     0,                      /*nb_long*/
     0,                     /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO   /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO   /*nb_hex*/
     (binaryfunc)Between_inplace_add,              /*inplace_add*/
     (binaryfunc)Between_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Between_inplace_multiply,         /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO        /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -2755,7 +2724,7 @@ PyTypeObject BetweenType =
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Between objects. Outputs a trig if signal is between min and max values.",           /* tp_doc */
     (traverseproc)Between_traverse,   /* tp_traverse */
     (inquiry)Between_clear,           /* tp_clear */
@@ -2988,7 +2957,6 @@ static PyNumberMethods Denorm_as_number =
     (binaryfunc)Denorm_add,                         /*nb_add*/
     (binaryfunc)Denorm_sub,                         /*nb_subtract*/
     (binaryfunc)Denorm_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -3002,16 +2970,12 @@ static PyNumberMethods Denorm_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)Denorm_inplace_add,                 /*inplace_add*/
     (binaryfunc)Denorm_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Denorm_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -3047,7 +3011,7 @@ PyTypeObject DenormType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Denorm objects. Mixes low level noise to an input signal.",           /* tp_doc */
     (traverseproc)Denorm_traverse,                  /* tp_traverse */
     (inquiry)Denorm_clear,                          /* tp_clear */
@@ -3289,7 +3253,6 @@ static PyNumberMethods DBToA_as_number =
     (binaryfunc)DBToA_add,                         /*nb_add*/
     (binaryfunc)DBToA_sub,                         /*nb_subtract*/
     (binaryfunc)DBToA_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -3303,16 +3266,12 @@ static PyNumberMethods DBToA_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)DBToA_inplace_add,                 /*inplace_add*/
     (binaryfunc)DBToA_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)DBToA_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -3348,7 +3307,7 @@ PyTypeObject DBToAType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "DBToA objects. Converts dB value to amplitude value.",           /* tp_doc */
     (traverseproc)DBToA_traverse,                  /* tp_traverse */
     (inquiry)DBToA_clear,                          /* tp_clear */
@@ -3590,7 +3549,6 @@ static PyNumberMethods AToDB_as_number =
     (binaryfunc)AToDB_add,                         /*nb_add*/
     (binaryfunc)AToDB_sub,                         /*nb_subtract*/
     (binaryfunc)AToDB_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -3604,16 +3562,12 @@ static PyNumberMethods AToDB_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)AToDB_inplace_add,                 /*inplace_add*/
     (binaryfunc)AToDB_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)AToDB_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -3649,7 +3603,7 @@ PyTypeObject AToDBType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "AToDB objects. Converts dB value to amplitude value.",           /* tp_doc */
     (traverseproc)AToDB_traverse,                  /* tp_traverse */
     (inquiry)AToDB_clear,                          /* tp_clear */
@@ -4253,7 +4207,6 @@ static PyNumberMethods Scale_as_number =
     (binaryfunc)Scale_add,                         /*nb_add*/
     (binaryfunc)Scale_sub,                         /*nb_subtract*/
     (binaryfunc)Scale_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -4267,16 +4220,12 @@ static PyNumberMethods Scale_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)Scale_inplace_add,                 /*inplace_add*/
     (binaryfunc)Scale_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Scale_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -4312,7 +4261,7 @@ PyTypeObject ScaleType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Scale objects. Scale input values on an arbitrary output scaling range.",           /* tp_doc */
     (traverseproc)Scale_traverse,                  /* tp_traverse */
     (inquiry)Scale_clear,                          /* tp_clear */
@@ -4549,7 +4498,6 @@ static PyNumberMethods CentsToTranspo_as_number =
     (binaryfunc)CentsToTranspo_add,                         /*nb_add*/
     (binaryfunc)CentsToTranspo_sub,                         /*nb_subtract*/
     (binaryfunc)CentsToTranspo_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -4563,16 +4511,12 @@ static PyNumberMethods CentsToTranspo_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)CentsToTranspo_inplace_add,                 /*inplace_add*/
     (binaryfunc)CentsToTranspo_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)CentsToTranspo_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -4608,7 +4552,7 @@ PyTypeObject CentsToTranspoType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "CentsToTranspo objects. Converts cents value to transposition factor.",           /* tp_doc */
     (traverseproc)CentsToTranspo_traverse,                  /* tp_traverse */
     (inquiry)CentsToTranspo_clear,                          /* tp_clear */
@@ -4845,7 +4789,6 @@ static PyNumberMethods TranspoToCents_as_number =
     (binaryfunc)TranspoToCents_add,                         /*nb_add*/
     (binaryfunc)TranspoToCents_sub,                         /*nb_subtract*/
     (binaryfunc)TranspoToCents_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -4859,16 +4802,12 @@ static PyNumberMethods TranspoToCents_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)TranspoToCents_inplace_add,                 /*inplace_add*/
     (binaryfunc)TranspoToCents_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)TranspoToCents_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -4904,7 +4843,7 @@ PyTypeObject TranspoToCentsType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "TranspoToCents objects. Converts transposition factor to cents value.",           /* tp_doc */
     (traverseproc)TranspoToCents_traverse,                  /* tp_traverse */
     (inquiry)TranspoToCents_clear,                          /* tp_clear */
@@ -5141,7 +5080,6 @@ static PyNumberMethods MToF_as_number =
     (binaryfunc)MToF_add,                         /*nb_add*/
     (binaryfunc)MToF_sub,                         /*nb_subtract*/
     (binaryfunc)MToF_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -5155,16 +5093,12 @@ static PyNumberMethods MToF_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)MToF_inplace_add,                 /*inplace_add*/
     (binaryfunc)MToF_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)MToF_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -5200,7 +5134,7 @@ PyTypeObject MToFType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "MToF objects. Converts midi notes to frequency.",           /* tp_doc */
     (traverseproc)MToF_traverse,                  /* tp_traverse */
     (inquiry)MToF_clear,                          /* tp_clear */
@@ -5440,7 +5374,6 @@ static PyNumberMethods FToM_as_number =
     (binaryfunc)FToM_add,                         /*nb_add*/
     (binaryfunc)FToM_sub,                         /*nb_subtract*/
     (binaryfunc)FToM_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -5454,16 +5387,12 @@ static PyNumberMethods FToM_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)FToM_inplace_add,                 /*inplace_add*/
     (binaryfunc)FToM_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)FToM_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -5499,7 +5428,7 @@ PyTypeObject FToMType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "FToM objects. Converts frequency to midi note.",           /* tp_doc */
     (traverseproc)FToM_traverse,                  /* tp_traverse */
     (inquiry)FToM_clear,                          /* tp_clear */
@@ -5754,7 +5683,6 @@ static PyNumberMethods MToT_as_number =
     (binaryfunc)MToT_add,                         /*nb_add*/
     (binaryfunc)MToT_sub,                         /*nb_subtract*/
     (binaryfunc)MToT_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -5768,16 +5696,12 @@ static PyNumberMethods MToT_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)MToT_inplace_add,                 /*inplace_add*/
     (binaryfunc)MToT_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)MToT_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -5813,7 +5737,7 @@ PyTypeObject MToTType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "MToT objects. Converts midi notes to transposition factor.",           /* tp_doc */
     (traverseproc)MToT_traverse,                  /* tp_traverse */
     (inquiry)MToT_clear,                          /* tp_clear */
@@ -6246,9 +6170,9 @@ Resample_setMode(Resample *self, PyObject *arg)
     int mode = -1;
     ASSERT_ARG_NOT_NULL
 
-    if (PyInt_Check(arg) == 1)
+    if (PyLong_Check(arg) == 1)
     {
-        mode = PyInt_AsLong(arg);
+        mode = PyLong_AsLong(arg);
     }
 
     if (mode >= 0)
@@ -6310,7 +6234,6 @@ static PyNumberMethods Resample_as_number =
     (binaryfunc)Resample_add,                         /*nb_add*/
     (binaryfunc)Resample_sub,                         /*nb_subtract*/
     (binaryfunc)Resample_multiply,                    /*nb_multiply*/
-    INITIALIZE_NB_DIVIDE_ZERO                       /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -6324,16 +6247,12 @@ static PyNumberMethods Resample_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    INITIALIZE_NB_COERCE_ZERO                       /*nb_coerce*/
     0,                                              /*nb_int*/
     0,                                              /*nb_long*/
     0,                                              /*nb_float*/
-    INITIALIZE_NB_OCT_ZERO                          /*nb_oct*/
-    INITIALIZE_NB_HEX_ZERO                          /*nb_hex*/
     (binaryfunc)Resample_inplace_add,                 /*inplace_add*/
     (binaryfunc)Resample_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Resample_inplace_multiply,            /*inplace_multiply*/
-    INITIALIZE_NB_IN_PLACE_DIVIDE_ZERO                                           /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -6369,7 +6288,7 @@ PyTypeObject ResampleType =
     0,                                              /*tp_getattro*/
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
     "Resample objects. Performs resampling of an audio signal.",           /* tp_doc */
     (traverseproc)Resample_traverse,                  /* tp_traverse */
     (inquiry)Resample_clear,                          /* tp_clear */
