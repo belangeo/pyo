@@ -28,7 +28,6 @@
 extern "C" {
 #endif
 
-#include "sndfile.h"
 #include "pyomodule.h"
 
 typedef enum
@@ -42,31 +41,6 @@ typedef enum
     PyoManual
 } PyoAudioBackendType;
 
-typedef enum
-{
-    PyoPortmidi = 0,
-    PyoJackMidi = 1
-} PyoMidiBackendType;
-
-/* Portmidi midi message and event type clones. */
-
-typedef long PyoMidiTimestamp;
-
-#define PyoMidi_Message(status, data1, data2) \
-         ((((data2) << 16) & 0xFF0000) | \
-          (((data1) << 8) & 0xFF00) | \
-          ((status) & 0xFF))
-#define PyoMidi_MessageStatus(msg) ((msg) & 0xFF)
-#define PyoMidi_MessageData1(msg) (((msg) >> 8) & 0xFF)
-#define PyoMidi_MessageData2(msg) (((msg) >> 16) & 0xFF)
-
-typedef long PyoMidiMessage;
-typedef struct
-{
-    PyoMidiMessage      message;
-    PyoMidiTimestamp    timestamp;
-} PyoMidiEvent;
-
 /************************************************/
 
 typedef struct
@@ -74,27 +48,8 @@ typedef struct
     PyObject_HEAD
     PyObject *streams;
     PyoAudioBackendType audio_be_type;
-    PyoMidiBackendType midi_be_type;
     void *audio_be_data;
-    void *midi_be_data;
     char *serverName; /* Only used for jack client name */
-    int jackautoin; /* jack port auto-connection (on by default) */
-    int jackautoout; /* jack port auto-connection (on by default) */
-    PyObject *jackAutoConnectInputPorts; /* list of lists of jack auto-connection ports to pyo inputs */
-    PyObject *jackAutoConnectOutputPorts; /* list of lists of jack auto-connection ports from pyo outputs */
-    PyObject *jackInputPortNames; /* string or list of strings (input port short names for jack server) */
-    PyObject *jackOutputPortNames; /* string or list of strings (output port short names for jack server) */
-    PyObject *jackAutoConnectMidiInputPort; /* lists of jack auto-connection ports to pyo midi input */
-    PyObject *jackAutoConnectMidiOutputPort; /* lists of jack auto-connection ports from pyo midi output */
-    PyObject *jackMidiInputPortName; /* string (midi input port short names for jack server) */
-    PyObject *jackMidiOutputPortName; /* string (midi output port short names for jack server) */
-    int isJackTransportSlave;
-    int jack_transport_state; /* 0 = stopped, 1 = started */
-    PyoMidiEvent midiEvents[200];
-    int midiin_count;
-    int midiout_count;
-    int midi_count;
-    long midi_time_offset;
     double samplingRate;
     int nchnls;
     int ichnls;
@@ -106,13 +61,6 @@ typedef struct
     int output;
     int input_offset;
     int output_offset;
-    int midi_input;
-    int midi_output;
-    int withPortMidi;
-    int withPortMidiOut;
-    int withJackMidi;
-    int midiActive;
-    int allowMMMapper;
     int server_started;
     int server_stopped; /* for fadeout */
     int server_booted;
@@ -135,29 +83,6 @@ typedef struct
     /* rendering offline of the first "startoffset" seconds */
     double startoffset;
 
-    /* rendering settings */
-    double recdur;
-    char *recpath;
-    int recformat;
-    int rectype;
-    double recquality;
-    SNDFILE *recfile;
-    SF_INFO recinfo;
-
-    /* GUI VUMETER */
-    int withGUI;
-    int numPass;
-    int gcount;
-    float *lastRms;
-    PyObject *GUI;
-
-    /* Current time */
-    unsigned long elapsedSamples; /* time since the server was started */
-    int withTIME;
-    int timePass;
-    int tcount;
-    PyObject *TIME;
-
     /* custom callback */
     PyObject *CALLBACK;
 
@@ -176,15 +101,10 @@ PyObject * PyServer_get_server();
 extern unsigned int pyorand();
 extern PyObject * Server_removeStream(Server *self, int sid);
 extern MYFLT * Server_getInputBuffer(Server *self);
-extern PyoMidiEvent * Server_getMidiEventBuffer(Server *self);
-extern int Server_getMidiEventCount(Server *self);
-extern long Server_getMidiTimeOffset(Server *self);
-extern unsigned long Server_getElapsedTime(Server *self);
 extern int Server_getCurrentResamplingFactor(Server *self);
 extern int Server_getLastResamplingFactor(Server *self);
 extern int Server_generateSeed(Server *self, int oid);
 extern PyTypeObject ServerType;
-void pyoGetMidiEvents(Server *self);
 void Server_process_buffers(Server *server);
 void Server_error(Server *self, char * format, ...);
 void Server_message(Server *self, char * format, ...);
@@ -194,9 +114,6 @@ PyObject * Server_shutdown(Server *self);
 PyObject * Server_stop(Server *self);
 PyObject * Server_start(Server *self);
 PyObject * Server_boot(Server *self, PyObject *arg);
-void Server_process_gui(Server *server);
-void Server_process_time(Server *server);
-int Server_start_rec_internal(Server *self, char *filename);
 
 #ifdef __cplusplus
 }

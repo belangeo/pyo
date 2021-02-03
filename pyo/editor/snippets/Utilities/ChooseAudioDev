@@ -1,1 +1,0 @@
-snippet = {'shortcut': u'Shift-Alt-7', 'value': u'pa_list_devices()\ndevIn = int(input("Enter your input device number : "))\ndevOut = int(input("Enter your output device number : "))\ns = Server()\ns.setInputDevice(devIn)\ns.setOutputDevice(devOut)\ns.boot()\n'}

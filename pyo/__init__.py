@@ -20,9 +20,6 @@ License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 import os
 import sys
 
-if sys.platform.startswith("linux") and os.path.isdir(os.path.join(os.path.dirname(__file__), ".libs")):
-    from . import _linux_wheel_fix_symlinks
-
 from .lib._maps import *
 from .lib import analysis as analysis
 from .lib.analysis import *
@@ -85,30 +82,12 @@ if WITH_EXTERNALS:
 OBJECTS_TREE = {
     "functions": sorted(
         [
-            "pa_count_devices",
-            "pa_get_default_input",
-            "pa_get_default_output",
-            "pm_get_input_devices",
-            "pa_list_devices",
-            "pa_count_host_apis",
-            "pa_list_host_apis",
-            "pa_get_default_host_api",
-            "pa_get_default_devices_from_host",
-            "pm_count_devices",
-            "pm_list_devices",
-            "sndinfo",
-            "savefile",
-            "pa_get_output_devices",
-            "pa_get_input_devices",
             "midiToHz",
             "hzToMidi",
             "sampsToSec",
             "secToSamps",
             "example",
             "class_args",
-            "pm_get_default_input",
-            "pm_get_output_devices",
-            "pm_get_default_output",
             "midiToTranspo",
             "getVersion",
             "reducePoints",
@@ -116,16 +95,8 @@ OBJECTS_TREE = {
             "serverBooted",
             "distanceToSegment",
             "rescale",
-            "upsamp",
-            "downsamp",
             "linToCosCurve",
             "convertStringToSysEncoding",
-            "savefileFromTable",
-            "pa_get_input_max_channels",
-            "pa_get_output_max_channels",
-            "pa_get_devices_infos",
-            "pa_get_version",
-            "pa_get_version_text",
             "floatmap",
             "getPrecision",
             "beatToDur",
@@ -313,7 +284,7 @@ OBJECTS_TREE = {
                 ]
             ),
             "opensndctrl": sorted(["OscReceive", "OscSend", "OscDataSend", "OscDataReceive", "OscListReceive",]),
-            "pan": sorted(["Pan", "SPan", "Switch", "Selector", "Mixer", "VoiceManager", "HRTF", "Binaural",]),
+            "pan": sorted(["Pan", "SPan", "Switch", "Selector", "Mixer", "VoiceManager"]),
             "pattern": sorted(["Pattern", "Score", "CallAfter"]),
             "randoms": sorted(
                 [
@@ -329,7 +300,6 @@ OBJECTS_TREE = {
                     "LogiMap",
                 ]
             ),
-            "players": sorted(["SfMarkerShuffler", "SfPlayer", "SfMarkerLooper"]),
             "tableprocess": sorted(
                 [
                     "TableRec",
@@ -396,7 +366,6 @@ OBJECTS_TREE = {
                     "Interp",
                     "SampHold",
                     "Compare",
-                    "Record",
                     "DBToA",
                     "AToDB",
                     "Between",
@@ -419,7 +388,7 @@ OBJECTS_TREE = {
             "expression": sorted(["Expr"]),
             "mmlmusic": sorted(["MML"]),
             "fourier": sorted(
-                ["FFT", "IFFT", "CarToPol", "PolToCar", "IFFTMatrix", "FrameDelta", "FrameAccum", "Vectral", "CvlVerb",]
+                ["FFT", "IFFT", "CarToPol", "PolToCar", "IFFTMatrix", "FrameDelta", "FrameAccum", "Vectral"]
             ),
             "events": sorted(
                 [
@@ -505,32 +474,4 @@ def getPyoKeywords():
     )
     return _list
 
-
-def getPyoExamples(fullpath=False):
-    """
-    Returns a listing of the examples, as a dictionary, installed with pyo.
-
-    :Args:
-
-        fullpath: boolean
-            If True, the full path of each file is returned. Otherwise, only the
-            filenames are listed.
-
-    >>> examples = getPyoExamples()
-
-    """
-    folder = "examples"
-    filedir = os.path.dirname(os.path.abspath(__file__))
-    subfolders = [f for f in os.listdir(os.path.join(filedir, folder)) if not f.startswith("__") and not f == "snds"]
-    examples = {}
-    for subfolder in sorted(subfolders):
-        path = os.path.join(filedir, folder, subfolder)
-        if fullpath:
-            files = [os.path.join(path, f) for f in os.listdir(path) if not f.startswith("__")]
-        else:
-            files = [f for f in os.listdir(path) if not f.startswith("__")]
-        examples[subfolder] = files
-    return examples
-
-
-OBJECTS_TREE["functions"] = sorted(OBJECTS_TREE["functions"] + ["getPyoKeywords", "getPyoExamples"])
+OBJECTS_TREE["functions"] = sorted(OBJECTS_TREE["functions"] + ["getPyoKeywords"])

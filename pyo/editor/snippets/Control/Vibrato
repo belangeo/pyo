@@ -1,1 +1,0 @@
-snippet = {'shortcut': u'Shift-Alt-4', 'value': u'vfade = Fader(fadein=`1.5`, fadeout=`0.5`, dur=`0`).play()\nfrnd = Randi(min=`4`, max=`6`, freq=`0.25`)\narnd = Randi(min=`0.01`, max=`0.02`, freq=`0.35`)\navib = Sine(freq=frnd, mul=vfade*arnd, add=1)\n'}

@@ -22,75 +22,15 @@ from distutils.sysconfig import get_python_lib
 from setuptools import setup, Extension
 import os, sys, py_compile, subprocess, platform
 
-def tobytes(strng, encoding="utf-8"):
-    "Convert unicode string to bytes."
-    return bytes(strng, encoding=encoding)
-
-def get_jack_api():
-    try:
-        output = subprocess.Popen(["jackd", "-V"], stdout=subprocess.PIPE)
-    except:
-        # jack2-dbus is probably installed instead of jackd.
-        # If jack2-dbus version is >= 1.9.11, we need JACK_NEW_API.
-        return "JACK_NEW_API"
-
-    text = output.communicate()[0]
-    if text != "":
-        line = text.splitlines()[0]
-        if tobytes("0.124") in line or tobytes("1.9.10") in line:
-            return "JACK_OLD_API"
-        else:
-            return "JACK_NEW_API"
-    else:
-        return "JACK_NEW_API"
-
 
 pyo_version = "1.0.3"
-build_with_jack_support = False
 compile_externals = False
 win_arch = platform.architecture()[0]
 
 macros = []
 extension_names = ["pyo._pyo"]
 extra_macros_per_extension = [[]]
-packages = [
-    "pyo",
-    "pyo.lib",
-    "pyo.lib.snds",
-    "pyo.editor",
-    "pyo.editor.styles",
-    "pyo.editor.snippets",
-    "pyo.editor.snippets.Audio",
-    "pyo.editor.snippets.Control",
-    "pyo.editor.snippets.Interface",
-    "pyo.editor.snippets.Utilities",
-    "pyo.examples",
-    "pyo.examples.01-intro",
-    "pyo.examples.02-controls",
-    "pyo.examples.03-generators",
-    "pyo.examples.04-soundfiles",
-    "pyo.examples.05-envelopes",
-    "pyo.examples.06-filters",
-    "pyo.examples.07-effects",
-    "pyo.examples.08-dynamics",
-    "pyo.examples.09-callbacks",
-    "pyo.examples.10-tables",
-    "pyo.examples.16-midi",
-    "pyo.examples.17-osc",
-    "pyo.examples.19-multirate",
-    "pyo.examples.20-multicore",
-    "pyo.examples.21-utilities",
-    "pyo.examples.22-events",
-    "pyo.examples.23-expression",
-    "pyo.examples.algorithmic",
-    "pyo.examples.fft",
-    "pyo.examples.matrix",
-    "pyo.examples.sampling",
-    "pyo.examples.sequencing",
-    "pyo.examples.snds",
-    "pyo.examples.synthesis",
-    "pyo.examples.wxgui",
-]
+packages = ["pyo", "pyo.lib"]
 
 if "--use-double" in sys.argv:
     sys.argv.remove("--use-double")
@@ -119,50 +59,6 @@ if "--fast-compile" in sys.argv:
 else:
     oflag = ["-O3"]
 
-# Specific audio drivers source files to compile
-ad_files = []
-obj_files = []
-
-# Special flag to build without portaudio, portmidi and liblo deps.
-if "--minimal" in sys.argv:
-    sys.argv.remove("--minimal")
-    libraries = []
-else:
-    # portaudio
-    macros.append(("USE_PORTAUDIO", None))
-    ad_files.append("ad_portaudio.c")
-    libraries = ["portaudio"]
-    # portmidi
-    macros.append(("USE_PORTMIDI", None))
-    ad_files.append("md_portmidi.c")
-    ad_files.append("midilistenermodule.c")
-    libraries += ["portmidi"]
-    # liblo
-    macros.append(("USE_OSC", None))
-    ad_files.append("osclistenermodule.c")
-    obj_files.append("oscmodule.c")
-    if sys.platform == "win32":
-        libraries += ["liblo"]
-    else:
-        libraries += ["lo"]
-
-# Optional Audio / Midi drivers
-if "--use-jack" in sys.argv:
-    sys.argv.remove("--use-jack")
-    build_with_jack_support = True
-    macros.append(("USE_JACK", None))
-    if "--jack-force-old-api" in sys.argv:
-        sys.argv.remove("--jack-force-old-api")
-        macros.append(("JACK_OLD_API", None))
-    else:
-        macros.append((get_jack_api(), None))
-    ad_files.append("ad_jack.c")
-
-if "--use-coreaudio" in sys.argv:
-    sys.argv.remove("--use-coreaudio")
-    macros.append(("USE_COREAUDIO", None))
-    ad_files.append("ad_coreaudio.c")
-
 path = "src/engine"
 files = [
     "pyomodule.c",
@@ -176,19 +72,17 @@ files = [
     "fft.c",
     "wind.c",
     "vbap.c",
-] + ad_files
+]
 source_files = [os.path.join(path, f) for f in files]
 
 path = "src/objects"
 files = [
     "mmlmodule.c",
-    "hrtfmodule.c",
     "filtremodule.c",
     "arithmeticmodule.c",
     "oscilmodule.c",
     "randommodule.c",
     "analysismodule.c",
-    "sfplayermodule.c",
     "oscbankmodule.c",
     "lfomodule.c",
     "exprmodule.c",
@@ -201,7 +95,6 @@ files = [
     "wgverbmodule.c",
     "inputmodule.c",
     "fadermodule.c",
-    "midimodule.c",
     "delaymodule.c",
     "recordmodule.c",
     "metromodule.c",
@@ -220,13 +113,14 @@ files = [
     "matrixprocessmodule.c",
     "harmonizermodule.c",
     "chorusmodule.c",
-] + obj_files
+]
 
 if compile_externals:
     source_files = source_files + ["externals/externalmodule.c"] + [os.path.join(path, f) for f in files]
 else:
     source_files = source_files + [os.path.join(path, f) for f in files]
 
+libraries = []
 # Platform-specific build settings for the pyo extension(s).
 if sys.platform == "win32":
     if win_arch == "32bit":
@@ -234,28 +128,12 @@ if sys.platform == "win32":
         sys.exit()
     else:
         include_dirs = [
-            "../vcpkg/packages/portmidi_x64-windows/include",
-            "../vcpkg/packages/portaudio_x64-windows/include",
-            "../vcpkg/packages/libsndfile_x64-windows/include",
-            "../vcpkg/packages/liblo_x64-windows/include",
-            "../vcpkg/packages/pthreads_x64-windows/include",
-            r"C:\msys64\mingw64\include",
+            r"C:\msys64\mingw64\include", # which file?
             "include",
         ]
         library_dirs = [
-            "../vcpkg/packages/portmidi_x64-windows/bin",
-            "../vcpkg/packages/portmidi_x64-windows/lib",
-            "../vcpkg/packages/portaudio_x64-windows/bin",
-            "../vcpkg/packages/portaudio_x64-windows/lib",
-            "../vcpkg/packages/libsndfile_x64-windows/bin",
-            "../vcpkg/packages/libsndfile_x64-windows/lib",
-            "../vcpkg/packages/liblo_x64-windows/bin",
-            "../vcpkg/packages/liblo_x64-windows/lib",
-            "../vcpkg/packages/pthreads_x64-windows/bin",
-            "../vcpkg/packages/pthreads_x64-windows/lib",
-            r"C:\msys64\mingw64\\bin",
+            r"C:\msys64\mingw64\\bin", # idem
         ]
-        libraries += ["sndfile", "pthreadVC3"]
         macros.append(("MS_WIN64", None))
 else:
     include_dirs = ["include", "/usr/include", "/usr/local/include"]
@@ -264,49 +142,6 @@ else:
     else:
         libraries += ["rt"]
     library_dirs = ["/usr/lib", "/usr/local/lib"]
-    libraries += ["sndfile"]
-    if build_with_jack_support:
-        libraries.append("jack")
-
-# Platform-specific data files
-if sys.platform == "win32":
-    if "bdist_wheel" in sys.argv:
-        data_files_dest = os.path.join("Lib", "site-packages", "pyo")
-    else:
-        data_files_dest = "pyo"
-    data_files_common_path = os.path.join("win64dlls", "win64_pyo_data_files_common")
-    data_files = [
-        (
-            data_files_dest,
-            [
-                os.path.join(data_files_common_path, f)
-                for f in os.listdir(data_files_common_path)
-                if f.endswith(".dll")
-            ],
-        )
-    ]
-elif sys.platform == "darwin":
-    if "bdist_wheel" in sys.argv:
-        data_files = [
-            (
-                "/pyo",
-                [
-                    "temp_libs/liblo.7.dylib",
-                    "temp_libs/libportaudio.2.dylib",
-                    "temp_libs/libportmidi.dylib",
-                    "temp_libs/libsndfile.1.dylib",
-                    "temp_libs/libFLAC.8.dylib",
-                    "temp_libs/libvorbisenc.2.dylib",
-                    "temp_libs/libvorbis.0.dylib",
-                    "temp_libs/libogg.0.dylib",
-                    "temp_libs/libopus.0.dylib",
-                ],
-            )
-        ]
-    else:
-        data_files = []
-else:
-    data_files = []
 
 libraries += ["m"]
 extra_compile_args = ["-Wno-strict-prototypes", "-Wno-strict-aliasing"] + oflag + gflag
@@ -329,9 +164,6 @@ if compile_externals:
     include_dirs.append("externals")
     os.system("cp externals/external.py pyo/lib/")
 
-soundfiles = [f for f in os.listdir(os.path.join("pyo", "lib", "snds")) if f[-3:] in ["aif", "wav"]]
-soundfiles.extend(["ControlRead_example_test_000", "ControlRead_example_test_001"])
-soundfiles.extend(["NoteinRead_example_test_000", "NoteinRead_example_test_001"])
 short_desc = "Python module to build digital signal processing program."
 long_desc = """
 pyo is a Python module containing classes for a wide variety of audio signal processing types. 
@@ -395,45 +227,7 @@ setup(
     python_requires=">=3.6, <4",
     zip_safe=False,
     packages=packages,
-    package_data={
-        "pyo.lib.snds": soundfiles,
-        "pyo.editor.styles": [
-            "Custom",
-            "Default",
-            "Espresso",
-            "Smooth",
-            "Soft",
-            "Monokai-Soda",
-            "Solarized (dark)",
-            "Solarized (light)",
-        ],
-        "pyo.editor.snippets.Audio": ["SoundPlayer", "TableOsc"],
-        "pyo.editor.snippets.Control": ["ChorusJit", "Vibrato"],
-        "pyo.editor.snippets.Interface": ["NewFrame", "PaintPanel"],
-        "pyo.editor.snippets.Utilities": ["ChooseAudioDev", "Incrementor"],
-        "pyo.examples.23-expression": ["utils.expr", "filters.expr", "generators.expr"],
-        "pyo.examples.snds": [
-            "alum1.wav",
-            "alum2.wav",
-            "alum3.wav",
-            "alum4.wav",
-            "baseballmajeur_m.aif",
-            "drumloop.wav",
-            "flute.aif",
-            "ounkmaster.aif",
-            "snd_1.aif",
-            "snd_2.aif",
-            "snd_3.aif",
-            "snd_4.aif",
-            "snd_5.aif",
-            "snd_6.aif",
-            "mapleleafrag.mid",
-        ],
-    },
     ext_modules=extensions,
-    # To install files outside the package (third-party libs).
-    data_files=data_files,
-    entry_points={"console_scripts": ["epyo = pyo.editor.EPyo:main"]},
 )
 
 if compile_externals:
