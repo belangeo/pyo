@@ -44,7 +44,8 @@ Stream_traverse(Stream *self, visitproc visit, void *arg)
 static int
 Stream_clear(Stream *self)
 {
-    Py_CLEAR(self->streamobject);
+    if (Py_REFCNT(self->streamobject) > 0)
+        Py_CLEAR(self->streamobject);
     return 0;
 }
 

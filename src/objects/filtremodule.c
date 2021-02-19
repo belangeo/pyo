@@ -7301,6 +7301,7 @@ Vocoder_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
+    Py_INCREF(input2tmp);
     Py_XDECREF(self->input2);
     self->input2 = input2tmp;
     input2_streamtmp = PyObject_CallMethod((PyObject *)self->input2, "_getStream", NULL);
