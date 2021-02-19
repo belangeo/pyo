@@ -31,7 +31,6 @@ License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 from ._core import *
-from ._maps import *
 
 
 class FFT(PyoObject):
@@ -433,10 +432,6 @@ class IFFT(PyoObject):
         self._wintype = x
         x, lmax = convertArgsToLists(x)
         [obj.setWinType(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def inreal(self):
@@ -1209,15 +1204,6 @@ class Vectral(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setDamp(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(0.0, 1.0, "lin", "up", self._up),
-            SLMap(0.0, 1.0, "lin", "down", self._down),
-            SLMap(0.0, 1.0, "lin", "damp", self._damp),
-            SLMapMul(self._mul),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def input(self):
         """PyoObject. Magnitude input signal."""
@@ -1441,10 +1427,6 @@ class IFFTMatrix(PyoObject):
         for j in range(overlaps):
             for i in range(self._lmax):
                 self._base_objs[j * self._overlaps + i].setWinType(wrap(x, i))
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def index(self):

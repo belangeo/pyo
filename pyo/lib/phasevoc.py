@@ -28,8 +28,6 @@ You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 from ._core import *
-from ._maps import *
-from ._widgets import createSpectrumWindow
 from .pattern import Pattern
 
 
@@ -304,10 +302,6 @@ class PVSynth(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setWinType(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def input(self):
         """PyoPVObject. Input signal to process."""
@@ -457,10 +451,6 @@ class PVAddSynth(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setInc(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0.25, 4, "lin", "pitch", self._pitch), SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def input(self):
         """PyoPVObject. Input signal to process."""
@@ -569,10 +559,6 @@ class PVTranspose(PyoPVObject):
         x, lmax = convertArgsToLists(x)
         [obj.setTranspo(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0.25, 4, "lin", "transpo", self._transpo)]
-        PyoPVObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def input(self):
         """PyoPVObject. Input signal to process."""
@@ -675,10 +661,6 @@ class PVVerb(PyoPVObject):
         self._damp = x
         x, lmax = convertArgsToLists(x)
         [obj.setDamp(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0, 1, "lin", "revtime", self._revtime), SLMap(0, 1, "lin", "damp", self._damp)]
-        PyoPVObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
@@ -810,10 +792,6 @@ class PVGate(PyoPVObject):
         self._inverse = x
         x, lmax = convertArgsToLists(x)
         [obj.setInverse(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(-120, 18, "lin", "thresh", self._thresh), SLMap(0, 2, "lin", "damp", self._damp)]
-        PyoPVObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
@@ -954,10 +932,6 @@ class PVCross(PyoPVObject):
         self._fade = x
         x, lmax = convertArgsToLists(x)
         [obj.setFade(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0, 1, "lin", "fade", self._fade)]
-        PyoPVObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
@@ -1189,10 +1163,6 @@ class PVMorph(PyoPVObject):
         x, lmax = convertArgsToLists(x)
         [obj.setFade(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0, 1, "lin", "fade", self._fade)]
-        PyoPVObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def input(self):
         """PyoPVObject. First input signal."""
@@ -1330,10 +1300,6 @@ class PVFilter(PyoPVObject):
         self._mode = x
         x, lmax = convertArgsToLists(x)
         [obj.setMode(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0, 1, "lin", "gain", self._gain)]
-        PyoPVObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
@@ -1648,10 +1614,6 @@ class PVBuffer(PyoPVObject):
         x, lmax = convertArgsToLists(x)
         [obj.setLength(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0.25, 4, "lin", "pitch", self._pitch)]
-        PyoPVObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def input(self):
         """PyoPVObject. Input signal to process."""
@@ -1752,10 +1714,6 @@ class PVShift(PyoPVObject):
         self._shift = x
         x, lmax = convertArgsToLists(x)
         [obj.setShift(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(-5000, 5000, "lin", "shift", self._shift)]
-        PyoPVObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
@@ -1911,13 +1869,6 @@ class PVAmpMod(PyoPVObject):
 
         """
         [obj.reset() for obj in self._base_objs]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(0.1, 20, "log", "basefreq", self._basefreq),
-            SLMap(-1, 1, "lin", "spread", self._spread),
-        ]
-        PyoPVObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
@@ -2112,14 +2063,6 @@ class PVFreqMod(PyoPVObject):
         """
         [obj.reset() for obj in self._base_objs]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(0.1, 20, "log", "basefreq", self._basefreq),
-            SLMap(-1, 1, "lin", "spread", self._spread),
-            SLMap(0, 1, "lin", "depth", self._depth),
-        ]
-        PyoPVObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def input(self):
         """PyoPVObject. Input signal to process."""
@@ -2295,10 +2238,6 @@ class PVBufLoops(PyoPVObject):
 
         """
         [obj.reset() for obj in self._base_objs]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(-4, 4, "lin", "low", self._low), SLMap(-4, 4, "lin", "high", self._high)]
-        PyoPVObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):

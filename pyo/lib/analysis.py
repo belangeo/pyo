@@ -28,8 +28,6 @@ License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 from ._core import *
-from ._maps import *
-from ._widgets import createSpectrumWindow, createScopeWindow
 from .pattern import Pattern
 
 
@@ -110,10 +108,6 @@ class Follower(PyoObject):
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(1.0, 500.0, "log", "freq", self._freq)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
@@ -231,10 +225,6 @@ class Follower2(PyoObject):
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0.001, 1.0, "log", "risetime", self._risetime)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def input(self):
         """PyoObject. Input signal to process."""
@@ -338,10 +328,6 @@ class ZCross(PyoObject):
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0.0, 0.5, "lin", "thresh", self._thresh)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
@@ -518,15 +504,6 @@ class Yin(PyoObject):
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(0, 1, "lin", "tolerance", self._tolerance, dataOnly=True),
-            SLMap(20, 400, "log", "minfreq", self._minfreq, dataOnly=True),
-            SLMap(500, 5000, "log", "maxfreq", self._maxfreq, dataOnly=True),
-            SLMap(200, 15000, "log", "cutoff", self._cutoff, dataOnly=True),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def input(self):
         """PyoObject. Input signal to process."""
@@ -640,10 +617,6 @@ class Centroid(PyoObject):
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
@@ -826,16 +799,6 @@ class AttackDetector(PyoObject):
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(0.001, 0.05, "lin", "deltime", self._deltime, dataOnly=True),
-            SLMap(1.0, 1000.0, "log", "cutoff", self._cutoff, dataOnly=True),
-            SLMap(0.0, 18.0, "lin", "maxthresh", self._maxthresh, dataOnly=True),
-            SLMap(-90.0, 0.0, "lin", "minthresh", self._minthresh, dataOnly=True),
-            SLMap(0.001, 1.0, "log", "reltime", self._reltime, dataOnly=True),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
@@ -1780,10 +1743,6 @@ class PeakAmp(PyoObject):
             values = [obj.getValue() for obj in self._base_objs]
             self._function(*values)
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def input(self):
         """PyoObject. Input signal to process."""
@@ -1920,10 +1879,6 @@ class RMS(PyoObject):
         if self._function is not None:
             values = [obj.getValue() for obj in self._base_objs]
             self._function(*values)
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):

@@ -31,8 +31,6 @@ License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
 from ._core import *
-from ._maps import *
-from ._widgets import createGraphWindow
 
 ######################################################################
 ### Controls
@@ -183,14 +181,6 @@ class Fader(PyoObject):
         self._exp = x
         x, lmax = convertArgsToLists(x)
         [obj.setExp(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(0, 10.0, "lin", "fadein", self._fadein, dataOnly=True),
-            SLMap(0, 10.0, "lin", "fadeout", self._fadeout, dataOnly=True),
-            SLMap(0, 20.0, "lin", "dur", self._dur, dataOnly=True),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def fadein(self):
@@ -425,16 +415,6 @@ class Adsr(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setExp(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(0, 5, "lin", "attack", self._attack, dataOnly=True),
-            SLMap(0, 5, "lin", "decay", self._decay, dataOnly=True),
-            SLMap(0, 1, "lin", "sustain", self._sustain, dataOnly=True),
-            SLMap(0, 10, "lin", "release", self._release, dataOnly=True),
-            SLMap(0, 20.0, "lin", "dur", self._dur, dataOnly=True),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def attack(self):
         """float. Duration of the attack phase in seconds."""
@@ -611,48 +591,6 @@ class Linseg(PyoObject):
 
         """
         [obj.clear() for obj in self._base_objs]
-
-    def graph(self, xlen=None, yrange=None, title=None, wxnoserver=False):
-        """
-        Opens a grapher window to control the shape of the envelope.
-
-        When editing the grapher with the mouse, the new set of points
-        will be send to the object on mouse up.
-
-        Ctrl+C with focus on the grapher will copy the list of points to the
-        clipboard, giving an easy way to insert the new shape in a script.
-
-        :Args:
-
-            xlen: float, optional
-                Set the maximum value of the X axis of the graph. If None, the
-                maximum value is retrieve from the current list of points.
-            yrange: tuple, optional
-                Set the min and max values of the Y axis of the graph. If
-                None, min and max are retrieve from the current list of points.
-            title: string, optional
-                Title of the window. If none is provided, the name of the
-                class is used.
-            wxnoserver: boolean, optional
-                With wxPython graphical toolkit, if True, tells the
-                interpreter that there will be no server window.
-
-        If `wxnoserver` is set to True, the interpreter will not wait for the
-        server GUI before showing the controller window.
-
-        """
-        if xlen is None:
-            xlen = float(self._list[-1][0])
-        else:
-            xlen = float(xlen)
-        if yrange is None:
-            ymin = float(min([x[1] for x in self._list]))
-            ymax = float(max([x[1] for x in self._list]))
-            if ymin == ymax:
-                yrange = (0, ymax)
-            else:
-                yrange = (ymin, ymax)
-        createGraphWindow(self, 0, xlen, yrange, title, wxnoserver)
 
     @property
     def list(self):
@@ -851,50 +789,6 @@ class Expseg(PyoObject):
     def getPoints(self):
         return self._list
 
-    def graph(self, xlen=None, yrange=None, title=None, wxnoserver=False):
-        """
-        Opens a grapher window to control the shape of the envelope.
-
-        When editing the grapher with the mouse, the new set of points
-        will be send to the object on mouse up.
-
-        Ctrl+C with focus on the grapher will copy the list of points to the
-        clipboard, giving an easy way to insert the new shape in a script.
-
-        :Args:
-
-            xlen: float, optional
-                Set the maximum value of the X axis of the graph. If None, the
-                maximum value is retrieve from the current list of points.
-                Defaults to None.
-            yrange: tuple, optional
-                Set the min and max values of the Y axis of the graph. If
-                None, min and max are retrieve from the current list of points.
-                Defaults to None.
-            title: string, optional
-                Title of the window. If none is provided, the name of the
-                class is used.
-            wxnoserver: boolean, optional
-                With wxPython graphical toolkit, if True, tells the
-                interpreter that there will be no server window.
-
-        If `wxnoserver` is set to True, the interpreter will not wait for the
-        server GUI before showing the controller window.
-
-        """
-        if xlen is None:
-            xlen = float(self._list[-1][0])
-        else:
-            xlen = float(xlen)
-        if yrange is None:
-            ymin = float(min([x[1] for x in self._list]))
-            ymax = float(max([x[1] for x in self._list]))
-            if ymin == ymax:
-                yrange = (0, ymax)
-            else:
-                yrange = (ymin, ymax)
-        createGraphWindow(self, 2, xlen, yrange, title, wxnoserver)
-
     @property
     def list(self):
         """float. List of points (time, value)."""
@@ -1007,10 +901,6 @@ class SigTo(PyoObject):
         self._time = x
         x, lmax = convertArgsToLists(x)
         [obj.setTime(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0, 10, "lin", "time", self._time)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def value(self):

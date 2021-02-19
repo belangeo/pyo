@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Copyright 2009-2015 Olivier Belanger
+Copyright 2009-2021 Olivier Belanger
 
 This file is part of pyo, a python module to help digital signal
 processing script creation.
@@ -19,9 +19,8 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
-import os, sys, time
+import os, sys
 from ._core import *
-from ._widgets import createServerGUI
 
 ######################################################################
 ### Proxy of Server object
@@ -56,61 +55,13 @@ class Server(object):
         duplex: int {0, 1}, optional
             Input - output mode. 0 is output only and 1 is both ways.
             Defaults to 1.
-        audio: string {'portaudio', 'pa', 'jack', 'coreaudio', 'offline', 'offline_nb', 'embedded'}, optional
-            Audio backend to use. 'pa' is equivalent to 'portaudio'. Default is 'portaudio'.
-
-            'offline' save the audio output in a soundfile as fast as possible in blocking mode,
-
-            ie. the main program doesn't respond until the end of the computation.
-
-            'offline_nb' save the audio output in a soundfile as fast as possible in non-blocking
-            mode,
-
-            ie. the computation is executed in a separated thread, allowing the program to
-            respond while the computation goes on.
-
-            It is the responsibility of the user to make sure that the program doesn't exit before
-            the computation is done.
-
-            'embedded' should be used when pyo is embedded inside an host environment via its C api.
-
-            If 'jack' is selected but jackd is not already started when the program is executed, pyo
-            will ask jack to start in the background. Note that pyo never ask jack to close. It is
-            the user's responsability to manage the audio configuration of its system.
-
-            If 'manual' is selected, the server waits for a call to its `process` method to compute
-            a single buffer size of audio samples. Successive calls to `process` can simulate a
-            real computation (probably only useful in the context of internal testing).
-
-            User can set an environment variable named PYO_SERVER_AUDIO to set this value globally.
-        jackname: string, optional
-            Name of jack client. Defaults to 'pyo'
         ichnls: int, optional
             Number of input channels if different of output channels. If None (default), ichnls = nchnls.
-        winhost: string, optional
-            Under Windows, pyo's Server will try to use the default devices of the given host.
-            This behaviour can be changed with the SetXXXDevice methods. Defaults to "directsound".
-
-            User can set an environment variable named PYO_SERVER_WINHOST to set this value globally.
-        midi: string {'portmidi', 'pm', 'jack'}, optional
-            Midi backend to use. 'pm' is equivalent to 'portmidi'. Default is 'portmidi'.
-
-            If 'jack' is selected but jackd is not already started when the program is executed, pyo
-            will ask jack to start in the background. Note that pyo never ask jack to close. It is
-            the user's responsability to manage the audio/midi configuration of its system.
-
-            User can set an environment variable named PYO_SERVER_MIDI to set this value globally.
 
     .. note::
 
         The following methods must be called **before** booting the server
 
-        - setInOutDevice(x): Set both input and output devices. See `pa_list_devices()`.
-        - setInputDevice(x): Set the audio input device number. See `pa_list_devices()`.
-        - setOutputDevice(x): Set the audio output device number. See `pa_list_devices()`.
-        - setInputOffset(x): Set the first physical input channel.
-        - setOutputOffset(x): Set the first physical output channel.
-        - setInOutOffset(x): Set the first physical input and output channels.
         - setSamplingRate(x): Set the sampling rate used by the server.
         - setBufferSize(x): Set the buffer size used by the server.
         - setNchnls(x): Set the number of output (and input if `ichnls` = None) channels used by the server.
@@ -132,40 +83,22 @@ class Server(object):
         nchnls=2,
         buffersize=256,
         duplex=1,
-        audio="portaudio",
-        jackname="pyo",
-        ichnls=None,
-        winhost="directsound",
-        midi="portmidi",
+        ichnls=None
     ):
-        if "PYO_SERVER_AUDIO" in os.environ and "offline" not in audio and "embedded" not in audio:
-            audio = os.environ["PYO_SERVER_AUDIO"]
-        if "PYO_SERVER_WINHOST" in os.environ:
-            winhost = os.environ["PYO_SERVER_WINHOST"]
 
-        self._time = time
         self._nchnls = nchnls
         if ichnls is None:
             self._ichnls = nchnls
         else:
             self._ichnls = ichnls
-        self._winhost = winhost
-        self._amp = 1.0
         self._verbosity = 7
-        self._startoffset = 0
         self._dur = -1
         self._filename = None
         self._fileformat = 0
         self._sampletype = 0
         self._globalseed = 0
         self._resampling = 1
-        self._isJackTransportSlave = False
-        self._server = Server_base(sr, nchnls, buffersize, duplex, audio, jackname, self._ichnls, midi)
-
-        if sys.platform.startswith("win"):
-            host_default_in, host_default_out = pa_get_default_devices_from_host(winhost)
-            self._server.setInputDevice(host_default_in)
-            self._server.setOutputDevice(host_default_out)
+        self._server = Server_base(sr, nchnls, buffersize, duplex, self._ichnls)
 
     def __del__(self):
         self.setTime = None
@@ -173,9 +106,7 @@ class Server(object):
         if self.getIsBooted():
             if self.getIsStarted():
                 self.stop()
-                self._time.sleep(0.25)
             self.shutdown()
-            self._time.sleep(0.25)
 
     def reinit(
         self,
@@ -183,11 +114,7 @@ class Server(object):
         nchnls=2,
         buffersize=256,
         duplex=1,
-        audio="portaudio",
-        jackname="pyo",
-        ichnls=None,
-        winhost="directsound",
-        midi="portmidi",
+        ichnls=None
     ):
         """
         Reinit the server'settings. Useful to alternate between real-time and offline server.
@@ -197,10 +124,6 @@ class Server(object):
             Same as in the __init__ method.
 
         """
-        if "PYO_SERVER_AUDIO" in os.environ and "offline" not in audio and "embedded" not in audio:
-            audio = os.environ["PYO_SERVER_AUDIO"]
-        if "PYO_SERVER_WINHOST" in os.environ:
-            winhost = os.environ["PYO_SERVER_WINHOST"]
 
         self._gui_frame = None
         self._nchnls = nchnls
@@ -208,23 +131,14 @@ class Server(object):
             self._ichnls = nchnls
         else:
             self._ichnls = ichnls
-        self._winhost = winhost
-        self._amp = 1.0
         self._verbosity = 7
-        self._startoffset = 0
         self._dur = -1
         self._filename = None
         self._fileformat = 0
         self._sampletype = 0
         self._globalseed = 0
         self._resampling = 1
-        self._isJackTransportSlave = False
-        self._server.__init__(sr, nchnls, buffersize, duplex, audio, jackname, self._ichnls, midi)
-
-        if sys.platform.startswith("win"):
-            host_default_in, host_default_out = pa_get_default_devices_from_host(winhost)
-            self._server.setInputDevice(host_default_in)
-            self._server.setOutputDevice(host_default_out)
+        self._server.__init__(sr, nchnls, buffersize, duplex, self._ichnls)
 
     def setCallback(self, callback):
         """
@@ -238,78 +152,6 @@ class Server(object):
         """
         if callable(callback):
             self._server.setCallback(callback)
-
-    def setInputDevice(self, x):
-        """
-        Set the audio input device number. See `pa_list_devices()`.
-
-        :Args:
-
-            x: int
-                Number of the audio device listed by Portaudio.
-
-        """
-        self._server.setInputDevice(x)
-
-    def setOutputDevice(self, x):
-        """
-        Set the audio output device number. See `pa_list_devices()`.
-
-        :Args:
-
-            x: int
-                Number of the audio device listed by Portaudio.
-
-        """
-        self._server.setOutputDevice(x)
-
-    def setInputOffset(self, x):
-        """
-        Set the first physical input channel.
-
-        Channel number `x` from the soundcard will be assigned to
-        server's channel one, channel number `x` + 1 to server's
-        channel two and so on.
-
-        :Args:
-
-            x: int
-                Channel number.
-
-        """
-        self._server.setInputOffset(x)
-
-    def setOutputOffset(self, x):
-        """
-        Set the first physical output channel.
-
-        Server's channel one will be assigned to soundcard's channel
-        number `x`, server's channel two will be assigned to soundcard's
-        channel number `x` + 1 and so on.
-
-        :Args:
-
-            x: int
-                Channel number.
-
-        """
-        self._server.setOutputOffset(x)
-
-    def setInOutOffset(self, x):
-        """
-        Set the first physical input and output channels.
-
-        Set both offsets to the same value. See `setInputOffset` and
-        `setOutputOffset` documentation for more details.
-
-        :Args:
-
-            x: int
-                Channel number.
-
-        """
-        self._server.setInputOffset(x)
-        self._server.setOutputOffset(x)
 
     def setSamplingRate(self, x):
         """
@@ -434,33 +276,6 @@ class Server(object):
         """
         self._globalseed = x
         self._server.setGlobalSeed(x)
-
-    def setStartOffset(self, x):
-        """
-        Set the server's starting time offset. First `x` seconds will be rendered
-        offline as fast as possible.
-
-        :Args:
-
-            x: float
-                Starting time of the real-time processing.
-
-        """
-        self._startoffset = x
-        self._server.setStartOffset(x)
-
-    def setAmp(self, x):
-        """
-        Set the overall amplitude.
-
-        :Args:
-
-            x: float
-                New amplitude.
-
-        """
-        self._amp = x
-        self._server.setAmp(x)
 
     def beginResamplingBlock(self, x):
         """
@@ -675,24 +490,6 @@ class Server(object):
         """
         return self._server.getEmbedICallbackAddr()
 
-    def getCurrentTime(self):
-        """
-        Return the current time as a formatted string.
-        """
-        return self._server.getCurrentTime()
-
-    def getCurrentTimeInSamples(self):
-        """
-        Return the current time in number of elapsed samples since the server was started.
-        """
-        return self._server.getCurrentTimeInSamples()
-
-    def getCurrentAmp(self):
-        """
-        Return the current amplitudes as a tuple of `nchnls` length.
-        """
-        return self._server.getCurrentAmp()
-
     def setAutoStartChildren(self, state):
         """
         Giving True to this method tells pyo that a call to the `play`,
@@ -760,34 +557,6 @@ class Server(object):
 
         """
         self._server.setAutoStartChildren(state)
-
-    def process(self):
-        """
-        Tell the server to compute a single buffer size of audio samples.
-
-        The audio backend of the server must be set to `manual` to use this method.
-        It's probably only useful in the context of internal testing.
-
-        """
-        self._server.process()
-
-    @property
-    def amp(self):
-        """float. Overall amplitude."""
-        return self._amp
-
-    @amp.setter
-    def amp(self, x):
-        self.setAmp(x)
-
-    @property
-    def startoffset(self):
-        """float. Starting time of the real-time processing."""
-        return self._startoffset
-
-    @startoffset.setter
-    def startoffset(self, x):
-        self.setStartOffset(x)
 
     @property
     def verbosity(self):

@@ -49,11 +49,6 @@ else:
     from .._pyo import *
     import pyo as current_pyo
 
-from ._maps import SLMap, SLMapMul
-from ._widgets import createCtrlWindow
-from ._widgets import createViewTableWindow
-from ._widgets import createViewMatrixWindow
-
 ######################################################################
 ### Utilities
 ######################################################################
@@ -333,75 +328,6 @@ def wrap(arg, i):
         return x
 
 
-def example(cls, dur=5, toprint=True, double=False):
-    """
-    Execute the documentation example of the object given as an argument.
-
-    :Args:
-
-        cls: PyoObject class or string
-            Class reference of the desired object example. If this argument
-            is the string of the full path of an example (as returned by the
-            getPyoExamples() function), it will be executed.
-        dur: float, optional
-            Duration of the example.
-        toprint: boolean, optional
-            If True, the example script will be printed to the console.
-            Defaults to True.
-        double: boolean, optional
-            If True, force the example to run in double precision (64-bit)
-            Defaults to False.
-
-    >>> example(Sine)
-
-    """
-    executable = sys.executable
-    if not executable or executable is None:
-        executable = "python"
-
-    if type(cls) is str and os.path.isfile(cls):
-        if toprint:
-            print(open(cls, "r").read())
-        call([executable, cls])
-    else:
-        doc = cls.__doc__.splitlines()
-        lines = []
-        store = False
-        for line in doc:
-            if not store:
-                if ">>> s = Server" in line:
-                    store = True
-            if store:
-                if line.strip() == "":
-                    store = False
-                else:
-                    lines.append(line)
-
-        if lines == []:
-            print("There is no manual example for %s object." % cls.__name__)
-            return
-
-        ex_lines = [l.lstrip("    ") for l in lines if ">>>" in l or "..." in l]
-        if hasattr(builtins, "pyo_use_double") or double:
-            ex = "import time\nfrom pyo64 import *\n"
-        else:
-            ex = "import time\nfrom pyo import *\n"
-        for line in ex_lines:
-            if ">>>" in line:
-                line = line.lstrip(">>> ")
-            if "..." in line:
-                line = "    " + line.lstrip("... ")
-            ex += line + "\n"
-
-        ex += "time.sleep(%f)\ns.stop()\ntime.sleep(0.25)\ns.shutdown()\n" % dur
-        f = tempfile.NamedTemporaryFile(delete=False)
-        if toprint:
-            f.write(tobytes('print("""\n%s\n""")\n' % ex))
-        f.write(tobytes(ex))
-        f.close()
-        call([executable, f.name])
-
-
 def removeExtraDecimals(x):
     "Return a floating-point value as a string with only two digits."
     if isinstance(x, float):
@@ -521,73 +447,6 @@ def getPrecision():
         return 64
     else:
         return 32
-
-
-def pa_get_default_devices_from_host(host):
-    """
-    Returns the default input and output devices for a given audio host.
-
-    This function can greatly help finding the device indexes (especially
-    on Windows) to give to the server in order to use to desired audio host.
-
-    :Args:
-
-        host: string
-            Name of the desired audio host. Possible hosts are:
-
-            - For Windows: mme, directsound, asio, wasapi or wdm-ks.
-            - For linux: alsa, oss, pulse or jack.
-            - For MacOS: core audio, jack or soundflower.
-
-    Return: (default_input_device, default_output_device)
-
-    """
-    host_default_in = pa_get_default_input()
-    host_default_out = pa_get_default_output()
-
-    # Retrieve host apis infos.
-    tempfile = os.path.join(os.path.expanduser("~"), "pa_retrieve_host_apis")
-    with open(tempfile, "w") as f:
-        with f as sys.stdout:
-            pa_list_host_apis()
-            sys.stdout = sys.__stdout__
-
-    with open(tempfile, "r") as f:
-        lines = f.readlines()
-
-    os.remove(tempfile)
-
-    # Build the list of currently available hosts.
-    host_names = []
-    for line in lines:
-        p1 = line.find("name: ") + 6
-        p2 = line.find(",", p1 + 1)
-        host_names.append(line[p1:p2])
-
-    # Search for the desired host.
-    found = False
-    for line in lines:
-        if host.lower() in line.lower():
-            splitted = line.replace("\n", "").split(", ")
-            attributes = [x.split(": ") for x in splitted]
-            found = True
-            break
-
-    # If not found, return portaudio default values.
-    if not found:
-        print("Pyo can't find audio host '%s'. Currently available hosts are:" % host)
-        for host in host_names:
-            print("    %s" % host.lower())
-        return host_default_in, host_default_out
-
-    # If found, search default device indexes.
-    for attribute in attributes:
-        if attribute[0] == "default in":
-            host_default_in = int(attribute[1])
-        elif attribute[0] == "default out":
-            host_default_out = int(attribute[1])
-
-    return host_default_in, host_default_out
 
 
 def getWeakMethodRef(x):
@@ -1003,7 +862,6 @@ class PyoObject(PyoObjectBase):
         self._mul = mul
         self._add = add
         self._op_duplicate = 1
-        self._map_list = []
         self._zeros = None
         self._base_players = None
         self._time_objs = None
@@ -1569,39 +1427,6 @@ class PyoObject(PyoObjectBase):
                 del self._callback_dict[attr]
         self._signal_dict[attr].stop()
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        """
-        Opens a sliders window to control the parameters of the object.
-        SLMap has a `dataOnly` attribute to identify parameters that don't
-        audio signal as control but only discrete values.
-
-        If a list of values are given to a parameter, a multisliders
-        will be used to control each stream independently.
-
-        :Args:
-
-            map_list: list of SLMap objects, optional
-                Users defined set of parameters scaling. There is default
-                scaling for each object that accept `ctrl` method.
-            title: string, optional
-                Title of the window. If none is provided, the name of the
-                class is used.
-            wxnoserver: boolean, optional
-                With wxPython graphical toolkit, if True, tells the
-                interpreter that there will be no server window.
-
-        If `wxnoserver` is set to True, the interpreter will not wait for
-        the server GUI before showing the controller window.
-
-        """
-        if map_list is None:
-            map_list = self._map_list
-        if map_list == []:
-            clsname = self.__class__.__name__
-            print("There are no controls for %s object." % clsname)
-            return
-        createCtrlWindow(self, map_list, title, wxnoserver)
-
     @property
     def mul(self):
         """float or PyoObject. Multiplication factor."""
@@ -1647,8 +1472,6 @@ class PyoTableObject(PyoObjectBase):
     def __init__(self, size=0):
         PyoObjectBase.__init__(self)
         self._size = size
-        self.viewFrame = None
-        self.graphFrame = None
 
     def write(self, path, oneline=True):
         """
@@ -2167,55 +1990,6 @@ class PyoTableObject(PyoObjectBase):
             [obj.copy(self[i]) for i, obj in enumerate(newtable.getBaseObjects())]
         return newtable
 
-    def view(self, title="Table waveform", wxnoserver=False):
-        """
-        Opens a window showing the contents of the table.
-
-        :Args:
-
-            title: string, optional
-                Window title. Defaults to "Table waveform".
-            wxnoserver: boolean, optional
-                With wxPython graphical toolkit, if True, tells the
-                interpreter that there will be no server window.
-
-        If `wxnoserver` is set to True, the interpreter will not wait for
-        the server GUI before showing the controller window.
-
-        """
-        pyoArgsAssert(self, "SB", title, wxnoserver)
-        samples = self._base_objs[0].getViewTable((500, 200))
-        createViewTableWindow(samples, title, wxnoserver, self.__class__.__name__, self)
-
-    def _setViewFrame(self, frame):
-        self.viewFrame = frame
-
-    def _setGraphFrame(self, frame):
-        self.graphFrame = frame
-
-    def _get_current_data(self):
-        # Children must override this method.
-        return []
-
-    def refreshView(self):
-        """
-        Updates the graphical display of the table, if applicable.
-
-        """
-        if self.viewFrame is not None:
-            size = self.viewFrame.wavePanel.GetSize()
-            samples = self._base_objs[0].getViewTable((size[0], size[1]))
-            self.viewFrame.update(samples)
-        if self.graphFrame is not None:
-            data = self._get_current_data()
-            length = len(data)
-            flength = self.graphFrame.getLength()
-            if length < flength:
-                data = data + [0] * (flength - length)
-            elif length > flength:
-                data = data[:flength]
-            self.graphFrame.update(data)
-
     @property
     def size(self):
         """int. Table size in samples."""
@@ -2247,7 +2021,6 @@ class PyoMatrixObject(PyoObjectBase):
     def __init__(self):
         self._size = (0, 0)
         PyoObjectBase.__init__(self)
-        self.viewFrame = None
 
     def write(self, path):
         """
@@ -2406,38 +2179,6 @@ class PyoMatrixObject(PyoObjectBase):
         else:
             return values
 
-    def view(self, title="Matrix viewer", wxnoserver=False):
-        """
-        Opens a window showing the contents of the matrix.
-
-        :Args:
-
-            title: string, optional
-                Window title. Defaults to "Matrix viewer".
-            wxnoserver: boolean, optional
-                With wxPython graphical toolkit, if True, tells the
-                interpreter that there will be no server window.
-
-        If `wxnoserver` is set to True, the interpreter will not wait for
-        the server GUI before showing the controller window.
-
-        """
-        pyoArgsAssert(self, "SB", title, wxnoserver)
-        samples = self._base_objs[0].getImageData()
-        createViewMatrixWindow(samples, self.getSize(), title, wxnoserver, self)
-
-    def _setViewFrame(self, frame):
-        self.viewFrame = frame
-
-    def refreshView(self):
-        """
-        Updates the graphical display of the matrix, if applicable.
-
-        """
-        if self.viewFrame is not None:
-            samples = self._base_objs[0].getImageData()
-            self.viewFrame.update(samples)
-
 
 ######################################################################
 ### PyoObject -> base class for pyo phase vocoder objects
@@ -2458,7 +2199,6 @@ class PyoPVObject(PyoObjectBase):
         PyoObjectBase.__init__(self)
         self._target_dict = {}
         self._signal_dict = {}
-        self._map_list = []
         self._base_players = None
 
     def isPlaying(self, all=False):
@@ -2585,39 +2325,6 @@ class PyoPVObject(PyoObjectBase):
         if isinstance(getattr(self, attr), VarPort):
             setattr(self, attr, self._target_dict[attr])
         self._signal_dict[attr].stop()
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        """
-        Opens a sliders window to control the parameters of the object.
-        Only parameters that can be set to a PyoObject are allowed
-        to be mapped on a slider.
-
-        If a list of values are given to a parameter, a multisliders
-        will be used to control each stream independently.
-
-        :Args:
-
-            map_list: list of SLMap objects, optional
-                Users defined set of parameters scaling. There is default
-                scaling for each object that accept `ctrl` method.
-            title: string, optional
-                Title of the window. If none is provided, the name of the
-                class is used.
-            wxnoserver: boolean, optional
-                With wxPython graphical toolkit, if True, tells the
-                interpreter that there will be no server window.
-
-        If `wxnoserver` is set to True, the interpreter will not wait for
-        the server GUI before showing the controller window.
-
-        """
-        if map_list is None:
-            map_list = self._map_list
-        if map_list == []:
-            clsname = self.__class__.__name__
-            print("There are no controls for %s object." % clsname)
-            return
-        createCtrlWindow(self, map_list, title, wxnoserver)
 
 
 ######################################################################
@@ -2857,10 +2564,6 @@ class Sig(PyoObject):
         self._value = x
         x, _ = convertArgsToLists(x)
         [obj.setValue(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0, 1, "lin", "value", self._value)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def value(self):
@@ -3190,14 +2893,6 @@ class Wrap(PyoObject):
         self._max = x
         x, _ = convertArgsToLists(x)
         [obj.setMax(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(0.0, 1.0, "lin", "min", self._min),
-            SLMap(0.0, 1.0, "lin", "max", self._max),
-            SLMapMul(self._mul),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):

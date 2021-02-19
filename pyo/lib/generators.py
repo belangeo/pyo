@@ -27,7 +27,6 @@ You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 from ._core import *
-from ._maps import *
 
 ######################################################################
 ### Sources
@@ -101,10 +100,6 @@ class Sine(PyoObject):
 
         """
         [obj.reset() for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapFreq(self._freq), SLMapPhase(self._phase), SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def freq(self):
@@ -211,14 +206,6 @@ class FastSine(PyoObject):
         """
         [obj.reset() for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMapFreq(self._freq),
-            SLMap(0, 1, "lin", "quality", self._quality, res="int", dataOnly=True),
-            SLMapMul(self._mul),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def freq(self):
         """float or PyoObject. Frequency in cycles per second."""
@@ -306,10 +293,6 @@ class SineLoop(PyoObject):
         self._feedback = x
         x, lmax = convertArgsToLists(x)
         [obj.setFeedback(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapFreq(self._freq), SLMap(0, 1, "lin", "feedback", self._feedback), SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def freq(self):
@@ -403,10 +386,6 @@ class Phasor(PyoObject):
         """
         [obj.reset() for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapFreq(self._freq), SLMapPhase(self._phase), SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def freq(self):
         """float or PyoObject. Frequency in cycles per second."""
@@ -456,10 +435,6 @@ class Input(PyoObject):
         self._base_objs = [Input_base(wrap(chnl, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
         self._init_play()
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
 
 class Noise(PyoObject):
     """
@@ -497,10 +472,6 @@ class Noise(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setType(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def type(self):
         """int {0, 1}. Sets the generation algorithm."""
@@ -536,10 +507,6 @@ class PinkNoise(PyoObject):
         self._base_objs = [PinkNoise_base(wrap(mul, i), wrap(add, i)) for i in range(lmax)]
         self._init_play()
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
 
 class BrownNoise(PyoObject):
     """
@@ -562,10 +529,6 @@ class BrownNoise(PyoObject):
         mul, add, lmax = convertArgsToLists(mul, add)
         self._base_objs = [BrownNoise_base(wrap(mul, i), wrap(add, i)) for i in range(lmax)]
         self._init_play()
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
 
 class FM(PyoObject):
@@ -652,15 +615,6 @@ class FM(PyoObject):
         self._index = x
         x, lmax = convertArgsToLists(x)
         [obj.setIndex(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(10, 500, "lin", "carrier", self._carrier),
-            SLMap(0.01, 10, "lin", "ratio", self._ratio),
-            SLMap(0, 20, "lin", "index", self._index),
-            SLMapMul(self._mul),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def carrier(self):
@@ -800,16 +754,6 @@ class CrossFM(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setInd2(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(10, 500, "lin", "carrier", self._carrier),
-            SLMap(0.01, 10, "lin", "ratio", self._ratio),
-            SLMap(0, 20, "lin", "ind1", self._ind1),
-            SLMap(0, 20, "lin", "ind2", self._ind2),
-            SLMapMul(self._mul),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def carrier(self):
         """float or PyoObject. Carrier frequency in cycles per second."""
@@ -909,14 +853,6 @@ class Blit(PyoObject):
         self._harms = x
         x, lmax = convertArgsToLists(x)
         [obj.setHarms(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(1, 5000, "log", "freq", self._freq),
-            SLMap(2, 100, "lin", "harms", self._harms),
-            SLMapMul(self._mul),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def freq(self):
@@ -1027,14 +963,6 @@ class Rossler(PyoObject):
         else:
             [obj.setChaos(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(0.0, 1.0, "lin", "pitch", self._pitch),
-            SLMap(0.0, 1.0, "lin", "chaos", self._chaos),
-            SLMapMul(self._mul),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def pitch(self):
         """float or PyoObject. Speed of the variations."""
@@ -1144,14 +1072,6 @@ class Lorenz(PyoObject):
         else:
             [obj.setChaos(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(0.0, 1.0, "lin", "pitch", self._pitch),
-            SLMap(0.0, 1.0, "lin", "chaos", self._chaos),
-            SLMapMul(self._mul),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def pitch(self):
         """float or PyoObject. Speed of the variations."""
@@ -1260,14 +1180,6 @@ class ChenLee(PyoObject):
             [obj.setChaos(wrap(x, i)) for i, obj in enumerate(self._base_objs) if (i % 2) == 0]
         else:
             [obj.setChaos(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(0.0, 1.0, "lin", "pitch", self._pitch),
-            SLMap(0.0, 1.0, "lin", "chaos", self._chaos),
-            SLMapMul(self._mul),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def pitch(self):
@@ -1394,15 +1306,6 @@ class LFO(PyoObject):
 
         """
         [obj.reset() for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(0.1, self.getSamplingRate() * 0.25, "log", "freq", self._freq),
-            SLMap(0.0, 1.0, "lin", "sharp", self._sharp),
-            SLMap(0, 7, "lin", "type", self._type, "int", dataOnly=True),
-            SLMapMul(self._mul),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def freq(self):
@@ -1532,15 +1435,6 @@ class SumOsc(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setIndex(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(10, 500, "lin", "freq", self._freq),
-            SLMap(0.01, 10, "lin", "ratio", self._ratio),
-            SLMap(0, 1, "lin", "index", self._index),
-            SLMapMul(self._mul),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def freq(self):
         """float or PyoObject. Base frequency in cycles per second."""
@@ -1662,15 +1556,6 @@ class SuperSaw(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setBal(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMapFreq(self._freq),
-            SLMap(0, 1, "lin", "detune", self._detune),
-            SLMap(0, 1, "lin", "bal", self._bal),
-            SLMapMul(self._mul),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def freq(self):
         """float or PyoObject. Frequency in cycles per second."""
@@ -1773,10 +1658,6 @@ class RCOsc(PyoObject):
 
         """
         [obj.reset() for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapFreq(self._freq), SLMap(0, 1, "lin", "sharp", self._sharp), SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def freq(self):

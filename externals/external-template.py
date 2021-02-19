@@ -87,14 +87,6 @@ class Gain(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setDB(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
-    # ctrl method shows to slider window of the object.
-    # Look the man page of SLMap for the object's configuration.
-    # self._map_list is the default list of SLMap objects.
-    # This method must be defined only if the object uses slider controls.
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(-120, 18, "lin", "db", self._db), SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     # setter and getter properties. Each modifiable attribute returns its internal
     # state (self._attr) and must be linked with its setXXX method.
     @property

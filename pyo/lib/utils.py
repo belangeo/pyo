@@ -23,7 +23,6 @@ You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 from ._core import *
-from ._maps import *
 import threading, time
 
 
@@ -445,10 +444,6 @@ class Interp(PyoObject):
         self._interp = x
         x, lmax = convertArgsToLists(x)
         [obj.setInterp(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0.0, 1.0, "lin", "interp", self._interp), SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
@@ -1391,17 +1386,6 @@ class Scale(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setExp(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(0.0, 127.0, "lin", "inmin", self._inmin),
-            SLMap(0.0, 127.0, "lin", "inmax", self._inmax),
-            SLMap(0.0, 127.0, "lin", "outmin", self._outmin),
-            SLMap(0.0, 127.0, "lin", "outmax", self._outmax),
-            SLMap(1.0, 10.0, "lin", "exp", self._exp),
-            SLMapMul(self._mul),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def input(self):
         """PyoObject. Input signal to process."""
@@ -1867,14 +1851,6 @@ class Between(PyoObject):
         self._max = x
         x, lmax = convertArgsToLists(x)
         [obj.setMax(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(0.0, 1.0, "lin", "min", self._min),
-            SLMap(0.0, 1.0, "lin", "max", self._max),
-            SLMapMul(self._mul),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):

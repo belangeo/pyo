@@ -23,7 +23,6 @@ You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 from ._core import *
-from ._maps import *
 
 
 class Randi(PyoObject):
@@ -109,15 +108,6 @@ class Randi(PyoObject):
         self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(0.0, 1.0, "lin", "min", self._min),
-            SLMap(1.0, 2.0, "lin", "max", self._max),
-            SLMap(0.1, 20.0, "lin", "freq", self._freq),
-            SLMapMul(self._mul),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def min(self):
@@ -231,15 +221,6 @@ class Randh(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(0.0, 1.0, "lin", "min", self._min),
-            SLMap(1.0, 2.0, "lin", "max", self._max),
-            SLMap(0.1, 20.0, "lin", "freq", self._freq),
-            SLMapMul(self._mul),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def min(self):
         """float or PyoObject. Minimum value."""
@@ -341,10 +322,6 @@ class Choice(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0.1, 20.0, "lin", "freq", self._freq), SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def choice(self):
         """list of floats or list of lists of floats. Possible choices."""
@@ -427,14 +404,6 @@ class RandInt(PyoObject):
         self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(1.0, 2.0, "lin", "max", self._max),
-            SLMap(0.1, 20.0, "lin", "freq", self._freq),
-            SLMapMul(self._mul),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def max(self):
@@ -521,14 +490,6 @@ class RandDur(PyoObject):
         self._max = x
         x, lmax = convertArgsToLists(x)
         [obj.setMax(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(0.0, 1.0, "lin", "min", self._min),
-            SLMap(1.0, 2.0, "lin", "max", self._max),
-            SLMapMul(self._mul),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def min(self):
@@ -717,17 +678,6 @@ class Xnoise(PyoObject):
         self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(0, 12, "lin", "dist", self._dist, res="int", dataOnly=True),
-            SLMap(0.001, 200.0, "log", "freq", self._freq),
-            SLMap(0, 1, "lin", "x1", self._x1),
-            SLMap(0, 1, "lin", "x2", self._x2),
-            SLMap(0, 2500, "lin", "mul", self._mul),
-            SLMap(0, 2500, "lin", "add", self._add),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def dist(self):
@@ -996,16 +946,6 @@ class XnoiseMidi(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(0, 12, "lin", "dist", self._dist, res="int", dataOnly=True),
-            SLMap(0.001, 200.0, "log", "freq", self._freq),
-            SLMap(0, 1, "lin", "x1", self._x1),
-            SLMap(0, 1, "lin", "x2", self._x2),
-            SLMap(0, 2, "lin", "scale", self._scale, res="int", dataOnly=True),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def dist(self):
         """string or int. Distribution type."""
@@ -1247,16 +1187,6 @@ class XnoiseDur(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setX2(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(0, 12, "lin", "dist", self._dist, res="int", dataOnly=True),
-            SLMap(0, 20, "lin", "min", self._min),
-            SLMap(0, 20, "lin", "max", self._max),
-            SLMap(0, 1, "lin", "x1", self._x1),
-            SLMap(0, 1, "lin", "x2", self._x2),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def dist(self):
         """string or int. Distribution type."""
@@ -1382,14 +1312,6 @@ class Urn(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(1, 1000, "lin", "max", self._max, res="int", dataOnly=True),
-            SLMap(0.1, 20.0, "lin", "freq", self._freq),
-            SLMapMul(self._mul),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def max(self):
         """int. Maximum value."""
@@ -1493,14 +1415,6 @@ class LogiMap(PyoObject):
         self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(0.001, 0.999, "lin", "chaos", self._chaos),
-            SLMap(0.1, 20.0, "lin", "freq", self._freq),
-            SLMapMul(self._mul),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def chaos(self):

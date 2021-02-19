@@ -28,7 +28,6 @@ You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 from ._core import *
-from ._maps import *
 
 
 class MatrixRec(PyoObject):
@@ -364,10 +363,6 @@ class MatrixPointer(PyoObject):
         self._y = x
         x, lmax = convertArgsToLists(x)
         [obj.setY(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def matrix(self):

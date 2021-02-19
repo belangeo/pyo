@@ -25,7 +25,6 @@ License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 import sys
 from ._core import *
-from ._maps import *
 
 
 class Pan(PyoObject):
@@ -127,10 +126,6 @@ class Pan(PyoObject):
         self._spread = x
         x, lmax = convertArgsToLists(x)
         [obj.setSpread(wrap(x, i)) for i, obj in enumerate(self._base_players)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapPan(self._pan), SLMap(0.0, 1.0, "lin", "spread", self._spread), SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
@@ -241,10 +236,6 @@ class SPan(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setPan(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapPan(self._pan), SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def input(self):
         """PyoObject. Input signal to process."""
@@ -343,10 +334,6 @@ class Switch(PyoObject):
         self._voice = x
         x, lmax = convertArgsToLists(x)
         [obj.setVoice(wrap(x, i)) for i, obj in enumerate(self._base_players)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0, self._outs - 1, "lin", "voice", self._voice), SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
@@ -475,10 +462,6 @@ class Selector(PyoObject):
         pyoArgsAssert(self, "i", x)
         self._mode = x
         [obj.setMode(x) for obj in self._base_objs]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0, len(self._inputs) - 1, "lin", "voice", self._voice), SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def inputs(self):
@@ -792,10 +775,6 @@ class Mixer(PyoObject):
 
         """
         return list(self._inputs.keys())
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0, 10, "lin", "time", self._time, dataOnly=True), SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def time(self):

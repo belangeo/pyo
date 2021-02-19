@@ -36,7 +36,6 @@ You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 from ._core import *
-from ._maps import *
 
 
 class Biquad(PyoObject):
@@ -150,15 +149,6 @@ class Biquad(PyoObject):
         self._type = x
         x, lmax = convertArgsToLists(x)
         [obj.setType(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMapFreq(self._freq),
-            SLMapQ(self._q),
-            SLMap(0, 4, "lin", "type", self._type, res="int", dataOnly=True),
-            SLMapMul(self._mul),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
@@ -335,15 +325,6 @@ class Biquadx(PyoObject):
         self._stages = x
         x, lmax = convertArgsToLists(x)
         [obj.setStages(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMapFreq(self._freq),
-            SLMapQ(self._q),
-            SLMap(0, 4, "lin", "type", self._type, res="int", dataOnly=True),
-            SLMapMul(self._mul),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
@@ -589,10 +570,6 @@ class Biquada(PyoObject):
                 attr = getattr(self, "_" + key)
                 attr.value = kwds[key]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def input(self):
         """PyoObject. Input signal to process."""
@@ -794,16 +771,6 @@ class EQ(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setType(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMapFreq(self._freq),
-            SLMapQ(self._q),
-            SLMap(-40.0, 40.0, "lin", "boost", self._boost),
-            SLMap(0, 2, "lin", "type", self._type, res="int", dataOnly=True),
-            SLMapMul(self._mul),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def input(self):
         """PyoObject. Input signal to process."""
@@ -912,10 +879,6 @@ class Tone(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapFreq(self._freq), SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def input(self):
         """PyoObject. Input signal to process."""
@@ -998,10 +961,6 @@ class Atone(PyoObject):
         self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapFreq(self._freq), SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
@@ -1118,13 +1077,6 @@ class Port(PyoObject):
         self._falltime = x
         x, lmax = convertArgsToLists(x)
         [obj.setFallTime(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(0.001, 10.0, "log", "risetime", self._risetime),
-            SLMap(0.001, 10.0, "log", "falltime", self._falltime),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
@@ -1298,10 +1250,6 @@ class BandSplit(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setQ(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapQ(self._q), SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def input(self):
         """PyoObject. Input signal to process."""
@@ -1441,15 +1389,6 @@ class FourBand(PyoObject):
         self._freq3 = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq3(wrap(x, i)) for i, obj in enumerate(self._base_players)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(40, 300, "log", "freq1", self._freq1),
-            SLMap(300, 1000, "log", "freq2", self._freq2),
-            SLMap(1000, 5000, "log", "freq3", self._freq3),
-            SLMapMul(self._mul),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
@@ -1810,14 +1749,6 @@ class Allpass(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setFeedback(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(0.001, self._maxdelay, "log", "delay", self._delay),
-            SLMap(0.0, 1.0, "lin", "feedback", self._feedback),
-            SLMapMul(self._mul),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def input(self):
         """PyoObject. Input signal to process."""
@@ -1937,10 +1868,6 @@ class Allpass2(PyoObject):
         self._bw = x
         x, lmax = convertArgsToLists(x)
         [obj.setBw(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapFreq(self._freq), SLMap(10, 1000, "lin", "bw", self._bw), SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
@@ -2110,16 +2037,6 @@ class Phaser(PyoObject):
         self._feedback = x
         x, lmax = convertArgsToLists(x)
         [obj.setFeedback(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(20, 2000, "log", "freq", self._freq),
-            SLMap(0.5, 2, "lin", "spread", self._spread),
-            SLMap(0.5, 100, "log", "q", self._q),
-            SLMap(0, 1, "lin", "feedback", self._feedback),
-            SLMapMul(self._mul),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
@@ -2359,17 +2276,6 @@ class Vocoder(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setStages(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(10, 1000, "log", "freq", self._freq),
-            SLMap(0.25, 2, "lin", "spread", self._spread),
-            SLMap(0.5, 200, "log", "q", self._q),
-            SLMap(0, 1, "lin", "slope", self._slope),
-            SLMap(2, 64, "lin", "stages", self._stages, res="int", dataOnly=True),
-            SLMapMul(self._mul),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def input(self):
         """PyoObject. The spectral envelope."""
@@ -2572,14 +2478,6 @@ class IRWinSinc(PyoObject):
         self._type = x
         x, lmax = convertArgsToLists(x)
         [obj.setType(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMapFreq(self._freq),
-            SLMap(20.0, 10000.0, "log", "bw", self._bw),
-            SLMap(0, 3, "lin", "type", self._type, res="int", dataOnly=True),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
@@ -2835,14 +2733,6 @@ class IRPulse(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setType(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMapFreq(self._freq),
-            SLMap(20.0, 10000.0, "log", "bw", self._bw),
-            SLMap(0, 3, "lin", "type", self._type, res="int", dataOnly=True),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def input(self):
         """PyoObject. Input signal to process."""
@@ -3016,14 +2906,6 @@ class IRFM(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setIndex(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(20.0, 10000.0, "log", "carrier", self._carrier),
-            SLMap(0.01, 4.0, "log", "ratio", self._ratio),
-            SLMap(0.0, 20.0, "lin", "index", self._index),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def input(self):
         """PyoObject. Input signal to process."""
@@ -3176,15 +3058,6 @@ class SVF(PyoObject):
         self._type = x
         x, lmax = convertArgsToLists(x)
         [obj.setType(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(20, 7350, "log", "freq", self._freq),
-            SLMap(0.5, 10, "log", "q", self._q),
-            SLMap(0, 1, "lin", "type", self._type),
-            SLMapMul(self._mul),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
@@ -3418,16 +3291,6 @@ class SVF2(PyoObject):
         self._order = x
         [obj.setOrder(x) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMapFreq(self._freq),
-            SLMap(0.5, 20, "log", "q", self._q),
-            SLMap(-24, 24, "lin", "shelf", self._shelf),
-            SLMap(0, 10, "lin", "type", self._type),
-            SLMapMul(self._mul),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def input(self):
         """PyoObject. Input signal to process."""
@@ -3553,10 +3416,6 @@ class Average(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setSize(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(2, 256, "lin", "size", self._size, res="int", dataOnly=True), SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def input(self):
         """PyoObject. Input signal to process."""
@@ -3664,10 +3523,6 @@ class Reson(PyoObject):
         self._q = x
         x, lmax = convertArgsToLists(x)
         [obj.setQ(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapFreq(self._freq), SLMapQ(self._q), SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
@@ -3808,10 +3663,6 @@ class Resonx(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setStages(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapFreq(self._freq), SLMapQ(self._q), SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def input(self):
         """PyoObject. Input signal to process."""
@@ -3917,10 +3768,6 @@ class ButLP(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapFreq(self._freq), SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def input(self):
         """PyoObject. Input signal to process."""
@@ -4007,10 +3854,6 @@ class ButHP(PyoObject):
         self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapFreq(self._freq), SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
@@ -4117,10 +3960,6 @@ class ButBP(PyoObject):
         self._q = x
         x, lmax = convertArgsToLists(x)
         [obj.setQ(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapFreq(self._freq), SLMap(1, 100, "log", "q", self._q), SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
@@ -4237,10 +4076,6 @@ class ButBR(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setQ(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapFreq(self._freq), SLMap(1, 100, "log", "q", self._q), SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def input(self):
         """PyoObject. Input signal to process."""
@@ -4355,10 +4190,6 @@ class MoogLP(PyoObject):
         self._res = x
         x, lmax = convertArgsToLists(x)
         [obj.setRes(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapFreq(self._freq), SLMap(0.0, 1.0, "lin", "res", self._res), SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
@@ -4476,10 +4307,6 @@ class ComplexRes(PyoObject):
         self._decay = x
         x, lmax = convertArgsToLists(x)
         [obj.setDecay(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapFreq(self._freq), SLMap(0.0001, 10, "log", "decay", self._decay), SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):

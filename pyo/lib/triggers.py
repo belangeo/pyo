@@ -28,8 +28,6 @@ You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 from ._core import *
-from ._maps import *
-from ._widgets import createGraphWindow
 import weakref
 
 
@@ -155,10 +153,6 @@ class Metro(PyoObject):
 
     def setDiv(self, x):
         pass
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0.001, 1.0, "log", "time", self._time)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def time(self):
@@ -311,10 +305,6 @@ class Seq(PyoObject):
     def setDiv(self, x):
         pass
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0.001, 10.0, "log", "time", self._time)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def time(self):
         """float or PyoObject. Base time between each trigger in seconds."""
@@ -429,10 +419,6 @@ class Cloud(PyoObject):
 
     def setDiv(self, x):
         pass
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0, 100.0, "lin", "density", self._density)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def density(self):
@@ -804,16 +790,6 @@ class Beat(PyoObject):
     def setDiv(self, x):
         pass
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(0.001, 1.0, "lin", "time", self._time),
-            SLMap(2, 64, "lin", "taps", self._taps, res="int", dataOnly=True),
-            SLMap(0, 100, "lin", "w1", self._w1, res="int", dataOnly=True),
-            SLMap(0, 100, "lin", "w2", self._w2, res="int", dataOnly=True),
-            SLMap(0, 100, "lin", "w3", self._w3, res="int", dataOnly=True),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def time(self):
         """float or PyoObject. Time, in seconds, between each beat."""
@@ -947,10 +923,6 @@ class TrigRandInt(PyoObject):
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(1.0, 200.0, "lin", "max", self._max), SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def input(self):
         """PyoObject. Audio trigger signal."""
@@ -1083,14 +1055,6 @@ class TrigRand(PyoObject):
         self._port = x
         x, lmax = convertArgsToLists(x)
         [obj.setPort(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(0.0, 1.0, "lin", "min", self._min),
-            SLMap(1.0, 2.0, "lin", "max", self._max),
-            SLMapMul(self._mul),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
@@ -1516,10 +1480,6 @@ class TrigEnv(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setInterp(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0.01, 10.0, "lin", "dur", self._dur), SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def input(self):
         """PyoObject. Audio trigger signal."""
@@ -1651,54 +1611,6 @@ class TrigLinseg(PyoObject):
 
     def getPoints(self):
         return self._list
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
-    def graph(self, xlen=None, yrange=None, title=None, wxnoserver=False):
-        """
-        Opens a grapher window to control the shape of the envelope.
-
-        When editing the grapher with the mouse, the new set of points
-        will be send to the object on mouse up.
-
-        Ctrl+C with focus on the grapher will copy the list of points to the
-        clipboard, giving an easy way to insert the new shape in a script.
-
-        :Args:
-
-            xlen: float, optional
-                Set the maximum value of the X axis of the graph. If None, the
-                maximum value is retrieve from the current list of points.
-                Defaults to None.
-            yrange: tuple, optional
-                Set the min and max values of the Y axis of the graph. If
-                None, min and max are retrieve from the current list of points.
-                Defaults to None.
-            title: string, optional
-                Title of the window. If none is provided, the name of the
-                class is used.
-            wxnoserver: boolean, optional
-                With wxPython graphical toolkit, if True, tells the
-                interpreter that there will be no server window.
-
-        If `wxnoserver` is set to True, the interpreter will not wait for
-        the server GUI before showing the controller window.
-
-        """
-        if xlen is None:
-            xlen = float(self._list[-1][0])
-        else:
-            xlen = float(xlen)
-        if yrange is None:
-            ymin = float(min([x[1] for x in self._list]))
-            ymax = float(max([x[1] for x in self._list]))
-            if ymin == ymax:
-                yrange = (0, ymax)
-            else:
-                yrange = (ymin, ymax)
-        createGraphWindow(self, 0, xlen, yrange, title, wxnoserver)
 
     @property
     def input(self):
@@ -1854,54 +1766,6 @@ class TrigExpseg(PyoObject):
 
     def getPoints(self):
         return self._list
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
-    def graph(self, xlen=None, yrange=None, title=None, wxnoserver=False):
-        """
-        Opens a grapher window to control the shape of the envelope.
-
-        When editing the grapher with the mouse, the new set of points
-        will be send to the object on mouse up.
-
-        Ctrl+C with focus on the grapher will copy the list of points to the
-        clipboard, giving an easy way to insert the new shape in a script.
-
-        :Args:
-
-            xlen: float, optional
-                Set the maximum value of the X axis of the graph. If None, the
-                maximum value is retrieve from the current list of points.
-                Defaults to None.
-            yrange: tuple, optional
-                Set the min and max values of the Y axis of the graph. If
-                None, min and max are retrieve from the current list of points.
-                Defaults to None.
-            title: string, optional
-                Title of the window. If none is provided, the name of the
-                class is used.
-            wxnoserver: boolean, optional
-                With wxPython graphical toolkit, if True, tells the
-                interpreter that there will be no server window.
-
-        If `wxnoserver` is set to True, the interpreter will not wait for
-        the server GUI before showing the controller window.
-
-        """
-        if xlen is None:
-            xlen = float(self._list[-1][0])
-        else:
-            xlen = float(xlen)
-        if yrange is None:
-            ymin = float(min([x[1] for x in self._list]))
-            ymax = float(max([x[1] for x in self._list]))
-            if ymin == ymax:
-                yrange = (0, ymax)
-            else:
-                yrange = (ymin, ymax)
-        createGraphWindow(self, 2, xlen, yrange, title, wxnoserver)
 
     @property
     def input(self):
@@ -2113,15 +1977,6 @@ class TrigXnoise(PyoObject):
         self._x2 = x
         x, lmax = convertArgsToLists(x)
         [obj.setX2(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(0, 12, "lin", "dist", self._dist, res="int", dataOnly=True),
-            SLMap(0.01, 10.0, "log", "x1", self._x1, dataOnly=True),
-            SLMap(0.01, 10.0, "log", "x2", self._x2, dataOnly=True),
-            SLMapMul(self._mul),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
@@ -2395,15 +2250,6 @@ class TrigXnoiseMidi(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setX2(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(0, 12, "lin", "dist", self._dist, res="int", dataOnly=True),
-            SLMap(0.01, 10.0, "log", "x1", self._x1, dataOnly=True),
-            SLMap(0.01, 10.0, "log", "x2", self._x2, dataOnly=True),
-            SLMapMul(self._mul),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def input(self):
         """PyoObject. Audio trigger signal."""
@@ -2588,16 +2434,6 @@ class Counter(PyoObject):
         value, lmax = convertArgsToLists(value)
         [obj.reset(wrap(value, i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(0, 100, "lin", "min", self._min, res="int", dataOnly=True),
-            SLMap(0, 1000, "lin", "max", self._max, res="int", dataOnly=True),
-            SLMap(0, 2, "lin", "dir", self._dir, res="int", dataOnly=True),
-            SLMap(0, 1000, "lin", "mul", self._mul),
-            SLMap(0, 1000, "lin", "add", self._add),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def input(self):
         """PyoObject. Audio trigger signal."""
@@ -2718,10 +2554,6 @@ class Select(PyoObject):
         self._value = x
         x, lmax = convertArgsToLists(x)
         [obj.setValue(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0, 100, "lin", "value", self._value, res="int", dataOnly=True)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
@@ -3020,10 +2852,6 @@ class Percent(PyoObject):
         self._percent = x
         x, lmax = convertArgsToLists(x)
         [obj.setPercent(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0.0, 100.0, "lin", "percent", self._percent)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
@@ -3389,14 +3217,6 @@ class Count(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setMax(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(0, 10000, "lin", "min", self._min, res="int", dataOnly=True),
-            SLMap(10000, 1000000, "lin", "max", self._max, res="int", dataOnly=True),
-            SLMapMul(self._mul),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def input(self):
         """PyoObject. Trigger signal. Start/Restart the count."""
@@ -3601,10 +3421,6 @@ class TrigVal(PyoObject):
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0.0, 1.0, "lin", "value", self._value), SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
@@ -3863,14 +3679,6 @@ class Euclide(PyoObject):
 
     def setDiv(self, x):
         pass
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(0.01, 1.0, "lin", "time", self._time),
-            SLMap(2, 64, "lin", "taps", self._taps, res="int", dataOnly=True),
-            SLMap(0, 64, "lin", "onsets", self._onsets, res="int", dataOnly=True),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def time(self):
@@ -4145,15 +3953,6 @@ class TrigBurst(PyoObject):
 
     def setDiv(self, x):
         pass
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(0.1, 1.0, "lin", "time", self._time, dataOnly=True),
-            SLMap(2, 128, "lin", "count", self._count, res="int", dataOnly=True),
-            SLMap(0.5, 2.0, "lin", "expand", self._expand, dataOnly=True),
-            SLMap(0.5, 1.0, "lin", "ampfade", self._ampfade, dataOnly=True),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):

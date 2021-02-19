@@ -26,7 +26,6 @@ License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 from ._core import *
-from ._maps import *
 from .generators import Sine
 from .filters import Hilbert
 
@@ -133,14 +132,6 @@ class Disto(PyoObject):
         self._slope = x
         x, lmax = convertArgsToLists(x)
         [obj.setSlope(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(0.0, 1.0, "lin", "drive", self._drive),
-            SLMap(0.0, 0.999, "lin", "slope", self._slope),
-            SLMapMul(self._mul),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
@@ -279,14 +270,6 @@ class Delay(PyoObject):
         """
         [obj.reset() for obj in self._base_objs]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(0.001, self._maxdelay, "log", "delay", self._delay),
-            SLMap(0.0, 1.0, "lin", "feedback", self._feedback),
-            SLMapMul(self._mul),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def input(self):
         """PyoObject. Input signal to delayed."""
@@ -395,10 +378,6 @@ class SDelay(PyoObject):
 
         """
         [obj.reset() for obj in self._base_objs]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0.0001, self._maxdelay, "log", "delay", self._delay), SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
@@ -520,10 +499,6 @@ class Waveguide(PyoObject):
 
         """
         [obj.reset() for obj in self._base_objs]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(10, 500.0, "log", "freq", self._freq), SLMapDur(self._dur), SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
@@ -686,15 +661,6 @@ class AllpassWG(PyoObject):
         """
         [obj.reset() for obj in self._base_objs]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(20.0, 500.0, "log", "freq", self._freq),
-            SLMap(0.0, 1.0, "lin", "feed", self._feed),
-            SLMap(0.0, 1.0, "lin", "detune", self._detune),
-            SLMapMul(self._mul),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def input(self):
         """PyoObject. Input signal to process."""
@@ -851,15 +817,6 @@ class Freeverb(PyoObject):
 
         """
         [obj.reset() for obj in self._base_objs]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(0.0, 1.0, "lin", "size", self._size),
-            SLMap(0.0, 1.0, "lin", "damp", self._damp),
-            SLMap(0.0, 1.0, "lin", "bal", self._bal),
-            SLMapMul(self._mul),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
@@ -1129,15 +1086,6 @@ class WGVerb(PyoObject):
         """
         [obj.reset() for obj in self._base_objs]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(0.0, 1.0, "lin", "feedback", self._feedback),
-            SLMap(500.0, 15000.0, "log", "cutoff", self._cutoff),
-            SLMap(0.0, 1.0, "lin", "bal", self._bal),
-            SLMapMul(self._mul),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def input(self):
         """PyoObject. Input signal to process."""
@@ -1289,15 +1237,6 @@ class Chorus(PyoObject):
         """
         [obj.reset() for obj in self._base_objs]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(0.0, 5.0, "lin", "depth", self._depth),
-            SLMap(0.0, 1.0, "lin", "feedback", self._feedback),
-            SLMap(0.0, 1.0, "lin", "bal", self._bal),
-            SLMapMul(self._mul),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def input(self):
         """PyoObject. Input signal to process."""
@@ -1447,15 +1386,6 @@ class Harmonizer(PyoObject):
 
         """
         [obj.reset() for obj in self._base_objs]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(-24.0, 24.0, "lin", "transpo", self._transpo),
-            SLMap(0.0, 1.0, "lin", "feedback", self._feedback),
-            SLMap(0.001, 1, "log", "winsize", self._winsize, dataOnly=True),
-            SLMapMul(self._mul),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
@@ -1744,18 +1674,6 @@ class STRev(PyoObject):
         """
         [obj.reset() for obj in self._base_players]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(0.0, 1.0, "lin", "inpos", self._inpos),
-            SLMap(0.01, 120.0, "log", "revtime", self._revtime),
-            SLMap(500.0, 15000.0, "log", "cutoff", self._cutoff),
-            SLMap(0.0, 1.0, "lin", "bal", self._bal),
-            SLMap(0.25, 4.0, "lin", "roomSize", self._roomSize, dataOnly=True),
-            SLMap(-48, 12, "lin", "firstRefGain", self._firstRefGain, dataOnly=True),
-            SLMapMul(self._mul),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def input(self):
         """PyoObject. Input signal to process."""
@@ -1958,15 +1876,6 @@ class SmoothDelay(PyoObject):
         """
         [obj.reset() for obj in self._base_objs]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(0.001, self._maxdelay, "log", "delay", self._delay),
-            SLMap(0.0, 1.0, "lin", "feedback", self._feedback),
-            SLMap(0.0, self._maxdelay, "lin", "crossfade", self._crossfade, dataOnly=True),
-            SLMapMul(self._mul),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def input(self):
         """PyoObject. Input signal to delayed."""
@@ -2114,10 +2023,6 @@ class FreqShift(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x, i)) for i, obj in enumerate(self._sin_objs)]
         [obj.setFreq(wrap(x, i)) for i, obj in enumerate(self._cos_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(-2000.0, 2000.0, "lin", "shift", self._shift), SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):

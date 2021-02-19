@@ -328,8 +328,6 @@ License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 
 import os, sys
 from ._core import *
-from ._maps import *
-from ._widgets import createExprEditorWindow
 
 class Expr(PyoObject):
     """
@@ -607,25 +605,6 @@ class Expr(PyoObject):
         x = self._replace(x, _defined)
         x = x.strip()
         return x
-
-    def editor(self, title="Expr Editor", wxnoserver=False):
-        """
-        Opens the text editor for this object.
-
-        :Args:
-
-            title: string, optional
-                Title of the window. If none is provided, the name of the
-                class is used.
-            wxnoserver: boolean, optional
-                With wxPython graphical toolkit, if True, tells the
-                interpreter that there will be no server window.
-
-        If `wxnoserver` is set to True, the interpreter will not wait for
-        the server GUI before showing the controller window.
-
-        """
-        createExprEditorWindow(self, title, wxnoserver)
 
     @property
     def input(self):

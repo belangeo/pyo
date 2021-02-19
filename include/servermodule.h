@@ -1,5 +1,5 @@
 /**************************************************************************
- * Copyright 2009-2015 Olivier Belanger                                   *
+ * Copyright 2009-2021 Olivier Belanger                                   *
  *                                                                        *
  * This file is part of pyo, a python module to help digital signal       *
  * processing script creation.                                            *
@@ -30,26 +30,10 @@ extern "C" {
 
 #include "pyomodule.h"
 
-typedef enum
-{
-    PyoPortaudio = 0,
-    PyoCoreaudio = 1,
-    PyoJack,
-    PyoOffline,
-    PyoOfflineNB,
-    PyoEmbedded,
-    PyoManual
-} PyoAudioBackendType;
-
-/************************************************/
-
 typedef struct
 {
     PyObject_HEAD
     PyObject *streams;
-    PyoAudioBackendType audio_be_type;
-    void *audio_be_data;
-    char *serverName; /* Only used for jack client name */
     double samplingRate;
     int nchnls;
     int ichnls;
@@ -57,44 +41,22 @@ typedef struct
     int currentResampling;
     int lastResampling;
     int duplex;
-    int input;
-    int output;
-    int input_offset;
-    int output_offset;
     int server_started;
-    int server_stopped; /* for fadeout */
     int server_booted;
     int stream_count;
-    int record;
     int thisServerID;       /* To keep the reference index in the array of servers */
 
-    /* global amplitude */
-    MYFLT amp;
-    MYFLT resetAmp;
-    MYFLT lastAmp;
-    MYFLT currentAmp;
-    MYFLT stepVal;
-    int timeStep;
-    int timeCount;
-
     MYFLT *input_buffer;
-    float *output_buffer; /* Has to be float since audio callbacks must use floats */
+    float *output_buffer;   /* Has to be float since audio callbacks must use floats */
 
-    /* rendering offline of the first "startoffset" seconds */
-    double startoffset;
+    PyObject *CALLBACK;     /* Custom callback */
 
-    /* custom callback */
-    PyObject *CALLBACK;
+    float globalDur;        /* Global duration */
+    float globalDel;        /* Global delay */
 
-    /* Globals dur and del times. */
-    float globalDur;
-    float globalDel;
-
-    /* Properties */
-    int verbosity; /* a sum of values to display different levels: 1 = error */
-    /* 2 = message, 4 = warning , 8 = debug. Default 7.*/
-    int globalSeed; /* initial seed for random objects. If <= 0, objects are seeded with the clock. */
-    int autoStartChildren; /* if true, calls to play, out and stop propagate to children objects. */
+    int verbosity;          /* Logging levels: 1 = error, 2 = message, 4 = warning , 8 = debug. Default 7.*/
+    int globalSeed;         /* initial seed for random objects. If <= 0, objects are seeded with the clock. */
+    int autoStartChildren;  /* if true, calls to play, out and stop propagate to children objects. */
 } Server;
 
 PyObject * PyServer_get_server();

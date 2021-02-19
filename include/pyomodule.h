@@ -105,9 +105,6 @@ typedef Py_ssize_t T_SIZE_T;
 #define TYPE__FFFFIFI "|ffffifi"
 #define TYPE__FFFFIFN "|ffffifn"
 
-#define SF_WRITE sf_write_float
-#define SF_READ sf_read_float
-
 #define MYSQRT sqrtf
 #define MYLOG logf
 #define MYLOG2 log2f
@@ -201,9 +198,6 @@ typedef Py_ssize_t T_SIZE_T;
 #define TYPE__FFFFIFI "|ddddidi"
 #define TYPE__FFFFIFN "|ddddidn"
 
-#define SF_WRITE sf_write_double
-#define SF_READ sf_read_double
-
 #define MYSQRT sqrt
 #define MYLOG log
 #define MYLOG2 log2
@@ -229,20 +223,6 @@ typedef Py_ssize_t T_SIZE_T;
 #include "externalmodule.h"
 #endif
 
-#ifdef USE_PORTMIDI
-extern PyTypeObject MidiListenerType;
-extern PyTypeObject MidiDispatcherType;
-#endif
-#ifdef USE_OSC
-extern PyTypeObject OscListenerType;
-extern PyTypeObject OscSendType;
-extern PyTypeObject OscReceiveType;
-extern PyTypeObject OscReceiverType;
-extern PyTypeObject OscDataSendType;
-extern PyTypeObject OscDataReceiveType;
-extern PyTypeObject OscListReceiveType;
-extern PyTypeObject OscListReceiverType;
-#endif
 extern PyTypeObject SineType;
 extern PyTypeObject FastSineType;
 extern PyTypeObject SineLoopType;
@@ -344,17 +324,6 @@ extern PyTypeObject GranulatorType;
 extern PyTypeObject LooperType;
 extern PyTypeObject LooperTimeStreamType;
 extern PyTypeObject HarmonizerType;
-extern PyTypeObject MidictlType;
-extern PyTypeObject CtlScanType;
-extern PyTypeObject CtlScan2Type;
-extern PyTypeObject MidiNoteType;
-extern PyTypeObject NoteinType;
-extern PyTypeObject NoteinTrigType;
-extern PyTypeObject BendinType;
-extern PyTypeObject TouchinType;
-extern PyTypeObject PrograminType;
-extern PyTypeObject MidiAdsrType;
-extern PyTypeObject MidiDelAdsrType;
 extern PyTypeObject DummyType;
 extern PyTypeObject TriggerDummyType;
 extern PyTypeObject ControlRecType;
@@ -521,7 +490,6 @@ extern PyTypeObject ParticleType;
 extern PyTypeObject MainParticle2Type;
 extern PyTypeObject Particle2Type;
 extern PyTypeObject AtanTableType;
-extern PyTypeObject RawMidiType;
 extern PyTypeObject ResampleType;
 extern PyTypeObject ExprerType;
 extern PyTypeObject ExprType;
@@ -532,7 +500,6 @@ extern PyTypeObject TableFillType;
 extern PyTypeObject TableScanType;
 extern PyTypeObject ExpandType;
 extern PyTypeObject RMSType;
-extern PyTypeObject MidiLinsegType;
 extern PyTypeObject MultiBandMainType;
 extern PyTypeObject MultiBandType;
 extern PyTypeObject M_DivType;
@@ -982,6 +949,7 @@ extern PyTypeObject MMLZStreamType;
  \
     return samples;
 
+// TODO: remove...
 #define GET_VIEW_TABLE \
     int i, y, w, h, h2, amp; \
     float step; \
@@ -2049,21 +2017,6 @@ extern PyTypeObject MMLZStreamType;
     }
 
 /* Tables buffer protocol. */
-#if PY_MAJOR_VERSION < 3
-#define TABLESTREAM_READ_WRITE_BUFFER \
-    if ( index != 0 ) { \
-        PySys_WriteStdout("Pyo error: Table buffer, accessing non-existent bytes segment."); \
-        return -1; \
-    } \
-    *ptr = (void *)self->data; \
-    return (Py_ssize_t)self->size * sizeof(MYFLT);
-
-#define TABLESTREAM_SEG_COUNT \
-    if ( lenp ) \
-        *lenp = (Py_ssize_t)self->size * sizeof(MYFLT); \
-    return 1;
-#endif
-
 #define TABLESTREAM_GET_BUFFER \
     if (view == NULL) { \
         PySys_WriteStdout("Pyo error: Table buffer, NULL view in getBuffer."); \

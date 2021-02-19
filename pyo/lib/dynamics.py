@@ -25,7 +25,6 @@ License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 from ._core import *
-from ._maps import *
 
 
 class Clip(PyoObject):
@@ -114,14 +113,6 @@ class Clip(PyoObject):
         self._max = x
         x, lmax = convertArgsToLists(x)
         [obj.setMax(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(-1.0, 0.0, "lin", "min", self._min),
-            SLMap(0.0, 1.0, "lin", "max", self._max),
-            SLMapMul(self._mul),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
@@ -246,14 +237,6 @@ class Mirror(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setMax(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(0.0, 1.0, "lin", "min", self._min),
-            SLMap(0.0, 1.0, "lin", "max", self._max),
-            SLMapMul(self._mul),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def input(self):
         """PyoObject. Input signal to process."""
@@ -375,14 +358,6 @@ class Degrade(PyoObject):
         self._srscale = x
         x, lmax = convertArgsToLists(x)
         [obj.setSrscale(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(1.0, 32.0, "log", "bitdepth", self._bitdepth),
-            SLMap(0.0009765625, 1.0, "log", "srscale", self._srscale),
-            SLMapMul(self._mul),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
@@ -617,18 +592,6 @@ class Compress(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setKnee(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(-60.0, 0.0, "lin", "thresh", self._thresh),
-            SLMap(1.0, 10.0, "lin", "ratio", self._ratio),
-            SLMap(0.001, 0.3, "lin", "risetime", self._risetime),
-            SLMap(0.001, 0.3, "lin", "falltime", self._falltime),
-            SLMap(0, 25, "lin", "lookahead", self._lookahead, dataOnly=True),
-            SLMap(0, 1, "lin", "knee", self._knee, dataOnly=True),
-            SLMapMul(self._mul),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def input(self):
         """PyoObject. Input signal to process."""
@@ -842,16 +805,6 @@ class Gate(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setLookAhead(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(-100.0, 0.0, "lin", "thresh", self._thresh),
-            SLMap(0.0001, 0.3, "lin", "risetime", self._risetime),
-            SLMap(0.0001, 0.3, "lin", "falltime", self._falltime),
-            SLMap(0, 25, "lin", "lookahead", self._lookahead, dataOnly=True),
-            SLMapMul(self._mul),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def input(self):
         """PyoObject. Input signal to process."""
@@ -991,10 +944,6 @@ class Balance(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0.1, 100.0, "log", "freq", self._freq), SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def input(self):
         """PyoObject. Input signal to process."""
@@ -1087,10 +1036,6 @@ class Min(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setComp(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0, 1, "lin", "comp", self._comp), SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def input(self):
         """PyoObject. Input signal to process."""
@@ -1173,10 +1118,6 @@ class Max(PyoObject):
         self._comp = x
         x, lmax = convertArgsToLists(x)
         [obj.setComp(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0, 1, "lin", "comp", self._comp), SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
@@ -1419,18 +1360,6 @@ class Expand(PyoObject):
         self._lookahead = x
         x, lmax = convertArgsToLists(x)
         [obj.setLookAhead(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(-90.0, 0.0, "lin", "downthresh", self._downthresh),
-            SLMap(-60.0, 0.0, "lin", "upthresh", self._upthresh),
-            SLMap(1.0, 10.0, "lin", "ratio", self._ratio),
-            SLMap(0.001, 0.3, "lin", "risetime", self._risetime),
-            SLMap(0.001, 0.3, "lin", "falltime", self._falltime),
-            SLMap(0, 25, "lin", "lookahead", self._lookahead, dataOnly=True),
-            SLMapMul(self._mul),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):

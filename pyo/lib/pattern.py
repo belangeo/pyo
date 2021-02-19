@@ -25,7 +25,6 @@ You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 from ._core import *
-from ._maps import *
 
 
 class Pattern(PyoObject):
@@ -144,10 +143,6 @@ class Pattern(PyoObject):
 
     def setDiv(self, x):
         pass
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0.125, 4.0, "lin", "time", self._time)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def function(self):

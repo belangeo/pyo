@@ -1094,20 +1094,6 @@ init_pyo64(void)
 #endif
 
     module_add_object(m, "Server_base", &ServerType);
-#ifdef USE_PORTMIDI
-    module_add_object(m, "MidiListener_base", &MidiListenerType);
-    module_add_object(m, "MidiDispatcher_base", &MidiDispatcherType);
-#endif
-#ifdef USE_OSC
-    module_add_object(m, "OscListener_base", &OscListenerType);
-    module_add_object(m, "OscSend_base", &OscSendType);
-    module_add_object(m, "OscDataSend_base", &OscDataSendType);
-    module_add_object(m, "OscReceive_base", &OscReceiveType);
-    module_add_object(m, "OscReceiver_base", &OscReceiverType);
-    module_add_object(m, "OscListReceive_base", &OscListReceiveType);
-    module_add_object(m, "OscListReceiver_base", &OscListReceiverType);
-    module_add_object(m, "OscDataReceive_base", &OscDataReceiveType);
-#endif
     module_add_object(m, "Stream", &StreamType);
     module_add_object(m, "TriggerStream", &TriggerStreamType);
     module_add_object(m, "PVStream", &PVStreamType);
@@ -1232,17 +1218,6 @@ init_pyo64(void)
     module_add_object(m, "SDelay_base", &SDelayType);
     module_add_object(m, "Waveguide_base", &WaveguideType);
     module_add_object(m, "AllpassWG_base", &AllpassWGType);
-    module_add_object(m, "Midictl_base", &MidictlType);
-    module_add_object(m, "CtlScan_base", &CtlScanType);
-    module_add_object(m, "CtlScan2_base", &CtlScan2Type);
-    module_add_object(m, "MidiNote_base", &MidiNoteType);
-    module_add_object(m, "Notein_base", &NoteinType);
-    module_add_object(m, "NoteinTrig_base", &NoteinTrigType);
-    module_add_object(m, "Bendin_base", &BendinType);
-    module_add_object(m, "Touchin_base", &TouchinType);
-    module_add_object(m, "Programin_base", &PrograminType);
-    module_add_object(m, "MidiAdsr_base", &MidiAdsrType);
-    module_add_object(m, "MidiDelAdsr_base", &MidiDelAdsrType);
     module_add_object(m, "TrigRand_base", &TrigRandType);
     module_add_object(m, "TrigRandInt_base", &TrigRandIntType);
     module_add_object(m, "TrigVal_base", &TrigValType);
@@ -1391,7 +1366,6 @@ init_pyo64(void)
     module_add_object(m, "MainParticle2_base", &MainParticle2Type);
     module_add_object(m, "Particle2_base", &Particle2Type);
     module_add_object(m, "AtanTable_base", &AtanTableType);
-    module_add_object(m, "RawMidi_base", &RawMidiType);
     module_add_object(m, "Resample_base", &ResampleType);
     module_add_object(m, "Exprer_base", &ExprerType);
     module_add_object(m, "Expr_base", &ExprType);
@@ -1402,7 +1376,6 @@ init_pyo64(void)
     module_add_object(m, "TableScan_base", &TableScanType);
     module_add_object(m, "Expand_base", &ExpandType);
     module_add_object(m, "RMS_base", &RMSType);
-    module_add_object(m, "MidiLinseg_base", &MidiLinsegType);
     module_add_object(m, "MultiBandMain_base", &MultiBandMainType);
     module_add_object(m, "MultiBand_base", &MultiBandType);
     module_add_object(m, "M_Div_base", &M_DivType);

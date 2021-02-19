@@ -27,7 +27,6 @@ You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 from ._core import *
-from ._maps import *
 
 
 class Osc(PyoObject):
@@ -143,15 +142,6 @@ class Osc(PyoObject):
 
         """
         [obj.reset() for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMapFreq(self._freq),
-            SLMapPhase(self._phase),
-            SLMap(1, 4, "lin", "interp", self._interp, res="int", dataOnly=True),
-            SLMapMul(self._mul),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def table(self):
@@ -280,10 +270,6 @@ class OscLoop(PyoObject):
         self._feedback = x
         x, lmax = convertArgsToLists(x)
         [obj.setFeedback(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapFreq(self._freq), SLMap(0, 1, "lin", "feedback", self._feedback), SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def table(self):
@@ -457,15 +443,6 @@ class OscTrig(PyoObject):
 
         """
         [obj.reset() for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMapFreq(self._freq),
-            SLMapPhase(self._phase),
-            SLMap(1, 4, "lin", "interp", self._interp, res="int", dataOnly=True),
-            SLMapMul(self._mul),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def table(self):
@@ -762,19 +739,6 @@ class OscBank(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setFjit(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(0.001, 15000, "log", "freq", self._freq),
-            SLMap(0.001, 2, "log", "spread", self._spread),
-            SLMap(0, 1, "lin", "slope", self._slope),
-            SLMap(0.001, 20, "log", "frndf", self._frndf),
-            SLMap(0, 1, "lin", "frnda", self._frnda),
-            SLMap(0.001, 20, "log", "arndf", self._arndf),
-            SLMap(0, 1, "lin", "arnda", self._arnda),
-            SLMapMul(self._mul),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def table(self):
         """PyoTableObject. Table containing the waveform samples."""
@@ -1003,15 +967,6 @@ class TableRead(PyoObject):
         """
         [obj.reset() for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(0.0001, 1000, "log", "freq", self._freq),
-            SLMap(0, 1, "lin", "loop", self._loop, res="int", dataOnly=True),
-            SLMap(1, 4, "lin", "interp", self._interp, res="int", dataOnly=True),
-            SLMapMul(self._mul),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def table(self):
         """PyoTableObject. Table containing the waveform samples."""
@@ -1217,16 +1172,6 @@ class Pulsar(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setInterp(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMapFreq(self._freq),
-            SLMap(0.0, 1.0, "lin", "frac", self._frac),
-            SLMapPhase(self._phase),
-            SLMap(1, 4, "lin", "interp", self._interp, res="int", dataOnly=True),
-            SLMapMul(self._mul),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def table(self):
         """PyoTableObject. Table containing the waveform samples."""
@@ -1344,10 +1289,6 @@ class Pointer(PyoObject):
         self._index = x
         x, lmax = convertArgsToLists(x)
         [obj.setIndex(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def table(self):
@@ -1488,10 +1429,6 @@ class Pointer2(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setAutoSmooth(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def table(self):
         """PyoTableObject. Table containing the waveform samples."""
@@ -1595,10 +1532,6 @@ class TableIndex(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setIndex(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def table(self):
         """PyoTableObject. Table containing the samples."""
@@ -1684,10 +1617,6 @@ class Lookup(PyoObject):
         self._index = x
         x, lmax = convertArgsToLists(x)
         [obj.setIndex(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def table(self):
@@ -2315,16 +2244,6 @@ class Granulator(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setBaseDur(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(0.1, 2.0, "lin", "pitch", self._pitch),
-            SLMap(0.01, 1.0, "lin", "dur", self._dur),
-            SLMap(1, 256, "lin", "grains", self._grains, res="int", dataOnly=True),
-            SLMap(0.001, 1, "log", "basedur", self._basedur, dataOnly=True),
-            SLMapMul(self._mul),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def table(self):
         """PyoTableObject. Table containing the waveform samples."""
@@ -2923,19 +2842,6 @@ class Looper(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.fadeInSeconds(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(0.1, 2.0, "lin", "pitch", self._pitch),
-            SLMap(0.0, self._table.getDur(), "lin", "start", self._start),
-            SLMap(0.01, self._table.getDur(), "lin", "dur", self._dur),
-            SLMap(1, 50, "lin", "xfade", self._xfade),
-            SLMap(0, 3, "lin", "mode", self._mode, res="int", dataOnly=True),
-            SLMap(0, 2, "lin", "xfadeshape", self._xfadeshape, res="int", dataOnly=True),
-            SLMap(1, 4, "lin", "interp", self._interp, res="int", dataOnly=True),
-            SLMapMul(self._mul),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def table(self):
         """PyoTableObject. Table containing the waveform samples."""
@@ -3451,15 +3357,6 @@ class Granule(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setSync(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [
-            SLMap(1, 250, "lin", "dens", self._dens),
-            SLMap(0.25, 2.0, "lin", "pitch", self._pitch),
-            SLMap(0.001, 2.0, "lin", "dur", self._dur),
-            SLMapMul(self._mul),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def table(self):
         """PyoTableObject. Table containing the waveform samples."""
@@ -3586,10 +3483,6 @@ class TableScale(PyoObject):
         self._outtable = x
         x, lmax = convertArgsToLists(x)
         [obj.setOuttable(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapMul(self._mul), SLMap(0, 1, "lin", "add", self._add)]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def table(self):
@@ -3825,19 +3718,6 @@ class Particle(PyoObject):
         self._pan = x
         x, lmax = convertArgsToLists(x)
         [obj.setPan(wrap(x, i)) for i, obj in enumerate(self._base_players)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        tablesize = self._table.getSize(False)
-        self._map_list = [
-            SLMap(1, 250, "lin", "dens", self._dens),
-            SLMap(0.25, 2.0, "lin", "pitch", self._pitch),
-            SLMap(0, tablesize, "lin", "pos", self._pos, res="int"),
-            SLMap(0.001, 1.0, "lin", "dur", self._dur),
-            SLMap(0.0, 1.0, "lin", "dev", self._dev),
-            SLMap(0.0, 1.0, "lin", "pan", self._pan),
-            SLMapMul(self._mul),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def table(self):
@@ -4252,22 +4132,6 @@ class Particle2(PyoObject):
         self._filtertype = x
         x, lmax = convertArgsToLists(x)
         [obj.setFiltertype(wrap(x, i)) for i, obj in enumerate(self._base_players)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        tablesize = self._table.getSize(False)
-        self._map_list = [
-            SLMap(1, 250, "lin", "dens", self._dens),
-            SLMap(0.25, 2.0, "lin", "pitch", self._pitch),
-            SLMap(0, tablesize, "lin", "pos", self._pos, res="int"),
-            SLMap(0.001, 1.0, "lin", "dur", self._dur),
-            SLMap(0.0, 1.0, "lin", "dev", self._dev),
-            SLMap(0.0, 1.0, "lin", "pan", self._pan),
-            SLMap(50.0, 18000.0, "log", "filterfreq", self._filterfreq),
-            SLMap(0.25, 100.0, "log", "filterq", self._filterq),
-            SLMap(0, 4.0, "lin", "filtertype", self._filtertype, res="int"),
-            SLMapMul(self._mul),
-        ]
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def table(self):

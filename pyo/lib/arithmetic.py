@@ -24,7 +24,6 @@ License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 from ._core import *
-from ._maps import *
 
 
 class Sin(PyoObject):

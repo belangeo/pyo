@@ -35,10 +35,6 @@ from .lib import generators as generators
 from .lib.generators import *
 from .lib import arithmetic as arithmetic
 from .lib.arithmetic import *
-from .lib import midi as midi
-from .lib.midi import *
-from .lib import opensndctrl as opensndctrl
-from .lib.opensndctrl import *
 from .lib import pan as pan
 from .lib.pan import *
 from .lib import pattern as pattern
@@ -46,9 +42,6 @@ from .lib.pattern import *
 from .lib import randoms as randoms
 from .lib.randoms import *
 from .lib.server import *
-from .lib.listener import *
-from .lib import players as players
-from .lib.players import *
 from .lib import tableprocess as tableprocess
 from .lib.tableprocess import *
 from .lib import matrixprocess as matrixprocess
@@ -66,10 +59,6 @@ from .lib.fourier import *
 from .lib import phasevoc as phasevoc
 from .lib.phasevoc import *
 from .lib._core import *
-from .lib.wxgui import *
-from .lib import wxgui as wxgui
-from .lib.hrtf import *
-from .lib import hrtf as hrtf
 from .lib.events import *
 from .lib import events as events
 from .lib.mmlmusic import *
@@ -86,7 +75,6 @@ OBJECTS_TREE = {
             "hzToMidi",
             "sampsToSec",
             "secToSamps",
-            "example",
             "class_args",
             "midiToTranspo",
             "getVersion",
@@ -108,7 +96,6 @@ OBJECTS_TREE = {
             [
                 "LinTable",
                 "NewTable",
-                "SndTable",
                 "HannTable",
                 "HarmTable",
                 "SawTable",
@@ -268,22 +255,6 @@ OBJECTS_TREE = {
                 ]
             ),
             "internals": sorted(["Dummy", "InputFader", "Mix", "VarPort"]),
-            "midi": sorted(
-                [
-                    "Midictl",
-                    "CtlScan",
-                    "CtlScan2",
-                    "Notein",
-                    "MidiAdsr",
-                    "MidiDelAdsr",
-                    "Bendin",
-                    "Touchin",
-                    "Programin",
-                    "RawMidi",
-                    "MidiLinseg",
-                ]
-            ),
-            "opensndctrl": sorted(["OscReceive", "OscSend", "OscDataSend", "OscDataReceive", "OscListReceive",]),
             "pan": sorted(["Pan", "SPan", "Switch", "Selector", "Mixer", "VoiceManager"]),
             "pattern": sorted(["Pattern", "Score", "CallAfter"]),
             "randoms": sorted(
@@ -415,21 +386,8 @@ OBJECTS_TREE = {
     },
     "Map": {"SLMap": sorted(["SLMapFreq", "SLMapMul", "SLMapPhase", "SLMapQ", "SLMapDur", "SLMapPan"])},
     "Server": [],
-    "MidiListener": [],
-    "MidiDispatcher": [],
-    "OscListener": [],
     "Stream": [],
     "TableStream": [],
-    "PyoGui": [
-        "PyoGuiControlSlider",
-        "PyoGuiVuMeter",
-        "PyoGuiGrapher",
-        "PyoGuiMultiSlider",
-        "PyoGuiSpectrum",
-        "PyoGuiScope",
-        "PyoGuiSndView",
-        "PyoGuiKeyboard",
-    ],
 }
 
 DOC_KEYWORDS = [
@@ -470,7 +428,7 @@ def getPyoKeywords():
         ["PyoObjectBase", "PyoObject", "PyoTableObject", "PyoMatrixObject", "PyoPVObject",]
     )
     _list.extend(
-        ["Server", "Map", "SLMap", "MidiListener", "OscListener", "Stream", "TableStream",]
+        ["Server", "Map", "SLMap", "Stream", "TableStream",]
     )
     return _list
 

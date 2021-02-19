@@ -19,8 +19,6 @@ You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 from ._core import *
-from ._maps import *
-from ._widgets import createGraphWindow, createDataGraphWindow, createSndViewTableWindow
 from math import pi
 import copy
 
@@ -92,41 +90,6 @@ class HarmTable(PyoTableObject):
         if self._auto_normalize:
             self.normalize()
         self.refreshView()
-
-    def _get_current_data(self):
-        # internal that returns the data to draw in a DataTableGrapher.
-        return self._list
-
-    def graph(self, yrange=(-1.0, 1.0), title=None, wxnoserver=False):
-        """
-        Opens a multislider window to control the data values.
-
-        When editing the grapher with the mouse, the new values are
-        sent to the object to replace the table content.
-
-        :Args:
-
-            yrange: tuple, optional
-                Set the min and max values of the Y axis of the multislider.
-                Defaults to (0.0, 1.0).
-            title: string, optional
-                Title of the window. If none is provided, the name of the
-                class is used.
-            wxnoserver: boolean, optional
-                With wxPython graphical toolkit, if True, tells the
-                interpreter that there will be no server window.
-
-        If `wxnoserver` is set to True, the interpreter will not wait for
-        the server GUI before showing the controller window.
-
-        .. note::
-
-            The number of bars in the graph is initialized to the length
-            of the list of relative strentghs at the time the graph is
-            created.
-
-        """
-        createDataGraphWindow(self, yrange, title, wxnoserver)
 
     @property
     def list(self):
@@ -407,41 +370,6 @@ class ChebyTable(PyoTableObject):
         else:
             data = self._base_objs[0].getNormTable(1)
         return DataTable(size=len(data), init=data).normalize()
-
-    def _get_current_data(self):
-        # internal that returns the data to draw in a DataTableGrapher.
-        return self._list
-
-    def graph(self, yrange=(-1.0, 1.0), title=None, wxnoserver=False):
-        """
-        Opens a multislider window to control the data values.
-
-        When editing the grapher with the mouse, the new values are
-        sent to the object to replace the table content.
-
-        :Args:
-
-            yrange: tuple, optional
-                Set the min and max values of the Y axis of the multislider.
-                Defaults to (0.0, 1.0).
-            title: string, optional
-                Title of the window. If none is provided, the name of the
-                class is used.
-            wxnoserver: boolean, optional
-                With wxPython graphical toolkit, if True, tells the
-                interpreter that there will be no server window.
-
-        If `wxnoserver` is set to True, the interpreter will not wait for
-        the server GUI before showing the controller window.
-
-        .. note::
-
-            The number of bars in the graph is initialized to the length
-            of the list of relative strentghs at the time the graph is
-            created.
-
-        """
-        createDataGraphWindow(self, yrange, title, wxnoserver)
 
     @property
     def list(self):
@@ -747,34 +675,6 @@ class LinTable(PyoTableObject):
         """
         return self._base_objs[0].getPoints()
 
-    def graph(self, yrange=(0.0, 1.0), title=None, wxnoserver=False):
-        """
-        Opens a grapher window to control the shape of the envelope.
-
-        When editing the grapher with the mouse, the new set of points
-        will be send to the object on mouse up.
-
-        Ctrl+C with focus on the grapher will copy the list of points to the
-        clipboard, giving an easy way to insert the new shape in a script.
-
-        :Args:
-
-            yrange: tuple, optional
-                Set the min and max values of the Y axis of the graph.
-                Defaults to (0.0, 1.0).
-            title: string, optional
-                Title of the window. If none is provided, the name of the
-                class is used.
-            wxnoserver: boolean, optional
-                With wxPython graphical toolkit, if True, tells the
-                interpreter that there will be no server window.
-
-        If `wxnoserver` is set to True, the interpreter will not wait for
-        the server GUI before showing the controller window.
-
-        """
-        createGraphWindow(self, 0, self._size, yrange, title, wxnoserver)
-
     @property
     def list(self):
         """list. List of tuples indicating location and value of each points in the table."""
@@ -883,34 +783,6 @@ class LogTable(PyoTableObject):
 
         """
         return self._base_objs[0].getPoints()
-
-    def graph(self, yrange=(0.0, 1.0), title=None, wxnoserver=False):
-        """
-        Opens a grapher window to control the shape of the envelope.
-
-        When editing the grapher with the mouse, the new set of points
-        will be send to the object on mouse up.
-
-        Ctrl+C with focus on the grapher will copy the list of points to the
-        clipboard, giving an easy way to insert the new shape in a script.
-
-        :Args:
-
-            yrange: tuple, optional
-                Set the min and max values of the Y axis of the graph.
-                Defaults to (0.0, 1.0).
-            title: string, optional
-                Title of the window. If none is provided, the name of the
-                class is used.
-            wxnoserver: boolean, optional
-                With wxPython graphical toolkit, if True, tells the
-                interpreter that there will be no server window.
-
-        If `wxnoserver` is set to True, the interpreter will not wait for
-        the server GUI before showing the controller window.
-
-        """
-        createGraphWindow(self, 4, self._size, yrange, title, wxnoserver)
 
     @property
     def list(self):
@@ -1021,34 +893,6 @@ class CosLogTable(PyoTableObject):
         """
         return self._base_objs[0].getPoints()
 
-    def graph(self, yrange=(0.0, 1.0), title=None, wxnoserver=False):
-        """
-        Opens a grapher window to control the shape of the envelope.
-
-        When editing the grapher with the mouse, the new set of points
-        will be send to the object on mouse up.
-
-        Ctrl+C with focus on the grapher will copy the list of points to the
-        clipboard, giving an easy way to insert the new shape in a script.
-
-        :Args:
-
-            yrange: tuple, optional
-                Set the min and max values of the Y axis of the graph.
-                Defaults to (0.0, 1.0).
-            title: string, optional
-                Title of the window. If none is provided, the name of the
-                class is used.
-            wxnoserver: boolean, optional
-                With wxPython graphical toolkit, if True, tells the
-                interpreter that there will be no server window.
-
-        If `wxnoserver` is set to True, the interpreter will not wait for
-        the server GUI before showing the controller window.
-
-        """
-        createGraphWindow(self, 5, self._size, yrange, title, wxnoserver)
-
     @property
     def list(self):
         """list. List of tuples indicating location and value of each points in the table."""
@@ -1156,34 +1000,6 @@ class CosTable(PyoTableObject):
 
         """
         return self._base_objs[0].getPoints()
-
-    def graph(self, yrange=(0.0, 1.0), title=None, wxnoserver=False):
-        """
-        Opens a grapher window to control the shape of the envelope.
-
-        When editing the grapher with the mouse, the new set of points
-        will be send to the object on mouse up.
-
-        Ctrl+C with focus on the grapher will copy the list of points to the
-        clipboard, giving an easy way to insert the new shape in a script.
-
-        :Args:
-
-            yrange: tuple, optional
-                Set the min and max values of the Y axis of the graph.
-                Defaults to (0.0, 1.0).
-            title: string, optional
-                Title of the window. If none is provided, the name of the
-                class is used.
-            wxnoserver: boolean, optional
-                With wxPython graphical toolkit, if True, tells the
-                interpreter that there will be no server window.
-
-        If `wxnoserver` is set to True, the interpreter will not wait for
-        the server GUI before showing the controller window.
-
-        """
-        createGraphWindow(self, 1, self._size, yrange, title, wxnoserver)
 
     @property
     def list(self):
@@ -1345,34 +1161,6 @@ class CurveTable(PyoTableObject):
 
         """
         return self._base_objs[0].getPoints()
-
-    def graph(self, yrange=(0.0, 1.0), title=None, wxnoserver=False):
-        """
-        Opens a grapher window to control the shape of the envelope.
-
-        When editing the grapher with the mouse, the new set of points
-        will be send to the object on mouse up.
-
-        Ctrl+C with focus on the grapher will copy the list of points to the
-        clipboard, giving an easy way to insert the new shape in a script.
-
-        :Args:
-
-            yrange: tuple, optional
-                Set the min and max values of the Y axis of the graph.
-                Defaults to (0.0, 1.0).
-            title: string, optional
-                Title of the window. If none is provided, the name of the
-                class is used.
-            wxnoserver: boolean, optional
-                With wxPython graphical toolkit, if True, tells the
-                interpreter that there will be no server window.
-
-        If `wxnoserver` is set to True, the interpreter will not wait for
-        the server GUI before showing the controller window.
-
-        """
-        createGraphWindow(self, 3, self._size, yrange, title, wxnoserver)
 
     @property
     def tension(self):
@@ -1537,34 +1325,6 @@ class ExpTable(PyoTableObject):
         """
         return self._base_objs[0].getPoints()
 
-    def graph(self, yrange=(0.0, 1.0), title=None, wxnoserver=False):
-        """
-        Opens a grapher window to control the shape of the envelope.
-
-        When editing the grapher with the mouse, the new set of points
-        will be send to the object on mouse up.
-
-        Ctrl+C with focus on the grapher will copy the list of points to the
-        clipboard, giving an easy way to insert the new shape in a script.
-
-        :Args:
-
-            yrange: tuple, optional
-                Set the min and max values of the Y axis of the graph.
-                Defaults to (0.0, 1.0).
-            title: string, optional
-                Title of the window. If none is provided, the name of the
-                class is used.
-            wxnoserver: boolean, optional
-                With wxPython graphical toolkit, if True, tells the
-                interpreter that there will be no server window.
-
-        If `wxnoserver` is set to True, the interpreter will not wait for
-        the server GUI before showing the controller window.
-
-        """
-        createGraphWindow(self, 2, self._size, yrange, title, wxnoserver)
-
     @property
     def exp(self):
         """float. Exponent factor."""
@@ -1715,58 +1475,6 @@ class NewTable(PyoTableObject):
         """
         return self._base_objs[0].getRate()
 
-    def getViewTable(self, size, begin=0, end=0):
-        """
-        Return a list of points (in X, Y pixel values) for each channel in the table.
-        These lists can be draw on a DC (WxPython) with a DrawLines method.
-
-        :Args:
-
-            size: tuple
-                Size, (X, Y) pixel values, of the waveform container window.
-            begin: float, optional
-                First position in the the table, in seconds, where to get samples.
-                Defaults to 0.
-            end: float, optional
-                Last position in the table, in seconds, where to get samples.
-
-                if this value is set to 0, that means the end of the table. Defaults to 0.
-
-        """
-        w, h = size
-        chnls = len(self._base_objs)
-        img = []
-        imgHeight = h // chnls
-        for i in range(chnls):
-            off = h // chnls * i
-            img.append(self._base_objs[i].getViewTable((w, imgHeight), begin, end, off))
-        return img
-
-    def view(self, title="Sound waveform", wxnoserver=False, mouse_callback=None):
-        """
-        Opens a window showing the contents of the table.
-
-        :Args:
-
-            title: string, optional
-                Window title. Defaults to "Table waveform".
-            wxnoserver: boolean, optional
-                With wxPython graphical toolkit, if True, tells the
-                interpreter that there will be no server window.
-            mouse_callback: callable
-                If provided, this function will be called with the mouse
-                position, inside the frame, as argument. Defaults to None.
-
-        If `wxnoserver` is set to True, the interpreter will not wait for
-        the server GUI before showing the controller window.
-
-        """
-        createSndViewTableWindow(self, title, wxnoserver, self.__class__.__name__, mouse_callback)
-
-    def refreshView(self):
-        if self.viewFrame is not None:
-            self.viewFrame.update()
-
     @property
     def length(self):
         """float. Length of the table in seconds."""
@@ -1894,35 +1602,6 @@ class DataTable(PyoTableObject):
 
         """
         return self._base_objs[0].getRate()
-
-    def _get_current_data(self):
-        # internal that returns the data to draw in a DataTableGrapher.
-        return self.getTable()
-
-    def graph(self, yrange=(0.0, 1.0), title=None, wxnoserver=False):
-        """
-        Opens a multislider window to control the data values.
-
-        When editing the grapher with the mouse, the new values are
-        sent to the object to replace the table content.
-
-        :Args:
-
-            yrange: tuple, optional
-                Set the min and max values of the Y axis of the multislider.
-                Defaults to (0.0, 1.0).
-            title: string, optional
-                Title of the window. If none is provided, the name of the
-                class is used.
-            wxnoserver: boolean, optional
-                With wxPython graphical toolkit, if True, tells the
-                interpreter that there will be no server window.
-
-        If `wxnoserver` is set to True, the interpreter will not wait for
-        the server GUI before showing the controller window.
-
-        """
-        createDataGraphWindow(self, yrange, title, wxnoserver)
 
     @property
     def size(self):
