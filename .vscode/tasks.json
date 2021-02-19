@@ -6,7 +6,7 @@
         {
             "label": "Compile linux (single, jack)",
             "type": "shell",
-            "command": "cd ${workspaceRoot}; sudo python3 setup.py bdist_wheel install --use-jack; sudo python3 -m pip install --force-reinstall dist/pyo-1.0.3-cp37-cp37m-linux_x86_64.whl",
+            "command": "cd ${workspaceRoot}; sudo python3 setup.py bdist_wheel --use-jack; sudo python3 -m pip install --force-reinstall dist/pyo-1.0.3-cp37-cp37m-linux_x86_64.whl",
             "problemMatcher": [],
             "presentation": {
                 "echo": true,
@@ -20,7 +20,7 @@
         {
             "label": "Compile linux (double, jack)",
             "type": "shell",
-            "command": "cd ${workspaceRoot}; sudo python3 setup.py bdist_wheel install --use-jack --use-double; sudo python3 -m pip install --force-reinstall dist/pyo-1.0.3-cp37-cp37m-linux_x86_64.whl",
+            "command": "cd ${workspaceRoot}; sudo python3 setup.py bdist_wheel --use-jack --use-double; sudo python3 -m pip install --force-reinstall dist/pyo-1.0.3-cp37-cp37m-linux_x86_64.whl",
             "problemMatcher": [],
             "presentation": {
                 "echo": true,

@@ -7,15 +7,15 @@
             "request": "launch",
             "program": "${file}",
             "console": "internalConsole",
-            "cwd": "${fileDirname}",
-    },
-    {
+            "cwd": "${fileDirname}"
+        },
+        {
             "name": "Python: Current File (Integrated Terminal with Jack)",
             "type": "python",
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
             "cwd": "${fileDirname}"
-    }
+        }
     ]
 }
