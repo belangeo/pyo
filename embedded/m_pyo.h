@@ -296,10 +296,14 @@ INLINE void pyo_end_interpreter(PyThreadState *interp) {
     PyRun_SimpleString("_s_.setServer()\n_s_.stop()\n_s_.shutdown()");
     PyEval_ReleaseThread(interp);
 
+    PyGILState_STATE state = PyGILState_Ensure();
+
     /* End the sub-interpreter. */
     PyThreadState* _ts = PyThreadState_Swap(interp);
     Py_EndInterpreter(interp);
     PyThreadState_Swap(_ts);
+
+    PyGILState_Release(state);
 
 #if !defined(_WIN32)
     if (libpython_handle != NULL) {
