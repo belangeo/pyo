@@ -355,31 +355,15 @@ Server_embedded_ni_startIdx(int idx)
     return 0;
 }
 
-void
-*Server_embedded_thread(void *arg)
-{
-    Server *self;
-    self = (Server *)arg;
-
-    Server_process_buffers(self);
-    self->midi_count = 0;
-
-    return NULL;
-}
-
 int
 Server_embedded_nb_start(Server *self)
 {
-    pthread_t offthread;
-    pthread_create(&offthread, NULL, Server_embedded_thread, self);
     return 0;
 }
 
 int
 Server_embedded_stop(Server *self)
 {
-    self->server_started = 0;
-    self->server_stopped = 1;
     return 0;
 }
 
