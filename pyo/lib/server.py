@@ -145,7 +145,7 @@ class Server(object):
         winhost="directsound",
         midi="portmidi",
     ):
-        if "PYO_SERVER_AUDIO" in os.environ and "offline" not in audio and "embedded" not in audio:
+        if "PYO_SERVER_AUDIO" in os.environ and audio not in ["offline", "offline_nb", "embedded", "manual"]:
             audio = os.environ["PYO_SERVER_AUDIO"]
         if "PYO_SERVER_MIDI" in os.environ:
             midi = os.environ["PYO_SERVER_MIDI"]
@@ -210,7 +210,7 @@ class Server(object):
             Same as in the __init__ method.
 
         """
-        if "PYO_SERVER_AUDIO" in os.environ and "offline" not in audio and "embedded" not in audio:
+        if "PYO_SERVER_AUDIO" in os.environ and audio not in ["offline", "offline_nb", "embedded", "manual"]:
             audio = os.environ["PYO_SERVER_AUDIO"]
         if "PYO_SERVER_MIDI" in os.environ:
             midi = os.environ["PYO_SERVER_MIDI"]
