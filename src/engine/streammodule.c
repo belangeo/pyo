@@ -21,10 +21,7 @@
 #include <Python.h>
 #include "structmember.h"
 #include "pyomodule.h"
-
-#define __STREAM_MODULE
 #include "streammodule.h"
-#undef __STREAM_MODULE
 
 int stream_id = 1;
 

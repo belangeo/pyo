@@ -17,6 +17,8 @@
  * You should have received a copy of the GNU Lesser General Public       *
  * License along with pyo.  If not, see <http://www.gnu.org/licenses/>.   *
  *************************************************************************/
+#ifndef _PVSTREAMMODULE_H
+#define _PVSTREAMMODULE_H
 
 #include <Python.h>
 #include "pyomodule.h"
@@ -50,13 +52,4 @@ extern PyTypeObject PVStreamType;
     (self)->fftsize = 1024; \
     (self)->olaps = 4;
 
-#ifdef __PV_STREAM_MODULE
-/* include from pvstream.c */
-
-#else
-/* include from other modules to use API */
-
-// #define Stream_setStreamObject(op, v) (((Stream *)(op))->streamobject = (v))
-
-#endif
-/* __PVSTREAMMODULE */
+#endif // _PVSTREAMMODULE_H

@@ -4061,7 +4061,7 @@ IFFTMatrix_filters(IFFTMatrix *self)
     MYFLT *ind = Stream_getData((Stream *)self->index_stream);
     MYFLT *ph = Stream_getData((Stream *)self->phase_stream);
 
-    int yWidth = MatrixStream_getHeight(self->matrix);
+    int yWidth = MatrixStream_getHeight((MatrixStream *)self->matrix);
     MYFLT yScaling = (MYFLT)yWidth / self->hsize;
 
     for (i = 0; i < self->bufsize; i++)
@@ -4071,7 +4071,7 @@ IFFTMatrix_filters(IFFTMatrix *self)
             if (self->incount < self->hsize)
             {
                 pos = 1.0 - MYSQRT((MYFLT)self->incount * yScaling / yWidth);
-                amp = MatrixStream_getInterpPointFromPos(self->matrix, ind[i], pos) * 0.5 + 0.5;
+                amp = MatrixStream_getInterpPointFromPos((MatrixStream *)self->matrix, ind[i], pos) * 0.5 + 0.5;
                 phase = ph[i] * PI;
                 real = amp * MYCOS(phase);
                 imag = amp * MYSIN(phase);

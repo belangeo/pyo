@@ -49,7 +49,7 @@ Convolve_filters(Convolve *self)
     int i, j, tmp_count;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
 
-    MYFLT *impulse = TableStream_getData(self->table);
+    MYFLT *impulse = TableStream_getData((TableStream *)self->table);
 
     for (i = 0; i < self->bufsize; i++)
     {

@@ -1585,8 +1585,8 @@ TrigEnv_readframes_i(TrigEnv *self)
     int i;
     T_SIZE_T ipart;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    MYFLT *tablelist = TableStream_getData(self->table);
-    T_SIZE_T size = TableStream_getSize(self->table);
+    MYFLT *tablelist = TableStream_getData((TableStream *)self->table);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
 
     for (i = 0; i < self->bufsize; i++)
     {
@@ -1638,8 +1638,8 @@ TrigEnv_readframes_a(TrigEnv *self)
     T_SIZE_T ipart;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *dur_st = Stream_getData((Stream *)self->dur_stream);
-    MYFLT *tablelist = TableStream_getData(self->table);
-    T_SIZE_T size = TableStream_getSize(self->table);
+    MYFLT *tablelist = TableStream_getData((TableStream *)self->table);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
 
     for (i = 0; i < self->bufsize; i++)
     {

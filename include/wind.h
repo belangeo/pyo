@@ -29,9 +29,11 @@
  *      8 : Sine (half-sine window)                                       *
  *************************************************************************/
 
+#ifndef _WIND_H
+#define _WIND_H
+
 #include "pyomodule.h"
 
-#ifndef _WIND_
-#define _WIND_
 void gen_window(MYFLT *window, T_SIZE_T size, int wintype);
-#endif
+
+#endif // _WIND_H

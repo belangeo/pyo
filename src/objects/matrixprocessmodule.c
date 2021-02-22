@@ -50,7 +50,7 @@ MatrixPointer_readframes(MatrixPointer *self)
 
     for (i = 0; i < self->bufsize; i++)
     {
-        self->data[i] = MatrixStream_getInterpPointFromPos(self->matrix, x[i], y[i]);
+        self->data[i] = MatrixStream_getInterpPointFromPos((MatrixStream *)self->matrix, x[i], y[i]);
     }
 }
 

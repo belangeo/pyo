@@ -4538,8 +4538,8 @@ PVFilter_process_i(PVFilter *self)
     int *count = PVStream_getCount((PVStream *)self->input_stream);
     int size = PVStream_getFFTsize((PVStream *)self->input_stream);
     int olaps = PVStream_getOlaps((PVStream *)self->input_stream);
-    MYFLT *tablelist = TableStream_getData(self->table);
-    int tsize = TableStream_getSize(self->table);
+    MYFLT *tablelist = TableStream_getData((TableStream *)self->table);
+    int tsize = TableStream_getSize((TableStream *)self->table);
     gain = PyFloat_AS_DOUBLE(self->gain);
 
     if (gain < 0)
@@ -4607,8 +4607,8 @@ PVFilter_process_a(PVFilter *self)
     int *count = PVStream_getCount((PVStream *)self->input_stream);
     int size = PVStream_getFFTsize((PVStream *)self->input_stream);
     int olaps = PVStream_getOlaps((PVStream *)self->input_stream);
-    MYFLT *tablelist = TableStream_getData(self->table);
-    int tsize = TableStream_getSize(self->table);
+    MYFLT *tablelist = TableStream_getData((TableStream *)self->table);
+    int tsize = TableStream_getSize((TableStream *)self->table);
     MYFLT *gn = Stream_getData((Stream *)self->gain_stream);
 
     if (self->size != size || self->olaps != olaps)
@@ -5049,10 +5049,10 @@ PVDelay_process_zero(PVDelay *self)
     int *count = PVStream_getCount((PVStream *)self->input_stream);
     int size = PVStream_getFFTsize((PVStream *)self->input_stream);
     int olaps = PVStream_getOlaps((PVStream *)self->input_stream);
-    MYFLT *dellist = TableStream_getData(self->deltable);
-    int tsize = TableStream_getSize(self->deltable);
-    MYFLT *feedlist = TableStream_getData(self->feedtable);
-    int fsize = TableStream_getSize(self->feedtable);
+    MYFLT *dellist = TableStream_getData((TableStream *)self->deltable);
+    int tsize = TableStream_getSize((TableStream *)self->deltable);
+    MYFLT *feedlist = TableStream_getData((TableStream *)self->feedtable);
+    int fsize = TableStream_getSize((TableStream *)self->feedtable);
 
     if (self->size != size || self->olaps != olaps)
     {
@@ -5135,10 +5135,10 @@ PVDelay_process_scaled(PVDelay *self)
     int *count = PVStream_getCount((PVStream *)self->input_stream);
     int size = PVStream_getFFTsize((PVStream *)self->input_stream);
     int olaps = PVStream_getOlaps((PVStream *)self->input_stream);
-    MYFLT *dellist = TableStream_getData(self->deltable);
-    int tsize = TableStream_getSize(self->deltable);
-    MYFLT *feedlist = TableStream_getData(self->feedtable);
-    int fsize = TableStream_getSize(self->feedtable);
+    MYFLT *dellist = TableStream_getData((TableStream *)self->deltable);
+    int tsize = TableStream_getSize((TableStream *)self->deltable);
+    MYFLT *feedlist = TableStream_getData((TableStream *)self->feedtable);
+    int fsize = TableStream_getSize((TableStream *)self->feedtable);
 
     if (self->size != size || self->olaps != olaps)
     {
@@ -8578,8 +8578,8 @@ PVBufTabLoops_process(PVBufTabLoops *self)
     int size = PVStream_getFFTsize((PVStream *)self->input_stream);
     int olaps = PVStream_getOlaps((PVStream *)self->input_stream);
 
-    MYFLT *spds = TableStream_getData(self->speed);
-    int splen = TableStream_getSize(self->speed);
+    MYFLT *spds = TableStream_getData((TableStream *)self->speed);
+    int splen = TableStream_getSize((TableStream *)self->speed);
 
     if (self->size != size || self->olaps != olaps)
     {

@@ -1621,8 +1621,8 @@ Osc_readframes_ii(Osc *self)
     MYFLT fr, ph, fpart;
     double inc, pos;
     T_SIZE_T ipart;
-    MYFLT *tablelist = TableStream_getData(self->table);
-    T_SIZE_T size = TableStream_getSize(self->table);
+    MYFLT *tablelist = TableStream_getData((TableStream *)self->table);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
 
     fr = PyFloat_AS_DOUBLE(self->freq);
     ph = PyFloat_AS_DOUBLE(self->phase);
@@ -1652,8 +1652,8 @@ Osc_readframes_ai(Osc *self)
     MYFLT ph, fpart, sizeOnSr;
     double inc, pos;
     T_SIZE_T ipart;
-    MYFLT *tablelist = TableStream_getData(self->table);
-    T_SIZE_T size = TableStream_getSize(self->table);
+    MYFLT *tablelist = TableStream_getData((TableStream *)self->table);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
 
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
     ph = PyFloat_AS_DOUBLE(self->phase);
@@ -1684,8 +1684,8 @@ Osc_readframes_ia(Osc *self)
     MYFLT fr, pha, fpart;
     double inc, pos;
     T_SIZE_T ipart;
-    MYFLT *tablelist = TableStream_getData(self->table);
-    T_SIZE_T size = TableStream_getSize(self->table);
+    MYFLT *tablelist = TableStream_getData((TableStream *)self->table);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
 
     fr = PyFloat_AS_DOUBLE(self->freq);
     MYFLT *ph = Stream_getData((Stream *)self->phase_stream);
@@ -1714,8 +1714,8 @@ Osc_readframes_aa(Osc *self)
     MYFLT pha, fpart, sizeOnSr;
     double inc, pos;
     T_SIZE_T ipart;
-    MYFLT *tablelist = TableStream_getData(self->table);
-    T_SIZE_T size = TableStream_getSize(self->table);
+    MYFLT *tablelist = TableStream_getData((TableStream *)self->table);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
 
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
     MYFLT *ph = Stream_getData((Stream *)self->phase_stream);
@@ -2183,8 +2183,8 @@ OscLoop_readframes_ii(OscLoop *self)
     int i;
     MYFLT fr, feed, pos, inc;
     T_SIZE_T ipart;
-    MYFLT *tablelist = TableStream_getData(self->table);
-    T_SIZE_T size = TableStream_getSize(self->table);
+    MYFLT *tablelist = TableStream_getData((TableStream *)self->table);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
 
     fr = PyFloat_AS_DOUBLE(self->freq);
     feed = _clip(PyFloat_AS_DOUBLE(self->feedback)) * size;
@@ -2212,8 +2212,8 @@ OscLoop_readframes_ai(OscLoop *self)
     int i;
     MYFLT inc, feed, pos, sizeOnSr;
     T_SIZE_T ipart;
-    MYFLT *tablelist = TableStream_getData(self->table);
-    T_SIZE_T size = TableStream_getSize(self->table);
+    MYFLT *tablelist = TableStream_getData((TableStream *)self->table);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
 
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
     feed = _clip(PyFloat_AS_DOUBLE(self->feedback)) * size;
@@ -2243,8 +2243,8 @@ OscLoop_readframes_ia(OscLoop *self)
     int i;
     MYFLT fr, feed, pos, inc;
     T_SIZE_T ipart;
-    MYFLT *tablelist = TableStream_getData(self->table);
-    T_SIZE_T size = TableStream_getSize(self->table);
+    MYFLT *tablelist = TableStream_getData((TableStream *)self->table);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
 
     fr = PyFloat_AS_DOUBLE(self->freq);
     MYFLT *fd = Stream_getData((Stream *)self->feedback_stream);
@@ -2273,8 +2273,8 @@ OscLoop_readframes_aa(OscLoop *self)
     int i;
     MYFLT inc, feed, pos, sizeOnSr;
     T_SIZE_T ipart;
-    MYFLT *tablelist = TableStream_getData(self->table);
-    T_SIZE_T size = TableStream_getSize(self->table);
+    MYFLT *tablelist = TableStream_getData((TableStream *)self->table);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
 
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
     MYFLT *fd = Stream_getData((Stream *)self->feedback_stream);
@@ -2715,8 +2715,8 @@ OscTrig_readframes_ii(OscTrig *self)
     MYFLT fr, ph, fpart;
     double inc, pos;
     T_SIZE_T ipart;
-    MYFLT *tablelist = TableStream_getData(self->table);
-    T_SIZE_T size = TableStream_getSize(self->table);
+    MYFLT *tablelist = TableStream_getData((TableStream *)self->table);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
 
     fr = PyFloat_AS_DOUBLE(self->freq);
     ph = PyFloat_AS_DOUBLE(self->phase);
@@ -2753,8 +2753,8 @@ OscTrig_readframes_ai(OscTrig *self)
     MYFLT ph, fpart, sizeOnSr;
     double inc, pos;
     T_SIZE_T ipart;
-    MYFLT *tablelist = TableStream_getData(self->table);
-    T_SIZE_T size = TableStream_getSize(self->table);
+    MYFLT *tablelist = TableStream_getData((TableStream *)self->table);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
 
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
     ph = PyFloat_AS_DOUBLE(self->phase);
@@ -2793,8 +2793,8 @@ OscTrig_readframes_ia(OscTrig *self)
     MYFLT fr, pha, fpart;
     double inc, pos;
     T_SIZE_T ipart;
-    MYFLT *tablelist = TableStream_getData(self->table);
-    T_SIZE_T size = TableStream_getSize(self->table);
+    MYFLT *tablelist = TableStream_getData((TableStream *)self->table);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
 
     fr = PyFloat_AS_DOUBLE(self->freq);
     MYFLT *ph = Stream_getData((Stream *)self->phase_stream);
@@ -2831,8 +2831,8 @@ OscTrig_readframes_aa(OscTrig *self)
     MYFLT pha, fpart, sizeOnSr;
     double inc, pos;
     T_SIZE_T ipart;
-    MYFLT *tablelist = TableStream_getData(self->table);
-    T_SIZE_T size = TableStream_getSize(self->table);
+    MYFLT *tablelist = TableStream_getData((TableStream *)self->table);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
 
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
     MYFLT *ph = Stream_getData((Stream *)self->phase_stream);
@@ -3850,8 +3850,8 @@ Pointer_readframes_a(Pointer *self)
     MYFLT fpart;
     double ph;
     T_SIZE_T ipart;
-    MYFLT *tablelist = TableStream_getData(self->table);
-    T_SIZE_T size = TableStream_getSize(self->table);
+    MYFLT *tablelist = TableStream_getData((TableStream *)self->table);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
 
     MYFLT *pha = Stream_getData((Stream *)self->index_stream);
 
@@ -4207,9 +4207,9 @@ Pointer2_readframes_a(Pointer2 *self)
     MYFLT fpart, phdiff, c, fr;
     double ph;
     T_SIZE_T ipart;
-    MYFLT *tablelist = TableStream_getData(self->table);
-    T_SIZE_T size = TableStream_getSize(self->table);
-    double tableSr = TableStream_getSamplingRate(self->table);
+    MYFLT *tablelist = TableStream_getData((TableStream *)self->table);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
+    double tableSr = TableStream_getSamplingRate((TableStream *)self->table);
 
     MYFLT *pha = Stream_getData((Stream *)self->index_stream);
 
@@ -4622,8 +4622,8 @@ TableIndex_readframes_a(TableIndex *self)
 {
     int i;
     T_SIZE_T ind;
-    MYFLT *tablelist = TableStream_getData(self->table);
-    T_SIZE_T size = TableStream_getSize(self->table);
+    MYFLT *tablelist = TableStream_getData((TableStream *)self->table);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
 
     MYFLT *phase = Stream_getData((Stream *)self->index_stream);
 
@@ -4986,8 +4986,8 @@ Lookup_readframes_a(Lookup *self)
     int i;
     MYFLT ph, fpart;
     T_SIZE_T ipart;
-    MYFLT *tablelist = TableStream_getData(self->table);
-    T_SIZE_T size = TableStream_getSize(self->table);
+    MYFLT *tablelist = TableStream_getData((TableStream *)self->table);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
 
     MYFLT *pha = Stream_getData((Stream *)self->index_stream);
 
@@ -5344,10 +5344,10 @@ Pulsar_readframes_iii(Pulsar *self)
     MYFLT fr, ph, frac, invfrac, pos, scl_pos, t_pos, e_pos, fpart, tmp;
     double inc;
     T_SIZE_T ipart;
-    MYFLT *tablelist = TableStream_getData(self->table);
-    MYFLT *envlist = TableStream_getData(self->env);
-    T_SIZE_T size = TableStream_getSize(self->table);
-    T_SIZE_T envsize = TableStream_getSize(self->env);
+    MYFLT *tablelist = TableStream_getData((TableStream *)self->table);
+    MYFLT *envlist = TableStream_getData((TableStream *)self->env);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
+    T_SIZE_T envsize = TableStream_getSize((TableStream *)self->env);
 
     fr = PyFloat_AS_DOUBLE(self->freq);
     ph = PyFloat_AS_DOUBLE(self->phase);
@@ -5396,10 +5396,10 @@ Pulsar_readframes_aii(Pulsar *self)
     MYFLT ph, frac, invfrac, pos, scl_pos, t_pos, e_pos, fpart, tmp, oneOnSr;
     double inc;
     T_SIZE_T ipart;
-    MYFLT *tablelist = TableStream_getData(self->table);
-    MYFLT *envlist = TableStream_getData(self->env);
-    T_SIZE_T size = TableStream_getSize(self->table);
-    T_SIZE_T envsize = TableStream_getSize(self->env);
+    MYFLT *tablelist = TableStream_getData((TableStream *)self->table);
+    MYFLT *envlist = TableStream_getData((TableStream *)self->env);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
+    T_SIZE_T envsize = TableStream_getSize((TableStream *)self->env);
 
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
     ph = PyFloat_AS_DOUBLE(self->phase);
@@ -5450,10 +5450,10 @@ Pulsar_readframes_iai(Pulsar *self)
     MYFLT fr, frac, invfrac, pos, scl_pos, t_pos, e_pos, fpart, tmp;
     double inc;
     T_SIZE_T ipart;
-    MYFLT *tablelist = TableStream_getData(self->table);
-    MYFLT *envlist = TableStream_getData(self->env);
-    T_SIZE_T size = TableStream_getSize(self->table);
-    T_SIZE_T envsize = TableStream_getSize(self->env);
+    MYFLT *tablelist = TableStream_getData((TableStream *)self->table);
+    MYFLT *envlist = TableStream_getData((TableStream *)self->env);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
+    T_SIZE_T envsize = TableStream_getSize((TableStream *)self->env);
 
     fr = PyFloat_AS_DOUBLE(self->freq);
     MYFLT *ph = Stream_getData((Stream *)self->phase_stream);
@@ -5502,10 +5502,10 @@ Pulsar_readframes_aai(Pulsar *self)
     MYFLT frac, invfrac, pos, scl_pos, t_pos, e_pos, fpart, tmp, oneOnSr;
     double inc;
     T_SIZE_T ipart;
-    MYFLT *tablelist = TableStream_getData(self->table);
-    MYFLT *envlist = TableStream_getData(self->env);
-    T_SIZE_T size = TableStream_getSize(self->table);
-    T_SIZE_T envsize = TableStream_getSize(self->env);
+    MYFLT *tablelist = TableStream_getData((TableStream *)self->table);
+    MYFLT *envlist = TableStream_getData((TableStream *)self->env);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
+    T_SIZE_T envsize = TableStream_getSize((TableStream *)self->env);
 
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
     MYFLT *ph = Stream_getData((Stream *)self->phase_stream);
@@ -5556,10 +5556,10 @@ Pulsar_readframes_iia(Pulsar *self)
     MYFLT fr, ph, pos, curfrac, scl_pos, t_pos, e_pos, fpart, tmp;
     double inc;
     T_SIZE_T ipart;
-    MYFLT *tablelist = TableStream_getData(self->table);
-    MYFLT *envlist = TableStream_getData(self->env);
-    T_SIZE_T size = TableStream_getSize(self->table);
-    T_SIZE_T envsize = TableStream_getSize(self->env);
+    MYFLT *tablelist = TableStream_getData((TableStream *)self->table);
+    MYFLT *envlist = TableStream_getData((TableStream *)self->env);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
+    T_SIZE_T envsize = TableStream_getSize((TableStream *)self->env);
 
     fr = PyFloat_AS_DOUBLE(self->freq);
     ph = PyFloat_AS_DOUBLE(self->phase);
@@ -5608,10 +5608,10 @@ Pulsar_readframes_aia(Pulsar *self)
     MYFLT ph, pos, curfrac, scl_pos, t_pos, e_pos, fpart, tmp, oneOnSr;
     double inc;
     T_SIZE_T ipart;
-    MYFLT *tablelist = TableStream_getData(self->table);
-    MYFLT *envlist = TableStream_getData(self->env);
-    T_SIZE_T size = TableStream_getSize(self->table);
-    T_SIZE_T envsize = TableStream_getSize(self->env);
+    MYFLT *tablelist = TableStream_getData((TableStream *)self->table);
+    MYFLT *envlist = TableStream_getData((TableStream *)self->env);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
+    T_SIZE_T envsize = TableStream_getSize((TableStream *)self->env);
 
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
     ph = PyFloat_AS_DOUBLE(self->phase);
@@ -5662,10 +5662,10 @@ Pulsar_readframes_iaa(Pulsar *self)
     MYFLT fr, pos, curfrac, scl_pos, t_pos, e_pos, fpart, tmp;
     double inc;
     T_SIZE_T ipart;
-    MYFLT *tablelist = TableStream_getData(self->table);
-    MYFLT *envlist = TableStream_getData(self->env);
-    T_SIZE_T size = TableStream_getSize(self->table);
-    T_SIZE_T envsize = TableStream_getSize(self->env);
+    MYFLT *tablelist = TableStream_getData((TableStream *)self->table);
+    MYFLT *envlist = TableStream_getData((TableStream *)self->env);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
+    T_SIZE_T envsize = TableStream_getSize((TableStream *)self->env);
 
     fr = PyFloat_AS_DOUBLE(self->freq);
     MYFLT *ph = Stream_getData((Stream *)self->phase_stream);
@@ -5714,10 +5714,10 @@ Pulsar_readframes_aaa(Pulsar *self)
     MYFLT pos, curfrac, scl_pos, t_pos, e_pos, fpart, tmp, oneOnSr;
     double inc;
     T_SIZE_T ipart;
-    MYFLT *tablelist = TableStream_getData(self->table);
-    MYFLT *envlist = TableStream_getData(self->env);
-    T_SIZE_T size = TableStream_getSize(self->table);
-    T_SIZE_T envsize = TableStream_getSize(self->env);
+    MYFLT *tablelist = TableStream_getData((TableStream *)self->table);
+    MYFLT *envlist = TableStream_getData((TableStream *)self->env);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
+    T_SIZE_T envsize = TableStream_getSize((TableStream *)self->env);
 
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
     MYFLT *ph = Stream_getData((Stream *)self->phase_stream);
@@ -6299,8 +6299,8 @@ TableRead_readframes_i(TableRead *self)
     int i;
     MYFLT fr, inc, fpart;
     T_SIZE_T ipart;
-    MYFLT *tablelist = TableStream_getData(self->table);
-    T_SIZE_T size = TableStream_getSize(self->table);
+    MYFLT *tablelist = TableStream_getData((TableStream *)self->table);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
 
     fr = PyFloat_AS_DOUBLE(self->freq);
     inc = fr * size / self->sr;
@@ -6360,8 +6360,8 @@ TableRead_readframes_a(TableRead *self)
     int i;
     MYFLT inc, fpart, sizeOnSr;
     T_SIZE_T ipart;
-    MYFLT *tablelist = TableStream_getData(self->table);
-    T_SIZE_T size = TableStream_getSize(self->table);
+    MYFLT *tablelist = TableStream_getData((TableStream *)self->table);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
 
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
 
@@ -6580,7 +6580,7 @@ TableRead_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
 
-    tablelist = TableStream_getData(self->table);
+    tablelist = TableStream_getData((TableStream *)self->table);
 
     for (i = 0; i < self->bufsize; i++)
     {
@@ -13439,10 +13439,10 @@ TableScale_readframes_ii(TableScale *self)
 {
     T_SIZE_T i, num;
     MYFLT mul, add;
-    MYFLT *tablelist = TableStream_getData(self->table);
-    T_SIZE_T size = TableStream_getSize(self->table);
-    MYFLT *outlist = TableStream_getData(self->outtable);
-    T_SIZE_T osize = TableStream_getSize(self->outtable);
+    MYFLT *tablelist = TableStream_getData((TableStream *)self->table);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
+    MYFLT *outlist = TableStream_getData((TableStream *)self->outtable);
+    T_SIZE_T osize = TableStream_getSize((TableStream *)self->outtable);
 
     mul = PyFloat_AS_DOUBLE(self->mul);
     add = PyFloat_AS_DOUBLE(self->add);
@@ -13460,10 +13460,10 @@ TableScale_readframes_ai(TableScale *self)
 {
     T_SIZE_T i, num;
     MYFLT add;
-    MYFLT *tablelist = TableStream_getData(self->table);
-    T_SIZE_T size = TableStream_getSize(self->table);
-    MYFLT *outlist = TableStream_getData(self->outtable);
-    T_SIZE_T osize = TableStream_getSize(self->outtable);
+    MYFLT *tablelist = TableStream_getData((TableStream *)self->table);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
+    MYFLT *outlist = TableStream_getData((TableStream *)self->outtable);
+    T_SIZE_T osize = TableStream_getSize((TableStream *)self->outtable);
 
     MYFLT *mul = Stream_getData((Stream *)self->mul_stream);
     add = PyFloat_AS_DOUBLE(self->add);
@@ -13481,10 +13481,10 @@ TableScale_readframes_ia(TableScale *self)
 {
     T_SIZE_T i, num;
     MYFLT mul;
-    MYFLT *tablelist = TableStream_getData(self->table);
-    T_SIZE_T size = TableStream_getSize(self->table);
-    MYFLT *outlist = TableStream_getData(self->outtable);
-    T_SIZE_T osize = TableStream_getSize(self->outtable);
+    MYFLT *tablelist = TableStream_getData((TableStream *)self->table);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
+    MYFLT *outlist = TableStream_getData((TableStream *)self->outtable);
+    T_SIZE_T osize = TableStream_getSize((TableStream *)self->outtable);
 
     mul = PyFloat_AS_DOUBLE(self->mul);
     MYFLT *add = Stream_getData((Stream *)self->add_stream);
@@ -13501,10 +13501,10 @@ static void
 TableScale_readframes_aa(TableScale *self)
 {
     T_SIZE_T i, num;
-    MYFLT *tablelist = TableStream_getData(self->table);
-    T_SIZE_T size = TableStream_getSize(self->table);
-    MYFLT *outlist = TableStream_getData(self->outtable);
-    T_SIZE_T osize = TableStream_getSize(self->outtable);
+    MYFLT *tablelist = TableStream_getData((TableStream *)self->table);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
+    MYFLT *outlist = TableStream_getData((TableStream *)self->outtable);
+    T_SIZE_T osize = TableStream_getSize((TableStream *)self->outtable);
 
     MYFLT *mul = Stream_getData((Stream *)self->mul_stream);
     MYFLT *add = Stream_getData((Stream *)self->add_stream);
@@ -13817,8 +13817,8 @@ static void
 TableFill_compute_next_data_frame(TableFill *self)
 {
     int i;
-    T_SIZE_T size = TableStream_getSize(self->table);
-    MYFLT *tablelist = TableStream_getData(self->table);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
+    MYFLT *tablelist = TableStream_getData((TableStream *)self->table);
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
 
     for (i = 0; i < self->bufsize; i++)
@@ -14001,8 +14001,8 @@ static void
 TableScan_readframes(TableScan *self)
 {
     int i;
-    MYFLT *tablelist = TableStream_getData(self->table);
-    T_SIZE_T size = TableStream_getSize(self->table);
+    MYFLT *tablelist = TableStream_getData((TableStream *)self->table);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
 
     for (i = 0; i < self->bufsize; i++)
     {

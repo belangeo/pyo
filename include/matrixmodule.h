@@ -18,10 +18,11 @@
  * License along with pyo.  If not, see <http://www.gnu.org/licenses/>.   *
  *************************************************************************/
 
+#ifndef _MATRIXMODULE_H
+#define _MATRIXMODULE_H
+
 #include "Python.h"
 #include "pyomodule.h"
-
-#ifdef __MATRIX_MODULE
 
 typedef struct
 {
@@ -38,12 +39,11 @@ if ((self) == rt_error) { return rt_error; }    \
 \
 (self)->width = (self)->height = 0
 
-#else
 
-int MatrixStream_getWidth(PyObject *self);
-int MatrixStream_getHeight(PyObject *self);
-MYFLT MatrixStream_getPointFromPos(PyObject *self, long x, long y);
-MYFLT MatrixStream_getInterpPointFromPos(PyObject *self, MYFLT x, MYFLT y);
+extern int MatrixStream_getWidth(MatrixStream *self);
+extern int MatrixStream_getHeight(MatrixStream *self);
+extern MYFLT MatrixStream_getPointFromPos(MatrixStream *self, long x, long y);
+extern MYFLT MatrixStream_getInterpPointFromPos(MatrixStream *self, MYFLT x, MYFLT y);
 extern PyTypeObject MatrixStreamType;
 
-#endif
+#endif // _MATRIXMODULE_H
