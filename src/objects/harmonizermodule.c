@@ -701,31 +701,31 @@ Harmonizer_setWinsize(Harmonizer *self, PyObject *arg)
 
 static PyMemberDef Harmonizer_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(Harmonizer, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(Harmonizer, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(Harmonizer, input), 0, "Input sound object."},
-    {"transpo", T_OBJECT_EX, offsetof(Harmonizer, transpo), 0, "Transposition factor."},
-    {"feedback", T_OBJECT_EX, offsetof(Harmonizer, feedback), 0, "Feedback factor."},
-    {"mul", T_OBJECT_EX, offsetof(Harmonizer, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(Harmonizer, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(Harmonizer, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(Harmonizer, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(Harmonizer, input), 0, NULL},
+    {"transpo", T_OBJECT_EX, offsetof(Harmonizer, transpo), 0, NULL},
+    {"feedback", T_OBJECT_EX, offsetof(Harmonizer, feedback), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(Harmonizer, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(Harmonizer, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef Harmonizer_methods[] =
 {
-    {"getServer", (PyCFunction)Harmonizer_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)Harmonizer_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Harmonizer_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)Harmonizer_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Harmonizer_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"reset", (PyCFunction)Harmonizer_reset, METH_NOARGS, "Reset the delay line."},
-    {"setTranspo", (PyCFunction)Harmonizer_setTranspo, METH_O, "Sets global transpo factor."},
-    {"setFeedback", (PyCFunction)Harmonizer_setFeedback, METH_O, "Sets feedback factor."},
-    {"setWinsize", (PyCFunction)Harmonizer_setWinsize, METH_O, "Sets the window size."},
-    {"setMul", (PyCFunction)Harmonizer_setMul, METH_O, "Sets granulator mul factor."},
-    {"setAdd", (PyCFunction)Harmonizer_setAdd, METH_O, "Sets granulator add factor."},
-    {"setSub", (PyCFunction)Harmonizer_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)Harmonizer_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)Harmonizer_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)Harmonizer_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)Harmonizer_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)Harmonizer_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)Harmonizer_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"reset", (PyCFunction)Harmonizer_reset, METH_NOARGS, NULL},
+    {"setTranspo", (PyCFunction)Harmonizer_setTranspo, METH_O, NULL},
+    {"setFeedback", (PyCFunction)Harmonizer_setFeedback, METH_O, NULL},
+    {"setWinsize", (PyCFunction)Harmonizer_setWinsize, METH_O, NULL},
+    {"setMul", (PyCFunction)Harmonizer_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)Harmonizer_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)Harmonizer_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)Harmonizer_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -789,7 +789,7 @@ PyTypeObject HarmonizerType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Harmonizer objects. Harmonize an input sound.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)Harmonizer_traverse,   /* tp_traverse */
     (inquiry)Harmonizer_clear,           /* tp_clear */
     0,                     /* tp_richcompare */

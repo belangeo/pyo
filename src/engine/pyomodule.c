@@ -30,14 +30,6 @@
 #include "matrixmodule.h"
 
 /****** Algorithm utilities ******/
-#define reducePoints_info \
-"\nDouglas-Peucker curve reduction algorithm.\n\n\
-This function receives a list of points as input and returns a simplified list by\neliminating redundancies.\n\n\
-A point is a tuple (or a list) of two floats, time and value. A list of points looks like:\n\n        \
-[ (0, 0), (0.1, 0.7), (0.2, 0.5), ... ] \n\n\
-:Args:\n\n    \
-pointlist: list of lists or list of tuples\n        List of points (time, value) to filter.\n    \
-tolerance: float, optional\n        Normalized distance threshold under which a point is\n        excluded from the list. Defaults to 0.02."
 
 typedef struct STACK_RECORD
 {
@@ -228,21 +220,6 @@ reducePoints(PyObject *self, PyObject *args, PyObject *kwds)
     return pPointsOut;
 }
 
-#define distanceToSegment_info \
-"\nFind the distance from a point to a line or line segment.\n\n\
-This function returns the shortest distance from a point to a line segment\nnormalized between 0 and 1.\n\n\
-A point is a tuple (or a list) of two floats, time and value. `p` is the point for which\nto find the distance from line `p1` to `p2`.\n\n\
-:Args:\n\n    \
-p: list or tuple\n        Point for which to find the distance.\n    \
-p1: list or tuple\n        First point of the segment.\n    \
-p2: list or tuple\n        Second point of the segment.\n    \
-xmin: float, optional\n        Minimum value on the X axis.\n    \
-xmax: float, optional\n        Maximum value on the X axis.\n    \
-ymin: float, optional\n        Minimum value on the Y axis.\n    \
-ymax: float, optional\n        Maximum value on the Y axis.\n    \
-xlog: boolean, optional\n        Set this argument to True if X axis has a logarithmic scaling.\n    \
-ylog: boolean, optional\n        Set this argument to True if Y axis has a logarithmic scaling."
-
 static PyObject *
 distanceToSegment(PyObject *self, PyObject *args, PyObject *kwds)
 {
@@ -317,20 +294,6 @@ distanceToSegment(PyObject *self, PyObject *args, PyObject *kwds)
 
     return PyFloat_FromDouble(MYSQRT(MYPOW(xp[0] - closest[0], 2.0) + MYPOW(xp[1] - closest[1], 2.0)));
 }
-
-#define linToCosCurve_info \
-"\nCreates a cosinus interpolated curve from a list of points.\n\n\
-A point is a tuple (or a list) of two floats, time and value.\n\n:Args:\n\n    \
-data: list of points\n        Set of points between which will be inserted interpolated segments.\n    \
-yrange: list of 2 floats, optional\n        Minimum and maximum values on the Y axis. Defaults to [0., 1.].\n    \
-totaldur: float, optional\n        X axis duration. Defaults to 1.\n    \
-points: int, optional\n        Number of points in the output list. Defaults to 1024.\n    \
-log: boolean, optional\n        Set this value to True if the Y axis has a logarithmic scale. Defaults to False\n\n\
->>> s = Server().boot()\n\
->>> a = [(0,0), (0.25, 1), (0.33, 1), (1,0)]\n\
->>> b = linToCosCurve(a, yrange=[0, 1], totaldur=1, points=8192)\n\
->>> t = DataTable(size=len(b), init=[x[1] for x in b])\n\
->>> t.view()\n\n"
 
 static PyObject *
 linToCosCurve(PyObject *self, PyObject *args, PyObject *kwds)
@@ -454,27 +417,6 @@ linToCosCurve(PyObject *self, PyObject *args, PyObject *kwds)
 
     return out;
 }
-
-#define rescale_info \
-"\nConverts values from an input range to an output range.\n\n\
-This function takes data in the range `xmin` - `xmax` and returns corresponding values\nin the range `ymin` - `ymax`.\n\n\
-`data` can be either a number or a list. Return value is of the same type as `data`\nwith all values rescaled.\n\n\
-:Argss:\n\n    \
-data: float or list of floats\n        Values to convert.\n    \
-xmin: float, optional\n        Minimum value of the input range.\n    \
-xmax: float, optional\n        Maximum value of the input range.\n    \
-ymin: float, optional\n        Minimum value of the output range.\n    \
-ymax: float, optional\n        Maximum value of the output range.\n    \
-xlog: boolean, optional\n        Set this argument to True if the input range has a logarithmic scaling.\n    \
-ylog: boolean, optional\n        Set this argument to True if the output range has a logarithmic scaling.\n\n\
->>> a = 0.5\n\
->>> b = rescale(a, 0, 1, 20, 20000, False, True)\n\
->>> print(b)\n\
-632.453369141\n\
->>> a = [0, .4, .8]\n\
->>> b = rescale(a, 0, 1, 20, 20000, False, True)\n\
->>> print(b)\n\
-[20.000001907348633, 316.97738647460938, 5023.7705078125]\n\n"
 
 static PyObject *
 rescale(PyObject *self, PyObject *args, PyObject *kwds)
@@ -628,19 +570,6 @@ rescale(PyObject *self, PyObject *args, PyObject *kwds)
     Py_RETURN_NONE;
 }
 
-#define floatmap_info \
-"\nConverts values from a 0-1 range to an output range.\n\n\
-This function takes data in the range `0` - `1` and returns corresponding values\nin the range `min` - `max`.\n\n\
-:Argss:\n\n    \
-x: float\n        Value to convert, in the range 0 to 1.\n    \
-min: float, optional\n        Minimum value of the output range. Defaults to 0.\n    \
-max: float, optional\n        Maximum value of the output range. Defaults to 1.\n    \
-exp: float, optional\n        Power factor (1 (default) is linear, les than 1 is logarithmic, greter than 1 is exponential).\n\n\
->>> a = 0.5\n\
->>> b = floatmap(a, 0, 1, 4)\n\
->>> print(b)\n\
-0.0625\n\n"
-
 static PyObject *
 floatmap(PyObject *self, PyObject *args, PyObject *kwds)
 {
@@ -666,20 +595,6 @@ floatmap(PyObject *self, PyObject *args, PyObject *kwds)
 }
 
 /****** Conversion utilities ******/
-#define midiToHz_info \
-"\nConverts a midi note value to frequency in Hertz.\n\n:Args:\n\n    \
-x: int or float\n        Midi note. `x` can be a number, a list or a tuple, otherwise the function returns None.\n\n\
->>> a = (48, 60, 62, 67)\n\
->>> b = midiToHz(a)\n\
->>> print(b)\n\
-(130.8127826503271, 261.62556530066814, 293.66476791748823, 391.9954359818656)\n\
->>> a = [48, 60, 62, 67]\n\
->>> b = midiToHz(a)\n\
->>> print(b)\n\
-[130.8127826503271, 261.62556530066814, 293.66476791748823, 391.9954359818656]\n\
->>> b = midiToHz(60.0)\n\
->>> print(b)\n\
-261.625565301\n\n"
 
 static PyObject *
 midiToHz(PyObject *self, PyObject *arg)
@@ -721,21 +636,6 @@ midiToHz(PyObject *self, PyObject *arg)
         Py_RETURN_NONE;
 }
 
-#define hzToMidi_info \
-"\nConverts a frequency in Hertz to a midi note value.\n\n:Args:\n\n    \
-x: float\n        Frequency in Hertz. `x` can be a number, a list or a tuple, otherwise the function returns None.\n\n\
->>> a = (110.0, 220.0, 440.0, 880.0)\n\
->>> b = hzToMidi(a)\n\
->>> print(b)\n\
-(45.0, 57.0, 69.0, 81.0)\n\
->>> a = [110.0, 220.0, 440.0, 880.0]\n\
->>> b = hzToMidi(a)\n\
->>> print(b)\n\
-[45.0, 57.0, 69.0, 81.0]\n\
->>> b = hzToMidi(440.0)\n\
->>> print(b)\n\
-69.0\n\n"
-
 static PyObject *
 hzToMidi(PyObject *self, PyObject *arg)
 {
@@ -776,21 +676,6 @@ hzToMidi(PyObject *self, PyObject *arg)
         Py_RETURN_NONE;
 }
 
-#define midiToTranspo_info \
-"\nConverts a midi note value to transposition factor (central key = 60).\n\n:Args:\n\n    \
-x: int or float\n        Midi note. `x` can be a number, a list or a tuple, otherwise the function returns None.\n\n\
->>> a = (48, 60, 62, 67)\n\
->>> b = midiToTranspo(a)\n\
->>> print(b)\n    \
-(0.49999999999997335, 1.0, 1.122462048309383, 1.4983070768767281)\n\
->>> a = [48, 60, 62, 67]\n\
->>> b = midiToTranspo(a)\n\
->>> print(b)\n\
-[0.49999999999997335, 1.0, 1.122462048309383, 1.4983070768767281]\n\
->>> b = midiToTranspo(60.0)\n\
->>> print(b)\n\
-1.0\n\n"
-
 static PyObject *
 midiToTranspo(PyObject *self, PyObject *arg)
 {
@@ -830,22 +715,6 @@ midiToTranspo(PyObject *self, PyObject *arg)
     else
         Py_RETURN_NONE;
 }
-
-#define sampsToSec_info \
-"\nReturns the duration in seconds equivalent to the number of samples given as an argument.\n\n:Args:\n\n    \
-x: int or float\n        Duration in samples. `x` can be a number, a list or a tuple, otherwise function returns None.\n\n\
->>> s = Server().boot()\n\
->>> a = (64, 128, 256)\n\
->>> b = sampsToSec(a)\n\
->>> print(b)\n\
-(0.0014512471655328798, 0.0029024943310657597, 0.0058049886621315194)\n\
->>> a = [64, 128, 256]\n\
->>> b = sampsToSec(a)\n\
->>> print(b)\n\
-[0.0014512471655328798, 0.0029024943310657597, 0.0058049886621315194]\n\
->>> b = sampsToSec(8192)\n\
->>> print(b)\n\
-0.185759637188\n\n"
 
 static PyObject *
 sampsToSec(PyObject *self, PyObject *arg)
@@ -895,22 +764,6 @@ sampsToSec(PyObject *self, PyObject *arg)
     else
         Py_RETURN_NONE;
 }
-
-#define secToSamps_info \
-"\nReturns the number of samples equivalent to the duration in seconds given as an argument.\n\n:Args:\n\n    \
-x: int or float\n        Duration in seconds. `x` can be a number, a list or a tuple, otherwise function returns None.\n\n\
->>> s = Server().boot()\n\
->>> a = (0.1, 0.25, 0.5, 1)\n\
->>> b = secToSamps(a)\n\
->>> print(b)\n\
-(4410, 11025, 22050, 44100)\n\
->>> a = [0.1, 0.25, 0.5, 1]\n\
->>> b = secToSamps(a)\n\
->>> print(b)\n\
-[4410, 11025, 22050, 44100]\n\
->>> b = secToSamps(2.5)\n\
->>> print(b)\n\
-110250\n\n"
 
 static PyObject *
 secToSamps(PyObject *self, PyObject *arg)
@@ -962,13 +815,6 @@ secToSamps(PyObject *self, PyObject *arg)
 }
 
 /************* Server quieries *************/
-#define serverCreated_info \
-"\nReturns True if a Server object is already created, otherwise, returns False.\n\n\
->>> print(serverCreated())\n\
-False\n\
->>> s = Server()\n\
->>> print(serverCreated())\n\
-True\n\n"
 
 static PyObject *
 serverCreated(PyObject *self)
@@ -984,15 +830,6 @@ serverCreated(PyObject *self)
         return Py_False;
     }
 }
-
-#define serverBooted_info \
-"\nReturns True if an already created Server is booted, otherwise, returns False.\n\n\
->>> s = Server()\n\
->>> print(serverBooted())\n\
-False\n\
->>> s.boot()\n\
->>> print(serverBooted())\n\
-True\n\n"
 
 static PyObject *
 serverBooted(PyObject *self)
@@ -1026,18 +863,18 @@ serverBooted(PyObject *self)
 
 static PyMethodDef pyo_functions[] =
 {
-    {"reducePoints", (PyCFunction)reducePoints, METH_VARARGS | METH_KEYWORDS, reducePoints_info},
-    {"distanceToSegment", (PyCFunction)distanceToSegment, METH_VARARGS | METH_KEYWORDS, distanceToSegment_info},
-    {"rescale", (PyCFunction)rescale, METH_VARARGS | METH_KEYWORDS, rescale_info},
-    {"floatmap", (PyCFunction)floatmap, METH_VARARGS | METH_KEYWORDS, floatmap_info},
-    {"linToCosCurve", (PyCFunction)linToCosCurve, METH_VARARGS | METH_KEYWORDS, linToCosCurve_info},
-    {"midiToHz", (PyCFunction)midiToHz, METH_O, midiToHz_info},
-    {"hzToMidi", (PyCFunction)hzToMidi, METH_O, hzToMidi_info},
-    {"midiToTranspo", (PyCFunction)midiToTranspo, METH_O, midiToTranspo_info},
-    {"sampsToSec", (PyCFunction)sampsToSec, METH_O, sampsToSec_info},
-    {"secToSamps", (PyCFunction)secToSamps, METH_O, secToSamps_info},
-    {"serverCreated", (PyCFunction)serverCreated, METH_NOARGS, serverCreated_info},
-    {"serverBooted", (PyCFunction)serverBooted, METH_NOARGS, serverBooted_info},
+    {"reducePoints", (PyCFunction)reducePoints, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"distanceToSegment", (PyCFunction)distanceToSegment, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"rescale", (PyCFunction)rescale, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"floatmap", (PyCFunction)floatmap, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"linToCosCurve", (PyCFunction)linToCosCurve, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"midiToHz", (PyCFunction)midiToHz, METH_O, NULL},
+    {"hzToMidi", (PyCFunction)hzToMidi, METH_O, NULL},
+    {"midiToTranspo", (PyCFunction)midiToTranspo, METH_O, NULL},
+    {"sampsToSec", (PyCFunction)sampsToSec, METH_O, NULL},
+    {"secToSamps", (PyCFunction)secToSamps, METH_O, NULL},
+    {"serverCreated", (PyCFunction)serverCreated, METH_NOARGS, NULL},
+    {"serverBooted", (PyCFunction)serverBooted, METH_NOARGS, NULL},
     {NULL, NULL, 0, NULL},
 };
 

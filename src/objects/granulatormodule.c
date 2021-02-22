@@ -1096,38 +1096,38 @@ Granulator_setGrains(Granulator *self, PyObject *arg)
 
 static PyMemberDef Granulator_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(Granulator, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(Granulator, stream), 0, "Stream object."},
-    {"table", T_OBJECT_EX, offsetof(Granulator, table), 0, "Sound table."},
-    {"env", T_OBJECT_EX, offsetof(Granulator, env), 0, "Envelope table."},
-    {"pitch", T_OBJECT_EX, offsetof(Granulator, pitch), 0, "Speed of the reading pointer."},
-    {"pos", T_OBJECT_EX, offsetof(Granulator, pos), 0, "Position in the sound table."},
-    {"dur", T_OBJECT_EX, offsetof(Granulator, dur), 0, "Duration of each grains."},
-    {"mul", T_OBJECT_EX, offsetof(Granulator, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(Granulator, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(Granulator, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(Granulator, stream), 0, NULL},
+    {"table", T_OBJECT_EX, offsetof(Granulator, table), 0, NULL},
+    {"env", T_OBJECT_EX, offsetof(Granulator, env), 0, NULL},
+    {"pitch", T_OBJECT_EX, offsetof(Granulator, pitch), 0, NULL},
+    {"pos", T_OBJECT_EX, offsetof(Granulator, pos), 0, NULL},
+    {"dur", T_OBJECT_EX, offsetof(Granulator, dur), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(Granulator, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(Granulator, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef Granulator_methods[] =
 {
-    {"getTable", (PyCFunction)Granulator_getTable, METH_NOARGS, "Returns sound table object."},
-    {"setTable", (PyCFunction)Granulator_setTable, METH_O, "Sets sound table."},
-    {"getEnv", (PyCFunction)Granulator_getEnv, METH_NOARGS, "Returns envelope table object."},
-    {"setEnv", (PyCFunction)Granulator_setEnv, METH_O, "Sets envelope table."},
-    {"getServer", (PyCFunction)Granulator_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)Granulator_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Granulator_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)Granulator_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Granulator_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setPitch", (PyCFunction)Granulator_setPitch, METH_O, "Sets global pitch factor."},
-    {"setPos", (PyCFunction)Granulator_setPos, METH_O, "Sets position in the sound table."},
-    {"setDur", (PyCFunction)Granulator_setDur, METH_O, "Sets the grain duration."},
-    {"setBaseDur", (PyCFunction)Granulator_setBaseDur, METH_O, "Sets the grain base duration."},
-    {"setGrains", (PyCFunction)Granulator_setGrains, METH_O, "Sets the number of grains."},
-    {"setMul", (PyCFunction)Granulator_setMul, METH_O, "Sets granulator mul factor."},
-    {"setAdd", (PyCFunction)Granulator_setAdd, METH_O, "Sets granulator add factor."},
-    {"setSub", (PyCFunction)Granulator_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)Granulator_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getTable", (PyCFunction)Granulator_getTable, METH_NOARGS, NULL},
+    {"setTable", (PyCFunction)Granulator_setTable, METH_O, NULL},
+    {"getEnv", (PyCFunction)Granulator_getEnv, METH_NOARGS, NULL},
+    {"setEnv", (PyCFunction)Granulator_setEnv, METH_O, NULL},
+    {"getServer", (PyCFunction)Granulator_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)Granulator_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)Granulator_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)Granulator_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)Granulator_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setPitch", (PyCFunction)Granulator_setPitch, METH_O, NULL},
+    {"setPos", (PyCFunction)Granulator_setPos, METH_O, NULL},
+    {"setDur", (PyCFunction)Granulator_setDur, METH_O, NULL},
+    {"setBaseDur", (PyCFunction)Granulator_setBaseDur, METH_O, NULL},
+    {"setGrains", (PyCFunction)Granulator_setGrains, METH_O, NULL},
+    {"setMul", (PyCFunction)Granulator_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)Granulator_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)Granulator_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)Granulator_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -1191,7 +1191,7 @@ PyTypeObject GranulatorType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Granulator objects. Accumulation of multiples grains of sound.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)Granulator_traverse,   /* tp_traverse */
     (inquiry)Granulator_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -2584,46 +2584,46 @@ Looper_fadeInSeconds(Looper *self, PyObject *arg)
 
 static PyMemberDef Looper_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(Looper, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(Looper, stream), 0, "Stream object."},
-    {"trig_stream", T_OBJECT_EX, offsetof(Looper, trig_stream), 0, "Trigger Stream object."},
-    {"table", T_OBJECT_EX, offsetof(Looper, table), 0, "Sound table."},
-    {"pitch", T_OBJECT_EX, offsetof(Looper, pitch), 0, "Speed of the reading pointer."},
-    {"start", T_OBJECT_EX, offsetof(Looper, start), 0, "Position in the sound table."},
-    {"dur", T_OBJECT_EX, offsetof(Looper, dur), 0, "Duration of each grains."},
-    {"xfade", T_OBJECT_EX, offsetof(Looper, xfade), 0, "Crossfade duration in percent."},
-    {"mul", T_OBJECT_EX, offsetof(Looper, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(Looper, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(Looper, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(Looper, stream), 0, NULL},
+    {"trig_stream", T_OBJECT_EX, offsetof(Looper, trig_stream), 0, NULL},
+    {"table", T_OBJECT_EX, offsetof(Looper, table), 0, NULL},
+    {"pitch", T_OBJECT_EX, offsetof(Looper, pitch), 0, NULL},
+    {"start", T_OBJECT_EX, offsetof(Looper, start), 0, NULL},
+    {"dur", T_OBJECT_EX, offsetof(Looper, dur), 0, NULL},
+    {"xfade", T_OBJECT_EX, offsetof(Looper, xfade), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(Looper, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(Looper, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef Looper_methods[] =
 {
-    {"getTable", (PyCFunction)Looper_getTable, METH_NOARGS, "Returns sound table object."},
-    {"setTable", (PyCFunction)Looper_setTable, METH_O, "Sets sound table."},
-    {"getServer", (PyCFunction)Looper_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)Looper_getStream, METH_NOARGS, "Returns stream object."},
-    {"_getTriggerStream", (PyCFunction)Looper_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
-    {"play", (PyCFunction)Looper_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)Looper_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Looper_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setPitch", (PyCFunction)Looper_setPitch, METH_O, "Sets global pitch factor."},
-    {"setStart", (PyCFunction)Looper_setStart, METH_O, "Sets position in the sound table."},
-    {"setDur", (PyCFunction)Looper_setDur, METH_O, "Sets the grain duration."},
-    {"setXfade", (PyCFunction)Looper_setXfade, METH_O, "Sets crossfade length in percent."},
-    {"setXfadeShape", (PyCFunction)Looper_setXfadeShape, METH_O, "Sets crossfade shape."},
-    {"setMode", (PyCFunction)Looper_setMode, METH_O, "Sets looping mode (0 = no loop, 1 = forward, 2 = backward, 3 = back-and-forth)."},
-    {"setStartFromLoop", (PyCFunction)Looper_setStartFromLoop, METH_O, "Sets init pointer position."},
-    {"setInterp", (PyCFunction)Looper_setInterp, METH_O, "Sets oscillator interpolation mode."},
-    {"setAutoSmooth", (PyCFunction)Looper_setAutoSmooth, METH_O, "Activate lowpass filter for transposition below 1."},
-    {"appendFadeTime", (PyCFunction)Looper_appendFadeTime, METH_O, "If positive, fade time is added to loop duration."},
-    {"fadeInSeconds", (PyCFunction)Looper_fadeInSeconds, METH_O, "If positive, fade time is set in seconds instead of percentage."},
-    {"reset", (PyCFunction)Looper_on_reset, METH_NOARGS, "Resets internal counters."},
-    {"loopnow", (PyCFunction)Looper_loopnow, METH_NOARGS, "Satrts a new loop immediately."},
-    {"setMul", (PyCFunction)Looper_setMul, METH_O, "Sets granulator mul factor."},
-    {"setAdd", (PyCFunction)Looper_setAdd, METH_O, "Sets granulator add factor."},
-    {"setSub", (PyCFunction)Looper_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)Looper_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getTable", (PyCFunction)Looper_getTable, METH_NOARGS, NULL},
+    {"setTable", (PyCFunction)Looper_setTable, METH_O, NULL},
+    {"getServer", (PyCFunction)Looper_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)Looper_getStream, METH_NOARGS, NULL},
+    {"_getTriggerStream", (PyCFunction)Looper_getTriggerStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)Looper_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)Looper_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)Looper_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setPitch", (PyCFunction)Looper_setPitch, METH_O, NULL},
+    {"setStart", (PyCFunction)Looper_setStart, METH_O, NULL},
+    {"setDur", (PyCFunction)Looper_setDur, METH_O, NULL},
+    {"setXfade", (PyCFunction)Looper_setXfade, METH_O, NULL},
+    {"setXfadeShape", (PyCFunction)Looper_setXfadeShape, METH_O, NULL},
+    {"setMode", (PyCFunction)Looper_setMode, METH_O, NULL},
+    {"setStartFromLoop", (PyCFunction)Looper_setStartFromLoop, METH_O, NULL},
+    {"setInterp", (PyCFunction)Looper_setInterp, METH_O, NULL},
+    {"setAutoSmooth", (PyCFunction)Looper_setAutoSmooth, METH_O, NULL},
+    {"appendFadeTime", (PyCFunction)Looper_appendFadeTime, METH_O, NULL},
+    {"fadeInSeconds", (PyCFunction)Looper_fadeInSeconds, METH_O, NULL},
+    {"reset", (PyCFunction)Looper_on_reset, METH_NOARGS, NULL},
+    {"loopnow", (PyCFunction)Looper_loopnow, METH_NOARGS, NULL},
+    {"setMul", (PyCFunction)Looper_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)Looper_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)Looper_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)Looper_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -2687,7 +2687,7 @@ PyTypeObject LooperType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Looper objects. Sound looper with crossfade.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)Looper_traverse,   /* tp_traverse */
     (inquiry)Looper_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -2862,24 +2862,24 @@ static PyObject * LooperTimeStream_inplace_div(LooperTimeStream *self, PyObject 
 
 static PyMemberDef LooperTimeStream_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(LooperTimeStream, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(LooperTimeStream, stream), 0, "Stream object."},
-    {"mul", T_OBJECT_EX, offsetof(LooperTimeStream, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(LooperTimeStream, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(LooperTimeStream, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(LooperTimeStream, stream), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(LooperTimeStream, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(LooperTimeStream, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef LooperTimeStream_methods[] =
 {
-    {"getServer", (PyCFunction)LooperTimeStream_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)LooperTimeStream_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)LooperTimeStream_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)LooperTimeStream_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)LooperTimeStream_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setMul", (PyCFunction)LooperTimeStream_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)LooperTimeStream_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)LooperTimeStream_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)LooperTimeStream_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)LooperTimeStream_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)LooperTimeStream_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)LooperTimeStream_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)LooperTimeStream_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)LooperTimeStream_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setMul", (PyCFunction)LooperTimeStream_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)LooperTimeStream_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)LooperTimeStream_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)LooperTimeStream_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -2943,7 +2943,7 @@ PyTypeObject LooperTimeStreamType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "LooperTimeStream objects. Returns the current recording time, in samples, of a Looper object.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)LooperTimeStream_traverse,   /* tp_traverse */
     (inquiry)LooperTimeStream_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -3659,39 +3659,39 @@ Granule_setSync(Granule *self, PyObject *arg)
 
 static PyMemberDef Granule_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(Granule, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(Granule, stream), 0, "Stream object."},
-    {"table", T_OBJECT_EX, offsetof(Granule, table), 0, "Sound table."},
-    {"env", T_OBJECT_EX, offsetof(Granule, env), 0, "Envelope table."},
-    {"dens", T_OBJECT_EX, offsetof(Granule, dens), 0, "Density of grains per second."},
-    {"pitch", T_OBJECT_EX, offsetof(Granule, pitch), 0, "Speed of the reading pointer."},
-    {"pos", T_OBJECT_EX, offsetof(Granule, pos), 0, "Position in the sound table."},
-    {"dur", T_OBJECT_EX, offsetof(Granule, dur), 0, "Duration of each grains."},
-    {"mul", T_OBJECT_EX, offsetof(Granule, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(Granule, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(Granule, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(Granule, stream), 0, NULL},
+    {"table", T_OBJECT_EX, offsetof(Granule, table), 0, NULL},
+    {"env", T_OBJECT_EX, offsetof(Granule, env), 0, NULL},
+    {"dens", T_OBJECT_EX, offsetof(Granule, dens), 0, NULL},
+    {"pitch", T_OBJECT_EX, offsetof(Granule, pitch), 0, NULL},
+    {"pos", T_OBJECT_EX, offsetof(Granule, pos), 0, NULL},
+    {"dur", T_OBJECT_EX, offsetof(Granule, dur), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(Granule, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(Granule, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef Granule_methods[] =
 {
-    {"getTable", (PyCFunction)Granule_getTable, METH_NOARGS, "Returns sound table object."},
-    {"setTable", (PyCFunction)Granule_setTable, METH_O, "Sets sound table."},
-    {"getEnv", (PyCFunction)Granule_getEnv, METH_NOARGS, "Returns envelope table object."},
-    {"setEnv", (PyCFunction)Granule_setEnv, METH_O, "Sets envelope table."},
-    {"getServer", (PyCFunction)Granule_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)Granule_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Granule_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)Granule_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Granule_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setDens", (PyCFunction)Granule_setDens, METH_O, "Sets the density of grains per second."},
-    {"setPitch", (PyCFunction)Granule_setPitch, METH_O, "Sets global pitch factor."},
-    {"setPos", (PyCFunction)Granule_setPos, METH_O, "Sets position in the sound table."},
-    {"setDur", (PyCFunction)Granule_setDur, METH_O, "Sets the grain duration."},
-    {"setSync", (PyCFunction)Granule_setSync, METH_O, "Sets the granulator mode: synchronous or asynchronous."},
-    {"setMul", (PyCFunction)Granule_setMul, METH_O, "Sets Granule mul factor."},
-    {"setAdd", (PyCFunction)Granule_setAdd, METH_O, "Sets Granule add factor."},
-    {"setSub", (PyCFunction)Granule_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)Granule_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getTable", (PyCFunction)Granule_getTable, METH_NOARGS, NULL},
+    {"setTable", (PyCFunction)Granule_setTable, METH_O, NULL},
+    {"getEnv", (PyCFunction)Granule_getEnv, METH_NOARGS, NULL},
+    {"setEnv", (PyCFunction)Granule_setEnv, METH_O, NULL},
+    {"getServer", (PyCFunction)Granule_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)Granule_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)Granule_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)Granule_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)Granule_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setDens", (PyCFunction)Granule_setDens, METH_O, NULL},
+    {"setPitch", (PyCFunction)Granule_setPitch, METH_O, NULL},
+    {"setPos", (PyCFunction)Granule_setPos, METH_O, NULL},
+    {"setDur", (PyCFunction)Granule_setDur, METH_O, NULL},
+    {"setSync", (PyCFunction)Granule_setSync, METH_O, NULL},
+    {"setMul", (PyCFunction)Granule_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)Granule_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)Granule_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)Granule_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -3755,7 +3755,7 @@ PyTypeObject GranuleType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Granule objects. Accumulation of multiples grains of sound.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)Granule_traverse,   /* tp_traverse */
     (inquiry)Granule_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -4867,35 +4867,35 @@ MainParticle_setEnv(MainParticle *self, PyObject *arg)
 
 static PyMemberDef MainParticle_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(MainParticle, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(MainParticle, stream), 0, "Stream object."},
-    {"table", T_OBJECT_EX, offsetof(MainParticle, table), 0, "Sound table."},
-    {"env", T_OBJECT_EX, offsetof(MainParticle, env), 0, "Envelope table."},
-    {"dens", T_OBJECT_EX, offsetof(MainParticle, dens), 0, "Density of grains per second."},
-    {"pitch", T_OBJECT_EX, offsetof(MainParticle, pitch), 0, "Speed of the reading pointer."},
-    {"pos", T_OBJECT_EX, offsetof(MainParticle, pos), 0, "Position in the sound table."},
-    {"dur", T_OBJECT_EX, offsetof(MainParticle, dur), 0, "Duration of each grains."},
-    {"dev", T_OBJECT_EX, offsetof(MainParticle, dev), 0, "Grain start point deviation factor."},
-    {"pan", T_OBJECT_EX, offsetof(MainParticle, pan), 0, "Grain panning factor."},
+    {"server", T_OBJECT_EX, offsetof(MainParticle, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(MainParticle, stream), 0, NULL},
+    {"table", T_OBJECT_EX, offsetof(MainParticle, table), 0, NULL},
+    {"env", T_OBJECT_EX, offsetof(MainParticle, env), 0, NULL},
+    {"dens", T_OBJECT_EX, offsetof(MainParticle, dens), 0, NULL},
+    {"pitch", T_OBJECT_EX, offsetof(MainParticle, pitch), 0, NULL},
+    {"pos", T_OBJECT_EX, offsetof(MainParticle, pos), 0, NULL},
+    {"dur", T_OBJECT_EX, offsetof(MainParticle, dur), 0, NULL},
+    {"dev", T_OBJECT_EX, offsetof(MainParticle, dev), 0, NULL},
+    {"pan", T_OBJECT_EX, offsetof(MainParticle, pan), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef MainParticle_methods[] =
 {
-    {"getTable", (PyCFunction)MainParticle_getTable, METH_NOARGS, "Returns sound table object."},
-    {"setTable", (PyCFunction)MainParticle_setTable, METH_O, "Sets sound table."},
-    {"getEnv", (PyCFunction)MainParticle_getEnv, METH_NOARGS, "Returns envelope table object."},
-    {"setEnv", (PyCFunction)MainParticle_setEnv, METH_O, "Sets envelope table."},
-    {"getServer", (PyCFunction)MainParticle_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)MainParticle_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)MainParticle_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)MainParticle_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setDens", (PyCFunction)MainParticle_setDens, METH_O, "Sets the density of grains per second."},
-    {"setPitch", (PyCFunction)MainParticle_setPitch, METH_O, "Sets global pitch factor."},
-    {"setPos", (PyCFunction)MainParticle_setPos, METH_O, "Sets position in the sound table."},
-    {"setDur", (PyCFunction)MainParticle_setDur, METH_O, "Sets the grain duration."},
-    {"setDev", (PyCFunction)MainParticle_setDev, METH_O, "Sets grain start point deviation factor."},
-    {"setPan", (PyCFunction)MainParticle_setPan, METH_O, "Sets grain panning factor."},
+    {"getTable", (PyCFunction)MainParticle_getTable, METH_NOARGS, NULL},
+    {"setTable", (PyCFunction)MainParticle_setTable, METH_O, NULL},
+    {"getEnv", (PyCFunction)MainParticle_getEnv, METH_NOARGS, NULL},
+    {"setEnv", (PyCFunction)MainParticle_setEnv, METH_O, NULL},
+    {"getServer", (PyCFunction)MainParticle_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)MainParticle_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)MainParticle_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)MainParticle_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setDens", (PyCFunction)MainParticle_setDens, METH_O, NULL},
+    {"setPitch", (PyCFunction)MainParticle_setPitch, METH_O, NULL},
+    {"setPos", (PyCFunction)MainParticle_setPos, METH_O, NULL},
+    {"setDur", (PyCFunction)MainParticle_setDur, METH_O, NULL},
+    {"setDev", (PyCFunction)MainParticle_setDev, METH_O, NULL},
+    {"setPan", (PyCFunction)MainParticle_setPan, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -4921,7 +4921,7 @@ PyTypeObject MainParticleType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "MainParticle objects. Accumulation of multiples grains of sound.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)MainParticle_traverse,   /* tp_traverse */
     (inquiry)MainParticle_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -5108,24 +5108,24 @@ static PyObject * Particle_inplace_div(Particle *self, PyObject *arg) { INPLACE_
 
 static PyMemberDef Particle_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(Particle, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(Particle, stream), 0, "Stream object."},
-    {"mul", T_OBJECT_EX, offsetof(Particle, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(Particle, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(Particle, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(Particle, stream), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(Particle, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(Particle, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef Particle_methods[] =
 {
-    {"getServer", (PyCFunction)Particle_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)Particle_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Particle_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)Particle_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Particle_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setMul", (PyCFunction)Particle_setMul, METH_O, "Sets Particle mul factor."},
-    {"setAdd", (PyCFunction)Particle_setAdd, METH_O, "Sets Particle add factor."},
-    {"setSub", (PyCFunction)Particle_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)Particle_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)Particle_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)Particle_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)Particle_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)Particle_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)Particle_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setMul", (PyCFunction)Particle_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)Particle_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)Particle_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)Particle_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -6810,41 +6810,41 @@ MainParticle2_setEnv(MainParticle2 *self, PyObject *arg)
 
 static PyMemberDef MainParticle2_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(MainParticle2, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(MainParticle2, stream), 0, "Stream object."},
-    {"table", T_OBJECT_EX, offsetof(MainParticle2, table), 0, "Sound table."},
-    {"env", T_OBJECT_EX, offsetof(MainParticle2, env), 0, "Envelope table."},
-    {"dens", T_OBJECT_EX, offsetof(MainParticle2, dens), 0, "Density of grains per second."},
-    {"pitch", T_OBJECT_EX, offsetof(MainParticle2, pitch), 0, "Speed of the reading pointer."},
-    {"pos", T_OBJECT_EX, offsetof(MainParticle2, pos), 0, "Position in the sound table."},
-    {"dur", T_OBJECT_EX, offsetof(MainParticle2, dur), 0, "Duration of each grains."},
-    {"dev", T_OBJECT_EX, offsetof(MainParticle2, dev), 0, "Grain start point deviation factor."},
-    {"pan", T_OBJECT_EX, offsetof(MainParticle2, pan), 0, "Grain panning factor."},
-    {"filterfreq", T_OBJECT_EX, offsetof(MainParticle2, filterfreq), 0, "Grain filter center/cutoff frequency."},
-    {"filterq", T_OBJECT_EX, offsetof(MainParticle2, filterq), 0, "Grain filter Q."},
-    {"filtertype", T_OBJECT_EX, offsetof(MainParticle2, filtertype), 0, "Grain filter type."},
+    {"server", T_OBJECT_EX, offsetof(MainParticle2, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(MainParticle2, stream), 0, NULL},
+    {"table", T_OBJECT_EX, offsetof(MainParticle2, table), 0, NULL},
+    {"env", T_OBJECT_EX, offsetof(MainParticle2, env), 0, NULL},
+    {"dens", T_OBJECT_EX, offsetof(MainParticle2, dens), 0, NULL},
+    {"pitch", T_OBJECT_EX, offsetof(MainParticle2, pitch), 0, NULL},
+    {"pos", T_OBJECT_EX, offsetof(MainParticle2, pos), 0, NULL},
+    {"dur", T_OBJECT_EX, offsetof(MainParticle2, dur), 0, NULL},
+    {"dev", T_OBJECT_EX, offsetof(MainParticle2, dev), 0, NULL},
+    {"pan", T_OBJECT_EX, offsetof(MainParticle2, pan), 0, NULL},
+    {"filterfreq", T_OBJECT_EX, offsetof(MainParticle2, filterfreq), 0, NULL},
+    {"filterq", T_OBJECT_EX, offsetof(MainParticle2, filterq), 0, NULL},
+    {"filtertype", T_OBJECT_EX, offsetof(MainParticle2, filtertype), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef MainParticle2_methods[] =
 {
-    {"getTable", (PyCFunction)MainParticle2_getTable, METH_NOARGS, "Returns sound table object."},
-    {"setTable", (PyCFunction)MainParticle2_setTable, METH_O, "Sets sound table."},
-    {"getEnv", (PyCFunction)MainParticle2_getEnv, METH_NOARGS, "Returns envelope table object."},
-    {"setEnv", (PyCFunction)MainParticle2_setEnv, METH_O, "Sets envelope table."},
-    {"getServer", (PyCFunction)MainParticle2_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)MainParticle2_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)MainParticle2_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)MainParticle2_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setDens", (PyCFunction)MainParticle2_setDens, METH_O, "Sets the density of grains per second."},
-    {"setPitch", (PyCFunction)MainParticle2_setPitch, METH_O, "Sets global pitch factor."},
-    {"setPos", (PyCFunction)MainParticle2_setPos, METH_O, "Sets position in the sound table."},
-    {"setDur", (PyCFunction)MainParticle2_setDur, METH_O, "Sets the grain duration."},
-    {"setDev", (PyCFunction)MainParticle2_setDev, METH_O, "Sets grain start point deviation factor."},
-    {"setPan", (PyCFunction)MainParticle2_setPan, METH_O, "Sets grain panning factor."},
-    {"setFilterfreq", (PyCFunction)MainParticle2_setFilterfreq, METH_O, "Sets grain filter center/cutoff frequency."},
-    {"setFilterq", (PyCFunction)MainParticle2_setFilterq, METH_O, "Sets grain filter Q."},
-    {"setFiltertype", (PyCFunction)MainParticle2_setFiltertype, METH_O, "Sets grain filter type."},
+    {"getTable", (PyCFunction)MainParticle2_getTable, METH_NOARGS, NULL},
+    {"setTable", (PyCFunction)MainParticle2_setTable, METH_O, NULL},
+    {"getEnv", (PyCFunction)MainParticle2_getEnv, METH_NOARGS, NULL},
+    {"setEnv", (PyCFunction)MainParticle2_setEnv, METH_O, NULL},
+    {"getServer", (PyCFunction)MainParticle2_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)MainParticle2_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)MainParticle2_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)MainParticle2_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setDens", (PyCFunction)MainParticle2_setDens, METH_O, NULL},
+    {"setPitch", (PyCFunction)MainParticle2_setPitch, METH_O, NULL},
+    {"setPos", (PyCFunction)MainParticle2_setPos, METH_O, NULL},
+    {"setDur", (PyCFunction)MainParticle2_setDur, METH_O, NULL},
+    {"setDev", (PyCFunction)MainParticle2_setDev, METH_O, NULL},
+    {"setPan", (PyCFunction)MainParticle2_setPan, METH_O, NULL},
+    {"setFilterfreq", (PyCFunction)MainParticle2_setFilterfreq, METH_O, NULL},
+    {"setFilterq", (PyCFunction)MainParticle2_setFilterq, METH_O, NULL},
+    {"setFiltertype", (PyCFunction)MainParticle2_setFiltertype, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -6870,7 +6870,7 @@ PyTypeObject MainParticle2Type =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "MainParticle2 objects. Accumulation of multiples bandpass filtered grains of sound.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)MainParticle2_traverse,   /* tp_traverse */
     (inquiry)MainParticle2_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -7057,24 +7057,24 @@ static PyObject * Particle2_inplace_div(Particle2 *self, PyObject *arg) { INPLAC
 
 static PyMemberDef Particle2_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(Particle2, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(Particle2, stream), 0, "Stream object."},
-    {"mul", T_OBJECT_EX, offsetof(Particle2, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(Particle2, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(Particle2, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(Particle2, stream), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(Particle2, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(Particle2, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef Particle2_methods[] =
 {
-    {"getServer", (PyCFunction)Particle2_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)Particle2_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Particle2_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)Particle2_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Particle2_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setMul", (PyCFunction)Particle2_setMul, METH_O, "Sets Particle2 mul factor."},
-    {"setAdd", (PyCFunction)Particle2_setAdd, METH_O, "Sets Particle2 add factor."},
-    {"setSub", (PyCFunction)Particle2_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)Particle2_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)Particle2_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)Particle2_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)Particle2_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)Particle2_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)Particle2_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setMul", (PyCFunction)Particle2_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)Particle2_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)Particle2_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)Particle2_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -7138,7 +7138,7 @@ PyTypeObject Particle2Type =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "Particle2 objects. Reads one band from a MainParticle2 object.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)Particle2_traverse,   /* tp_traverse */
     (inquiry)Particle2_clear,           /* tp_clear */
     0,                     /* tp_richcompare */

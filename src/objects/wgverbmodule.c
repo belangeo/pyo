@@ -793,32 +793,32 @@ WGVerb_setMix(WGVerb *self, PyObject *arg)
 
 static PyMemberDef WGVerb_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(WGVerb, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(WGVerb, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(WGVerb, input), 0, "Input sound object."},
-    {"feedback", T_OBJECT_EX, offsetof(WGVerb, feedback), 0, "Feedback value."},
-    {"cutoff", T_OBJECT_EX, offsetof(WGVerb, cutoff), 0, "WGVerb lowpass filter cutoff."},
-    {"mix", T_OBJECT_EX, offsetof(WGVerb, mix), 0, "Balance between dry and wet signals."},
-    {"mul", T_OBJECT_EX, offsetof(WGVerb, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(WGVerb, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(WGVerb, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(WGVerb, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(WGVerb, input), 0, NULL},
+    {"feedback", T_OBJECT_EX, offsetof(WGVerb, feedback), 0, NULL},
+    {"cutoff", T_OBJECT_EX, offsetof(WGVerb, cutoff), 0, NULL},
+    {"mix", T_OBJECT_EX, offsetof(WGVerb, mix), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(WGVerb, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(WGVerb, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef WGVerb_methods[] =
 {
-    {"getServer", (PyCFunction)WGVerb_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)WGVerb_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)WGVerb_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)WGVerb_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)WGVerb_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"reset", (PyCFunction)WGVerb_reset, METH_NOARGS, "Reset the delay line."},
-    {"setFeedback", (PyCFunction)WGVerb_setFeedback, METH_O, "Sets feedback value between 0 -> 1."},
-    {"setCutoff", (PyCFunction)WGVerb_setCutoff, METH_O, "Sets lowpass filter cutoff."},
-    {"setMix", (PyCFunction)WGVerb_setMix, METH_O, "Sets balance between dry and wet signals."},
-    {"setMul", (PyCFunction)WGVerb_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)WGVerb_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)WGVerb_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)WGVerb_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)WGVerb_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)WGVerb_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)WGVerb_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)WGVerb_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)WGVerb_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"reset", (PyCFunction)WGVerb_reset, METH_NOARGS, NULL},
+    {"setFeedback", (PyCFunction)WGVerb_setFeedback, METH_O, NULL},
+    {"setCutoff", (PyCFunction)WGVerb_setCutoff, METH_O, NULL},
+    {"setMix", (PyCFunction)WGVerb_setMix, METH_O, NULL},
+    {"setMul", (PyCFunction)WGVerb_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)WGVerb_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)WGVerb_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)WGVerb_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -882,7 +882,7 @@ PyTypeObject WGVerbType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "WGVerb objects. Waveguide-based reverberation network.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)WGVerb_traverse,   /* tp_traverse */
     (inquiry)WGVerb_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -2119,29 +2119,29 @@ STReverb_setFirstRefGain(STReverb *self, PyObject *arg)
 
 static PyMemberDef STReverb_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(STReverb, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(STReverb, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(STReverb, input), 0, "Input sound object."},
-    {"inpos", T_OBJECT_EX, offsetof(STReverb, inpos), 0, "Position left-right of the source."},
-    {"revtime", T_OBJECT_EX, offsetof(STReverb, revtime), 0, "Reverb duration value."},
-    {"cutoff", T_OBJECT_EX, offsetof(STReverb, cutoff), 0, "STReverb lowpass filter cutoff."},
-    {"mix", T_OBJECT_EX, offsetof(STReverb, mix), 0, "Balance between dry and wet signals."},
+    {"server", T_OBJECT_EX, offsetof(STReverb, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(STReverb, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(STReverb, input), 0, NULL},
+    {"inpos", T_OBJECT_EX, offsetof(STReverb, inpos), 0, NULL},
+    {"revtime", T_OBJECT_EX, offsetof(STReverb, revtime), 0, NULL},
+    {"cutoff", T_OBJECT_EX, offsetof(STReverb, cutoff), 0, NULL},
+    {"mix", T_OBJECT_EX, offsetof(STReverb, mix), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef STReverb_methods[] =
 {
-    {"getServer", (PyCFunction)STReverb_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)STReverb_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)STReverb_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)STReverb_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"reset", (PyCFunction)STReverb_reset, METH_NOARGS, "Reset the delay line."},
-    {"setInpos", (PyCFunction)STReverb_setInpos, METH_O, "Sets position of the source between 0 -> 1."},
-    {"setRevtime", (PyCFunction)STReverb_setRevtime, METH_O, "Sets reverb duration in seconds."},
-    {"setCutoff", (PyCFunction)STReverb_setCutoff, METH_O, "Sets lowpass filter cutoff."},
-    {"setMix", (PyCFunction)STReverb_setMix, METH_O, "Sets balance between dry and wet signals."},
-    {"setFirstRefGain", (PyCFunction)STReverb_setFirstRefGain, METH_O, "Sets gain of the first reflexions."},
-    {"setRoomSize", (PyCFunction)STReverb_setRoomSize, METH_O, "Sets room size scaler."},
+    {"getServer", (PyCFunction)STReverb_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)STReverb_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)STReverb_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)STReverb_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"reset", (PyCFunction)STReverb_reset, METH_NOARGS, NULL},
+    {"setInpos", (PyCFunction)STReverb_setInpos, METH_O, NULL},
+    {"setRevtime", (PyCFunction)STReverb_setRevtime, METH_O, NULL},
+    {"setCutoff", (PyCFunction)STReverb_setCutoff, METH_O, NULL},
+    {"setMix", (PyCFunction)STReverb_setMix, METH_O, NULL},
+    {"setFirstRefGain", (PyCFunction)STReverb_setFirstRefGain, METH_O, NULL},
+    {"setRoomSize", (PyCFunction)STReverb_setRoomSize, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -2167,7 +2167,7 @@ PyTypeObject STReverbType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "STReverb objects. Waveguide-based reverberation network.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)STReverb_traverse,   /* tp_traverse */
     (inquiry)STReverb_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -2357,24 +2357,24 @@ static PyObject * STRev_inplace_div(STRev *self, PyObject *arg) { INPLACE_DIV };
 
 static PyMemberDef STRev_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(STRev, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(STRev, stream), 0, "Stream object."},
-    {"mul", T_OBJECT_EX, offsetof(STRev, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(STRev, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(STRev, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(STRev, stream), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(STRev, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(STRev, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef STRev_methods[] =
 {
-    {"getServer", (PyCFunction)STRev_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)STRev_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)STRev_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)STRev_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)STRev_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setMul", (PyCFunction)STRev_setMul, METH_O, "Sets STRev mul factor."},
-    {"setAdd", (PyCFunction)STRev_setAdd, METH_O, "Sets STRev add factor."},
-    {"setSub", (PyCFunction)STRev_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)STRev_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)STRev_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)STRev_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)STRev_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)STRev_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)STRev_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setMul", (PyCFunction)STRev_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)STRev_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)STRev_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)STRev_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -2438,7 +2438,7 @@ PyTypeObject STRevType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "STRev objects. Reads one channel from a STReverb object.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)STRev_traverse,   /* tp_traverse */
     (inquiry)STRev_clear,           /* tp_clear */
     0,                     /* tp_richcompare */

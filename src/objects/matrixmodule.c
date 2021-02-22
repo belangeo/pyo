@@ -465,29 +465,29 @@ NewMatrix_genSineTerrain(NewMatrix *self, PyObject *args, PyObject *kwds)
 
 static PyMemberDef NewMatrix_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(NewMatrix, server), 0, "Pyo server."},
-    {"matrixstream", T_OBJECT_EX, offsetof(NewMatrix, matrixstream), 0, "Matrix stream object."},
+    {"server", T_OBJECT_EX, offsetof(NewMatrix, server), 0, NULL},
+    {"matrixstream", T_OBJECT_EX, offsetof(NewMatrix, matrixstream), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef NewMatrix_methods[] =
 {
-    {"getServer", (PyCFunction)NewMatrix_getServer, METH_NOARGS, "Returns server object."},
-    {"getData", (PyCFunction)NewMatrix_getData, METH_NOARGS, "Returns a list of matrix samples."},
-    {"getViewData", (PyCFunction)NewMatrix_getViewData, METH_NOARGS, "Returns a list of matrix samples normalized between 0 and 256 ."},
-    {"getImageData", (PyCFunction)NewMatrix_getImageData, METH_NOARGS, "Returns a list of matrix samples in tuple of 3 ints normalized between 0 and 256 ."},
-    {"getMatrixStream", (PyCFunction)NewMatrix_getMatrixStream, METH_NOARGS, "Returns matrixstream object created by this matrix."},
-    {"setMatrix", (PyCFunction)NewMatrix_setMatrix, METH_O, "Sets the matrix from a list of list of floats (must be the same size as the object size)."},
-    {"setData", (PyCFunction)NewMatrix_setData, METH_O, "Sets the matrix from a list of list of floats (resizes the matrix)."},
-    {"normalize", (PyCFunction)NewMatrix_normalize, METH_VARARGS | METH_KEYWORDS, "Normalize matrix samples between -1 and 1"},
-    {"blur", (PyCFunction)NewMatrix_blur, METH_NOARGS, "Blur the matrix."},
-    {"genSineTerrain", (PyCFunction)NewMatrix_genSineTerrain, METH_VARARGS | METH_KEYWORDS, "Generate a modulated sinusoidal terrain."},
-    {"boost", (PyCFunction)NewMatrix_boost, METH_VARARGS | METH_KEYWORDS, "Boost the contrast of the matrix."},
-    {"put", (PyCFunction)NewMatrix_put, METH_VARARGS | METH_KEYWORDS, "Puts a value at specified position in the matrix."},
-    {"get", (PyCFunction)NewMatrix_get, METH_VARARGS | METH_KEYWORDS, "Gets the value at specified position in the matrix."},
-    {"getInterpolated", (PyCFunction)NewMatrix_getInterpolated, METH_VARARGS | METH_KEYWORDS, "Gets the value at normalized position in the matrix."},
-    {"getSize", (PyCFunction)NewMatrix_getSize, METH_NOARGS, "Return the size of the matrix in samples."},
-    {"getRate", (PyCFunction)NewMatrix_getRate, METH_NOARGS, "Return the frequency (in cps) that reads the sound without pitch transposition."},
+    {"getServer", (PyCFunction)NewMatrix_getServer, METH_NOARGS, NULL},
+    {"getData", (PyCFunction)NewMatrix_getData, METH_NOARGS, NULL},
+    {"getViewData", (PyCFunction)NewMatrix_getViewData, METH_NOARGS, NULL},
+    {"getImageData", (PyCFunction)NewMatrix_getImageData, METH_NOARGS, NULL},
+    {"getMatrixStream", (PyCFunction)NewMatrix_getMatrixStream, METH_NOARGS, NULL},
+    {"setMatrix", (PyCFunction)NewMatrix_setMatrix, METH_O, NULL},
+    {"setData", (PyCFunction)NewMatrix_setData, METH_O, NULL},
+    {"normalize", (PyCFunction)NewMatrix_normalize, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"blur", (PyCFunction)NewMatrix_blur, METH_NOARGS, NULL},
+    {"genSineTerrain", (PyCFunction)NewMatrix_genSineTerrain, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"boost", (PyCFunction)NewMatrix_boost, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"put", (PyCFunction)NewMatrix_put, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"get", (PyCFunction)NewMatrix_get, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"getInterpolated", (PyCFunction)NewMatrix_getInterpolated, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"getSize", (PyCFunction)NewMatrix_getSize, METH_NOARGS, NULL},
+    {"getRate", (PyCFunction)NewMatrix_getRate, METH_NOARGS, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -513,7 +513,7 @@ PyTypeObject NewMatrixType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "NewMatrix objects. Generates an empty matrix.",  /* tp_doc */
+    0,  /* tp_doc */
     (traverseproc)NewMatrix_traverse,   /* tp_traverse */
     (inquiry)NewMatrix_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -738,22 +738,22 @@ MatrixRec_setMatrix(MatrixRec *self, PyObject *arg)
 
 static PyMemberDef MatrixRec_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(MatrixRec, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(MatrixRec, stream), 0, "Stream object."},
-    {"trig_stream", T_OBJECT_EX, offsetof(MatrixRec, trig_stream), 0, "Trigger Stream object."},
-    {"input", T_OBJECT_EX, offsetof(MatrixRec, input), 0, "Input sound object."},
-    {"matrix", T_OBJECT_EX, offsetof(MatrixRec, matrix), 0, "matrix to record in."},
+    {"server", T_OBJECT_EX, offsetof(MatrixRec, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(MatrixRec, stream), 0, NULL},
+    {"trig_stream", T_OBJECT_EX, offsetof(MatrixRec, trig_stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(MatrixRec, input), 0, NULL},
+    {"matrix", T_OBJECT_EX, offsetof(MatrixRec, matrix), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef MatrixRec_methods[] =
 {
-    {"getServer", (PyCFunction)MatrixRec_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)MatrixRec_getStream, METH_NOARGS, "Returns stream object."},
-    {"_getTriggerStream", (PyCFunction)MatrixRec_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
-    {"setMatrix", (PyCFunction)MatrixRec_setMatrix, METH_O, "Sets a new Matrix."},
-    {"play", (PyCFunction)MatrixRec_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)MatrixRec_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"getServer", (PyCFunction)MatrixRec_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)MatrixRec_getStream, METH_NOARGS, NULL},
+    {"_getTriggerStream", (PyCFunction)MatrixRec_getTriggerStream, METH_NOARGS, NULL},
+    {"setMatrix", (PyCFunction)MatrixRec_setMatrix, METH_O, NULL},
+    {"play", (PyCFunction)MatrixRec_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)MatrixRec_stop, METH_VARARGS | METH_KEYWORDS, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -779,7 +779,7 @@ PyTypeObject MatrixRecType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "MatrixRec objects. Record audio input in a Matrix object.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)MatrixRec_traverse,   /* tp_traverse */
     (inquiry)MatrixRec_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -935,22 +935,22 @@ MatrixRecLoop_setMatrix(MatrixRecLoop *self, PyObject *arg)
 
 static PyMemberDef MatrixRecLoop_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(MatrixRecLoop, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(MatrixRecLoop, stream), 0, "Stream object."},
-    {"trig_stream", T_OBJECT_EX, offsetof(MatrixRecLoop, trig_stream), 0, "Trigger Stream object."},
-    {"input", T_OBJECT_EX, offsetof(MatrixRecLoop, input), 0, "Input sound object."},
-    {"matrix", T_OBJECT_EX, offsetof(MatrixRecLoop, matrix), 0, "matrix to record in."},
+    {"server", T_OBJECT_EX, offsetof(MatrixRecLoop, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(MatrixRecLoop, stream), 0, NULL},
+    {"trig_stream", T_OBJECT_EX, offsetof(MatrixRecLoop, trig_stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(MatrixRecLoop, input), 0, NULL},
+    {"matrix", T_OBJECT_EX, offsetof(MatrixRecLoop, matrix), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef MatrixRecLoop_methods[] =
 {
-    {"getServer", (PyCFunction)MatrixRecLoop_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)MatrixRecLoop_getStream, METH_NOARGS, "Returns stream object."},
-    {"_getTriggerStream", (PyCFunction)MatrixRecLoop_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
-    {"setMatrix", (PyCFunction)MatrixRecLoop_setMatrix, METH_O, "Sets a new Matrix."},
-    {"play", (PyCFunction)MatrixRecLoop_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)MatrixRecLoop_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"getServer", (PyCFunction)MatrixRecLoop_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)MatrixRecLoop_getStream, METH_NOARGS, NULL},
+    {"_getTriggerStream", (PyCFunction)MatrixRecLoop_getTriggerStream, METH_NOARGS, NULL},
+    {"setMatrix", (PyCFunction)MatrixRecLoop_setMatrix, METH_O, NULL},
+    {"play", (PyCFunction)MatrixRecLoop_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)MatrixRecLoop_stop, METH_VARARGS | METH_KEYWORDS, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -976,7 +976,7 @@ PyTypeObject MatrixRecLoopType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "MatrixRecLoop objects. Record circular audio input in a Matrix object.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)MatrixRecLoop_traverse,   /* tp_traverse */
     (inquiry)MatrixRecLoop_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -1167,22 +1167,22 @@ MatrixMorph_setSources(MatrixMorph *self, PyObject *arg)
 
 static PyMemberDef MatrixMorph_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(MatrixMorph, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(MatrixMorph, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(MatrixMorph, input), 0, "Input sound object."},
-    {"matrix", T_OBJECT_EX, offsetof(MatrixMorph, matrix), 0, "Matrix to record in."},
-    {"sources", T_OBJECT_EX, offsetof(MatrixMorph, sources), 0, "list of matrixes to interpolate from."},
+    {"server", T_OBJECT_EX, offsetof(MatrixMorph, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(MatrixMorph, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(MatrixMorph, input), 0, NULL},
+    {"matrix", T_OBJECT_EX, offsetof(MatrixMorph, matrix), 0, NULL},
+    {"sources", T_OBJECT_EX, offsetof(MatrixMorph, sources), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef MatrixMorph_methods[] =
 {
-    {"getServer", (PyCFunction)MatrixMorph_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)MatrixMorph_getStream, METH_NOARGS, "Returns stream object."},
-    {"setMatrix", (PyCFunction)MatrixMorph_setMatrix, METH_O, "Sets a new matrix."},
-    {"setSources", (PyCFunction)MatrixMorph_setSources, METH_O, "Changes the sources matrixs."},
-    {"play", (PyCFunction)MatrixMorph_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)MatrixMorph_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"getServer", (PyCFunction)MatrixMorph_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)MatrixMorph_getStream, METH_NOARGS, NULL},
+    {"setMatrix", (PyCFunction)MatrixMorph_setMatrix, METH_O, NULL},
+    {"setSources", (PyCFunction)MatrixMorph_setSources, METH_O, NULL},
+    {"play", (PyCFunction)MatrixMorph_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)MatrixMorph_stop, METH_VARARGS | METH_KEYWORDS, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -1208,7 +1208,7 @@ PyTypeObject MatrixMorphType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "MatrixMorph objects. Interpolation contents of different matrix objects.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)MatrixMorph_traverse,   /* tp_traverse */
     (inquiry)MatrixMorph_clear,           /* tp_clear */
     0,                     /* tp_richcompare */

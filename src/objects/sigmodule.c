@@ -241,26 +241,26 @@ static PyObject * Sig_inplace_div(Sig *self, PyObject *arg) { INPLACE_DIV };
 
 static PyMemberDef Sig_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(Sig, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(Sig, stream), 0, "Stream object."},
-    {"value", T_OBJECT_EX, offsetof(Sig, value), 0, "Target value."},
-    {"mul", T_OBJECT_EX, offsetof(Sig, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(Sig, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(Sig, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(Sig, stream), 0, NULL},
+    {"value", T_OBJECT_EX, offsetof(Sig, value), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(Sig, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(Sig, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef Sig_methods[] =
 {
-    {"getServer", (PyCFunction)Sig_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)Sig_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Sig_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)Sig_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Sig_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setValue", (PyCFunction)Sig_setValue, METH_O, "Sets Sig value."},
-    {"setMul", (PyCFunction)Sig_setMul, METH_O, "Sets Sig mul factor."},
-    {"setAdd", (PyCFunction)Sig_setAdd, METH_O, "Sets Sig add factor."},
-    {"setSub", (PyCFunction)Sig_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)Sig_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)Sig_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)Sig_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)Sig_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)Sig_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)Sig_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setValue", (PyCFunction)Sig_setValue, METH_O, NULL},
+    {"setMul", (PyCFunction)Sig_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)Sig_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)Sig_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)Sig_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -324,7 +324,7 @@ PyTypeObject SigType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Sig objects. Converts number into a signal stream.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)Sig_traverse,   /* tp_traverse */
     (inquiry)Sig_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -697,27 +697,27 @@ static PyObject * SigTo_inplace_div(SigTo *self, PyObject *arg) { INPLACE_DIV };
 
 static PyMemberDef SigTo_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(SigTo, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(SigTo, stream), 0, "Stream object."},
-    {"value", T_OBJECT_EX, offsetof(SigTo, value), 0, "Target value."},
-    {"time", T_OBJECT_EX, offsetof(SigTo, time), 0, "Ramp time."},
-    {"mul", T_OBJECT_EX, offsetof(SigTo, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(SigTo, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(SigTo, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(SigTo, stream), 0, NULL},
+    {"value", T_OBJECT_EX, offsetof(SigTo, value), 0, NULL},
+    {"time", T_OBJECT_EX, offsetof(SigTo, time), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(SigTo, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(SigTo, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef SigTo_methods[] =
 {
-    {"getServer", (PyCFunction)SigTo_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)SigTo_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)SigTo_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)SigTo_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setValue", (PyCFunction)SigTo_setValue, METH_O, "Sets SigTo value."},
-    {"setTime", (PyCFunction)SigTo_setTime, METH_O, "Sets ramp time in seconds."},
-    {"setMul", (PyCFunction)SigTo_setMul, METH_O, "Sets SigTo mul factor."},
-    {"setAdd", (PyCFunction)SigTo_setAdd, METH_O, "Sets SigTo add factor."},
-    {"setSub", (PyCFunction)SigTo_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)SigTo_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)SigTo_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)SigTo_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)SigTo_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)SigTo_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setValue", (PyCFunction)SigTo_setValue, METH_O, NULL},
+    {"setTime", (PyCFunction)SigTo_setTime, METH_O, NULL},
+    {"setMul", (PyCFunction)SigTo_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)SigTo_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)SigTo_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)SigTo_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -781,7 +781,7 @@ PyTypeObject SigToType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "SigTo objects. Converts number into a signal stream and apply a ramp from last value.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)SigTo_traverse,   /* tp_traverse */
     (inquiry)SigTo_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -1138,26 +1138,26 @@ static PyObject * VarPort_inplace_div(VarPort *self, PyObject *arg) { INPLACE_DI
 
 static PyMemberDef VarPort_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(VarPort, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(VarPort, stream), 0, "Stream object."},
-    {"mul", T_OBJECT_EX, offsetof(VarPort, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(VarPort, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(VarPort, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(VarPort, stream), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(VarPort, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(VarPort, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef VarPort_methods[] =
 {
-    {"getServer", (PyCFunction)VarPort_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)VarPort_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)VarPort_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)VarPort_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setValue", (PyCFunction)VarPort_setValue, METH_O, "Sets VarPort value."},
-    {"setTime", (PyCFunction)VarPort_setTime, METH_O, "Sets ramp time in seconds."},
-    {"setFunction", (PyCFunction)VarPort_setFunction, METH_O, "Sets function to be called."},
-    {"setMul", (PyCFunction)VarPort_setMul, METH_O, "Sets VarPort mul factor."},
-    {"setAdd", (PyCFunction)VarPort_setAdd, METH_O, "Sets VarPort add factor."},
-    {"setSub", (PyCFunction)VarPort_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)VarPort_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)VarPort_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)VarPort_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)VarPort_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)VarPort_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setValue", (PyCFunction)VarPort_setValue, METH_O, NULL},
+    {"setTime", (PyCFunction)VarPort_setTime, METH_O, NULL},
+    {"setFunction", (PyCFunction)VarPort_setFunction, METH_O, NULL},
+    {"setMul", (PyCFunction)VarPort_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)VarPort_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)VarPort_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)VarPort_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -1221,7 +1221,7 @@ PyTypeObject VarPortType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "VarPort objects. Converts number into a signal stream and apply a ramp from last value.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)VarPort_traverse,   /* tp_traverse */
     (inquiry)VarPort_clear,           /* tp_clear */
     0,                     /* tp_richcompare */

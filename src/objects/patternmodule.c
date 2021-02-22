@@ -323,21 +323,21 @@ Pattern_setArg(Pattern *self, PyObject *arg)
 
 static PyMemberDef Pattern_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(Pattern, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(Pattern, stream), 0, "Stream object."},
-    {"time", T_OBJECT_EX, offsetof(Pattern, time), 0, "Pattern time factor."},
+    {"server", T_OBJECT_EX, offsetof(Pattern, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(Pattern, stream), 0, NULL},
+    {"time", T_OBJECT_EX, offsetof(Pattern, time), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef Pattern_methods[] =
 {
-    {"getServer", (PyCFunction)Pattern_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)Pattern_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Pattern_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)Pattern_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setTime", (PyCFunction)Pattern_setTime, METH_O, "Sets time factor."},
-    {"setFunction", (PyCFunction)Pattern_setFunction, METH_O, "Sets the function to be called."},
-    {"setArg", (PyCFunction)Pattern_setArg, METH_O, "Sets function's argument."},
+    {"getServer", (PyCFunction)Pattern_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)Pattern_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)Pattern_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)Pattern_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setTime", (PyCFunction)Pattern_setTime, METH_O, NULL},
+    {"setFunction", (PyCFunction)Pattern_setFunction, METH_O, NULL},
+    {"setArg", (PyCFunction)Pattern_setArg, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -363,7 +363,7 @@ PyTypeObject PatternType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Pattern objects. Create a metronome.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)Pattern_traverse,   /* tp_traverse */
     (inquiry)Pattern_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -490,17 +490,17 @@ static PyObject * Score_stop(Score *self, PyObject *args, PyObject *kwds) { STOP
 
 static PyMemberDef Score_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(Score, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(Score, stream), 0, "Stream object."},
+    {"server", T_OBJECT_EX, offsetof(Score, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(Score, stream), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef Score_methods[] =
 {
-    {"getServer", (PyCFunction)Score_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)Score_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Score_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)Score_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"getServer", (PyCFunction)Score_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)Score_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)Score_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)Score_stop, METH_VARARGS | METH_KEYWORDS, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -526,7 +526,7 @@ PyTypeObject ScoreType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Score objects. Calls numbered function from an integer count.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)Score_traverse,   /* tp_traverse */
     (inquiry)Score_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -710,19 +710,19 @@ CallAfter_setArg(CallAfter *self, PyObject *arg)
 
 static PyMemberDef CallAfter_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(CallAfter, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(CallAfter, stream), 0, "Stream object."},
+    {"server", T_OBJECT_EX, offsetof(CallAfter, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(CallAfter, stream), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef CallAfter_methods[] =
 {
-    {"getServer", (PyCFunction)CallAfter_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)CallAfter_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)CallAfter_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)CallAfter_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setTime", (PyCFunction)CallAfter_setTime, METH_O, "Sets time argument."},
-    {"setArg", (PyCFunction)CallAfter_setArg, METH_O, "Sets function's argument."},
+    {"getServer", (PyCFunction)CallAfter_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)CallAfter_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)CallAfter_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)CallAfter_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setTime", (PyCFunction)CallAfter_setTime, METH_O, NULL},
+    {"setArg", (PyCFunction)CallAfter_setArg, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -748,7 +748,7 @@ PyTypeObject CallAfterType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "CallAfter objects. Create a metronome.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)CallAfter_traverse,   /* tp_traverse */
     (inquiry)CallAfter_clear,           /* tp_clear */
     0,                     /* tp_richcompare */

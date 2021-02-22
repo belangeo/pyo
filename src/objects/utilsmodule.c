@@ -215,21 +215,21 @@ Print_setMessage(Print *self, PyObject *arg)
 
 static PyMemberDef Print_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(Print, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(Print, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(Print, input), 0, "Input sound object."},
+    {"server", T_OBJECT_EX, offsetof(Print, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(Print, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(Print, input), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef Print_methods[] =
 {
-    {"getServer", (PyCFunction)Print_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)Print_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Print_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)Print_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setMethod", (PyCFunction)Print_setMethod, METH_O, "Sets the printing method."},
-    {"setInterval", (PyCFunction)Print_setInterval, METH_O, "Sets the time interval."},
-    {"setMessage", (PyCFunction)Print_setMessage, METH_O, "Sets the prefix message to print."},
+    {"getServer", (PyCFunction)Print_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)Print_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)Print_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)Print_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setMethod", (PyCFunction)Print_setMethod, METH_O, NULL},
+    {"setInterval", (PyCFunction)Print_setInterval, METH_O, NULL},
+    {"setMessage", (PyCFunction)Print_setMessage, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -255,7 +255,7 @@ PyTypeObject PrintType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Print objects. Print the current value of the input object.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)Print_traverse,                  /* tp_traverse */
     (inquiry)Print_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -573,27 +573,27 @@ Snap_setScale(Snap *self, PyObject *arg)
 
 static PyMemberDef Snap_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(Snap, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(Snap, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(Snap, input), 0, "Input sound object."},
-    {"mul", T_OBJECT_EX, offsetof(Snap, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(Snap, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(Snap, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(Snap, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(Snap, input), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(Snap, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(Snap, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef Snap_methods[] =
 {
-    {"getServer", (PyCFunction)Snap_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)Snap_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Snap_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)Snap_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Snap_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setChoice", (PyCFunction)Snap_setChoice, METH_O, "Sets output scale."},
-    {"setScale", (PyCFunction)Snap_setScale, METH_O, "Sets new portamento time."},
-    {"setMul", (PyCFunction)Snap_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)Snap_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)Snap_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)Snap_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)Snap_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)Snap_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)Snap_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)Snap_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)Snap_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setChoice", (PyCFunction)Snap_setChoice, METH_O, NULL},
+    {"setScale", (PyCFunction)Snap_setScale, METH_O, NULL},
+    {"setMul", (PyCFunction)Snap_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)Snap_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)Snap_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)Snap_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -657,7 +657,7 @@ PyTypeObject SnapType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Snap objects. Snap input values on an arbitrary Midi scale.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)Snap_traverse,                  /* tp_traverse */
     (inquiry)Snap_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -951,28 +951,28 @@ Interp_setInterp(Interp *self, PyObject *arg)
 
 static PyMemberDef Interp_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(Interp, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(Interp, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(Interp, input), 0, "Input sound object."},
-    {"input2", T_OBJECT_EX, offsetof(Interp, input2), 0, "Second input sound object."},
-    {"interp", T_OBJECT_EX, offsetof(Interp, interp), 0, "Cutoff interpuency in cycle per second."},
-    {"mul", T_OBJECT_EX, offsetof(Interp, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(Interp, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(Interp, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(Interp, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(Interp, input), 0, NULL},
+    {"input2", T_OBJECT_EX, offsetof(Interp, input2), 0, NULL},
+    {"interp", T_OBJECT_EX, offsetof(Interp, interp), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(Interp, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(Interp, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef Interp_methods[] =
 {
-    {"getServer", (PyCFunction)Interp_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)Interp_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Interp_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)Interp_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Interp_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setInterp", (PyCFunction)Interp_setInterp, METH_O, "Sets filter cutoff interpuency in cycle per second."},
-    {"setMul", (PyCFunction)Interp_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)Interp_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)Interp_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)Interp_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)Interp_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)Interp_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)Interp_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)Interp_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)Interp_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setInterp", (PyCFunction)Interp_setInterp, METH_O, NULL},
+    {"setMul", (PyCFunction)Interp_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)Interp_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)Interp_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)Interp_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -1036,7 +1036,7 @@ PyTypeObject InterpType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Interp objects. Interpolates between 2 audio streams.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)Interp_traverse,                  /* tp_traverse */
     (inquiry)Interp_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -1349,28 +1349,28 @@ SampHold_setValue(SampHold *self, PyObject *arg)
 
 static PyMemberDef SampHold_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(SampHold, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(SampHold, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(SampHold, input), 0, "Input sound object."},
-    {"controlsig", T_OBJECT_EX, offsetof(SampHold, controlsig), 0, "Control input object."},
-    {"value", T_OBJECT_EX, offsetof(SampHold, value), 0, "Trigger value."},
-    {"mul", T_OBJECT_EX, offsetof(SampHold, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(SampHold, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(SampHold, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(SampHold, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(SampHold, input), 0, NULL},
+    {"controlsig", T_OBJECT_EX, offsetof(SampHold, controlsig), 0, NULL},
+    {"value", T_OBJECT_EX, offsetof(SampHold, value), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(SampHold, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(SampHold, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef SampHold_methods[] =
 {
-    {"getServer", (PyCFunction)SampHold_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)SampHold_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)SampHold_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)SampHold_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)SampHold_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setValue", (PyCFunction)SampHold_setValue, METH_O, "Sets trigger value."},
-    {"setMul", (PyCFunction)SampHold_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)SampHold_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)SampHold_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)SampHold_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)SampHold_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)SampHold_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)SampHold_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)SampHold_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)SampHold_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setValue", (PyCFunction)SampHold_setValue, METH_O, NULL},
+    {"setMul", (PyCFunction)SampHold_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)SampHold_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)SampHold_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)SampHold_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -1434,7 +1434,7 @@ PyTypeObject SampHoldType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "SampHold objects. SampHoldolates between 2 audio streams.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)SampHold_traverse,                  /* tp_traverse */
     (inquiry)SampHold_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -1753,28 +1753,28 @@ TrackHold_setValue(TrackHold *self, PyObject *arg)
 
 static PyMemberDef TrackHold_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(TrackHold, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(TrackHold, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(TrackHold, input), 0, "Input sound object."},
-    {"controlsig", T_OBJECT_EX, offsetof(TrackHold, controlsig), 0, "Control input object."},
-    {"value", T_OBJECT_EX, offsetof(TrackHold, value), 0, "Trigger value."},
-    {"mul", T_OBJECT_EX, offsetof(TrackHold, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(TrackHold, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(TrackHold, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(TrackHold, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(TrackHold, input), 0, NULL},
+    {"controlsig", T_OBJECT_EX, offsetof(TrackHold, controlsig), 0, NULL},
+    {"value", T_OBJECT_EX, offsetof(TrackHold, value), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(TrackHold, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(TrackHold, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef TrackHold_methods[] =
 {
-    {"getServer", (PyCFunction)TrackHold_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)TrackHold_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)TrackHold_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)TrackHold_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)TrackHold_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setValue", (PyCFunction)TrackHold_setValue, METH_O, "Sets trigger value."},
-    {"setMul", (PyCFunction)TrackHold_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)TrackHold_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)TrackHold_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)TrackHold_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)TrackHold_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)TrackHold_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)TrackHold_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)TrackHold_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)TrackHold_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setValue", (PyCFunction)TrackHold_setValue, METH_O, NULL},
+    {"setMul", (PyCFunction)TrackHold_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)TrackHold_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)TrackHold_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)TrackHold_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -1838,7 +1838,7 @@ PyTypeObject TrackHoldType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "TrackHold objects. Let pass and freeze an audio stream.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)TrackHold_traverse,                  /* tp_traverse */
     (inquiry)TrackHold_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -2180,27 +2180,27 @@ Compare_setMode(Compare *self, PyObject *arg)
 
 static PyMemberDef Compare_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(Compare, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(Compare, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(Compare, input), 0, "Input sound object."},
-    {"comp", T_OBJECT_EX, offsetof(Compare, comp), 0, "Comparison object."},
-    {"mul", T_OBJECT_EX, offsetof(Compare, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(Compare, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(Compare, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(Compare, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(Compare, input), 0, NULL},
+    {"comp", T_OBJECT_EX, offsetof(Compare, comp), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(Compare, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(Compare, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef Compare_methods[] =
 {
-    {"getServer", (PyCFunction)Compare_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)Compare_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Compare_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)Compare_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setComp", (PyCFunction)Compare_setComp, METH_O, "Sets the comparison object."},
-    {"setMode", (PyCFunction)Compare_setMode, METH_O, "Sets the comparison mode."},
-    {"setMul", (PyCFunction)Compare_setMul, METH_O, "Sets mul factor."},
-    {"setAdd", (PyCFunction)Compare_setAdd, METH_O, "Sets add factor."},
-    {"setSub", (PyCFunction)Compare_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)Compare_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)Compare_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)Compare_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)Compare_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)Compare_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setComp", (PyCFunction)Compare_setComp, METH_O, NULL},
+    {"setMode", (PyCFunction)Compare_setMode, METH_O, NULL},
+    {"setMul", (PyCFunction)Compare_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)Compare_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)Compare_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)Compare_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -2264,7 +2264,7 @@ PyTypeObject CompareType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Compare objects. Comparison between 2 audio streams.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)Compare_traverse,                  /* tp_traverse */
     (inquiry)Compare_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -2638,29 +2638,29 @@ Between_setMax(Between *self, PyObject *arg)
 
 static PyMemberDef Between_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(Between, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(Between, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(Between, input), 0, "Input sound object."},
-    {"min", T_OBJECT_EX, offsetof(Between, min), 0, "Minimum possible value."},
-    {"max", T_OBJECT_EX, offsetof(Between, max), 0, "Maximum possible value."},
-    {"mul", T_OBJECT_EX, offsetof(Between, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(Between, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(Between, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(Between, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(Between, input), 0, NULL},
+    {"min", T_OBJECT_EX, offsetof(Between, min), 0, NULL},
+    {"max", T_OBJECT_EX, offsetof(Between, max), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(Between, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(Between, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef Between_methods[] =
 {
-    {"getServer", (PyCFunction)Between_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)Between_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Between_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)Between_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Between_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setMin", (PyCFunction)Between_setMin, METH_O, "Sets the minimum value."},
-    {"setMax", (PyCFunction)Between_setMax, METH_O, "Sets the maximum value."},
-    {"setMul", (PyCFunction)Between_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)Between_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)Between_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)Between_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)Between_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)Between_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)Between_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)Between_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)Between_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setMin", (PyCFunction)Between_setMin, METH_O, NULL},
+    {"setMax", (PyCFunction)Between_setMax, METH_O, NULL},
+    {"setMul", (PyCFunction)Between_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)Between_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)Between_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)Between_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -2724,7 +2724,7 @@ PyTypeObject BetweenType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Between objects. Outputs a trig if signal is between min and max values.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)Between_traverse,   /* tp_traverse */
     (inquiry)Between_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -2928,25 +2928,25 @@ static PyObject * Denorm_inplace_div(Denorm *self, PyObject *arg) { INPLACE_DIV 
 
 static PyMemberDef Denorm_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(Denorm, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(Denorm, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(Denorm, input), 0, "Input sound object."},
-    {"mul", T_OBJECT_EX, offsetof(Denorm, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(Denorm, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(Denorm, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(Denorm, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(Denorm, input), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(Denorm, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(Denorm, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef Denorm_methods[] =
 {
-    {"getServer", (PyCFunction)Denorm_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)Denorm_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Denorm_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)Denorm_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Denorm_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setMul", (PyCFunction)Denorm_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)Denorm_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)Denorm_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)Denorm_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)Denorm_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)Denorm_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)Denorm_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)Denorm_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)Denorm_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setMul", (PyCFunction)Denorm_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)Denorm_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)Denorm_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)Denorm_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -3010,7 +3010,7 @@ PyTypeObject DenormType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Denorm objects. Mixes low level noise to an input signal.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)Denorm_traverse,                  /* tp_traverse */
     (inquiry)Denorm_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -3223,25 +3223,25 @@ static PyObject * DBToA_inplace_div(DBToA *self, PyObject *arg) { INPLACE_DIV };
 
 static PyMemberDef DBToA_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(DBToA, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(DBToA, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(DBToA, input), 0, "Input sound object."},
-    {"mul", T_OBJECT_EX, offsetof(DBToA, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(DBToA, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(DBToA, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(DBToA, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(DBToA, input), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(DBToA, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(DBToA, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef DBToA_methods[] =
 {
-    {"getServer", (PyCFunction)DBToA_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)DBToA_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)DBToA_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)DBToA_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"out", (PyCFunction)DBToA_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"setMul", (PyCFunction)DBToA_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)DBToA_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)DBToA_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)DBToA_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)DBToA_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)DBToA_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)DBToA_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)DBToA_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)DBToA_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setMul", (PyCFunction)DBToA_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)DBToA_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)DBToA_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)DBToA_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -3305,7 +3305,7 @@ PyTypeObject DBToAType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "DBToA objects. Converts dB value to amplitude value.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)DBToA_traverse,                  /* tp_traverse */
     (inquiry)DBToA_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -3518,25 +3518,25 @@ static PyObject * AToDB_inplace_div(AToDB *self, PyObject *arg) { INPLACE_DIV };
 
 static PyMemberDef AToDB_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(AToDB, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(AToDB, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(AToDB, input), 0, "Input sound object."},
-    {"mul", T_OBJECT_EX, offsetof(AToDB, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(AToDB, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(AToDB, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(AToDB, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(AToDB, input), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(AToDB, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(AToDB, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef AToDB_methods[] =
 {
-    {"getServer", (PyCFunction)AToDB_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)AToDB_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)AToDB_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)AToDB_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"out", (PyCFunction)AToDB_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"setMul", (PyCFunction)AToDB_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)AToDB_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)AToDB_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)AToDB_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)AToDB_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)AToDB_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)AToDB_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)AToDB_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)AToDB_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setMul", (PyCFunction)AToDB_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)AToDB_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)AToDB_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)AToDB_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -3600,7 +3600,7 @@ PyTypeObject AToDBType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "AToDB objects. Converts dB value to amplitude value.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)AToDB_traverse,                  /* tp_traverse */
     (inquiry)AToDB_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -4170,30 +4170,30 @@ Scale_setExp(Scale *self, PyObject *arg)
 
 static PyMemberDef Scale_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(Scale, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(Scale, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(Scale, input), 0, "Input sound object."},
-    {"mul", T_OBJECT_EX, offsetof(Scale, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(Scale, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(Scale, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(Scale, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(Scale, input), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(Scale, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(Scale, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef Scale_methods[] =
 {
-    {"getServer", (PyCFunction)Scale_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)Scale_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Scale_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)Scale_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Scale_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setInMin", (PyCFunction)Scale_setInMin, METH_O, "Sets input minimum scaling value."},
-    {"setInMax", (PyCFunction)Scale_setInMax, METH_O, "Sets input maximum scaling value."},
-    {"setOutMin", (PyCFunction)Scale_setOutMin, METH_O, "Sets output minimum scaling value."},
-    {"setOutMax", (PyCFunction)Scale_setOutMax, METH_O, "Sets output maximum scaling value."},
-    {"setExp", (PyCFunction)Scale_setExp, METH_O, "Sets exponent factor."},
-    {"setMul", (PyCFunction)Scale_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)Scale_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)Scale_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)Scale_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)Scale_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)Scale_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)Scale_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)Scale_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)Scale_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setInMin", (PyCFunction)Scale_setInMin, METH_O, NULL},
+    {"setInMax", (PyCFunction)Scale_setInMax, METH_O, NULL},
+    {"setOutMin", (PyCFunction)Scale_setOutMin, METH_O, NULL},
+    {"setOutMax", (PyCFunction)Scale_setOutMax, METH_O, NULL},
+    {"setExp", (PyCFunction)Scale_setExp, METH_O, NULL},
+    {"setMul", (PyCFunction)Scale_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)Scale_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)Scale_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)Scale_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -4257,7 +4257,7 @@ PyTypeObject ScaleType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Scale objects. Scale input values on an arbitrary output scaling range.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)Scale_traverse,                  /* tp_traverse */
     (inquiry)Scale_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -4465,25 +4465,25 @@ static PyObject * CentsToTranspo_inplace_div(CentsToTranspo *self, PyObject *arg
 
 static PyMemberDef CentsToTranspo_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(CentsToTranspo, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(CentsToTranspo, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(CentsToTranspo, input), 0, "Input sound object."},
-    {"mul", T_OBJECT_EX, offsetof(CentsToTranspo, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(CentsToTranspo, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(CentsToTranspo, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(CentsToTranspo, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(CentsToTranspo, input), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(CentsToTranspo, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(CentsToTranspo, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef CentsToTranspo_methods[] =
 {
-    {"getServer", (PyCFunction)CentsToTranspo_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)CentsToTranspo_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)CentsToTranspo_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)CentsToTranspo_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"out", (PyCFunction)CentsToTranspo_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"setMul", (PyCFunction)CentsToTranspo_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)CentsToTranspo_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)CentsToTranspo_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)CentsToTranspo_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)CentsToTranspo_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)CentsToTranspo_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)CentsToTranspo_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)CentsToTranspo_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)CentsToTranspo_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setMul", (PyCFunction)CentsToTranspo_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)CentsToTranspo_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)CentsToTranspo_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)CentsToTranspo_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -4547,7 +4547,7 @@ PyTypeObject CentsToTranspoType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "CentsToTranspo objects. Converts cents value to transposition factor.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)CentsToTranspo_traverse,                  /* tp_traverse */
     (inquiry)CentsToTranspo_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -4755,25 +4755,25 @@ static PyObject * TranspoToCents_inplace_div(TranspoToCents *self, PyObject *arg
 
 static PyMemberDef TranspoToCents_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(TranspoToCents, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(TranspoToCents, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(TranspoToCents, input), 0, "Input sound object."},
-    {"mul", T_OBJECT_EX, offsetof(TranspoToCents, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(TranspoToCents, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(TranspoToCents, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(TranspoToCents, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(TranspoToCents, input), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(TranspoToCents, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(TranspoToCents, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef TranspoToCents_methods[] =
 {
-    {"getServer", (PyCFunction)TranspoToCents_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)TranspoToCents_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)TranspoToCents_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)TranspoToCents_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"out", (PyCFunction)TranspoToCents_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"setMul", (PyCFunction)TranspoToCents_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)TranspoToCents_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)TranspoToCents_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)TranspoToCents_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)TranspoToCents_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)TranspoToCents_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)TranspoToCents_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)TranspoToCents_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)TranspoToCents_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setMul", (PyCFunction)TranspoToCents_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)TranspoToCents_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)TranspoToCents_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)TranspoToCents_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -4837,7 +4837,7 @@ PyTypeObject TranspoToCentsType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "TranspoToCents objects. Converts transposition factor to cents value.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)TranspoToCents_traverse,                  /* tp_traverse */
     (inquiry)TranspoToCents_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -5045,25 +5045,25 @@ static PyObject * MToF_inplace_div(MToF *self, PyObject *arg) { INPLACE_DIV };
 
 static PyMemberDef MToF_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(MToF, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(MToF, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(MToF, input), 0, "Input sound object."},
-    {"mul", T_OBJECT_EX, offsetof(MToF, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(MToF, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(MToF, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(MToF, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(MToF, input), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(MToF, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(MToF, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef MToF_methods[] =
 {
-    {"getServer", (PyCFunction)MToF_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)MToF_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)MToF_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)MToF_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"out", (PyCFunction)MToF_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"setMul", (PyCFunction)MToF_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)MToF_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)MToF_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)MToF_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)MToF_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)MToF_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)MToF_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)MToF_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)MToF_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setMul", (PyCFunction)MToF_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)MToF_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)MToF_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)MToF_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -5127,7 +5127,7 @@ PyTypeObject MToFType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "MToF objects. Converts midi notes to frequency.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)MToF_traverse,                  /* tp_traverse */
     (inquiry)MToF_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -5338,25 +5338,25 @@ static PyObject * FToM_inplace_div(FToM *self, PyObject *arg) { INPLACE_DIV };
 
 static PyMemberDef FToM_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(FToM, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(FToM, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(FToM, input), 0, "Input sound object."},
-    {"mul", T_OBJECT_EX, offsetof(FToM, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(FToM, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(FToM, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(FToM, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(FToM, input), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(FToM, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(FToM, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef FToM_methods[] =
 {
-    {"getServer", (PyCFunction)FToM_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)FToM_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)FToM_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)FToM_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"out", (PyCFunction)FToM_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"setMul", (PyCFunction)FToM_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)FToM_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)FToM_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)FToM_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)FToM_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)FToM_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)FToM_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)FToM_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)FToM_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setMul", (PyCFunction)FToM_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)FToM_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)FToM_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)FToM_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -5420,7 +5420,7 @@ PyTypeObject FToMType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "FToM objects. Converts frequency to midi note.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)FToM_traverse,                  /* tp_traverse */
     (inquiry)FToM_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -5645,26 +5645,26 @@ static PyObject * MToT_inplace_div(MToT *self, PyObject *arg) { INPLACE_DIV };
 
 static PyMemberDef MToT_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(MToT, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(MToT, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(MToT, input), 0, "Input sound object."},
-    {"mul", T_OBJECT_EX, offsetof(MToT, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(MToT, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(MToT, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(MToT, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(MToT, input), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(MToT, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(MToT, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef MToT_methods[] =
 {
-    {"getServer", (PyCFunction)MToT_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)MToT_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)MToT_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)MToT_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"out", (PyCFunction)MToT_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"setCentralKey", (PyCFunction)MToT_setCentralKey, METH_O, "Sets the central key."},
-    {"setMul", (PyCFunction)MToT_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)MToT_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)MToT_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)MToT_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)MToT_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)MToT_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)MToT_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)MToT_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)MToT_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setCentralKey", (PyCFunction)MToT_setCentralKey, METH_O, NULL},
+    {"setMul", (PyCFunction)MToT_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)MToT_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)MToT_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)MToT_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -5728,7 +5728,7 @@ PyTypeObject MToTType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "MToT objects. Converts midi notes to transposition factor.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)MToT_traverse,                  /* tp_traverse */
     (inquiry)MToT_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -6181,26 +6181,26 @@ static PyObject * Resample_inplace_div(Resample *self, PyObject *arg) { INPLACE_
 
 static PyMemberDef Resample_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(Resample, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(Resample, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(Resample, input), 0, "Input sound object."},
-    {"mul", T_OBJECT_EX, offsetof(Resample, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(Resample, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(Resample, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(Resample, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(Resample, input), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(Resample, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(Resample, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef Resample_methods[] =
 {
-    {"getServer", (PyCFunction)Resample_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)Resample_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Resample_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)Resample_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"out", (PyCFunction)Resample_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"setMode", (PyCFunction)Resample_setMode, METH_O, "Sets mode factor."},
-    {"setMul", (PyCFunction)Resample_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)Resample_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)Resample_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)Resample_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)Resample_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)Resample_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)Resample_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)Resample_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)Resample_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setMode", (PyCFunction)Resample_setMode, METH_O, NULL},
+    {"setMul", (PyCFunction)Resample_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)Resample_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)Resample_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)Resample_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -6264,7 +6264,7 @@ PyTypeObject ResampleType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Resample objects. Performs resampling of an audio signal.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)Resample_traverse,                  /* tp_traverse */
     (inquiry)Resample_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */

@@ -878,40 +878,40 @@ OscBank_setFjit(OscBank *self, PyObject *arg)
 
 static PyMemberDef OscBank_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(OscBank, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(OscBank, stream), 0, "Stream object."},
-    {"table", T_OBJECT_EX, offsetof(OscBank, table), 0, "Waveform table."},
-    {"freq", T_OBJECT_EX, offsetof(OscBank, freq), 0, "Base frequency in Hertz."},
-    {"spread", T_OBJECT_EX, offsetof(OscBank, spread), 0, "Frequencies spreading factor."},
-    {"slope", T_OBJECT_EX, offsetof(OscBank, slope), 0, "Amplitude slope factor."},
-    {"frndf", T_OBJECT_EX, offsetof(OscBank, frndf), 0, "Frequency of random frequency changes."},
-    {"frnda", T_OBJECT_EX, offsetof(OscBank, frnda), 0, "Amplitude of random frequency changes."},
-    {"mul", T_OBJECT_EX, offsetof(OscBank, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(OscBank, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(OscBank, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(OscBank, stream), 0, NULL},
+    {"table", T_OBJECT_EX, offsetof(OscBank, table), 0, NULL},
+    {"freq", T_OBJECT_EX, offsetof(OscBank, freq), 0, NULL},
+    {"spread", T_OBJECT_EX, offsetof(OscBank, spread), 0, NULL},
+    {"slope", T_OBJECT_EX, offsetof(OscBank, slope), 0, NULL},
+    {"frndf", T_OBJECT_EX, offsetof(OscBank, frndf), 0, NULL},
+    {"frnda", T_OBJECT_EX, offsetof(OscBank, frnda), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(OscBank, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(OscBank, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef OscBank_methods[] =
 {
-    {"getTable", (PyCFunction)OscBank_getTable, METH_NOARGS, "Returns waveform table object."},
-    {"getServer", (PyCFunction)OscBank_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)OscBank_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)OscBank_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)OscBank_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)OscBank_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setTable", (PyCFunction)OscBank_setTable, METH_O, "Sets oscillator table."},
-    {"setFreq", (PyCFunction)OscBank_setFreq, METH_O, "Sets base frequency in Hertz."},
-    {"setSpread", (PyCFunction)OscBank_setSpread, METH_O, "Sets spreading factor."},
-    {"setSlope", (PyCFunction)OscBank_setSlope, METH_O, "Sets oscillators amplitude slope factor."},
-    {"setFrndf", (PyCFunction)OscBank_setFrndf, METH_O, "Sets frequency of random frequency changes."},
-    {"setFrnda", (PyCFunction)OscBank_setFrnda, METH_O, "Sets amplitude of random frequency changes."},
-    {"setArndf", (PyCFunction)OscBank_setArndf, METH_O, "Sets frequency of random amplitude changes."},
-    {"setArnda", (PyCFunction)OscBank_setArnda, METH_O, "Sets amplitude of random amplitude changes."},
-    {"setFjit", (PyCFunction)OscBank_setFjit, METH_O, "Sets frequencies jitter on/off switch."},
-    {"setMul", (PyCFunction)OscBank_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)OscBank_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)OscBank_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)OscBank_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getTable", (PyCFunction)OscBank_getTable, METH_NOARGS, NULL},
+    {"getServer", (PyCFunction)OscBank_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)OscBank_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)OscBank_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)OscBank_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)OscBank_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setTable", (PyCFunction)OscBank_setTable, METH_O, NULL},
+    {"setFreq", (PyCFunction)OscBank_setFreq, METH_O, NULL},
+    {"setSpread", (PyCFunction)OscBank_setSpread, METH_O, NULL},
+    {"setSlope", (PyCFunction)OscBank_setSlope, METH_O, NULL},
+    {"setFrndf", (PyCFunction)OscBank_setFrndf, METH_O, NULL},
+    {"setFrnda", (PyCFunction)OscBank_setFrnda, METH_O, NULL},
+    {"setArndf", (PyCFunction)OscBank_setArndf, METH_O, NULL},
+    {"setArnda", (PyCFunction)OscBank_setArnda, METH_O, NULL},
+    {"setFjit", (PyCFunction)OscBank_setFjit, METH_O, NULL},
+    {"setMul", (PyCFunction)OscBank_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)OscBank_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)OscBank_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)OscBank_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -975,7 +975,7 @@ PyTypeObject OscBankType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "OscBank objects. Oscillator bank.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)OscBank_traverse,                  /* tp_traverse */
     (inquiry)OscBank_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */

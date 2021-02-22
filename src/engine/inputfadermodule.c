@@ -249,21 +249,21 @@ static PyObject * InputFader_stop(InputFader *self, PyObject *args, PyObject *kw
 
 static PyMemberDef InputFader_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(InputFader, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(InputFader, stream), 0, "Stream object."},
-    {"input1", T_OBJECT_EX, offsetof(InputFader, input1), 0, "First input."},
-    {"input2", T_OBJECT_EX, offsetof(InputFader, input2), 0, "Second input."},
+    {"server", T_OBJECT_EX, offsetof(InputFader, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(InputFader, stream), 0, NULL},
+    {"input1", T_OBJECT_EX, offsetof(InputFader, input1), 0, NULL},
+    {"input2", T_OBJECT_EX, offsetof(InputFader, input2), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef InputFader_methods[] =
 {
-    {"getServer", (PyCFunction)InputFader_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)InputFader_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)InputFader_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)InputFader_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"setInput", (PyCFunction)InputFader_setInput, METH_VARARGS | METH_KEYWORDS, "Crossfade between current stream and given stream."},
-    {"stop", (PyCFunction)InputFader_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"getServer", (PyCFunction)InputFader_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)InputFader_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)InputFader_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)InputFader_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setInput", (PyCFunction)InputFader_setInput, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)InputFader_stop, METH_VARARGS | METH_KEYWORDS, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -289,7 +289,7 @@ PyTypeObject InputFaderType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "InputFader objects. Generates a crossfade between current input sound stream and new input sound stream.",  /* tp_doc */
+    0,  /* tp_doc */
     (traverseproc)InputFader_traverse,   /* tp_traverse */
     (inquiry)InputFader_clear,           /* tp_clear */
     0,                     /* tp_richcompare */

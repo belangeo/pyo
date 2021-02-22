@@ -220,19 +220,19 @@ ControlRec_getData(ControlRec *self)
 
 static PyMemberDef ControlRec_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(ControlRec, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(ControlRec, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(ControlRec, input), 0, "Input sound."},
+    {"server", T_OBJECT_EX, offsetof(ControlRec, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(ControlRec, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(ControlRec, input), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef ControlRec_methods[] =
 {
-    {"getServer", (PyCFunction)ControlRec_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)ControlRec_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)ControlRec_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)ControlRec_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"getData", (PyCFunction)ControlRec_getData, METH_NOARGS, "Returns list of sampled points."},
+    {"getServer", (PyCFunction)ControlRec_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)ControlRec_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)ControlRec_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)ControlRec_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"getData", (PyCFunction)ControlRec_getData, METH_NOARGS, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -258,7 +258,7 @@ PyTypeObject ControlRecType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "ControlRec objects. Records control signal with user-defined sampling rate.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)ControlRec_traverse,                  /* tp_traverse */
     (inquiry)ControlRec_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -583,29 +583,29 @@ ControlRead_setInterp(ControlRead *self, PyObject *arg)
 
 static PyMemberDef ControlRead_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(ControlRead, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(ControlRead, stream), 0, "Stream object."},
-    {"trig_stream", T_OBJECT_EX, offsetof(ControlRead, trig_stream), 0, "Trigger Stream object."},
-    {"mul", T_OBJECT_EX, offsetof(ControlRead, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(ControlRead, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(ControlRead, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(ControlRead, stream), 0, NULL},
+    {"trig_stream", T_OBJECT_EX, offsetof(ControlRead, trig_stream), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(ControlRead, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(ControlRead, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef ControlRead_methods[] =
 {
-    {"getServer", (PyCFunction)ControlRead_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)ControlRead_getStream, METH_NOARGS, "Returns stream object."},
-    {"_getTriggerStream", (PyCFunction)ControlRead_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
-    {"play", (PyCFunction)ControlRead_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)ControlRead_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setValues", (PyCFunction)ControlRead_setValues, METH_O, "Fill buffer with values in input."},
-    {"setRate", (PyCFunction)ControlRead_setRate, METH_O, "Sets reading rate."},
-    {"setLoop", (PyCFunction)ControlRead_setLoop, METH_O, "Sets the looping mode."},
-    {"setInterp", (PyCFunction)ControlRead_setInterp, METH_O, "Sets reader interpolation mode."},
-    {"setMul", (PyCFunction)ControlRead_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)ControlRead_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)ControlRead_setSub, METH_O, "Sets oscillator inverse add factor."},
-    {"setDiv", (PyCFunction)ControlRead_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)ControlRead_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)ControlRead_getStream, METH_NOARGS, NULL},
+    {"_getTriggerStream", (PyCFunction)ControlRead_getTriggerStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)ControlRead_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)ControlRead_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setValues", (PyCFunction)ControlRead_setValues, METH_O, NULL},
+    {"setRate", (PyCFunction)ControlRead_setRate, METH_O, NULL},
+    {"setLoop", (PyCFunction)ControlRead_setLoop, METH_O, NULL},
+    {"setInterp", (PyCFunction)ControlRead_setInterp, METH_O, NULL},
+    {"setMul", (PyCFunction)ControlRead_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)ControlRead_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)ControlRead_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)ControlRead_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -669,7 +669,7 @@ PyTypeObject ControlReadType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "ControlRead objects. Generates an oscillatory waveform.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)ControlRead_traverse,   /* tp_traverse */
     (inquiry)ControlRead_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -859,20 +859,20 @@ NoteinRec_getData(NoteinRec *self)
 
 static PyMemberDef NoteinRec_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(NoteinRec, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(NoteinRec, stream), 0, "Stream object."},
-    {"inputp", T_OBJECT_EX, offsetof(NoteinRec, inputp), 0, "Pitch input."},
-    {"inputv", T_OBJECT_EX, offsetof(NoteinRec, inputv), 0, "Velocity input."},
+    {"server", T_OBJECT_EX, offsetof(NoteinRec, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(NoteinRec, stream), 0, NULL},
+    {"inputp", T_OBJECT_EX, offsetof(NoteinRec, inputp), 0, NULL},
+    {"inputv", T_OBJECT_EX, offsetof(NoteinRec, inputv), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef NoteinRec_methods[] =
 {
-    {"getServer", (PyCFunction)NoteinRec_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)NoteinRec_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)NoteinRec_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)NoteinRec_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"getData", (PyCFunction)NoteinRec_getData, METH_NOARGS, "Returns list of sampled points."},
+    {"getServer", (PyCFunction)NoteinRec_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)NoteinRec_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)NoteinRec_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)NoteinRec_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"getData", (PyCFunction)NoteinRec_getData, METH_NOARGS, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -898,7 +898,7 @@ PyTypeObject NoteinRecType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "NoteinRec objects. Records Notein signal with user-defined sampling rate.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)NoteinRec_traverse,                  /* tp_traverse */
     (inquiry)NoteinRec_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -1207,28 +1207,28 @@ NoteinRead_setLoop(NoteinRead *self, PyObject *arg)
 
 static PyMemberDef NoteinRead_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(NoteinRead, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(NoteinRead, stream), 0, "Stream object."},
-    {"trig_stream", T_OBJECT_EX, offsetof(NoteinRead, trig_stream), 0, "Trigger Stream object."},
-    {"mul", T_OBJECT_EX, offsetof(NoteinRead, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(NoteinRead, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(NoteinRead, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(NoteinRead, stream), 0, NULL},
+    {"trig_stream", T_OBJECT_EX, offsetof(NoteinRead, trig_stream), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(NoteinRead, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(NoteinRead, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef NoteinRead_methods[] =
 {
-    {"getServer", (PyCFunction)NoteinRead_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)NoteinRead_getStream, METH_NOARGS, "Returns stream object."},
-    {"_getTriggerStream", (PyCFunction)NoteinRead_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
-    {"play", (PyCFunction)NoteinRead_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)NoteinRead_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setValues", (PyCFunction)NoteinRead_setValues, METH_O, "Fill buffer with values in input."},
-    {"setTimestamps", (PyCFunction)NoteinRead_setTimestamps, METH_O, "Fill buffer with timestamps in input."},
-    {"setLoop", (PyCFunction)NoteinRead_setLoop, METH_O, "Sets the looping mode."},
-    {"setMul", (PyCFunction)NoteinRead_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)NoteinRead_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)NoteinRead_setSub, METH_O, "Sets oscillator inverse add factor."},
-    {"setDiv", (PyCFunction)NoteinRead_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)NoteinRead_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)NoteinRead_getStream, METH_NOARGS, NULL},
+    {"_getTriggerStream", (PyCFunction)NoteinRead_getTriggerStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)NoteinRead_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)NoteinRead_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setValues", (PyCFunction)NoteinRead_setValues, METH_O, NULL},
+    {"setTimestamps", (PyCFunction)NoteinRead_setTimestamps, METH_O, NULL},
+    {"setLoop", (PyCFunction)NoteinRead_setLoop, METH_O, NULL},
+    {"setMul", (PyCFunction)NoteinRead_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)NoteinRead_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)NoteinRead_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)NoteinRead_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -1292,7 +1292,7 @@ PyTypeObject NoteinReadType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "NoteinRead objects. Reads a NoteinRec file.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)NoteinRead_traverse,   /* tp_traverse */
     (inquiry)NoteinRead_clear,           /* tp_clear */
     0,                     /* tp_richcompare */

@@ -184,18 +184,18 @@ static PyObject * HilbertMain_stop(HilbertMain *self, PyObject *args, PyObject *
 
 static PyMemberDef HilbertMain_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(HilbertMain, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(HilbertMain, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(HilbertMain, input), 0, "Input sound object."},
+    {"server", T_OBJECT_EX, offsetof(HilbertMain, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(HilbertMain, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(HilbertMain, input), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef HilbertMain_methods[] =
 {
-    {"getServer", (PyCFunction)HilbertMain_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)HilbertMain_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)HilbertMain_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)HilbertMain_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"getServer", (PyCFunction)HilbertMain_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)HilbertMain_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)HilbertMain_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)HilbertMain_stop, METH_VARARGS | METH_KEYWORDS, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -221,7 +221,7 @@ PyTypeObject HilbertMainType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "HilbertMain objects. Hilbert transform. Created real and imaginary parts from an audio stream",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)HilbertMain_traverse,                  /* tp_traverse */
     (inquiry)HilbertMain_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -411,24 +411,24 @@ static PyObject * Hilbert_inplace_div(Hilbert *self, PyObject *arg) { INPLACE_DI
 
 static PyMemberDef Hilbert_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(Hilbert, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(Hilbert, stream), 0, "Stream object."},
-    {"mul", T_OBJECT_EX, offsetof(Hilbert, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(Hilbert, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(Hilbert, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(Hilbert, stream), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(Hilbert, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(Hilbert, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef Hilbert_methods[] =
 {
-    {"getServer", (PyCFunction)Hilbert_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)Hilbert_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Hilbert_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)Hilbert_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Hilbert_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setMul", (PyCFunction)Hilbert_setMul, METH_O, "Sets Hilbert mul factor."},
-    {"setAdd", (PyCFunction)Hilbert_setAdd, METH_O, "Sets Hilbert add factor."},
-    {"setSub", (PyCFunction)Hilbert_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)Hilbert_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)Hilbert_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)Hilbert_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)Hilbert_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)Hilbert_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)Hilbert_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setMul", (PyCFunction)Hilbert_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)Hilbert_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)Hilbert_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)Hilbert_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -492,7 +492,7 @@ PyTypeObject HilbertType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "Hilbert objects. Reads one band from a Hilbert transform.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)Hilbert_traverse,   /* tp_traverse */
     (inquiry)Hilbert_clear,           /* tp_clear */
     0,                     /* tp_richcompare */

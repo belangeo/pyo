@@ -955,32 +955,32 @@ Freeverb_setMix(Freeverb *self, PyObject *arg)
 }
 static PyMemberDef Freeverb_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(Freeverb, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(Freeverb, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(Freeverb, input), 0, "Input sound object."},
-    {"size", T_OBJECT_EX, offsetof(Freeverb, size), 0, "Room size."},
-    {"damp", T_OBJECT_EX, offsetof(Freeverb, damp), 0, "High frequencies damp factor."},
-    {"mix", T_OBJECT_EX, offsetof(Freeverb, mix), 0, "Mix between dry and wet signal."},
-    {"mul", T_OBJECT_EX, offsetof(Freeverb, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(Freeverb, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(Freeverb, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(Freeverb, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(Freeverb, input), 0, NULL},
+    {"size", T_OBJECT_EX, offsetof(Freeverb, size), 0, NULL},
+    {"damp", T_OBJECT_EX, offsetof(Freeverb, damp), 0, NULL},
+    {"mix", T_OBJECT_EX, offsetof(Freeverb, mix), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(Freeverb, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(Freeverb, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef Freeverb_methods[] =
 {
-    {"getServer", (PyCFunction)Freeverb_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)Freeverb_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Freeverb_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)Freeverb_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Freeverb_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"reset", (PyCFunction)Freeverb_reset, METH_NOARGS, "Reset the delay lines."},
-    {"setSize", (PyCFunction)Freeverb_setSize, METH_O, "Sets distortion size factor (0 -> 1)."},
-    {"setDamp", (PyCFunction)Freeverb_setDamp, METH_O, "Sets lowpass filter damp factor."},
-    {"setMix", (PyCFunction)Freeverb_setMix, METH_O, "Sets the mix factor."},
-    {"setMul", (PyCFunction)Freeverb_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)Freeverb_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)Freeverb_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)Freeverb_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)Freeverb_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)Freeverb_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)Freeverb_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)Freeverb_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)Freeverb_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"reset", (PyCFunction)Freeverb_reset, METH_NOARGS, NULL},
+    {"setSize", (PyCFunction)Freeverb_setSize, METH_O, NULL},
+    {"setDamp", (PyCFunction)Freeverb_setDamp, METH_O, NULL},
+    {"setMix", (PyCFunction)Freeverb_setMix, METH_O, NULL},
+    {"setMul", (PyCFunction)Freeverb_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)Freeverb_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)Freeverb_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)Freeverb_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -1044,7 +1044,7 @@ PyTypeObject FreeverbType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Freeverb objects. Jezar's Freeverb .",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)Freeverb_traverse,   /* tp_traverse */
     (inquiry)Freeverb_clear,           /* tp_clear */
     0,                     /* tp_richcompare */

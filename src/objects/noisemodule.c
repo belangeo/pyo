@@ -231,25 +231,25 @@ Noise_setType(Noise *self, PyObject *arg)
 
 static PyMemberDef Noise_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(Noise, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(Noise, stream), 0, "Stream object."},
-    {"mul", T_OBJECT_EX, offsetof(Noise, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(Noise, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(Noise, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(Noise, stream), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(Noise, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(Noise, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef Noise_methods[] =
 {
-    {"getServer", (PyCFunction)Noise_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)Noise_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Noise_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)Noise_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Noise_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setType", (PyCFunction)Noise_setType, METH_O, "Sets Noise generation algorithm."},
-    {"setMul", (PyCFunction)Noise_setMul, METH_O, "Sets Noise mul factor."},
-    {"setAdd", (PyCFunction)Noise_setAdd, METH_O, "Sets Noise add factor."},
-    {"setSub", (PyCFunction)Noise_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)Noise_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)Noise_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)Noise_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)Noise_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)Noise_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)Noise_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setType", (PyCFunction)Noise_setType, METH_O, NULL},
+    {"setMul", (PyCFunction)Noise_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)Noise_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)Noise_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)Noise_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -313,7 +313,7 @@ PyTypeObject NoiseType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Noise objects. White noise generator.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)Noise_traverse,   /* tp_traverse */
     (inquiry)Noise_clear,           /* tp_clear */
     0,                         /* tp_richcompare */
@@ -514,24 +514,24 @@ static PyObject * PinkNoise_inplace_div(PinkNoise *self, PyObject *arg) { INPLAC
 
 static PyMemberDef PinkNoise_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(PinkNoise, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(PinkNoise, stream), 0, "Stream object."},
-    {"mul", T_OBJECT_EX, offsetof(PinkNoise, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(PinkNoise, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(PinkNoise, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(PinkNoise, stream), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(PinkNoise, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(PinkNoise, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef PinkNoise_methods[] =
 {
-    {"getServer", (PyCFunction)PinkNoise_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)PinkNoise_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)PinkNoise_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)PinkNoise_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)PinkNoise_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setMul", (PyCFunction)PinkNoise_setMul, METH_O, "Sets PinkNoise mul factor."},
-    {"setAdd", (PyCFunction)PinkNoise_setAdd, METH_O, "Sets PinkNoise add factor."},
-    {"setSub", (PyCFunction)PinkNoise_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)PinkNoise_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)PinkNoise_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)PinkNoise_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)PinkNoise_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)PinkNoise_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)PinkNoise_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setMul", (PyCFunction)PinkNoise_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)PinkNoise_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)PinkNoise_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)PinkNoise_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -595,7 +595,7 @@ PyTypeObject PinkNoiseType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "PinkNoise objects. Pink noise generator.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)PinkNoise_traverse,   /* tp_traverse */
     (inquiry)PinkNoise_clear,           /* tp_clear */
     0,                         /* tp_richcompare */
@@ -788,24 +788,24 @@ static PyObject * BrownNoise_inplace_div(BrownNoise *self, PyObject *arg) { INPL
 
 static PyMemberDef BrownNoise_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(BrownNoise, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(BrownNoise, stream), 0, "Stream object."},
-    {"mul", T_OBJECT_EX, offsetof(BrownNoise, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(BrownNoise, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(BrownNoise, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(BrownNoise, stream), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(BrownNoise, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(BrownNoise, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef BrownNoise_methods[] =
 {
-    {"getServer", (PyCFunction)BrownNoise_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)BrownNoise_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)BrownNoise_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)BrownNoise_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)BrownNoise_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setMul", (PyCFunction)BrownNoise_setMul, METH_O, "Sets BrownNoise mul factor."},
-    {"setAdd", (PyCFunction)BrownNoise_setAdd, METH_O, "Sets BrownNoise add factor."},
-    {"setSub", (PyCFunction)BrownNoise_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)BrownNoise_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)BrownNoise_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)BrownNoise_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)BrownNoise_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)BrownNoise_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)BrownNoise_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setMul", (PyCFunction)BrownNoise_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)BrownNoise_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)BrownNoise_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)BrownNoise_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -869,7 +869,7 @@ PyTypeObject BrownNoiseType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "BrownNoise objects. Brown noise generator (-6dB/octave rolloff).",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)BrownNoise_traverse,   /* tp_traverse */
     (inquiry)BrownNoise_clear,           /* tp_clear */
     0,                         /* tp_richcompare */

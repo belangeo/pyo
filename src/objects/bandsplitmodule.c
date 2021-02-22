@@ -328,20 +328,20 @@ static PyObject * BandSplitter_stop(BandSplitter *self, PyObject *args, PyObject
 
 static PyMemberDef BandSplitter_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(BandSplitter, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(BandSplitter, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(BandSplitter, input), 0, "Input sound object."},
-    {"q", T_OBJECT_EX, offsetof(BandSplitter, q), 0, "Filters Q."},
+    {"server", T_OBJECT_EX, offsetof(BandSplitter, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(BandSplitter, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(BandSplitter, input), 0, NULL},
+    {"q", T_OBJECT_EX, offsetof(BandSplitter, q), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef BandSplitter_methods[] =
 {
-    {"getServer", (PyCFunction)BandSplitter_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)BandSplitter_getStream, METH_NOARGS, "Returns stream object."},
-    {"setQ", (PyCFunction)BandSplitter_setQ, METH_O, "Sets the filters Q."},
-    {"play", (PyCFunction)BandSplitter_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)BandSplitter_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"getServer", (PyCFunction)BandSplitter_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)BandSplitter_getStream, METH_NOARGS, NULL},
+    {"setQ", (PyCFunction)BandSplitter_setQ, METH_O, NULL},
+    {"play", (PyCFunction)BandSplitter_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)BandSplitter_stop, METH_VARARGS | METH_KEYWORDS, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -367,7 +367,7 @@ PyTypeObject BandSplitterType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "BandSplitter objects. Split audio stream in multiple frequency bands.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)BandSplitter_traverse,                  /* tp_traverse */
     (inquiry)BandSplitter_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -558,24 +558,24 @@ static PyObject * BandSplit_inplace_div(BandSplit *self, PyObject *arg) { INPLAC
 
 static PyMemberDef BandSplit_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(BandSplit, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(BandSplit, stream), 0, "Stream object."},
-    {"mul", T_OBJECT_EX, offsetof(BandSplit, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(BandSplit, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(BandSplit, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(BandSplit, stream), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(BandSplit, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(BandSplit, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef BandSplit_methods[] =
 {
-    {"getServer", (PyCFunction)BandSplit_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)BandSplit_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)BandSplit_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)BandSplit_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)BandSplit_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setMul", (PyCFunction)BandSplit_setMul, METH_O, "Sets BandSplit mul factor."},
-    {"setAdd", (PyCFunction)BandSplit_setAdd, METH_O, "Sets BandSplit add factor."},
-    {"setSub", (PyCFunction)BandSplit_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)BandSplit_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)BandSplit_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)BandSplit_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)BandSplit_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)BandSplit_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)BandSplit_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setMul", (PyCFunction)BandSplit_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)BandSplit_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)BandSplit_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)BandSplit_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -639,7 +639,7 @@ PyTypeObject BandSplitType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "BandSplit objects. Reads one band from a BandSplitter process.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)BandSplit_traverse,   /* tp_traverse */
     (inquiry)BandSplit_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -1112,24 +1112,24 @@ static PyObject * FourBandMain_stop(FourBandMain *self, PyObject *args, PyObject
 
 static PyMemberDef FourBandMain_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(FourBandMain, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(FourBandMain, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(FourBandMain, input), 0, "Input sound object."},
-    {"freq1", T_OBJECT_EX, offsetof(FourBandMain, freq1), 0, "First cutoff frequency."},
-    {"freq2", T_OBJECT_EX, offsetof(FourBandMain, freq2), 0, "Second cutoff frequency."},
-    {"freq3", T_OBJECT_EX, offsetof(FourBandMain, freq3), 0, "Third cutoff frequency."},
+    {"server", T_OBJECT_EX, offsetof(FourBandMain, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(FourBandMain, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(FourBandMain, input), 0, NULL},
+    {"freq1", T_OBJECT_EX, offsetof(FourBandMain, freq1), 0, NULL},
+    {"freq2", T_OBJECT_EX, offsetof(FourBandMain, freq2), 0, NULL},
+    {"freq3", T_OBJECT_EX, offsetof(FourBandMain, freq3), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef FourBandMain_methods[] =
 {
-    {"getServer", (PyCFunction)FourBandMain_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)FourBandMain_getStream, METH_NOARGS, "Returns stream object."},
-    {"setFreq1", (PyCFunction)FourBandMain_setFreq1, METH_O, "Sets the first cutoff frequency."},
-    {"setFreq2", (PyCFunction)FourBandMain_setFreq2, METH_O, "Sets the second cutoff frequency."},
-    {"setFreq3", (PyCFunction)FourBandMain_setFreq3, METH_O, "Sets the third cutoff frequency."},
-    {"play", (PyCFunction)FourBandMain_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)FourBandMain_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"getServer", (PyCFunction)FourBandMain_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)FourBandMain_getStream, METH_NOARGS, NULL},
+    {"setFreq1", (PyCFunction)FourBandMain_setFreq1, METH_O, NULL},
+    {"setFreq2", (PyCFunction)FourBandMain_setFreq2, METH_O, NULL},
+    {"setFreq3", (PyCFunction)FourBandMain_setFreq3, METH_O, NULL},
+    {"play", (PyCFunction)FourBandMain_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)FourBandMain_stop, METH_VARARGS | METH_KEYWORDS, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -1155,7 +1155,7 @@ PyTypeObject FourBandMainType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "FourBandMain objects. Split audio stream in four flat frequency and phase bands.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)FourBandMain_traverse,                  /* tp_traverse */
     (inquiry)FourBandMain_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -1346,24 +1346,24 @@ static PyObject * FourBand_inplace_div(FourBand *self, PyObject *arg) { INPLACE_
 
 static PyMemberDef FourBand_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(FourBand, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(FourBand, stream), 0, "Stream object."},
-    {"mul", T_OBJECT_EX, offsetof(FourBand, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(FourBand, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(FourBand, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(FourBand, stream), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(FourBand, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(FourBand, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef FourBand_methods[] =
 {
-    {"getServer", (PyCFunction)FourBand_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)FourBand_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)FourBand_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)FourBand_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)FourBand_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setMul", (PyCFunction)FourBand_setMul, METH_O, "Sets FourBand mul factor."},
-    {"setAdd", (PyCFunction)FourBand_setAdd, METH_O, "Sets FourBand add factor."},
-    {"setSub", (PyCFunction)FourBand_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)FourBand_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)FourBand_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)FourBand_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)FourBand_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)FourBand_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)FourBand_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setMul", (PyCFunction)FourBand_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)FourBand_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)FourBand_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)FourBand_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -1427,7 +1427,7 @@ PyTypeObject FourBandType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "FourBand objects. Reads one band from a FourBandMain process.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)FourBand_traverse,   /* tp_traverse */
     (inquiry)FourBand_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -1776,19 +1776,19 @@ static PyObject * MultiBandMain_stop(MultiBandMain *self, PyObject *args, PyObje
 
 static PyMemberDef MultiBandMain_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(MultiBandMain, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(MultiBandMain, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(MultiBandMain, input), 0, "Input sound object."},
+    {"server", T_OBJECT_EX, offsetof(MultiBandMain, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(MultiBandMain, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(MultiBandMain, input), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef MultiBandMain_methods[] =
 {
-    {"getServer", (PyCFunction)MultiBandMain_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)MultiBandMain_getStream, METH_NOARGS, "Returns stream object."},
-    {"setFrequencies", (PyCFunction)MultiBandMain_setFrequencies, METH_O, "Sets new filter cutoff frequencies."},
-    {"play", (PyCFunction)MultiBandMain_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)MultiBandMain_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"getServer", (PyCFunction)MultiBandMain_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)MultiBandMain_getStream, METH_NOARGS, NULL},
+    {"setFrequencies", (PyCFunction)MultiBandMain_setFrequencies, METH_O, NULL},
+    {"play", (PyCFunction)MultiBandMain_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)MultiBandMain_stop, METH_VARARGS | METH_KEYWORDS, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -1814,7 +1814,7 @@ PyTypeObject MultiBandMainType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "MultiBandMain objects. Split audio stream in four flat frequency and phase bands.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)MultiBandMain_traverse,                  /* tp_traverse */
     (inquiry)MultiBandMain_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -2005,24 +2005,24 @@ static PyObject * MultiBand_inplace_div(MultiBand *self, PyObject *arg) { INPLAC
 
 static PyMemberDef MultiBand_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(MultiBand, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(MultiBand, stream), 0, "Stream object."},
-    {"mul", T_OBJECT_EX, offsetof(MultiBand, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(MultiBand, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(MultiBand, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(MultiBand, stream), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(MultiBand, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(MultiBand, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef MultiBand_methods[] =
 {
-    {"getServer", (PyCFunction)MultiBand_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)MultiBand_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)MultiBand_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)MultiBand_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)MultiBand_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setMul", (PyCFunction)MultiBand_setMul, METH_O, "Sets MultiBand mul factor."},
-    {"setAdd", (PyCFunction)MultiBand_setAdd, METH_O, "Sets MultiBand add factor."},
-    {"setSub", (PyCFunction)MultiBand_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)MultiBand_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)MultiBand_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)MultiBand_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)MultiBand_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)MultiBand_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)MultiBand_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setMul", (PyCFunction)MultiBand_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)MultiBand_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)MultiBand_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)MultiBand_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -2086,7 +2086,7 @@ PyTypeObject MultiBandType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "MultiBand objects. Reads one band from a MultiBandMain process.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)MultiBand_traverse,   /* tp_traverse */
     (inquiry)MultiBand_clear,           /* tp_clear */
     0,                     /* tp_richcompare */

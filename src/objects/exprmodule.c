@@ -1107,21 +1107,21 @@ Exprer_printNodes(Exprer *self)
 
 static PyMemberDef Exprer_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(Exprer, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(Exprer, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(Exprer, input), 0, "Input sound object."},
+    {"server", T_OBJECT_EX, offsetof(Exprer, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(Exprer, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(Exprer, input), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef Exprer_methods[] =
 {
-    {"getServer", (PyCFunction)Exprer_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)Exprer_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Exprer_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)Exprer_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"printNodes", (PyCFunction)Exprer_printNodes, METH_NOARGS, "Print the list of nodes."},
-    {"setVar", (PyCFunction)Exprer_setVar, METH_VARARGS | METH_KEYWORDS, "Sets a variable value."},
-    {"setExpr", (PyCFunction)Exprer_setExpr, METH_O, "Sets a new expression."},
+    {"getServer", (PyCFunction)Exprer_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)Exprer_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)Exprer_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)Exprer_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"printNodes", (PyCFunction)Exprer_printNodes, METH_NOARGS, NULL},
+    {"setVar", (PyCFunction)Exprer_setVar, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setExpr", (PyCFunction)Exprer_setExpr, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -1147,7 +1147,7 @@ PyTypeObject ExprerType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Exprer objects. Resolve a prefix notation sentence at audio rate.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)Exprer_traverse,   /* tp_traverse */
     (inquiry)Exprer_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -1337,24 +1337,24 @@ static PyObject * Expr_inplace_div(Expr *self, PyObject *arg) { INPLACE_DIV };
 
 static PyMemberDef Expr_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(Expr, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(Expr, stream), 0, "Stream object."},
-    {"mul", T_OBJECT_EX, offsetof(Expr, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(Expr, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(Expr, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(Expr, stream), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(Expr, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(Expr, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef Expr_methods[] =
 {
-    {"getServer", (PyCFunction)Expr_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)Expr_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Expr_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)Expr_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Expr_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setMul", (PyCFunction)Expr_setMul, METH_O, "Sets Expr mul factor."},
-    {"setAdd", (PyCFunction)Expr_setAdd, METH_O, "Sets Expr add factor."},
-    {"setSub", (PyCFunction)Expr_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)Expr_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)Expr_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)Expr_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)Expr_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)Expr_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)Expr_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setMul", (PyCFunction)Expr_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)Expr_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)Expr_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)Expr_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -1418,7 +1418,7 @@ PyTypeObject ExprType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "Expr objects. Reads one channel from a Exprer.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)Expr_traverse,   /* tp_traverse */
     (inquiry)Expr_clear,           /* tp_clear */
     0,                     /* tp_richcompare */

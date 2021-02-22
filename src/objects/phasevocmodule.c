@@ -442,24 +442,24 @@ PVAnal_setCallback(PVAnal *self, PyObject *arg)
 
 static PyMemberDef PVAnal_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(PVAnal, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(PVAnal, stream), 0, "Stream object."},
-    {"pv_stream", T_OBJECT_EX, offsetof(PVAnal, pv_stream), 0, "Phase Vocoder Stream object."},
-    {"input", T_OBJECT_EX, offsetof(PVAnal, input), 0, "FFT sound object."},
+    {"server", T_OBJECT_EX, offsetof(PVAnal, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(PVAnal, stream), 0, NULL},
+    {"pv_stream", T_OBJECT_EX, offsetof(PVAnal, pv_stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(PVAnal, input), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef PVAnal_methods[] =
 {
-    {"getServer", (PyCFunction)PVAnal_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)PVAnal_getStream, METH_NOARGS, "Returns stream object."},
-    {"_getPVStream", (PyCFunction)PVAnal_getPVStream, METH_NOARGS, "Returns pvstream object."},
-    {"play", (PyCFunction)PVAnal_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)PVAnal_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setSize", (PyCFunction)PVAnal_setSize, METH_O, "Sets a new FFT size."},
-    {"setOverlaps", (PyCFunction)PVAnal_setOverlaps, METH_O, "Sets a new number of overlaps."},
-    {"setWinType", (PyCFunction)PVAnal_setWinType, METH_O, "Sets a new window type."},
-    {"setCallback", (PyCFunction)PVAnal_setCallback, METH_O, "Sets a callback function."},
+    {"getServer", (PyCFunction)PVAnal_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)PVAnal_getStream, METH_NOARGS, NULL},
+    {"_getPVStream", (PyCFunction)PVAnal_getPVStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)PVAnal_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)PVAnal_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setSize", (PyCFunction)PVAnal_setSize, METH_O, NULL},
+    {"setOverlaps", (PyCFunction)PVAnal_setOverlaps, METH_O, NULL},
+    {"setWinType", (PyCFunction)PVAnal_setWinType, METH_O, NULL},
+    {"setCallback", (PyCFunction)PVAnal_setCallback, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -485,7 +485,7 @@ PyTypeObject PVAnalType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "PVAnal objects. Phase Vocoder analysis object.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)PVAnal_traverse,                  /* tp_traverse */
     (inquiry)PVAnal_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -870,27 +870,27 @@ static PyObject * PVSynth_inplace_div(PVSynth *self, PyObject *arg) { INPLACE_DI
 
 static PyMemberDef PVSynth_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(PVSynth, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(PVSynth, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(PVSynth, input), 0, "FFT sound object."},
-    {"mul", T_OBJECT_EX, offsetof(PVSynth, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(PVSynth, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(PVSynth, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(PVSynth, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(PVSynth, input), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(PVSynth, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(PVSynth, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef PVSynth_methods[] =
 {
-    {"getServer", (PyCFunction)PVSynth_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)PVSynth_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)PVSynth_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)PVSynth_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)PVSynth_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setInput", (PyCFunction)PVSynth_setInput, METH_O, "Sets a new input object."},
-    {"setWinType", (PyCFunction)PVSynth_setWinType, METH_O, "Sets a new window type."},
-    {"setMul", (PyCFunction)PVSynth_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)PVSynth_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)PVSynth_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)PVSynth_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)PVSynth_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)PVSynth_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)PVSynth_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)PVSynth_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)PVSynth_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setInput", (PyCFunction)PVSynth_setInput, METH_O, NULL},
+    {"setWinType", (PyCFunction)PVSynth_setWinType, METH_O, NULL},
+    {"setMul", (PyCFunction)PVSynth_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)PVSynth_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)PVSynth_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)PVSynth_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -954,7 +954,7 @@ PyTypeObject PVSynthType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "PVSynth objects. Phase Vocoder synthesis object.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)PVSynth_traverse,                  /* tp_traverse */
     (inquiry)PVSynth_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -1483,31 +1483,31 @@ static PyObject * PVAddSynth_inplace_div(PVAddSynth *self, PyObject *arg) { INPL
 
 static PyMemberDef PVAddSynth_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(PVAddSynth, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(PVAddSynth, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(PVAddSynth, input), 0, "FFT sound object."},
-    {"pitch", T_OBJECT_EX, offsetof(PVAddSynth, pitch), 0, "Transposition factor."},
-    {"mul", T_OBJECT_EX, offsetof(PVAddSynth, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(PVAddSynth, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(PVAddSynth, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(PVAddSynth, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(PVAddSynth, input), 0, NULL},
+    {"pitch", T_OBJECT_EX, offsetof(PVAddSynth, pitch), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(PVAddSynth, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(PVAddSynth, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef PVAddSynth_methods[] =
 {
-    {"getServer", (PyCFunction)PVAddSynth_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)PVAddSynth_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)PVAddSynth_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)PVAddSynth_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)PVAddSynth_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setInput", (PyCFunction)PVAddSynth_setInput, METH_O, "Sets a new input object."},
-    {"setPitch", (PyCFunction)PVAddSynth_setPitch, METH_O, "Sets a new transposition factor."},
-    {"setNum", (PyCFunction)PVAddSynth_setNum, METH_O, "Sets the number of oscillators."},
-    {"setFirst", (PyCFunction)PVAddSynth_setFirst, METH_O, "Sets the first bin to synthesize."},
-    {"setInc", (PyCFunction)PVAddSynth_setInc, METH_O, "Sets the synthesized bin increment."},
-    {"setMul", (PyCFunction)PVAddSynth_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)PVAddSynth_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)PVAddSynth_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)PVAddSynth_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)PVAddSynth_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)PVAddSynth_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)PVAddSynth_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)PVAddSynth_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)PVAddSynth_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setInput", (PyCFunction)PVAddSynth_setInput, METH_O, NULL},
+    {"setPitch", (PyCFunction)PVAddSynth_setPitch, METH_O, NULL},
+    {"setNum", (PyCFunction)PVAddSynth_setNum, METH_O, NULL},
+    {"setFirst", (PyCFunction)PVAddSynth_setFirst, METH_O, NULL},
+    {"setInc", (PyCFunction)PVAddSynth_setInc, METH_O, NULL},
+    {"setMul", (PyCFunction)PVAddSynth_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)PVAddSynth_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)PVAddSynth_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)PVAddSynth_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -1571,7 +1571,7 @@ PyTypeObject PVAddSynthType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "PVAddSynth objects. Phase Vocoder additive resynthesis object.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)PVAddSynth_traverse,                  /* tp_traverse */
     (inquiry)PVAddSynth_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -1933,23 +1933,23 @@ PVTranspose_setTranspo(PVTranspose *self, PyObject *arg)
 
 static PyMemberDef PVTranspose_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(PVTranspose, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(PVTranspose, stream), 0, "Stream object."},
-    {"pv_stream", T_OBJECT_EX, offsetof(PVTranspose, pv_stream), 0, "Phase Vocoder Stream object."},
-    {"input", T_OBJECT_EX, offsetof(PVTranspose, input), 0, "FFT sound object."},
-    {"transpo", T_OBJECT_EX, offsetof(PVTranspose, transpo), 0, "Transposition factor."},
+    {"server", T_OBJECT_EX, offsetof(PVTranspose, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(PVTranspose, stream), 0, NULL},
+    {"pv_stream", T_OBJECT_EX, offsetof(PVTranspose, pv_stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(PVTranspose, input), 0, NULL},
+    {"transpo", T_OBJECT_EX, offsetof(PVTranspose, transpo), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef PVTranspose_methods[] =
 {
-    {"getServer", (PyCFunction)PVTranspose_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)PVTranspose_getStream, METH_NOARGS, "Returns stream object."},
-    {"_getPVStream", (PyCFunction)PVTranspose_getPVStream, METH_NOARGS, "Returns pvstream object."},
-    {"setInput", (PyCFunction)PVTranspose_setInput, METH_O, "Sets a new input object."},
-    {"setTranspo", (PyCFunction)PVTranspose_setTranspo, METH_O, "Sets the transposition factor."},
-    {"play", (PyCFunction)PVTranspose_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)PVTranspose_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"getServer", (PyCFunction)PVTranspose_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)PVTranspose_getStream, METH_NOARGS, NULL},
+    {"_getPVStream", (PyCFunction)PVTranspose_getPVStream, METH_NOARGS, NULL},
+    {"setInput", (PyCFunction)PVTranspose_setInput, METH_O, NULL},
+    {"setTranspo", (PyCFunction)PVTranspose_setTranspo, METH_O, NULL},
+    {"play", (PyCFunction)PVTranspose_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)PVTranspose_stop, METH_VARARGS | METH_KEYWORDS, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -1975,7 +1975,7 @@ PyTypeObject PVTransposeType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "PVTranspose objects. Spectral domain transposition.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)PVTranspose_traverse,                  /* tp_traverse */
     (inquiry)PVTranspose_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -2578,25 +2578,25 @@ PVVerb_setDamp(PVVerb *self, PyObject *arg)
 
 static PyMemberDef PVVerb_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(PVVerb, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(PVVerb, stream), 0, "Stream object."},
-    {"pv_stream", T_OBJECT_EX, offsetof(PVVerb, pv_stream), 0, "Phase Vocoder Stream object."},
-    {"input", T_OBJECT_EX, offsetof(PVVerb, input), 0, "FFT sound object."},
-    {"revtime", T_OBJECT_EX, offsetof(PVVerb, revtime), 0, "reverberation factor."},
-    {"damp", T_OBJECT_EX, offsetof(PVVerb, damp), 0, "High frequency damping factor."},
+    {"server", T_OBJECT_EX, offsetof(PVVerb, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(PVVerb, stream), 0, NULL},
+    {"pv_stream", T_OBJECT_EX, offsetof(PVVerb, pv_stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(PVVerb, input), 0, NULL},
+    {"revtime", T_OBJECT_EX, offsetof(PVVerb, revtime), 0, NULL},
+    {"damp", T_OBJECT_EX, offsetof(PVVerb, damp), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef PVVerb_methods[] =
 {
-    {"getServer", (PyCFunction)PVVerb_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)PVVerb_getStream, METH_NOARGS, "Returns stream object."},
-    {"_getPVStream", (PyCFunction)PVVerb_getPVStream, METH_NOARGS, "Returns pvstream object."},
-    {"setInput", (PyCFunction)PVVerb_setInput, METH_O, "Sets a new input object."},
-    {"setRevtime", (PyCFunction)PVVerb_setRevtime, METH_O, "Sets the reverberation factor."},
-    {"setDamp", (PyCFunction)PVVerb_setDamp, METH_O, "Sets the high frequency damping factor."},
-    {"play", (PyCFunction)PVVerb_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)PVVerb_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"getServer", (PyCFunction)PVVerb_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)PVVerb_getStream, METH_NOARGS, NULL},
+    {"_getPVStream", (PyCFunction)PVVerb_getPVStream, METH_NOARGS, NULL},
+    {"setInput", (PyCFunction)PVVerb_setInput, METH_O, NULL},
+    {"setRevtime", (PyCFunction)PVVerb_setRevtime, METH_O, NULL},
+    {"setDamp", (PyCFunction)PVVerb_setDamp, METH_O, NULL},
+    {"play", (PyCFunction)PVVerb_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)PVVerb_stop, METH_VARARGS | METH_KEYWORDS, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -2622,7 +2622,7 @@ PyTypeObject PVVerbType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "PVVerb objects. Spectral reverberation.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)PVVerb_traverse,                  /* tp_traverse */
     (inquiry)PVVerb_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -3213,26 +3213,26 @@ PVGate_setInverse(PVGate *self, PyObject *arg)
 
 static PyMemberDef PVGate_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(PVGate, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(PVGate, stream), 0, "Stream object."},
-    {"pv_stream", T_OBJECT_EX, offsetof(PVGate, pv_stream), 0, "Phase Vocoder Stream object."},
-    {"input", T_OBJECT_EX, offsetof(PVGate, input), 0, "FFT sound object."},
-    {"thresh", T_OBJECT_EX, offsetof(PVGate, thresh), 0, "Threshold factor."},
-    {"damp", T_OBJECT_EX, offsetof(PVGate, damp), 0, "Damping factor for bins below threshold."},
+    {"server", T_OBJECT_EX, offsetof(PVGate, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(PVGate, stream), 0, NULL},
+    {"pv_stream", T_OBJECT_EX, offsetof(PVGate, pv_stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(PVGate, input), 0, NULL},
+    {"thresh", T_OBJECT_EX, offsetof(PVGate, thresh), 0, NULL},
+    {"damp", T_OBJECT_EX, offsetof(PVGate, damp), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef PVGate_methods[] =
 {
-    {"getServer", (PyCFunction)PVGate_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)PVGate_getStream, METH_NOARGS, "Returns stream object."},
-    {"_getPVStream", (PyCFunction)PVGate_getPVStream, METH_NOARGS, "Returns pvstream object."},
-    {"setInput", (PyCFunction)PVGate_setInput, METH_O, "Sets a new input object."},
-    {"setThresh", (PyCFunction)PVGate_setThresh, METH_O, "Sets the Threshold factor."},
-    {"setDamp", (PyCFunction)PVGate_setDamp, METH_O, "Sets the damping factor."},
-    {"setInverse", (PyCFunction)PVGate_setInverse, METH_O, "Sets the inverse mode."},
-    {"play", (PyCFunction)PVGate_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)PVGate_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"getServer", (PyCFunction)PVGate_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)PVGate_getStream, METH_NOARGS, NULL},
+    {"_getPVStream", (PyCFunction)PVGate_getPVStream, METH_NOARGS, NULL},
+    {"setInput", (PyCFunction)PVGate_setInput, METH_O, NULL},
+    {"setThresh", (PyCFunction)PVGate_setThresh, METH_O, NULL},
+    {"setDamp", (PyCFunction)PVGate_setDamp, METH_O, NULL},
+    {"setInverse", (PyCFunction)PVGate_setInverse, METH_O, NULL},
+    {"play", (PyCFunction)PVGate_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)PVGate_stop, METH_VARARGS | METH_KEYWORDS, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -3258,7 +3258,7 @@ PyTypeObject PVGateType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "PVGate objects. Spectral gate.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)PVGate_traverse,                  /* tp_traverse */
     (inquiry)PVGate_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -3644,25 +3644,25 @@ PVCross_setFade(PVCross *self, PyObject *arg)
 
 static PyMemberDef PVCross_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(PVCross, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(PVCross, stream), 0, "Stream object."},
-    {"pv_stream", T_OBJECT_EX, offsetof(PVCross, pv_stream), 0, "Phase Vocoder Stream object."},
-    {"input", T_OBJECT_EX, offsetof(PVCross, input), 0, "FFT sound object."},
-    {"input2", T_OBJECT_EX, offsetof(PVCross, input2), 0, "FFT sound object."},
-    {"fade", T_OBJECT_EX, offsetof(PVCross, fade), 0, "fadesition factor."},
+    {"server", T_OBJECT_EX, offsetof(PVCross, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(PVCross, stream), 0, NULL},
+    {"pv_stream", T_OBJECT_EX, offsetof(PVCross, pv_stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(PVCross, input), 0, NULL},
+    {"input2", T_OBJECT_EX, offsetof(PVCross, input2), 0, NULL},
+    {"fade", T_OBJECT_EX, offsetof(PVCross, fade), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef PVCross_methods[] =
 {
-    {"getServer", (PyCFunction)PVCross_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)PVCross_getStream, METH_NOARGS, "Returns stream object."},
-    {"_getPVStream", (PyCFunction)PVCross_getPVStream, METH_NOARGS, "Returns pvstream object."},
-    {"setInput", (PyCFunction)PVCross_setInput, METH_O, "Sets a new input object."},
-    {"setInput2", (PyCFunction)PVCross_setInput2, METH_O, "Sets a new input object."},
-    {"setFade", (PyCFunction)PVCross_setFade, METH_O, "Sets the fadesition factor."},
-    {"play", (PyCFunction)PVCross_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)PVCross_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"getServer", (PyCFunction)PVCross_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)PVCross_getStream, METH_NOARGS, NULL},
+    {"_getPVStream", (PyCFunction)PVCross_getPVStream, METH_NOARGS, NULL},
+    {"setInput", (PyCFunction)PVCross_setInput, METH_O, NULL},
+    {"setInput2", (PyCFunction)PVCross_setInput2, METH_O, NULL},
+    {"setFade", (PyCFunction)PVCross_setFade, METH_O, NULL},
+    {"play", (PyCFunction)PVCross_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)PVCross_stop, METH_VARARGS | METH_KEYWORDS, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -3688,7 +3688,7 @@ PyTypeObject PVCrossType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "PVCross objects. Cross-synthesis.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)PVCross_traverse,                  /* tp_traverse */
     (inquiry)PVCross_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -3972,23 +3972,23 @@ PVMult_setInput2(PVMult *self, PyObject *arg)
 
 static PyMemberDef PVMult_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(PVMult, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(PVMult, stream), 0, "Stream object."},
-    {"pv_stream", T_OBJECT_EX, offsetof(PVMult, pv_stream), 0, "Phase Vocoder Stream object."},
-    {"input", T_OBJECT_EX, offsetof(PVMult, input), 0, "FFT sound object."},
-    {"input2", T_OBJECT_EX, offsetof(PVMult, input2), 0, "FFT sound object."},
+    {"server", T_OBJECT_EX, offsetof(PVMult, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(PVMult, stream), 0, NULL},
+    {"pv_stream", T_OBJECT_EX, offsetof(PVMult, pv_stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(PVMult, input), 0, NULL},
+    {"input2", T_OBJECT_EX, offsetof(PVMult, input2), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef PVMult_methods[] =
 {
-    {"getServer", (PyCFunction)PVMult_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)PVMult_getStream, METH_NOARGS, "Returns stream object."},
-    {"_getPVStream", (PyCFunction)PVMult_getPVStream, METH_NOARGS, "Returns pvstream object."},
-    {"setInput", (PyCFunction)PVMult_setInput, METH_O, "Sets a new input object."},
-    {"setInput2", (PyCFunction)PVMult_setInput2, METH_O, "Sets a new input object."},
-    {"play", (PyCFunction)PVMult_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)PVMult_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"getServer", (PyCFunction)PVMult_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)PVMult_getStream, METH_NOARGS, NULL},
+    {"_getPVStream", (PyCFunction)PVMult_getPVStream, METH_NOARGS, NULL},
+    {"setInput", (PyCFunction)PVMult_setInput, METH_O, NULL},
+    {"setInput2", (PyCFunction)PVMult_setInput2, METH_O, NULL},
+    {"play", (PyCFunction)PVMult_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)PVMult_stop, METH_VARARGS | METH_KEYWORDS, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -4014,7 +4014,7 @@ PyTypeObject PVMultType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "PVMult objects. Multiply magnitudes from two pv streams.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)PVMult_traverse,                  /* tp_traverse */
     (inquiry)PVMult_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -4410,25 +4410,25 @@ PVMorph_setFade(PVMorph *self, PyObject *arg)
 
 static PyMemberDef PVMorph_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(PVMorph, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(PVMorph, stream), 0, "Stream object."},
-    {"pv_stream", T_OBJECT_EX, offsetof(PVMorph, pv_stream), 0, "Phase Vocoder Stream object."},
-    {"input", T_OBJECT_EX, offsetof(PVMorph, input), 0, "FFT sound object."},
-    {"input2", T_OBJECT_EX, offsetof(PVMorph, input2), 0, "FFT sound object."},
-    {"fade", T_OBJECT_EX, offsetof(PVMorph, fade), 0, "fadesition factor."},
+    {"server", T_OBJECT_EX, offsetof(PVMorph, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(PVMorph, stream), 0, NULL},
+    {"pv_stream", T_OBJECT_EX, offsetof(PVMorph, pv_stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(PVMorph, input), 0, NULL},
+    {"input2", T_OBJECT_EX, offsetof(PVMorph, input2), 0, NULL},
+    {"fade", T_OBJECT_EX, offsetof(PVMorph, fade), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef PVMorph_methods[] =
 {
-    {"getServer", (PyCFunction)PVMorph_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)PVMorph_getStream, METH_NOARGS, "Returns stream object."},
-    {"_getPVStream", (PyCFunction)PVMorph_getPVStream, METH_NOARGS, "Returns pvstream object."},
-    {"setInput", (PyCFunction)PVMorph_setInput, METH_O, "Sets a new input object."},
-    {"setInput2", (PyCFunction)PVMorph_setInput2, METH_O, "Sets a new input object."},
-    {"setFade", (PyCFunction)PVMorph_setFade, METH_O, "Sets the fadesition factor."},
-    {"play", (PyCFunction)PVMorph_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)PVMorph_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"getServer", (PyCFunction)PVMorph_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)PVMorph_getStream, METH_NOARGS, NULL},
+    {"_getPVStream", (PyCFunction)PVMorph_getPVStream, METH_NOARGS, NULL},
+    {"setInput", (PyCFunction)PVMorph_setInput, METH_O, NULL},
+    {"setInput2", (PyCFunction)PVMorph_setInput2, METH_O, NULL},
+    {"setFade", (PyCFunction)PVMorph_setFade, METH_O, NULL},
+    {"play", (PyCFunction)PVMorph_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)PVMorph_stop, METH_VARARGS | METH_KEYWORDS, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -4454,7 +4454,7 @@ PyTypeObject PVMorphType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "PVMorph objects. Cross-synthesis.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)PVMorph_traverse,                  /* tp_traverse */
     (inquiry)PVMorph_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -4902,27 +4902,27 @@ PVFilter_setMode(PVFilter *self, PyObject *arg)
 
 static PyMemberDef PVFilter_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(PVFilter, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(PVFilter, stream), 0, "Stream object."},
-    {"pv_stream", T_OBJECT_EX, offsetof(PVFilter, pv_stream), 0, "Phase Vocoder Stream object."},
-    {"input", T_OBJECT_EX, offsetof(PVFilter, input), 0, "FFT sound object."},
-    {"table", T_OBJECT_EX, offsetof(PVFilter, table), 0, "Filter table."},
-    {"gain", T_OBJECT_EX, offsetof(PVFilter, gain), 0, "gainsition factor."},
+    {"server", T_OBJECT_EX, offsetof(PVFilter, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(PVFilter, stream), 0, NULL},
+    {"pv_stream", T_OBJECT_EX, offsetof(PVFilter, pv_stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(PVFilter, input), 0, NULL},
+    {"table", T_OBJECT_EX, offsetof(PVFilter, table), 0, NULL},
+    {"gain", T_OBJECT_EX, offsetof(PVFilter, gain), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef PVFilter_methods[] =
 {
-    {"getServer", (PyCFunction)PVFilter_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)PVFilter_getStream, METH_NOARGS, "Returns stream object."},
-    {"_getPVStream", (PyCFunction)PVFilter_getPVStream, METH_NOARGS, "Returns pvstream object."},
-    {"setInput", (PyCFunction)PVFilter_setInput, METH_O, "Sets a new input object."},
-    {"getTable", (PyCFunction)PVFilter_getTable, METH_NOARGS, "Returns filter table object."},
-    {"setTable", (PyCFunction)PVFilter_setTable, METH_O, "Sets filter table."},
-    {"setGain", (PyCFunction)PVFilter_setGain, METH_O, "Sets the gain factor."},
-    {"setMode", (PyCFunction)PVFilter_setMode, METH_O, "Sets the table scanning mode."},
-    {"play", (PyCFunction)PVFilter_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)PVFilter_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"getServer", (PyCFunction)PVFilter_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)PVFilter_getStream, METH_NOARGS, NULL},
+    {"_getPVStream", (PyCFunction)PVFilter_getPVStream, METH_NOARGS, NULL},
+    {"setInput", (PyCFunction)PVFilter_setInput, METH_O, NULL},
+    {"getTable", (PyCFunction)PVFilter_getTable, METH_NOARGS, NULL},
+    {"setTable", (PyCFunction)PVFilter_setTable, METH_O, NULL},
+    {"setGain", (PyCFunction)PVFilter_setGain, METH_O, NULL},
+    {"setMode", (PyCFunction)PVFilter_setMode, METH_O, NULL},
+    {"play", (PyCFunction)PVFilter_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)PVFilter_stop, METH_VARARGS | METH_KEYWORDS, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -4948,7 +4948,7 @@ PyTypeObject PVFilterType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "PVFilter objects. Spectral domain gainsition.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)PVFilter_traverse,                  /* tp_traverse */
     (inquiry)PVFilter_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -5428,28 +5428,28 @@ PVDelay_setMode(PVDelay *self, PyObject *arg)
 
 static PyMemberDef PVDelay_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(PVDelay, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(PVDelay, stream), 0, "Stream object."},
-    {"pv_stream", T_OBJECT_EX, offsetof(PVDelay, pv_stream), 0, "Phase Vocoder Stream object."},
-    {"input", T_OBJECT_EX, offsetof(PVDelay, input), 0, "FFT sound object."},
-    {"deltable", T_OBJECT_EX, offsetof(PVDelay, deltable), 0, "Delays table."},
-    {"feedtable", T_OBJECT_EX, offsetof(PVDelay, feedtable), 0, "Feedbacks table."},
+    {"server", T_OBJECT_EX, offsetof(PVDelay, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(PVDelay, stream), 0, NULL},
+    {"pv_stream", T_OBJECT_EX, offsetof(PVDelay, pv_stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(PVDelay, input), 0, NULL},
+    {"deltable", T_OBJECT_EX, offsetof(PVDelay, deltable), 0, NULL},
+    {"feedtable", T_OBJECT_EX, offsetof(PVDelay, feedtable), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef PVDelay_methods[] =
 {
-    {"getServer", (PyCFunction)PVDelay_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)PVDelay_getStream, METH_NOARGS, "Returns stream object."},
-    {"_getPVStream", (PyCFunction)PVDelay_getPVStream, METH_NOARGS, "Returns pvstream object."},
-    {"setInput", (PyCFunction)PVDelay_setInput, METH_O, "Sets a new input object."},
-    {"getDeltable", (PyCFunction)PVDelay_getDeltable, METH_NOARGS, "Returns delays table object."},
-    {"setDeltable", (PyCFunction)PVDelay_setDeltable, METH_O, "Sets delays table."},
-    {"getFeedtable", (PyCFunction)PVDelay_getFeedtable, METH_NOARGS, "Returns feedbacks table object."},
-    {"setFeedtable", (PyCFunction)PVDelay_setFeedtable, METH_O, "Sets feedbacks table."},
-    {"setMode", (PyCFunction)PVDelay_setMode, METH_O, "Table scanning method."},
-    {"play", (PyCFunction)PVDelay_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)PVDelay_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"getServer", (PyCFunction)PVDelay_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)PVDelay_getStream, METH_NOARGS, NULL},
+    {"_getPVStream", (PyCFunction)PVDelay_getPVStream, METH_NOARGS, NULL},
+    {"setInput", (PyCFunction)PVDelay_setInput, METH_O, NULL},
+    {"getDeltable", (PyCFunction)PVDelay_getDeltable, METH_NOARGS, NULL},
+    {"setDeltable", (PyCFunction)PVDelay_setDeltable, METH_O, NULL},
+    {"getFeedtable", (PyCFunction)PVDelay_getFeedtable, METH_NOARGS, NULL},
+    {"setFeedtable", (PyCFunction)PVDelay_setFeedtable, METH_O, NULL},
+    {"setMode", (PyCFunction)PVDelay_setMode, METH_O, NULL},
+    {"play", (PyCFunction)PVDelay_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)PVDelay_stop, METH_VARARGS | METH_KEYWORDS, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -5475,7 +5475,7 @@ PyTypeObject PVDelayType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "PVDelay objects. Spectral delay.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)PVDelay_traverse,                  /* tp_traverse */
     (inquiry)PVDelay_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -5964,26 +5964,26 @@ PVBuffer_setLength(PVBuffer *self, PyObject *arg)
 
 static PyMemberDef PVBuffer_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(PVBuffer, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(PVBuffer, stream), 0, "Stream object."},
-    {"pv_stream", T_OBJECT_EX, offsetof(PVBuffer, pv_stream), 0, "Phase Vocoder Stream object."},
-    {"input", T_OBJECT_EX, offsetof(PVBuffer, input), 0, "FFT sound object."},
-    {"index", T_OBJECT_EX, offsetof(PVBuffer, index), 0, "Pointer position."},
-    {"pitch", T_OBJECT_EX, offsetof(PVBuffer, pitch), 0, "Transposition factor."},
+    {"server", T_OBJECT_EX, offsetof(PVBuffer, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(PVBuffer, stream), 0, NULL},
+    {"pv_stream", T_OBJECT_EX, offsetof(PVBuffer, pv_stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(PVBuffer, input), 0, NULL},
+    {"index", T_OBJECT_EX, offsetof(PVBuffer, index), 0, NULL},
+    {"pitch", T_OBJECT_EX, offsetof(PVBuffer, pitch), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef PVBuffer_methods[] =
 {
-    {"getServer", (PyCFunction)PVBuffer_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)PVBuffer_getStream, METH_NOARGS, "Returns stream object."},
-    {"_getPVStream", (PyCFunction)PVBuffer_getPVStream, METH_NOARGS, "Returns pvstream object."},
-    {"setInput", (PyCFunction)PVBuffer_setInput, METH_O, "Sets a new input object."},
-    {"setIndex", (PyCFunction)PVBuffer_setIndex, METH_O, "Sets a new pointer object."},
-    {"setPitch", (PyCFunction)PVBuffer_setPitch, METH_O, "Sets a new transposition factor."},
-    {"setLength", (PyCFunction)PVBuffer_setLength, METH_O, "Sets a new buffer length."},
-    {"play", (PyCFunction)PVBuffer_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)PVBuffer_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"getServer", (PyCFunction)PVBuffer_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)PVBuffer_getStream, METH_NOARGS, NULL},
+    {"_getPVStream", (PyCFunction)PVBuffer_getPVStream, METH_NOARGS, NULL},
+    {"setInput", (PyCFunction)PVBuffer_setInput, METH_O, NULL},
+    {"setIndex", (PyCFunction)PVBuffer_setIndex, METH_O, NULL},
+    {"setPitch", (PyCFunction)PVBuffer_setPitch, METH_O, NULL},
+    {"setLength", (PyCFunction)PVBuffer_setLength, METH_O, NULL},
+    {"play", (PyCFunction)PVBuffer_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)PVBuffer_stop, METH_VARARGS | METH_KEYWORDS, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -6009,7 +6009,7 @@ PyTypeObject PVBufferType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "PVBuffer objects. Phase vocoder buffer and playback reader.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)PVBuffer_traverse,                  /* tp_traverse */
     (inquiry)PVBuffer_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -6377,23 +6377,23 @@ PVShift_setShift(PVShift *self, PyObject *arg)
 
 static PyMemberDef PVShift_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(PVShift, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(PVShift, stream), 0, "Stream object."},
-    {"pv_stream", T_OBJECT_EX, offsetof(PVShift, pv_stream), 0, "Phase Vocoder Stream object."},
-    {"input", T_OBJECT_EX, offsetof(PVShift, input), 0, "FFT sound object."},
-    {"shift", T_OBJECT_EX, offsetof(PVShift, shift), 0, "Frequency shifting factor."},
+    {"server", T_OBJECT_EX, offsetof(PVShift, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(PVShift, stream), 0, NULL},
+    {"pv_stream", T_OBJECT_EX, offsetof(PVShift, pv_stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(PVShift, input), 0, NULL},
+    {"shift", T_OBJECT_EX, offsetof(PVShift, shift), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef PVShift_methods[] =
 {
-    {"getServer", (PyCFunction)PVShift_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)PVShift_getStream, METH_NOARGS, "Returns stream object."},
-    {"_getPVStream", (PyCFunction)PVShift_getPVStream, METH_NOARGS, "Returns pvstream object."},
-    {"setInput", (PyCFunction)PVShift_setInput, METH_O, "Sets a new input object."},
-    {"setShift", (PyCFunction)PVShift_setShift, METH_O, "Sets the frequency shifting factor."},
-    {"play", (PyCFunction)PVShift_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)PVShift_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"getServer", (PyCFunction)PVShift_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)PVShift_getStream, METH_NOARGS, NULL},
+    {"_getPVStream", (PyCFunction)PVShift_getPVStream, METH_NOARGS, NULL},
+    {"setInput", (PyCFunction)PVShift_setInput, METH_O, NULL},
+    {"setShift", (PyCFunction)PVShift_setShift, METH_O, NULL},
+    {"play", (PyCFunction)PVShift_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)PVShift_stop, METH_VARARGS | METH_KEYWORDS, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -6419,7 +6419,7 @@ PyTypeObject PVShiftType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "PVShift objects. Frequency shifter in the spectral domain.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)PVShift_traverse,                  /* tp_traverse */
     (inquiry)PVShift_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -7072,27 +7072,27 @@ PVAmpMod_reset(PVAmpMod *self)
 
 static PyMemberDef PVAmpMod_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(PVAmpMod, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(PVAmpMod, stream), 0, "Stream object."},
-    {"pv_stream", T_OBJECT_EX, offsetof(PVAmpMod, pv_stream), 0, "Phase Vocoder Stream object."},
-    {"input", T_OBJECT_EX, offsetof(PVAmpMod, input), 0, "FFT sound object."},
-    {"basefreq", T_OBJECT_EX, offsetof(PVAmpMod, basefreq), 0, "Modulator's base frequency."},
-    {"spread", T_OBJECT_EX, offsetof(PVAmpMod, spread), 0, "High frequency spreading factor."},
+    {"server", T_OBJECT_EX, offsetof(PVAmpMod, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(PVAmpMod, stream), 0, NULL},
+    {"pv_stream", T_OBJECT_EX, offsetof(PVAmpMod, pv_stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(PVAmpMod, input), 0, NULL},
+    {"basefreq", T_OBJECT_EX, offsetof(PVAmpMod, basefreq), 0, NULL},
+    {"spread", T_OBJECT_EX, offsetof(PVAmpMod, spread), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef PVAmpMod_methods[] =
 {
-    {"getServer", (PyCFunction)PVAmpMod_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)PVAmpMod_getStream, METH_NOARGS, "Returns stream object."},
-    {"_getPVStream", (PyCFunction)PVAmpMod_getPVStream, METH_NOARGS, "Returns pvstream object."},
-    {"setInput", (PyCFunction)PVAmpMod_setInput, METH_O, "Sets a new input object."},
-    {"setBasefreq", (PyCFunction)PVAmpMod_setBasefreq, METH_O, "Sets the modulator's base frequency."},
-    {"setSpread", (PyCFunction)PVAmpMod_setSpread, METH_O, "Sets the high frequency spreading factor."},
-    {"setShape", (PyCFunction)PVAmpMod_setShape, METH_O, "Sets the modulation oscillator waveform."},
-    {"reset", (PyCFunction)PVAmpMod_reset, METH_NOARGS, "Resets pointer positions."},
-    {"play", (PyCFunction)PVAmpMod_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)PVAmpMod_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"getServer", (PyCFunction)PVAmpMod_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)PVAmpMod_getStream, METH_NOARGS, NULL},
+    {"_getPVStream", (PyCFunction)PVAmpMod_getPVStream, METH_NOARGS, NULL},
+    {"setInput", (PyCFunction)PVAmpMod_setInput, METH_O, NULL},
+    {"setBasefreq", (PyCFunction)PVAmpMod_setBasefreq, METH_O, NULL},
+    {"setSpread", (PyCFunction)PVAmpMod_setSpread, METH_O, NULL},
+    {"setShape", (PyCFunction)PVAmpMod_setShape, METH_O, NULL},
+    {"reset", (PyCFunction)PVAmpMod_reset, METH_NOARGS, NULL},
+    {"play", (PyCFunction)PVAmpMod_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)PVAmpMod_stop, METH_VARARGS | METH_KEYWORDS, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -7118,7 +7118,7 @@ PyTypeObject PVAmpModType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "PVAmpMod objects. Frequency independent modulators.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)PVAmpMod_traverse,                  /* tp_traverse */
     (inquiry)PVAmpMod_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -7822,29 +7822,29 @@ PVFreqMod_reset(PVFreqMod *self)
 
 static PyMemberDef PVFreqMod_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(PVFreqMod, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(PVFreqMod, stream), 0, "Stream object."},
-    {"pv_stream", T_OBJECT_EX, offsetof(PVFreqMod, pv_stream), 0, "Phase Vocoder Stream object."},
-    {"input", T_OBJECT_EX, offsetof(PVFreqMod, input), 0, "FFT sound object."},
-    {"basefreq", T_OBJECT_EX, offsetof(PVFreqMod, basefreq), 0, "Modulator's base frequency."},
-    {"spread", T_OBJECT_EX, offsetof(PVFreqMod, spread), 0, "High frequency spreading factor."},
-    {"depth", T_OBJECT_EX, offsetof(PVFreqMod, depth), 0, "Depth of modulators."},
+    {"server", T_OBJECT_EX, offsetof(PVFreqMod, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(PVFreqMod, stream), 0, NULL},
+    {"pv_stream", T_OBJECT_EX, offsetof(PVFreqMod, pv_stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(PVFreqMod, input), 0, NULL},
+    {"basefreq", T_OBJECT_EX, offsetof(PVFreqMod, basefreq), 0, NULL},
+    {"spread", T_OBJECT_EX, offsetof(PVFreqMod, spread), 0, NULL},
+    {"depth", T_OBJECT_EX, offsetof(PVFreqMod, depth), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef PVFreqMod_methods[] =
 {
-    {"getServer", (PyCFunction)PVFreqMod_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)PVFreqMod_getStream, METH_NOARGS, "Returns stream object."},
-    {"_getPVStream", (PyCFunction)PVFreqMod_getPVStream, METH_NOARGS, "Returns pvstream object."},
-    {"setInput", (PyCFunction)PVFreqMod_setInput, METH_O, "Sets a new input object."},
-    {"setBasefreq", (PyCFunction)PVFreqMod_setBasefreq, METH_O, "Sets the modulator's base frequency."},
-    {"setSpread", (PyCFunction)PVFreqMod_setSpread, METH_O, "Sets the high frequency spreading factor."},
-    {"setDepth", (PyCFunction)PVFreqMod_setDepth, METH_O, "Sets the modulator's depth."},
-    {"setShape", (PyCFunction)PVFreqMod_setShape, METH_O, "Sets the modulation oscillator waveform."},
-    {"reset", (PyCFunction)PVFreqMod_reset, METH_NOARGS, "Resets pointer positions."},
-    {"play", (PyCFunction)PVFreqMod_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)PVFreqMod_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"getServer", (PyCFunction)PVFreqMod_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)PVFreqMod_getStream, METH_NOARGS, NULL},
+    {"_getPVStream", (PyCFunction)PVFreqMod_getPVStream, METH_NOARGS, NULL},
+    {"setInput", (PyCFunction)PVFreqMod_setInput, METH_O, NULL},
+    {"setBasefreq", (PyCFunction)PVFreqMod_setBasefreq, METH_O, NULL},
+    {"setSpread", (PyCFunction)PVFreqMod_setSpread, METH_O, NULL},
+    {"setDepth", (PyCFunction)PVFreqMod_setDepth, METH_O, NULL},
+    {"setShape", (PyCFunction)PVFreqMod_setShape, METH_O, NULL},
+    {"reset", (PyCFunction)PVFreqMod_reset, METH_NOARGS, NULL},
+    {"play", (PyCFunction)PVFreqMod_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)PVFreqMod_stop, METH_VARARGS | METH_KEYWORDS, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -7870,7 +7870,7 @@ PyTypeObject PVFreqModType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "PVFreqMod objects. Spectral reverberation.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)PVFreqMod_traverse,                  /* tp_traverse */
     (inquiry)PVFreqMod_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -8422,27 +8422,27 @@ PVBufLoops_reset(PVBufLoops *self)
 
 static PyMemberDef PVBufLoops_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(PVBufLoops, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(PVBufLoops, stream), 0, "Stream object."},
-    {"pv_stream", T_OBJECT_EX, offsetof(PVBufLoops, pv_stream), 0, "Phase Vocoder Stream object."},
-    {"input", T_OBJECT_EX, offsetof(PVBufLoops, input), 0, "FFT sound object."},
-    {"low", T_OBJECT_EX, offsetof(PVBufLoops, low), 0, "Speed of lowest bin."},
-    {"high", T_OBJECT_EX, offsetof(PVBufLoops, high), 0, "Speed of highest bin."},
+    {"server", T_OBJECT_EX, offsetof(PVBufLoops, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(PVBufLoops, stream), 0, NULL},
+    {"pv_stream", T_OBJECT_EX, offsetof(PVBufLoops, pv_stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(PVBufLoops, input), 0, NULL},
+    {"low", T_OBJECT_EX, offsetof(PVBufLoops, low), 0, NULL},
+    {"high", T_OBJECT_EX, offsetof(PVBufLoops, high), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef PVBufLoops_methods[] =
 {
-    {"getServer", (PyCFunction)PVBufLoops_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)PVBufLoops_getStream, METH_NOARGS, "Returns stream object."},
-    {"_getPVStream", (PyCFunction)PVBufLoops_getPVStream, METH_NOARGS, "Returns pvstream object."},
-    {"setInput", (PyCFunction)PVBufLoops_setInput, METH_O, "Sets a new input object."},
-    {"setLow", (PyCFunction)PVBufLoops_setLow, METH_O, "Sets a new lowest speed."},
-    {"setHigh", (PyCFunction)PVBufLoops_setHigh, METH_O, "Sets a new highest speed."},
-    {"setMode", (PyCFunction)PVBufLoops_setMode, METH_O, "Sets a new mode."},
-    {"reset", (PyCFunction)PVBufLoops_reset, METH_NOARGS, "Preset pointer positions."},
-    {"play", (PyCFunction)PVBufLoops_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)PVBufLoops_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"getServer", (PyCFunction)PVBufLoops_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)PVBufLoops_getStream, METH_NOARGS, NULL},
+    {"_getPVStream", (PyCFunction)PVBufLoops_getPVStream, METH_NOARGS, NULL},
+    {"setInput", (PyCFunction)PVBufLoops_setInput, METH_O, NULL},
+    {"setLow", (PyCFunction)PVBufLoops_setLow, METH_O, NULL},
+    {"setHigh", (PyCFunction)PVBufLoops_setHigh, METH_O, NULL},
+    {"setMode", (PyCFunction)PVBufLoops_setMode, METH_O, NULL},
+    {"reset", (PyCFunction)PVBufLoops_reset, METH_NOARGS, NULL},
+    {"play", (PyCFunction)PVBufLoops_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)PVBufLoops_stop, METH_VARARGS | METH_KEYWORDS, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -8468,7 +8468,7 @@ PyTypeObject PVBufLoopsType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "PVBufLoops objects. Phase vocoder buffer and playback reader.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)PVBufLoops_traverse,                  /* tp_traverse */
     (inquiry)PVBufLoops_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -8821,24 +8821,24 @@ PVBufTabLoops_reset(PVBufTabLoops *self)
 
 static PyMemberDef PVBufTabLoops_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(PVBufTabLoops, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(PVBufTabLoops, stream), 0, "Stream object."},
-    {"pv_stream", T_OBJECT_EX, offsetof(PVBufTabLoops, pv_stream), 0, "Phase Vocoder Stream object."},
-    {"input", T_OBJECT_EX, offsetof(PVBufTabLoops, input), 0, "FFT sound object."},
-    {"speed", T_OBJECT_EX, offsetof(PVBufTabLoops, speed), 0, "Table containing speed of every bin."},
+    {"server", T_OBJECT_EX, offsetof(PVBufTabLoops, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(PVBufTabLoops, stream), 0, NULL},
+    {"pv_stream", T_OBJECT_EX, offsetof(PVBufTabLoops, pv_stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(PVBufTabLoops, input), 0, NULL},
+    {"speed", T_OBJECT_EX, offsetof(PVBufTabLoops, speed), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef PVBufTabLoops_methods[] =
 {
-    {"getServer", (PyCFunction)PVBufTabLoops_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)PVBufTabLoops_getStream, METH_NOARGS, "Returns stream object."},
-    {"_getPVStream", (PyCFunction)PVBufTabLoops_getPVStream, METH_NOARGS, "Returns pvstream object."},
-    {"setInput", (PyCFunction)PVBufTabLoops_setInput, METH_O, "Sets a new input object."},
-    {"setSpeed", (PyCFunction)PVBufTabLoops_setSpeed, METH_O, "Change speed table."},
-    {"reset", (PyCFunction)PVBufTabLoops_reset, METH_NOARGS, "Preset pointer positions."},
-    {"play", (PyCFunction)PVBufTabLoops_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)PVBufTabLoops_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"getServer", (PyCFunction)PVBufTabLoops_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)PVBufTabLoops_getStream, METH_NOARGS, NULL},
+    {"_getPVStream", (PyCFunction)PVBufTabLoops_getPVStream, METH_NOARGS, NULL},
+    {"setInput", (PyCFunction)PVBufTabLoops_setInput, METH_O, NULL},
+    {"setSpeed", (PyCFunction)PVBufTabLoops_setSpeed, METH_O, NULL},
+    {"reset", (PyCFunction)PVBufTabLoops_reset, METH_NOARGS, NULL},
+    {"play", (PyCFunction)PVBufTabLoops_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)PVBufTabLoops_stop, METH_VARARGS | METH_KEYWORDS, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -8864,7 +8864,7 @@ PyTypeObject PVBufTabLoopsType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "PVBufTabLoops objects. Phase vocoder buffer and playback reader.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)PVBufTabLoops_traverse,                  /* tp_traverse */
     (inquiry)PVBufTabLoops_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -9157,23 +9157,23 @@ PVMix_setInput2(PVMix *self, PyObject *arg)
 
 static PyMemberDef PVMix_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(PVMix, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(PVMix, stream), 0, "Stream object."},
-    {"pv_stream", T_OBJECT_EX, offsetof(PVMix, pv_stream), 0, "Phase Vocoder Stream object."},
-    {"input", T_OBJECT_EX, offsetof(PVMix, input), 0, "FFT sound object."},
-    {"input2", T_OBJECT_EX, offsetof(PVMix, input2), 0, "FFT sound object."},
+    {"server", T_OBJECT_EX, offsetof(PVMix, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(PVMix, stream), 0, NULL},
+    {"pv_stream", T_OBJECT_EX, offsetof(PVMix, pv_stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(PVMix, input), 0, NULL},
+    {"input2", T_OBJECT_EX, offsetof(PVMix, input2), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef PVMix_methods[] =
 {
-    {"getServer", (PyCFunction)PVMix_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)PVMix_getStream, METH_NOARGS, "Returns stream object."},
-    {"_getPVStream", (PyCFunction)PVMix_getPVStream, METH_NOARGS, "Returns pvstream object."},
-    {"setInput", (PyCFunction)PVMix_setInput, METH_O, "Sets a new input object."},
-    {"setInput2", (PyCFunction)PVMix_setInput2, METH_O, "Sets a new input object."},
-    {"play", (PyCFunction)PVMix_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)PVMix_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"getServer", (PyCFunction)PVMix_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)PVMix_getStream, METH_NOARGS, NULL},
+    {"_getPVStream", (PyCFunction)PVMix_getPVStream, METH_NOARGS, NULL},
+    {"setInput", (PyCFunction)PVMix_setInput, METH_O, NULL},
+    {"setInput2", (PyCFunction)PVMix_setInput2, METH_O, NULL},
+    {"play", (PyCFunction)PVMix_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)PVMix_stop, METH_VARARGS | METH_KEYWORDS, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -9199,7 +9199,7 @@ PyTypeObject PVMixType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "PVMix objects. Mix two pv streams.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)PVMix_traverse,                  /* tp_traverse */
     (inquiry)PVMix_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */

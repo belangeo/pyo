@@ -603,30 +603,30 @@ Randi_setFreq(Randi *self, PyObject *arg)
 
 static PyMemberDef Randi_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(Randi, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(Randi, stream), 0, "Stream object."},
-    {"min", T_OBJECT_EX, offsetof(Randi, min), 0, "Minimum possible value."},
-    {"max", T_OBJECT_EX, offsetof(Randi, max), 0, "Maximum possible value."},
-    {"freq", T_OBJECT_EX, offsetof(Randi, freq), 0, "Polling frequency."},
-    {"mul", T_OBJECT_EX, offsetof(Randi, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(Randi, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(Randi, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(Randi, stream), 0, NULL},
+    {"min", T_OBJECT_EX, offsetof(Randi, min), 0, NULL},
+    {"max", T_OBJECT_EX, offsetof(Randi, max), 0, NULL},
+    {"freq", T_OBJECT_EX, offsetof(Randi, freq), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(Randi, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(Randi, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef Randi_methods[] =
 {
-    {"getServer", (PyCFunction)Randi_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)Randi_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Randi_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)Randi_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Randi_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setMin", (PyCFunction)Randi_setMin, METH_O, "Sets minimum possible value."},
-    {"setMax", (PyCFunction)Randi_setMax, METH_O, "Sets maximum possible value."},
-    {"setFreq", (PyCFunction)Randi_setFreq, METH_O, "Sets polling frequency."},
-    {"setMul", (PyCFunction)Randi_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)Randi_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)Randi_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)Randi_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)Randi_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)Randi_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)Randi_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)Randi_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)Randi_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setMin", (PyCFunction)Randi_setMin, METH_O, NULL},
+    {"setMax", (PyCFunction)Randi_setMax, METH_O, NULL},
+    {"setFreq", (PyCFunction)Randi_setFreq, METH_O, NULL},
+    {"setMul", (PyCFunction)Randi_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)Randi_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)Randi_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)Randi_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -690,7 +690,7 @@ PyTypeObject RandiType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Randi objects. Periodically generates a new random value with interpolation.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)Randi_traverse,                  /* tp_traverse */
     (inquiry)Randi_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -1272,30 +1272,30 @@ Randh_setFreq(Randh *self, PyObject *arg)
 
 static PyMemberDef Randh_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(Randh, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(Randh, stream), 0, "Stream object."},
-    {"min", T_OBJECT_EX, offsetof(Randh, min), 0, "Minimum possible value."},
-    {"max", T_OBJECT_EX, offsetof(Randh, max), 0, "Maximum possible value."},
-    {"freq", T_OBJECT_EX, offsetof(Randh, freq), 0, "Polling frequency."},
-    {"mul", T_OBJECT_EX, offsetof(Randh, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(Randh, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(Randh, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(Randh, stream), 0, NULL},
+    {"min", T_OBJECT_EX, offsetof(Randh, min), 0, NULL},
+    {"max", T_OBJECT_EX, offsetof(Randh, max), 0, NULL},
+    {"freq", T_OBJECT_EX, offsetof(Randh, freq), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(Randh, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(Randh, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef Randh_methods[] =
 {
-    {"getServer", (PyCFunction)Randh_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)Randh_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Randh_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)Randh_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Randh_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setMin", (PyCFunction)Randh_setMin, METH_O, "Sets minimum possible value."},
-    {"setMax", (PyCFunction)Randh_setMax, METH_O, "Sets maximum possible value."},
-    {"setFreq", (PyCFunction)Randh_setFreq, METH_O, "Sets polling frequency."},
-    {"setMul", (PyCFunction)Randh_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)Randh_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)Randh_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)Randh_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)Randh_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)Randh_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)Randh_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)Randh_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)Randh_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setMin", (PyCFunction)Randh_setMin, METH_O, NULL},
+    {"setMax", (PyCFunction)Randh_setMax, METH_O, NULL},
+    {"setFreq", (PyCFunction)Randh_setFreq, METH_O, NULL},
+    {"setMul", (PyCFunction)Randh_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)Randh_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)Randh_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)Randh_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -1359,7 +1359,7 @@ PyTypeObject RandhType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Randh objects. Periodically generates a new random value.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)Randh_traverse,                  /* tp_traverse */
     (inquiry)Randh_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -1678,27 +1678,27 @@ Choice_setFreq(Choice *self, PyObject *arg)
 
 static PyMemberDef Choice_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(Choice, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(Choice, stream), 0, "Stream object."},
-    {"freq", T_OBJECT_EX, offsetof(Choice, freq), 0, "Polling frequency."},
-    {"mul", T_OBJECT_EX, offsetof(Choice, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(Choice, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(Choice, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(Choice, stream), 0, NULL},
+    {"freq", T_OBJECT_EX, offsetof(Choice, freq), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(Choice, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(Choice, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef Choice_methods[] =
 {
-    {"getServer", (PyCFunction)Choice_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)Choice_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Choice_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)Choice_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Choice_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setChoice", (PyCFunction)Choice_setChoice, METH_O, "Sets list of possible floats."},
-    {"setFreq", (PyCFunction)Choice_setFreq, METH_O, "Sets polling frequency."},
-    {"setMul", (PyCFunction)Choice_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)Choice_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)Choice_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)Choice_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)Choice_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)Choice_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)Choice_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)Choice_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)Choice_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setChoice", (PyCFunction)Choice_setChoice, METH_O, NULL},
+    {"setFreq", (PyCFunction)Choice_setFreq, METH_O, NULL},
+    {"setMul", (PyCFunction)Choice_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)Choice_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)Choice_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)Choice_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -1762,7 +1762,7 @@ PyTypeObject ChoiceType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Choice objects. Periodically generates a new random value from a list.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)Choice_traverse,                  /* tp_traverse */
     (inquiry)Choice_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -2153,28 +2153,28 @@ RandInt_setFreq(RandInt *self, PyObject *arg)
 
 static PyMemberDef RandInt_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(RandInt, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(RandInt, stream), 0, "Stream object."},
-    {"max", T_OBJECT_EX, offsetof(RandInt, max), 0, "Maximum possible value."},
-    {"freq", T_OBJECT_EX, offsetof(RandInt, freq), 0, "Polling frequency."},
-    {"mul", T_OBJECT_EX, offsetof(RandInt, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(RandInt, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(RandInt, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(RandInt, stream), 0, NULL},
+    {"max", T_OBJECT_EX, offsetof(RandInt, max), 0, NULL},
+    {"freq", T_OBJECT_EX, offsetof(RandInt, freq), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(RandInt, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(RandInt, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef RandInt_methods[] =
 {
-    {"getServer", (PyCFunction)RandInt_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)RandInt_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)RandInt_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)RandInt_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)RandInt_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setMax", (PyCFunction)RandInt_setMax, METH_O, "Sets maximum possible value."},
-    {"setFreq", (PyCFunction)RandInt_setFreq, METH_O, "Sets polling frequency."},
-    {"setMul", (PyCFunction)RandInt_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)RandInt_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)RandInt_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)RandInt_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)RandInt_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)RandInt_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)RandInt_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)RandInt_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)RandInt_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setMax", (PyCFunction)RandInt_setMax, METH_O, NULL},
+    {"setFreq", (PyCFunction)RandInt_setFreq, METH_O, NULL},
+    {"setMul", (PyCFunction)RandInt_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)RandInt_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)RandInt_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)RandInt_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -2238,7 +2238,7 @@ PyTypeObject RandIntType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "RandInt objects. Periodically generates a new integer random value.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)RandInt_traverse,                  /* tp_traverse */
     (inquiry)RandInt_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -2686,28 +2686,28 @@ RandDur_setMax(RandDur *self, PyObject *arg)
 
 static PyMemberDef RandDur_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(RandDur, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(RandDur, stream), 0, "Stream object."},
-    {"min", T_OBJECT_EX, offsetof(RandDur, min), 0, "Minimum possible value."},
-    {"max", T_OBJECT_EX, offsetof(RandDur, max), 0, "Maximum possible value."},
-    {"mul", T_OBJECT_EX, offsetof(RandDur, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(RandDur, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(RandDur, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(RandDur, stream), 0, NULL},
+    {"min", T_OBJECT_EX, offsetof(RandDur, min), 0, NULL},
+    {"max", T_OBJECT_EX, offsetof(RandDur, max), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(RandDur, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(RandDur, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef RandDur_methods[] =
 {
-    {"getServer", (PyCFunction)RandDur_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)RandDur_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)RandDur_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)RandDur_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)RandDur_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setMin", (PyCFunction)RandDur_setMin, METH_O, "Sets minimum possible value."},
-    {"setMax", (PyCFunction)RandDur_setMax, METH_O, "Sets maximum possible value."},
-    {"setMul", (PyCFunction)RandDur_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)RandDur_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)RandDur_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)RandDur_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)RandDur_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)RandDur_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)RandDur_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)RandDur_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)RandDur_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setMin", (PyCFunction)RandDur_setMin, METH_O, NULL},
+    {"setMax", (PyCFunction)RandDur_setMax, METH_O, NULL},
+    {"setMul", (PyCFunction)RandDur_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)RandDur_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)RandDur_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)RandDur_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -2771,7 +2771,7 @@ PyTypeObject RandDurType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "RandDur objects. Recursive time varying generation of random values.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)RandDur_traverse,                  /* tp_traverse */
     (inquiry)RandDur_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -3711,31 +3711,31 @@ Xnoise_setFreq(Xnoise *self, PyObject *arg)
 
 static PyMemberDef Xnoise_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(Xnoise, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(Xnoise, stream), 0, "Stream object."},
-    {"x1", T_OBJECT_EX, offsetof(Xnoise, x1), 0, "first param."},
-    {"x2", T_OBJECT_EX, offsetof(Xnoise, x2), 0, "second param."},
-    {"freq", T_OBJECT_EX, offsetof(Xnoise, freq), 0, "Polling frequency."},
-    {"mul", T_OBJECT_EX, offsetof(Xnoise, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(Xnoise, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(Xnoise, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(Xnoise, stream), 0, NULL},
+    {"x1", T_OBJECT_EX, offsetof(Xnoise, x1), 0, NULL},
+    {"x2", T_OBJECT_EX, offsetof(Xnoise, x2), 0, NULL},
+    {"freq", T_OBJECT_EX, offsetof(Xnoise, freq), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(Xnoise, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(Xnoise, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef Xnoise_methods[] =
 {
-    {"getServer", (PyCFunction)Xnoise_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)Xnoise_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Xnoise_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)Xnoise_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Xnoise_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setType", (PyCFunction)Xnoise_setType, METH_O, "Sets distribution type."},
-    {"setX1", (PyCFunction)Xnoise_setX1, METH_O, "Sets first param."},
-    {"setX2", (PyCFunction)Xnoise_setX2, METH_O, "Sets second param."},
-    {"setFreq", (PyCFunction)Xnoise_setFreq, METH_O, "Sets polling frequency."},
-    {"setMul", (PyCFunction)Xnoise_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)Xnoise_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)Xnoise_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)Xnoise_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)Xnoise_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)Xnoise_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)Xnoise_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)Xnoise_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)Xnoise_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setType", (PyCFunction)Xnoise_setType, METH_O, NULL},
+    {"setX1", (PyCFunction)Xnoise_setX1, METH_O, NULL},
+    {"setX2", (PyCFunction)Xnoise_setX2, METH_O, NULL},
+    {"setFreq", (PyCFunction)Xnoise_setFreq, METH_O, NULL},
+    {"setMul", (PyCFunction)Xnoise_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)Xnoise_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)Xnoise_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)Xnoise_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -3799,7 +3799,7 @@ PyTypeObject XnoiseType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Xnoise objects. Periodically generates a new random value.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)Xnoise_traverse,                  /* tp_traverse */
     (inquiry)Xnoise_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -4827,33 +4827,33 @@ XnoiseMidi_setFreq(XnoiseMidi *self, PyObject *arg)
 
 static PyMemberDef XnoiseMidi_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(XnoiseMidi, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(XnoiseMidi, stream), 0, "Stream object."},
-    {"x1", T_OBJECT_EX, offsetof(XnoiseMidi, x1), 0, "first param."},
-    {"x2", T_OBJECT_EX, offsetof(XnoiseMidi, x2), 0, "second param."},
-    {"freq", T_OBJECT_EX, offsetof(XnoiseMidi, freq), 0, "Polling frequency."},
-    {"mul", T_OBJECT_EX, offsetof(XnoiseMidi, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(XnoiseMidi, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(XnoiseMidi, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(XnoiseMidi, stream), 0, NULL},
+    {"x1", T_OBJECT_EX, offsetof(XnoiseMidi, x1), 0, NULL},
+    {"x2", T_OBJECT_EX, offsetof(XnoiseMidi, x2), 0, NULL},
+    {"freq", T_OBJECT_EX, offsetof(XnoiseMidi, freq), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(XnoiseMidi, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(XnoiseMidi, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef XnoiseMidi_methods[] =
 {
-    {"getServer", (PyCFunction)XnoiseMidi_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)XnoiseMidi_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)XnoiseMidi_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)XnoiseMidi_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)XnoiseMidi_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setType", (PyCFunction)XnoiseMidi_setType, METH_O, "Sets distribution type."},
-    {"setScale", (PyCFunction)XnoiseMidi_setScale, METH_O, "Sets output scale."},
-    {"setRange", (PyCFunction)XnoiseMidi_setRange, METH_VARARGS, "Sets range in midi notes (min, max)."},
-    {"setX1", (PyCFunction)XnoiseMidi_setX1, METH_O, "Sets first param."},
-    {"setX2", (PyCFunction)XnoiseMidi_setX2, METH_O, "Sets second param."},
-    {"setFreq", (PyCFunction)XnoiseMidi_setFreq, METH_O, "Sets polling frequency."},
-    {"setMul", (PyCFunction)XnoiseMidi_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)XnoiseMidi_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)XnoiseMidi_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)XnoiseMidi_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)XnoiseMidi_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)XnoiseMidi_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)XnoiseMidi_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)XnoiseMidi_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)XnoiseMidi_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setType", (PyCFunction)XnoiseMidi_setType, METH_O, NULL},
+    {"setScale", (PyCFunction)XnoiseMidi_setScale, METH_O, NULL},
+    {"setRange", (PyCFunction)XnoiseMidi_setRange, METH_VARARGS, NULL},
+    {"setX1", (PyCFunction)XnoiseMidi_setX1, METH_O, NULL},
+    {"setX2", (PyCFunction)XnoiseMidi_setX2, METH_O, NULL},
+    {"setFreq", (PyCFunction)XnoiseMidi_setFreq, METH_O, NULL},
+    {"setMul", (PyCFunction)XnoiseMidi_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)XnoiseMidi_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)XnoiseMidi_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)XnoiseMidi_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -4917,7 +4917,7 @@ PyTypeObject XnoiseMidiType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "XnoiseMidi objects. Periodically generates a new random value.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)XnoiseMidi_traverse,                  /* tp_traverse */
     (inquiry)XnoiseMidi_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -5722,33 +5722,33 @@ XnoiseDur_setMax(XnoiseDur *self, PyObject *arg)
 
 static PyMemberDef XnoiseDur_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(XnoiseDur, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(XnoiseDur, stream), 0, "Stream object."},
-    {"x1", T_OBJECT_EX, offsetof(XnoiseDur, x1), 0, "first param."},
-    {"x2", T_OBJECT_EX, offsetof(XnoiseDur, x2), 0, "second param."},
-    {"min", T_OBJECT_EX, offsetof(XnoiseDur, min), 0, "Minimum value."},
-    {"max", T_OBJECT_EX, offsetof(XnoiseDur, max), 0, "Maximum value."},
-    {"mul", T_OBJECT_EX, offsetof(XnoiseDur, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(XnoiseDur, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(XnoiseDur, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(XnoiseDur, stream), 0, NULL},
+    {"x1", T_OBJECT_EX, offsetof(XnoiseDur, x1), 0, NULL},
+    {"x2", T_OBJECT_EX, offsetof(XnoiseDur, x2), 0, NULL},
+    {"min", T_OBJECT_EX, offsetof(XnoiseDur, min), 0, NULL},
+    {"max", T_OBJECT_EX, offsetof(XnoiseDur, max), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(XnoiseDur, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(XnoiseDur, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef XnoiseDur_methods[] =
 {
-    {"getServer", (PyCFunction)XnoiseDur_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)XnoiseDur_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)XnoiseDur_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)XnoiseDur_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)XnoiseDur_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setType", (PyCFunction)XnoiseDur_setType, METH_O, "Sets distribution type."},
-    {"setX1", (PyCFunction)XnoiseDur_setX1, METH_O, "Sets first param."},
-    {"setX2", (PyCFunction)XnoiseDur_setX2, METH_O, "Sets second param."},
-    {"setMin", (PyCFunction)XnoiseDur_setMin, METH_O, "Sets minimum value."},
-    {"setMax", (PyCFunction)XnoiseDur_setMax, METH_O, "Sets maximum value."},
-    {"setMul", (PyCFunction)XnoiseDur_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)XnoiseDur_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)XnoiseDur_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)XnoiseDur_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)XnoiseDur_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)XnoiseDur_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)XnoiseDur_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)XnoiseDur_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)XnoiseDur_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setType", (PyCFunction)XnoiseDur_setType, METH_O, NULL},
+    {"setX1", (PyCFunction)XnoiseDur_setX1, METH_O, NULL},
+    {"setX2", (PyCFunction)XnoiseDur_setX2, METH_O, NULL},
+    {"setMin", (PyCFunction)XnoiseDur_setMin, METH_O, NULL},
+    {"setMax", (PyCFunction)XnoiseDur_setMax, METH_O, NULL},
+    {"setMul", (PyCFunction)XnoiseDur_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)XnoiseDur_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)XnoiseDur_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)XnoiseDur_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -5812,7 +5812,7 @@ PyTypeObject XnoiseDurType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "XnoiseDur objects. Generates a random value and uses this value as time base for the next generation.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)XnoiseDur_traverse,                  /* tp_traverse */
     (inquiry)XnoiseDur_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -6187,29 +6187,29 @@ Urn_setFreq(Urn *self, PyObject *arg)
 
 static PyMemberDef Urn_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(Urn, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(Urn, stream), 0, "Stream object."},
-    {"trig_stream", T_OBJECT_EX, offsetof(Urn, trig_stream), 0, "Trigger Stream object."},
-    {"freq", T_OBJECT_EX, offsetof(Urn, freq), 0, "Polling frequency."},
-    {"mul", T_OBJECT_EX, offsetof(Urn, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(Urn, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(Urn, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(Urn, stream), 0, NULL},
+    {"trig_stream", T_OBJECT_EX, offsetof(Urn, trig_stream), 0, NULL},
+    {"freq", T_OBJECT_EX, offsetof(Urn, freq), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(Urn, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(Urn, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef Urn_methods[] =
 {
-    {"getServer", (PyCFunction)Urn_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)Urn_getStream, METH_NOARGS, "Returns stream object."},
-    {"_getTriggerStream", (PyCFunction)Urn_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
-    {"play", (PyCFunction)Urn_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)Urn_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Urn_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setMax", (PyCFunction)Urn_setMax, METH_O, "Sets maximum possible value."},
-    {"setFreq", (PyCFunction)Urn_setFreq, METH_O, "Sets polling frequency."},
-    {"setMul", (PyCFunction)Urn_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)Urn_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)Urn_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)Urn_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)Urn_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)Urn_getStream, METH_NOARGS, NULL},
+    {"_getTriggerStream", (PyCFunction)Urn_getTriggerStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)Urn_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)Urn_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)Urn_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setMax", (PyCFunction)Urn_setMax, METH_O, NULL},
+    {"setFreq", (PyCFunction)Urn_setFreq, METH_O, NULL},
+    {"setMul", (PyCFunction)Urn_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)Urn_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)Urn_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)Urn_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -6273,7 +6273,7 @@ PyTypeObject UrnType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Urn objects. Periodically generates a new integer random value without repetition.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)Urn_traverse,                  /* tp_traverse */
     (inquiry)Urn_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -6690,28 +6690,28 @@ LogiMap_setFreq(LogiMap *self, PyObject *arg)
 
 static PyMemberDef LogiMap_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(LogiMap, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(LogiMap, stream), 0, "Stream object."},
-    {"chaos", T_OBJECT_EX, offsetof(LogiMap, chaos), 0, "chaosimum possible value."},
-    {"freq", T_OBJECT_EX, offsetof(LogiMap, freq), 0, "Polling frequency."},
-    {"mul", T_OBJECT_EX, offsetof(LogiMap, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(LogiMap, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(LogiMap, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(LogiMap, stream), 0, NULL},
+    {"chaos", T_OBJECT_EX, offsetof(LogiMap, chaos), 0, NULL},
+    {"freq", T_OBJECT_EX, offsetof(LogiMap, freq), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(LogiMap, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(LogiMap, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef LogiMap_methods[] =
 {
-    {"getServer", (PyCFunction)LogiMap_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)LogiMap_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)LogiMap_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)LogiMap_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)LogiMap_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setChaos", (PyCFunction)LogiMap_setChaos, METH_O, "Sets the randomization degree."},
-    {"setFreq", (PyCFunction)LogiMap_setFreq, METH_O, "Sets polling frequency."},
-    {"setMul", (PyCFunction)LogiMap_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)LogiMap_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)LogiMap_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)LogiMap_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)LogiMap_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)LogiMap_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)LogiMap_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)LogiMap_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)LogiMap_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setChaos", (PyCFunction)LogiMap_setChaos, METH_O, NULL},
+    {"setFreq", (PyCFunction)LogiMap_setFreq, METH_O, NULL},
+    {"setMul", (PyCFunction)LogiMap_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)LogiMap_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)LogiMap_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)LogiMap_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -6775,7 +6775,7 @@ PyTypeObject LogiMapType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "LogiMap objects. Random generator based on the logistic equation.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)LogiMap_traverse,                  /* tp_traverse */
     (inquiry)LogiMap_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */

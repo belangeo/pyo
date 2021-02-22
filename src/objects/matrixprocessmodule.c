@@ -309,31 +309,31 @@ MatrixPointer_setY(MatrixPointer *self, PyObject *arg)
 
 static PyMemberDef MatrixPointer_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(MatrixPointer, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(MatrixPointer, stream), 0, "Stream object."},
-    {"matrix", T_OBJECT_EX, offsetof(MatrixPointer, matrix), 0, "Waveform matrix."},
-    {"x", T_OBJECT_EX, offsetof(MatrixPointer, x), 0, "Reader x."},
-    {"y", T_OBJECT_EX, offsetof(MatrixPointer, y), 0, "Reader y."},
-    {"mul", T_OBJECT_EX, offsetof(MatrixPointer, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(MatrixPointer, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(MatrixPointer, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(MatrixPointer, stream), 0, NULL},
+    {"matrix", T_OBJECT_EX, offsetof(MatrixPointer, matrix), 0, NULL},
+    {"x", T_OBJECT_EX, offsetof(MatrixPointer, x), 0, NULL},
+    {"y", T_OBJECT_EX, offsetof(MatrixPointer, y), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(MatrixPointer, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(MatrixPointer, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef MatrixPointer_methods[] =
 {
-    {"getMatrix", (PyCFunction)MatrixPointer_getMatrix, METH_NOARGS, "Returns waveform matrix object."},
-    {"getServer", (PyCFunction)MatrixPointer_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)MatrixPointer_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)MatrixPointer_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)MatrixPointer_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)MatrixPointer_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setMatrix", (PyCFunction)MatrixPointer_setMatrix, METH_O, "Sets oscillator matrix."},
-    {"setX", (PyCFunction)MatrixPointer_setX, METH_O, "Sets reader x."},
-    {"setY", (PyCFunction)MatrixPointer_setY, METH_O, "Sets reader y."},
-    {"setMul", (PyCFunction)MatrixPointer_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)MatrixPointer_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)MatrixPointer_setSub, METH_O, "Sets oscillator inverse add factor."},
-    {"setDiv", (PyCFunction)MatrixPointer_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getMatrix", (PyCFunction)MatrixPointer_getMatrix, METH_NOARGS, NULL},
+    {"getServer", (PyCFunction)MatrixPointer_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)MatrixPointer_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)MatrixPointer_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)MatrixPointer_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)MatrixPointer_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setMatrix", (PyCFunction)MatrixPointer_setMatrix, METH_O, NULL},
+    {"setX", (PyCFunction)MatrixPointer_setX, METH_O, NULL},
+    {"setY", (PyCFunction)MatrixPointer_setY, METH_O, NULL},
+    {"setMul", (PyCFunction)MatrixPointer_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)MatrixPointer_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)MatrixPointer_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)MatrixPointer_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -397,7 +397,7 @@ PyTypeObject MatrixPointerType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "MatrixPointer objects. Read a waveform matrix with a pointer x.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)MatrixPointer_traverse,   /* tp_traverse */
     (inquiry)MatrixPointer_clear,           /* tp_clear */
     0,                     /* tp_richcompare */

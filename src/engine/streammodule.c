@@ -194,12 +194,12 @@ Stream_isOutputting(Stream *self)
 
 static PyMethodDef Stream_methods[] =
 {
-    {"getValue", (PyCFunction)Stream_getValue, METH_NOARGS, "Returns the first sample of the current buffer."},
-    {"getId", (PyCFunction)Stream_getId, METH_NOARGS, "Returns the ID of assigned to this stream."},
-    {"getOutputChannel", (PyCFunction)Stream_getOutputChnl, METH_NOARGS, "Returns the output channel number, starting at 0."},
-    {"getStreamObject", (PyCFunction)Stream_getStreamObject, METH_NOARGS, "Returns the object associated with this stream."},
-    {"isPlaying", (PyCFunction)Stream_isPlaying, METH_NOARGS, "Returns True if the stream is playing, otherwise, returns False."},
-    {"isOutputting", (PyCFunction)Stream_isOutputting, METH_NOARGS, "Returns True if the stream outputs to dac, otherwise, returns False."},
+    {"getValue", (PyCFunction)Stream_getValue, METH_NOARGS, NULL},
+    {"getId", (PyCFunction)Stream_getId, METH_NOARGS, NULL},
+    {"getOutputChannel", (PyCFunction)Stream_getOutputChnl, METH_NOARGS, NULL},
+    {"getStreamObject", (PyCFunction)Stream_getStreamObject, METH_NOARGS, NULL},
+    {"isPlaying", (PyCFunction)Stream_isPlaying, METH_NOARGS, NULL},
+    {"isOutputting", (PyCFunction)Stream_isOutputting, METH_NOARGS, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -225,29 +225,7 @@ PyTypeObject StreamType =
     0, /*tp_setattro*/
     0, /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /*tp_flags*/
-    "\n\
-Audio stream objects. For internal use only. \n\n\
-A Stream object must never be instantiated by the user. \n\n\
-A Stream is a mono buffer of audio samples. It is used to pass \n\
-audio between objects and the server. A PyoObject can manage many \n\
-streams if, for example, a list is given to a parameter. \n\n\
-A Sine object with only one stream:\n\n\
-    a = Sine(freq=1000)\n\n\
-    len(a)\n\n\
-    1\n\n\n\
-A Sine object with four streams:\n\n\
-    a = Sine(freq=[250,500,750,100])\n\n\
-    len(a)\n\n\
-    4\n\n\n\
-The first stream of this object contains the samples from the 250Hz waveform.\n\
-The second stream contains the samples from the 500Hz waveform, and so on.\n\n\
-User can call a specific stream of an object by giving the position of the stream\n\
-between brackets, beginning at 0. To retrieve only the third stream of our object:\n\n\
-    a[2].out()\n\n\
-The method getStreamObject() can be called on a Stream object to retrieve the \n\
-XXX_base object associated with this Stream. This method can be used by developers who\n\
-are debugging their programs!\n\n\
-", /* tp_doc */
+    0, /* tp_doc */
     (traverseproc)Stream_traverse, /* tp_traverse */
     (inquiry)Stream_clear, /* tp_clear */
     0, /* tp_richcompare */
@@ -311,9 +289,7 @@ PyTypeObject TriggerStreamType =
     0, /*tp_setattro*/
     0, /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /*tp_flags*/
-    "\n\
-    Trigger stream object. For internal use only. \n\n\
-    ", /* tp_doc */
+    0, /* tp_doc */
     0, /* tp_traverse */
     0, /* tp_clear */
     0, /* tp_richcompare */

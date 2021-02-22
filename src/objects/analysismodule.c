@@ -312,26 +312,26 @@ Follower_setFreq(Follower *self, PyObject *arg)
 
 static PyMemberDef Follower_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(Follower, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(Follower, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(Follower, input), 0, "Input sound object."},
-    {"freq", T_OBJECT_EX, offsetof(Follower, freq), 0, "Cutoff frequency in cycle per second."},
-    {"mul", T_OBJECT_EX, offsetof(Follower, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(Follower, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(Follower, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(Follower, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(Follower, input), 0, NULL},
+    {"freq", T_OBJECT_EX, offsetof(Follower, freq), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(Follower, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(Follower, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef Follower_methods[] =
 {
-    {"getServer", (PyCFunction)Follower_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)Follower_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Follower_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)Follower_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setFreq", (PyCFunction)Follower_setFreq, METH_O, "Sets filter cutoff frequency in cycle per second."},
-    {"setMul", (PyCFunction)Follower_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)Follower_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)Follower_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)Follower_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)Follower_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)Follower_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)Follower_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)Follower_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setFreq", (PyCFunction)Follower_setFreq, METH_O, NULL},
+    {"setMul", (PyCFunction)Follower_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)Follower_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)Follower_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)Follower_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -395,7 +395,7 @@ PyTypeObject FollowerType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Follower objects. Envelope follower.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)Follower_traverse,                  /* tp_traverse */
     (inquiry)Follower_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -877,28 +877,28 @@ Follower2_setFalltime(Follower2 *self, PyObject *arg)
 
 static PyMemberDef Follower2_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(Follower2, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(Follower2, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(Follower2, input), 0, "Input sound object."},
-    {"risetime", T_OBJECT_EX, offsetof(Follower2, risetime), 0, "Risetime in second."},
-    {"falltime", T_OBJECT_EX, offsetof(Follower2, falltime), 0, "Falltime in second."},
-    {"mul", T_OBJECT_EX, offsetof(Follower2, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(Follower2, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(Follower2, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(Follower2, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(Follower2, input), 0, NULL},
+    {"risetime", T_OBJECT_EX, offsetof(Follower2, risetime), 0, NULL},
+    {"falltime", T_OBJECT_EX, offsetof(Follower2, falltime), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(Follower2, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(Follower2, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef Follower2_methods[] =
 {
-    {"getServer", (PyCFunction)Follower2_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)Follower2_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Follower2_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)Follower2_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setRisetime", (PyCFunction)Follower2_setRisetime, METH_O, "Sets filter risetime in second."},
-    {"setFalltime", (PyCFunction)Follower2_setFalltime, METH_O, "Sets filter falltime in second."},
-    {"setMul", (PyCFunction)Follower2_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)Follower2_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)Follower2_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)Follower2_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)Follower2_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)Follower2_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)Follower2_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)Follower2_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setRisetime", (PyCFunction)Follower2_setRisetime, METH_O, NULL},
+    {"setFalltime", (PyCFunction)Follower2_setFalltime, METH_O, NULL},
+    {"setMul", (PyCFunction)Follower2_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)Follower2_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)Follower2_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)Follower2_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -962,7 +962,7 @@ PyTypeObject Follower2Type =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Follower2 objects. Envelope follower.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)Follower2_traverse,                  /* tp_traverse */
     (inquiry)Follower2_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -1194,25 +1194,25 @@ ZCross_setThresh(ZCross *self, PyObject *arg)
 
 static PyMemberDef ZCross_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(ZCross, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(ZCross, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(ZCross, input), 0, "Input sound object."},
-    {"mul", T_OBJECT_EX, offsetof(ZCross, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(ZCross, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(ZCross, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(ZCross, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(ZCross, input), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(ZCross, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(ZCross, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef ZCross_methods[] =
 {
-    {"getServer", (PyCFunction)ZCross_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)ZCross_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)ZCross_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)ZCross_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setThresh", (PyCFunction)ZCross_setThresh, METH_O, "Sets the threshold factor."},
-    {"setMul", (PyCFunction)ZCross_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)ZCross_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)ZCross_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)ZCross_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)ZCross_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)ZCross_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)ZCross_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)ZCross_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setThresh", (PyCFunction)ZCross_setThresh, METH_O, NULL},
+    {"setMul", (PyCFunction)ZCross_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)ZCross_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)ZCross_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)ZCross_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -1276,7 +1276,7 @@ PyTypeObject ZCrossType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "ZCross objects. Returns number of zero crossing.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)ZCross_traverse,                  /* tp_traverse */
     (inquiry)ZCross_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -1661,28 +1661,28 @@ Yin_setCutoff(Yin *self, PyObject *arg)
 
 static PyMemberDef Yin_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(Yin, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(Yin, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(Yin, input), 0, "Input sound object."},
-    {"mul", T_OBJECT_EX, offsetof(Yin, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(Yin, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(Yin, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(Yin, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(Yin, input), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(Yin, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(Yin, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef Yin_methods[] =
 {
-    {"getServer", (PyCFunction)Yin_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)Yin_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Yin_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)Yin_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setTolerance", (PyCFunction)Yin_setTolerance, METH_O, "Sets the tolerance factor."},
-    {"setMinfreq", (PyCFunction)Yin_setMinfreq, METH_O, "Sets the minimum frequency in output."},
-    {"setMaxfreq", (PyCFunction)Yin_setMaxfreq, METH_O, "Sets the maximum frequency in output."},
-    {"setCutoff", (PyCFunction)Yin_setCutoff, METH_O, "Sets the input lowpass filter cutoff frequency."},
-    {"setMul", (PyCFunction)Yin_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)Yin_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)Yin_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)Yin_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)Yin_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)Yin_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)Yin_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)Yin_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setTolerance", (PyCFunction)Yin_setTolerance, METH_O, NULL},
+    {"setMinfreq", (PyCFunction)Yin_setMinfreq, METH_O, NULL},
+    {"setMaxfreq", (PyCFunction)Yin_setMaxfreq, METH_O, NULL},
+    {"setCutoff", (PyCFunction)Yin_setCutoff, METH_O, NULL},
+    {"setMul", (PyCFunction)Yin_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)Yin_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)Yin_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)Yin_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -1746,7 +1746,7 @@ PyTypeObject YinType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Yin objects. Pitch tracker using the Yin algorithm.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)Yin_traverse,                  /* tp_traverse */
     (inquiry)Yin_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -2041,24 +2041,24 @@ static PyObject * Centroid_inplace_div(Centroid *self, PyObject *arg) { INPLACE_
 
 static PyMemberDef Centroid_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(Centroid, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(Centroid, stream), 0, "Stream object."},
-    {"mul", T_OBJECT_EX, offsetof(Centroid, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(Centroid, add), 0, "Add factor."},
-    {"input", T_OBJECT_EX, offsetof(Centroid, input), 0, "Input sound object."},
+    {"server", T_OBJECT_EX, offsetof(Centroid, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(Centroid, stream), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(Centroid, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(Centroid, add), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(Centroid, input), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef Centroid_methods[] =
 {
-    {"getServer", (PyCFunction)Centroid_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)Centroid_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Centroid_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)Centroid_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setMul", (PyCFunction)Centroid_setMul, METH_O, "Sets Centroid mul factor."},
-    {"setAdd", (PyCFunction)Centroid_setAdd, METH_O, "Sets Centroid add factor."},
-    {"setSub", (PyCFunction)Centroid_setSub, METH_O, "Sets Centroid add factor."},
-    {"setDiv", (PyCFunction)Centroid_setDiv, METH_O, "Sets Centroid mul factor."},
+    {"getServer", (PyCFunction)Centroid_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)Centroid_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)Centroid_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)Centroid_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setMul", (PyCFunction)Centroid_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)Centroid_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)Centroid_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)Centroid_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -2122,7 +2122,7 @@ PyTypeObject CentroidType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Centroid objects. FFT transform.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)Centroid_traverse,                  /* tp_traverse */
     (inquiry)Centroid_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -2530,30 +2530,30 @@ AttackDetector_readyToDetect(AttackDetector *self)
 
 static PyMemberDef AttackDetector_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(AttackDetector, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(AttackDetector, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(AttackDetector, input), 0, "Input sound object."},
-    {"mul", T_OBJECT_EX, offsetof(AttackDetector, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(AttackDetector, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(AttackDetector, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(AttackDetector, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(AttackDetector, input), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(AttackDetector, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(AttackDetector, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef AttackDetector_methods[] =
 {
-    {"getServer", (PyCFunction)AttackDetector_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)AttackDetector_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)AttackDetector_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)AttackDetector_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setDeltime", (PyCFunction)AttackDetector_setDeltime, METH_O, "Sets the delay time between current and previous analysis."},
-    {"setCutoff", (PyCFunction)AttackDetector_setCutoff, METH_O, "Sets the frequency of the internal lowpass filter."},
-    {"setMaxthresh", (PyCFunction)AttackDetector_setMaxthresh, METH_O, "Sets the higher threshold."},
-    {"setMinthresh", (PyCFunction)AttackDetector_setMinthresh, METH_O, "Sets the lower threshold."},
-    {"setReltime", (PyCFunction)AttackDetector_setReltime, METH_O, "Sets the release time (min time between two detected attacks)."},
-    {"readyToDetect", (PyCFunction)AttackDetector_readyToDetect, METH_NOARGS, "Initializes thresholds."},
-    {"setMul", (PyCFunction)AttackDetector_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)AttackDetector_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)AttackDetector_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)AttackDetector_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)AttackDetector_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)AttackDetector_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)AttackDetector_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)AttackDetector_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setDeltime", (PyCFunction)AttackDetector_setDeltime, METH_O, NULL},
+    {"setCutoff", (PyCFunction)AttackDetector_setCutoff, METH_O, NULL},
+    {"setMaxthresh", (PyCFunction)AttackDetector_setMaxthresh, METH_O, NULL},
+    {"setMinthresh", (PyCFunction)AttackDetector_setMinthresh, METH_O, NULL},
+    {"setReltime", (PyCFunction)AttackDetector_setReltime, METH_O, NULL},
+    {"readyToDetect", (PyCFunction)AttackDetector_readyToDetect, METH_NOARGS, NULL},
+    {"setMul", (PyCFunction)AttackDetector_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)AttackDetector_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)AttackDetector_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)AttackDetector_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -2617,7 +2617,7 @@ PyTypeObject AttackDetectorType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "AttackDetector objects. Audio signal peak detection.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)AttackDetector_traverse,                  /* tp_traverse */
     (inquiry)AttackDetector_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -2905,25 +2905,25 @@ Scope_setPoll(Scope *self, PyObject *arg)
 
 static PyMemberDef Scope_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(Scope, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(Scope, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(Scope, input), 0, "Input sound object."},
+    {"server", T_OBJECT_EX, offsetof(Scope, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(Scope, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(Scope, input), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef Scope_methods[] =
 {
-    {"getServer", (PyCFunction)Scope_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)Scope_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Scope_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)Scope_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"display", (PyCFunction)Scope_display, METH_NOARGS, "Computes the samples to draw."},
-    {"setLength", (PyCFunction)Scope_setLength, METH_O, "Sets function's argument."},
-    {"setGain", (PyCFunction)Scope_setGain, METH_O, "Sets gain compensation."},
-    {"setWidth", (PyCFunction)Scope_setWidth, METH_O, "Sets the width of the display."},
-    {"setHeight", (PyCFunction)Scope_setHeight, METH_O, "Sets the height of the display."},
-    {"setFunc", (PyCFunction)Scope_setFunc, METH_O, "Sets callback function."},
-    {"setPoll", (PyCFunction)Scope_setPoll, METH_O, "Activate/deactivate polling."},
+    {"getServer", (PyCFunction)Scope_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)Scope_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)Scope_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)Scope_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"display", (PyCFunction)Scope_display, METH_NOARGS, NULL},
+    {"setLength", (PyCFunction)Scope_setLength, METH_O, NULL},
+    {"setGain", (PyCFunction)Scope_setGain, METH_O, NULL},
+    {"setWidth", (PyCFunction)Scope_setWidth, METH_O, NULL},
+    {"setHeight", (PyCFunction)Scope_setHeight, METH_O, NULL},
+    {"setFunc", (PyCFunction)Scope_setFunc, METH_O, NULL},
+    {"setPoll", (PyCFunction)Scope_setPoll, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -2949,7 +2949,7 @@ PyTypeObject ScopeType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Scope objects. Show the waveform of an input signal.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)Scope_traverse,                  /* tp_traverse */
     (inquiry)Scope_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -3165,25 +3165,25 @@ PeakAmp_getValue(PeakAmp *self)
 
 static PyMemberDef PeakAmp_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(PeakAmp, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(PeakAmp, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(PeakAmp, input), 0, "Input sound object."},
-    {"mul", T_OBJECT_EX, offsetof(PeakAmp, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(PeakAmp, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(PeakAmp, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(PeakAmp, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(PeakAmp, input), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(PeakAmp, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(PeakAmp, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef PeakAmp_methods[] =
 {
-    {"getServer", (PyCFunction)PeakAmp_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)PeakAmp_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)PeakAmp_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)PeakAmp_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"getValue", (PyCFunction)PeakAmp_getValue, METH_NOARGS, "Returns the current peaking value."},
-    {"setMul", (PyCFunction)PeakAmp_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)PeakAmp_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)PeakAmp_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)PeakAmp_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)PeakAmp_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)PeakAmp_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)PeakAmp_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)PeakAmp_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"getValue", (PyCFunction)PeakAmp_getValue, METH_NOARGS, NULL},
+    {"setMul", (PyCFunction)PeakAmp_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)PeakAmp_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)PeakAmp_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)PeakAmp_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -3247,7 +3247,7 @@ PyTypeObject PeakAmpType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "PeakAmp objects. Envelope follower.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)PeakAmp_traverse,                  /* tp_traverse */
     (inquiry)PeakAmp_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -3454,25 +3454,25 @@ RMS_getValue(RMS *self)
 
 static PyMemberDef RMS_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(RMS, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(RMS, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(RMS, input), 0, "Input sound object."},
-    {"mul", T_OBJECT_EX, offsetof(RMS, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(RMS, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(RMS, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(RMS, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(RMS, input), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(RMS, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(RMS, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef RMS_methods[] =
 {
-    {"getServer", (PyCFunction)RMS_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)RMS_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)RMS_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)RMS_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"getValue", (PyCFunction)RMS_getValue, METH_NOARGS, "Returns the current peaking value."},
-    {"setMul", (PyCFunction)RMS_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)RMS_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)RMS_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)RMS_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)RMS_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)RMS_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)RMS_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)RMS_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"getValue", (PyCFunction)RMS_getValue, METH_NOARGS, NULL},
+    {"setMul", (PyCFunction)RMS_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)RMS_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)RMS_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)RMS_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -3536,7 +3536,7 @@ PyTypeObject RMSType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "RMS objects. Envelope follower.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)RMS_traverse,                  /* tp_traverse */
     (inquiry)RMS_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */

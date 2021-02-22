@@ -1,34 +1,28 @@
 # encoding: utf-8
-"""
-This module defines the base classes for all objects in the library.
 
-"""
+# Copyright 2009-2021 Olivier Belanger
+# 
+# This file is part of pyo, a python module to help digital signal
+# processing script creation.
+#
+# pyo is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# pyo is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 
-"""
-Copyright 2009-2016 Olivier Belanger
 
-This file is part of pyo, a python module to help digital signal
-processing script creation.
-
-pyo is free software: you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as
-published by the Free Software Foundation, either version 3 of the
-License, or (at your option) any later version.
-
-pyo is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public
-License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
-
-"""
 import os
 import sys
 import time
 import inspect
-import tempfile
 import locale
 from subprocess import call
 from weakref import proxy
@@ -84,7 +78,6 @@ FUNCTIONS_INIT_LINES = {
     "reducePoints": "reducePoints(pointlist, tolerance=0.02)",
     "serverCreated": "serverCreated()",
     "serverBooted": "serverBooted()",
-    "example": "example(cls, dur=5, toprint=True, double=False)",
     "class_args": "class_args(cls)",
     "getVersion": "getVersion()",
     "getPrecision": "getPrecision()",
@@ -141,64 +134,22 @@ class PyoArgumentTypeError(PyoError):
 
 
 def isAudioObject(obj):
-    "Return True if the argument is an audio object."
     return isinstance(obj, PyoObject) or hasattr(obj, "stream")
 
 
 def isTableObject(obj):
-    "Return True if the argument is a table object."
     return isinstance(obj, PyoTableObject) or hasattr(obj, "tablestream")
 
 
 def isMatrixObject(obj):
-    "Return True if the argument is a matrix object."
     return isinstance(obj, PyoMatrixObject) or hasattr(obj, "matrixstream")
 
 
 def isPVObject(obj):
-    "Return True if the argument is a PV object."
     return isinstance(obj, PyoPVObject) or hasattr(obj, "pv_stream")
 
 
 def pyoArgsAssert(obj, format, *args):
-    """
-    Raise an Exception if an object got an invalid argument.
-
-    :Args:
-
-        obj: Pyo object on which method is called.
-            Usually "self" in the function call.
-        format :
-            String of length equal to the number of arguments. Each character
-            indicating the expected argument type.
-
-            - O: float or PyoObject
-            - o: PyoObject
-            - T: float or PyoTableObject
-            - t: PyoTableObject
-            - m: PyoMatrixObject
-            - p: PyoPVObject
-            - n: any number (int or float)
-            - N: any number (no list-expansion)
-            - f: float
-            - F: float (no list-expansion)
-            - i: integer
-            - I: integer (no list-expansion)
-            - s: string or unicode
-            - S: string or unicode (no list-expansion)
-            - b: boolean
-            - B: boolean (no list-expansion)
-            - l: list
-            - L: list or None
-            - u: tuple
-            - x: sequence (list or tuple)
-            - c: callable
-            - C: callable (no list-expansion)
-            - z: anything
-        *args: any
-            Arguments passed to the object's method.
-
-    """
     i = 0
     expected = ""
     for i, arg in enumerate(args):
@@ -283,17 +234,6 @@ def pyoArgsAssert(obj, format, *args):
 
 
 def convertStringToSysEncoding(strng):
-    """
-    Convert a string to the current platform file system encoding.
-
-    Returns the new encoded string.
-
-    :Args:
-
-        strng: string
-            String to convert.
-
-    """
     if type(strng) not in [bytes_t, unicode_t]:
         strng = strng.decode("utf-8")
     strng = strng.encode(sys.getfilesystemencoding())
@@ -301,11 +241,6 @@ def convertStringToSysEncoding(strng):
 
 
 def convertArgsToLists(*args):
-    """
-    Convert all arguments to list if not already a list or a PyoObjectBase.
-    Return new args and maximum list length.
-
-    """
     converted = list(args)
     for i, arg in enumerate(converted):
         if not isinstance(arg, PyoObjectBase) and not isinstance(arg, list):
@@ -317,10 +252,6 @@ def convertArgsToLists(*args):
 
 
 def wrap(arg, i):
-    """
-    Return value at position `i` from `arg` with wrap around `arg` length.
-
-    """
     x = arg[i % len(arg)]
     if isinstance(x, PyoObjectBase):
         return x[0]
@@ -329,7 +260,6 @@ def wrap(arg, i):
 
 
 def removeExtraDecimals(x):
-    "Return a floating-point value as a string with only two digits."
     if isinstance(x, float):
         return "=%.2f" % x
     elif type(x) in [bytes_t, unicode_t]:
@@ -339,24 +269,6 @@ def removeExtraDecimals(x):
 
 
 def class_args(cls):
-    """
-    Returns the signature of a pyo class or function.
-
-    This function takes a class or a function reference as input and returns 
-    its signature with the default values.
-
-    If the operation can't succeed, the function silently fails and returns
-    an empty string.
-
-    :Args:
-
-        cls: callable (class or function from pyo lib)
-            Reference of the class or function for which the signature is retrieved.
-
-    >>> print(class_args(Sine))
-    >>> 'Sine(freq=1000, phase=0, mul=1, add=0)'
-
-    """
     try:
         arg = str(inspect.signature(cls))
         return cls.__name__ + arg
@@ -370,32 +282,6 @@ def class_args(cls):
             return ""
 
 def beatToDur(beat, bpm=120):
-    """
-    Converts a beat value (multiplier of a quarter note) to a duration in seconds.
-
-    :Args:
-
-        beat: float
-            Beat value, in multiplier of the quarter note, to convert, according
-            to the BPM value, which gives the duration of the quarter note. For
-            example, to retrieve the duration of the sixteenth note, for a BPM
-            of 90, we would write `beatToDur(1/4, 90)`. `beat` can be a number,
-            a list or a tuple.
-        bpm: float, optional
-            The beat-per-minute value, which gives the duration of the quarter note.
-            Defaults to 120. `bpm` can be a number, a list or a tuple.
-
-    >>> bpm = 90
-    >>> Duration of a sixteenth note.
-    >>> dur = beatToDur(1/4, 90)
-    >>> print(dur)
-    1.666666666666
-    >>> print(beatToDur(1/4, [60, 90, 120]))
-    [0.25, 0.166666666, 0.125]
-    >>> print(beatToDur(1/4, (60, 90, 120)))
-    (0.25, 0.166666666, 0.125)
-
-    """
     if type(beat) is tuple or type(bpm) is tuple:
         if type(beat) is not tuple:
             beat = (beat,)
@@ -419,30 +305,11 @@ def beatToDur(beat, bpm=120):
 
 
 def getVersion():
-    """
-    Returns the version number of the current pyo installation.
-
-    This function returns the version number of the current pyo
-    installation as a 3-ints tuple (major, minor, rev).
-
-    The returned tuple for version '0.4.1' will look like: (0, 4, 1)
-
-    >>> print(getVersion())
-    >>> (0, 5, 1)
-
-    """
     major, minor, rev = PYO_VERSION.split(".")
     return (int(major), int(minor), int(rev))
 
 
 def getPrecision():
-    """
-    Returns the current sample precision as an integer.
-
-    This function returns the current sample precision as an integer,
-    either 32 for 32-bit (single) or 64 for 64-bit (double).
-
-    """
     if hasattr(builtins, "pyo_use_double"):
         return 64
     else:
@@ -450,7 +317,6 @@ def getPrecision():
 
 
 def getWeakMethodRef(x):
-    "Return a callable object as a weak method reference."
     if type(x) in [list, tuple]:
         tmp = []
         for y in x:
@@ -465,10 +331,6 @@ def getWeakMethodRef(x):
 
 
 class WeakMethod(object):
-    """A callable object. Takes one argument to init: 'object.method'.
-    Once created, call this object -- MyWeakMethod() --
-    and pass args/kwargs as you normally would.
-    """
 
     def __new__(cls, callobj):
         if callable(callobj):
@@ -495,27 +357,6 @@ class WeakMethod(object):
 ### PyoObjectBase -> abstract class for pyo objects
 ######################################################################
 class PyoObjectBase(object):
-    """
-    Base class for all pyo objects.
-
-    This object encapsulates some common behaviors for all pyo objects.
-
-    One typically inherits from a more specific subclass of this class
-    instead of using it directly.
-
-    .. note::
-
-        **Operations allowed on all PyoObjectBase**
-
-        >>> len(obj)      # Return the number of streams managed by the object.
-        >>> obj[x]        # Return stream `x` of the object.
-        >>>               # `x` is a number from 0 to len(obj)-1.
-        >>>               # Illegal indexing returns None.
-        >>> dir(obj)      # Return the list of attributes of the object.
-        >>> for x in obj: # Can be used as an iterator (iterates over
-        >>>               # object's audio streams).
-
-    """
 
     # Descriptive word for this kind of object, for use in printing
     # descriptions of the object. Subclasses need to set this.
@@ -536,13 +377,6 @@ class PyoObjectBase(object):
             raise PyoServerStateException("The Server must be booted before creating any audio object.")
 
     def dump(self):
-        """
-        Print infos about the current state of the object.
-
-        Print the number of Stream objects managed by the instance
-        and the current status of the object's attributes.
-
-        """
         attrs = dir(self)
         pp = "< Instance of %s class >" % self.__class__.__name__
         pp += "\n-----------------------------"
@@ -554,129 +388,31 @@ class PyoObjectBase(object):
         return pp
 
     def getBaseObjects(self):
-        """
-        Return a list of Stream objects managed by the instance.
-
-        """
         return self._base_objs
 
     def getServer(self):
-        """
-        Return a reference to the current Server object.
-
-        """
         return self._base_objs[0].getServer()
 
     def getSamplingRate(self):
-        """
-        Return the current sampling rate (samples per second), as a float.
-
-        """
         return self._base_objs[0].getServer().getSamplingRate()
 
     def getBufferSize(self):
-        """
-        Return the current buffer size (samples per buffer), as an integer.
-
-        """
         return self._base_objs[0].getServer().getBufferSize()
 
     def allowAutoStart(self, switch=True):
-        """
-        When autoStartChildren is activated in the Server, call this method
-        with False as argument to stop the propagation of play/out/stop methods
-        to and from this object. This is useful when an object is used at multiple
-        places and you don't want to loose it when you stop one dsp block.
-
-        .. note::
-
-            This flag is ignored if you pass a _base object instead of a PyoObject.
-            In the following code, a[0] will still be stopped by a b.stop(wait) call:
-
-                >>> a = Randi(min=0, max=0.3, freq=[1,2])
-                >>> a.allowAutoStart(False)
-                >>> b = Sine(mul=a[0]).out()
-
-        """
         self._allow_auto_start = switch
 
     def useWaitTimeOnStop(self):
-        """
-        When autoStartChildren is activated in the Server, call this method
-        to force an object given to the `mul` attribute of another object to
-        use the  wait time from the stop method instead of being stopped
-        immediately.
-
-        .. note::
-
-            Use wait time on stop is always "on" for _base objects. In the following
-            code, a[0] will use the wait time given to b.stop(wait) even if it is
-            used as a `mul` attribute:
-
-                >>> a = Randi(min=0, max=0.3, freq=[1,2])
-                >>> b = Sine(mul=a[0]).out()
-
-        """
         self._use_wait_time_on_stop = True
 
     def addLinkedObject(self, x):
-        """
-        When autoStartChildren is activated in the Server, use this method
-        to explicitly add an object in a dsp chain, which is generally
-        controlled by the last object of the chain. Here is an example
-        where we want an object to be linked to the chain but it can't be
-        automatically detected:
-
-        >>> tab = NewTable(length=2, chnls=1)
-        >>> rec = TableRec(Sine(500), tab, .01)
-        >>> amp = TrigVal(rec["trig"], 0.5)
-        >>> osc = Osc(tab, tab.getRate(), mul=Fader(1, 1, mul=.2))
-        >>> # "osc" can't know for sure that "rec" should be linked
-        >>> # to this dsp chain, so we add it manually.
-        >>> osc.addLinkedObject(rec)
-        >>> osc.out()
-
-        """
         self._linked_objects.append(x)
 
-    def setStopDelay(self, x):
-        """
-        Set a specific waiting time when calling the stop method on this object.
-
-        This method returns `self`, allowing it to be applied at the object
-        creation.
-
-        :Args:
-
-            x: float
-                New waiting time in seconds.
-
-        .. note::
-
-            if the method setStopDelay(x) was called before calling stop(wait)
-            with a positive `wait` value, the `wait` value won't overwrite the
-            value given to setStopDelay for the current object, but will be
-            the one propagated to children objects. This allow to set a waiting
-            time for a specific object with setStopDelay whithout changing the
-            global delay time given to the stop method.
-
-            Stop delay value is ignored if you pass a _base object instead of a
-            PyoObject. In the following code, a[0] ignores the a.setStopDelay(1)
-            call:
-
-                >>> a = Randi(min=0, max=0.3, freq=[1,2])
-                >>> a.setStopDelay(1)
-                >>> b = Sine(mul=a[0]).out()
-
-        """
+    def setStopDelay(self, x): 
         self._stop_delay = x
         return self
 
     def getStopDelay(self):
-        """
-        Return the waiting time applied when calling the stop method on this object.
-
-        """
         return self._stop_delay
 
     def __iter__(self):
@@ -691,10 +427,6 @@ class PyoObjectBase(object):
         return x
 
     def next(self):
-        """
-        Alias for __next__ method.
-
-        """
         # In Python 2.x, __next__() method is called next().
         return self.__next__()
 
@@ -790,66 +522,6 @@ class PyoObjectBase(object):
 ### PyoObject -> base class for pyo sound objects
 ######################################################################
 class PyoObject(PyoObjectBase):
-    """
-    Base class for all pyo objects that manipulate vectors of samples.
-
-    The user should never instantiate an object of this class.
-
-    :Parent: :py:class:`PyoObjectBase`
-
-    :Args:
-
-        mul: float or PyoObject, optional
-            Multiplication factor. Defaults to 1.
-        add: float or PyoObject, optional
-            Addition factor. Defaults to 0.
-
-    .. note::
-
-        **Arithmetics**
-
-        Multiplication, addition, division and substraction can be applied
-        between pyo objects or between pyo objects and numbers. Doing so
-        returns a Dummy object with the result of the operation.
-
-        >>> # Creates a Dummy object `b` with `mul` set to 0.5.
-        >>> # Leaves `a` unchanged.
-        >>> b = a * 0.5
-
-        Inplace multiplication, addition, division and substraction can be
-        applied between pyo objects or between pyo objects and numbers.
-        These operations will replace the `mul` or `add` factor of the object.
-
-        >>> a *= 0.5 # replaces the `mul` attribute of `a`.
-
-        The next operators can only be used with PyoObject, not with
-        XXX_base objects.
-
-        **Exponent** and **modulo**
-
-        >>> a ** 10 # returns a Pow object created as: Pow(a, 10)
-        >>> 10 ** a # returns a Pow object created as: Pow(10, a)
-        >>> a % 4 # returns a Wrap object created as: Wrap(a, 0, 4)
-        >>> a % b # returns a Wrap object created as: Wrap(a, 0, b)
-
-        **Unary negative** (**-**)
-
-        >>> -a # returns a Dummy object with negative values of streams in `a`.
-
-        **Comparison operators**
-
-        >>> # Comparison operators return a Compare object.
-        >>> x = a < b # same as: x = Compare(a, comp=b, mode="<")
-        >>> x = a <= b # same as: Compare(a, comp=b, mode="<=")
-        >>> x = a == b # same as: Compare(a, comp=b, mode="==")
-        >>> x = a != b # same as: Compare(a, comp=b, mode="!=")
-        >>> x = a > b # same as: Compare(a, comp=b, mode=">")
-        >>> x = a >= b # same as: Compare(a, comp=b, mode=">=")
-
-        A special case concerns the comparison of a PyoObject with None.
-        All operators return False except `a != None`, which returns True.
-
-    """
 
     _STREAM_TYPE = "audio"
 
@@ -1014,19 +686,6 @@ class PyoObject(PyoObjectBase):
             return Compare(self, comp=comp, mode=mode)
 
     def isPlaying(self, all=False):
-        """
-        Returns True if the object is currently playing, otherwise, returns False.
-
-        :Args:
-
-            all: boolean, optional
-                If True, the object returns a list with the state of all
-                streams managed by the object.
-
-                If False, it return a boolean corresponding to the state
-                of the first stream.
-
-        """
         pyoArgsAssert(self, "B", all)
         if all:
             return [obj._getStream().isPlaying() for obj in self._base_objs]
@@ -1034,22 +693,6 @@ class PyoObject(PyoObjectBase):
             return self._base_objs[0]._getStream().isPlaying()
 
     def isOutputting(self, all=False):
-        """
-        Returns True if the object is outputting.
-
-        Returns True if the object is sending samples to dac,
-        otherwise, returns False.
-
-        :Args:
-
-            all: boolean, optional
-                If True, the object returns a list with the state of all
-                streams managed by the object.
-
-                If False, it return a boolean corresponding to the state
-                of the first stream.
-
-        """
         pyoArgsAssert(self, "B", all)
         if all:
             return [obj._getStream().isOutputting() for obj in self._base_objs]
@@ -1057,26 +700,6 @@ class PyoObject(PyoObjectBase):
             return self._base_objs[0]._getStream().isOutputting()
 
     def get(self, all=False):
-        """
-        Return the first sample of the current buffer as a float.
-
-        Can be used to convert audio stream to usable Python data.
-
-        Object that implements string identifier for specific audio
-        streams must use the corresponding string to specify the stream
-        from which to get the value. See get() method definition in these
-        object's man pages.
-
-        :Args:
-
-            all: boolean, optional
-                If True, the first value of each object's stream
-                will be returned as a list.
-
-                If False, only the value of the first object's stream
-                will be returned as a float.
-
-        """
         pyoArgsAssert(self, "B", all)
         if not all:
             return self._base_objs[0]._getStream().getValue()
@@ -1090,22 +713,6 @@ class PyoObject(PyoObjectBase):
         self._allow_auto_start = temp
 
     def play(self, dur=0, delay=0):
-        """
-        Start processing without sending samples to output.
-        This method is called automatically at the object creation.
-
-        This method returns `self`, allowing it to be applied at the object
-        creation.
-
-        :Args:
-
-            dur: float, optional
-                Duration, in seconds, of the object's activation. The default
-                is 0 and means infinite duration.
-            delay: float, optional
-                Delay, in seconds, before the object's activation. Defaults to 0.
-
-        """
         pyoArgsAssert(self, "nn", dur, delay)
         dur, delay, lmax = convertArgsToLists(dur, delay)
         if not self.isPlaying() and not self.isOutputting():
@@ -1145,37 +752,6 @@ class PyoObject(PyoObjectBase):
         return self
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
-        """
-        Start processing and send samples to audio output beginning at `chnl`.
-
-        This method returns `self`, allowing it to be applied at the object
-        creation.
-
-        :Args:
-
-            chnl: int, optional
-                Physical output assigned to the first audio stream of the
-                object. Defaults to 0.
-            inc: int, optional
-                Output channel increment value. Defaults to 1.
-            dur: float, optional
-                Duration, in seconds, of the object's activation. The default
-                is 0 and means infinite duration.
-            delay: float, optional
-                Delay, in seconds, before the object's activation.
-                Defaults to 0.
-
-        If `chnl` >= 0, successive streams increment the output number by
-        `inc` and wrap around the global number of channels.
-
-        If `chnl` is negative, streams begin at 0, increment
-        the output number by `inc` and wrap around the global number of
-        channels. Then, the list of streams is scrambled.
-
-        If `chnl` is a list, successive values in the list will be
-        assigned to successive streams.
-
-        """
         pyoArgsAssert(self, "iInn", chnl, inc, dur, delay)
         dur, delay, lmax = convertArgsToLists(dur, delay)
         if not self.isPlaying() and not self.isOutputting():
@@ -1224,33 +800,6 @@ class PyoObject(PyoObjectBase):
         return self
 
     def stop(self, wait=0):
-        """
-        Stop processing.
-
-        This method returns `self`, allowing it to be applied at the object
-        creation.
-
-        :Args:
-
-            wait: float, optional
-                Delay, in seconds, before the process is actually stopped.
-                If autoStartChildren is activated in the Server, this value
-                is propagated to the children objects. Defaults to 0.
-
-        .. note::
-
-            if the method setStopDelay(x) was called before calling stop(wait)
-            with a positive `wait` value, the `wait` value won't overwrite the
-            value given to setStopDelay for the current object, but will be
-            the one propagated to children objects. This allow to set a waiting
-            time for a specific object with setStopDelay whithout changing the
-            global delay time given to the stop method.
-
-            Fader and Adsr objects ignore waiting time given to the stop
-            method because they already implement a delayed processing
-            triggered by the stop call.
-
-        """
         if self.isPlaying() or self.isOutputting():
             self._autostop(wait)
         if self._is_mul_attribute and not self._use_wait_time_on_stop:
@@ -1277,42 +826,9 @@ class PyoObject(PyoObjectBase):
         return self
 
     def mix(self, voices=1):
-        """
-        Mix the object's audio streams into `voices` streams and return
-        a Mix object.
-
-        :Args:
-
-            voices: int, optional
-                Number of audio streams of the Mix object created by this
-                method. Defaults to 1.
-
-                If more than 1, object's streams are alternated and added into
-                Mix object's streams.
-
-        """
         return Mix(self, voices)
 
     def range(self, min, max):
-        """
-        Adjust `mul` and `add` attributes according to a given range.
-
-        This function assumes a signal between -1 and 1. Arguments may be
-        list of floats for multi-streams objects.
-
-        This method returns `self`, allowing it to be applied at the object
-        creation:
-
-        >>> lfo = Sine(freq=1).range(500, 1000)
-
-        :Args:
-
-            min: float
-                Minimum value of the output signal.
-            max: float
-                Maximum value of the output signal.
-
-        """
         pyoArgsAssert(self, "nn", min, max)
         min, max, lmax = convertArgsToLists(min, max)
         if lmax > 1:
@@ -1326,87 +842,30 @@ class PyoObject(PyoObjectBase):
         return self
 
     def setMul(self, x):
-        """
-        Replace the `mul` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                New `mul` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._mul = x
         x, _ = convertArgsToLists(x)
         [obj.setMul(wrap(x, i // self._op_duplicate)) for i, obj in enumerate(self._base_objs)]
 
     def setAdd(self, x):
-        """
-        Replace the `add` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                New `add` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._add = x
         x, _ = convertArgsToLists(x)
         [obj.setAdd(wrap(x, i // self._op_duplicate)) for i, obj in enumerate(self._base_objs)]
 
     def setSub(self, x):
-        """
-        Replace and inverse the `add` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                New inversed `add` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._add = x
         x, _ = convertArgsToLists(x)
         [obj.setSub(wrap(x, i // self._op_duplicate)) for i, obj in enumerate(self._base_objs)]
 
     def setDiv(self, x):
-        """
-        Replace and inverse the `mul` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                New inversed `mul` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._mul = x
         x, _ = convertArgsToLists(x)
         [obj.setDiv(wrap(x, i // self._op_duplicate)) for i, obj in enumerate(self._base_objs)]
 
     def set(self, attr, value, port=0.025, callback=None):
-        """
-        Replace any attribute with portamento.
-
-        This method is intended to be applied on attributes that are not
-        already assigned to PyoObjects. It will work only with floats or
-        list of floats.
-
-        :Args:
-
-            attr: string
-                Name of the attribute as a string.
-            value: float
-                New value.
-            port: float, optional
-                Time, in seconds, to reach the new value.
-            callback: callable, optional
-                A python function to be called at the end of the ramp. If the
-                end of the ramp is not reached (ex.: called again before the
-                end of the portamento), the callback will not be called.
-
-        """
         pyoArgsAssert(self, "SnnC", attr, value, port, callback)
         self._target_dict[attr] = value
         self._callback_dict[attr] = callback
@@ -1429,7 +888,6 @@ class PyoObject(PyoObjectBase):
 
     @property
     def mul(self):
-        """float or PyoObject. Multiplication factor."""
         return self._mul
 
     @mul.setter
@@ -1438,7 +896,6 @@ class PyoObject(PyoObjectBase):
 
     @property
     def add(self):
-        """float or PyoObject. Addition factor."""
         return self._add
 
     @add.setter
@@ -1450,22 +907,6 @@ class PyoObject(PyoObjectBase):
 ### PyoTableObject -> base class for pyo table objects
 ######################################################################
 class PyoTableObject(PyoObjectBase):
-    """
-    Base class for all pyo table objects.
-
-    A table object is a buffer memory to store precomputed samples.
-
-    The user should never instantiate an object of this class.
-
-    :Parent: :py:class:`PyoObjectBase`
-
-    :Args:
-
-        size: int
-            Length of the table in samples. Usually provided by the
-            child object.
-
-    """
 
     _STREAM_TYPE = "table"
 
@@ -1474,23 +915,6 @@ class PyoTableObject(PyoObjectBase):
         self._size = size
 
     def write(self, path, oneline=True):
-        """
-        Writes the content of the table in a text file.
-
-        This function can be used to store the table data as a
-        list of floats into a text file.
-
-        :Args:
-
-            path: string
-                Full path of the generated file.
-            oneline: boolean, optional
-                If True, list of samples will inserted on one line.
-
-                If False, list of samples will be truncated to 8 floats
-                per line.
-
-        """
         pyoArgsAssert(self, "SB", path, oneline)
         f = open(path, "w")
         if oneline:
@@ -1509,24 +933,6 @@ class PyoTableObject(PyoObjectBase):
         f.close()
 
     def read(self, path):
-        """
-        Reads the content of a text file and replaces the table data
-        with the values stored in the file.
-
-        :Args:
-
-            path: string
-                Full path of the file to read.
-
-        The format is a list of lists of floats. For example, A two
-        tablestreams object must be given a content like this:
-
-        [ [ 0.0, 1.0, 0.5, ... ], [ 1.0, 0.99, 0.98, 0.97, ... ] ]
-
-        Each object's tablestream will be resized according to the
-        length of the lists.
-
-        """
         pyoArgsAssert(self, "S", path)
         f = open(path, "r")
         f_list = eval(f.read())
@@ -1541,63 +947,18 @@ class PyoTableObject(PyoObjectBase):
         self.refreshView()
 
     def getBuffer(self, chnl=0):
-        """
-        Return a reference to the underlying object implementing the buffer protocol.
-
-        With the buffer protocol, a table can be referenced and modified,
-        without copying the data, with numpy functions. To create an array
-        using the same memory as the table:
-
-            >>> t = SndTable(SNDS_PATH+"/transparent.aif")
-            >>> arr = numpy.asarray(t.getBuffer())
-
-        Now, every changes applied to the array will be reflected in
-        the SndTable. This method works for a single channel only.
-
-        :Args:
-
-            chnl: int, optional
-                The channel in the table for which to obtain the underlying buffer.
-                Defaults to 0.
-
-        For more details about the buffer protocol, see PEP 3118 and the
-        python documentation.
-
-        """
         if chnl < 0 or chnl >= len(self):
             print("getBuffer(chnl): `chnl` argument out-of-range...")
         else:
             return self._base_objs[chnl].getTableStream()
 
     def setSize(self, size):
-        """
-        Change the size of the table.
-
-        This will erase the previously drawn waveform.
-
-        :Args:
-
-            size: int
-                New table size in samples.
-
-        """
         pyoArgsAssert(self, "I", size)
         self._size = size
         [obj.setSize(size) for obj in self._base_objs]
         self.refreshView()
 
     def getSize(self, all=False):
-        """
-        Return table size in samples.
-
-        :Args:
-
-            all: boolean
-                If the table contains more than one stream and `all` is True,
-                returns a list of all sizes. Otherwise, returns only the
-                first size as an int. Defaults to False.
-
-        """
         pyoArgsAssert(self, "B", all)
         if all:
             return [obj.getSize() for obj in self._base_objs]
@@ -1608,41 +969,11 @@ class PyoTableObject(PyoObjectBase):
                 return self._size
 
     def put(self, value, pos=0):
-        """
-        Puts a value at specified sample position in the table.
-
-        If the object has more than 1 tablestream, the default is to
-        record the value in each table. User can call obj[x].put()
-        to record into a specific table.
-
-        :Args:
-
-            value: float
-                Value, as floating-point, to record in the table.
-            pos: int, optional
-                Position, in samples, where to record value.
-                Can write backward with negative position. Defaults to 0.
-
-        """
         pyoArgsAssert(self, "NI", value, pos)
         [obj.put(value, pos) for obj in self._base_objs]
         self.refreshView()
 
     def get(self, pos):
-        """
-        Returns the value, as float, stored at a specific position in the table.
-
-        If the object has more than 1 tablestream, the default is to
-        return a list with the value of each tablestream. User can call
-        obj[x].get() to get the value of a specific table.
-
-        :Args:
-
-            pos: int, optional
-                Position, in samples, where to read the value.
-                Can read backward with negative position. Defaults to 0.
-
-        """
         pyoArgsAssert(self, "I", pos)
         values = [obj.get(pos) for obj in self._base_objs]
         if len(values) == 1:
@@ -1651,19 +982,6 @@ class PyoTableObject(PyoObjectBase):
             return values
 
     def getTable(self, all=False):
-        """
-        Returns the content of the table as list of floats.
-
-        :Args:
-
-            all: boolean, optional
-                If True, all sub tables are retrieved and returned as a list
-                of list of floats.
-
-                If False, a single list containing the content of the first
-                subtable (or the only one) is returned.
-
-        """
         pyoArgsAssert(self, "B", all)
         if all:
             return [obj.getTable() for obj in self._base_objs]
@@ -1671,128 +989,54 @@ class PyoTableObject(PyoObjectBase):
             return self._base_objs[0].getTable()
 
     def normalize(self, level=0.99):
-        """
-        Normalizes table samples to a given level.
-
-        :Args:
-
-            level: float, optional
-                Samples will be normalized between -level and +level.
-                Defaults to 0.99.
-
-        """
         [obj.normalize(level) for obj in self._base_objs]
         self.refreshView()
         return self
 
     def reset(self):
-        """
-        Resets table samples to 0.0.
-
-        """
         [obj.reset() for obj in self._base_objs]
         self.refreshView()
         return self
 
     def removeDC(self):
-        """
-        Filter out DC offset from the table's data.
-
-        """
         [obj.removeDC() for obj in self._base_objs]
         self.refreshView()
         return self
 
     def reverse(self):
-        """
-        Reverse the table's data in time.
-
-        """
         [obj.reverse() for obj in self._base_objs]
         self.refreshView()
         return self
 
     def invert(self):
-        """
-        Reverse the table's data in amplitude.
-
-        """
         [obj.invert() for obj in self._base_objs]
         self.refreshView()
         return self
 
     def rectify(self):
-        """
-        Positive rectification of the table's data.
-
-        """
         [obj.rectify() for obj in self._base_objs]
         self.refreshView()
         return self
 
     def pow(self, exp=10):
-        """
-        Apply a power function on each sample in the table.
-
-        :Args:
-
-            exp: float, optional
-                Exponent factor. Defaults to 10.
-
-        """
         pyoArgsAssert(self, "N", exp)
         [obj.pow(exp) for obj in self._base_objs]
         self.refreshView()
         return self
 
     def bipolarGain(self, gpos=1, gneg=1):
-        """
-        Apply different gain factor for positive and negative samples.
-
-        :Args:
-
-            gpos: float, optional
-                Gain factor for positive samples. Defaults to 1.
-            gneg: float, optional
-                Gain factor for negative samples. Defaults to 1.
-
-        """
         pyoArgsAssert(self, "NN", gpos, gneg)
         [obj.bipolarGain(gpos, gneg) for obj in self._base_objs]
         self.refreshView()
         return self
 
     def lowpass(self, freq=1000):
-        """
-        Apply a one-pole lowpass filter on table's samples.
-
-        :Args:
-
-            freq: float, optional
-                Filter's cutoff, in Hertz. Defaults to 1000.
-
-        """
         pyoArgsAssert(self, "N", freq)
         [obj.lowpass(freq) for obj in self._base_objs]
         self.refreshView()
         return self
 
     def fadein(self, dur=0.1, shape=0):
-        """
-        Apply a gradual increase in the level of the table's samples.
-
-        :Args:
-
-            dur: float, optional
-                Fade in duration, in seconds. Defaults to 0.1.
-            shape: int, optional
-                Curve type used to shape the fadein. Available curves:
-                    0: linear (default)
-                    1: sqrt
-                    2: sin
-                    3: squared
-
-        """
         pyoArgsAssert(self, "NI", dur, shape)
         if shape < 0 or shape > 3:
             shape = 0
@@ -1801,21 +1045,6 @@ class PyoTableObject(PyoObjectBase):
         return self
 
     def fadeout(self, dur=0.1, shape=0):
-        """
-        Apply a gradual decrease in the level of the table's samples.
-
-        :Args:
-
-            dur: float, optional
-                Fade out duration, in seconds. Defaults to 0.1.
-            shape: int, optional
-                Curve type used to shape the fadein. Available curves:
-                    0: linear (default)
-                    1: sqrt
-                    2: sin
-                    3: squared
-
-        """
         pyoArgsAssert(self, "NI", dur, shape)
         if shape < 0 or shape > 3:
             shape = 0
@@ -1824,18 +1053,6 @@ class PyoTableObject(PyoObjectBase):
         return self
 
     def add(self, x):
-        """
-        Performs addition on the table values.
-
-        Adds the argument to each table values, position by position
-        if the argument is a list or another PyoTableObject.
-
-        :Args:
-
-            x: float, list or PyoTableObject
-                value(s) to add.
-
-        """
         pyoArgsAssert(self, "T", x)
         if isinstance(x, list):
             if isinstance(x[0], list):
@@ -1849,18 +1066,6 @@ class PyoTableObject(PyoObjectBase):
         return self
 
     def sub(self, x):
-        """
-        Performs substraction on the table values.
-
-        Substracts the argument to each table values, position by position
-        if the argument is a list or another PyoTableObject.
-
-        :Args:
-
-            x: float, list or PyoTableObject
-                value(s) to substract.
-
-        """
         pyoArgsAssert(self, "T", x)
         if isinstance(x, list):
             if isinstance(x[0], list):
@@ -1874,18 +1079,6 @@ class PyoTableObject(PyoObjectBase):
         return self
 
     def mul(self, x):
-        """
-        Performs multiplication on the table values.
-
-        Multiply each table values by the argument, position by position
-        if the argument is a list or another PyoTableObject.
-
-        :Args:
-
-            x: float, list or PyoTableObject
-                value(s) to multiply.
-
-        """
         pyoArgsAssert(self, "T", x)
         if isinstance(x, list):
             if isinstance(x[0], list):
@@ -1899,18 +1092,6 @@ class PyoTableObject(PyoObjectBase):
         return self
 
     def div(self, x):
-        """
-        Performs division on the table values.
-
-        Divide each table values by the argument, position by position
-        if the argument is a list or another PyoTableObject.
-
-        :Args:
-
-            x: float, list or PyoTableObject
-                value(s) used to divide.
-
-        """
         pyoArgsAssert(self, "T", x)
         if isinstance(x, list):
             if isinstance(x[0], list):
@@ -1924,55 +1105,16 @@ class PyoTableObject(PyoObjectBase):
         return self
 
     def copyData(self, table, srcpos=0, destpos=0, length=-1):
-        """
-        Copy samples from a source table.
-
-        Copy `length` samples from a source table to this table.
-
-        :Args:
-
-            table: PyoTableObject
-                The source table.
-            srcpos: int, optional
-                The start position, in samples, in the source table.
-                Can read backward with negative position. Defaults to 0.
-            destpos ; int, optional
-                The start position, in samples, in the destination (self) table.
-                Can read backward with negative position. Defaults to 0.
-            length: int, optional
-                The number of samples to copy from source to destination. if
-                length is negative, the length of the smallest table is used.
-                Defaults to -1.
-
-        """
         pyoArgsAssert(self, "tIII", table, srcpos, destpos, length)
         [obj.copyData(table[i], srcpos, destpos, length) for i, obj in enumerate(self._base_objs)]
         self.refreshView()
 
     def rotate(self, pos):
-        """
-        Rotate the table content to the left around the position given as argument.
-
-        Samples between the given position and the end of the table will
-        be relocated in front of the samples from the beginning to the
-        given position.
-
-        :Args:
-
-            pos: int
-                The rotation position in samples. A negative position means
-                a rotation to the right.
-
-        """
         pyoArgsAssert(self, "I", pos)
         [obj.rotate(pos) for obj in self._base_objs]
         self.refreshView()
 
     def copy(self):
-        """
-        Returns a deep copy of the object.
-
-        """
         args = [getattr(self, att) for att in self.__dir__()]
         if self.__class__.__name__ == "SndTable":
             _size = self.getSize()
@@ -1992,7 +1134,6 @@ class PyoTableObject(PyoObjectBase):
 
     @property
     def size(self):
-        """int. Table size in samples."""
         return self._size
 
     @size.setter
@@ -2004,17 +1145,6 @@ class PyoTableObject(PyoObjectBase):
 ### PyoMatrixObject -> base class for pyo matrix objects
 ######################################################################
 class PyoMatrixObject(PyoObjectBase):
-    """
-    Base class for all pyo matrix objects.
-
-    A matrix object is a 2 dimensions buffer memory to store
-    precomputed samples.
-
-    The user should never instantiate an object of this class.
-
-    :Parent: :py:class:`PyoObjectBase`
-
-    """
 
     _STREAM_TYPE = "matrix"
 
@@ -2023,44 +1153,12 @@ class PyoMatrixObject(PyoObjectBase):
         PyoObjectBase.__init__(self)
 
     def write(self, path):
-        """
-        Writes the content of the matrix into a text file.
-
-        This function can be used to store the matrix data as a
-        list of list of floats into a text file.
-
-        :Args:
-
-            path: string
-                Full path of the generated file.
-
-        """
         pyoArgsAssert(self, "S", path)
         f = open(path, "w")
         f.write(str([obj.getData() for obj in self._base_objs]))
         f.close()
 
     def read(self, path):
-        """
-        Reads the content of a text file and replaces the matrix data
-        with the values in the file.
-
-        Format is a list of lists of list of floats. For example, A two
-        matrixstreams object must be given a content like this:
-
-        [ [ [0.0 ,1.0, 0.5, ... ], [1.0, 0.99, 0.98, 0.97, ... ] ],
-        [ [0.0, 1.0, 0.5, ... ], [1.0, 0.99, 0.98, 0.97, ... ] ] ]
-
-        Each object's matrixstream will be resized according to the
-        length of the lists, but the number of matrixstreams must be
-        the same.
-
-        :Args:
-
-            path: string
-                Full path of the file to read.
-
-        """
         pyoArgsAssert(self, "S", path)
         f = open(path, "r")
         f_list = eval(f.read())
@@ -2069,86 +1167,24 @@ class PyoMatrixObject(PyoObjectBase):
         [obj.setData(f_list[i % f_len]) for i, obj in enumerate(self._base_objs)]
 
     def getSize(self):
-        """
-        Returns matrix size in samples. Size is a tuple (x, y).
-
-        """
         return self._size
 
     def normalize(self, level=0.99):
-        """
-        Normalize matrix samples to a given level.
-
-        :Args:
-            level: float, optional
-                Samples will be normalized between -level and +level.
-                Defaults to 0.99.
-
-        """
         [obj.normalize(level) for obj in self._base_objs]
         return self
 
     def blur(self):
-        """
-        Apply a simple gaussian blur on the matrix.
-
-        """
         [obj.blur() for obj in self._base_objs]
 
     def boost(self, min=-1.0, max=1.0, boost=0.01):
-        """
-        Boost the constrast of values in the matrix.
-
-        :Args:
-
-            min: float, optional
-                Minimum value. Defaults to -1.0.
-            max: float, optional
-                Maximum value. Defaults to 1.0.
-            boost: float, optional
-                Amount of boost applied on each value. Defaults to 0.01.
-
-        """
         pyoArgsAssert(self, "NNN", min, max, boost)
         [obj.boost(min, max, boost) for obj in self._base_objs]
 
     def put(self, value, x=0, y=0):
-        """
-        Puts a value at specified position in the matrix.
-
-        If the object has more than 1 matrixstream, the default is to
-        record the value in each matrix. User can call obj[x].put()
-        to record in a specific matrix.
-
-        :Args:
-
-            value: float
-                Value, as floating-point, to record in the matrix.
-            x: int, optional
-                X position where to record value. Defaults to 0.
-            y: int, optional
-                Y position where to record value. Defaults to 0.
-
-        """
         pyoArgsAssert(self, "NII", value, x, y)
         [obj.put(value, x, y) for obj in self._base_objs]
 
     def get(self, x=0, y=0):
-        """
-        Returns the value, as float, at specified position in the matrix.
-
-        If the object has more than 1 matrixstream, the default is to
-        return a list with the value of each matrixstream. User can call
-        obj[x].get() to get the value of a specific matrix.
-
-        :Args:
-
-            x: int, optional
-                X position where to get value. Defaults to 0.
-            y: int, optional
-                Y position where to get value. Defaults to 0.
-
-        """
         pyoArgsAssert(self, "II", x, y)
         values = [obj.get(x, y) for obj in self._base_objs]
         if len(values) == 1:
@@ -2157,21 +1193,6 @@ class PyoMatrixObject(PyoObjectBase):
             return values
 
     def getInterpolated(self, x=0.0, y=0.0):
-        """
-        Returns the value, as float, at a normalized position in the matrix.
-
-        If the object has more than 1 matrixstream, the default is to
-        return a list with the value of each matrixstream. User can call
-        obj[x].getInterpolated() to get the value of a specific matrix.
-
-        :Args:
-
-            x: float {0 -> 1}
-                X normalized position where to get value. Defaults to 0.0.
-            y: int {0 -> 1}
-                Y normalized position where to get value. Defaults to 0.0.
-
-        """
         pyoArgsAssert(self, "FF", x, y)
         values = [obj.getInterpolated(x, y) for obj in self._base_objs]
         if len(values) == 1:
@@ -2184,14 +1205,6 @@ class PyoMatrixObject(PyoObjectBase):
 ### PyoObject -> base class for pyo phase vocoder objects
 ######################################################################
 class PyoPVObject(PyoObjectBase):
-    """
-    Base class for objects working with phase vocoder's magnitude and frequency streams.
-
-    The user should never instantiate an object of this class.
-
-    :Parent: :py:class:`PyoObjectBase`
-
-    """
 
     _STREAM_TYPE = "pvoc"
 
@@ -2202,19 +1215,6 @@ class PyoPVObject(PyoObjectBase):
         self._base_players = None
 
     def isPlaying(self, all=False):
-        """
-        Returns True if the object is playing, otherwise, returns False.
-
-        :Args:
-
-            all: boolean, optional
-                If True, the object returns a list with the state of all
-                streams managed by the object.
-
-                If False, it return a boolean corresponding to the state
-                of the first stream.
-
-        """
         pyoArgsAssert(self, "B", all)
         if all:
             return [obj._getStream().isPlaying() for obj in self._base_objs]
@@ -2228,23 +1228,6 @@ class PyoPVObject(PyoObjectBase):
         self._allow_auto_start = temp
 
     def play(self, dur=0, delay=0):
-        """
-        Start processing without sending samples to output.
-        This method is called automatically at the object creation.
-
-        This method returns `self`, allowing it to be applied at the object
-        creation.
-
-        :Args:
-
-            dur: float, optional
-                Duration, in seconds, of the object's activation.
-                The default is 0 and means infinite duration.
-            delay: float, optional
-                Delay, in seconds, before the object's activation.
-                Defaults to 0.
-
-        """
         pyoArgsAssert(self, "nn", dur, delay)
         dur, delay, _ = convertArgsToLists(dur, delay)
         if not self.isPlaying():
@@ -2257,29 +1240,6 @@ class PyoPVObject(PyoObjectBase):
         return self
 
     def stop(self, wait=0):
-        """
-        Stop processing.
-
-        This method returns `self`, allowing it to be applied at the object
-        creation.
-
-        :Args:
-
-            wait: float, optional
-                Delay, in seconds, before the process is actually stopped.
-                If autoStartChildren is activated in the Server, this value
-                is propagated to the children objects. Defaults to 0.
-
-        .. note::
-
-            if the method setStopDelay(x) was called before calling stop(wait)
-            with a positive `wait` value, the `wait` value won't overwrite the
-            value given to setStopDelay for the current object, but will be
-            the one propagated to children objects. This allow to set a waiting
-            time for a specific object with setStopDelay whithout changing the
-            global delay time given to the stop method.
-
-        """
         if self.isPlaying():
             self._autostop(wait)
         if self._stop_delay != -1:
@@ -2293,23 +1253,6 @@ class PyoPVObject(PyoObjectBase):
         return self
 
     def set(self, attr, value, port=0.025):
-        """
-        Replace any attribute with portamento.
-
-        This method is intended to be applied on attributes that are not
-        already assigned to PyoObjects. It will work only with floats or
-        list of floats.
-
-        :Args:
-
-            attr: string
-                Name of the attribute as a string.
-            value: float
-                New value.
-            port: float, optional
-                Time, in seconds, to reach the new value.
-
-        """
         pyoArgsAssert(self, "Snn", attr, value, port)
         self._target_dict[attr] = value
         init = getattr(self, attr)
@@ -2331,47 +1274,6 @@ class PyoPVObject(PyoObjectBase):
 ### Internal classes -> Used by pyo
 ######################################################################
 class Mix(PyoObject):
-    """
-    Mix audio streams to arbitrary number of streams.
-
-    Mix the object's audio streams as `input` argument into `voices`
-    streams.
-
-    :Parent: :py:class:`PyoObject`
-
-    :Args:
-
-        input: PyoObject or list of PyoObjects
-            Input signal(s) to mix the streams.
-        voices: int, optional
-            Number of streams of the Mix object. If more than 1, input
-            object's streams are alternated and added into Mix object's
-            streams. Defaults to 1.
-
-    .. note::
-
-        The mix method of PyoObject creates and returns a new Mix object
-        with mixed streams of the object that called the method. User
-        don't have to instantiate this class directly. These two calls
-        are identical:
-
-        >>> b = a.mix()
-        >>> b = Mix(a)
-
-        The `mul` and `add` arguments are relative to the number of voices,
-        ie. if `len(mul)` is bigger than `voices`, last mul values will simply 
-        be ignored, even if the number of input streams to mix is higher.
-
-    >>> s = Server().boot()
-    >>> s.start()
-    >>> a = Sine([random.uniform(400,600) for i in range(50)], mul=.02)
-    >>> b = Mix(a, voices=2).out()
-    >>> print(len(a))
-    50
-    >>> print(len(b))
-    2
-
-    """
 
     def __init__(self, input, voices=1, mul=1, add=0):
         pyoArgsAssert(self, "oIOO", input, voices, mul, add)
@@ -2405,46 +1307,6 @@ class Mix(PyoObject):
 
 
 class Dummy(PyoObject):
-    """
-    Dummy object used to perform arithmetics on PyoObject.
-
-    The user should never instantiate an object of this class.
-
-    :Parent: :py:class:`PyoObject`
-
-    :Args:
-
-        objs_list: list of audio Stream objects
-            List of Stream objects return by the PyoObject hidden method
-            getBaseObjects().
-
-    .. note::
-
-        Multiplication, addition, division and substraction don't changed
-        the PyoObject on which the operation is performed. A dummy object
-        is created, which is just a copy of the audio Streams of the object,
-        and the operation is applied on the Dummy, leaving the original
-        object unchanged. This lets the user performs multiple different
-        arithmetic operations on an object without conficts. Here, `b` is
-        a Dummy object with `a` as its input with a `mul` attribute of 0.5.
-        attribute:
-
-        >>> a = Sine()
-        >>> b = a * .5
-        >>> print(a)
-        <pyo.lib.input.Sine object at 0x11fd610>
-        >>> print(b)
-        <pyo.lib._core.Dummy object at 0x11fd710>
-
-    >>> s = Server().boot()
-    >>> s.start()
-    >>> m = Metro(time=0.25).play()
-    >>> p = TrigChoice(m, choice=[midiToHz(n) for n in [60,62,65,67,69]])
-    >>> a = SineLoop(p, feedback=.05, mul=.1).mix(2).out()
-    >>> b = SineLoop(p*1.253, feedback=.05, mul=.06).mix(2).out()
-    >>> c = SineLoop(p*1.497, feedback=.05, mul=.03).mix(2).out()
-
-    """
 
     def __init__(self, objs_list):
         PyoObject.__init__(self)
@@ -2459,29 +1321,6 @@ class Dummy(PyoObject):
 
 
 class InputFader(PyoObject):
-    """
-    Audio streams crossfader.
-
-    :Args:
-
-        input: PyoObject
-            Input signal.
-
-    .. note::
-
-        The setInput method, available to object with `input` attribute,
-        uses an InputFader object internally to perform crossfade between
-        the old and the new audio input assigned to the object.
-
-    >>> s = Server().boot()
-    >>> s.start()
-    >>> a = SineLoop([449,450], feedback=0.05, mul=.2)
-    >>> b = SineLoop([650,651], feedback=0.05, mul=.2)
-    >>> c = InputFader(a).out()
-    >>> # to created a crossfade, assign a new audio input:
-    >>> c.setInput(b, fadetime=5)
-
-    """
 
     def __init__(self, input):
         pyoArgsAssert(self, "o", input)
@@ -2492,17 +1331,6 @@ class InputFader(PyoObject):
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
-        """
-        Replace the `input` attribute.
-
-        :Args:
-
-            x: PyoObject
-                New signal to process.
-            fadetime: float, optional
-                Crossfade time between old and new input. Defaults to 0.05.
-
-        """
         pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         x, _ = convertArgsToLists(x)
@@ -2510,7 +1338,6 @@ class InputFader(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal."""
         return self._input
 
     @input.setter
@@ -2519,28 +1346,6 @@ class InputFader(PyoObject):
 
 
 class Sig(PyoObject):
-    """
-    Convert numeric value to PyoObject signal.
-
-    :Parent: :py:class:`PyoObject`
-
-    :Args:
-
-        value: float or PyoObject
-            Numerical value to convert.
-
-    >>> import random
-    >>> s = Server().boot()
-    >>> s.start()
-    >>> fr = Sig(value=400)
-    >>> p = Port(fr, risetime=0.001, falltime=0.001)
-    >>> a = SineLoop(freq=p, feedback=0.08, mul=.3).out()
-    >>> b = SineLoop(freq=p*1.005, feedback=0.08, mul=.3).out(1)
-    >>> def pick_new_freq():
-    ...     fr.value = random.randrange(300,601,50)
-    >>> pat = Pattern(function=pick_new_freq, time=0.5).play()
-
-    """
 
     def __init__(self, value, mul=1, add=0):
         pyoArgsAssert(self, "OOO", value, mul, add)
@@ -2551,15 +1356,6 @@ class Sig(PyoObject):
         self._init_play()
 
     def setValue(self, x):
-        """
-        Changes the value of the signal stream.
-
-        :Args:
-
-            x: float or PyoObject
-                Numerical value to convert.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._value = x
         x, _ = convertArgsToLists(x)
@@ -2567,7 +1363,6 @@ class Sig(PyoObject):
 
     @property
     def value(self):
-        """float or PyoObject. Numerical value to convert."""
         return self._value
 
     @value.setter
@@ -2576,45 +1371,6 @@ class Sig(PyoObject):
 
 
 class VarPort(PyoObject):
-    """
-    Convert numeric value to PyoObject signal with portamento.
-
-    When `value` attribute is changed, a smoothed ramp is applied from the
-    current value to the new value. If a callback is provided as `function`
-    argument, it will be called at the end of the line.
-
-    :Parent: :py:class:`PyoObject`
-
-    :Args:
-
-        value: float
-            Numerical target value to reach as an audio stream.
-        time: float, optional
-            Ramp time, in seconds, to reach the new value. Defaults to 0.025.
-        init: float, optional
-            Initial value of the internal memory. Defaults to 0.
-        function: Python callable, optional
-            If provided, it will be called at the end of the line.
-            Defaults to None.
-        arg: any Python object, optional
-            Optional argument sent to the function called at the end of the line.
-            Defaults to None.
-
-    .. note::
-
-        The out() method is bypassed. VarPort's signal can not be sent to
-        audio outs.
-
-    >>> s = Server().boot()
-    >>> s.start()
-    >>> def callback(arg):
-    ...     print("end of line")
-    ...     print(arg)
-    ...
-    >>> fr = VarPort(value=500, time=2, init=250, function=callback, arg="YEP!")
-    >>> a = SineLoop(freq=[fr,fr*1.01], feedback=0.05, mul=.2).out()
-
-    """
 
     def __init__(self, value, time=0.025, init=0.0, function=None, arg=None, mul=1, add=0):
         pyoArgsAssert(self, "nnnczOO", value, time, init, function, arg, mul, add)
@@ -2640,45 +1396,18 @@ class VarPort(PyoObject):
         self._init_play()
 
     def setValue(self, x):
-        """
-        Changes the target value of the signal stream.
-
-        :Args:
-
-            x: float
-                Numerical value to convert.
-
-        """
         pyoArgsAssert(self, "n", x)
         self._value = x
         x, _ = convertArgsToLists(x)
         [obj.setValue(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setTime(self, x):
-        """
-        Changes the ramp time of the object.
-
-        :Args:
-
-            x: float
-                New ramp time.
-
-        """
         pyoArgsAssert(self, "n", x)
         self._time = x
         x, _ = convertArgsToLists(x)
         [obj.setTime(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setFunction(self, x):
-        """
-        Replace the `function` attribute.
-
-        :Args:
-
-            x: Python function
-                new `function` attribute.
-
-        """
         pyoArgsAssert(self, "c", x)
         self._function = getWeakMethodRef(x)
         x, _ = convertArgsToLists(x)
@@ -2686,7 +1415,6 @@ class VarPort(PyoObject):
 
     @property
     def value(self):
-        """float. Numerical target value."""
         return self._value
 
     @value.setter
@@ -2695,7 +1423,6 @@ class VarPort(PyoObject):
 
     @property
     def time(self):
-        """float. Ramp time."""
         return self._time
 
     @time.setter
@@ -2704,7 +1431,6 @@ class VarPort(PyoObject):
 
     @property
     def function(self):
-        """Python callable. Function to be called."""
         return self._function
 
     @function.setter
@@ -2713,26 +1439,6 @@ class VarPort(PyoObject):
 
 
 class Pow(PyoObject):
-    """
-    Performs a power function on audio signal.
-
-    :Parent: :py:class:`PyoObject`
-
-    :Args:
-
-        base: float or PyoObject, optional
-            Base composant. Defaults to 10.
-        exponent: float or PyoObject, optional
-            Exponent composant. Defaults to 1.
-
-    >>> s = Server().boot()
-    >>> s.start()
-    >>> # Exponential amplitude envelope
-    >>> a = LFO(freq=1, type=3, mul=0.5, add=0.5)
-    >>> b = Pow(Clip(a, 0, 1), 4, mul=.3)
-    >>> c = SineLoop(freq=[300,301], feedback=0.05, mul=b).out()
-
-    """
 
     def __init__(self, base=10, exponent=1, mul=1, add=0):
         pyoArgsAssert(self, "OOOO", base, exponent, mul, add)
@@ -2746,30 +1452,12 @@ class Pow(PyoObject):
         self._init_play()
 
     def setBase(self, x):
-        """
-        Replace the `base` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                new `base` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._base = x
         x, _ = convertArgsToLists(x)
         [obj.setBase(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setExponent(self, x):
-        """
-        Replace the `exponent` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                new `exponent` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._exponent = x
         x, _ = convertArgsToLists(x)
@@ -2777,7 +1465,6 @@ class Pow(PyoObject):
 
     @property
     def base(self):
-        """float or PyoObject. Base composant."""
         return self._base
 
     @base.setter
@@ -2786,7 +1473,6 @@ class Pow(PyoObject):
 
     @property
     def exponent(self):
-        """float or PyoObject. Exponent composant."""
         return self._exponent
 
     @exponent.setter
@@ -2795,45 +1481,6 @@ class Pow(PyoObject):
 
 
 class Wrap(PyoObject):
-    """
-    Wraps-around the signal that exceeds the `min` and `max` thresholds.
-
-    This object is useful for table indexing, phase shifting or for
-    clipping and modeling an audio signal.
-
-    :Parent: :py:class:`PyoObject`
-
-    :Args:
-
-        input: PyoObject
-            Input signal to process.
-        min: float or PyoObject, optional
-            Minimum possible value. Defaults to 0.
-        max: float or PyoObject, optional
-            Maximum possible value. Defaults to 1.
-
-    .. note::
-
-        If `min` is higher than `max`, then the output will be the average
-        of the two.
-
-    .. seealso::
-
-        :py:class:`Clip`, :py:class:`Mirror`
-
-    >>> s = Server().boot()
-    >>> s.start()
-    >>> # Time-varying overlaping envelopes
-    >>> env = HannTable()
-    >>> lff = Sine(.5, mul=3, add=4)
-    >>> ph1 = Phasor(lff)
-    >>> ph2 = Wrap(ph1+0.5, min=0, max=1)
-    >>> amp1 = Pointer(env, ph1, mul=.25)
-    >>> amp2 = Pointer(env, ph2, mul=.25)
-    >>> a = SineLoop(250, feedback=.1, mul=amp1).out()
-    >>> b = SineLoop(300, feedback=.1, mul=amp2).out(1)
-
-    """
 
     def __init__(self, input, min=0.0, max=1.0, mul=1, add=0):
         pyoArgsAssert(self, "oOOOO", input, min, max, mul, add)
@@ -2849,46 +1496,17 @@ class Wrap(PyoObject):
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
-        """
-        Replace the `input` attribute.
-
-        :Args:
-
-            x: PyoObject
-                New signal to process.
-            fadetime: float, optional
-                Crossfade time between old and new input. Defaults to 0.05.
-
-        """
         pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
     def setMin(self, x):
-        """
-        Replace the `min` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                New `min` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._min = x
         x, _ = convertArgsToLists(x)
         [obj.setMin(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setMax(self, x):
-        """
-        Replace the `max` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                New `max` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._max = x
         x, _ = convertArgsToLists(x)
@@ -2896,7 +1514,6 @@ class Wrap(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process."""
         return self._input
 
     @input.setter
@@ -2905,7 +1522,6 @@ class Wrap(PyoObject):
 
     @property
     def min(self):
-        """float or PyoObject. Minimum possible value."""
         return self._min
 
     @min.setter
@@ -2914,7 +1530,6 @@ class Wrap(PyoObject):
 
     @property
     def max(self):
-        """float or PyoObject. Maximum possible value."""
         return self._max
 
     @max.setter
@@ -2923,34 +1538,6 @@ class Wrap(PyoObject):
 
 
 class Compare(PyoObject):
-    """
-    Comparison object.
-
-    Compare evaluates a comparison between a PyoObject and a number or
-    between two PyoObjects and outputs 1.0, as audio stream, if the
-    comparison is true, otherwise outputs 0.0.
-
-    :Parent: :py:class:`PyoObject`
-
-    :Args:
-
-        input: PyoObject
-            Input signal.
-        comp: float or PyoObject
-            comparison signal.
-        mode: string, optional
-            Comparison operator as a string. Allowed operator are "<", "<=",
-            ">", ">=", "==", "!=". Default to "<".
-
-    >>> s = Server().boot()
-    >>> s.start()
-    >>> a = SineLoop(freq=[199,200], feedback=.1, mul=.2)
-    >>> b = SineLoop(freq=[149,150], feedback=.1, mul=.2)
-    >>> ph = Phasor(freq=1)
-    >>> ch = Compare(input=ph, comp=0.5, mode="<=")
-    >>> out = Selector(inputs=[a,b], voice=Port(ch)).out()
-
-    """
 
     def __init__(self, input, comp, mode="<", mul=1, add=0):
         pyoArgsAssert(self, "oOsOO", input, comp, mode, mul, add)
@@ -2971,48 +1558,17 @@ class Compare(PyoObject):
         return self.play(dur, delay)
 
     def setInput(self, x, fadetime=0.05):
-        """
-        Replace the `input` attribute.
-
-        :Args:
-
-            x: PyoObject
-                New signal to process.
-            fadetime: float, optional
-                Crossfade time between old and new input. Default to 0.05.
-
-        """
         pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
     def setComp(self, x):
-        """
-        Replace the `comp` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                New comparison signal.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._comp = x
         x, _ = convertArgsToLists(x)
         [obj.setComp(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setMode(self, x):
-        """
-        Replace the `mode` attribute.
-
-        Allowed operator are "<", "<=", ">", ">=", "==", "!=".
-
-        :Args:
-
-            x: string
-                New `mode` attribute.
-
-        """
         pyoArgsAssert(self, "s", x)
         self._mode = x
         x, _ = convertArgsToLists(x)
@@ -3020,7 +1576,6 @@ class Compare(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal."""
         return self._input
 
     @input.setter
@@ -3029,7 +1584,6 @@ class Compare(PyoObject):
 
     @property
     def comp(self):
-        """PyoObject. Comparison signal."""
         return self._comp
 
     @comp.setter
@@ -3038,7 +1592,6 @@ class Compare(PyoObject):
 
     @property
     def mode(self):
-        """string. Comparison operator."""
         return self._mode
 
     @mode.setter

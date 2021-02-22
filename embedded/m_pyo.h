@@ -75,7 +75,7 @@ INLINE PyThreadState * pyo_new_interpreter(float sr, int bufsize, int chnls) {
     }
 #endif
 
-    PyGILState_STATE gstate = PyGILState_Ensure();            /* get the GIL */
+    PyGILState_Ensure();            /* get the GIL */
 
     interp = Py_NewInterpreter();   /* add a new sub-interpreter */
 

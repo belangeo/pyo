@@ -91,7 +91,6 @@ class Gain(PyoObject):
     # state (self._attr) and must be linked with its setXXX method.
     @property
     def input(self):
-        """PyoObject. Input signal to process."""
         return self._input
 
     @input.setter

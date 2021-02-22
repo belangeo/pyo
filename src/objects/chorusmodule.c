@@ -717,32 +717,32 @@ Chorus_setMix(Chorus *self, PyObject *arg)
 
 static PyMemberDef Chorus_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(Chorus, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(Chorus, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(Chorus, input), 0, "Input sound object."},
-    {"feedback", T_OBJECT_EX, offsetof(Chorus, feedback), 0, "Feedback value."},
-    {"depth", T_OBJECT_EX, offsetof(Chorus, depth), 0, "Chorus depth."},
-    {"mix", T_OBJECT_EX, offsetof(Chorus, mix), 0, "Balance between dry and wet signals."},
-    {"mul", T_OBJECT_EX, offsetof(Chorus, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(Chorus, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(Chorus, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(Chorus, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(Chorus, input), 0, NULL},
+    {"feedback", T_OBJECT_EX, offsetof(Chorus, feedback), 0, NULL},
+    {"depth", T_OBJECT_EX, offsetof(Chorus, depth), 0, NULL},
+    {"mix", T_OBJECT_EX, offsetof(Chorus, mix), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(Chorus, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(Chorus, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef Chorus_methods[] =
 {
-    {"getServer", (PyCFunction)Chorus_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)Chorus_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Chorus_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)Chorus_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Chorus_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"reset", (PyCFunction)Chorus_reset, METH_NOARGS, "Reset the delay line."},
-    {"setFeedback", (PyCFunction)Chorus_setFeedback, METH_O, "Sets feedback value between 0 -> 1."},
-    {"setDepth", (PyCFunction)Chorus_setDepth, METH_O, "Sets chorus depth."},
-    {"setMix", (PyCFunction)Chorus_setMix, METH_O, "Sets balance between dry and wet signals."},
-    {"setMul", (PyCFunction)Chorus_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)Chorus_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)Chorus_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)Chorus_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)Chorus_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)Chorus_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)Chorus_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)Chorus_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)Chorus_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"reset", (PyCFunction)Chorus_reset, METH_NOARGS, NULL},
+    {"setFeedback", (PyCFunction)Chorus_setFeedback, METH_O, NULL},
+    {"setDepth", (PyCFunction)Chorus_setDepth, METH_O, NULL},
+    {"setMix", (PyCFunction)Chorus_setMix, METH_O, NULL},
+    {"setMul", (PyCFunction)Chorus_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)Chorus_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)Chorus_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)Chorus_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -806,7 +806,7 @@ PyTypeObject ChorusType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Chorus objects. 8 delay lines chorus.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)Chorus_traverse,   /* tp_traverse */
     (inquiry)Chorus_clear,           /* tp_clear */
     0,                     /* tp_richcompare */

@@ -211,26 +211,26 @@ static PyObject * Dummy_inplace_div(Dummy *self, PyObject *arg) { INPLACE_DIV };
 
 static PyMemberDef Dummy_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(Dummy, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(Dummy, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(Dummy, input), 0, "Input sound object."},
-    {"mul", T_OBJECT_EX, offsetof(Dummy, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(Dummy, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(Dummy, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(Dummy, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(Dummy, input), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(Dummy, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(Dummy, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef Dummy_methods[] =
 {
-    {"getServer", (PyCFunction)Dummy_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)Dummy_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Dummy_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)Dummy_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Dummy_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setInput", (PyCFunction)Dummy_setInput, METH_O, "Sets the input sound object."},
-    {"setMul", (PyCFunction)Dummy_setMul, METH_O, "Sets mul factor."},
-    {"setAdd", (PyCFunction)Dummy_setAdd, METH_O, "Sets add factor."},
-    {"setSub", (PyCFunction)Dummy_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)Dummy_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)Dummy_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)Dummy_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)Dummy_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)Dummy_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)Dummy_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setInput", (PyCFunction)Dummy_setInput, METH_O, NULL},
+    {"setMul", (PyCFunction)Dummy_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)Dummy_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)Dummy_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)Dummy_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -294,7 +294,7 @@ PyTypeObject DummyType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Dummy objects.",                               /* tp_doc */
+    0,                               /* tp_doc */
     (traverseproc)Dummy_traverse,                  /* tp_traverse */
     (inquiry)Dummy_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -471,23 +471,23 @@ static PyObject * TriggerDummy_inplace_div(TriggerDummy *self, PyObject *arg) { 
 
 static PyMemberDef TriggerDummy_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(TriggerDummy, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(TriggerDummy, stream), 0, "Stream object."},
-    {"mul", T_OBJECT_EX, offsetof(TriggerDummy, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(TriggerDummy, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(TriggerDummy, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(TriggerDummy, stream), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(TriggerDummy, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(TriggerDummy, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef TriggerDummy_methods[] =
 {
-    {"getServer", (PyCFunction)TriggerDummy_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)TriggerDummy_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)TriggerDummy_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)TriggerDummy_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setMul", (PyCFunction)TriggerDummy_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)TriggerDummy_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)TriggerDummy_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)TriggerDummy_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)TriggerDummy_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)TriggerDummy_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)TriggerDummy_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)TriggerDummy_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setMul", (PyCFunction)TriggerDummy_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)TriggerDummy_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)TriggerDummy_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)TriggerDummy_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 static PyNumberMethods TriggerDummy_as_number =
@@ -550,7 +550,7 @@ PyTypeObject TriggerDummyType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "TriggerDummy objects. Sends trigger at the end of playback.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)TriggerDummy_traverse,   /* tp_traverse */
     (inquiry)TriggerDummy_clear,           /* tp_clear */
     0,                     /* tp_richcompare */

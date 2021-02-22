@@ -276,20 +276,20 @@ FFTMain_setWinType(FFTMain *self, PyObject *arg)
 
 static PyMemberDef FFTMain_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(FFTMain, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(FFTMain, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(FFTMain, input), 0, "FFT sound object."},
+    {"server", T_OBJECT_EX, offsetof(FFTMain, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(FFTMain, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(FFTMain, input), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef FFTMain_methods[] =
 {
-    {"getServer", (PyCFunction)FFTMain_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)FFTMain_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)FFTMain_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)FFTMain_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setSize", (PyCFunction)FFTMain_setSize, METH_VARARGS | METH_KEYWORDS, "Sets a new FFT size."},
-    {"setWinType", (PyCFunction)FFTMain_setWinType, METH_O, "Sets a new window."},
+    {"getServer", (PyCFunction)FFTMain_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)FFTMain_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)FFTMain_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)FFTMain_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setSize", (PyCFunction)FFTMain_setSize, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setWinType", (PyCFunction)FFTMain_setWinType, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -315,7 +315,7 @@ PyTypeObject FFTMainType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "FFTMain objects. FFT transform.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)FFTMain_traverse,                  /* tp_traverse */
     (inquiry)FFTMain_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -504,23 +504,23 @@ static PyObject * FFT_inplace_div(FFT *self, PyObject *arg) { INPLACE_DIV };
 
 static PyMemberDef FFT_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(FFT, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(FFT, stream), 0, "Stream object."},
-    {"mul", T_OBJECT_EX, offsetof(FFT, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(FFT, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(FFT, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(FFT, stream), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(FFT, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(FFT, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef FFT_methods[] =
 {
-    {"getServer", (PyCFunction)FFT_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)FFT_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)FFT_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)FFT_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setMul", (PyCFunction)FFT_setMul, METH_O, "Sets FFT mul factor."},
-    {"setAdd", (PyCFunction)FFT_setAdd, METH_O, "Sets FFT add factor."},
-    {"setSub", (PyCFunction)FFT_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)FFT_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)FFT_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)FFT_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)FFT_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)FFT_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setMul", (PyCFunction)FFT_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)FFT_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)FFT_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)FFT_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -584,7 +584,7 @@ PyTypeObject FFTType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "FFT objects. Reads one band (real, imag or bins) from a FFT transform.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)FFT_traverse,   /* tp_traverse */
     (inquiry)FFT_clear,           /* tp_clear */
     0,                       /* tp_richcompare */
@@ -925,28 +925,28 @@ IFFT_setWinType(IFFT *self, PyObject *arg)
 
 static PyMemberDef IFFT_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(IFFT, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(IFFT, stream), 0, "Stream object."},
-    {"inreal", T_OBJECT_EX, offsetof(IFFT, inreal), 0, "Real input."},
-    {"inimag", T_OBJECT_EX, offsetof(IFFT, inimag), 0, "Imaginary input."},
-    {"mul", T_OBJECT_EX, offsetof(IFFT, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(IFFT, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(IFFT, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(IFFT, stream), 0, NULL},
+    {"inreal", T_OBJECT_EX, offsetof(IFFT, inreal), 0, NULL},
+    {"inimag", T_OBJECT_EX, offsetof(IFFT, inimag), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(IFFT, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(IFFT, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef IFFT_methods[] =
 {
-    {"getServer", (PyCFunction)IFFT_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)IFFT_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)IFFT_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)IFFT_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)IFFT_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setSize", (PyCFunction)IFFT_setSize, METH_VARARGS | METH_KEYWORDS, "Sets a new IFFT size."},
-    {"setWinType", (PyCFunction)IFFT_setWinType, METH_O, "Sets a new window."},
-    {"setMul", (PyCFunction)IFFT_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)IFFT_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)IFFT_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)IFFT_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)IFFT_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)IFFT_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)IFFT_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)IFFT_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)IFFT_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setSize", (PyCFunction)IFFT_setSize, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setWinType", (PyCFunction)IFFT_setWinType, METH_O, NULL},
+    {"setMul", (PyCFunction)IFFT_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)IFFT_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)IFFT_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)IFFT_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -1010,7 +1010,7 @@ PyTypeObject IFFTType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "IFFT objects. Synthesize audio from an FFT real and imaginary parts.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)IFFT_traverse,   /* tp_traverse */
     (inquiry)IFFT_clear,           /* tp_clear */
     0,                       /* tp_richcompare */
@@ -1227,25 +1227,25 @@ static PyObject * CarToPol_inplace_div(CarToPol *self, PyObject *arg) { INPLACE_
 
 static PyMemberDef CarToPol_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(CarToPol, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(CarToPol, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(CarToPol, input), 0, "Real sound object."},
-    {"input2", T_OBJECT_EX, offsetof(CarToPol, input2), 0, "Imaginary sound object."},
-    {"mul", T_OBJECT_EX, offsetof(CarToPol, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(CarToPol, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(CarToPol, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(CarToPol, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(CarToPol, input), 0, NULL},
+    {"input2", T_OBJECT_EX, offsetof(CarToPol, input2), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(CarToPol, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(CarToPol, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef CarToPol_methods[] =
 {
-    {"getServer", (PyCFunction)CarToPol_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)CarToPol_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)CarToPol_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)CarToPol_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setMul", (PyCFunction)CarToPol_setMul, METH_O, "Sets CarToPol mul factor."},
-    {"setAdd", (PyCFunction)CarToPol_setAdd, METH_O, "Sets CarToPol add factor."},
-    {"setSub", (PyCFunction)CarToPol_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)CarToPol_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)CarToPol_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)CarToPol_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)CarToPol_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)CarToPol_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setMul", (PyCFunction)CarToPol_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)CarToPol_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)CarToPol_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)CarToPol_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -1309,7 +1309,7 @@ PyTypeObject CarToPolType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "CarToPol objects. Cartesian to polar transform.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)CarToPol_traverse,   /* tp_traverse */
     (inquiry)CarToPol_clear,           /* tp_clear */
     0,                       /* tp_richcompare */
@@ -1526,25 +1526,25 @@ static PyObject * PolToCar_inplace_div(PolToCar *self, PyObject *arg) { INPLACE_
 
 static PyMemberDef PolToCar_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(PolToCar, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(PolToCar, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(PolToCar, input), 0, "Magnitude sound object."},
-    {"input2", T_OBJECT_EX, offsetof(PolToCar, input2), 0, "Angle sound object."},
-    {"mul", T_OBJECT_EX, offsetof(PolToCar, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(PolToCar, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(PolToCar, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(PolToCar, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(PolToCar, input), 0, NULL},
+    {"input2", T_OBJECT_EX, offsetof(PolToCar, input2), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(PolToCar, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(PolToCar, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef PolToCar_methods[] =
 {
-    {"getServer", (PyCFunction)PolToCar_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)PolToCar_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)PolToCar_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)PolToCar_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setMul", (PyCFunction)PolToCar_setMul, METH_O, "Sets PolToCar mul factor."},
-    {"setAdd", (PyCFunction)PolToCar_setAdd, METH_O, "Sets PolToCar add factor."},
-    {"setSub", (PyCFunction)PolToCar_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)PolToCar_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)PolToCar_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)PolToCar_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)PolToCar_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)PolToCar_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setMul", (PyCFunction)PolToCar_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)PolToCar_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)PolToCar_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)PolToCar_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -1608,7 +1608,7 @@ PyTypeObject PolToCarType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "PolToCar objects. Polar to cartesian transform.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)PolToCar_traverse,   /* tp_traverse */
     (inquiry)PolToCar_clear,           /* tp_clear */
     0,                       /* tp_richcompare */
@@ -1864,20 +1864,20 @@ FrameDeltaMain_setFrameSize(FrameDeltaMain *self, PyObject *arg)
 
 static PyMemberDef FrameDeltaMain_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(FrameDeltaMain, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(FrameDeltaMain, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(FrameDeltaMain, input), 0, "Phase input object."},
+    {"server", T_OBJECT_EX, offsetof(FrameDeltaMain, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(FrameDeltaMain, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(FrameDeltaMain, input), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef FrameDeltaMain_methods[] =
 {
-    {"getServer", (PyCFunction)FrameDeltaMain_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)FrameDeltaMain_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)FrameDeltaMain_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)FrameDeltaMain_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setInput", (PyCFunction)FrameDeltaMain_setInput, METH_O, "Sets list of input streams."},
-    {"setFrameSize", (PyCFunction)FrameDeltaMain_setFrameSize, METH_O, "Sets frame size."},
+    {"getServer", (PyCFunction)FrameDeltaMain_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)FrameDeltaMain_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)FrameDeltaMain_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)FrameDeltaMain_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setInput", (PyCFunction)FrameDeltaMain_setInput, METH_O, NULL},
+    {"setFrameSize", (PyCFunction)FrameDeltaMain_setFrameSize, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -1903,7 +1903,7 @@ PyTypeObject FrameDeltaMainType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "FrameDeltaMain objects. Compute the phase difference between successive frames.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)FrameDeltaMain_traverse,   /* tp_traverse */
     (inquiry)FrameDeltaMain_clear,           /* tp_clear */
     0,                       /* tp_richcompare */
@@ -2093,24 +2093,24 @@ static PyObject * FrameDelta_inplace_div(FrameDelta *self, PyObject *arg) { INPL
 
 static PyMemberDef FrameDelta_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(FrameDelta, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(FrameDelta, stream), 0, "Stream object."},
-    {"mul", T_OBJECT_EX, offsetof(FrameDelta, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(FrameDelta, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(FrameDelta, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(FrameDelta, stream), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(FrameDelta, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(FrameDelta, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef FrameDelta_methods[] =
 {
-    {"getServer", (PyCFunction)FrameDelta_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)FrameDelta_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)FrameDelta_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)FrameDelta_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)FrameDelta_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setMul", (PyCFunction)FrameDelta_setMul, METH_O, "Sets FrameDelta mul factor."},
-    {"setAdd", (PyCFunction)FrameDelta_setAdd, METH_O, "Sets FrameDelta add factor."},
-    {"setSub", (PyCFunction)FrameDelta_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)FrameDelta_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)FrameDelta_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)FrameDelta_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)FrameDelta_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)FrameDelta_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)FrameDelta_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setMul", (PyCFunction)FrameDelta_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)FrameDelta_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)FrameDelta_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)FrameDelta_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -2174,7 +2174,7 @@ PyTypeObject FrameDeltaType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "FrameDelta objects. Reads one band from a FrameDeltaMain object.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)FrameDelta_traverse,   /* tp_traverse */
     (inquiry)FrameDelta_clear,           /* tp_clear */
     0,                       /* tp_richcompare */
@@ -2419,20 +2419,20 @@ FrameAccumMain_setFrameSize(FrameAccumMain *self, PyObject *arg)
 
 static PyMemberDef FrameAccumMain_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(FrameAccumMain, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(FrameAccumMain, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(FrameAccumMain, input), 0, "Phase input object."},
+    {"server", T_OBJECT_EX, offsetof(FrameAccumMain, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(FrameAccumMain, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(FrameAccumMain, input), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef FrameAccumMain_methods[] =
 {
-    {"getServer", (PyCFunction)FrameAccumMain_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)FrameAccumMain_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)FrameAccumMain_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)FrameAccumMain_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setInput", (PyCFunction)FrameAccumMain_setInput, METH_O, "Sets list of input streams."},
-    {"setFrameSize", (PyCFunction)FrameAccumMain_setFrameSize, METH_O, "Sets frame size."},
+    {"getServer", (PyCFunction)FrameAccumMain_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)FrameAccumMain_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)FrameAccumMain_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)FrameAccumMain_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setInput", (PyCFunction)FrameAccumMain_setInput, METH_O, NULL},
+    {"setFrameSize", (PyCFunction)FrameAccumMain_setFrameSize, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -2458,7 +2458,7 @@ PyTypeObject FrameAccumMainType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "FrameAccumMain objects. Integrate the phase difference between successive frames.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)FrameAccumMain_traverse,   /* tp_traverse */
     (inquiry)FrameAccumMain_clear,           /* tp_clear */
     0,                       /* tp_richcompare */
@@ -2648,24 +2648,24 @@ static PyObject * FrameAccum_inplace_div(FrameAccum *self, PyObject *arg) { INPL
 
 static PyMemberDef FrameAccum_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(FrameAccum, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(FrameAccum, stream), 0, "Stream object."},
-    {"mul", T_OBJECT_EX, offsetof(FrameAccum, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(FrameAccum, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(FrameAccum, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(FrameAccum, stream), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(FrameAccum, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(FrameAccum, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef FrameAccum_methods[] =
 {
-    {"getServer", (PyCFunction)FrameAccum_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)FrameAccum_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)FrameAccum_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)FrameAccum_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)FrameAccum_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setMul", (PyCFunction)FrameAccum_setMul, METH_O, "Sets FrameAccum mul factor."},
-    {"setAdd", (PyCFunction)FrameAccum_setAdd, METH_O, "Sets FrameAccum add factor."},
-    {"setSub", (PyCFunction)FrameAccum_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)FrameAccum_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)FrameAccum_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)FrameAccum_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)FrameAccum_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)FrameAccum_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)FrameAccum_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setMul", (PyCFunction)FrameAccum_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)FrameAccum_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)FrameAccum_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)FrameAccum_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -2729,7 +2729,7 @@ PyTypeObject FrameAccumType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "FrameAccum objects. Reads one band from a FrameAccumMain object.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)FrameAccum_traverse,   /* tp_traverse */
     (inquiry)FrameAccum_clear,           /* tp_clear */
     0,                       /* tp_richcompare */
@@ -3158,23 +3158,23 @@ VectralMain_setDamp(VectralMain *self, PyObject *arg)
 
 static PyMemberDef VectralMain_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(VectralMain, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(VectralMain, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(VectralMain, input), 0, "Phase input object."},
+    {"server", T_OBJECT_EX, offsetof(VectralMain, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(VectralMain, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(VectralMain, input), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef VectralMain_methods[] =
 {
-    {"getServer", (PyCFunction)VectralMain_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)VectralMain_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)VectralMain_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)VectralMain_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setInput", (PyCFunction)VectralMain_setInput, METH_O, "Sets list of input streams."},
-    {"setFrameSize", (PyCFunction)VectralMain_setFrameSize, METH_O, "Sets frame size."},
-    {"setUp", (PyCFunction)VectralMain_setUp, METH_O, "Sets clipping upward factor."},
-    {"setDown", (PyCFunction)VectralMain_setDown, METH_O, "Sets clipping downward factor."},
-    {"setDamp", (PyCFunction)VectralMain_setDamp, METH_O, "Sets high frequencies damping factor."},
+    {"getServer", (PyCFunction)VectralMain_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)VectralMain_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)VectralMain_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)VectralMain_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setInput", (PyCFunction)VectralMain_setInput, METH_O, NULL},
+    {"setFrameSize", (PyCFunction)VectralMain_setFrameSize, METH_O, NULL},
+    {"setUp", (PyCFunction)VectralMain_setUp, METH_O, NULL},
+    {"setDown", (PyCFunction)VectralMain_setDown, METH_O, NULL},
+    {"setDamp", (PyCFunction)VectralMain_setDamp, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -3200,7 +3200,7 @@ PyTypeObject VectralMainType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "VectralMain objects. Smoothing between successive magnitude FFT frames.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)VectralMain_traverse,   /* tp_traverse */
     (inquiry)VectralMain_clear,           /* tp_clear */
     0,                       /* tp_richcompare */
@@ -3390,24 +3390,24 @@ static PyObject * Vectral_inplace_div(Vectral *self, PyObject *arg) { INPLACE_DI
 
 static PyMemberDef Vectral_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(Vectral, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(Vectral, stream), 0, "Stream object."},
-    {"mul", T_OBJECT_EX, offsetof(Vectral, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(Vectral, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(Vectral, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(Vectral, stream), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(Vectral, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(Vectral, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef Vectral_methods[] =
 {
-    {"getServer", (PyCFunction)Vectral_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)Vectral_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Vectral_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)Vectral_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Vectral_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setMul", (PyCFunction)Vectral_setMul, METH_O, "Sets Vectral mul factor."},
-    {"setAdd", (PyCFunction)Vectral_setAdd, METH_O, "Sets Vectral add factor."},
-    {"setSub", (PyCFunction)Vectral_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)Vectral_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)Vectral_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)Vectral_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)Vectral_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)Vectral_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)Vectral_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setMul", (PyCFunction)Vectral_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)Vectral_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)Vectral_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)Vectral_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -3471,7 +3471,7 @@ PyTypeObject VectralType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "Vectral objects. Reads one band from a VectralMain object.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)Vectral_traverse,   /* tp_traverse */
     (inquiry)Vectral_clear,           /* tp_clear */
     0,                       /* tp_richcompare */
@@ -3940,30 +3940,30 @@ Spectrum_setGain(Spectrum *self, PyObject *arg)
 
 static PyMemberDef Spectrum_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(Spectrum, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(Spectrum, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(Spectrum, input), 0, "FFT sound object."},
+    {"server", T_OBJECT_EX, offsetof(Spectrum, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(Spectrum, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(Spectrum, input), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef Spectrum_methods[] =
 {
-    {"getServer", (PyCFunction)Spectrum_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)Spectrum_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Spectrum_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)Spectrum_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setSize", (PyCFunction)Spectrum_setSize, METH_O, "Sets a new FFT size."},
-    {"setWinType", (PyCFunction)Spectrum_setWinType, METH_O, "Sets a new window."},
-    {"setLowbound", (PyCFunction)Spectrum_setLowbound, METH_O, "Sets the first frequency to display."},
-    {"setHighbound", (PyCFunction)Spectrum_setHighbound, METH_O, "Sets the last frequency to display."},
-    {"setWidth", (PyCFunction)Spectrum_setWidth, METH_O, "Sets the width of the display."},
-    {"setHeight", (PyCFunction)Spectrum_setHeight, METH_O, "Sets the height of the display."},
-    {"setFscaling", (PyCFunction)Spectrum_setFscaling, METH_O, "Sets the frequency scaling of the display."},
-    {"setMscaling", (PyCFunction)Spectrum_setMscaling, METH_O, "Sets the magnitude scaling of the display."},
-    {"setGain", (PyCFunction)Spectrum_setGain, METH_O, "Sets the magnitude gain of the display."},
-    {"display", (PyCFunction)Spectrum_display, METH_NOARGS, "Gets points to display."},
-    {"getLowfreq", (PyCFunction)Spectrum_getLowfreq, METH_NOARGS, "Returns the lowest frequency to display."},
-    {"getHighfreq", (PyCFunction)Spectrum_getHighfreq, METH_NOARGS, "Returns the highest frequency to display."},
+    {"getServer", (PyCFunction)Spectrum_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)Spectrum_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)Spectrum_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)Spectrum_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setSize", (PyCFunction)Spectrum_setSize, METH_O, NULL},
+    {"setWinType", (PyCFunction)Spectrum_setWinType, METH_O, NULL},
+    {"setLowbound", (PyCFunction)Spectrum_setLowbound, METH_O, NULL},
+    {"setHighbound", (PyCFunction)Spectrum_setHighbound, METH_O, NULL},
+    {"setWidth", (PyCFunction)Spectrum_setWidth, METH_O, NULL},
+    {"setHeight", (PyCFunction)Spectrum_setHeight, METH_O, NULL},
+    {"setFscaling", (PyCFunction)Spectrum_setFscaling, METH_O, NULL},
+    {"setMscaling", (PyCFunction)Spectrum_setMscaling, METH_O, NULL},
+    {"setGain", (PyCFunction)Spectrum_setGain, METH_O, NULL},
+    {"display", (PyCFunction)Spectrum_display, METH_NOARGS, NULL},
+    {"getLowfreq", (PyCFunction)Spectrum_getLowfreq, METH_NOARGS, NULL},
+    {"getHighfreq", (PyCFunction)Spectrum_getHighfreq, METH_NOARGS, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -3989,7 +3989,7 @@ PyTypeObject SpectrumType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Spectrum objects. FFT spectrum analyser.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)Spectrum_traverse,                  /* tp_traverse */
     (inquiry)Spectrum_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -4379,31 +4379,31 @@ IFFTMatrix_setWinType(IFFTMatrix *self, PyObject *arg)
 
 static PyMemberDef IFFTMatrix_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(IFFTMatrix, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(IFFTMatrix, stream), 0, "Stream object."},
-    {"matrix", T_OBJECT_EX, offsetof(IFFTMatrix, matrix), 0, "Matrix to read."},
-    {"index", T_OBJECT_EX, offsetof(IFFTMatrix, index), 0, "Reading position."},
-    {"phase", T_OBJECT_EX, offsetof(IFFTMatrix, phase), 0, "Instantaneous phase value."},
-    {"mul", T_OBJECT_EX, offsetof(IFFTMatrix, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(IFFTMatrix, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(IFFTMatrix, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(IFFTMatrix, stream), 0, NULL},
+    {"matrix", T_OBJECT_EX, offsetof(IFFTMatrix, matrix), 0, NULL},
+    {"index", T_OBJECT_EX, offsetof(IFFTMatrix, index), 0, NULL},
+    {"phase", T_OBJECT_EX, offsetof(IFFTMatrix, phase), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(IFFTMatrix, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(IFFTMatrix, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef IFFTMatrix_methods[] =
 {
-    {"getServer", (PyCFunction)IFFTMatrix_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)IFFTMatrix_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)IFFTMatrix_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)IFFTMatrix_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)IFFTMatrix_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setSize", (PyCFunction)IFFTMatrix_setSize, METH_VARARGS | METH_KEYWORDS, "Sets a new IFFTMatrix size."},
-    {"setWinType", (PyCFunction)IFFTMatrix_setWinType, METH_O, "Sets a new window."},
-    {"setIndex", (PyCFunction)IFFTMatrix_setIndex, METH_O, "Sets reading position."},
-    {"setPhase", (PyCFunction)IFFTMatrix_setPhase, METH_O, "Sets instantaneous phase."},
-    {"setMul", (PyCFunction)IFFTMatrix_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)IFFTMatrix_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)IFFTMatrix_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)IFFTMatrix_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)IFFTMatrix_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)IFFTMatrix_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)IFFTMatrix_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)IFFTMatrix_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)IFFTMatrix_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setSize", (PyCFunction)IFFTMatrix_setSize, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setWinType", (PyCFunction)IFFTMatrix_setWinType, METH_O, NULL},
+    {"setIndex", (PyCFunction)IFFTMatrix_setIndex, METH_O, NULL},
+    {"setPhase", (PyCFunction)IFFTMatrix_setPhase, METH_O, NULL},
+    {"setMul", (PyCFunction)IFFTMatrix_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)IFFTMatrix_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)IFFTMatrix_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)IFFTMatrix_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -4467,7 +4467,7 @@ PyTypeObject IFFTMatrixType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "IFFTMatrix objects. Synthesize audio from a Matrix object.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)IFFTMatrix_traverse,   /* tp_traverse */
     (inquiry)IFFTMatrix_clear,           /* tp_clear */
     0,                       /* tp_richcompare */

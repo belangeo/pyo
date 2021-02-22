@@ -391,29 +391,29 @@ Fader_setExp(Fader *self, PyObject *arg)
 
 static PyMemberDef Fader_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(Fader, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(Fader, stream), 0, "Stream object."},
-    {"trig_stream", T_OBJECT_EX, offsetof(Fader, trig_stream), 0, "Trigger Stream object."},
-    {"mul", T_OBJECT_EX, offsetof(Fader, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(Fader, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(Fader, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(Fader, stream), 0, NULL},
+    {"trig_stream", T_OBJECT_EX, offsetof(Fader, trig_stream), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(Fader, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(Fader, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef Fader_methods[] =
 {
-    {"getServer", (PyCFunction)Fader_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)Fader_getStream, METH_NOARGS, "Returns stream object."},
-    {"_getTriggerStream", (PyCFunction)Fader_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
-    {"play", (PyCFunction)Fader_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)Fader_stop, METH_VARARGS | METH_KEYWORDS, "Starts fadeout and stops computing."},
-    {"setMul", (PyCFunction)Fader_setMul, METH_O, "Sets Fader mul factor."},
-    {"setAdd", (PyCFunction)Fader_setAdd, METH_O, "Sets Fader add factor."},
-    {"setSub", (PyCFunction)Fader_setSub, METH_O, "Sets inverse add factor."},
-    {"setFadein", (PyCFunction)Fader_setFadein, METH_O, "Sets fadein time in seconds."},
-    {"setFadeout", (PyCFunction)Fader_setFadeout, METH_O, "Sets fadeout time in seconds."},
-    {"setDur", (PyCFunction)Fader_setDur, METH_O, "Sets duration in seconds (0 means wait for stop method to start fadeout)."},
-    {"setExp", (PyCFunction)Fader_setExp, METH_O, "Sets the exponent factor for exponential envelope."},
-    {"setDiv", (PyCFunction)Fader_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)Fader_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)Fader_getStream, METH_NOARGS, NULL},
+    {"_getTriggerStream", (PyCFunction)Fader_getTriggerStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)Fader_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)Fader_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setMul", (PyCFunction)Fader_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)Fader_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)Fader_setSub, METH_O, NULL},
+    {"setFadein", (PyCFunction)Fader_setFadein, METH_O, NULL},
+    {"setFadeout", (PyCFunction)Fader_setFadeout, METH_O, NULL},
+    {"setDur", (PyCFunction)Fader_setDur, METH_O, NULL},
+    {"setExp", (PyCFunction)Fader_setExp, METH_O, NULL},
+    {"setDiv", (PyCFunction)Fader_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -477,7 +477,7 @@ PyTypeObject FaderType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Fader objects. Generates fadin and fadeout signal.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)Fader_traverse,   /* tp_traverse */
     (inquiry)Fader_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -932,31 +932,31 @@ Adsr_setExp(Adsr *self, PyObject *arg)
 
 static PyMemberDef Adsr_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(Adsr, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(Adsr, stream), 0, "Stream object."},
-    {"trig_stream", T_OBJECT_EX, offsetof(Adsr, trig_stream), 0, "Trigger Stream object."},
-    {"mul", T_OBJECT_EX, offsetof(Adsr, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(Adsr, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(Adsr, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(Adsr, stream), 0, NULL},
+    {"trig_stream", T_OBJECT_EX, offsetof(Adsr, trig_stream), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(Adsr, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(Adsr, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef Adsr_methods[] =
 {
-    {"getServer", (PyCFunction)Adsr_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)Adsr_getStream, METH_NOARGS, "Returns stream object."},
-    {"_getTriggerStream", (PyCFunction)Adsr_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
-    {"play", (PyCFunction)Adsr_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)Adsr_stop, METH_VARARGS | METH_KEYWORDS, "Starts fadeout and stops computing."},
-    {"setMul", (PyCFunction)Adsr_setMul, METH_O, "Sets Adsr mul factor."},
-    {"setAdd", (PyCFunction)Adsr_setAdd, METH_O, "Sets Adsr add factor."},
-    {"setSub", (PyCFunction)Adsr_setSub, METH_O, "Sets inverse add factor."},
-    {"setAttack", (PyCFunction)Adsr_setAttack, METH_O, "Sets attack time in seconds."},
-    {"setDecay", (PyCFunction)Adsr_setDecay, METH_O, "Sets attack time in seconds."},
-    {"setSustain", (PyCFunction)Adsr_setSustain, METH_O, "Sets attack time in seconds."},
-    {"setRelease", (PyCFunction)Adsr_setRelease, METH_O, "Sets release time in seconds."},
-    {"setDur", (PyCFunction)Adsr_setDur, METH_O, "Sets duration in seconds (0 means wait for stop method to start fadeout)."},
-    {"setExp", (PyCFunction)Adsr_setExp, METH_O, "Sets the exponent factor for exponential envelope."},
-    {"setDiv", (PyCFunction)Adsr_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)Adsr_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)Adsr_getStream, METH_NOARGS, NULL},
+    {"_getTriggerStream", (PyCFunction)Adsr_getTriggerStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)Adsr_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)Adsr_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setMul", (PyCFunction)Adsr_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)Adsr_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)Adsr_setSub, METH_O, NULL},
+    {"setAttack", (PyCFunction)Adsr_setAttack, METH_O, NULL},
+    {"setDecay", (PyCFunction)Adsr_setDecay, METH_O, NULL},
+    {"setSustain", (PyCFunction)Adsr_setSustain, METH_O, NULL},
+    {"setRelease", (PyCFunction)Adsr_setRelease, METH_O, NULL},
+    {"setDur", (PyCFunction)Adsr_setDur, METH_O, NULL},
+    {"setExp", (PyCFunction)Adsr_setExp, METH_O, NULL},
+    {"setDiv", (PyCFunction)Adsr_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -1020,7 +1020,7 @@ PyTypeObject AdsrType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Adsr objects. Generates Adsr envelope signal.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)Adsr_traverse,   /* tp_traverse */
     (inquiry)Adsr_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -1369,28 +1369,28 @@ Linseg_clear_data(Linseg *self)
 
 static PyMemberDef Linseg_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(Linseg, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(Linseg, stream), 0, "Stream object."},
-    {"pointslist", T_OBJECT_EX, offsetof(Linseg, pointslist), 0, "List of target points."},
-    {"mul", T_OBJECT_EX, offsetof(Linseg, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(Linseg, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(Linseg, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(Linseg, stream), 0, NULL},
+    {"pointslist", T_OBJECT_EX, offsetof(Linseg, pointslist), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(Linseg, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(Linseg, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef Linseg_methods[] =
 {
-    {"getServer", (PyCFunction)Linseg_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)Linseg_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Linseg_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)Linseg_stop, METH_VARARGS | METH_KEYWORDS, "Starts fadeout and stops computing."},
-    {"clear", (PyCFunction)Linseg_clear_data, METH_NOARGS, "Resets the data buffer to 0."},
-    {"pause", (PyCFunction)Linseg_pause, METH_NOARGS, "Toggles between play and stop without reset."},
-    {"setList", (PyCFunction)Linseg_setList, METH_O, "Sets target points list."},
-    {"setLoop", (PyCFunction)Linseg_setLoop, METH_O, "Sets looping mode."},
-    {"setMul", (PyCFunction)Linseg_setMul, METH_O, "Sets Linseg mul factor."},
-    {"setAdd", (PyCFunction)Linseg_setAdd, METH_O, "Sets Linseg add factor."},
-    {"setSub", (PyCFunction)Linseg_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)Linseg_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)Linseg_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)Linseg_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)Linseg_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)Linseg_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"clear", (PyCFunction)Linseg_clear_data, METH_NOARGS, NULL},
+    {"pause", (PyCFunction)Linseg_pause, METH_NOARGS, NULL},
+    {"setList", (PyCFunction)Linseg_setList, METH_O, NULL},
+    {"setLoop", (PyCFunction)Linseg_setLoop, METH_O, NULL},
+    {"setMul", (PyCFunction)Linseg_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)Linseg_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)Linseg_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)Linseg_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -1454,7 +1454,7 @@ PyTypeObject LinsegType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Linseg objects. Generates a linear segments break-points line.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)Linseg_traverse,   /* tp_traverse */
     (inquiry)Linseg_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -1853,30 +1853,30 @@ Expseg_clear_data(Linseg *self)
 
 static PyMemberDef Expseg_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(Expseg, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(Expseg, stream), 0, "Stream object."},
-    {"pointslist", T_OBJECT_EX, offsetof(Expseg, pointslist), 0, "List of target points."},
-    {"mul", T_OBJECT_EX, offsetof(Expseg, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(Expseg, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(Expseg, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(Expseg, stream), 0, NULL},
+    {"pointslist", T_OBJECT_EX, offsetof(Expseg, pointslist), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(Expseg, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(Expseg, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef Expseg_methods[] =
 {
-    {"getServer", (PyCFunction)Expseg_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)Expseg_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Expseg_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)Expseg_stop, METH_VARARGS | METH_KEYWORDS, "Starts fadeout and stops computing."},
-    {"pause", (PyCFunction)Expseg_pause, METH_NOARGS, "Toggles between play and stop without reset."},
-    {"setList", (PyCFunction)Expseg_setList, METH_O, "Sets target points list."},
-    {"setLoop", (PyCFunction)Expseg_setLoop, METH_O, "Sets looping mode."},
-    {"setExp", (PyCFunction)Expseg_setExp, METH_O, "Sets exponent factor."},
-    {"setInverse", (PyCFunction)Expseg_setInverse, METH_O, "Sets inverse factor."},
-    {"clear", (PyCFunction)Expseg_clear_data, METH_NOARGS, "Resets the data buffer to 0."},
-    {"setMul", (PyCFunction)Expseg_setMul, METH_O, "Sets Expseg mul factor."},
-    {"setAdd", (PyCFunction)Expseg_setAdd, METH_O, "Sets Expseg add factor."},
-    {"setSub", (PyCFunction)Expseg_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)Expseg_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)Expseg_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)Expseg_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)Expseg_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)Expseg_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"pause", (PyCFunction)Expseg_pause, METH_NOARGS, NULL},
+    {"setList", (PyCFunction)Expseg_setList, METH_O, NULL},
+    {"setLoop", (PyCFunction)Expseg_setLoop, METH_O, NULL},
+    {"setExp", (PyCFunction)Expseg_setExp, METH_O, NULL},
+    {"setInverse", (PyCFunction)Expseg_setInverse, METH_O, NULL},
+    {"clear", (PyCFunction)Expseg_clear_data, METH_NOARGS, NULL},
+    {"setMul", (PyCFunction)Expseg_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)Expseg_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)Expseg_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)Expseg_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -1940,7 +1940,7 @@ PyTypeObject ExpsegType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Expseg objects. Generates a linear segments break-points line.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)Expseg_traverse,   /* tp_traverse */
     (inquiry)Expseg_clear,           /* tp_clear */
     0,                     /* tp_richcompare */

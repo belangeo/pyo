@@ -394,12 +394,12 @@ Registered as "tp_members".
 **********************************************************************/
 static PyMemberDef Gain_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(Gain, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(Gain, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(Gain, input), 0, "Input sound object."},
+    {"server", T_OBJECT_EX, offsetof(Gain, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(Gain, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(Gain, input), 0, NULL},
     {"db", T_OBJECT_EX, offsetof(Gain, db), 0, "Gain factor in decibel."},
-    {"mul", T_OBJECT_EX, offsetof(Gain, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(Gain, add), 0, "Add factor."},
+    {"mul", T_OBJECT_EX, offsetof(Gain, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(Gain, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -410,16 +410,16 @@ Registered as "tp_methods".
 **********************************************************************/
 static PyMethodDef Gain_methods[] =
 {
-    {"getServer", (PyCFunction)Gain_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)Gain_getStream, METH_NOARGS, "Returns stream object."},
+    {"getServer", (PyCFunction)Gain_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)Gain_getStream, METH_NOARGS, NULL},
     {"play", (PyCFunction)Gain_play, METH_VARARGS | METH_KEYWORDS, "Starts dbuting without sending sound to soundcard."},
     {"out", (PyCFunction)Gain_out, METH_VARARGS | METH_KEYWORDS, "Starts dbuting and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Gain_stop, METH_VARARGS | METH_KEYWORDS, "Stops dbuting."},
     {"setDB", (PyCFunction)Gain_setDB, METH_O, "Sets gain factor in decibels."},
-    {"setMul", (PyCFunction)Gain_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)Gain_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)Gain_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)Gain_setDiv, METH_O, "Sets inverse mul factor."},
+    {"setMul", (PyCFunction)Gain_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)Gain_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)Gain_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)Gain_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 

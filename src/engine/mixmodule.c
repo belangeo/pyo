@@ -207,25 +207,25 @@ static PyObject * Mix_inplace_div(Mix *self, PyObject *arg) { INPLACE_DIV };
 
 static PyMemberDef Mix_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(Mix, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(Mix, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(Mix, input), 0, "List of input signals to mix."},
-    {"mul", T_OBJECT_EX, offsetof(Mix, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(Mix, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(Mix, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(Mix, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(Mix, input), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(Mix, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(Mix, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef Mix_methods[] =
 {
-    {"getServer", (PyCFunction)Mix_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)Mix_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Mix_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)Mix_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Mix_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setMul", (PyCFunction)Mix_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)Mix_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)Mix_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)Mix_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)Mix_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)Mix_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)Mix_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)Mix_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)Mix_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setMul", (PyCFunction)Mix_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)Mix_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)Mix_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)Mix_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -289,7 +289,7 @@ PyTypeObject MixType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Mix objects. Retreive audio from an input channel.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)Mix_traverse,   /* tp_traverse */
     (inquiry)Mix_clear,           /* tp_clear */
     0,                     /* tp_richcompare */

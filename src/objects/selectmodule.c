@@ -225,24 +225,24 @@ Select_setValue(Select *self, PyObject *arg)
 
 static PyMemberDef Select_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(Select, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(Select, stream), 0, "Stream object."},
-    {"mul", T_OBJECT_EX, offsetof(Select, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(Select, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(Select, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(Select, stream), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(Select, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(Select, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef Select_methods[] =
 {
-    {"getServer", (PyCFunction)Select_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)Select_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Select_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)Select_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setValue", (PyCFunction)Select_setValue, METH_O, "Sets value to select."},
-    {"setMul", (PyCFunction)Select_setMul, METH_O, "Sets mul factor."},
-    {"setAdd", (PyCFunction)Select_setAdd, METH_O, "Sets add factor."},
-    {"setSub", (PyCFunction)Select_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)Select_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)Select_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)Select_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)Select_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)Select_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setValue", (PyCFunction)Select_setValue, METH_O, NULL},
+    {"setMul", (PyCFunction)Select_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)Select_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)Select_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)Select_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -306,7 +306,7 @@ PyTypeObject SelectType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Select objects. Watch input and send a trig on a selected value.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)Select_traverse,   /* tp_traverse */
     (inquiry)Select_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -511,23 +511,23 @@ static PyObject * Change_inplace_div(Change *self, PyObject *arg) { INPLACE_DIV 
 
 static PyMemberDef Change_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(Change, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(Change, stream), 0, "Stream object."},
-    {"mul", T_OBJECT_EX, offsetof(Change, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(Change, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(Change, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(Change, stream), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(Change, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(Change, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef Change_methods[] =
 {
-    {"getServer", (PyCFunction)Change_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)Change_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Change_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)Change_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setMul", (PyCFunction)Change_setMul, METH_O, "Sets mul factor."},
-    {"setAdd", (PyCFunction)Change_setAdd, METH_O, "Sets add factor."},
-    {"setSub", (PyCFunction)Change_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)Change_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)Change_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)Change_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)Change_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)Change_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setMul", (PyCFunction)Change_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)Change_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)Change_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)Change_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -591,7 +591,7 @@ PyTypeObject ChangeType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Change objects. Send a trig whenever input value changed.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)Change_traverse,   /* tp_traverse */
     (inquiry)Change_clear,           /* tp_clear */
     0,                     /* tp_richcompare */

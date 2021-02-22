@@ -544,35 +544,35 @@ Compress_setKnee(Compress *self, PyObject *arg)
 
 static PyMemberDef Compress_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(Compress, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(Compress, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(Compress, input), 0, "Input sound object."},
-    {"thresh", T_OBJECT_EX, offsetof(Compress, thresh), 0, "Compressor threshold."},
-    {"ratio", T_OBJECT_EX, offsetof(Compress, ratio), 0, "Compressor ratio."},
-    {"risetime", T_OBJECT_EX, offsetof(Compress, risetime), 0, "Rising portamento time in seconds."},
-    {"falltime", T_OBJECT_EX, offsetof(Compress, falltime), 0, "Falling portamento time in seconds."},
-    {"mul", T_OBJECT_EX, offsetof(Compress, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(Compress, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(Compress, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(Compress, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(Compress, input), 0, NULL},
+    {"thresh", T_OBJECT_EX, offsetof(Compress, thresh), 0, NULL},
+    {"ratio", T_OBJECT_EX, offsetof(Compress, ratio), 0, NULL},
+    {"risetime", T_OBJECT_EX, offsetof(Compress, risetime), 0, NULL},
+    {"falltime", T_OBJECT_EX, offsetof(Compress, falltime), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(Compress, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(Compress, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef Compress_methods[] =
 {
-    {"getServer", (PyCFunction)Compress_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)Compress_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Compress_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)Compress_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Compress_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setThresh", (PyCFunction)Compress_setThresh, METH_O, "Sets compressor threshold."},
-    {"setRatio", (PyCFunction)Compress_setRatio, METH_O, "Sets compressor ratio."},
-    {"setRiseTime", (PyCFunction)Compress_setRiseTime, METH_O, "Sets rising portamento time in seconds."},
-    {"setFallTime", (PyCFunction)Compress_setFallTime, METH_O, "Sets falling portamento time in seconds."},
-    {"setLookAhead", (PyCFunction)Compress_setLookAhead, METH_O, "Sets look ahead time in ms."},
-    {"setKnee", (PyCFunction)Compress_setKnee, METH_O, "Sets the knee between 0 (hard) and 1 (soft)."},
-    {"setMul", (PyCFunction)Compress_setMul, METH_O, "Sets mul factor."},
-    {"setAdd", (PyCFunction)Compress_setAdd, METH_O, "Sets add factor."},
-    {"setSub", (PyCFunction)Compress_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)Compress_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)Compress_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)Compress_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)Compress_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)Compress_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)Compress_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setThresh", (PyCFunction)Compress_setThresh, METH_O, NULL},
+    {"setRatio", (PyCFunction)Compress_setRatio, METH_O, NULL},
+    {"setRiseTime", (PyCFunction)Compress_setRiseTime, METH_O, NULL},
+    {"setFallTime", (PyCFunction)Compress_setFallTime, METH_O, NULL},
+    {"setLookAhead", (PyCFunction)Compress_setLookAhead, METH_O, NULL},
+    {"setKnee", (PyCFunction)Compress_setKnee, METH_O, NULL},
+    {"setMul", (PyCFunction)Compress_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)Compress_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)Compress_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)Compress_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -636,7 +636,7 @@ PyTypeObject CompressType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Compress objects. Compress audio signal by a certain ratio above a threshold.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)Compress_traverse,                  /* tp_traverse */
     (inquiry)Compress_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -1596,32 +1596,32 @@ Gate_setLookAhead(Gate *self, PyObject *arg)
 
 static PyMemberDef Gate_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(Gate, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(Gate, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(Gate, input), 0, "Input sound object."},
-    {"thresh", T_OBJECT_EX, offsetof(Gate, thresh), 0, "Threshold in dB."},
-    {"risetime", T_OBJECT_EX, offsetof(Gate, risetime), 0, "Risetime in second."},
-    {"falltime", T_OBJECT_EX, offsetof(Gate, falltime), 0, "Falltime in second."},
-    {"mul", T_OBJECT_EX, offsetof(Gate, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(Gate, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(Gate, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(Gate, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(Gate, input), 0, NULL},
+    {"thresh", T_OBJECT_EX, offsetof(Gate, thresh), 0, NULL},
+    {"risetime", T_OBJECT_EX, offsetof(Gate, risetime), 0, NULL},
+    {"falltime", T_OBJECT_EX, offsetof(Gate, falltime), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(Gate, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(Gate, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef Gate_methods[] =
 {
-    {"getServer", (PyCFunction)Gate_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)Gate_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Gate_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)Gate_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Gate_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setThresh", (PyCFunction)Gate_setThresh, METH_O, "Sets the threshold in dB."},
-    {"setRiseTime", (PyCFunction)Gate_setRiseTime, METH_O, "Sets filter risetime in second."},
-    {"setFallTime", (PyCFunction)Gate_setFallTime, METH_O, "Sets filter falltime in second."},
-    {"setLookAhead", (PyCFunction)Gate_setLookAhead, METH_O, "Sets look ahead time in ms."},
-    {"setMul", (PyCFunction)Gate_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)Gate_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)Gate_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)Gate_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)Gate_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)Gate_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)Gate_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)Gate_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)Gate_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setThresh", (PyCFunction)Gate_setThresh, METH_O, NULL},
+    {"setRiseTime", (PyCFunction)Gate_setRiseTime, METH_O, NULL},
+    {"setFallTime", (PyCFunction)Gate_setFallTime, METH_O, NULL},
+    {"setLookAhead", (PyCFunction)Gate_setLookAhead, METH_O, NULL},
+    {"setMul", (PyCFunction)Gate_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)Gate_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)Gate_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)Gate_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -1685,7 +1685,7 @@ PyTypeObject GateType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Gate objects. Noise gate dynamic processor.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)Gate_traverse,                  /* tp_traverse */
     (inquiry)Gate_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -2027,28 +2027,28 @@ Balance_setFreq(Balance *self, PyObject *arg)
 
 static PyMemberDef Balance_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(Balance, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(Balance, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(Balance, input), 0, "Input sound object."},
-    {"input2", T_OBJECT_EX, offsetof(Balance, input2), 0, "Comparator input sound object."},
-    {"freq", T_OBJECT_EX, offsetof(Balance, freq), 0, "Cutoff frequency in cycle per second."},
-    {"mul", T_OBJECT_EX, offsetof(Balance, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(Balance, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(Balance, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(Balance, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(Balance, input), 0, NULL},
+    {"input2", T_OBJECT_EX, offsetof(Balance, input2), 0, NULL},
+    {"freq", T_OBJECT_EX, offsetof(Balance, freq), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(Balance, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(Balance, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef Balance_methods[] =
 {
-    {"getServer", (PyCFunction)Balance_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)Balance_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Balance_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)Balance_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Balance_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setFreq", (PyCFunction)Balance_setFreq, METH_O, "Sets filter cutoff frequency in cycle per second."},
-    {"setMul", (PyCFunction)Balance_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)Balance_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)Balance_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)Balance_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)Balance_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)Balance_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)Balance_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)Balance_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)Balance_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setFreq", (PyCFunction)Balance_setFreq, METH_O, NULL},
+    {"setMul", (PyCFunction)Balance_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)Balance_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)Balance_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)Balance_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -2112,7 +2112,7 @@ PyTypeObject BalanceType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Balance objects. The rms power of a signal is adjusted to match that of a comparator signal.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)Balance_traverse,                  /* tp_traverse */
     (inquiry)Balance_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -2660,36 +2660,36 @@ Expand_setLookAhead(Expand *self, PyObject *arg)
 
 static PyMemberDef Expand_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(Expand, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(Expand, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(Expand, input), 0, "Input sound object."},
-    {"downthresh", T_OBJECT_EX, offsetof(Expand, downthresh), 0, "Expander lower threshold."},
-    {"upthresh", T_OBJECT_EX, offsetof(Expand, upthresh), 0, "Expander upper threshold."},
-    {"ratio", T_OBJECT_EX, offsetof(Expand, ratio), 0, "Expandor ratio."},
-    {"risetime", T_OBJECT_EX, offsetof(Expand, risetime), 0, "Rising portamento time in seconds."},
-    {"falltime", T_OBJECT_EX, offsetof(Expand, falltime), 0, "Falling portamento time in seconds."},
-    {"mul", T_OBJECT_EX, offsetof(Expand, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(Expand, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(Expand, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(Expand, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(Expand, input), 0, NULL},
+    {"downthresh", T_OBJECT_EX, offsetof(Expand, downthresh), 0, NULL},
+    {"upthresh", T_OBJECT_EX, offsetof(Expand, upthresh), 0, NULL},
+    {"ratio", T_OBJECT_EX, offsetof(Expand, ratio), 0, NULL},
+    {"risetime", T_OBJECT_EX, offsetof(Expand, risetime), 0, NULL},
+    {"falltime", T_OBJECT_EX, offsetof(Expand, falltime), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(Expand, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(Expand, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef Expand_methods[] =
 {
-    {"getServer", (PyCFunction)Expand_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)Expand_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Expand_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)Expand_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Expand_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setDownThresh", (PyCFunction)Expand_setDownThresh, METH_O, "Sets expander lower threshold."},
-    {"setUpThresh", (PyCFunction)Expand_setUpThresh, METH_O, "Sets expander upper threshold."},
-    {"setRatio", (PyCFunction)Expand_setRatio, METH_O, "Sets expander ratio."},
-    {"setRiseTime", (PyCFunction)Expand_setRiseTime, METH_O, "Sets rising portamento time in seconds."},
-    {"setFallTime", (PyCFunction)Expand_setFallTime, METH_O, "Sets falling portamento time in seconds."},
-    {"setLookAhead", (PyCFunction)Expand_setLookAhead, METH_O, "Sets look ahead time in ms."},
-    {"setMul", (PyCFunction)Expand_setMul, METH_O, "Sets mul factor."},
-    {"setAdd", (PyCFunction)Expand_setAdd, METH_O, "Sets add factor."},
-    {"setSub", (PyCFunction)Expand_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)Expand_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)Expand_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)Expand_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)Expand_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)Expand_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)Expand_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setDownThresh", (PyCFunction)Expand_setDownThresh, METH_O, NULL},
+    {"setUpThresh", (PyCFunction)Expand_setUpThresh, METH_O, NULL},
+    {"setRatio", (PyCFunction)Expand_setRatio, METH_O, NULL},
+    {"setRiseTime", (PyCFunction)Expand_setRiseTime, METH_O, NULL},
+    {"setFallTime", (PyCFunction)Expand_setFallTime, METH_O, NULL},
+    {"setLookAhead", (PyCFunction)Expand_setLookAhead, METH_O, NULL},
+    {"setMul", (PyCFunction)Expand_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)Expand_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)Expand_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)Expand_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -2753,7 +2753,7 @@ PyTypeObject ExpandType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Expand objects. Expand audio signal by a certain ratio when below or above certain thresholds.", /* tp_doc */
+    0, /* tp_doc */
     (traverseproc)Expand_traverse,                  /* tp_traverse */
     (inquiry)Expand_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */

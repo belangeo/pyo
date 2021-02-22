@@ -1,73 +1,25 @@
-"""
-Different kinds of audio filtering operations.
+# Copyright 2009-2021 Olivier Belanger
+# 
+# This file is part of pyo, a python module to help digital signal
+# processing script creation.
+#
+# pyo is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# pyo is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 
-An audio filter is designed to amplify, pass or attenuate (negative amplification)
-some frequency ranges. Common types include low-pass, which pass through
-frequencies below their cutoff frequencies, and progressively attenuates
-frequencies above the cutoff frequency. A high-pass filter does the opposite,
-passing high frequencies above the cutoff frequency, and progressively
-attenuating frequencies below the cutoff frequency. A bandpass filter passes
-frequencies between its two cutoff frequencies, while attenuating those outside
-the range. A band-reject filter, attenuates frequencies between its two cutoff
-frequencies, while passing those outside the 'reject' range.
-
-An all-pass filter, passes all frequencies, but affects the phase of any given
-sinusoidal component according to its frequency.
-
-"""
-
-"""
-Copyright 2009-2015 Olivier Belanger
-
-This file is part of pyo, a python module to help digital signal
-processing script creation.
-
-pyo is free software: you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as
-published by the Free Software Foundation, either version 3 of the
-License, or (at your option) any later version.
-
-pyo is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public
-License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
-"""
 from ._core import *
 
 
 class Biquad(PyoObject):
-    """
-    A sweepable general purpose biquadratic digital filter.
-
-    :Parent: :py:class:`PyoObject`
-
-    :Args:
-
-        input: PyoObject
-            Input signal to process.
-        freq: float or PyoObject, optional
-            Cutoff or center frequency of the filter. Defaults to 1000.
-        q: float or PyoObject, optional
-            Q of the filter, defined (for bandpass filters) as freq/bandwidth.
-            Should be between 1 and 500. Defaults to 1.
-        type: int, optional
-            Filter type. Five possible values :
-                0. lowpass (default)
-                1. highpass
-                2. bandpass
-                3. bandstop
-                4. allpass
-
-    >>> s = Server().boot()
-    >>> s.start()
-    >>> a = Noise(mul=.7)
-    >>> lfo = Sine(freq=[.2, .25], mul=1000, add=1500)
-    >>> f = Biquad(a, freq=lfo, q=5, type=2).out()
-
-    """
 
     def __init__(self, input, freq=1000, q=1, type=0, mul=1, add=0):
         pyoArgsAssert(self, "oOOiOO", input, freq, q, type, mul, add)
@@ -85,66 +37,23 @@ class Biquad(PyoObject):
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
-        """
-        Replace the `input` attribute.
-
-        :Args:
-
-            x: PyoObject
-                New signal to process.
-            fadetime: float, optional
-                Crossfade time between old and new input. Defaults to 0.05.
-
-        """
         pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
     def setFreq(self, x):
-        """
-        Replace the `freq` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                New `freq` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setQ(self, x):
-        """
-        Replace the `q` attribute. Should be between 1 and 500.
-
-        :Args:
-
-            x: float or PyoObject
-                New `q` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._q = x
         x, lmax = convertArgsToLists(x)
         [obj.setQ(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setType(self, x):
-        """
-        Replace the `type` attribute.
-
-        :Args:
-
-            x: int
-                New `type` attribute.
-                    0.lowpass
-                    1. highpass
-                    2. bandpass
-                    3. bandstop
-                    4. allpass
-
-        """
         pyoArgsAssert(self, "i", x)
         self._type = x
         x, lmax = convertArgsToLists(x)
@@ -152,7 +61,6 @@ class Biquad(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process."""
         return self._input
 
     @input.setter
@@ -161,7 +69,6 @@ class Biquad(PyoObject):
 
     @property
     def freq(self):
-        """float or PyoObject. Cutoff or center frequency of the filter."""
         return self._freq
 
     @freq.setter
@@ -170,7 +77,6 @@ class Biquad(PyoObject):
 
     @property
     def q(self):
-        """float or PyoObject. Q of the filter."""
         return self._q
 
     @q.setter
@@ -179,7 +85,6 @@ class Biquad(PyoObject):
 
     @property
     def type(self):
-        """int. Filter type."""
         return self._type
 
     @type.setter
@@ -188,42 +93,6 @@ class Biquad(PyoObject):
 
 
 class Biquadx(PyoObject):
-    """
-    A multi-stages sweepable general purpose biquadratic digital filter.
-
-    Biquadx is equivalent to a filter consisting of more layers of Biquad
-    with the same arguments, serially connected. It is faster than using
-    a large number of instances of the Biquad object, It uses less memory
-    and allows filters with sharper cutoff.
-
-    :Parent: :py:class:`PyoObject`
-
-    :Args:
-
-        input: PyoObject
-            Input signal to process.
-        freq: float or PyoObject, optional
-            Cutoff or center frequency of the filter. Defaults to 1000.
-        q: float or PyoObject, optional
-            Q of the filter, defined (for bandpass filters) as freq/bandwidth.
-            Should be between 1 and 500. Defaults to 1.
-        type: int, optional
-            Filter type. Five possible values :
-                0. lowpass (default)
-                1. highpass
-                2. bandpass
-                3. bandstop
-                4. allpass
-        stages: int, optional
-            The number of filtering stages in the filter stack. Defaults to 4.
-
-    >>> s = Server().boot()
-    >>> s.start()
-    >>> a = Noise(mul=.7)
-    >>> lfo = Sine(freq=[.2, .25], mul=1000, add=1500)
-    >>> f = Biquadx(a, freq=lfo, q=5, type=2).out()
-
-    """
 
     def __init__(self, input, freq=1000, q=1, type=0, stages=4, mul=1, add=0):
         pyoArgsAssert(self, "oOOiiOO", input, freq, q, type, stages, mul, add)
@@ -246,81 +115,29 @@ class Biquadx(PyoObject):
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
-        """
-        Replace the `input` attribute.
-
-        :Args:
-
-            x: PyoObject
-                New signal to process.
-            fadetime: float, optional
-                Crossfade time between old and new input. Defaults to 0.05.
-
-        """
         pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
     def setFreq(self, x):
-        """
-        Replace the `freq` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                New `freq` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setQ(self, x):
-        """
-        Replace the `q` attribute. Should be between 1 and 500.
-
-        :Args:
-
-            x: float or PyoObject
-                New `q` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._q = x
         x, lmax = convertArgsToLists(x)
         [obj.setQ(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setType(self, x):
-        """
-        Replace the `type` attribute.
-
-        :Args:
-
-            x: int
-                New `type` attribute.
-                0. lowpass
-                1. highpass
-                2. bandpass
-                3. bandstop
-                4. allpass
-
-        """
         pyoArgsAssert(self, "i", x)
         self._type = x
         x, lmax = convertArgsToLists(x)
         [obj.setType(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setStages(self, x):
-        """
-        Replace the `stages` attribute.
-
-        :Args:
-
-            x: int
-                New `stages` attribute.
-
-        """
         pyoArgsAssert(self, "i", x)
         self._stages = x
         x, lmax = convertArgsToLists(x)
@@ -328,7 +145,6 @@ class Biquadx(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process."""
         return self._input
 
     @input.setter
@@ -337,7 +153,6 @@ class Biquadx(PyoObject):
 
     @property
     def freq(self):
-        """float or PyoObject. Cutoff or center frequency of the filter."""
         return self._freq
 
     @freq.setter
@@ -346,7 +161,6 @@ class Biquadx(PyoObject):
 
     @property
     def q(self):
-        """float or PyoObject. Q of the filter."""
         return self._q
 
     @q.setter
@@ -355,7 +169,6 @@ class Biquadx(PyoObject):
 
     @property
     def type(self):
-        """int. Filter type."""
         return self._type
 
     @type.setter
@@ -364,7 +177,6 @@ class Biquadx(PyoObject):
 
     @property
     def stages(self):
-        """int. The number of filtering stages."""
         return self._stages
 
     @stages.setter
@@ -373,48 +185,6 @@ class Biquadx(PyoObject):
 
 
 class Biquada(PyoObject):
-    """
-    A general purpose biquadratic digital filter (floating-point arguments).
-
-    A digital biquad filter is a second-order recursive linear filter, containing
-    two poles and two zeros. Biquada is a "Direct Form 1" implementation of a Biquad
-    filter:
-
-    y[n] = ( b0*x[n] + b1*x[n-1] + b2*x[n-2] - a1*y[n-1] - a2*y[n-2] ) / a0
-
-    This object is directly controlled via the six coefficients, as floating-point
-    values or audio stream, of the filter. There is no clipping of the values given as
-    coefficients, so, unless you know what you do, it is recommended to use the Biquad
-    object, which is controlled with frequency, Q and type arguments.
-
-    The default values of the object give a lowpass filter with a 1000 Hz cutoff frequency.
-
-    :Parent: :py:class:`PyoObject`
-
-    :Args:
-
-        input: PyoObject
-            Input signal to process.
-        b0: float or PyoObject, optional
-            Amplitude of the current sample. Defaults to 0.005066.
-        b1: float or PyoObject, optional
-            Amplitude of the first input sample delayed. Defaults to 0.010132.
-        b2: float or PyoObject, optional
-            Amplitude of the second input sample delayed. Defaults to 0.005066.
-        a0: float or PyoObject, optional
-            Overall gain coefficient. Defaults to 1.070997.
-        a1: float or PyoObject, optional
-            Amplitude of the first output sample delayed. Defaults to -1.979735.
-        a2: float or PyoObject, optional
-            Amplitude of the second output sample delayed. Defaults to 0.929003.
-
-    >>> s = Server().boot()
-    >>> s.start()
-    >>> a = Noise(mul=.7)
-    >>> lf = Sine([1.5, 2], mul=.07, add=-1.9)
-    >>> f = Biquada(a, 0.005066, 0.010132, 0.005066, 1.070997, lf, 0.929003).out()
-
-    """
 
     def __init__(
         self, input, b0=0.005066, b1=0.010132, b2=0.005066, a0=1.070997, a1=-1.979735, a2=0.929003, mul=1, add=0
@@ -449,119 +219,35 @@ class Biquada(PyoObject):
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
-        """
-        Replace the `input` attribute.
-
-        :Args:
-
-            x: PyoObject
-                New signal to process.
-            fadetime: float, optional
-                Crossfade time between old and new input. Defaults to 0.05.
-
-        """
         pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
     def setB0(self, x):
-        """
-        Replace the `b0` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                New `b0` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._b0.value = x
 
     def setB1(self, x):
-        """
-        Replace the `b1` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                New `b1` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._b1.value = x
 
     def setB2(self, x):
-        """
-        Replace the `b2` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                New `b2` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._b2.value = x
 
     def setA0(self, x):
-        """
-        Replace the `a0` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                New `a0` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._a0.value = x
 
     def setA1(self, x):
-        """
-        Replace the `a1` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                New `a1` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._a1.value = x
 
     def setA2(self, x):
-        """
-        Replace the `a2` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                New `a2` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._a2.value = x
 
     def setCoeffs(self, *args, **kwds):
-        """
-        Replace all filter coefficients.
-
-        :Args:
-
-            b0: float or PyoObject, optional
-                New `b0` attribute.
-            b1: float or PyoObject, optional
-                New `b1` attribute.
-            b2: float or PyoObject, optional
-                New `b2` attribute.
-            a0: float or PyoObject, optional
-                New `a0` attribute.
-            a1: float or PyoObject, optional
-                New `a1` attribute.
-            a2: float or PyoObject, optional
-                New `a2` attribute.
-
-        """
         for i, val in enumerate(args):
             attr = getattr(self, ["_b0", "_b1", "_b2", "_a0", "_a1", "_a2"][i])
             attr.value = val
@@ -572,7 +258,6 @@ class Biquada(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process."""
         return self._input
 
     @input.setter
@@ -581,7 +266,6 @@ class Biquada(PyoObject):
 
     @property
     def b0(self):
-        """float or PyoObject. `b0` coefficient."""
         return self._b0
 
     @b0.setter
@@ -590,7 +274,6 @@ class Biquada(PyoObject):
 
     @property
     def b1(self):
-        """float or PyoObject. `b1` coefficient."""
         return self._b1
 
     @b1.setter
@@ -599,7 +282,6 @@ class Biquada(PyoObject):
 
     @property
     def b2(self):
-        """float or PyoObject. `b2` coefficient."""
         return self._b2
 
     @b2.setter
@@ -608,7 +290,6 @@ class Biquada(PyoObject):
 
     @property
     def a0(self):
-        """float or PyoObject. `a0` coefficient."""
         return self._a0
 
     @a0.setter
@@ -617,7 +298,6 @@ class Biquada(PyoObject):
 
     @property
     def a1(self):
-        """float or PyoObject. `a1` coefficient."""
         return self._a1
 
     @a1.setter
@@ -626,7 +306,6 @@ class Biquada(PyoObject):
 
     @property
     def a2(self):
-        """float or PyoObject. `a2` coefficient."""
         return self._a2
 
     @a2.setter
@@ -635,42 +314,6 @@ class Biquada(PyoObject):
 
 
 class EQ(PyoObject):
-    """
-    Equalizer filter.
-
-    EQ is a biquadratic digital filter designed for equalization. It
-    provides peak/notch and lowshelf/highshelf filters for building
-    parametric equalizers.
-
-    :Parent: :py:class:`PyoObject`
-
-    :Args:
-
-        input: PyoObject
-            Input signal to process.
-        freq: float or PyoObject, optional
-            Cutoff or center frequency of the filter. Defaults to 1000.
-        q: float or PyoObject, optional
-            Q of the filter, defined as freq/bandwidth.
-            Should be between 1 and 500. Defaults to 1.
-        boost: float or PyoObject, optional
-            Gain, expressed in dB, to add or remove at the center frequency.
-            Default to -3.
-        type: int, optional
-            Filter type. Three possible values :
-                0. peak/notch (default)
-                1. lowshelf
-                2. highshelf
-
-    >>> s = Server().boot()
-    >>> s.start()
-    >>> amp = Fader(1, 1, mul=.15).play()
-    >>> src = PinkNoise(amp)
-    >>> fr = Sine(.2, 0, 500, 1500)
-    >>> boo = Sine([4, 4], 0, 6)
-    >>> out = EQ(src, freq=fr, q=1, boost=boo, type=0).out()
-
-    """
 
     def __init__(self, input, freq=1000, q=1, boost=-3.0, type=0, mul=1, add=0):
         pyoArgsAssert(self, "oOOOiOO", input, freq, q, boost, type, mul, add)
@@ -693,79 +336,29 @@ class EQ(PyoObject):
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
-        """
-        Replace the `input` attribute.
-
-        :Args:
-
-            x: PyoObject
-                New signal to process.
-            fadetime: float, optional
-                Crossfade time between old and new input. Defaults to 0.05.
-
-        """
         pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
     def setFreq(self, x):
-        """
-        Replace the `freq` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                New `freq` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setQ(self, x):
-        """
-        Replace the `q` attribute. Should be between 1 and 500.
-
-        :Args:
-
-            x: float or PyoObject
-                New `q` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._q = x
         x, lmax = convertArgsToLists(x)
         [obj.setQ(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setBoost(self, x):
-        """
-        Replace the `boost` attribute, expressed in dB.
-
-        :Args:
-
-            x: float or PyoObject
-                New `boost` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._boost = x
         x, lmax = convertArgsToLists(x)
         [obj.setBoost(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setType(self, x):
-        """
-        Replace the `type` attribute.
-
-        :Args:
-
-            x: int
-                New `type` attribute.
-                0. peak
-                1. lowshelf
-                2. highshelf
-
-        """
         pyoArgsAssert(self, "i", x)
         self._type = x
         x, lmax = convertArgsToLists(x)
@@ -773,7 +366,6 @@ class EQ(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process."""
         return self._input
 
     @input.setter
@@ -782,7 +374,6 @@ class EQ(PyoObject):
 
     @property
     def freq(self):
-        """float or PyoObject. Cutoff or center frequency of the filter."""
         return self._freq
 
     @freq.setter
@@ -791,7 +382,6 @@ class EQ(PyoObject):
 
     @property
     def q(self):
-        """float or PyoObject. Q of the filter."""
         return self._q
 
     @q.setter
@@ -800,7 +390,6 @@ class EQ(PyoObject):
 
     @property
     def boost(self):
-        """float or PyoObject. Boost factor of the filter."""
         return self._boost
 
     @boost.setter
@@ -809,7 +398,6 @@ class EQ(PyoObject):
 
     @property
     def type(self):
-        """int. Filter type."""
         return self._type
 
     @type.setter
@@ -818,25 +406,6 @@ class EQ(PyoObject):
 
 
 class Tone(PyoObject):
-    """
-    A first-order recursive low-pass filter with variable frequency response.
-
-    :Parent: :py:class:`PyoObject`
-
-    :Args:
-
-        input: PyoObject
-            Input signal to process.
-        freq: float or PyoObject, optional
-            Cutoff frequency of the filter in hertz. Default to 1000.
-
-    >>> s = Server().boot()
-    >>> s.start()
-    >>> n = Noise(.3)
-    >>> lf = Sine(freq=.2, mul=800, add=1000)
-    >>> f = Tone(n, lf).mix(2).out()
-
-    """
 
     def __init__(self, input, freq=1000, mul=1, add=0):
         pyoArgsAssert(self, "oOOO", input, freq, mul, add)
@@ -849,31 +418,11 @@ class Tone(PyoObject):
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
-        """
-        Replace the `input` attribute.
-
-        :Args:
-
-            x: PyoObject
-                New signal to process.
-            fadetime: float, optional
-                Crossfade time between old and new input. Default to 0.05.
-
-        """
         pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
     def setFreq(self, x):
-        """
-        Replace the `freq` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                New `freq` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
@@ -881,7 +430,6 @@ class Tone(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process."""
         return self._input
 
     @input.setter
@@ -890,7 +438,6 @@ class Tone(PyoObject):
 
     @property
     def freq(self):
-        """float or PyoObject. Cutoff frequency of the filter."""
         return self._freq
 
     @freq.setter
@@ -899,25 +446,6 @@ class Tone(PyoObject):
 
 
 class Atone(PyoObject):
-    """
-    A first-order recursive high-pass filter with variable frequency response.
-
-    :Parent: :py:class:`PyoObject`
-
-    :Args:
-
-        input: PyoObject
-            Input signal to process.
-        freq: float or PyoObject, optional
-            Cutoff frequency of the filter in hertz. Default to 1000.
-
-    >>> s = Server().boot()
-    >>> s.start()
-    >>> n = Noise(.3)
-    >>> lf = Sine(freq=.2, mul=5000, add=6000)
-    >>> f = Atone(n, lf).mix(2).out()
-
-    """
 
     def __init__(self, input, freq=1000, mul=1, add=0):
         pyoArgsAssert(self, "oOOO", input, freq, mul, add)
@@ -932,31 +460,11 @@ class Atone(PyoObject):
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
-        """
-        Replace the `input` attribute.
-
-        :Args:
-
-            x: PyoObject
-                New signal to process.
-            fadetime: float, optional
-                Crossfade time between old and new input. Default to 0.05.
-
-        """
         pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
     def setFreq(self, x):
-        """
-        Replace the `freq` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                New `freq` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
@@ -964,7 +472,6 @@ class Atone(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process."""
         return self._input
 
     @input.setter
@@ -973,7 +480,6 @@ class Atone(PyoObject):
 
     @property
     def freq(self):
-        """float or PyoObject. Cutoff frequency of the filter."""
         return self._freq
 
     @freq.setter
@@ -982,37 +488,6 @@ class Atone(PyoObject):
 
 
 class Port(PyoObject):
-    """
-    Exponential portamento.
-
-    Perform an exponential portamento on an audio signal with
-    different rising and falling times.
-
-    :Parent: :py:class:`PyoObject`
-
-    :Args:
-
-        input: PyoObject
-            Input signal to process.
-        risetime: float or PyoObject, optional
-            Time to reach upward value in seconds. Defaults to 0.05.
-        falltime: float or PyoObject, optional
-            Time to reach downward value in seconds. Defaults to 0.05.
-        init: float, optional
-            Initial state of the internal memory. Available at intialization
-            time only. Defaults to 0.
-
-    >>> s = Server().boot()
-    >>> s.start()
-    >>> from random import uniform
-    >>> x = Sig(value=500)
-    >>> p = Port(x, risetime=.1, falltime=1)
-    >>> a = Sine(freq=[p, p*1.01], mul=.2).out()
-    >>> def new_freq():
-    ...     x.value = uniform(400, 800)
-    >>> pat = Pattern(function=new_freq, time=1).play()
-
-    """
 
     def __init__(self, input, risetime=0.05, falltime=0.05, init=0, mul=1, add=0):
         pyoArgsAssert(self, "oOOnOO", input, risetime, falltime, init, mul, add)
@@ -1033,46 +508,17 @@ class Port(PyoObject):
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
-        """
-        Replace the `input` attribute.
-
-        :Args:
-
-            x: PyoObject
-                New signal to process.
-            fadetime: float, optional
-                Crossfade time between old and new input. Defaults to 0.05.
-
-        """
         pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
     def setRiseTime(self, x):
-        """
-        Replace the `risetime` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                New `risetime` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._risetime = x
         x, lmax = convertArgsToLists(x)
         [obj.setRiseTime(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setFallTime(self, x):
-        """
-        Replace the `falltime` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                New `falltime` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._falltime = x
         x, lmax = convertArgsToLists(x)
@@ -1080,7 +526,6 @@ class Port(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process."""
         return self._input
 
     @input.setter
@@ -1089,7 +534,6 @@ class Port(PyoObject):
 
     @property
     def risetime(self):
-        """float or PyoObject. Time to reach upward value in seconds."""
         return self._risetime
 
     @risetime.setter
@@ -1098,7 +542,6 @@ class Port(PyoObject):
 
     @property
     def falltime(self):
-        """float or PyoObject. Time to reach downward value in seconds."""
         return self._falltime
 
     @falltime.setter
@@ -1107,23 +550,6 @@ class Port(PyoObject):
 
 
 class DCBlock(PyoObject):
-    """
-    Implements the DC blocking filter.
-
-    :Parent: :py:class:`PyoObject`
-
-    :Args:
-
-        input: PyoObject
-            Input signal to process.
-
-    >>> s = Server().boot()
-    >>> s.start()
-    >>> n = Noise(.01)
-    >>> w = Delay(n, delay=[0.02, 0.01], feedback=.995, mul=.5)
-    >>> f = DCBlock(w).out()
-
-    """
 
     def __init__(self, input, mul=1, add=0):
         pyoArgsAssert(self, "oOO", input, mul, add)
@@ -1135,24 +561,12 @@ class DCBlock(PyoObject):
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
-        """
-        Replace the `input` attribute.
-
-        :Args:
-
-            x: PyoObject
-                New signal to process.
-            fadetime: float, optional
-                Crossfade time between old and new input. Default to 0.05.
-
-        """
         pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
     @property
     def input(self):
-        """PyoObject. Input signal to process."""
         return self._input
 
     @input.setter
@@ -1161,44 +575,6 @@ class DCBlock(PyoObject):
 
 
 class BandSplit(PyoObject):
-    """
-    Splits an input signal into multiple frequency bands.
-
-    The input signal will be separated into `num` bands between `min`
-    and `max` frequencies using second-order bandpass filters. Each
-    band will then be assigned to an independent audio stream.
-    Useful for multiband processing.
-
-    :Parent: :py:class:`PyoObject`
-
-    :Args:
-
-        input: PyoObject
-            Input signal to process.
-        num: int, optional
-            Number of frequency bands created. Available at initialization
-            time only. Defaults to 6.
-        min: float, optional
-            Lowest frequency. Available at initialization time only.
-            Defaults to 20.
-        max: float, optional
-            Highest frequency. Available at initialization time only.
-            Defaults to 20000.
-        q: float or PyoObject, optional
-            Q of the filters, defined as center frequency / bandwidth.
-            Should be between 1 and 500. Defaults to 1.
-
-    .. seealso::
-
-        :py:class:`FourBand`, :py:class:`MultiBand`
-
-    >>> s = Server().boot()
-    >>> s.start()
-    >>> lfos = Sine(freq=[.3,.4,.5,.6,.7,.8], mul=.5, add=.5)
-    >>> n = PinkNoise(.5)
-    >>> a = BandSplit(n, num=6, min=250, max=4000, q=5, mul=lfos).out()
-
-    """
 
     def __init__(self, input, num=6, min=20, max=20000, q=1, mul=1, add=0):
         pyoArgsAssert(self, "oINNOOO", input, num, min, max, q, mul, add)
@@ -1220,31 +596,11 @@ class BandSplit(PyoObject):
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
-        """
-        Replace the `input` attribute.
-
-        :Args:
-
-            x: PyoObject
-                New signal to process.
-            fadetime: float, optional
-                Crossfade time between old and new input. Defaults to 0.05.
-
-        """
         pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
     def setQ(self, x):
-        """
-        Replace the `q` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                new `q` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._q = x
         x, lmax = convertArgsToLists(x)
@@ -1252,7 +608,6 @@ class BandSplit(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process."""
         return self._input
 
     @input.setter
@@ -1261,7 +616,6 @@ class BandSplit(PyoObject):
 
     @property
     def q(self):
-        """float or PyoObject. Q of the filters."""
         return self._q
 
     @q.setter
@@ -1270,44 +624,6 @@ class BandSplit(PyoObject):
 
 
 class FourBand(PyoObject):
-    """
-    Splits an input signal into four frequency bands.
-
-    The input signal will be separated into 4 bands around `freqs`
-    arguments using fourth-order Linkwitz-Riley lowpass and highpass
-    filters. Each band will then be assigned to an independent audio
-    stream. The sum of the four bands reproduces the same signal as
-    the `input`. Useful for multiband processing.
-
-    :Parent: :py:class:`PyoObject`
-
-    :Args:
-
-        input: PyoObject
-            Input signal to process.
-        freq1: float or PyoObject, optional
-            First crossover frequency. First band will contain signal
-            from 0 Hz to `freq1` Hz. Defaults to 150.
-        freq2: float or PyoObject, optional
-            Second crossover frequency. Second band will contain signal
-            from `freq1` Hz to `freq2`. `freq2` is the lower limit of the
-            third band signal. Defaults to 500.
-        freq3: float or PyoObject, optional
-            Third crossover frequency. It's the upper limit of the third
-            band signal and fourth band will contain signal from `freq3`
-            to sr/2. Defaults to 2000.
-
-    .. seealso::
-
-        :py:class:`BandSplit`, :py:class:`MultiBand`
-
-    >>> s = Server().boot()
-    >>> s.start()
-    >>> lfos = Sine(freq=[.3,.4,.5,.6], mul=.5, add=.5)
-    >>> n = PinkNoise(.3)
-    >>> a = FourBand(n, freq1=250, freq2=1000, freq3=2500, mul=lfos).out()
-
-    """
 
     def __init__(self, input, freq1=150, freq2=500, freq3=2000, mul=1, add=0):
         pyoArgsAssert(self, "oOOOOO", input, freq1, freq2, freq3, mul, add)
@@ -1330,61 +646,23 @@ class FourBand(PyoObject):
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
-        """
-        Replace the `input` attribute.
-
-        :Args:
-
-            x: PyoObject
-                New signal to process.
-            fadetime: float, optional
-                Crossfade time between old and new input. Defaults to 0.05.
-
-        """
         pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
     def setFreq1(self, x):
-        """
-        Replace the `freq1` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                new `freq1` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._freq1 = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq1(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
     def setFreq2(self, x):
-        """
-        Replace the `freq2` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                new `freq2` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._freq2 = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq2(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
     def setFreq3(self, x):
-        """
-        Replace the `freq3` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                new `freq3` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._freq3 = x
         x, lmax = convertArgsToLists(x)
@@ -1392,7 +670,6 @@ class FourBand(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process."""
         return self._input
 
     @input.setter
@@ -1401,7 +678,6 @@ class FourBand(PyoObject):
 
     @property
     def freq1(self):
-        """float or PyoObject. First crossover frequency."""
         return self._freq1
 
     @freq1.setter
@@ -1410,7 +686,6 @@ class FourBand(PyoObject):
 
     @property
     def freq2(self):
-        """float or PyoObject. Second crossover frequency."""
         return self._freq2
 
     @freq2.setter
@@ -1419,7 +694,6 @@ class FourBand(PyoObject):
 
     @property
     def freq3(self):
-        """float or PyoObject. Third crossover frequency."""
         return self._freq3
 
     @freq3.setter
@@ -1428,38 +702,6 @@ class FourBand(PyoObject):
 
 
 class MultiBand(PyoObject):
-    """
-    Splits an input signal into multiple frequency bands.
-
-    The input signal will be separated into `num` logarithmically spaced
-    frequency bands using fourth-order Linkwitz-Riley lowpass and highpass
-    filters. Each band will then be assigned to an independent audio
-    stream. The sum of all bands reproduces the same signal as the `input`.
-    Useful for multiband processing.
-
-    User-defined frequencies can be assigned with the `setFrequencies()` method.
-
-    :Parent: :py:class:`PyoObject`
-
-    :Args:
-
-        input: PyoObject
-            Input signal to process.
-        num: int, optional
-            Number of frequency bands created, between 2 and 16.
-            Available at initialization time only. Defaults to 8.
-
-    .. seealso::
-
-        :py:class:`BandSplit`, :py:class:`FourBand`
-
-    >>> s = Server().boot()
-    >>> s.start()
-    >>> lfos = Sine(freq=[.1,.2,.3,.4,.5,.6,.7,.8], mul=.5, add=.5)
-    >>> n = PinkNoise(.3)
-    >>> a = MultiBand(n, num=8, mul=lfos).out()
-
-    """
 
     def __init__(self, input, num=8, mul=1, add=0):
         pyoArgsAssert(self, "oIOO", input, num, mul, add)
@@ -1478,34 +720,11 @@ class MultiBand(PyoObject):
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
-        """
-        Replace the `input` attribute.
-
-        :Args:
-
-            x: PyoObject
-                New signal to process.
-            fadetime: float, optional
-                Crossfade time between old and new input. Defaults to 0.05.
-
-        """
         pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
     def setFrequencies(self, freqs):
-        """
-        Change the filters splitting frequencies.
-
-        This method can be used to change filter frequencies to a particular set.
-        Frequency list length must be egal to the number of bands minus 1.
-
-        :Args:
-
-            freqs: list of floats
-                New frequencies used as filter cutoff frequencies.
-
-        """
         pyoArgsAssert(self, "l", freqs)
         if len(freqs) != (self._num - 1):
             print(
@@ -1516,7 +735,6 @@ class MultiBand(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process."""
         return self._input
 
     @input.setter
@@ -1525,49 +743,6 @@ class MultiBand(PyoObject):
 
 
 class Hilbert(PyoObject):
-    """
-    Hilbert transform.
-
-    Hilbert is an IIR filter based implementation of a broad-band 90 degree
-    phase difference network. The outputs of hilbert have an identical
-    frequency response to the input (i.e. they sound the same), but the two
-    outputs have a constant phase difference of 90 degrees, plus or minus some
-    small amount of error, throughout the entire frequency range. The outputs
-    are in quadrature.
-
-    Hilbert is useful in the implementation of many digital signal processing
-    techniques that require a signal in phase quadrature. The real part corresponds
-    to the cosine output of hilbert, while the imaginary part corresponds to the
-    sine output. The two outputs have a constant phase difference throughout the
-    audio range that corresponds to the phase relationship between cosine and sine waves.
-
-    :Parent: :py:class:`PyoObject`
-
-    :Args:
-
-        input: PyoObject
-            Input signal to process.
-
-    .. note::
-
-        Real and imaginary parts are two separated set of streams.
-        The user should call :
-
-        |  Hilbert['real'] to retrieve the real part.
-        |  Hilbert['imag'] to retrieve the imaginary part.
-
-    >>> s = Server().boot()
-    >>> s.start()
-    >>> a = SfPlayer(SNDS_PATH + "/accord.aif", loop=True, mul=0.5).out(0)
-    >>> b = Hilbert(a)
-    >>> quad = Sine([250, 500], [0, .25])
-    >>> mod1 = b['real'] * quad[0]
-    >>> mod2 = b['imag'] * quad[1]
-    >>> up = (mod1 - mod2) * 0.7
-    >>> down = mod1 + mod2
-    >>> up.out(1)
-
-    """
 
     def __init__(self, input, mul=1, add=0):
         pyoArgsAssert(self, "oOO", input, mul, add)
@@ -1595,50 +770,18 @@ class Hilbert(PyoObject):
             return self._imag_dummy[-1]
 
     def get(self, identifier="real", all=False):
-        """
-        Return the first sample of the current buffer as a float.
-
-        Can be used to convert audio stream to usable Python data.
-
-        "real" or "imag" must be given to `identifier` to specify
-        which stream to get value from.
-
-        :Args:
-
-            identifier: string {"real", "imag"}
-                Address string parameter identifying audio stream.
-                Defaults to "real".
-            all: boolean, optional
-                If True, the first value of each object's stream
-                will be returned as a list. Otherwise, only the value
-                of the first object's stream will be returned as a float.
-                Defaults to False.
-
-        """
         if not all:
             return self.__getitem__(identifier)[0]._getStream().getValue()
         else:
             return [obj._getStream().getValue() for obj in self.__getitem__(identifier).getBaseObjects()]
 
     def setInput(self, x, fadetime=0.05):
-        """
-        Replace the `input` attribute.
-
-        :Args:
-
-            x: PyoObject
-                New signal to process.
-            fadetime: float, optional
-                Crossfade time between old and new input. Default to 0.05.
-
-        """
         pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
     @property
     def input(self):
-        """PyoObject. Input signal to process."""
         return self._input
 
     @input.setter
@@ -1647,42 +790,6 @@ class Hilbert(PyoObject):
 
 
 class Allpass(PyoObject):
-    """
-    Delay line based allpass filter.
-
-    Allpass is based on the combination of feedforward and feedback comb
-    filter. This kind of filter is often used in simple digital reverb
-    implementations.
-
-    :Parent: :py:class:`PyoObject`
-
-    :Args:
-
-        input: PyoObject
-            Input signal to process.
-        delay: float or PyoObject, optional
-            Delay time in seconds. Defaults to 0.01.
-        feedback: float or PyoObject, optional
-            Amount of output signal sent back into the delay line.
-            Defaults to 0.
-        maxdelay: float, optional
-            Maximum delay length in seconds. Available only at initialization.
-            Defaults to 1.
-
-    >>> # SIMPLE REVERB
-    >>> s = Server().boot()
-    >>> s.start()
-    >>> a = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True, mul=0.25).mix(2).out()
-    >>> b1 = Allpass(a, delay=[.0204,.02011], feedback=0.25)
-    >>> b2 = Allpass(b1, delay=[.06653,.06641], feedback=0.31)
-    >>> b3 = Allpass(b2, delay=[.035007,.03504], feedback=0.4)
-    >>> b4 = Allpass(b3, delay=[.023021 ,.022987], feedback=0.55)
-    >>> c1 = Tone(b1, 5000, mul=0.2).out()
-    >>> c2 = Tone(b2, 3000, mul=0.2).out()
-    >>> c3 = Tone(b3, 1500, mul=0.2).out()
-    >>> c4 = Tone(b4, 500, mul=0.2).out()
-
-    """
 
     def __init__(self, input, delay=0.01, feedback=0, maxdelay=1, mul=1, add=0):
         pyoArgsAssert(self, "oOOnOO", input, delay, feedback, maxdelay, mul, add)
@@ -1704,46 +811,17 @@ class Allpass(PyoObject):
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
-        """
-        Replace the `input` attribute.
-
-        :Args:
-
-            x: PyoObject
-                New signal to process.
-            fadetime: float, optional
-                Crossfade time between old and new input. Defaults to 0.05.
-
-        """
         pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
     def setDelay(self, x):
-        """
-        Replace the `delay` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                New `delay` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._delay = x
         x, lmax = convertArgsToLists(x)
         [obj.setDelay(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setFeedback(self, x):
-        """
-        Replace the `feedback` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                New `feedback` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._feedback = x
         x, lmax = convertArgsToLists(x)
@@ -1751,7 +829,6 @@ class Allpass(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process."""
         return self._input
 
     @input.setter
@@ -1760,7 +837,6 @@ class Allpass(PyoObject):
 
     @property
     def delay(self):
-        """float or PyoObject. Delay time in seconds."""
         return self._delay
 
     @delay.setter
@@ -1769,7 +845,6 @@ class Allpass(PyoObject):
 
     @property
     def feedback(self):
-        """float or PyoObject. Amount of output signal sent back into the delay line."""
         return self._feedback
 
     @feedback.setter
@@ -1778,36 +853,6 @@ class Allpass(PyoObject):
 
 
 class Allpass2(PyoObject):
-    """
-    Second-order phase shifter allpass.
-
-    This kind of filter is used in phaser implementation. The signal
-    of this filter, when added to original sound, creates a notch in
-    the spectrum at frequencies that are in phase opposition.
-
-    :Parent: :py:class:`PyoObject`
-
-    :Args:
-
-        input: PyoObject
-            Input signal to process.
-        freq: float or PyoObject, optional
-            Center frequency of the filter. Defaults to 1000.
-        bw: float or PyoObject, optional
-            Bandwidth of the filter in Hertz. Defaults to 100.
-
-    >>> s = Server().boot()
-    >>> s.start()
-    >>> # 3 STAGES PHASER
-    >>> a = BrownNoise(.025).mix(2).out()
-    >>> blfo = Sine(freq=.1, mul=250, add=500)
-    >>> b = Allpass2(a, freq=blfo, bw=125).out()
-    >>> clfo = Sine(freq=.14, mul=500, add=1000)
-    >>> c = Allpass2(b, freq=clfo, bw=350).out()
-    >>> dlfo = Sine(freq=.17, mul=1000, add=2500)
-    >>> d = Allpass2(c, freq=dlfo, bw=800).out()
-
-    """
 
     def __init__(self, input, freq=1000, bw=100, mul=1, add=0):
         pyoArgsAssert(self, "oOOOO", input, freq, bw, mul, add)
@@ -1824,46 +869,17 @@ class Allpass2(PyoObject):
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
-        """
-        Replace the `input` attribute.
-
-        :Args:
-
-            x: PyoObject
-                New signal to process.
-            fadetime: float, optional
-                Crossfade time between old and new input. Defaults to 0.05.
-
-        """
         pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
     def setFreq(self, x):
-        """
-        Replace the `freq` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                New `freq` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setBw(self, x):
-        """
-        Replace the `bw` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                New `bw` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._bw = x
         x, lmax = convertArgsToLists(x)
@@ -1871,7 +887,6 @@ class Allpass2(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to filter."""
         return self._input
 
     @input.setter
@@ -1880,7 +895,6 @@ class Allpass2(PyoObject):
 
     @property
     def freq(self):
-        """float or PyoObject. Center frequency of the filter."""
         return self._freq
 
     @freq.setter
@@ -1889,7 +903,6 @@ class Allpass2(PyoObject):
 
     @property
     def bw(self):
-        """float or PyoObject. Bandwidth of the filter."""
         return self._bw
 
     @bw.setter
@@ -1898,41 +911,6 @@ class Allpass2(PyoObject):
 
 
 class Phaser(PyoObject):
-    """
-    Multi-stages second-order phase shifter allpass filters.
-
-    Phaser implements `num` number of second-order allpass filters.
-
-    :Parent: :py:class:`PyoObject`
-
-    :Args:
-
-        input: PyoObject
-            Input signal to process.
-        freq: float or PyoObject, optional
-            Center frequency of the first notch. Defaults to 1000.
-        spread: float or PyoObject, optional
-            Spreading factor for upper notch frequencies. Defaults to 1.1.
-        q: float or PyoObject, optional
-            Q of the filter as center frequency / bandwidth. Defaults to 10.
-        feedback: float or PyoObject, optional
-            Amount of output signal which is fed back into the input of the
-            allpass chain. Defaults to 0.
-        num: int, optional
-            The number of allpass stages in series. Defines the number of
-            notches in the spectrum. Defaults to 8.
-
-            Available at initialization only.
-
-    >>> s = Server().boot()
-    >>> s.start()
-    >>> fade = Fader(fadein=.1, mul=.07).play()
-    >>> a = Noise(fade).mix(2).out()
-    >>> lf1 = Sine(freq=[.1, .15], mul=100, add=250)
-    >>> lf2 = Sine(freq=[.18, .15], mul=.4, add=1.5)
-    >>> b = Phaser(a, freq=lf1, spread=lf2, q=1, num=20, mul=.5).out(0)
-
-    """
 
     def __init__(self, input, freq=1000, spread=1.1, q=10, feedback=0, num=8, mul=1, add=0):
         pyoArgsAssert(self, "oOOOOiOO", input, freq, spread, q, feedback, num, mul, add)
@@ -1963,76 +941,29 @@ class Phaser(PyoObject):
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
-        """
-        Replace the `input` attribute.
-
-        :Args:
-
-            x: PyoObject
-                New signal to process.
-            fadetime: float, optional
-                Crossfade time between old and new input. Defaults to 0.05.
-
-        """
         pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
     def setFreq(self, x):
-        """
-        Replace the `freq` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                New `freq` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setSpread(self, x):
-        """
-        Replace the `spread` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                New `spread` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._spread = x
         x, lmax = convertArgsToLists(x)
         [obj.setSpread(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setQ(self, x):
-        """
-        Replace the `q` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                New `q` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._q = x
         x, lmax = convertArgsToLists(x)
         [obj.setQ(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setFeedback(self, x):
-        """
-        Replace the `feedback` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                New `feedback` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._feedback = x
         x, lmax = convertArgsToLists(x)
@@ -2040,7 +971,6 @@ class Phaser(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process."""
         return self._input
 
     @input.setter
@@ -2049,7 +979,6 @@ class Phaser(PyoObject):
 
     @property
     def freq(self):
-        """float or PyoObject. Center frequency of the first notch."""
         return self._freq
 
     @freq.setter
@@ -2058,7 +987,6 @@ class Phaser(PyoObject):
 
     @property
     def spread(self):
-        """float or PyoObject. Spreading factor for upper notch frequencies."""
         return self._spread
 
     @spread.setter
@@ -2067,7 +995,6 @@ class Phaser(PyoObject):
 
     @property
     def q(self):
-        """float or PyoObject. Q factor of the filter."""
         return self._q
 
     @q.setter
@@ -2076,7 +1003,6 @@ class Phaser(PyoObject):
 
     @property
     def feedback(self):
-        """float or PyoObject. Feedback factor of the filter."""
         return self._feedback
 
     @feedback.setter
@@ -2085,58 +1011,6 @@ class Phaser(PyoObject):
 
 
 class Vocoder(PyoObject):
-    """
-    Applies the spectral envelope of a first sound to the spectrum of a second sound.
-
-    The vocoder is an analysis/synthesis system, historically used to reproduce
-    human speech. In the encoder, the first input (spectral envelope) is passed
-    through a multiband filter, each band is passed through an envelope follower,
-    and the control signals from the envelope followers are communicated to the
-    decoder. The decoder applies these (amplitude) control signals to corresponding
-    filters modifying the second source (exciter).
-
-    :Parent: :py:class:`PyoObject`
-
-    :Args:
-
-        input: PyoObject
-            Spectral envelope. Gives the spectral properties of the bank of filters.
-            For best results, this signal must have a dynamic spectrum, both for
-            amplitudes and frequencies.
-        input2: PyoObject
-            Exciter. Spectrum to filter. For best results, this signal must have a
-            broadband spectrum with few amplitude variations.
-        freq: float or PyoObject, optional
-            Center frequency of the first band. This is the base frequency used to
-            compute the upper bands. Defaults to 60.
-        spread: float or PyoObject, optional
-            Spreading factor for upper band frequencies. Each band is
-            `freq * pow(order, spread)`, where order is the harmonic rank of the band.
-            Defaults to 1.25.
-        q: float or PyoObject, optional
-            Q of the filters as `center frequency / bandwidth`. Higher values imply
-            more resonance around the center frequency. Defaults to 20.
-        slope: float or PyoObject, optional
-            Time response of the envelope follower. Lower values mean smoother changes,
-            while higher values mean a better time accuracy. Defaults to 0.5.
-        stages: int, optional
-            The number of bands in the filter bank. Defines the number of notches in
-            the spectrum. Defaults to 24.
-
-    .. note::
-
-        Altough parameters can be audio signals, values are sampled only four times
-        per buffer size. To avoid artefacts, it is recommended to keep variations
-        at low rate (< 20 Hz).
-
-    >>> s = Server().boot()
-    >>> s.start()
-    >>> sf = SfPlayer(SNDS_PATH+'/transparent.aif', loop=True)
-    >>> ex = BrownNoise(0.5)
-    >>> voc = Vocoder(sf, ex, freq=80, spread=1.2, q=20, slope=0.5)
-    >>> out = voc.mix(2).out()
-
-    """
 
     def __init__(self, input, input2, freq=60, spread=1.25, q=20, slope=0.5, stages=24, mul=1, add=0):
         pyoArgsAssert(self, "ooOOOOiOO", input, input2, freq, spread, q, slope, stages, mul, add)
@@ -2170,107 +1044,40 @@ class Vocoder(PyoObject):
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
-        """
-        Replace the `input` attribute.
-
-        :Args:
-
-            x: PyoObject
-                The spectral envelope.
-            fadetime: float, optional
-                Crossfade time between old and new input. Defaults to 0.05.
-
-        """
         pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
     def setInput2(self, x, fadetime=0.05):
-        """
-        Replace the `input2` attribute.
-
-        :Args:
-
-            x: PyoObject
-                The exciter.
-            fadetime: float, optional
-                Crossfade time between old and new input. Defaults to 0.05.
-
-        """
         pyoArgsAssert(self, "oN", x, fadetime)
         self._input2 = x
         self._in_fader2.setInput(x, fadetime)
 
     def setFreq(self, x):
-        """
-        Replace the `freq` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                New `freq` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setSpread(self, x):
-        """
-        Replace the `spread` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                New `spread` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._spread = x
         x, lmax = convertArgsToLists(x)
         [obj.setSpread(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setQ(self, x):
-        """
-        Replace the `q` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                New `q` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._q = x
         x, lmax = convertArgsToLists(x)
         [obj.setQ(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setSlope(self, x):
-        """
-        Replace the `slope` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                New `slope` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._slope = x
         x, lmax = convertArgsToLists(x)
         [obj.setSlope(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setStages(self, x):
-        """
-        Replace the `stages` attribute.
-
-        :Args:
-
-            x: int
-                New `stages` attribute.
-
-        """
         pyoArgsAssert(self, "i", x)
         self._stages = x
         x, lmax = convertArgsToLists(x)
@@ -2278,7 +1085,6 @@ class Vocoder(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. The spectral envelope."""
         return self._input
 
     @input.setter
@@ -2287,7 +1093,6 @@ class Vocoder(PyoObject):
 
     @property
     def input2(self):
-        """PyoObject. The exciter."""
         return self._input2
 
     @input2.setter
@@ -2296,7 +1101,6 @@ class Vocoder(PyoObject):
 
     @property
     def freq(self):
-        """float or PyoObject. Center frequency of the first band."""
         return self._freq
 
     @freq.setter
@@ -2305,7 +1109,6 @@ class Vocoder(PyoObject):
 
     @property
     def spread(self):
-        """float or PyoObject. Spreading factor for upper band frequencies."""
         return self._spread
 
     @spread.setter
@@ -2314,7 +1117,6 @@ class Vocoder(PyoObject):
 
     @property
     def q(self):
-        """float or PyoObject. Q factor of the filters."""
         return self._q
 
     @q.setter
@@ -2323,7 +1125,6 @@ class Vocoder(PyoObject):
 
     @property
     def slope(self):
-        """float or PyoObject. Time response of the envelope follower."""
         return self._slope
 
     @slope.setter
@@ -2332,7 +1133,6 @@ class Vocoder(PyoObject):
 
     @property
     def stages(self):
-        """int. The number of bands in the filter bank."""
         return self._stages
 
     @stages.setter
@@ -2341,55 +1141,6 @@ class Vocoder(PyoObject):
 
 
 class IRWinSinc(PyoObject):
-    """
-    Windowed-sinc filter using circular convolution.
-
-    IRWinSinc uses circular convolution to implement standard filters like
-    lowpass, highpass, bandreject and bandpass with very flat passband
-    response and sharp roll-off. User can defined the length, in samples,
-    of the impulse response, also known as the filter kernel.
-
-    :Parent: :py:class:`PyoObject`
-
-    :Args:
-
-        input: PyoObject
-            Input signal to process.
-        freq: float or PyoObject, optional
-            Frequency cutoff for lowpass and highpass and center frequency for
-            bandjrect and bandpass filters, expressed in Hz. Defaults to 1000.
-        bw: float or PyoObject, optional
-            Bandwidth, expressed in Hertz, for bandreject and bandpass filters.
-            Defaults to 500.
-        type: int, optional
-            Filter type. Four possible values :
-                0. lowpass (default)
-                1. highpass
-                2. bandreject
-                3. bandpass
-        order: int {even number}, optional
-            Length, in samples, of the filter kernel used for convolution. Available
-            at initialization time only. Defaults to 256.
-
-            This value must be even. Higher is the order and sharper is the roll-off
-            of the filter, but it is also more expensive to compute.
-
-    .. note::
-
-        Convolution is very expensive to compute, so the length of the impulse
-        response (the `order` parameter) must be kept very short to run in real time.
-
-        Note that although `freq` and `bw` can be PyoObjects, the impulse response of
-        the filter is only updated once per buffer size.
-
-    >>> s = Server().boot()
-    >>> s.start()
-    >>> a = Noise(.3)
-    >>> lfr = Sine([.15, .2], mul=2000, add=3500)
-    >>> lbw = Sine([.3, .25], mul=1000, add=1500)
-    >>> b = IRWinSinc(a, freq=lfr, bw=lbw, type=3, order=256).out()
-
-    """
 
     def __init__(self, input, freq=1000, bw=500, type=0, order=256, mul=1, add=0):
         pyoArgsAssert(self, "oOOiiOO", input, freq, bw, type, order, mul, add)
@@ -2415,65 +1166,23 @@ class IRWinSinc(PyoObject):
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
-        """
-        Replace the `input` attribute.
-
-        :Args:
-
-            x: PyoObject
-                New signal to process.
-            fadetime: float, optional
-                Crossfade time between old and new input. Default to 0.05.
-
-        """
         pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
     def setFreq(self, x):
-        """
-        Replace the `freq` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                New `freq` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setBw(self, x):
-        """
-        Replace the `bw` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                New `bw` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._bw = x
         x, lmax = convertArgsToLists(x)
         [obj.setBandwidth(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setType(self, x):
-        """
-        Replace the `type` attribute.
-
-        :Args:
-
-            x: int
-                New `type` attribute.
-                0. lowpass
-                1. highpass
-                2. bandreject
-                3. bandpass
-
-        """
         pyoArgsAssert(self, "i", x)
         self._type = x
         x, lmax = convertArgsToLists(x)
@@ -2481,7 +1190,6 @@ class IRWinSinc(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process."""
         return self._input
 
     @input.setter
@@ -2490,7 +1198,6 @@ class IRWinSinc(PyoObject):
 
     @property
     def freq(self):
-        """float or PyoObject. Cutoff or Center frequency of the filter."""
         return self._freq
 
     @freq.setter
@@ -2499,7 +1206,6 @@ class IRWinSinc(PyoObject):
 
     @property
     def bw(self):
-        """float or PyoObject. Bandwidth for bandreject and bandpass filters."""
         return self._bw
 
     @bw.setter
@@ -2508,7 +1214,6 @@ class IRWinSinc(PyoObject):
 
     @property
     def type(self):
-        """int. Filter type {0 = lowpass, 1 = highpass, 2 = bandreject, 3 = bandpass}."""
         return self._type
 
     @type.setter
@@ -2517,42 +1222,6 @@ class IRWinSinc(PyoObject):
 
 
 class IRAverage(PyoObject):
-    """
-    Moving average filter using circular convolution.
-
-    IRAverage uses circular convolution to implement an average filter. This
-    filter is designed to reduce the noise in the input signal while keeping
-    as much as possible the step response of the original signal. User can
-    defined the length, in samples, of the impulse response, also known as
-    the filter kernel. This controls the ratio of removed noise vs the fidelity
-    of the original step response.
-
-    :Parent: :py:class:`PyoObject`
-
-    :Args:
-
-        input: PyoObject
-            Input signal to process.
-        order: int {even number}, optional
-            Length, in samples, of the filter kernel used for convolution. Available
-            at initialization time only. Defaults to 256.
-
-            This value must be even. A high order will reduced more noise and will
-            have a higher damping effect on the step response, but it is also more
-            expensive to compute.
-
-    .. note::
-
-        Convolution is very expensive to compute, so the length of the impulse
-        response (the `order` parameter) must be kept very short to run in real time.
-
-    >>> s = Server().boot()
-    >>> s.start()
-    >>> nz = Noise(.05)
-    >>> a = Sine([300, 400], mul=.25, add=nz)
-    >>> b = IRAverage(a, order=128).out()
-
-    """
 
     def __init__(self, input, order=256, mul=1, add=0):
         pyoArgsAssert(self, "oiOO", input, order, mul, add)
@@ -2570,24 +1239,12 @@ class IRAverage(PyoObject):
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
-        """
-        Replace the `input` attribute.
-
-        :Args:
-
-            x: PyoObject
-                New signal to process.
-            fadetime: float, optional
-                Crossfade time between old and new input. Default to 0.05.
-
-        """
         pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
     @property
     def input(self):
-        """PyoObject. Input signal to process."""
         return self._input
 
     @input.setter
@@ -2596,54 +1253,6 @@ class IRAverage(PyoObject):
 
 
 class IRPulse(PyoObject):
-    """
-    Comb-like filter using circular convolution.
-
-    IRPulse uses circular convolution to implement standard comb-like
-    filters consisting of an harmonic series with fundamental `freq` and
-    a comb filter with the first notch at `bw` frequency. The `type`
-    parameter defines variations of this pattern. User can defined the length,
-    in samples, of the impulse response, also known as the filter kernel.
-
-    :Parent: :py:class:`PyoObject`
-
-    :Args:
-
-        input: PyoObject
-            Input signal to process.
-        freq: float or PyoObject, optional
-            Fundamental frequency of the spikes in the filter's spectrum, expressed
-            in Hertz. Defaults to 500.
-        bw: float or PyoObject, optional
-            Frequency, expressed in Hertz, of the first notch in the comb filtering.
-            Defaults to 2500.
-        type: int, optional
-            Filter type. Four possible values :
-                0. Pulse & comb (default)
-                1. Pulse & comb & lowpass
-                2. Pulse (odd harmonics) & comb
-                3. Pulse (odd harmonics) & comb & lowpass
-        order: int {even number}, optional
-            Length, in samples, of the filter kernel used for convolution. Available
-            at initialization time only. Defaults to 256.
-
-            This value must be even. Higher is the order and sharper is the roll-off
-            of the filter, but it is also more expensive to compute.
-
-    .. note::
-
-        Convolution is very expensive to compute, so the length of the impulse
-        response (the `order` parameter) must be kept very short to run in real time.
-
-        Note that although `freq` and `bw` can be PyoObjects, the impulse response of
-        the filter is only updated once per buffer size.
-
-    >>> s = Server().boot()
-    >>> s.start()
-    >>> a = Noise(.5)
-    >>> b = IRPulse(a, freq=[245, 250], bw=2500, type=3, order=256).out()
-
-    """
 
     def __init__(self, input, freq=500, bw=2500, type=0, order=256, mul=1, add=0):
         pyoArgsAssert(self, "oOOiiOO", input, freq, bw, type, order, mul, add)
@@ -2669,65 +1278,23 @@ class IRPulse(PyoObject):
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
-        """
-        Replace the `input` attribute.
-
-        :Args:
-
-            x: PyoObject
-                New signal to process.
-            fadetime: float, optional
-                Crossfade time between old and new input. Default to 0.05.
-
-        """
         pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
     def setFreq(self, x):
-        """
-        Replace the `freq` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                New `freq` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setBw(self, x):
-        """
-        Replace the `bw` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                New `bw` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._bw = x
         x, lmax = convertArgsToLists(x)
         [obj.setBandwidth(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setType(self, x):
-        """
-        Replace the `type` attribute.
-
-        :Args:
-
-            x: int
-                New `type` attribute. Filter type. Four possible values:
-                    0. Pulse & comb (default)
-                    1. Pulse & comb & lowpass
-                    2. Pulse (odd harmonics) & comb
-                    3. Pulse (odd harmonics) & comb & lowpass
-
-        """
         pyoArgsAssert(self, "i", x)
         self._type = x
         x, lmax = convertArgsToLists(x)
@@ -2735,7 +1302,6 @@ class IRPulse(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process."""
         return self._input
 
     @input.setter
@@ -2744,7 +1310,6 @@ class IRPulse(PyoObject):
 
     @property
     def freq(self):
-        """float or PyoObject. Cutoff or Center frequency of the filter."""
         return self._freq
 
     @freq.setter
@@ -2753,7 +1318,6 @@ class IRPulse(PyoObject):
 
     @property
     def bw(self):
-        """float or PyoObject. Bandwidth for bandreject and bandpass filters."""
         return self._bw
 
     @bw.setter
@@ -2762,7 +1326,6 @@ class IRPulse(PyoObject):
 
     @property
     def type(self):
-        """int. Filter type {0 = pulse, 1 = pulse_lp, 2 = pulse_odd, 3 = pulse_odd_lp}."""
         return self._type
 
     @type.setter
@@ -2771,50 +1334,6 @@ class IRPulse(PyoObject):
 
 
 class IRFM(PyoObject):
-    """
-    Filters a signal with a frequency modulation spectrum using circular convolution.
-
-    IRFM uses circular convolution to implement filtering with a frequency
-    modulation spectrum. User can defined the length, in samples, of the
-    impulse response, also known as the filter kernel. The higher the `order`,
-    the narrower the bandwidth around each of the FM components.
-
-    :Parent: :py:class:`PyoObject`
-
-    :Args:
-
-        input: PyoObject
-            Input signal to process.
-        carrier: float or PyoObject, optional
-            Carrier frequency in cycles per second. Defaults to 1000.
-        ratio: float or PyoObject, optional
-            A factor that, when multiplied by the `carrier` parameter,
-            gives the modulator frequency. Defaults to 0.5.
-        index: float or PyoObject, optional
-            The modulation index. This value multiplied by the modulator
-            frequency gives the modulator amplitude. Defaults to 3.
-        order: int {even number}, optional
-            Length, in samples, of the filter kernel used for convolution.
-            Available at initialization time only. Defaults to 256.
-
-            This value must be even. Higher is the order and sharper is the
-            roll-off of the filter, but it is also more expensive to compute.
-
-    .. note::
-
-        Convolution is very expensive to compute, so the length of the impulse
-        response (the `order` parameter) must be kept very short to run in real time.
-
-        Note that although `carrier`, `ratio` and `index` can be PyoObjects, the
-        impulse response of the filter is only updated once per buffer size.
-
-    >>> s = Server().boot()
-    >>> s.start()
-    >>> nz = Noise(.7)
-    >>> lf = Sine(freq=[.2, .25], mul=.125, add=.5)
-    >>> b = IRFM(nz, carrier=3500, ratio=lf, index=3, order=256).out()
-
-    """
 
     def __init__(self, input, carrier=1000, ratio=0.5, index=3, order=256, mul=1, add=0):
         pyoArgsAssert(self, "oOOOiOO", input, carrier, ratio, index, order, mul, add)
@@ -2846,61 +1365,23 @@ class IRFM(PyoObject):
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
-        """
-        Replace the `input` attribute.
-
-        :Args:
-
-            x: PyoObject
-                New signal to process.
-            fadetime: float, optional
-                Crossfade time between old and new input. Default to 0.05.
-
-        """
         pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
     def setCarrier(self, x):
-        """
-        Replace the `carrier` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                New `carrier` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._carrier = x
         x, lmax = convertArgsToLists(x)
         [obj.setCarrier(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setRatio(self, x):
-        """
-        Replace the `ratio` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                New `ratio` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._ratio = x
         x, lmax = convertArgsToLists(x)
         [obj.setRatio(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setIndex(self, x):
-        """
-        Replace the `index` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                New `index` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._index = x
         x, lmax = convertArgsToLists(x)
@@ -2908,7 +1389,6 @@ class IRFM(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process."""
         return self._input
 
     @input.setter
@@ -2917,7 +1397,6 @@ class IRFM(PyoObject):
 
     @property
     def carrier(self):
-        """float or PyoObject. Carrier frequency in Hz."""
         return self._carrier
 
     @carrier.setter
@@ -2926,7 +1405,6 @@ class IRFM(PyoObject):
 
     @property
     def ratio(self):
-        """float or PyoObject. Modulator/carrier ratio."""
         return self._ratio
 
     @ratio.setter
@@ -2935,7 +1413,6 @@ class IRFM(PyoObject):
 
     @property
     def index(self):
-        """float or PyoObject. Modulation index."""
         return self._index
 
     @index.setter
@@ -2944,40 +1421,6 @@ class IRFM(PyoObject):
 
 
 class SVF(PyoObject):
-    """
-    Fourth-order state variable filter allowing continuous change of the filter type.
-
-    :Parent: :py:class:`PyoObject`
-
-    :Args:
-
-        input: PyoObject
-            Input signal to process.
-        freq: float or PyoObject, optional
-            Cutoff or center frequency of the filter. Defaults to 1000.
-
-            Because this filter becomes unstable at higher frequencies,
-            the `freq` parameter is limited to one-sixth of the sampling rate.
-        q: float or PyoObject, optional
-            Q of the filter, defined (for bandpass filters) as freq/bandwidth.
-            Should be between 0.5 and 50. Defaults to 1.
-        type: float or PyoObject, optional
-            This value, in the range 0 to 1, controls the filter type crossfade
-            on the continuum lowpass-bandpass-highpass.
-
-            - 0.0 = lowpass (default)
-            - 0.5 = bandpass
-            - 1.0 = highpass
-
-    >>> s = Server().boot()
-    >>> s.start()
-    >>> a = Noise(.2)
-    >>> lf1 = Sine([.22,.25]).range(500, 2000)
-    >>> lf2 = Sine([.17,.15]).range(1, 4)
-    >>> lf3 = Sine([.23,.2]).range(0, 1)
-    >>> b = SVF(a, freq=lf1, q=lf2, type=lf3).out()
-
-    """
 
     def __init__(self, input, freq=1000, q=1, type=0, mul=1, add=0):
         pyoArgsAssert(self, "oOOOOO", input, freq, q, type, mul, add)
@@ -2995,65 +1438,23 @@ class SVF(PyoObject):
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
-        """
-        Replace the `input` attribute.
-
-        :Args:
-
-            x: PyoObject
-                New signal to process.
-            fadetime: float, optional
-                Crossfade time between old and new input. Defaults to 0.05.
-
-        """
         pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
     def setFreq(self, x):
-        """
-        Replace the `freq` attribute. Limited in the upper bound to
-        one-sixth of the sampling rate.
-
-        :Args:
-
-            x: float or PyoObject
-                New `freq` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setQ(self, x):
-        """
-        Replace the `q` attribute. Should be between 0.5 and 50.
-
-        :Args:
-
-            x: float or PyoObject
-                New `q` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._q = x
         x, lmax = convertArgsToLists(x)
         [obj.setQ(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setType(self, x):
-        """
-        Replace the `type` attribute. Must be in the range 0 to 1.
-
-        This value allows the filter type to sweep from a lowpass (0)
-        to a bandpass (0.5) and then, from the bandpass to a highpass (1).
-
-        :Args:
-
-            x: float or PyoObject
-                New `type` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._type = x
         x, lmax = convertArgsToLists(x)
@@ -3061,7 +1462,6 @@ class SVF(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process."""
         return self._input
 
     @input.setter
@@ -3070,7 +1470,6 @@ class SVF(PyoObject):
 
     @property
     def freq(self):
-        """float or PyoObject. Cutoff or center frequency of the filter."""
         return self._freq
 
     @freq.setter
@@ -3079,7 +1478,6 @@ class SVF(PyoObject):
 
     @property
     def q(self):
-        """float or PyoObject. Q of the filter."""
         return self._q
 
     @q.setter
@@ -3088,7 +1486,6 @@ class SVF(PyoObject):
 
     @property
     def type(self):
-        """float or PyoObject. Crossfade between filter types."""
         return self._type
 
     @type.setter
@@ -3097,71 +1494,6 @@ class SVF(PyoObject):
 
 
 class SVF2(PyoObject):
-    """
-    Second-order state variable filter allowing continuous change of the filter type.
-
-    This 2-pole multimode filter is described in the book "The Art of VA Filter Design"
-    by Vadim Zavalishin (version 2.1.0 when this object was created).
-
-    Several filter types are available with continuous change between them. The default
-    order (controlled with the `type` argument) is:
-
-        - lowpass
-        - bandpass
-        - highpass
-        - highshelf
-        - bandshelf
-        - lowshelf
-        - notch
-        - peak
-        - allpass
-        - unit gain bandpass
-
-    The filter types order can be changed with the `setOrder` method. The first filter type
-    is always copied at the end of the order list so we can create a glitch-free loop of
-    filter types with a Phasor given as `type` argument. Ex.:
-
-        >>> lfo = Phasor(freq=.5, mul=3)
-        >>> svf2 = SVF2(Noise(.25), freq=2500, q=2, shelf=-6, type=lfo).out()
-        >>> svf2.order = [2, 1, 0] # highpass -> bandpass -> lowpass -> highpass
-
-    :Parent: :py:class:`PyoObject`
-
-    :Args:
-
-        input: PyoObject
-            Input signal to process.
-        freq: float or PyoObject, optional
-            Cutoff or center frequency of the filter. Defaults to 1000.
-        q: float or PyoObject, optional
-            Q of the filter, defined (for bandpass filters) as freq/bandwidth.
-            Should be between 0.5 and 50. Defaults to 1.
-        shelf: float or PyoObject, optional
-            Gain, between -24 dB and 24 dB, used by shelving filters. Defaults to -3.
-        type: float or PyoObject, optional
-            This value, in the range 0 to 10, controls the filter type crossfade
-            on the continuum defined by the filter types order. The default order
-            (which can be changed with the `setOrder` method) is:
-
-            - 0 = lowpass
-            - 1 = bandpass
-            - 2 = highpass
-            - 3 = highshelf
-            - 4 = bandshelf
-            - 5 = lowshelf
-            - 6 = notch
-            - 7 = peak
-            - 8 = allpass
-            - 9 = unit gain bandpass
-
-    >>> s = Server().boot()
-    >>> s.start()
-    >>> n = Noise(0.25).mix(2)
-    >>> tp = Phasor(.25, mul=10)
-    >>> fr = Sine(.3).range(500, 5000)
-    >>> svf2 = SVF2(n, freq=fr, q=3, shelf=-6, type=tp).out()
-
-    """
 
     def __init__(self, input, freq=1000, q=1, shelf=-3, type=0, mul=1, add=0):
         pyoArgsAssert(self, "oOOOOOO", input, freq, q, shelf, type, mul, add)
@@ -3185,115 +1517,41 @@ class SVF2(PyoObject):
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
-        """
-        Replace the `input` attribute.
-
-        :Args:
-
-            x: PyoObject
-                New signal to process.
-            fadetime: float, optional
-                Crossfade time between old and new input. Defaults to 0.05.
-
-        """
         pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
     def setFreq(self, x):
-        """
-        Replace the `freq` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                New `freq` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setQ(self, x):
-        """
-        Replace the `q` attribute. Should be between 0.5 and 50.
-
-        :Args:
-
-            x: float or PyoObject
-                New `q` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._q = x
         x, lmax = convertArgsToLists(x)
         [obj.setQ(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setShelf(self, x):
-        """
-        Replace the `shelf` attribute. Should be between -24 dB and 24 dB.
-
-        :Args:
-
-            x: float or PyoObject
-                New `shelf` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._shelf = x
         x, lmax = convertArgsToLists(x)
         [obj.setShelf(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setType(self, x):
-        """
-        Replace the `type` attribute. Must be in the range 0 to 10.
-
-        This value allows the filter type to crossfade between several filter types.
-
-        :Args:
-
-            x: float or PyoObject
-                New `type` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._type = x
         x, lmax = convertArgsToLists(x)
         [obj.setType(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setOrder(self, x):
-        """
-        Change the filter types ordering.
-
-        The ordering is a list of one to ten integers indicating the filter
-        types order used by the `type` argument to crossfade between them.
-        Types, as integer, are:
-
-            - 0 = lowpass
-            - 1 = bandpass
-            - 2 = highpass
-            - 3 = highshelf
-            - 4 = bandshelf
-            - 5 = lowshelf
-            - 6 = notch
-            - 7 = peak
-            - 8 = allpass
-            - 9 = unit gain bandpass
-
-        :Args:
-
-            x: list of ints
-                New types ordering.
-
-        """
         pyoArgsAssert(self, "l", x)
         self._order = x
         [obj.setOrder(x) for i, obj in enumerate(self._base_objs)]
 
     @property
     def input(self):
-        """PyoObject. Input signal to process."""
         return self._input
 
     @input.setter
@@ -3302,7 +1560,6 @@ class SVF2(PyoObject):
 
     @property
     def freq(self):
-        """float or PyoObject. Cutoff or center frequency of the filter."""
         return self._freq
 
     @freq.setter
@@ -3311,7 +1568,6 @@ class SVF2(PyoObject):
 
     @property
     def q(self):
-        """float or PyoObject. Q of the filter."""
         return self._q
 
     @q.setter
@@ -3320,7 +1576,6 @@ class SVF2(PyoObject):
 
     @property
     def shelf(self):
-        """float or PyoObject. Shelving gain of the filter."""
         return self._shelf
 
     @shelf.setter
@@ -3329,7 +1584,6 @@ class SVF2(PyoObject):
 
     @property
     def type(self):
-        """float or PyoObject. Crossfade between filter types."""
         return self._type
 
     @type.setter
@@ -3338,7 +1592,6 @@ class SVF2(PyoObject):
 
     @property
     def order(self):
-        """list of ints. Filter types ordering."""
         return self._order
 
     @order.setter
@@ -3347,31 +1600,6 @@ class SVF2(PyoObject):
 
 
 class Average(PyoObject):
-    """
-    Moving average filter.
-
-    As the name implies, the moving average filter operates by averaging a number
-    of points from the input signal to produce each point in the output signal.
-    In spite of its simplicity, the moving average filter is optimal for
-    a common task: reducing random noise while retaining a sharp step response.
-
-    :Parent: :py:class:`PyoObject`
-
-    :Args:
-
-        input: PyoObject
-            Input signal to process.
-        size: int, optional
-            Filter kernel size, which is the number of samples used in the
-            moving average. Default to 10.
-
-    >>> s = Server().boot()
-    >>> s.start()
-    >>> a = Noise(.025)
-    >>> b = Sine(250, mul=0.3)
-    >>> c = Average(a+b, size=100).out()
-
-    """
 
     def __init__(self, input, size=10, mul=1, add=0):
         pyoArgsAssert(self, "oiOO", input, size, mul, add)
@@ -3386,31 +1614,11 @@ class Average(PyoObject):
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
-        """
-        Replace the `input` attribute.
-
-        :Args:
-
-            x: PyoObject
-                New signal to process.
-            fadetime: float, optional
-                Crossfade time between old and new input. Default to 0.05.
-
-        """
         pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
     def setSize(self, x):
-        """
-        Replace the `size` attribute.
-
-        :Args:
-
-            x: int
-                New `size` attribute.
-
-        """
         pyoArgsAssert(self, "i", x)
         self._size = x
         x, lmax = convertArgsToLists(x)
@@ -3418,7 +1626,6 @@ class Average(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process."""
         return self._input
 
     @input.setter
@@ -3427,7 +1634,6 @@ class Average(PyoObject):
 
     @property
     def size(self):
-        """int. Filter kernel size in samples."""
         return self._size
 
     @size.setter
@@ -3436,34 +1642,6 @@ class Average(PyoObject):
 
 
 class Reson(PyoObject):
-    """
-    A second-order resonant bandpass filter.
-
-    Reson implements a classic resonant bandpass filter, as described in:
-
-    Dodge, C., Jerse, T., "Computer Music, Synthesis, Composition and Performance".
-
-    Reson uses less CPU than the equivalent filter with a Biquad object.
-
-    :Parent: :py:class:`PyoObject`
-
-    :Args:
-
-        input: PyoObject
-            Input signal to process.
-        freq: float or PyoObject, optional
-            Center frequency of the filter. Defaults to 1000.
-        q: float or PyoObject, optional
-            Q of the filter, defined as freq/bandwidth.
-            Should be between 1 and 500. Defaults to 1.
-
-    >>> s = Server().boot()
-    >>> s.start()
-    >>> a = Noise(mul=.7)
-    >>> lfo = Sine(freq=[.2, .25], mul=1000, add=1500)
-    >>> f = Reson(a, freq=lfo, q=5).out()
-
-    """
 
     def __init__(self, input, freq=1000, q=1, mul=1, add=0):
         pyoArgsAssert(self, "oOOOO", input, freq, q, mul, add)
@@ -3479,46 +1657,17 @@ class Reson(PyoObject):
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
-        """
-        Replace the `input` attribute.
-
-        :Args:
-
-            x: PyoObject
-                New signal to process.
-            fadetime: float, optional
-                Crossfade time between old and new input. Defaults to 0.05.
-
-        """
         pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
     def setFreq(self, x):
-        """
-        Replace the `freq` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                New `freq` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setQ(self, x):
-        """
-        Replace the `q` attribute. Should be between 1 and 500.
-
-        :Args:
-
-            x: float or PyoObject
-                New `q` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._q = x
         x, lmax = convertArgsToLists(x)
@@ -3526,7 +1675,6 @@ class Reson(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process."""
         return self._input
 
     @input.setter
@@ -3535,7 +1683,6 @@ class Reson(PyoObject):
 
     @property
     def freq(self):
-        """float or PyoObject. Center frequency of the filter."""
         return self._freq
 
     @freq.setter
@@ -3544,7 +1691,6 @@ class Reson(PyoObject):
 
     @property
     def q(self):
-        """float or PyoObject. Q of the filter."""
         return self._q
 
     @q.setter
@@ -3553,39 +1699,6 @@ class Reson(PyoObject):
 
 
 class Resonx(PyoObject):
-    """
-    A multi-stages second-order resonant bandpass filter.
-
-    Resonx implements a stack of the classic resonant bandpass filter, as described in:
-
-    Dodge, C., Jerse, T., "Computer Music, Synthesis, Composition and Performance".
-
-    Resonx is equivalent to a filter consisting of more layers of Reson
-    with the same arguments, serially connected. It is faster than using
-    a large number of instances of the Reson object, it uses less memory
-    and allows filters with sharper cutoff.
-
-    :Parent: :py:class:`PyoObject`
-
-    :Args:
-
-        input: PyoObject
-            Input signal to process.
-        freq: float or PyoObject, optional
-            Center frequency of the filter. Defaults to 1000.
-        q: float or PyoObject, optional
-            Q of the filter, defined as freq/bandwidth.
-            Should be between 1 and 500. Defaults to 1.
-        stages: int, optional
-            The number of filtering stages in the filter stack. Defaults to 4.
-
-    >>> s = Server().boot()
-    >>> s.start()
-    >>> a = Noise(mul=.7)
-    >>> lfo = Sine(freq=[.2, .25], mul=1000, add=1500)
-    >>> f = Resonx(a, freq=lfo, q=5).out()
-
-    """
 
     def __init__(self, input, freq=1000, q=1, stages=4, mul=1, add=0):
         pyoArgsAssert(self, "oOOiOO", input, freq, q, stages, mul, add)
@@ -3603,61 +1716,23 @@ class Resonx(PyoObject):
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
-        """
-        Replace the `input` attribute.
-
-        :Args:
-
-            x: PyoObject
-                New signal to process.
-            fadetime: float, optional
-                Crossfade time between old and new input. Defaults to 0.05.
-
-        """
         pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
     def setFreq(self, x):
-        """
-        Replace the `freq` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                New `freq` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setQ(self, x):
-        """
-        Replace the `q` attribute. Should be between 1 and 500.
-
-        :Args:
-
-            x: float or PyoObject
-                New `q` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._q = x
         x, lmax = convertArgsToLists(x)
         [obj.setQ(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setStages(self, x):
-        """
-        Replace the `stages` attribute.
-
-        :Args:
-
-            x: int
-                New `stages` attribute.
-
-        """
         pyoArgsAssert(self, "i", x)
         self._stages = x
         x, lmax = convertArgsToLists(x)
@@ -3665,7 +1740,6 @@ class Resonx(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process."""
         return self._input
 
     @input.setter
@@ -3674,7 +1748,6 @@ class Resonx(PyoObject):
 
     @property
     def freq(self):
-        """float or PyoObject. Center frequency of the filter."""
         return self._freq
 
     @freq.setter
@@ -3683,7 +1756,6 @@ class Resonx(PyoObject):
 
     @property
     def q(self):
-        """float or PyoObject. Q of the filter."""
         return self._q
 
     @q.setter
@@ -3692,7 +1764,6 @@ class Resonx(PyoObject):
 
     @property
     def stages(self):
-        """int. The number of filtering stages."""
         return self._stages
 
     @stages.setter
@@ -3701,29 +1772,6 @@ class Resonx(PyoObject):
 
 
 class ButLP(PyoObject):
-    """
-    A second-order Butterworth lowpass filter.
-
-    ButLP implements a second-order IIR Butterworth lowpass filter,
-    which has a maximally flat passband and a very good precision and
-    stopband attenuation.
-
-    :Parent: :py:class:`PyoObject`
-
-    :Args:
-
-        input: PyoObject
-            Input signal to process.
-        freq: float or PyoObject, optional
-            Cutoff frequency of the filter in hertz. Default to 1000.
-
-    >>> s = Server().boot()
-    >>> s.start()
-    >>> n = Noise(.3)
-    >>> lf = Sine(freq=.2, mul=800, add=1000)
-    >>> f = ButLP(n, lf).mix(2).out()
-
-    """
 
     def __init__(self, input, freq=1000, mul=1, add=0):
         pyoArgsAssert(self, "oOOO", input, freq, mul, add)
@@ -3738,31 +1786,11 @@ class ButLP(PyoObject):
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
-        """
-        Replace the `input` attribute.
-
-        :Args:
-
-            x: PyoObject
-                New signal to process.
-            fadetime: float, optional
-                Crossfade time between old and new input. Default to 0.05.
-
-        """
         pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
     def setFreq(self, x):
-        """
-        Replace the `freq` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                New `freq` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
@@ -3770,7 +1798,6 @@ class ButLP(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process."""
         return self._input
 
     @input.setter
@@ -3779,7 +1806,6 @@ class ButLP(PyoObject):
 
     @property
     def freq(self):
-        """float or PyoObject. Cutoff frequency of the filter."""
         return self._freq
 
     @freq.setter
@@ -3788,29 +1814,6 @@ class ButLP(PyoObject):
 
 
 class ButHP(PyoObject):
-    """
-    A second-order Butterworth highpass filter.
-
-    ButHP implements a second-order IIR Butterworth highpass filter,
-    which has a maximally flat passband and a very good precision and
-    stopband attenuation.
-
-    :Parent: :py:class:`PyoObject`
-
-    :Args:
-
-        input: PyoObject
-            Input signal to process.
-        freq: float or PyoObject, optional
-            Cutoff frequency of the filter in hertz. Default to 1000.
-
-    >>> s = Server().boot()
-    >>> s.start()
-    >>> n = Noise(.2)
-    >>> lf = Sine(freq=.2, mul=1500, add=2500)
-    >>> f = ButHP(n, lf).mix(2).out()
-
-    """
 
     def __init__(self, input, freq=1000, mul=1, add=0):
         pyoArgsAssert(self, "oOOO", input, freq, mul, add)
@@ -3825,31 +1828,11 @@ class ButHP(PyoObject):
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
-        """
-        Replace the `input` attribute.
-
-        :Args:
-
-            x: PyoObject
-                New signal to process.
-            fadetime: float, optional
-                Crossfade time between old and new input. Default to 0.05.
-
-        """
         pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
     def setFreq(self, x):
-        """
-        Replace the `freq` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                New `freq` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
@@ -3857,7 +1840,6 @@ class ButHP(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process."""
         return self._input
 
     @input.setter
@@ -3866,7 +1848,6 @@ class ButHP(PyoObject):
 
     @property
     def freq(self):
-        """float or PyoObject. Cutoff frequency of the filter."""
         return self._freq
 
     @freq.setter
@@ -3875,32 +1856,6 @@ class ButHP(PyoObject):
 
 
 class ButBP(PyoObject):
-    """
-    A second-order Butterworth bandpass filter.
-
-    ButBP implements a second-order IIR Butterworth bandpass filter,
-    which has a maximally flat passband and a very good precision and
-    stopband attenuation.
-
-    :Parent: :py:class:`PyoObject`
-
-    :Args:
-
-        input: PyoObject
-            Input signal to process.
-        freq: float or PyoObject, optional
-            Center frequency of the filter. Defaults to 1000.
-        q: float or PyoObject, optional
-            Q of the filter, defined as freq/bandwidth.
-            Should be between 1 and 500. Defaults to 1.
-
-    >>> s = Server().boot()
-    >>> s.start()
-    >>> a = Noise(mul=.7)
-    >>> lfo = Sine(freq=[.2, .25], mul=1000, add=1500)
-    >>> f = ButBP(a, freq=lfo, q=5).out()
-
-    """
 
     def __init__(self, input, freq=1000, q=1, mul=1, add=0):
         pyoArgsAssert(self, "oOOOO", input, freq, q, mul, add)
@@ -3916,46 +1871,17 @@ class ButBP(PyoObject):
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
-        """
-        Replace the `input` attribute.
-
-        :Args:
-
-            x: PyoObject
-                New signal to process.
-            fadetime: float, optional
-                Crossfade time between old and new input. Defaults to 0.05.
-
-        """
         pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
     def setFreq(self, x):
-        """
-        Replace the `freq` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                New `freq` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setQ(self, x):
-        """
-        Replace the `q` attribute. Should be between 1 and 500.
-
-        :Args:
-
-            x: float or PyoObject
-                New `q` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._q = x
         x, lmax = convertArgsToLists(x)
@@ -3963,7 +1889,6 @@ class ButBP(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process."""
         return self._input
 
     @input.setter
@@ -3972,7 +1897,6 @@ class ButBP(PyoObject):
 
     @property
     def freq(self):
-        """float or PyoObject. Center frequency of the filter."""
         return self._freq
 
     @freq.setter
@@ -3981,7 +1905,6 @@ class ButBP(PyoObject):
 
     @property
     def q(self):
-        """float or PyoObject. Q of the filter."""
         return self._q
 
     @q.setter
@@ -3990,32 +1913,6 @@ class ButBP(PyoObject):
 
 
 class ButBR(PyoObject):
-    """
-    A second-order Butterworth band-reject filter.
-
-    ButBR implements a second-order IIR Butterworth band-reject filter,
-    which has a maximally flat passband and a very good precision and
-    stopband attenuation.
-
-    :Parent: :py:class:`PyoObject`
-
-    :Args:
-
-        input: PyoObject
-            Input signal to process.
-        freq: float or PyoObject, optional
-            Center frequency of the filter. Defaults to 1000.
-        q: float or PyoObject, optional
-            Q of the filter, defined as freq/bandwidth.
-            Should be between 1 and 500. Defaults to 1.
-
-    >>> s = Server().boot()
-    >>> s.start()
-    >>> a = Noise(mul=.2)
-    >>> lfo = Sine(freq=[.2, .25], mul=1000, add=1500)
-    >>> f = ButBR(a, freq=lfo, q=1).out()
-
-    """
 
     def __init__(self, input, freq=1000, q=1, mul=1, add=0):
         pyoArgsAssert(self, "oOOOO", input, freq, q, mul, add)
@@ -4031,46 +1928,17 @@ class ButBR(PyoObject):
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
-        """
-        Replace the `input` attribute.
-
-        :Args:
-
-            x: PyoObject
-                New signal to process.
-            fadetime: float, optional
-                Crossfade time between old and new input. Defaults to 0.05.
-
-        """
         pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
     def setFreq(self, x):
-        """
-        Replace the `freq` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                New `freq` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setQ(self, x):
-        """
-        Replace the `q` attribute. Should be between 1 and 500.
-
-        :Args:
-
-            x: float or PyoObject
-                New `q` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._q = x
         x, lmax = convertArgsToLists(x)
@@ -4078,7 +1946,6 @@ class ButBR(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process."""
         return self._input
 
     @input.setter
@@ -4087,7 +1954,6 @@ class ButBR(PyoObject):
 
     @property
     def freq(self):
-        """float or PyoObject. Center frequency of the filter."""
         return self._freq
 
     @freq.setter
@@ -4096,7 +1962,6 @@ class ButBR(PyoObject):
 
     @property
     def q(self):
-        """float or PyoObject. Q of the filter."""
         return self._q
 
     @q.setter
@@ -4105,32 +1970,6 @@ class ButBR(PyoObject):
 
 
 class MoogLP(PyoObject):
-    """
-    A fourth-order resonant lowpass filter.
-
-    Digital approximation of the Moog VCF, giving a decay of 24dB/oct.
-
-    :Parent: :py:class:`PyoObject`
-
-    :Args:
-
-        input: PyoObject
-            Input signal to process.
-        freq: float or PyoObject, optional
-            Cutoff frequency of the filter. Defaults to 1000.
-        res: float or PyoObject, optional
-            Amount of Resonance of the filter, usually between 0 (no resonance)
-            and 1 (medium resonance). Self-oscillation occurs when the
-            resonance is >= 1. Can go up to 10. Defaults to 0.
-
-    >>> s = Server().boot()
-    >>> s.start()
-    >>> ph = Phasor(40)
-    >>> sqr = Round(ph, add=-0.5)
-    >>> lfo = Sine(freq=[.4, .5], mul=2000, add=2500)
-    >>> fil = MoogLP(sqr, freq=lfo, res=1.25).out()
-
-    """
 
     def __init__(self, input, freq=1000, res=0, mul=1, add=0):
         pyoArgsAssert(self, "oOOOO", input, freq, res, mul, add)
@@ -4146,46 +1985,17 @@ class MoogLP(PyoObject):
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
-        """
-        Replace the `input` attribute.
-
-        :Args:
-
-            x: PyoObject
-                New signal to process.
-            fadetime: float, optional
-                Crossfade time between old and new input. Defaults to 0.05.
-
-        """
         pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
     def setFreq(self, x):
-        """
-        Replace the `freq` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                New `freq` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setRes(self, x):
-        """
-        Replace the `res` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                New `res` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._res = x
         x, lmax = convertArgsToLists(x)
@@ -4193,7 +2003,6 @@ class MoogLP(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process."""
         return self._input
 
     @input.setter
@@ -4202,7 +2011,6 @@ class MoogLP(PyoObject):
 
     @property
     def freq(self):
-        """float or PyoObject. Cutoff frequency of the filter."""
         return self._freq
 
     @freq.setter
@@ -4211,7 +2019,6 @@ class MoogLP(PyoObject):
 
     @property
     def res(self):
-        """float or PyoObject. Amount of resonance of the filter."""
         return self._res
 
     @res.setter
@@ -4220,33 +2027,6 @@ class MoogLP(PyoObject):
 
 
 class ComplexRes(PyoObject):
-    """
-    Complex one-pole resonator filter.
-
-    ComplexRes implements a resonator derived from a complex
-    multiplication, which is very similar to a digital filter.
-
-    :Parent: :py:class:`PyoObject`
-
-    :Args:
-
-        input: PyoObject
-            Input signal to process.
-        freq: float or PyoObject, optional
-            Center frequency of the filter. Defaults to 1000.
-        decay: float or PyoObject, optional
-            Decay time, in seconds, for the filter's response.
-            Defaults to 0.25.
-
-    >>> s = Server().boot()
-    >>> s.start()
-    >>> env = HannTable()
-    >>> trigs = Metro(.2, poly=4).play()
-    >>> amp = TrigEnv(trigs, table=env, dur=0.005, mul=2)
-    >>> im = Noise(mul=amp)
-    >>> res = ComplexRes(im, freq=[950,530,780,1490], decay=1).out()
-
-    """
 
     def __init__(self, input, freq=1000, decay=0.25, mul=1, add=0):
         pyoArgsAssert(self, "oOOOO", input, freq, decay, mul, add)
@@ -4263,46 +2043,17 @@ class ComplexRes(PyoObject):
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
-        """
-        Replace the `input` attribute.
-
-        :Args:
-
-            x: PyoObject
-                New signal to process.
-            fadetime: float, optional
-                Crossfade time between old and new input. Defaults to 0.05.
-
-        """
         pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
     def setFreq(self, x):
-        """
-        Replace the `freq` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                New `freq` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setDecay(self, x):
-        """
-        Replace the `decay` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                New `decay` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._decay = x
         x, lmax = convertArgsToLists(x)
@@ -4310,7 +2061,6 @@ class ComplexRes(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to filter."""
         return self._input
 
     @input.setter
@@ -4319,7 +2069,6 @@ class ComplexRes(PyoObject):
 
     @property
     def freq(self):
-        """float or PyoObject. Center frequency of the filter."""
         return self._freq
 
     @freq.setter
@@ -4328,7 +2077,6 @@ class ComplexRes(PyoObject):
 
     @property
     def decay(self):
-        """float or PyoObject. Decay time of the filter's response."""
         return self._decay
 
     @decay.setter

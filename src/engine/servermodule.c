@@ -82,6 +82,8 @@ Server_error(Server *self, char * format, ...)
 void
 Server_message(Server *self, char * format, ...)
 {
+#ifndef NO_MESSAGES
+
     if (self->verbosity & 2)
     {
         char buffer[256];
@@ -92,6 +94,8 @@ Server_message(Server *self, char * format, ...)
 
         PySys_WriteStdout("Pyo message: %s", buffer);
     }
+
+#endif
 }
 
 /* Warnings should be used when an unexpected or unusual
@@ -246,8 +250,7 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|diiii", kwlist,
                                       &samplingRate, &nchnls, &bufferSize, &duplex, &ichnls))
     {
-        Py_INCREF(Py_False);
-        return Py_False;
+        Py_RETURN_FALSE;
     }
 
     /* find the first free serverID */
@@ -506,7 +509,7 @@ Server_shutdown(Server *self)
 
     if (self->server_started == 1)
     {
-        Server_stop((Server *)self);
+        Server_stop(self);
     }
 
     for (i = 0; i < num_rnd_objs; i++)
@@ -903,43 +906,43 @@ Server_getAutoStartChildren(Server *self)
 
 static PyMethodDef Server_methods[] =
 {
-    {"setSamplingRate", (PyCFunction)Server_setSamplingRate, METH_O, "Sets the server's sampling rate."},
-    {"setBufferSize", (PyCFunction)Server_setBufferSize, METH_O, "Sets the server's buffer size."},
-    {"setGlobalDur", (PyCFunction)Server_setGlobalDur, METH_O, "Sets the server's globalDur attribute."},
-    {"setGlobalDel", (PyCFunction)Server_setGlobalDel, METH_O, "Sets the server's globalDel attribute."},
-    {"beginResamplingBlock", (PyCFunction)Server_beginResamplingBlock, METH_O, "Starts a resampling code block."},
-    {"endResamplingBlock", (PyCFunction)Server_endResamplingBlock, METH_NOARGS, "Stops a resampling code block."},
-    {"setNchnls", (PyCFunction)Server_setNchnls, METH_O, "Sets the server's number of output/input channels."},
-    {"setIchnls", (PyCFunction)Server_setIchnls, METH_O, "Sets the server's number of input channels."},
-    {"setDuplex", (PyCFunction)Server_setDuplex, METH_O, "Sets the server's duplex mode (0 = only out, 1 = in/out)."},
-    {"setGlobalSeed", (PyCFunction)Server_setGlobalSeed, METH_O, "Sets the server's global seed for random objects."},
-    {"setCallback", (PyCFunction)Server_setCallback, METH_O, "Sets the Server's CALLBACK callable object."},
-    {"setVerbosity", (PyCFunction)Server_setVerbosity, METH_O, "Sets the verbosity."},
-    {"boot", (PyCFunction)Server_boot, METH_O, "Setup and boot the server."},
-    {"shutdown", (PyCFunction)Server_shutdown, METH_NOARGS, "Shut down the server."},
-    {"start", (PyCFunction)Server_start, METH_NOARGS, "Starts the server's callback loop."},
-    {"stop", (PyCFunction)Server_stop, METH_NOARGS, "Stops the server's callback loop."},
-    {"addStream", (PyCFunction)Server_addStream, METH_VARARGS, "Adds an audio stream to the server."},
-    {"removeStream", (PyCFunction)Server_removeStream, METH_VARARGS, "Removes an audio stream from the server."},
-    {"changeStreamPosition", (PyCFunction)Server_changeStreamPosition, METH_VARARGS, "Puts an audio stream before another one in the stack."},
-    {"getStreams", (PyCFunction)Server_getStreams, METH_NOARGS, "Returns the list of streams added to the server."},
-    {"getSamplingRate", (PyCFunction)Server_getSamplingRate, METH_NOARGS, "Returns the server's sampling rate."},
-    {"getNchnls", (PyCFunction)Server_getNchnls, METH_NOARGS, "Returns the server's current number of output channels."},
-    {"getIchnls", (PyCFunction)Server_getIchnls, METH_NOARGS, "Returns the server's current number of input channels."},
-    {"getGlobalSeed", (PyCFunction)Server_getGlobalSeed, METH_NOARGS, "Returns the server's global seed."},
-    {"getBufferSize", (PyCFunction)Server_getBufferSize, METH_NOARGS, "Returns the server's buffer size."},
-    {"getGlobalDur", (PyCFunction)Server_getGlobalDur, METH_NOARGS, "Returns the server's globalDur attribute."},
-    {"getGlobalDel", (PyCFunction)Server_getGlobalDel, METH_NOARGS, "Returns the server's globalDel attribute."},
-    {"getIsBooted", (PyCFunction)Server_getIsBooted, METH_NOARGS, "Returns 1 if the server is booted, otherwise returns 0."},
-    {"getIsStarted", (PyCFunction)Server_getIsStarted, METH_NOARGS, "Returns 1 if the server is started, otherwise returns 0."},
-    {"setServer", (PyCFunction)Server_setServer, METH_NOARGS, "Sets this server as the one to use for new objects when using the embedded device"},
-    {"getInputAddr", (PyCFunction)Server_getInputAddr, METH_NOARGS, "Get the embedded device input buffer memory address"},
-    {"getOutputAddr", (PyCFunction)Server_getOutputAddr, METH_NOARGS, "Get the embedded device output buffer memory address"},
-    {"getServerID", (PyCFunction)Server_getServerID, METH_NOARGS, "Get the embedded device server memory address"},
-    {"getServerAddr", (PyCFunction)Server_getServerAddr, METH_NOARGS, "Get the embedded device server memory address"},
-    {"getEmbedICallbackAddr", (PyCFunction)Server_getEmbedICallbackAddr, METH_NOARGS, "Get the embedded device interleaved callback method memory address"},
-    {"setAutoStartChildren", (PyCFunction)Server_setAutoStartChildren, METH_O, "Sets autoStartChildren attribute."},
-    {"getAutoStartChildren", (PyCFunction)Server_getAutoStartChildren, METH_NOARGS, "Gets autoStartChildren attribute."},
+    {"setSamplingRate", (PyCFunction)Server_setSamplingRate, METH_O, NULL},
+    {"setBufferSize", (PyCFunction)Server_setBufferSize, METH_O, NULL},
+    {"setGlobalDur", (PyCFunction)Server_setGlobalDur, METH_O, NULL},
+    {"setGlobalDel", (PyCFunction)Server_setGlobalDel, METH_O, NULL},
+    {"beginResamplingBlock", (PyCFunction)Server_beginResamplingBlock, METH_O, NULL},
+    {"endResamplingBlock", (PyCFunction)Server_endResamplingBlock, METH_NOARGS, NULL},
+    {"setNchnls", (PyCFunction)Server_setNchnls, METH_O, NULL},
+    {"setIchnls", (PyCFunction)Server_setIchnls, METH_O, NULL},
+    {"setDuplex", (PyCFunction)Server_setDuplex, METH_O, NULL},
+    {"setGlobalSeed", (PyCFunction)Server_setGlobalSeed, METH_O, NULL},
+    {"setCallback", (PyCFunction)Server_setCallback, METH_O, NULL},
+    {"setVerbosity", (PyCFunction)Server_setVerbosity, METH_O, NULL},
+    {"boot", (PyCFunction)Server_boot, METH_O, NULL},
+    {"shutdown", (PyCFunction)Server_shutdown, METH_NOARGS, NULL},
+    {"start", (PyCFunction)Server_start, METH_NOARGS, NULL},
+    {"stop", (PyCFunction)Server_stop, METH_NOARGS, NULL},
+    {"addStream", (PyCFunction)Server_addStream, METH_VARARGS, NULL},
+    {"removeStream", (PyCFunction)Server_removeStream, METH_VARARGS, NULL},
+    {"changeStreamPosition", (PyCFunction)Server_changeStreamPosition, METH_VARARGS, NULL},
+    {"getStreams", (PyCFunction)Server_getStreams, METH_NOARGS, NULL},
+    {"getSamplingRate", (PyCFunction)Server_getSamplingRate, METH_NOARGS, NULL},
+    {"getNchnls", (PyCFunction)Server_getNchnls, METH_NOARGS, NULL},
+    {"getIchnls", (PyCFunction)Server_getIchnls, METH_NOARGS, NULL},
+    {"getGlobalSeed", (PyCFunction)Server_getGlobalSeed, METH_NOARGS, NULL},
+    {"getBufferSize", (PyCFunction)Server_getBufferSize, METH_NOARGS, NULL},
+    {"getGlobalDur", (PyCFunction)Server_getGlobalDur, METH_NOARGS, NULL},
+    {"getGlobalDel", (PyCFunction)Server_getGlobalDel, METH_NOARGS, NULL},
+    {"getIsBooted", (PyCFunction)Server_getIsBooted, METH_NOARGS, NULL},
+    {"getIsStarted", (PyCFunction)Server_getIsStarted, METH_NOARGS, NULL},
+    {"setServer", (PyCFunction)Server_setServer, METH_NOARGS, NULL},
+    {"getInputAddr", (PyCFunction)Server_getInputAddr, METH_NOARGS, NULL},
+    {"getOutputAddr", (PyCFunction)Server_getOutputAddr, METH_NOARGS, NULL},
+    {"getServerID", (PyCFunction)Server_getServerID, METH_NOARGS, NULL},
+    {"getServerAddr", (PyCFunction)Server_getServerAddr, METH_NOARGS, NULL},
+    {"getEmbedICallbackAddr", (PyCFunction)Server_getEmbedICallbackAddr, METH_NOARGS, NULL},
+    {"setAutoStartChildren", (PyCFunction)Server_setAutoStartChildren, METH_O, NULL},
+    {"getAutoStartChildren", (PyCFunction)Server_getAutoStartChildren, METH_NOARGS, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -971,7 +974,7 @@ PyTypeObject ServerType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT, /*tp_flags*/
-    "Pyo Server object. Handles communication with Portaudio and processing callback loop.",           /* tp_doc */
+    "Pyo Server object",           /* tp_doc */
     (traverseproc)Server_traverse,   /* tp_traverse */
     (inquiry)Server_clear,           /* tp_clear */
     0,                       /* tp_richcompare */

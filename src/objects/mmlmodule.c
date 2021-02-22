@@ -840,21 +840,21 @@ MMLMain_update(MMLMain *self, PyObject *arg)
 
 static PyMemberDef MMLMain_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(MMLMain, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(MMLMain, stream), 0, "Stream object."},
-    {"sequence", T_OBJECT_EX, offsetof(MMLMain, sequence), 0, "Sequence of events."},
+    {"server", T_OBJECT_EX, offsetof(MMLMain, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(MMLMain, stream), 0, NULL},
+    {"sequence", T_OBJECT_EX, offsetof(MMLMain, sequence), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef MMLMain_methods[] =
 {
-    {"getServer", (PyCFunction)MMLMain_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)MMLMain_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)MMLMain_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)MMLMain_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setPending", (PyCFunction)MMLMain_setPending, METH_O, "Sets a new sequence of events."},
-    {"setSequence", (PyCFunction)MMLMain_setSequence, METH_O, "Sets a new sequence of events."},
-    {"update", (PyCFunction)MMLMain_update, METH_O, "Sets a new sequence of events."},
+    {"getServer", (PyCFunction)MMLMain_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)MMLMain_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)MMLMain_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)MMLMain_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setPending", (PyCFunction)MMLMain_setPending, METH_O, NULL},
+    {"setSequence", (PyCFunction)MMLMain_setSequence, METH_O, NULL},
+    {"update", (PyCFunction)MMLMain_update, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -880,7 +880,7 @@ PyTypeObject MMLMainType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "MMLMain objects. Read a MML sequence.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)MMLMain_traverse,   /* tp_traverse */
     (inquiry)MMLMain_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -1061,24 +1061,24 @@ static PyObject * MML_inplace_div(MML *self, PyObject *arg) { INPLACE_DIV };
 
 static PyMemberDef MML_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(MML, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(MML, stream), 0, "Stream object."},
-    {"mul", T_OBJECT_EX, offsetof(MML, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(MML, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(MML, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(MML, stream), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(MML, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(MML, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef MML_methods[] =
 {
-    {"getServer", (PyCFunction)MML_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)MML_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)MML_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)MML_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)MML_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setMul", (PyCFunction)MML_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)MML_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)MML_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)MML_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)MML_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)MML_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)MML_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)MML_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)MML_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setMul", (PyCFunction)MML_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)MML_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)MML_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)MML_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -1142,7 +1142,7 @@ PyTypeObject MMLType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "MML objects. Reads a channel from a MMLMain.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)MML_traverse,   /* tp_traverse */
     (inquiry)MML_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -1323,24 +1323,24 @@ static PyObject * MMLFreqStream_inplace_div(MMLFreqStream *self, PyObject *arg) 
 
 static PyMemberDef MMLFreqStream_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(MMLFreqStream, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(MMLFreqStream, stream), 0, "Stream object."},
-    {"mul", T_OBJECT_EX, offsetof(MMLFreqStream, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(MMLFreqStream, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(MMLFreqStream, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(MMLFreqStream, stream), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(MMLFreqStream, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(MMLFreqStream, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef MMLFreqStream_methods[] =
 {
-    {"getServer", (PyCFunction)MMLFreqStream_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)MMLFreqStream_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)MMLFreqStream_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)MMLFreqStream_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)MMLFreqStream_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setMul", (PyCFunction)MMLFreqStream_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)MMLFreqStream_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)MMLFreqStream_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)MMLFreqStream_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)MMLFreqStream_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)MMLFreqStream_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)MMLFreqStream_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)MMLFreqStream_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)MMLFreqStream_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setMul", (PyCFunction)MMLFreqStream_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)MMLFreqStream_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)MMLFreqStream_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)MMLFreqStream_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -1404,7 +1404,7 @@ PyTypeObject MMLFreqStreamType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "MMLFreqStream objects. Reads the current Freq from a MMLMain object.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)MMLFreqStream_traverse,   /* tp_traverse */
     (inquiry)MMLFreqStream_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -1585,24 +1585,24 @@ static PyObject * MMLAmpStream_inplace_div(MMLAmpStream *self, PyObject *arg) { 
 
 static PyMemberDef MMLAmpStream_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(MMLAmpStream, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(MMLAmpStream, stream), 0, "Stream object."},
-    {"mul", T_OBJECT_EX, offsetof(MMLAmpStream, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(MMLAmpStream, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(MMLAmpStream, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(MMLAmpStream, stream), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(MMLAmpStream, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(MMLAmpStream, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef MMLAmpStream_methods[] =
 {
-    {"getServer", (PyCFunction)MMLAmpStream_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)MMLAmpStream_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)MMLAmpStream_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)MMLAmpStream_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)MMLAmpStream_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setMul", (PyCFunction)MMLAmpStream_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)MMLAmpStream_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)MMLAmpStream_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)MMLAmpStream_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)MMLAmpStream_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)MMLAmpStream_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)MMLAmpStream_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)MMLAmpStream_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)MMLAmpStream_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setMul", (PyCFunction)MMLAmpStream_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)MMLAmpStream_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)MMLAmpStream_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)MMLAmpStream_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -1666,7 +1666,7 @@ PyTypeObject MMLAmpStreamType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "MMLAmpStream objects. Reads a amplitude channel from a MMLMain object.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)MMLAmpStream_traverse,   /* tp_traverse */
     (inquiry)MMLAmpStream_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -1847,24 +1847,24 @@ static PyObject * MMLDurStream_inplace_div(MMLDurStream *self, PyObject *arg) { 
 
 static PyMemberDef MMLDurStream_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(MMLDurStream, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(MMLDurStream, stream), 0, "Stream object."},
-    {"mul", T_OBJECT_EX, offsetof(MMLDurStream, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(MMLDurStream, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(MMLDurStream, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(MMLDurStream, stream), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(MMLDurStream, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(MMLDurStream, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef MMLDurStream_methods[] =
 {
-    {"getServer", (PyCFunction)MMLDurStream_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)MMLDurStream_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)MMLDurStream_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)MMLDurStream_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)MMLDurStream_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setMul", (PyCFunction)MMLDurStream_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)MMLDurStream_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)MMLDurStream_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)MMLDurStream_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)MMLDurStream_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)MMLDurStream_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)MMLDurStream_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)MMLDurStream_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)MMLDurStream_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setMul", (PyCFunction)MMLDurStream_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)MMLDurStream_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)MMLDurStream_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)MMLDurStream_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -1928,7 +1928,7 @@ PyTypeObject MMLDurStreamType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "MMLDurStream objects. Reads a duration channel from a MMLMain object.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)MMLDurStream_traverse,   /* tp_traverse */
     (inquiry)MMLDurStream_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -2109,24 +2109,24 @@ static PyObject * MMLEndStream_inplace_div(MMLEndStream *self, PyObject *arg) { 
 
 static PyMemberDef MMLEndStream_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(MMLEndStream, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(MMLEndStream, stream), 0, "Stream object."},
-    {"mul", T_OBJECT_EX, offsetof(MMLEndStream, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(MMLEndStream, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(MMLEndStream, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(MMLEndStream, stream), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(MMLEndStream, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(MMLEndStream, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef MMLEndStream_methods[] =
 {
-    {"getServer", (PyCFunction)MMLEndStream_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)MMLEndStream_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)MMLEndStream_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)MMLEndStream_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)MMLEndStream_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setMul", (PyCFunction)MMLEndStream_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)MMLEndStream_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)MMLEndStream_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)MMLEndStream_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)MMLEndStream_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)MMLEndStream_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)MMLEndStream_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)MMLEndStream_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)MMLEndStream_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setMul", (PyCFunction)MMLEndStream_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)MMLEndStream_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)MMLEndStream_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)MMLEndStream_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -2190,7 +2190,7 @@ PyTypeObject MMLEndStreamType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "MMLEndStream objects. Reads a duration channel from a MMLMain object.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)MMLEndStream_traverse,   /* tp_traverse */
     (inquiry)MMLEndStream_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -2371,24 +2371,24 @@ static PyObject * MMLXStream_inplace_div(MMLXStream *self, PyObject *arg) { INPL
 
 static PyMemberDef MMLXStream_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(MMLXStream, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(MMLXStream, stream), 0, "Stream object."},
-    {"mul", T_OBJECT_EX, offsetof(MMLXStream, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(MMLXStream, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(MMLXStream, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(MMLXStream, stream), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(MMLXStream, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(MMLXStream, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef MMLXStream_methods[] =
 {
-    {"getServer", (PyCFunction)MMLXStream_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)MMLXStream_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)MMLXStream_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)MMLXStream_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)MMLXStream_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setMul", (PyCFunction)MMLXStream_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)MMLXStream_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)MMLXStream_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)MMLXStream_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)MMLXStream_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)MMLXStream_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)MMLXStream_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)MMLXStream_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)MMLXStream_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setMul", (PyCFunction)MMLXStream_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)MMLXStream_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)MMLXStream_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)MMLXStream_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -2452,7 +2452,7 @@ PyTypeObject MMLXStreamType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "MMLXStream objects. Reads a Xation channel from a MMLMain object.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)MMLXStream_traverse,   /* tp_traverse */
     (inquiry)MMLXStream_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -2633,24 +2633,24 @@ static PyObject * MMLYStream_inplace_div(MMLYStream *self, PyObject *arg) { INPL
 
 static PyMemberDef MMLYStream_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(MMLYStream, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(MMLYStream, stream), 0, "Stream object."},
-    {"mul", T_OBJECT_EX, offsetof(MMLYStream, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(MMLYStream, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(MMLYStream, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(MMLYStream, stream), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(MMLYStream, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(MMLYStream, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef MMLYStream_methods[] =
 {
-    {"getServer", (PyCFunction)MMLYStream_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)MMLYStream_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)MMLYStream_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)MMLYStream_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)MMLYStream_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setMul", (PyCFunction)MMLYStream_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)MMLYStream_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)MMLYStream_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)MMLYStream_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)MMLYStream_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)MMLYStream_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)MMLYStream_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)MMLYStream_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)MMLYStream_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setMul", (PyCFunction)MMLYStream_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)MMLYStream_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)MMLYStream_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)MMLYStream_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -2714,7 +2714,7 @@ PyTypeObject MMLYStreamType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "MMLYStream objects. Reads a Yation channel from a MMLMain object.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)MMLYStream_traverse,   /* tp_traverse */
     (inquiry)MMLYStream_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -2895,24 +2895,24 @@ static PyObject * MMLZStream_inplace_div(MMLZStream *self, PyObject *arg) { INPL
 
 static PyMemberDef MMLZStream_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(MMLZStream, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(MMLZStream, stream), 0, "Stream object."},
-    {"mul", T_OBJECT_EX, offsetof(MMLZStream, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(MMLZStream, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(MMLZStream, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(MMLZStream, stream), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(MMLZStream, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(MMLZStream, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef MMLZStream_methods[] =
 {
-    {"getServer", (PyCFunction)MMLZStream_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)MMLZStream_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)MMLZStream_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)MMLZStream_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)MMLZStream_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setMul", (PyCFunction)MMLZStream_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)MMLZStream_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)MMLZStream_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)MMLZStream_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)MMLZStream_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)MMLZStream_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)MMLZStream_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)MMLZStream_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)MMLZStream_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setMul", (PyCFunction)MMLZStream_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)MMLZStream_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)MMLZStream_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)MMLZStream_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -2976,7 +2976,7 @@ PyTypeObject MMLZStreamType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "MMLZStream objects. Reads a Zation channel from a MMLMain object.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)MMLZStream_traverse,   /* tp_traverse */
     (inquiry)MMLZStream_clear,           /* tp_clear */
     0,                     /* tp_richcompare */

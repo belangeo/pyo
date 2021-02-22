@@ -527,30 +527,30 @@ Delay_reset(Delay *self)
 
 static PyMemberDef Delay_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(Delay, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(Delay, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(Delay, input), 0, "Input sound object."},
-    {"delay", T_OBJECT_EX, offsetof(Delay, delay), 0, "Delay time in seconds."},
-    {"feedback", T_OBJECT_EX, offsetof(Delay, feedback), 0, "Feedback value."},
-    {"mul", T_OBJECT_EX, offsetof(Delay, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(Delay, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(Delay, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(Delay, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(Delay, input), 0, NULL},
+    {"delay", T_OBJECT_EX, offsetof(Delay, delay), 0, NULL},
+    {"feedback", T_OBJECT_EX, offsetof(Delay, feedback), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(Delay, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(Delay, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef Delay_methods[] =
 {
-    {"getServer", (PyCFunction)Delay_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)Delay_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Delay_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)Delay_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Delay_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setDelay", (PyCFunction)Delay_setDelay, METH_O, "Sets delay time in seconds."},
-    {"setFeedback", (PyCFunction)Delay_setFeedback, METH_O, "Sets feedback value between 0 -> 1."},
-    {"reset", (PyCFunction)Delay_reset, METH_NOARGS, "Resets the memory buffer to zeros."},
-    {"setMul", (PyCFunction)Delay_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)Delay_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)Delay_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)Delay_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)Delay_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)Delay_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)Delay_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)Delay_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)Delay_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setDelay", (PyCFunction)Delay_setDelay, METH_O, NULL},
+    {"setFeedback", (PyCFunction)Delay_setFeedback, METH_O, NULL},
+    {"reset", (PyCFunction)Delay_reset, METH_NOARGS, NULL},
+    {"setMul", (PyCFunction)Delay_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)Delay_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)Delay_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)Delay_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -614,7 +614,7 @@ PyTypeObject DelayType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Delay objects. Delay signal by x samples.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)Delay_traverse,   /* tp_traverse */
     (inquiry)Delay_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -969,28 +969,28 @@ SDelay_reset(SDelay *self)
 
 static PyMemberDef SDelay_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(SDelay, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(SDelay, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(SDelay, input), 0, "Input sound object."},
-    {"delay", T_OBJECT_EX, offsetof(SDelay, delay), 0, "Delay time in seconds."},
-    {"mul", T_OBJECT_EX, offsetof(SDelay, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(SDelay, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(SDelay, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(SDelay, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(SDelay, input), 0, NULL},
+    {"delay", T_OBJECT_EX, offsetof(SDelay, delay), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(SDelay, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(SDelay, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef SDelay_methods[] =
 {
-    {"getServer", (PyCFunction)SDelay_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)SDelay_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)SDelay_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)SDelay_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)SDelay_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setDelay", (PyCFunction)SDelay_setDelay, METH_O, "Sets delay time in seconds."},
-    {"reset", (PyCFunction)SDelay_reset, METH_NOARGS, "Resets the memory buffer to zeros."},
-    {"setMul", (PyCFunction)SDelay_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)SDelay_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)SDelay_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)SDelay_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)SDelay_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)SDelay_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)SDelay_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)SDelay_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)SDelay_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setDelay", (PyCFunction)SDelay_setDelay, METH_O, NULL},
+    {"reset", (PyCFunction)SDelay_reset, METH_NOARGS, NULL},
+    {"setMul", (PyCFunction)SDelay_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)SDelay_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)SDelay_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)SDelay_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -1054,7 +1054,7 @@ PyTypeObject SDelayType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "SDelay objects. Simple Delay with no interpolation and no feedback.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)SDelay_traverse,   /* tp_traverse */
     (inquiry)SDelay_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -1787,30 +1787,30 @@ Waveguide_setDur(Waveguide *self, PyObject *arg)
 
 static PyMemberDef Waveguide_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(Waveguide, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(Waveguide, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(Waveguide, input), 0, "Input sound object."},
-    {"freq", T_OBJECT_EX, offsetof(Waveguide, freq), 0, "Waveguide time in seconds."},
-    {"dur", T_OBJECT_EX, offsetof(Waveguide, dur), 0, "Feedback value."},
-    {"mul", T_OBJECT_EX, offsetof(Waveguide, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(Waveguide, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(Waveguide, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(Waveguide, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(Waveguide, input), 0, NULL},
+    {"freq", T_OBJECT_EX, offsetof(Waveguide, freq), 0, NULL},
+    {"dur", T_OBJECT_EX, offsetof(Waveguide, dur), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(Waveguide, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(Waveguide, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef Waveguide_methods[] =
 {
-    {"getServer", (PyCFunction)Waveguide_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)Waveguide_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Waveguide_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)Waveguide_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Waveguide_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"reset", (PyCFunction)Waveguide_reset, METH_NOARGS, "Reset the delay line."},
-    {"setFreq", (PyCFunction)Waveguide_setFreq, METH_O, "Sets freq time in seconds."},
-    {"setDur", (PyCFunction)Waveguide_setDur, METH_O, "Sets dur value between 0 -> 1."},
-    {"setMul", (PyCFunction)Waveguide_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)Waveguide_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)Waveguide_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)Waveguide_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)Waveguide_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)Waveguide_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)Waveguide_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)Waveguide_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)Waveguide_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"reset", (PyCFunction)Waveguide_reset, METH_NOARGS, NULL},
+    {"setFreq", (PyCFunction)Waveguide_setFreq, METH_O, NULL},
+    {"setDur", (PyCFunction)Waveguide_setDur, METH_O, NULL},
+    {"setMul", (PyCFunction)Waveguide_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)Waveguide_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)Waveguide_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)Waveguide_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -1874,7 +1874,7 @@ PyTypeObject WaveguideType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Waveguide objects. Waveguide signal by x samples.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)Waveguide_traverse,   /* tp_traverse */
     (inquiry)Waveguide_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -3037,32 +3037,32 @@ AllpassWG_setDetune(AllpassWG *self, PyObject *arg)
 
 static PyMemberDef AllpassWG_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(AllpassWG, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(AllpassWG, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(AllpassWG, input), 0, "Input sound object."},
-    {"freq", T_OBJECT_EX, offsetof(AllpassWG, freq), 0, "AllpassWG time in seconds."},
-    {"feed", T_OBJECT_EX, offsetof(AllpassWG, feed), 0, "Feedback value."},
-    {"detune", T_OBJECT_EX, offsetof(AllpassWG, detune), 0, "Detune value between 0 and 1."},
-    {"mul", T_OBJECT_EX, offsetof(AllpassWG, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(AllpassWG, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(AllpassWG, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(AllpassWG, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(AllpassWG, input), 0, NULL},
+    {"freq", T_OBJECT_EX, offsetof(AllpassWG, freq), 0, NULL},
+    {"feed", T_OBJECT_EX, offsetof(AllpassWG, feed), 0, NULL},
+    {"detune", T_OBJECT_EX, offsetof(AllpassWG, detune), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(AllpassWG, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(AllpassWG, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef AllpassWG_methods[] =
 {
-    {"getServer", (PyCFunction)AllpassWG_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)AllpassWG_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)AllpassWG_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)AllpassWG_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)AllpassWG_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"reset", (PyCFunction)AllpassWG_reset, METH_NOARGS, "Reset the delay line."},
-    {"setFreq", (PyCFunction)AllpassWG_setFreq, METH_O, "Sets freq time in seconds."},
-    {"setFeed", (PyCFunction)AllpassWG_setFeed, METH_O, "Sets feed value between 0 -> 1."},
-    {"setDetune", (PyCFunction)AllpassWG_setDetune, METH_O, "Sets detune value between 0 -> 1."},
-    {"setMul", (PyCFunction)AllpassWG_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)AllpassWG_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)AllpassWG_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)AllpassWG_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)AllpassWG_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)AllpassWG_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)AllpassWG_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)AllpassWG_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)AllpassWG_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"reset", (PyCFunction)AllpassWG_reset, METH_NOARGS, NULL},
+    {"setFreq", (PyCFunction)AllpassWG_setFreq, METH_O, NULL},
+    {"setFeed", (PyCFunction)AllpassWG_setFeed, METH_O, NULL},
+    {"setDetune", (PyCFunction)AllpassWG_setDetune, METH_O, NULL},
+    {"setMul", (PyCFunction)AllpassWG_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)AllpassWG_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)AllpassWG_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)AllpassWG_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -3126,7 +3126,7 @@ PyTypeObject AllpassWGType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "AllpassWG objects. Waveguide model with builtin allpass circuit to detune resonance frequencies.", /* tp_doc */
+    0, /* tp_doc */
     (traverseproc)AllpassWG_traverse,   /* tp_traverse */
     (inquiry)AllpassWG_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -3324,25 +3324,25 @@ static PyObject * Delay1_inplace_div(Delay1 *self, PyObject *arg) { INPLACE_DIV 
 
 static PyMemberDef Delay1_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(Delay1, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(Delay1, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(Delay1, input), 0, "Input sound object."},
-    {"mul", T_OBJECT_EX, offsetof(Delay1, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(Delay1, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(Delay1, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(Delay1, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(Delay1, input), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(Delay1, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(Delay1, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef Delay1_methods[] =
 {
-    {"getServer", (PyCFunction)Delay1_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)Delay1_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Delay1_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)Delay1_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Delay1_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setMul", (PyCFunction)Delay1_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)Delay1_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)Delay1_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)Delay1_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)Delay1_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)Delay1_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)Delay1_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)Delay1_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)Delay1_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setMul", (PyCFunction)Delay1_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)Delay1_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)Delay1_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)Delay1_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -3406,7 +3406,7 @@ PyTypeObject Delay1Type =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Delay1 objects. Delays a signal by one sample.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)Delay1_traverse,                  /* tp_traverse */
     (inquiry)Delay1_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -4128,31 +4128,31 @@ SmoothDelay_reset(SmoothDelay *self)
 
 static PyMemberDef SmoothDelay_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(SmoothDelay, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(SmoothDelay, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(SmoothDelay, input), 0, "Input sound object."},
-    {"delay", T_OBJECT_EX, offsetof(SmoothDelay, delay), 0, "SmoothDelay time in seconds."},
-    {"feedback", T_OBJECT_EX, offsetof(SmoothDelay, feedback), 0, "Feedback value."},
-    {"mul", T_OBJECT_EX, offsetof(SmoothDelay, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(SmoothDelay, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(SmoothDelay, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(SmoothDelay, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(SmoothDelay, input), 0, NULL},
+    {"delay", T_OBJECT_EX, offsetof(SmoothDelay, delay), 0, NULL},
+    {"feedback", T_OBJECT_EX, offsetof(SmoothDelay, feedback), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(SmoothDelay, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(SmoothDelay, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef SmoothDelay_methods[] =
 {
-    {"getServer", (PyCFunction)SmoothDelay_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)SmoothDelay_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)SmoothDelay_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)SmoothDelay_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)SmoothDelay_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setDelay", (PyCFunction)SmoothDelay_setDelay, METH_O, "Sets delay time in seconds."},
-    {"setFeedback", (PyCFunction)SmoothDelay_setFeedback, METH_O, "Sets feedback value between 0 -> 1."},
-    {"setCrossfade", (PyCFunction)SmoothDelay_setCrossfade, METH_O, "Sets crossfade time."},
-    {"reset", (PyCFunction)SmoothDelay_reset, METH_NOARGS, "Resets the memory buffer to zeros."},
-    {"setMul", (PyCFunction)SmoothDelay_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)SmoothDelay_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)SmoothDelay_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)SmoothDelay_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)SmoothDelay_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)SmoothDelay_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)SmoothDelay_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)SmoothDelay_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)SmoothDelay_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setDelay", (PyCFunction)SmoothDelay_setDelay, METH_O, NULL},
+    {"setFeedback", (PyCFunction)SmoothDelay_setFeedback, METH_O, NULL},
+    {"setCrossfade", (PyCFunction)SmoothDelay_setCrossfade, METH_O, NULL},
+    {"reset", (PyCFunction)SmoothDelay_reset, METH_NOARGS, NULL},
+    {"setMul", (PyCFunction)SmoothDelay_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)SmoothDelay_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)SmoothDelay_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)SmoothDelay_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -4216,7 +4216,7 @@ PyTypeObject SmoothDelayType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "SmoothDelay objects. Delay signal by x samples.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)SmoothDelay_traverse,   /* tp_traverse */
     (inquiry)SmoothDelay_clear,           /* tp_clear */
     0,                     /* tp_richcompare */

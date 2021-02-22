@@ -1,126 +1,21 @@
-"""
-Music Macro Language evaluator.
+# Copyright 2009-2021 Olivier Belanger
+# 
+# This file is part of pyo, a python module to help digital signal
+# processing script creation.
+#
+# pyo is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# pyo is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 
-The MML object implements acustom MML evaluator to allow simple and efficient
-music composition within pyo. The language's rules are explained below.
-
-The MML object generates triggers on new notes with additional streams to
-handle frequency, amplitude, duration and custom parameters. See the object
-documentation for more details.
-
-API documentation
-=================
-
-- The space separates the tokens in a music sequence (a token can be a note value,
-  an amplitude control, a tempo statement, etc.).
-
-Pre-Processing on music text
-----------------------------
-
-- A comment starts with a semicolon ( ; ) and ends at the end of the line. This
-  text will be removed before starting to evaluate the sequences.
-
-- A musical voice is represented by a single line of code.
-
-- We can break a long line into multiple short lines with the backslash ( \ ).
-
-- The symbol equal ( = ), preceded by a variable name in UPPER CASE, creates a
-  macro. The remaining part of the line is the macro body. Anywhere the 
-  pre-processor finds the variable name in the music, it will be replaced by the
-  macro's body.
-
-Realtime Processing of the music
---------------------------------
-
-- The letters `a` to `g` correspond to the musical pitches and cause the
-  corresponding note to be played.
-
-- Sharp notes are produced by appending a `+` to the pitch value, and flat notes
-  by appending a `-` to the pitch value.
-
-- The length of a note is specified by an integer following the note name. If a
-  note doesn't have a duration, the last specified duration is used. Default
-  duration is the Sixteenth note. Length values are:
-
-  - 0 = Thirty-second note
-  - 1 = Sixteenth note
-  - 2 = Dotted sixteenth note
-  - 3 = Eighth note
-  - 4 = Dotted eighth note
-  - 5 = Quarter note
-  - 6 = Dotted quarter note
-  - 7 = Half note
-  - 8 = Dotted half note
-  - 9 = Whole note
-
-- The letter `r` corresponds to a rest. The length of the rest is specified in
-  the same manner as the length of a note.
-
-- Notes surrounded by brakets ( `(` and `)` ) act as tuplet. Tuplet length is specified
-  just after the closing bracket using the same values as for a note duration. Length of
-  each note in tuplet will evenly be <note length of tuplet> / <count of notes in tuplet>.
-  If not specified, tuplet duration defaults to 5 (quarter note).
-
-- The letter `o`, followed by a number, selects the octave the instrument will play in.
-  If the letter `o` is followed by the symbol `+`, the octave steps up by one. If followed
-  by the symbol `-`, the octave steps down by one. If a number follows the symbol `+` or `-`,
-  the octave steps up or down by the given amount of octaves.
-
-- The letter `t`, followed by a number, sets the tempo in beats-per-minute.
-  If the letter `t` is followed by the symbol `+`, the tempo increases by one. If followed
-  by the symbol `-`, the tempo decreases by one. If a number follows the symbol `+` or `-`,
-  the tempo increases or decreases by the given amount of BPM.
-
-- The letter `v`, followed by a number between 0 and 100, sets the volume for the following
-  notes. If the letter `v` is followed by the symbol `+`, the volume increases by one. If
-  followed by the symbol `-`, the volume decreases by one. If a number follows the symbol 
-  `+` or `-`, the volume increases or decreases by the given amount.
-
-- The symbol #, followed by a number indicates the voice number for the line. This should be
-  the first token of a line. If missing, the line defaults to voice number 0.
-
-- The letters `x`, `y` an `z`, followed by a real number, are user-defined parameters. They
-  can be used to control specific parameters of the synthesizer.
-  If the letter is followed by the symbol `+`, the value increases by 0.01. If followed
-  by the symbol `-`, the value decreases by 0.01. If a number follows the symbol `+` or `-`,
-  the value increases or decreases by the given amount.
-
-- Random choice within a set of values can be done with the ? symbol, followed by the
-  possible values inside square brackets.
-  Ex. ?[c e g b-] ; the note is a random choice between c e g and b-.
-
-- Random choice between a range can be done with the ? symbol, followed by the range inside
-  curly brackets. If two values are presents, they are the minimum and maximum of the range.
-  If there is only one value, the range is 0 to this value and if the brackets are empty, the
-  range is 0 to 1.
-  Ex. v?{40 70} ; volume is set randomly between 40 and 70.
-
-- The symbol |: starts a looped segment and the symbol :| ends it. A number right after the
-  last symbol indicates how many loops to perform. If missing, the number of loops is two (the
-  first pass + one repetition). It is possible to use loops inside other loops. There is no
-  limit to the number of levels of loop embedding.
-
-"""
-
-"""
-Copyright 2009-2020 Olivier Belanger
-
-This file is part of pyo, a python module to help digital signal
-processing script creation.
-
-pyo is free software: you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as
-published by the Free Software Foundation, either version 3 of the
-License, or (at your option) any later version.
-
-pyo is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public
-License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
-"""
 from ._core import *
 
 ### MML framework ###
@@ -311,84 +206,6 @@ class MMLParser:
 
 
 class MML(PyoObject):
-    """
-    Generates music sequences based on a custom MML notation.
-
-    Music Macro Language (MML) is a music description language used in
-    sequencing music on computer and video game systems.
-
-
-    :Parent: :py:class:`PyoObject`
-
-    :Args:
-
-        music: string
-            The new music code to parse. If the string is a valid path
-            to a text file, the file is opened and its content is taken
-            as the music code.
-        voices: int, optional
-            The number of voices in the music code. This number is used
-            to initialize the internal voices that will play the sequences.
-            Defaults to 1.
-        loop: bool, optional
-            If True, the playback will start again when the music reaches
-            its end, otherwise the object just stops to send triggers.
-            Defaults to False.
-        poly: int, optional
-            Per voice polyphony. Denotes how many independent streams are
-            generated per voice by the object, allowing overlapping
-            processes.
-
-            Available only at initialization. Defaults to 1.
-        updateAtEnd: bool, optional
-            If True, voices will update their internal sequence only when
-            the current one reaches its end, no matter when the `music`
-            argument is changed. If False, sequences are updated immediately.
-            Defaults to False.
-
-    .. note::
-
-        MML outputs many signals identified with a string between brackets:
-
-        |  obj['freq'] returns an audio stream of the current note frequency.
-        |  obj['amp'] returns an audio stream of the current note amplitude.
-        |  obj['dur'] returns an audio stream of the current note duration in seconds.
-        |  obj['end'] returns an audio stream with a trigger at the end of the sequence.
-        |  obj['x'] returns an audio stream with the current value of the `x` parameter.
-        |  obj['y'] returns an audio stream with the current value of the `y` parameter.
-        |  obj['z'] returns an audio stream with the current value of the `z` parameter.
-
-        obj without brackets returns the generated trigger streams of the music.
-
-        The out() method is bypassed. MML's signal can not be sent to audio outs.
-
-        MML has no `mul` and `add` attributes.
-
-    >>> s = Server().boot()
-    >>> s.start()
-    >>> a = '''
-    >>> ; Title: La perdriole
-    >>> ; Author: traditionnel
-    >>> A = r6 o4 v40 g3 v50 o5 c d e f g5 o+ c o- b3 a g f e d c7
-    >>> B = |: g3 g g4 f1 e3 d c5 :| g1 g g g g g g g b-3 o+ c d7 r7
-    >>> C = |: o5 c4 d1 e3 f g4 o+ c1 o- b3 a g f e d e d c5 r5 :|
-    >>> #0 t92 x.1 |: A A B C :|
-    >>> A1 = |: r7 o4 c7 d7 e5 f g c7 :|
-    >>> B1 = |: g7 o- b5 o+ c :| d5 d f g7 r7
-    >>> C1 = |: c8 d7 g c5 r5 :|
-    >>> #1 t92 x0.25 v50 |: A1 B1 C1 :|
-    >>> '''
-    >>> t = CosTable([(0,0), (64,1), (1024,1), (4096, 0.5), (8191,0)])
-    >>> mml = MML(a, voices=2, loop=True, poly=4).play()
-    >>> dur = Sig(mml.getVoice(0, "dur"), mul=2)
-    >>> tr = TrigEnv(mml.getVoice(0), table=t, dur=dur, mul=mml.getVoice(0, "amp"))
-    >>> a = SineLoop(freq=mml.getVoice(0, "freq"), feedback=mml.getVoice(0, "x"), mul=tr).mix()
-    >>> dur2 = Sig(mml.getVoice(1, "dur"), mul=2)
-    >>> tr2 = TrigEnv(mml.getVoice(1), table=t, dur=dur2, mul=mml.getVoice(1, "amp"))
-    >>> a2 = LFO(freq=mml.getVoice(1, "freq"), sharp=mml.getVoice(1, "x"), type=2, mul=tr2).mix()
-    >>> output = STRev([a, a2], inpos=[0.2, 0.8], bal=0.2, mul=1.5).out()
-
-    """
 
     def __init__(self, music, voices=1, loop=False, poly=1, updateAtEnd=False):
         pyoArgsAssert(self, "SIBIB", music, voices, loop, poly, updateAtEnd)
@@ -481,45 +298,12 @@ class MML(PyoObject):
                 return None
 
     def get(self, identifier="amp", all=False):
-        """
-        Return the first sample of the current buffer as a float.
-
-        Can be used to convert audio stream to usable Python data.
-
-        "freq", "amp", "dur", "end", "x", "y" or "z" can be given
-        to `identifier` to retrieve a specific stream to get the
-        value from.
-
-        :Args:
-
-            identifier: string {"freq", "amp", "dur", "end", "x", "y", "z"}
-                Address string parameter identifying audio stream.
-                Defaults to "amp".
-            all: boolean, optional
-                If True, the first value of each object's stream
-                will be returned as a list.
-
-                If False, only the value of the first object's
-                stream will be returned as a float.
-
-        """
         if not all:
             return self.__getitem__(identifier)[0]._getStream().getValue()
         else:
             return [obj._getStream().getValue() for obj in self.__getitem__(identifier).getBaseObjects()]
 
     def setMusic(self, x):
-        """
-        Replace the `music` attribute.
-
-        :Args:
-
-            x: string
-                The new music code to parse. If the string is a valid path
-                to a text file, the file is opened and its content is taken
-                as the music code.
-
-        """
         pyoArgsAssert(self, "S", x)
         self._music = x
         if os.path.isfile(x):
@@ -536,38 +320,14 @@ class MML(PyoObject):
                 self._base_players[i].update(self._sequences[i])
 
     def getSequences(self):
-        """
-        Returns the sequences parsed from the music text.
-
-        """
         return self._sequences
 
     def getNoteFromPitch(self, x):
-        """
-        Converts a MIDI note to MML notation and returns the result as a string.
-
-        :Args:
-
-            x: int
-                The MIDI note to convert to MML notation. This will return two tokens,
-                the octave followed by the note name.
-
-        """
         oct = int(x / 12)
         pit = self._pitches[x % 12]
         return "o%d %s" % (oct, pit)
 
     def getVolumeFromVelocity(self, x):
-        """
-        Converts a MIDI velocity to MML volume notation and returns the result as a string.
-
-        :Args:
-
-            x: int
-                The MIDI velocity to convert to MML volume notation. This will return a
-                volume token.
-
-        """
         vol = int(x / 127)
         return "v%d" % vol
 
@@ -609,7 +369,6 @@ class MML(PyoObject):
 
     @property
     def music(self):
-        """string. The music code to parse."""
         return self._music
 
     @music.setter

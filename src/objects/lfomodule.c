@@ -1525,30 +1525,30 @@ LFO_reset(LFO *self)
 
 static PyMemberDef LFO_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(LFO, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(LFO, stream), 0, "Stream object."},
-    {"freq", T_OBJECT_EX, offsetof(LFO, freq), 0, "Cutoff frequency in cycle per second."},
-    {"sharp", T_OBJECT_EX, offsetof(LFO, sharp), 0, "Sharpness factor."},
-    {"mul", T_OBJECT_EX, offsetof(LFO, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(LFO, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(LFO, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(LFO, stream), 0, NULL},
+    {"freq", T_OBJECT_EX, offsetof(LFO, freq), 0, NULL},
+    {"sharp", T_OBJECT_EX, offsetof(LFO, sharp), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(LFO, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(LFO, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef LFO_methods[] =
 {
-    {"getServer", (PyCFunction)LFO_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)LFO_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)LFO_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)LFO_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)LFO_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setFreq", (PyCFunction)LFO_setFreq, METH_O, "Sets oscillator frequency in cycle per second."},
-    {"setSharp", (PyCFunction)LFO_setSharp, METH_O, "Sets the sharpness factor."},
-    {"setType", (PyCFunction)LFO_setType, METH_O, "Sets waveform type."},
-    {"reset", (PyCFunction)LFO_reset, METH_NOARGS, "Resets pointer position to 0."},
-    {"setMul", (PyCFunction)LFO_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)LFO_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)LFO_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)LFO_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)LFO_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)LFO_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)LFO_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)LFO_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)LFO_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setFreq", (PyCFunction)LFO_setFreq, METH_O, NULL},
+    {"setSharp", (PyCFunction)LFO_setSharp, METH_O, NULL},
+    {"setType", (PyCFunction)LFO_setType, METH_O, NULL},
+    {"reset", (PyCFunction)LFO_reset, METH_NOARGS, NULL},
+    {"setMul", (PyCFunction)LFO_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)LFO_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)LFO_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)LFO_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -1612,7 +1612,7 @@ PyTypeObject LFOType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "LFO objects. Generates a Low Frequency Oscillator with different waveshapes.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)LFO_traverse,                  /* tp_traverse */
     (inquiry)LFO_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */

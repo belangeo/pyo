@@ -1,69 +1,26 @@
-"""
-Set of objects to manage audio voice routing and spread of a sound
-signal into a new stereo or multi-channel sound field.
+# Copyright 2009-2021 Olivier Belanger
+# 
+# This file is part of pyo, a python module to help digital signal
+# processing script creation.
+#
+# pyo is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# pyo is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 
-"""
-
-"""
-Copyright 2009-2015 Olivier Belanger
-
-This file is part of pyo, a python module to help digital signal
-processing script creation.
-
-pyo is free software: you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as
-published by the Free Software Foundation, either version 3 of the
-License, or (at your option) any later version.
-
-pyo is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public
-License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
-"""
 import sys
 from ._core import *
 
 
 class Pan(PyoObject):
-    """
-    Cosinus panner with control on the spread factor.
-
-    :Parent: :py:class:`PyoObject`
-
-    :Args:
-
-        input: PyoObject
-            Input signal to process.
-        outs: int, optional
-            Number of channels on the panning circle. Available at
-            initialization time only. Defaults to 2.
-        pan: float or PyoObject
-            Position of the sound on the panning circle, between 0 and 1.
-            Defaults to 0.5.
-        spread: float or PyoObject
-            Amount of sound leaking to the surrounding channels,
-            between 0 and 1. Defaults to 0.5.
-
-    .. note::
-
-        When used with two output channels, the algorithm used is the
-        cosine/sine constant power panning law. The SPan object uses
-        the square root of intensity constant power panning law.
-
-    .. seealso::
-
-        :py:class:`SPan`, :py:class:`Switch`, :py:class:`Selector`
-
-    >>> s = Server(nchnls=2).boot()
-    >>> s.start()
-    >>> a = Noise(mul=.2)
-    >>> lfo = Sine(freq=1, mul=.5, add=.5)
-    >>> p = Pan(a, outs=2, pan=lfo).out()
-
-    """
 
     def __init__(self, input, outs=2, pan=0.5, spread=0.5, mul=1, add=0):
         pyoArgsAssert(self, "oIOOOO", input, outs, pan, spread, mul, add)
@@ -82,46 +39,17 @@ class Pan(PyoObject):
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
-        """
-        Replace the `input` attribute.
-
-        :Args:
-
-            x: PyoObject
-                New signal to process.
-            fadetime: float, optional
-                Crossfade time between old and new input. Default to 0.05.
-
-        """
         pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
     def setPan(self, x):
-        """
-        Replace the `pan` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                new `pan` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._pan = x
         x, lmax = convertArgsToLists(x)
         [obj.setPan(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
     def setSpread(self, x):
-        """
-        Replace the `spread` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                new `spread` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._spread = x
         x, lmax = convertArgsToLists(x)
@@ -129,7 +57,6 @@ class Pan(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process."""
         return self._input
 
     @input.setter
@@ -138,7 +65,6 @@ class Pan(PyoObject):
 
     @property
     def pan(self):
-        """float or PyoObject. Position of the sound on the panning circle."""
         return self._pan
 
     @pan.setter
@@ -147,7 +73,6 @@ class Pan(PyoObject):
 
     @property
     def spread(self):
-        """float or PyoObject. Amount of sound leaking to the surrounding channels."""
         return self._spread
 
     @spread.setter
@@ -156,39 +81,6 @@ class Pan(PyoObject):
 
 
 class SPan(PyoObject):
-    """
-    Simple equal power panner.
-
-    :Parent: :py:class:`PyoObject`
-
-    :Args:
-
-        input: PyoObject
-            Input signal to process.
-        outs: int, optional
-            Number of channels on the panning circle. Available at
-            initialization time only. Defaults to 2.
-        pan: float or PyoObject
-            Position of the sound on the panning circle, between 0 and 1.
-            Defaults to 0.5.
-
-    .. note::
-
-        When used with two output channels, the algorithm used is the
-        square root of intensity constant power panning law. The Pan
-        object uses the cosine/sine constant power panning law.
-
-    .. seealso::
-
-        :py:class:`Pan`, :py:class:`Switch`, :py:class:`Selector`
-
-    >>> s = Server(nchnls=2).boot()
-    >>> s.start()
-    >>> a = Noise(mul=.2)
-    >>> lfo = Sine(freq=1, mul=.5, add=.5)
-    >>> p = SPan(a, outs=2, pan=lfo).out()
-
-    """
 
     def __init__(self, input, outs=2, pan=0.5, mul=1, add=0):
         pyoArgsAssert(self, "oIOOO", input, outs, pan, mul, add)
@@ -206,31 +98,11 @@ class SPan(PyoObject):
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
-        """
-        Replace the `input` attribute.
-
-        :Args:
-
-            x: PyoObject
-                New signal to process.
-            fadetime: float, optional
-                Crossfade time between old and new input. Default to 0.05.
-
-        """
         pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
     def setPan(self, x):
-        """
-        Replace the `pan` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                new `pan` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._pan = x
         x, lmax = convertArgsToLists(x)
@@ -238,7 +110,6 @@ class SPan(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process."""
         return self._input
 
     @input.setter
@@ -247,7 +118,6 @@ class SPan(PyoObject):
 
     @property
     def pan(self):
-        """float or PyoObject. Position of the sound on the panning circle."""
         return self._pan
 
     @pan.setter
@@ -256,38 +126,6 @@ class SPan(PyoObject):
 
 
 class Switch(PyoObject):
-    """
-    Audio switcher.
-
-    Switch takes an audio input and interpolates between multiple outputs.
-
-    User can retrieve the different streams by calling the output number
-    between brackets. obj[0] retrieve the first stream, obj[outs-1] the
-    last one.
-
-    :Parent: :py:class:`PyoObject`
-
-    :Args:
-
-        input: PyoObject
-            Input signal to process.
-        outs: int, optional
-            Number of outputs. Available at initialization time only.
-            Defaults to 2.
-        voice: float or PyoObject
-            Voice position pointer, between 0 and (outs-1) / len(input).
-            Defaults to 0.
-
-    >>> s = Server(nchnls=2).boot()
-    >>> s.start()
-    >>> a = SfPlayer(SNDS_PATH + "/transparent.aif", speed=[.999,1], loop=True, mul=.3)
-    >>> lf = Sine(freq=.25, mul=1, add=1)
-    >>> b = Switch(a, outs=6, voice=lf)
-    >>> c = WGVerb(b[0:2], feedback=.8).out()
-    >>> d = Disto(b[2:4], drive=.9, mul=.1).out()
-    >>> e = Delay(b[4:6], delay=.2, feedback=.6).out()
-
-    """
 
     def __init__(self, input, outs=2, voice=0.0, mul=1, add=0):
         pyoArgsAssert(self, "oIOOO", input, outs, voice, mul, add)
@@ -305,31 +143,11 @@ class Switch(PyoObject):
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
-        """
-        Replace the `input` attribute.
-
-        :Args:
-
-            x: PyoObject
-                New signal to process.
-            fadetime: float, optional
-                Crossfade time between old and new input. Default to 0.05.
-
-        """
         pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
     def setVoice(self, x):
-        """
-        Replace the `voice` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                new `voice` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._voice = x
         x, lmax = convertArgsToLists(x)
@@ -337,7 +155,6 @@ class Switch(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process."""
         return self._input
 
     @input.setter
@@ -346,7 +163,6 @@ class Switch(PyoObject):
 
     @property
     def voice(self):
-        """float or PyoObject. Voice position pointer."""
         return self._voice
 
     @voice.setter
@@ -355,31 +171,6 @@ class Switch(PyoObject):
 
 
 class Selector(PyoObject):
-    """
-    Audio selector.
-
-    Selector takes multiple PyoObjects in input and interpolates between
-    them to generate a single output.
-
-    :Parent: :py:class:`PyoObject`
-
-    :Args:
-
-        inputs: list of PyoObject
-            Audio objects to interpolate from.
-        voice: float or PyoObject, optional
-            Voice position pointer, between 0 and len(inputs)-1.
-            Defaults to 0.
-
-    >>> s = Server().boot()
-    >>> s.start()
-    >>> a = SfPlayer(SNDS_PATH + "/transparent.aif", speed=[.999,1], loop=True, mul=.3)
-    >>> b = Noise(mul=.1)
-    >>> c = SfPlayer(SNDS_PATH + "/accord.aif", speed=[.999,1], loop=True, mul=.5)
-    >>> lf = Sine(freq=.1, add=1)
-    >>> d = Selector(inputs=[a,b,c], voice=lf).out()
-
-    """
 
     def __init__(self, inputs, voice=0.0, mul=1, add=0):
         pyoArgsAssert(self, "lOOO", inputs, voice, mul, add)
@@ -408,15 +199,6 @@ class Selector(PyoObject):
         self._init_play()
 
     def setInputs(self, x):
-        """
-        Replace the `inputs` attribute.
-
-        :Args:
-
-            x: list of PyoObject
-                new `inputs` attribute.
-
-        """
         pyoArgsAssert(self, "l", x)
         self._inputs = x
         for i in range(self._lmax):
@@ -430,15 +212,6 @@ class Selector(PyoObject):
                 self._base_objs[i + j * self._lmax].setInputs(choice)
 
     def setVoice(self, x):
-        """
-        Replace the `voice` attribute.
-
-        :Args:
-
-            x: float or PyoObject
-                new `voice` attribute.
-
-        """
         pyoArgsAssert(self, "O", x)
         self._voice = x
         x, lmax = convertArgsToLists(x)
@@ -446,26 +219,12 @@ class Selector(PyoObject):
             obj.setVoice(wrap(x, i // self._length))
 
     def setMode(self, x):
-        """
-        Change the algorithm used to interpolate between inputs.
-
-        if inputs are phase correlated you should use a linear fade.
-
-        :Args:
-
-            x: int {0, 1}
-                If 0 (the default) the equal power law is used to
-                interpolate bewtween sources. If 1, linear fade is
-                used instead.
-
-        """
         pyoArgsAssert(self, "i", x)
         self._mode = x
         [obj.setMode(x) for obj in self._base_objs]
 
     @property
     def inputs(self):
-        """List of PyoObjects. Audio objects to interpolate from."""
         return self._inputs
 
     @inputs.setter
@@ -474,7 +233,6 @@ class Selector(PyoObject):
 
     @property
     def voice(self):
-        """float or PyoObject. Voice position pointer."""
         return self._voice
 
     @voice.setter
@@ -483,45 +241,6 @@ class Selector(PyoObject):
 
 
 class VoiceManager(PyoObject):
-    """
-    Polyphony voice manager.
-
-    A trigger in input ask the object for a voice number and the object returns
-    the first free one. The voice number is then disable until a trig comes at
-    the same position in the list of triggers given at the argument `triggers`.
-
-    Usually, the trigger enabling the voice number will come from the process
-    started with the object output. So, it's common to leave the `triggers`
-    argument to None and set the list of triggers afterward with the `setTriggers`
-    method. The maximum number of voices generated by the object is the length
-    of the trigger list.
-
-    If there is no free voice, the object outputs -1.0 continuously.
-
-    :Parent: :py:class:`PyoObject`
-
-    :Args:
-
-        input: PyoObject
-            Trigger stream asking for new voice numbers.
-        triggers: PyoObject or list of PyoObject, optional
-            List of mono PyoObject sending triggers. Can be a multi-streams
-            PyoObject but not a mix of both.
-
-            Ordering in the list corresponds to voice numbers. Defaults to None.
-
-    >>> s = Server().boot()
-    >>> s.start()
-    >>> env = CosTable([(0,0),(100,1),(500,.5),(8192,0)])
-    >>> delta = RandDur(min=.05, max=.1)
-    >>> vm = VoiceManager(Change(delta))
-    >>> sel = Select(vm, value=[0,1,2,3])
-    >>> pit = TrigChoice(sel, choice=[midiToHz(x) for x in [60,63,67,70,72]])
-    >>> amp = TrigEnv(sel, table=env, dur=.5, mul=.25)
-    >>> synth1 = SineLoop(pit, feedback=.07, mul=amp).out()
-    >>> vm.setTriggers(amp["trig"])
-
-    """
 
     def __init__(self, input, triggers=None, mul=1, add=0):
         # pyoArgsAssert(self, "ooOO", input, triggers, mul, add)
@@ -548,31 +267,11 @@ class VoiceManager(PyoObject):
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
-        """
-        Replace the `input` attribute.
-
-        :Args:
-
-            x: PyoObject
-                New signal to process.
-            fadetime: float, optional
-                Crossfade time between old and new input. Defaults to 0.05.
-
-        """
         pyoArgsAssert(self, "oN", x, fadetime)
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
     def setTriggers(self, x):
-        """
-        Replace the `triggers` attribute.
-
-        :Args:
-
-            x: PyoObject or list of PyoObject
-                New `triggers` attribute.
-
-        """
         # pyoArgsAssert(self, "o", x)
         self._triggers = x
         if x is not None:
@@ -589,7 +288,6 @@ class VoiceManager(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Trigger stream asking for new voice numbers."""
         return self._input
 
     @input.setter
@@ -598,7 +296,6 @@ class VoiceManager(PyoObject):
 
     @property
     def triggers(self):
-        """list of PyoObject. Trigger streams enabling voices."""
         return self._triggers
 
     @triggers.setter
@@ -607,49 +304,6 @@ class VoiceManager(PyoObject):
 
 
 class Mixer(PyoObject):
-    """
-    Audio mixer.
-
-    Mixer mixes multiple inputs to an arbitrary number of outputs
-    with independant amplitude values per mixing channel and a
-    user defined portamento applied on amplitude changes.
-
-    :Parent: :py:class:`PyoObject`
-
-    :Args:
-
-        outs: int, optional
-            Number of outputs of the mixer. Available at initialization
-            time only. Defaults to 2.
-        chnls: int, optional
-            Number of channels per output. Available at initialization
-            time only. Defaults to 1.
-        time: float, optional
-            Duration, in seconds, of a portamento applied on
-            a new amplitude value for a mixing channel.
-            Defaults to 0.025.
-
-    .. note::
-
-        User can retrieve each of the output channels by calling the Mixer
-        object with the desired channel between square brackets (see example).
-
-    >>> s = Server().boot()
-    >>> s.start()
-    >>> a = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=.2)
-    >>> b = FM(carrier=200, ratio=[.5013,.4998], index=6, mul=.2)
-    >>> mm = Mixer(outs=3, chnls=2, time=.025)
-    >>> fx1 = Disto(mm[0], drive=.9, slope=.9, mul=.1).out()
-    >>> fx2 = Freeverb(mm[1], size=.8, damp=.8, mul=.5).out()
-    >>> fx3 = Harmonizer(mm[2], transpo=1, feedback=.75, mul=.5).out()
-    >>> mm.addInput(0, a)
-    >>> mm.addInput(1, b)
-    >>> mm.setAmp(0,0,.5)
-    >>> mm.setAmp(0,1,.5)
-    >>> mm.setAmp(1,2,.5)
-    >>> mm.setAmp(1,1,.5)
-
-    """
 
     def __init__(self, outs=2, chnls=1, time=0.025, mul=1, add=0):
         pyoArgsAssert(self, "IInOO", outs, chnls, time, mul, add)
@@ -680,35 +334,12 @@ class Mixer(PyoObject):
             print("'x' too large!")
 
     def setTime(self, x):
-        """
-        Sets the portamento duration in seconds.
-
-        :Args:
-
-            x: float
-                New portamento duration.
-
-        """
         pyoArgsAssert(self, "n", x)
         self._time = x
         x, lmax = convertArgsToLists(x)
         [obj.setTime(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
     def addInput(self, voice, input):
-        """
-        Adds an audio object in the mixer's inputs.
-
-        This method returns the key (voice argument or generated key if voice=None).
-
-        :Args:
-
-            voice: int or string
-                Key in the mixer dictionary for this input. If None, a unique key
-                between 0 and 32767 will be automatically generated.
-            input: PyoObject
-                Audio object to add to the mixer.
-
-        """
         pyoArgsAssert(self, "o", input)
         if voice is None:
             voice = get_random_integer(mx=32767)
@@ -723,62 +354,27 @@ class Mixer(PyoObject):
         return voice
 
     def delInput(self, voice):
-        """
-        Removes an audio object from the mixer's inputs.
-
-        :Args:
-
-            voice: int or string
-                Key in the mixer dictionary assigned to the input to remove.
-
-        """
         if voice in self._inputs:
             del self._inputs[voice]
             [obj.delInput(str(voice)) for i, obj in enumerate(self._base_players)]
 
     def clear(self):
-        """
-        Remove all mixer's inputs at once.
-
-        """
         for voice in list(self._inputs.keys()):
             del self._inputs[voice]
             [obj.delInput(str(voice)) for i, obj in enumerate(self._base_players)]
 
     def setAmp(self, vin, vout, amp):
-        """
-        Sets the amplitude of a mixing channel.
-
-        :Args:
-
-            vin: int or string
-                Key in the mixer dictionary of the desired input.
-            vout: int
-                Ouput channel where to send the signal.
-            amp: float
-                Amplitude value for this mixing channel.
-
-        """
         if vin in self._inputs and vout < self._outs:
             [obj.setAmp(str(vin), vout, amp) for i, obj in enumerate(self._base_players)]
 
     def getChannels(self):
-        """
-        Returns the Mixer's channels dictionary.
-
-        """
         return self._inputs
 
     def getKeys(self):
-        """
-        Returns the list of current keys in the Mixer's channels dictionary.
-
-        """
         return list(self._inputs.keys())
 
     @property
     def time(self):
-        """float. Portamento."""
         return self._time
 
     @time.setter

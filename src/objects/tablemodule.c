@@ -335,42 +335,42 @@ HarmTable_replace(HarmTable *self, PyObject *value)
 
 static PyMemberDef HarmTable_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(HarmTable, server), 0, "Pyo server."},
-    {"tablestream", T_OBJECT_EX, offsetof(HarmTable, tablestream), 0, "Table stream object."},
-    {"amplist", T_OBJECT_EX, offsetof(HarmTable, amplist), 0, "Harmonics amplitude values."},
+    {"server", T_OBJECT_EX, offsetof(HarmTable, server), 0, NULL},
+    {"tablestream", T_OBJECT_EX, offsetof(HarmTable, tablestream), 0, NULL},
+    {"amplist", T_OBJECT_EX, offsetof(HarmTable, amplist), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef HarmTable_methods[] =
 {
-    {"getServer", (PyCFunction)HarmTable_getServer, METH_NOARGS, "Returns server object."},
-    {"setTable", (PyCFunction)HarmTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
-    {"getTable", (PyCFunction)HarmTable_getTable, METH_NOARGS, "Returns a list of table samples."},
-    {"getTableStream", (PyCFunction)HarmTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
-    {"normalize", (PyCFunction)HarmTable_normalize, METH_VARARGS | METH_KEYWORDS, "Normalize table samples"},
-    {"reset", (PyCFunction)HarmTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
-    {"removeDC", (PyCFunction)HarmTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
-    {"reverse", (PyCFunction)HarmTable_reverse, METH_NOARGS, "Reverse the table's data in time."},
-    {"invert", (PyCFunction)HarmTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
-    {"rectify", (PyCFunction)HarmTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
-    {"bipolarGain", (PyCFunction)HarmTable_bipolarGain, METH_VARARGS | METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
-    {"lowpass", (PyCFunction)HarmTable_lowpass, METH_VARARGS | METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
-    {"fadein", (PyCFunction)HarmTable_fadein, METH_VARARGS | METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
-    {"fadeout", (PyCFunction)HarmTable_fadeout, METH_VARARGS | METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
-    {"pow", (PyCFunction)HarmTable_pow, METH_VARARGS | METH_KEYWORDS, "Apply a power function on each sample in the table."},
-    {"copy", (PyCFunction)HarmTable_copy, METH_O, "Copy data from table given in argument."},
-    {"copyData", (PyCFunction)HarmTable_copyData, METH_VARARGS | METH_KEYWORDS, "Copy data from table given in argument."},
-    {"rotate", (PyCFunction)HarmTable_rotate, METH_VARARGS | METH_KEYWORDS, "Rotate table around position as argument."},
-    {"setData", (PyCFunction)HarmTable_setData, METH_O, "Sets the table from samples in a text file."},
-    {"setSize", (PyCFunction)HarmTable_setSize, METH_O, "Sets the size of the table in samples"},
-    {"getSize", (PyCFunction)HarmTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
-    {"put", (PyCFunction)HarmTable_put, METH_VARARGS | METH_KEYWORDS, "Puts a value at specified position in the table."},
-    {"get", (PyCFunction)HarmTable_get, METH_VARARGS | METH_KEYWORDS, "Gets the value at specified position in the table."},
-    {"replace", (PyCFunction)HarmTable_replace, METH_O, "Sets the harmonics amplitude list and generates a new waveform table."},
-    {"add", (PyCFunction)HarmTable_add, METH_O, "Performs table addition."},
-    {"sub", (PyCFunction)HarmTable_sub, METH_O, "Performs table substraction."},
-    {"mul", (PyCFunction)HarmTable_mul, METH_O, "Performs table multiplication."},
-    {"div", (PyCFunction)HarmTable_div, METH_O, "Performs table division."},
+    {"getServer", (PyCFunction)HarmTable_getServer, METH_NOARGS, NULL},
+    {"setTable", (PyCFunction)HarmTable_setTable, METH_O, NULL},
+    {"getTable", (PyCFunction)HarmTable_getTable, METH_NOARGS, NULL},
+    {"getTableStream", (PyCFunction)HarmTable_getTableStream, METH_NOARGS, NULL},
+    {"normalize", (PyCFunction)HarmTable_normalize, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"reset", (PyCFunction)HarmTable_reset, METH_NOARGS, NULL},
+    {"removeDC", (PyCFunction)HarmTable_removeDC, METH_NOARGS, NULL},
+    {"reverse", (PyCFunction)HarmTable_reverse, METH_NOARGS, NULL},
+    {"invert", (PyCFunction)HarmTable_invert, METH_NOARGS, NULL},
+    {"rectify", (PyCFunction)HarmTable_rectify, METH_NOARGS, NULL},
+    {"bipolarGain", (PyCFunction)HarmTable_bipolarGain, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"lowpass", (PyCFunction)HarmTable_lowpass, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"fadein", (PyCFunction)HarmTable_fadein, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"fadeout", (PyCFunction)HarmTable_fadeout, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"pow", (PyCFunction)HarmTable_pow, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"copy", (PyCFunction)HarmTable_copy, METH_O, NULL},
+    {"copyData", (PyCFunction)HarmTable_copyData, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"rotate", (PyCFunction)HarmTable_rotate, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setData", (PyCFunction)HarmTable_setData, METH_O, NULL},
+    {"setSize", (PyCFunction)HarmTable_setSize, METH_O, NULL},
+    {"getSize", (PyCFunction)HarmTable_getSize, METH_NOARGS, NULL},
+    {"put", (PyCFunction)HarmTable_put, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"get", (PyCFunction)HarmTable_get, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"replace", (PyCFunction)HarmTable_replace, METH_O, NULL},
+    {"add", (PyCFunction)HarmTable_add, METH_O, NULL},
+    {"sub", (PyCFunction)HarmTable_sub, METH_O, NULL},
+    {"mul", (PyCFunction)HarmTable_mul, METH_O, NULL},
+    {"div", (PyCFunction)HarmTable_div, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -396,7 +396,7 @@ PyTypeObject HarmTableType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "HarmTable objects. Generates a table filled with a waveform whose harmonic content correspond to a given amplitude list values.",  /* tp_doc */
+    0,  /* tp_doc */
     (traverseproc)HarmTable_traverse,   /* tp_traverse */
     (inquiry)HarmTable_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -747,43 +747,43 @@ ChebyTable_getNormTable(ChebyTable *self, PyObject *value)
 
 static PyMemberDef ChebyTable_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(ChebyTable, server), 0, "Pyo server."},
-    {"tablestream", T_OBJECT_EX, offsetof(ChebyTable, tablestream), 0, "Table stream object."},
-    {"amplist", T_OBJECT_EX, offsetof(ChebyTable, amplist), 0, "Harmonics amplitude values."},
+    {"server", T_OBJECT_EX, offsetof(ChebyTable, server), 0, NULL},
+    {"tablestream", T_OBJECT_EX, offsetof(ChebyTable, tablestream), 0, NULL},
+    {"amplist", T_OBJECT_EX, offsetof(ChebyTable, amplist), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef ChebyTable_methods[] =
 {
-    {"getServer", (PyCFunction)ChebyTable_getServer, METH_NOARGS, "Returns server object."},
-    {"copy", (PyCFunction)ChebyTable_copy, METH_O, "Copy data from table given in argument."},
-    {"copyData", (PyCFunction)ChebyTable_copyData, METH_VARARGS | METH_KEYWORDS, "Copy data from table given in argument."},
-    {"rotate", (PyCFunction)ChebyTable_rotate, METH_VARARGS | METH_KEYWORDS, "Rotate table around position as argument."},
-    {"setTable", (PyCFunction)ChebyTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
-    {"getTable", (PyCFunction)ChebyTable_getTable, METH_NOARGS, "Returns a list of table samples."},
-    {"getTableStream", (PyCFunction)ChebyTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
-    {"setData", (PyCFunction)ChebyTable_setData, METH_O, "Sets the table from samples in a text file."},
-    {"normalize", (PyCFunction)ChebyTable_normalize, METH_VARARGS | METH_KEYWORDS, "Normalize table samples"},
-    {"reset", (PyCFunction)ChebyTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
-    {"removeDC", (PyCFunction)ChebyTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
-    {"reverse", (PyCFunction)ChebyTable_reverse, METH_NOARGS, "Reverse the table's data."},
-    {"invert", (PyCFunction)ChebyTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
-    {"rectify", (PyCFunction)ChebyTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
-    {"bipolarGain", (PyCFunction)ChebyTable_bipolarGain, METH_VARARGS | METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
-    {"lowpass", (PyCFunction)ChebyTable_lowpass, METH_VARARGS | METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
-    {"fadein", (PyCFunction)ChebyTable_fadein, METH_VARARGS | METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
-    {"fadeout", (PyCFunction)ChebyTable_fadeout, METH_VARARGS | METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
-    {"pow", (PyCFunction)ChebyTable_pow, METH_VARARGS | METH_KEYWORDS, "Apply a power function on each sample in the table."},
-    {"setSize", (PyCFunction)ChebyTable_setSize, METH_O, "Sets the size of the table in samples"},
-    {"getSize", (PyCFunction)ChebyTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
-    {"put", (PyCFunction)ChebyTable_put, METH_VARARGS | METH_KEYWORDS, "Puts a value at specified position in the table."},
-    {"get", (PyCFunction)ChebyTable_get, METH_VARARGS | METH_KEYWORDS, "Gets the value at specified position in the table."},
-    {"replace", (PyCFunction)ChebyTable_replace, METH_O, "Sets the harmonics amplitude list and generates a new waveform table."},
-    {"getNormTable", (PyCFunction)ChebyTable_getNormTable, METH_O, "Computes and returns the normalization function for the current polynomial"},
-    {"add", (PyCFunction)ChebyTable_add, METH_O, "Performs table addition."},
-    {"sub", (PyCFunction)ChebyTable_sub, METH_O, "Performs table substraction."},
-    {"mul", (PyCFunction)ChebyTable_mul, METH_O, "Performs table multiplication."},
-    {"div", (PyCFunction)ChebyTable_div, METH_O, "Performs table division."},
+    {"getServer", (PyCFunction)ChebyTable_getServer, METH_NOARGS, NULL},
+    {"copy", (PyCFunction)ChebyTable_copy, METH_O, NULL},
+    {"copyData", (PyCFunction)ChebyTable_copyData, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"rotate", (PyCFunction)ChebyTable_rotate, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setTable", (PyCFunction)ChebyTable_setTable, METH_O, NULL},
+    {"getTable", (PyCFunction)ChebyTable_getTable, METH_NOARGS, NULL},
+    {"getTableStream", (PyCFunction)ChebyTable_getTableStream, METH_NOARGS, NULL},
+    {"setData", (PyCFunction)ChebyTable_setData, METH_O, NULL},
+    {"normalize", (PyCFunction)ChebyTable_normalize, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"reset", (PyCFunction)ChebyTable_reset, METH_NOARGS, NULL},
+    {"removeDC", (PyCFunction)ChebyTable_removeDC, METH_NOARGS, NULL},
+    {"reverse", (PyCFunction)ChebyTable_reverse, METH_NOARGS, NULL},
+    {"invert", (PyCFunction)ChebyTable_invert, METH_NOARGS, NULL},
+    {"rectify", (PyCFunction)ChebyTable_rectify, METH_NOARGS, NULL},
+    {"bipolarGain", (PyCFunction)ChebyTable_bipolarGain, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"lowpass", (PyCFunction)ChebyTable_lowpass, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"fadein", (PyCFunction)ChebyTable_fadein, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"fadeout", (PyCFunction)ChebyTable_fadeout, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"pow", (PyCFunction)ChebyTable_pow, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setSize", (PyCFunction)ChebyTable_setSize, METH_O, NULL},
+    {"getSize", (PyCFunction)ChebyTable_getSize, METH_NOARGS, NULL},
+    {"put", (PyCFunction)ChebyTable_put, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"get", (PyCFunction)ChebyTable_get, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"replace", (PyCFunction)ChebyTable_replace, METH_O, NULL},
+    {"getNormTable", (PyCFunction)ChebyTable_getNormTable, METH_O, NULL},
+    {"add", (PyCFunction)ChebyTable_add, METH_O, NULL},
+    {"sub", (PyCFunction)ChebyTable_sub, METH_O, NULL},
+    {"mul", (PyCFunction)ChebyTable_mul, METH_O, NULL},
+    {"div", (PyCFunction)ChebyTable_div, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -809,7 +809,7 @@ PyTypeObject ChebyTableType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "ChebyTable objects. Generates a table filled with a waveform whose harmonic content correspond to a given amplitude list values.",  /* tp_doc */
+    0,  /* tp_doc */
     (traverseproc)ChebyTable_traverse,   /* tp_traverse */
     (inquiry)ChebyTable_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -950,40 +950,40 @@ HannTable_getSize(HannTable *self)
 
 static PyMemberDef HannTable_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(HannTable, server), 0, "Pyo server."},
-    {"tablestream", T_OBJECT_EX, offsetof(HannTable, tablestream), 0, "Table stream object."},
+    {"server", T_OBJECT_EX, offsetof(HannTable, server), 0, NULL},
+    {"tablestream", T_OBJECT_EX, offsetof(HannTable, tablestream), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef HannTable_methods[] =
 {
-    {"getServer", (PyCFunction)HannTable_getServer, METH_NOARGS, "Returns server object."},
-    {"copy", (PyCFunction)HannTable_copy, METH_O, "Copy data from table given in argument."},
-    {"copyData", (PyCFunction)HannTable_copyData, METH_VARARGS | METH_KEYWORDS, "Copy data from table given in argument."},
-    {"rotate", (PyCFunction)HannTable_rotate, METH_VARARGS | METH_KEYWORDS, "Rotate table around position as argument."},
-    {"setTable", (PyCFunction)HannTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
-    {"getTable", (PyCFunction)HannTable_getTable, METH_NOARGS, "Returns a list of table samples."},
-    {"getTableStream", (PyCFunction)HannTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
-    {"setData", (PyCFunction)HannTable_setData, METH_O, "Sets the table from samples in a text file."},
-    {"normalize", (PyCFunction)HannTable_normalize, METH_VARARGS | METH_KEYWORDS, "Normalize table samples"},
-    {"reset", (PyCFunction)HannTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
-    {"removeDC", (PyCFunction)HannTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
-    {"reverse", (PyCFunction)HannTable_reverse, METH_NOARGS, "Reverse the table's data."},
-    {"invert", (PyCFunction)HannTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
-    {"rectify", (PyCFunction)HannTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
-    {"bipolarGain", (PyCFunction)HannTable_bipolarGain, METH_VARARGS | METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
-    {"lowpass", (PyCFunction)HannTable_lowpass, METH_VARARGS | METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
-    {"fadein", (PyCFunction)HannTable_fadein, METH_VARARGS | METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
-    {"fadeout", (PyCFunction)HannTable_fadeout, METH_VARARGS | METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
-    {"pow", (PyCFunction)HannTable_pow, METH_VARARGS | METH_KEYWORDS, "Apply a power function on each sample in the table."},
-    {"setSize", (PyCFunction)HannTable_setSize, METH_O, "Sets the size of the table in samples"},
-    {"getSize", (PyCFunction)HannTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
-    {"put", (PyCFunction)HannTable_put, METH_VARARGS | METH_KEYWORDS, "Puts a value at specified position in the table."},
-    {"get", (PyCFunction)HannTable_get, METH_VARARGS | METH_KEYWORDS, "Gets the value at specified position in the table."},
-    {"add", (PyCFunction)HannTable_add, METH_O, "Performs table addition."},
-    {"sub", (PyCFunction)HannTable_sub, METH_O, "Performs table substraction."},
-    {"mul", (PyCFunction)HannTable_mul, METH_O, "Performs table multiplication."},
-    {"div", (PyCFunction)HannTable_div, METH_O, "Performs table division."},
+    {"getServer", (PyCFunction)HannTable_getServer, METH_NOARGS, NULL},
+    {"copy", (PyCFunction)HannTable_copy, METH_O, NULL},
+    {"copyData", (PyCFunction)HannTable_copyData, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"rotate", (PyCFunction)HannTable_rotate, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setTable", (PyCFunction)HannTable_setTable, METH_O, NULL},
+    {"getTable", (PyCFunction)HannTable_getTable, METH_NOARGS, NULL},
+    {"getTableStream", (PyCFunction)HannTable_getTableStream, METH_NOARGS, NULL},
+    {"setData", (PyCFunction)HannTable_setData, METH_O, NULL},
+    {"normalize", (PyCFunction)HannTable_normalize, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"reset", (PyCFunction)HannTable_reset, METH_NOARGS, NULL},
+    {"removeDC", (PyCFunction)HannTable_removeDC, METH_NOARGS, NULL},
+    {"reverse", (PyCFunction)HannTable_reverse, METH_NOARGS, NULL},
+    {"invert", (PyCFunction)HannTable_invert, METH_NOARGS, NULL},
+    {"rectify", (PyCFunction)HannTable_rectify, METH_NOARGS, NULL},
+    {"bipolarGain", (PyCFunction)HannTable_bipolarGain, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"lowpass", (PyCFunction)HannTable_lowpass, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"fadein", (PyCFunction)HannTable_fadein, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"fadeout", (PyCFunction)HannTable_fadeout, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"pow", (PyCFunction)HannTable_pow, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setSize", (PyCFunction)HannTable_setSize, METH_O, NULL},
+    {"getSize", (PyCFunction)HannTable_getSize, METH_NOARGS, NULL},
+    {"put", (PyCFunction)HannTable_put, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"get", (PyCFunction)HannTable_get, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"add", (PyCFunction)HannTable_add, METH_O, NULL},
+    {"sub", (PyCFunction)HannTable_sub, METH_O, NULL},
+    {"mul", (PyCFunction)HannTable_mul, METH_O, NULL},
+    {"div", (PyCFunction)HannTable_div, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -1009,7 +1009,7 @@ PyTypeObject HannTableType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "HannTable objects. Generates a table filled with a hanning function.",  /* tp_doc */
+    0,  /* tp_doc */
     (traverseproc)HannTable_traverse,   /* tp_traverse */
     (inquiry)HannTable_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -1213,42 +1213,42 @@ SincTable_getSize(SincTable *self)
 
 static PyMemberDef SincTable_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(SincTable, server), 0, "Pyo server."},
-    {"tablestream", T_OBJECT_EX, offsetof(SincTable, tablestream), 0, "Table stream object."},
+    {"server", T_OBJECT_EX, offsetof(SincTable, server), 0, NULL},
+    {"tablestream", T_OBJECT_EX, offsetof(SincTable, tablestream), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef SincTable_methods[] =
 {
-    {"getServer", (PyCFunction)SincTable_getServer, METH_NOARGS, "Returns server object."},
-    {"copy", (PyCFunction)SincTable_copy, METH_O, "Copy data from table given in argument."},
-    {"copyData", (PyCFunction)SincTable_copyData, METH_VARARGS | METH_KEYWORDS, "Copy data from table given in argument."},
-    {"rotate", (PyCFunction)SincTable_rotate, METH_VARARGS | METH_KEYWORDS, "Rotate table around position as argument."},
-    {"setTable", (PyCFunction)SincTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
-    {"getTable", (PyCFunction)SincTable_getTable, METH_NOARGS, "Returns a list of table samples."},
-    {"getTableStream", (PyCFunction)SincTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
-    {"setData", (PyCFunction)SincTable_setData, METH_O, "Sets the table from samples in a text file."},
-    {"normalize", (PyCFunction)SincTable_normalize, METH_VARARGS | METH_KEYWORDS, "Normalize table samples"},
-    {"reset", (PyCFunction)SincTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
-    {"removeDC", (PyCFunction)SincTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
-    {"reverse", (PyCFunction)SincTable_reverse, METH_NOARGS, "Reverse the table's data."},
-    {"invert", (PyCFunction)SincTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
-    {"rectify", (PyCFunction)SincTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
-    {"bipolarGain", (PyCFunction)SincTable_bipolarGain, METH_VARARGS | METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
-    {"lowpass", (PyCFunction)SincTable_lowpass, METH_VARARGS | METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
-    {"fadein", (PyCFunction)SincTable_fadein, METH_VARARGS | METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
-    {"fadeout", (PyCFunction)SincTable_fadeout, METH_VARARGS | METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
-    {"pow", (PyCFunction)SincTable_pow, METH_VARARGS | METH_KEYWORDS, "Apply a power function on each sample in the table."},
-    {"setSize", (PyCFunction)SincTable_setSize, METH_O, "Sets the size of the table in samples"},
-    {"getSize", (PyCFunction)SincTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
-    {"setFreq", (PyCFunction)SincTable_setFreq, METH_O, "Sets the frequency, in radians, of the sinc function."},
-    {"setWindowed", (PyCFunction)SincTable_setWindowed, METH_O, "If True, an hanning window is applied on the function."},
-    {"put", (PyCFunction)SincTable_put, METH_VARARGS | METH_KEYWORDS, "Puts a value at specified position in the table."},
-    {"get", (PyCFunction)SincTable_get, METH_VARARGS | METH_KEYWORDS, "Gets the value at specified position in the table."},
-    {"add", (PyCFunction)SincTable_add, METH_O, "Performs table addition."},
-    {"sub", (PyCFunction)SincTable_sub, METH_O, "Performs table substraction."},
-    {"mul", (PyCFunction)SincTable_mul, METH_O, "Performs table multiplication."},
-    {"div", (PyCFunction)SincTable_div, METH_O, "Performs table division."},
+    {"getServer", (PyCFunction)SincTable_getServer, METH_NOARGS, NULL},
+    {"copy", (PyCFunction)SincTable_copy, METH_O, NULL},
+    {"copyData", (PyCFunction)SincTable_copyData, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"rotate", (PyCFunction)SincTable_rotate, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setTable", (PyCFunction)SincTable_setTable, METH_O, NULL},
+    {"getTable", (PyCFunction)SincTable_getTable, METH_NOARGS, NULL},
+    {"getTableStream", (PyCFunction)SincTable_getTableStream, METH_NOARGS, NULL},
+    {"setData", (PyCFunction)SincTable_setData, METH_O, NULL},
+    {"normalize", (PyCFunction)SincTable_normalize, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"reset", (PyCFunction)SincTable_reset, METH_NOARGS, NULL},
+    {"removeDC", (PyCFunction)SincTable_removeDC, METH_NOARGS, NULL},
+    {"reverse", (PyCFunction)SincTable_reverse, METH_NOARGS, NULL},
+    {"invert", (PyCFunction)SincTable_invert, METH_NOARGS, NULL},
+    {"rectify", (PyCFunction)SincTable_rectify, METH_NOARGS, NULL},
+    {"bipolarGain", (PyCFunction)SincTable_bipolarGain, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"lowpass", (PyCFunction)SincTable_lowpass, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"fadein", (PyCFunction)SincTable_fadein, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"fadeout", (PyCFunction)SincTable_fadeout, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"pow", (PyCFunction)SincTable_pow, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setSize", (PyCFunction)SincTable_setSize, METH_O, NULL},
+    {"getSize", (PyCFunction)SincTable_getSize, METH_NOARGS, NULL},
+    {"setFreq", (PyCFunction)SincTable_setFreq, METH_O, NULL},
+    {"setWindowed", (PyCFunction)SincTable_setWindowed, METH_O, NULL},
+    {"put", (PyCFunction)SincTable_put, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"get", (PyCFunction)SincTable_get, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"add", (PyCFunction)SincTable_add, METH_O, NULL},
+    {"sub", (PyCFunction)SincTable_sub, METH_O, NULL},
+    {"mul", (PyCFunction)SincTable_mul, METH_O, NULL},
+    {"div", (PyCFunction)SincTable_div, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -1274,7 +1274,7 @@ PyTypeObject SincTableType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "SincTable objects. Generates a table filled with a sinc function.",  /* tp_doc */
+    0,  /* tp_doc */
     (traverseproc)SincTable_traverse,   /* tp_traverse */
     (inquiry)SincTable_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -1428,41 +1428,41 @@ WinTable_setType(WinTable *self, PyObject *value)
 
 static PyMemberDef WinTable_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(WinTable, server), 0, "Pyo server."},
-    {"tablestream", T_OBJECT_EX, offsetof(WinTable, tablestream), 0, "Table stream object."},
+    {"server", T_OBJECT_EX, offsetof(WinTable, server), 0, NULL},
+    {"tablestream", T_OBJECT_EX, offsetof(WinTable, tablestream), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef WinTable_methods[] =
 {
-    {"getServer", (PyCFunction)WinTable_getServer, METH_NOARGS, "Returns server object."},
-    {"copy", (PyCFunction)WinTable_copy, METH_O, "Copy data from table given in argument."},
-    {"copyData", (PyCFunction)WinTable_copyData, METH_VARARGS | METH_KEYWORDS, "Copy data from table given in argument."},
-    {"rotate", (PyCFunction)WinTable_rotate, METH_VARARGS | METH_KEYWORDS, "Rotate table around position as argument."},
-    {"setTable", (PyCFunction)WinTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
-    {"getTable", (PyCFunction)WinTable_getTable, METH_NOARGS, "Returns a list of table samples."},
-    {"getTableStream", (PyCFunction)WinTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
-    {"setData", (PyCFunction)WinTable_setData, METH_O, "Sets the table from samples in a text file."},
-    {"normalize", (PyCFunction)WinTable_normalize, METH_VARARGS | METH_KEYWORDS, "Normalize table samples"},
-    {"reset", (PyCFunction)WinTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
-    {"removeDC", (PyCFunction)WinTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
-    {"reverse", (PyCFunction)WinTable_reverse, METH_NOARGS, "Reverse the table's data."},
-    {"invert", (PyCFunction)WinTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
-    {"rectify", (PyCFunction)WinTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
-    {"bipolarGain", (PyCFunction)WinTable_bipolarGain, METH_VARARGS | METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
-    {"lowpass", (PyCFunction)WinTable_lowpass, METH_VARARGS | METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
-    {"fadein", (PyCFunction)WinTable_fadein, METH_VARARGS | METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
-    {"fadeout", (PyCFunction)WinTable_fadeout, METH_VARARGS | METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
-    {"pow", (PyCFunction)WinTable_pow, METH_VARARGS | METH_KEYWORDS, "Apply a power function on each sample in the table."},
-    {"setSize", (PyCFunction)WinTable_setSize, METH_O, "Sets the size of the table in samples"},
-    {"getSize", (PyCFunction)WinTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
-    {"setType", (PyCFunction)WinTable_setType, METH_O, "Sets the type of the table."},
-    {"put", (PyCFunction)WinTable_put, METH_VARARGS | METH_KEYWORDS, "Puts a value at specified position in the table."},
-    {"get", (PyCFunction)WinTable_get, METH_VARARGS | METH_KEYWORDS, "Gets the value at specified position in the table."},
-    {"add", (PyCFunction)WinTable_add, METH_O, "Performs table addition."},
-    {"sub", (PyCFunction)WinTable_sub, METH_O, "Performs table substraction."},
-    {"mul", (PyCFunction)WinTable_mul, METH_O, "Performs table multiplication."},
-    {"div", (PyCFunction)WinTable_div, METH_O, "Performs table division."},
+    {"getServer", (PyCFunction)WinTable_getServer, METH_NOARGS, NULL},
+    {"copy", (PyCFunction)WinTable_copy, METH_O, NULL},
+    {"copyData", (PyCFunction)WinTable_copyData, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"rotate", (PyCFunction)WinTable_rotate, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setTable", (PyCFunction)WinTable_setTable, METH_O, NULL},
+    {"getTable", (PyCFunction)WinTable_getTable, METH_NOARGS, NULL},
+    {"getTableStream", (PyCFunction)WinTable_getTableStream, METH_NOARGS, NULL},
+    {"setData", (PyCFunction)WinTable_setData, METH_O, NULL},
+    {"normalize", (PyCFunction)WinTable_normalize, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"reset", (PyCFunction)WinTable_reset, METH_NOARGS, NULL},
+    {"removeDC", (PyCFunction)WinTable_removeDC, METH_NOARGS, NULL},
+    {"reverse", (PyCFunction)WinTable_reverse, METH_NOARGS, NULL},
+    {"invert", (PyCFunction)WinTable_invert, METH_NOARGS, NULL},
+    {"rectify", (PyCFunction)WinTable_rectify, METH_NOARGS, NULL},
+    {"bipolarGain", (PyCFunction)WinTable_bipolarGain, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"lowpass", (PyCFunction)WinTable_lowpass, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"fadein", (PyCFunction)WinTable_fadein, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"fadeout", (PyCFunction)WinTable_fadeout, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"pow", (PyCFunction)WinTable_pow, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setSize", (PyCFunction)WinTable_setSize, METH_O, NULL},
+    {"getSize", (PyCFunction)WinTable_getSize, METH_NOARGS, NULL},
+    {"setType", (PyCFunction)WinTable_setType, METH_O, NULL},
+    {"put", (PyCFunction)WinTable_put, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"get", (PyCFunction)WinTable_get, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"add", (PyCFunction)WinTable_add, METH_O, NULL},
+    {"sub", (PyCFunction)WinTable_sub, METH_O, NULL},
+    {"mul", (PyCFunction)WinTable_mul, METH_O, NULL},
+    {"div", (PyCFunction)WinTable_div, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -1488,7 +1488,7 @@ PyTypeObject WinTableType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "WinTable objects. Generates a table filled with a hanning function.",  /* tp_doc */
+    0,  /* tp_doc */
     (traverseproc)WinTable_traverse,   /* tp_traverse */
     (inquiry)WinTable_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -1635,40 +1635,40 @@ ParaTable_getSize(ParaTable *self)
 
 static PyMemberDef ParaTable_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(ParaTable, server), 0, "Pyo server."},
-    {"tablestream", T_OBJECT_EX, offsetof(ParaTable, tablestream), 0, "Table stream object."},
+    {"server", T_OBJECT_EX, offsetof(ParaTable, server), 0, NULL},
+    {"tablestream", T_OBJECT_EX, offsetof(ParaTable, tablestream), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef ParaTable_methods[] =
 {
-    {"getServer", (PyCFunction)ParaTable_getServer, METH_NOARGS, "Returns server object."},
-    {"copy", (PyCFunction)ParaTable_copy, METH_O, "Copy data from table given in argument."},
-    {"copyData", (PyCFunction)ParaTable_copyData, METH_VARARGS | METH_KEYWORDS, "Copy data from table given in argument."},
-    {"rotate", (PyCFunction)ParaTable_rotate, METH_VARARGS | METH_KEYWORDS, "Rotate table around position as argument."},
-    {"setTable", (PyCFunction)ParaTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
-    {"getTable", (PyCFunction)ParaTable_getTable, METH_NOARGS, "Returns a list of table samples."},
-    {"getTableStream", (PyCFunction)ParaTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
-    {"setData", (PyCFunction)ParaTable_setData, METH_O, "Sets the table from samples in a text file."},
-    {"normalize", (PyCFunction)ParaTable_normalize, METH_VARARGS | METH_KEYWORDS, "Normalize table samples"},
-    {"reset", (PyCFunction)ParaTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
-    {"removeDC", (PyCFunction)ParaTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
-    {"reverse", (PyCFunction)ParaTable_reverse, METH_NOARGS, "Reverse the table's data."},
-    {"invert", (PyCFunction)ParaTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
-    {"rectify", (PyCFunction)ParaTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
-    {"bipolarGain", (PyCFunction)ParaTable_bipolarGain, METH_VARARGS | METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
-    {"lowpass", (PyCFunction)ParaTable_lowpass, METH_VARARGS | METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
-    {"fadein", (PyCFunction)ParaTable_fadein, METH_VARARGS | METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
-    {"fadeout", (PyCFunction)ParaTable_fadeout, METH_VARARGS | METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
-    {"pow", (PyCFunction)ParaTable_pow, METH_VARARGS | METH_KEYWORDS, "Apply a power function on each sample in the table."},
-    {"setSize", (PyCFunction)ParaTable_setSize, METH_O, "Sets the size of the table in samples"},
-    {"getSize", (PyCFunction)ParaTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
-    {"put", (PyCFunction)ParaTable_put, METH_VARARGS | METH_KEYWORDS, "Puts a value at specified position in the table."},
-    {"get", (PyCFunction)ParaTable_get, METH_VARARGS | METH_KEYWORDS, "Gets the value at specified position in the table."},
-    {"add", (PyCFunction)ParaTable_add, METH_O, "Performs table addition."},
-    {"sub", (PyCFunction)ParaTable_sub, METH_O, "Performs table substraction."},
-    {"mul", (PyCFunction)ParaTable_mul, METH_O, "Performs table multiplication."},
-    {"div", (PyCFunction)ParaTable_div, METH_O, "Performs table division."},
+    {"getServer", (PyCFunction)ParaTable_getServer, METH_NOARGS, NULL},
+    {"copy", (PyCFunction)ParaTable_copy, METH_O, NULL},
+    {"copyData", (PyCFunction)ParaTable_copyData, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"rotate", (PyCFunction)ParaTable_rotate, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setTable", (PyCFunction)ParaTable_setTable, METH_O, NULL},
+    {"getTable", (PyCFunction)ParaTable_getTable, METH_NOARGS, NULL},
+    {"getTableStream", (PyCFunction)ParaTable_getTableStream, METH_NOARGS, NULL},
+    {"setData", (PyCFunction)ParaTable_setData, METH_O, NULL},
+    {"normalize", (PyCFunction)ParaTable_normalize, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"reset", (PyCFunction)ParaTable_reset, METH_NOARGS, NULL},
+    {"removeDC", (PyCFunction)ParaTable_removeDC, METH_NOARGS, NULL},
+    {"reverse", (PyCFunction)ParaTable_reverse, METH_NOARGS, NULL},
+    {"invert", (PyCFunction)ParaTable_invert, METH_NOARGS, NULL},
+    {"rectify", (PyCFunction)ParaTable_rectify, METH_NOARGS, NULL},
+    {"bipolarGain", (PyCFunction)ParaTable_bipolarGain, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"lowpass", (PyCFunction)ParaTable_lowpass, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"fadein", (PyCFunction)ParaTable_fadein, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"fadeout", (PyCFunction)ParaTable_fadeout, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"pow", (PyCFunction)ParaTable_pow, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setSize", (PyCFunction)ParaTable_setSize, METH_O, NULL},
+    {"getSize", (PyCFunction)ParaTable_getSize, METH_NOARGS, NULL},
+    {"put", (PyCFunction)ParaTable_put, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"get", (PyCFunction)ParaTable_get, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"add", (PyCFunction)ParaTable_add, METH_O, NULL},
+    {"sub", (PyCFunction)ParaTable_sub, METH_O, NULL},
+    {"mul", (PyCFunction)ParaTable_mul, METH_O, NULL},
+    {"div", (PyCFunction)ParaTable_div, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -1694,7 +1694,7 @@ PyTypeObject ParaTableType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "ParaTable objects. Generates a parabola table.",  /* tp_doc */
+    0,  /* tp_doc */
     (traverseproc)ParaTable_traverse,   /* tp_traverse */
     (inquiry)ParaTable_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -1928,43 +1928,43 @@ LinTable_replace(LinTable *self, PyObject *value)
 
 static PyMemberDef LinTable_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(LinTable, server), 0, "Pyo server."},
-    {"tablestream", T_OBJECT_EX, offsetof(LinTable, tablestream), 0, "Table stream object."},
-    {"pointslist", T_OBJECT_EX, offsetof(LinTable, pointslist), 0, "Harmonics amplitude values."},
+    {"server", T_OBJECT_EX, offsetof(LinTable, server), 0, NULL},
+    {"tablestream", T_OBJECT_EX, offsetof(LinTable, tablestream), 0, NULL},
+    {"pointslist", T_OBJECT_EX, offsetof(LinTable, pointslist), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef LinTable_methods[] =
 {
-    {"getServer", (PyCFunction)LinTable_getServer, METH_NOARGS, "Returns server object."},
-    {"copy", (PyCFunction)LinTable_copy, METH_O, "Copy data from table given in argument."},
-    {"copyData", (PyCFunction)LinTable_copyData, METH_VARARGS | METH_KEYWORDS, "Copy data from table given in argument."},
-    {"rotate", (PyCFunction)LinTable_rotate, METH_VARARGS | METH_KEYWORDS, "Rotate table around position as argument."},
-    {"setTable", (PyCFunction)LinTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
-    {"getTable", (PyCFunction)LinTable_getTable, METH_NOARGS, "Returns a list of table samples."},
-    {"getTableStream", (PyCFunction)LinTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
-    {"setData", (PyCFunction)LinTable_setData, METH_O, "Sets the table from samples in a text file."},
-    {"normalize", (PyCFunction)LinTable_normalize, METH_VARARGS | METH_KEYWORDS, "Normalize table samples"},
-    {"reset", (PyCFunction)LinTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
-    {"removeDC", (PyCFunction)LinTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
-    {"reverse", (PyCFunction)LinTable_reverse, METH_NOARGS, "Reverse the table's data."},
-    {"invert", (PyCFunction)LinTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
-    {"rectify", (PyCFunction)LinTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
-    {"bipolarGain", (PyCFunction)LinTable_bipolarGain, METH_VARARGS | METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
-    {"lowpass", (PyCFunction)LinTable_lowpass, METH_VARARGS | METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
-    {"fadein", (PyCFunction)LinTable_fadein, METH_VARARGS | METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
-    {"fadeout", (PyCFunction)LinTable_fadeout, METH_VARARGS | METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
-    {"pow", (PyCFunction)LinTable_pow, METH_VARARGS | METH_KEYWORDS, "Apply a power function on each sample in the table."},
-    {"setSize", (PyCFunction)LinTable_setSize, METH_O, "Sets the size of the table in samples"},
-    {"getSize", (PyCFunction)LinTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
-    {"put", (PyCFunction)LinTable_put, METH_VARARGS | METH_KEYWORDS, "Puts a value at specified position in the table."},
-    {"get", (PyCFunction)LinTable_get, METH_VARARGS | METH_KEYWORDS, "Gets the value at specified position in the table."},
-    {"getPoints", (PyCFunction)LinTable_getPoints, METH_NOARGS, "Return the list of points."},
-    {"replace", (PyCFunction)LinTable_replace, METH_O, "Sets the harmonics amplitude list and generates a new waveform table."},
-    {"add", (PyCFunction)LinTable_add, METH_O, "Performs table addition."},
-    {"sub", (PyCFunction)LinTable_sub, METH_O, "Performs table substraction."},
-    {"mul", (PyCFunction)LinTable_mul, METH_O, "Performs table multiplication."},
-    {"div", (PyCFunction)LinTable_div, METH_O, "Performs table division."},
+    {"getServer", (PyCFunction)LinTable_getServer, METH_NOARGS, NULL},
+    {"copy", (PyCFunction)LinTable_copy, METH_O, NULL},
+    {"copyData", (PyCFunction)LinTable_copyData, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"rotate", (PyCFunction)LinTable_rotate, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setTable", (PyCFunction)LinTable_setTable, METH_O, NULL},
+    {"getTable", (PyCFunction)LinTable_getTable, METH_NOARGS, NULL},
+    {"getTableStream", (PyCFunction)LinTable_getTableStream, METH_NOARGS, NULL},
+    {"setData", (PyCFunction)LinTable_setData, METH_O, NULL},
+    {"normalize", (PyCFunction)LinTable_normalize, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"reset", (PyCFunction)LinTable_reset, METH_NOARGS, NULL},
+    {"removeDC", (PyCFunction)LinTable_removeDC, METH_NOARGS, NULL},
+    {"reverse", (PyCFunction)LinTable_reverse, METH_NOARGS, NULL},
+    {"invert", (PyCFunction)LinTable_invert, METH_NOARGS, NULL},
+    {"rectify", (PyCFunction)LinTable_rectify, METH_NOARGS, NULL},
+    {"bipolarGain", (PyCFunction)LinTable_bipolarGain, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"lowpass", (PyCFunction)LinTable_lowpass, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"fadein", (PyCFunction)LinTable_fadein, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"fadeout", (PyCFunction)LinTable_fadeout, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"pow", (PyCFunction)LinTable_pow, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setSize", (PyCFunction)LinTable_setSize, METH_O, NULL},
+    {"getSize", (PyCFunction)LinTable_getSize, METH_NOARGS, NULL},
+    {"put", (PyCFunction)LinTable_put, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"get", (PyCFunction)LinTable_get, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"getPoints", (PyCFunction)LinTable_getPoints, METH_NOARGS, NULL},
+    {"replace", (PyCFunction)LinTable_replace, METH_O, NULL},
+    {"add", (PyCFunction)LinTable_add, METH_O, NULL},
+    {"sub", (PyCFunction)LinTable_sub, METH_O, NULL},
+    {"mul", (PyCFunction)LinTable_mul, METH_O, NULL},
+    {"div", (PyCFunction)LinTable_div, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -1990,7 +1990,7 @@ PyTypeObject LinTableType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "LinTable objects. Generates a table filled with one or more straight lines.",  /* tp_doc */
+    0,  /* tp_doc */
     (traverseproc)LinTable_traverse,   /* tp_traverse */
     (inquiry)LinTable_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -2256,43 +2256,43 @@ LogTable_replace(LogTable *self, PyObject *value)
 
 static PyMemberDef LogTable_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(LogTable, server), 0, "Pyo server."},
-    {"tablestream", T_OBJECT_EX, offsetof(LogTable, tablestream), 0, "Table stream object."},
-    {"pointslist", T_OBJECT_EX, offsetof(LogTable, pointslist), 0, "Harmonics amplitude values."},
+    {"server", T_OBJECT_EX, offsetof(LogTable, server), 0, NULL},
+    {"tablestream", T_OBJECT_EX, offsetof(LogTable, tablestream), 0, NULL},
+    {"pointslist", T_OBJECT_EX, offsetof(LogTable, pointslist), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef LogTable_methods[] =
 {
-    {"getServer", (PyCFunction)LogTable_getServer, METH_NOARGS, "Returns server object."},
-    {"copy", (PyCFunction)LogTable_copy, METH_O, "Copy data from table given in argument."},
-    {"copyData", (PyCFunction)LogTable_copyData, METH_VARARGS | METH_KEYWORDS, "Copy data from table given in argument."},
-    {"rotate", (PyCFunction)LogTable_rotate, METH_VARARGS | METH_KEYWORDS, "Rotate table around position as argument."},
-    {"setTable", (PyCFunction)LogTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
-    {"getTable", (PyCFunction)LogTable_getTable, METH_NOARGS, "Returns a list of table samples."},
-    {"getTableStream", (PyCFunction)LogTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
-    {"setData", (PyCFunction)LogTable_setData, METH_O, "Sets the table from samples in a text file."},
-    {"normalize", (PyCFunction)LogTable_normalize, METH_VARARGS | METH_KEYWORDS, "Normalize table samples"},
-    {"reset", (PyCFunction)LogTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
-    {"removeDC", (PyCFunction)LogTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
-    {"reverse", (PyCFunction)LogTable_reverse, METH_NOARGS, "Reverse the table's data."},
-    {"invert", (PyCFunction)LogTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
-    {"rectify", (PyCFunction)LogTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
-    {"bipolarGain", (PyCFunction)LogTable_bipolarGain, METH_VARARGS | METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
-    {"lowpass", (PyCFunction)LogTable_lowpass, METH_VARARGS | METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
-    {"fadein", (PyCFunction)LogTable_fadein, METH_VARARGS | METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
-    {"fadeout", (PyCFunction)LogTable_fadeout, METH_VARARGS | METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
-    {"pow", (PyCFunction)LogTable_pow, METH_VARARGS | METH_KEYWORDS, "Apply a power function on each sample in the table."},
-    {"setSize", (PyCFunction)LogTable_setSize, METH_O, "Sets the size of the table in samples"},
-    {"getSize", (PyCFunction)LogTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
-    {"put", (PyCFunction)LogTable_put, METH_VARARGS | METH_KEYWORDS, "Puts a value at specified position in the table."},
-    {"get", (PyCFunction)LogTable_get, METH_VARARGS | METH_KEYWORDS, "Gets the value at specified position in the table."},
-    {"getPoints", (PyCFunction)LogTable_getPoints, METH_NOARGS, "Return the list of points."},
-    {"replace", (PyCFunction)LogTable_replace, METH_O, "Sets the harmonics amplitude list and generates a new waveform table."},
-    {"add", (PyCFunction)LogTable_add, METH_O, "Performs table addition."},
-    {"sub", (PyCFunction)LogTable_sub, METH_O, "Performs table substraction."},
-    {"mul", (PyCFunction)LogTable_mul, METH_O, "Performs table multiplication."},
-    {"div", (PyCFunction)LogTable_div, METH_O, "Performs table division."},
+    {"getServer", (PyCFunction)LogTable_getServer, METH_NOARGS, NULL},
+    {"copy", (PyCFunction)LogTable_copy, METH_O, NULL},
+    {"copyData", (PyCFunction)LogTable_copyData, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"rotate", (PyCFunction)LogTable_rotate, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setTable", (PyCFunction)LogTable_setTable, METH_O, NULL},
+    {"getTable", (PyCFunction)LogTable_getTable, METH_NOARGS, NULL},
+    {"getTableStream", (PyCFunction)LogTable_getTableStream, METH_NOARGS, NULL},
+    {"setData", (PyCFunction)LogTable_setData, METH_O, NULL},
+    {"normalize", (PyCFunction)LogTable_normalize, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"reset", (PyCFunction)LogTable_reset, METH_NOARGS, NULL},
+    {"removeDC", (PyCFunction)LogTable_removeDC, METH_NOARGS, NULL},
+    {"reverse", (PyCFunction)LogTable_reverse, METH_NOARGS, NULL},
+    {"invert", (PyCFunction)LogTable_invert, METH_NOARGS, NULL},
+    {"rectify", (PyCFunction)LogTable_rectify, METH_NOARGS, NULL},
+    {"bipolarGain", (PyCFunction)LogTable_bipolarGain, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"lowpass", (PyCFunction)LogTable_lowpass, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"fadein", (PyCFunction)LogTable_fadein, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"fadeout", (PyCFunction)LogTable_fadeout, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"pow", (PyCFunction)LogTable_pow, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setSize", (PyCFunction)LogTable_setSize, METH_O, NULL},
+    {"getSize", (PyCFunction)LogTable_getSize, METH_NOARGS, NULL},
+    {"put", (PyCFunction)LogTable_put, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"get", (PyCFunction)LogTable_get, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"getPoints", (PyCFunction)LogTable_getPoints, METH_NOARGS, NULL},
+    {"replace", (PyCFunction)LogTable_replace, METH_O, NULL},
+    {"add", (PyCFunction)LogTable_add, METH_O, NULL},
+    {"sub", (PyCFunction)LogTable_sub, METH_O, NULL},
+    {"mul", (PyCFunction)LogTable_mul, METH_O, NULL},
+    {"div", (PyCFunction)LogTable_div, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -2318,7 +2318,7 @@ PyTypeObject LogTableType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "LogTable objects. Generates a table filled with one or more logarothmic lines.",  /* tp_doc */
+    0,  /* tp_doc */
     (traverseproc)LogTable_traverse,   /* tp_traverse */
     (inquiry)LogTable_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -2552,43 +2552,43 @@ CosTable_replace(CosTable *self, PyObject *value)
 
 static PyMemberDef CosTable_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(CosTable, server), 0, "Pyo server."},
-    {"tablestream", T_OBJECT_EX, offsetof(CosTable, tablestream), 0, "Table stream object."},
-    {"pointslist", T_OBJECT_EX, offsetof(CosTable, pointslist), 0, "Harmonics amplitude values."},
+    {"server", T_OBJECT_EX, offsetof(CosTable, server), 0, NULL},
+    {"tablestream", T_OBJECT_EX, offsetof(CosTable, tablestream), 0, NULL},
+    {"pointslist", T_OBJECT_EX, offsetof(CosTable, pointslist), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef CosTable_methods[] =
 {
-    {"getServer", (PyCFunction)CosTable_getServer, METH_NOARGS, "Returns server object."},
-    {"copy", (PyCFunction)CosTable_copy, METH_O, "Copy data from table given in argument."},
-    {"copyData", (PyCFunction)CosTable_copyData, METH_VARARGS | METH_KEYWORDS, "Copy data from table given in argument."},
-    {"rotate", (PyCFunction)CosTable_rotate, METH_VARARGS | METH_KEYWORDS, "Rotate table around position as argument."},
-    {"setTable", (PyCFunction)CosTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
-    {"getTable", (PyCFunction)CosTable_getTable, METH_NOARGS, "Returns a list of table samples."},
-    {"getTableStream", (PyCFunction)CosTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
-    {"setData", (PyCFunction)CosTable_setData, METH_O, "Sets the table from samples in a text file."},
-    {"normalize", (PyCFunction)CosTable_normalize, METH_VARARGS | METH_KEYWORDS, "Normalize table samples"},
-    {"reset", (PyCFunction)CosTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
-    {"removeDC", (PyCFunction)CosTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
-    {"reverse", (PyCFunction)CosTable_reverse, METH_NOARGS, "Reverse the table's data."},
-    {"invert", (PyCFunction)CosTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
-    {"rectify", (PyCFunction)CosTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
-    {"bipolarGain", (PyCFunction)CosTable_bipolarGain, METH_VARARGS | METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
-    {"lowpass", (PyCFunction)CosTable_lowpass, METH_VARARGS | METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
-    {"fadein", (PyCFunction)CosTable_fadein, METH_VARARGS | METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
-    {"fadeout", (PyCFunction)CosTable_fadeout, METH_VARARGS | METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
-    {"pow", (PyCFunction)CosTable_pow, METH_VARARGS | METH_KEYWORDS, "Apply a power function on each sample in the table."},
-    {"setSize", (PyCFunction)CosTable_setSize, METH_O, "Sets the size of the table in samples"},
-    {"getSize", (PyCFunction)CosTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
-    {"put", (PyCFunction)CosTable_put, METH_VARARGS | METH_KEYWORDS, "Puts a value at specified position in the table."},
-    {"get", (PyCFunction)CosTable_get, METH_VARARGS | METH_KEYWORDS, "Gets the value at specified position in the table."},
-    {"getPoints", (PyCFunction)CosTable_getPoints, METH_NOARGS, "Return the list of points."},
-    {"replace", (PyCFunction)CosTable_replace, METH_O, "Sets the harmonics amplitude list and generates a new waveform table."},
-    {"add", (PyCFunction)CosTable_add, METH_O, "Performs table addition."},
-    {"sub", (PyCFunction)CosTable_sub, METH_O, "Performs table substraction."},
-    {"mul", (PyCFunction)CosTable_mul, METH_O, "Performs table multiplication."},
-    {"div", (PyCFunction)CosTable_div, METH_O, "Performs table division."},
+    {"getServer", (PyCFunction)CosTable_getServer, METH_NOARGS, NULL},
+    {"copy", (PyCFunction)CosTable_copy, METH_O, NULL},
+    {"copyData", (PyCFunction)CosTable_copyData, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"rotate", (PyCFunction)CosTable_rotate, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setTable", (PyCFunction)CosTable_setTable, METH_O, NULL},
+    {"getTable", (PyCFunction)CosTable_getTable, METH_NOARGS, NULL},
+    {"getTableStream", (PyCFunction)CosTable_getTableStream, METH_NOARGS, NULL},
+    {"setData", (PyCFunction)CosTable_setData, METH_O, NULL},
+    {"normalize", (PyCFunction)CosTable_normalize, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"reset", (PyCFunction)CosTable_reset, METH_NOARGS, NULL},
+    {"removeDC", (PyCFunction)CosTable_removeDC, METH_NOARGS, NULL},
+    {"reverse", (PyCFunction)CosTable_reverse, METH_NOARGS, NULL},
+    {"invert", (PyCFunction)CosTable_invert, METH_NOARGS, NULL},
+    {"rectify", (PyCFunction)CosTable_rectify, METH_NOARGS, NULL},
+    {"bipolarGain", (PyCFunction)CosTable_bipolarGain, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"lowpass", (PyCFunction)CosTable_lowpass, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"fadein", (PyCFunction)CosTable_fadein, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"fadeout", (PyCFunction)CosTable_fadeout, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"pow", (PyCFunction)CosTable_pow, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setSize", (PyCFunction)CosTable_setSize, METH_O, NULL},
+    {"getSize", (PyCFunction)CosTable_getSize, METH_NOARGS, NULL},
+    {"put", (PyCFunction)CosTable_put, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"get", (PyCFunction)CosTable_get, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"getPoints", (PyCFunction)CosTable_getPoints, METH_NOARGS, NULL},
+    {"replace", (PyCFunction)CosTable_replace, METH_O, NULL},
+    {"add", (PyCFunction)CosTable_add, METH_O, NULL},
+    {"sub", (PyCFunction)CosTable_sub, METH_O, NULL},
+    {"mul", (PyCFunction)CosTable_mul, METH_O, NULL},
+    {"div", (PyCFunction)CosTable_div, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -2614,7 +2614,7 @@ PyTypeObject CosTableType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "CosTable objects. Generates a table filled with one or more straight lines.",  /* tp_doc */
+    0,  /* tp_doc */
     (traverseproc)CosTable_traverse,   /* tp_traverse */
     (inquiry)CosTable_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -2881,43 +2881,43 @@ CosLogTable_replace(CosLogTable *self, PyObject *value)
 
 static PyMemberDef CosLogTable_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(CosLogTable, server), 0, "Pyo server."},
-    {"tablestream", T_OBJECT_EX, offsetof(CosLogTable, tablestream), 0, "Table stream object."},
-    {"pointslist", T_OBJECT_EX, offsetof(CosLogTable, pointslist), 0, "Harmonics amplitude values."},
+    {"server", T_OBJECT_EX, offsetof(CosLogTable, server), 0, NULL},
+    {"tablestream", T_OBJECT_EX, offsetof(CosLogTable, tablestream), 0, NULL},
+    {"pointslist", T_OBJECT_EX, offsetof(CosLogTable, pointslist), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef CosLogTable_methods[] =
 {
-    {"getServer", (PyCFunction)CosLogTable_getServer, METH_NOARGS, "Returns server object."},
-    {"copy", (PyCFunction)CosLogTable_copy, METH_O, "Copy data from table given in argument."},
-    {"copyData", (PyCFunction)CosLogTable_copyData, METH_VARARGS | METH_KEYWORDS, "Copy data from table given in argument."},
-    {"rotate", (PyCFunction)CosLogTable_rotate, METH_VARARGS | METH_KEYWORDS, "Rotate table around position as argument."},
-    {"setTable", (PyCFunction)CosLogTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
-    {"getTable", (PyCFunction)CosLogTable_getTable, METH_NOARGS, "Returns a list of table samples."},
-    {"getTableStream", (PyCFunction)CosLogTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
-    {"setData", (PyCFunction)CosLogTable_setData, METH_O, "Sets the table from samples in a text file."},
-    {"normalize", (PyCFunction)CosLogTable_normalize, METH_VARARGS | METH_KEYWORDS, "Normalize table samples"},
-    {"reset", (PyCFunction)CosLogTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
-    {"removeDC", (PyCFunction)CosLogTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
-    {"reverse", (PyCFunction)CosLogTable_reverse, METH_NOARGS, "Reverse the table's data."},
-    {"invert", (PyCFunction)CosLogTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
-    {"rectify", (PyCFunction)CosLogTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
-    {"bipolarGain", (PyCFunction)CosLogTable_bipolarGain, METH_VARARGS | METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
-    {"lowpass", (PyCFunction)CosLogTable_lowpass, METH_VARARGS | METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
-    {"fadein", (PyCFunction)CosLogTable_fadein, METH_VARARGS | METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
-    {"fadeout", (PyCFunction)CosLogTable_fadeout, METH_VARARGS | METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
-    {"pow", (PyCFunction)CosLogTable_pow, METH_VARARGS | METH_KEYWORDS, "Apply a power function on each sample in the table."},
-    {"setSize", (PyCFunction)CosLogTable_setSize, METH_O, "Sets the size of the table in samples"},
-    {"getSize", (PyCFunction)CosLogTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
-    {"put", (PyCFunction)CosLogTable_put, METH_VARARGS | METH_KEYWORDS, "Puts a value at specified position in the table."},
-    {"get", (PyCFunction)CosLogTable_get, METH_VARARGS | METH_KEYWORDS, "Gets the value at specified position in the table."},
-    {"getPoints", (PyCFunction)CosLogTable_getPoints, METH_NOARGS, "Return the list of points."},
-    {"replace", (PyCFunction)CosLogTable_replace, METH_O, "Sets the harmonics amplitude list and generates a new waveform table."},
-    {"add", (PyCFunction)CosLogTable_add, METH_O, "Performs table addition."},
-    {"sub", (PyCFunction)CosLogTable_sub, METH_O, "Performs table substraction."},
-    {"mul", (PyCFunction)CosLogTable_mul, METH_O, "Performs table multiplication."},
-    {"div", (PyCFunction)CosLogTable_div, METH_O, "Performs table division."},
+    {"getServer", (PyCFunction)CosLogTable_getServer, METH_NOARGS, NULL},
+    {"copy", (PyCFunction)CosLogTable_copy, METH_O, NULL},
+    {"copyData", (PyCFunction)CosLogTable_copyData, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"rotate", (PyCFunction)CosLogTable_rotate, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setTable", (PyCFunction)CosLogTable_setTable, METH_O, NULL},
+    {"getTable", (PyCFunction)CosLogTable_getTable, METH_NOARGS, NULL},
+    {"getTableStream", (PyCFunction)CosLogTable_getTableStream, METH_NOARGS, NULL},
+    {"setData", (PyCFunction)CosLogTable_setData, METH_O, NULL},
+    {"normalize", (PyCFunction)CosLogTable_normalize, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"reset", (PyCFunction)CosLogTable_reset, METH_NOARGS, NULL},
+    {"removeDC", (PyCFunction)CosLogTable_removeDC, METH_NOARGS, NULL},
+    {"reverse", (PyCFunction)CosLogTable_reverse, METH_NOARGS, NULL},
+    {"invert", (PyCFunction)CosLogTable_invert, METH_NOARGS, NULL},
+    {"rectify", (PyCFunction)CosLogTable_rectify, METH_NOARGS, NULL},
+    {"bipolarGain", (PyCFunction)CosLogTable_bipolarGain, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"lowpass", (PyCFunction)CosLogTable_lowpass, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"fadein", (PyCFunction)CosLogTable_fadein, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"fadeout", (PyCFunction)CosLogTable_fadeout, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"pow", (PyCFunction)CosLogTable_pow, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setSize", (PyCFunction)CosLogTable_setSize, METH_O, NULL},
+    {"getSize", (PyCFunction)CosLogTable_getSize, METH_NOARGS, NULL},
+    {"put", (PyCFunction)CosLogTable_put, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"get", (PyCFunction)CosLogTable_get, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"getPoints", (PyCFunction)CosLogTable_getPoints, METH_NOARGS, NULL},
+    {"replace", (PyCFunction)CosLogTable_replace, METH_O, NULL},
+    {"add", (PyCFunction)CosLogTable_add, METH_O, NULL},
+    {"sub", (PyCFunction)CosLogTable_sub, METH_O, NULL},
+    {"mul", (PyCFunction)CosLogTable_mul, METH_O, NULL},
+    {"div", (PyCFunction)CosLogTable_div, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -2943,7 +2943,7 @@ PyTypeObject CosLogTableType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "CosLogTable objects. Generates a table filled with one or more Cosine-logarithmic lines.",  /* tp_doc */
+    0,  /* tp_doc */
     (traverseproc)CosLogTable_traverse,   /* tp_traverse */
     (inquiry)CosLogTable_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -3250,45 +3250,45 @@ CurveTable_replace(CurveTable *self, PyObject *value)
 
 static PyMemberDef CurveTable_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(CurveTable, server), 0, "Pyo server."},
-    {"tablestream", T_OBJECT_EX, offsetof(CurveTable, tablestream), 0, "Table stream object."},
-    {"pointslist", T_OBJECT_EX, offsetof(CurveTable, pointslist), 0, "Harmonics amplitude values."},
+    {"server", T_OBJECT_EX, offsetof(CurveTable, server), 0, NULL},
+    {"tablestream", T_OBJECT_EX, offsetof(CurveTable, tablestream), 0, NULL},
+    {"pointslist", T_OBJECT_EX, offsetof(CurveTable, pointslist), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef CurveTable_methods[] =
 {
-    {"getServer", (PyCFunction)CurveTable_getServer, METH_NOARGS, "Returns server object."},
-    {"copy", (PyCFunction)CurveTable_copy, METH_O, "Copy data from table given in argument."},
-    {"copyData", (PyCFunction)CurveTable_copyData, METH_VARARGS | METH_KEYWORDS, "Copy data from table given in argument."},
-    {"rotate", (PyCFunction)CurveTable_rotate, METH_VARARGS | METH_KEYWORDS, "Rotate table around position as argument."},
-    {"setTable", (PyCFunction)CurveTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
-    {"getTable", (PyCFunction)CurveTable_getTable, METH_NOARGS, "Returns a list of table samples."},
-    {"getTableStream", (PyCFunction)CurveTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
-    {"setData", (PyCFunction)CurveTable_setData, METH_O, "Sets the table from samples in a text file."},
-    {"setSize", (PyCFunction)CurveTable_setSize, METH_O, "Sets the size of the table in samples"},
-    {"getSize", (PyCFunction)CurveTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
-    {"put", (PyCFunction)CurveTable_put, METH_VARARGS | METH_KEYWORDS, "Puts a value at specified position in the table."},
-    {"get", (PyCFunction)CurveTable_get, METH_VARARGS | METH_KEYWORDS, "Gets the value at specified position in the table."},
-    {"getPoints", (PyCFunction)CurveTable_getPoints, METH_NOARGS, "Return the list of points."},
-    {"setTension", (PyCFunction)CurveTable_setTension, METH_O, "Sets the curvature tension."},
-    {"setBias", (PyCFunction)CurveTable_setBias, METH_O, "Sets the curve bias."},
-    {"replace", (PyCFunction)CurveTable_replace, METH_O, "Sets the harmonics amplitude list and generates a new waveform table."},
-    {"normalize", (PyCFunction)CurveTable_normalize, METH_VARARGS | METH_KEYWORDS, "Normalize table between -1 and 1."},
-    {"reset", (PyCFunction)CurveTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
-    {"removeDC", (PyCFunction)CurveTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
-    {"reverse", (PyCFunction)CurveTable_reverse, METH_NOARGS, "Reverse the table's data."},
-    {"invert", (PyCFunction)CurveTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
-    {"rectify", (PyCFunction)CurveTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
-    {"bipolarGain", (PyCFunction)CurveTable_bipolarGain, METH_VARARGS | METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
-    {"lowpass", (PyCFunction)CurveTable_lowpass, METH_VARARGS | METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
-    {"fadein", (PyCFunction)CurveTable_fadein, METH_VARARGS | METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
-    {"fadeout", (PyCFunction)CurveTable_fadeout, METH_VARARGS | METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
-    {"pow", (PyCFunction)CurveTable_pow, METH_VARARGS | METH_KEYWORDS, "Apply a power function on each sample in the table."},
-    {"add", (PyCFunction)CurveTable_add, METH_O, "Performs table addition."},
-    {"sub", (PyCFunction)CurveTable_sub, METH_O, "Performs table substraction."},
-    {"mul", (PyCFunction)CurveTable_mul, METH_O, "Performs table multiplication."},
-    {"div", (PyCFunction)CurveTable_div, METH_O, "Performs table division."},
+    {"getServer", (PyCFunction)CurveTable_getServer, METH_NOARGS, NULL},
+    {"copy", (PyCFunction)CurveTable_copy, METH_O, NULL},
+    {"copyData", (PyCFunction)CurveTable_copyData, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"rotate", (PyCFunction)CurveTable_rotate, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setTable", (PyCFunction)CurveTable_setTable, METH_O, NULL},
+    {"getTable", (PyCFunction)CurveTable_getTable, METH_NOARGS, NULL},
+    {"getTableStream", (PyCFunction)CurveTable_getTableStream, METH_NOARGS, NULL},
+    {"setData", (PyCFunction)CurveTable_setData, METH_O, NULL},
+    {"setSize", (PyCFunction)CurveTable_setSize, METH_O, NULL},
+    {"getSize", (PyCFunction)CurveTable_getSize, METH_NOARGS, NULL},
+    {"put", (PyCFunction)CurveTable_put, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"get", (PyCFunction)CurveTable_get, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"getPoints", (PyCFunction)CurveTable_getPoints, METH_NOARGS, NULL},
+    {"setTension", (PyCFunction)CurveTable_setTension, METH_O, NULL},
+    {"setBias", (PyCFunction)CurveTable_setBias, METH_O, NULL},
+    {"replace", (PyCFunction)CurveTable_replace, METH_O, NULL},
+    {"normalize", (PyCFunction)CurveTable_normalize, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"reset", (PyCFunction)CurveTable_reset, METH_NOARGS, NULL},
+    {"removeDC", (PyCFunction)CurveTable_removeDC, METH_NOARGS, NULL},
+    {"reverse", (PyCFunction)CurveTable_reverse, METH_NOARGS, NULL},
+    {"invert", (PyCFunction)CurveTable_invert, METH_NOARGS, NULL},
+    {"rectify", (PyCFunction)CurveTable_rectify, METH_NOARGS, NULL},
+    {"bipolarGain", (PyCFunction)CurveTable_bipolarGain, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"lowpass", (PyCFunction)CurveTable_lowpass, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"fadein", (PyCFunction)CurveTable_fadein, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"fadeout", (PyCFunction)CurveTable_fadeout, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"pow", (PyCFunction)CurveTable_pow, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"add", (PyCFunction)CurveTable_add, METH_O, NULL},
+    {"sub", (PyCFunction)CurveTable_sub, METH_O, NULL},
+    {"mul", (PyCFunction)CurveTable_mul, METH_O, NULL},
+    {"div", (PyCFunction)CurveTable_div, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -3314,7 +3314,7 @@ PyTypeObject CurveTableType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "CurveTable objects. Generates a table filled with one or more straight lines.",  /* tp_doc */
+    0,  /* tp_doc */
     (traverseproc)CurveTable_traverse,   /* tp_traverse */
     (inquiry)CurveTable_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -3621,44 +3621,44 @@ ExpTable_replace(ExpTable *self, PyObject *value)
 
 static PyMemberDef ExpTable_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(ExpTable, server), 0, "Pyo server."},
-    {"tablestream", T_OBJECT_EX, offsetof(ExpTable, tablestream), 0, "Table stream object."},
-    {"pointslist", T_OBJECT_EX, offsetof(ExpTable, pointslist), 0, "Harmonics amplitude values."},
+    {"server", T_OBJECT_EX, offsetof(ExpTable, server), 0, NULL},
+    {"tablestream", T_OBJECT_EX, offsetof(ExpTable, tablestream), 0, NULL},
+    {"pointslist", T_OBJECT_EX, offsetof(ExpTable, pointslist), 0, NULL},
     {NULL}  /* Sentinel */
 };
 static PyMethodDef ExpTable_methods[] =
 {
-    {"getServer", (PyCFunction)ExpTable_getServer, METH_NOARGS, "Returns server object."},
-    {"copy", (PyCFunction)ExpTable_copy, METH_O, "Copy data from table given in argument."},
-    {"copyData", (PyCFunction)ExpTable_copyData, METH_VARARGS | METH_KEYWORDS, "Copy data from table given in argument."},
-    {"rotate", (PyCFunction)ExpTable_rotate, METH_VARARGS | METH_KEYWORDS, "Rotate table around position as argument."},
-    {"setTable", (PyCFunction)ExpTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
-    {"getTable", (PyCFunction)ExpTable_getTable, METH_NOARGS, "Returns a list of table samples."},
-    {"getTableStream", (PyCFunction)ExpTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
-    {"setData", (PyCFunction)ExpTable_setData, METH_O, "Sets the table from samples in a text file."},
-    {"setSize", (PyCFunction)ExpTable_setSize, METH_O, "Sets the size of the table in samples"},
-    {"getSize", (PyCFunction)ExpTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
-    {"put", (PyCFunction)ExpTable_put, METH_VARARGS | METH_KEYWORDS, "Puts a value at specified position in the table."},
-    {"get", (PyCFunction)ExpTable_get, METH_VARARGS | METH_KEYWORDS, "Gets the value at specified position in the table."},
-    {"getPoints", (PyCFunction)ExpTable_getPoints, METH_NOARGS, "Return the list of points."},
-    {"setExp", (PyCFunction)ExpTable_setExp, METH_O, "Sets the exponent factor."},
-    {"setInverse", (PyCFunction)ExpTable_setInverse, METH_O, "Sets the inverse factor."},
-    {"replace", (PyCFunction)ExpTable_replace, METH_O, "Sets the harmonics amplitude list and generates a new waveform table."},
-    {"normalize", (PyCFunction)ExpTable_normalize, METH_VARARGS | METH_KEYWORDS, "Normalize table between -1 and 1."},
-    {"reset", (PyCFunction)ExpTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
-    {"removeDC", (PyCFunction)ExpTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
-    {"reverse", (PyCFunction)ExpTable_reverse, METH_NOARGS, "Reverse the table's data."},
-    {"invert", (PyCFunction)ExpTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
-    {"rectify", (PyCFunction)ExpTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
-    {"bipolarGain", (PyCFunction)ExpTable_bipolarGain, METH_VARARGS | METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
-    {"lowpass", (PyCFunction)ExpTable_lowpass, METH_VARARGS | METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
-    {"fadein", (PyCFunction)ExpTable_fadein, METH_VARARGS | METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
-    {"fadeout", (PyCFunction)ExpTable_fadeout, METH_VARARGS | METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
-    {"pow", (PyCFunction)ExpTable_pow, METH_VARARGS | METH_KEYWORDS, "Apply a power function on each sample in the table."},
-    {"add", (PyCFunction)ExpTable_add, METH_O, "Performs table addition."},
-    {"sub", (PyCFunction)ExpTable_sub, METH_O, "Performs table substraction."},
-    {"mul", (PyCFunction)ExpTable_mul, METH_O, "Performs table multiplication."},
-    {"div", (PyCFunction)ExpTable_div, METH_O, "Performs table division."},
+    {"getServer", (PyCFunction)ExpTable_getServer, METH_NOARGS, NULL},
+    {"copy", (PyCFunction)ExpTable_copy, METH_O, NULL},
+    {"copyData", (PyCFunction)ExpTable_copyData, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"rotate", (PyCFunction)ExpTable_rotate, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setTable", (PyCFunction)ExpTable_setTable, METH_O, NULL},
+    {"getTable", (PyCFunction)ExpTable_getTable, METH_NOARGS, NULL},
+    {"getTableStream", (PyCFunction)ExpTable_getTableStream, METH_NOARGS, NULL},
+    {"setData", (PyCFunction)ExpTable_setData, METH_O, NULL},
+    {"setSize", (PyCFunction)ExpTable_setSize, METH_O, NULL},
+    {"getSize", (PyCFunction)ExpTable_getSize, METH_NOARGS, NULL},
+    {"put", (PyCFunction)ExpTable_put, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"get", (PyCFunction)ExpTable_get, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"getPoints", (PyCFunction)ExpTable_getPoints, METH_NOARGS, NULL},
+    {"setExp", (PyCFunction)ExpTable_setExp, METH_O, NULL},
+    {"setInverse", (PyCFunction)ExpTable_setInverse, METH_O, NULL},
+    {"replace", (PyCFunction)ExpTable_replace, METH_O, NULL},
+    {"normalize", (PyCFunction)ExpTable_normalize, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"reset", (PyCFunction)ExpTable_reset, METH_NOARGS, NULL},
+    {"removeDC", (PyCFunction)ExpTable_removeDC, METH_NOARGS, NULL},
+    {"reverse", (PyCFunction)ExpTable_reverse, METH_NOARGS, NULL},
+    {"invert", (PyCFunction)ExpTable_invert, METH_NOARGS, NULL},
+    {"rectify", (PyCFunction)ExpTable_rectify, METH_NOARGS, NULL},
+    {"bipolarGain", (PyCFunction)ExpTable_bipolarGain, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"lowpass", (PyCFunction)ExpTable_lowpass, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"fadein", (PyCFunction)ExpTable_fadein, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"fadeout", (PyCFunction)ExpTable_fadeout, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"pow", (PyCFunction)ExpTable_pow, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"add", (PyCFunction)ExpTable_add, METH_O, NULL},
+    {"sub", (PyCFunction)ExpTable_sub, METH_O, NULL},
+    {"mul", (PyCFunction)ExpTable_mul, METH_O, NULL},
+    {"div", (PyCFunction)ExpTable_div, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -3684,7 +3684,7 @@ PyTypeObject ExpTableType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "ExpTable objects. Generates a table filled with one or more straight lines.",  /* tp_doc */
+    0,  /* tp_doc */
     (traverseproc)ExpTable_traverse,   /* tp_traverse */
     (inquiry)ExpTable_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -3902,42 +3902,42 @@ NewTable_setFeedback(NewTable *self, PyObject *value)
 
 static PyMemberDef NewTable_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(NewTable, server), 0, "Pyo server."},
-    {"tablestream", T_OBJECT_EX, offsetof(NewTable, tablestream), 0, "Table stream object."},
+    {"server", T_OBJECT_EX, offsetof(NewTable, server), 0, NULL},
+    {"tablestream", T_OBJECT_EX, offsetof(NewTable, tablestream), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef NewTable_methods[] =
 {
-    {"getServer", (PyCFunction)NewTable_getServer, METH_NOARGS, "Returns server object."},
-    {"setTable", (PyCFunction)NewTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
-    {"getTable", (PyCFunction)NewTable_getTable, METH_NOARGS, "Returns a list of table samples."},
-    {"getTableStream", (PyCFunction)NewTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
-    {"setFeedback", (PyCFunction)NewTable_setFeedback, METH_O, "Feedback sets the amount of old data to mix with a new recording."},
-    {"setData", (PyCFunction)NewTable_setData, METH_O, "Sets the table from samples in a text file."},
-    {"copy", (PyCFunction)NewTable_copy, METH_O, "Copy data from table given in argument."},
-    {"copyData", (PyCFunction)NewTable_copyData, METH_VARARGS | METH_KEYWORDS, "Copy data from table given in argument."},
-    {"rotate", (PyCFunction)NewTable_rotate, METH_VARARGS | METH_KEYWORDS, "Rotate table around position as argument."},
-    {"normalize", (PyCFunction)NewTable_normalize, METH_VARARGS | METH_KEYWORDS, "Normalize table samples"},
-    {"reset", (PyCFunction)NewTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
-    {"removeDC", (PyCFunction)NewTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
-    {"reverse", (PyCFunction)NewTable_reverse, METH_NOARGS, "Reverse the table's data."},
-    {"invert", (PyCFunction)NewTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
-    {"rectify", (PyCFunction)NewTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
-    {"bipolarGain", (PyCFunction)NewTable_bipolarGain, METH_VARARGS | METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
-    {"lowpass", (PyCFunction)NewTable_lowpass, METH_VARARGS | METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
-    {"fadein", (PyCFunction)NewTable_fadein, METH_VARARGS | METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
-    {"fadeout", (PyCFunction)NewTable_fadeout, METH_VARARGS | METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
-    {"pow", (PyCFunction)NewTable_pow, METH_VARARGS | METH_KEYWORDS, "Apply a power function on each sample in the table."},
-    {"put", (PyCFunction)NewTable_put, METH_VARARGS | METH_KEYWORDS, "Puts a value at specified position in the table."},
-    {"get", (PyCFunction)NewTable_get, METH_VARARGS | METH_KEYWORDS, "Gets the value at specified position in the table."},
-    {"getSize", (PyCFunction)NewTable_getSize, METH_NOARGS, "Return the size of the table in samples."},
-    {"getLength", (PyCFunction)NewTable_getLength, METH_NOARGS, "Return the length of the table in seconds."},
-    {"getRate", (PyCFunction)NewTable_getRate, METH_NOARGS, "Return the frequency (in cps) that reads the sound without pitch transposition."},
-    {"add", (PyCFunction)NewTable_add, METH_O, "Performs table addition."},
-    {"sub", (PyCFunction)NewTable_sub, METH_O, "Performs table substraction."},
-    {"mul", (PyCFunction)NewTable_mul, METH_O, "Performs table multiplication."},
-    {"div", (PyCFunction)NewTable_div, METH_O, "Performs table division."},
+    {"getServer", (PyCFunction)NewTable_getServer, METH_NOARGS, NULL},
+    {"setTable", (PyCFunction)NewTable_setTable, METH_O, NULL},
+    {"getTable", (PyCFunction)NewTable_getTable, METH_NOARGS, NULL},
+    {"getTableStream", (PyCFunction)NewTable_getTableStream, METH_NOARGS, NULL},
+    {"setFeedback", (PyCFunction)NewTable_setFeedback, METH_O, NULL},
+    {"setData", (PyCFunction)NewTable_setData, METH_O, NULL},
+    {"copy", (PyCFunction)NewTable_copy, METH_O, NULL},
+    {"copyData", (PyCFunction)NewTable_copyData, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"rotate", (PyCFunction)NewTable_rotate, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"normalize", (PyCFunction)NewTable_normalize, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"reset", (PyCFunction)NewTable_reset, METH_NOARGS, NULL},
+    {"removeDC", (PyCFunction)NewTable_removeDC, METH_NOARGS, NULL},
+    {"reverse", (PyCFunction)NewTable_reverse, METH_NOARGS, NULL},
+    {"invert", (PyCFunction)NewTable_invert, METH_NOARGS, NULL},
+    {"rectify", (PyCFunction)NewTable_rectify, METH_NOARGS, NULL},
+    {"bipolarGain", (PyCFunction)NewTable_bipolarGain, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"lowpass", (PyCFunction)NewTable_lowpass, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"fadein", (PyCFunction)NewTable_fadein, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"fadeout", (PyCFunction)NewTable_fadeout, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"pow", (PyCFunction)NewTable_pow, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"put", (PyCFunction)NewTable_put, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"get", (PyCFunction)NewTable_get, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"getSize", (PyCFunction)NewTable_getSize, METH_NOARGS, NULL},
+    {"getLength", (PyCFunction)NewTable_getLength, METH_NOARGS, NULL},
+    {"getRate", (PyCFunction)NewTable_getRate, METH_NOARGS, NULL},
+    {"add", (PyCFunction)NewTable_add, METH_O, NULL},
+    {"sub", (PyCFunction)NewTable_sub, METH_O, NULL},
+    {"mul", (PyCFunction)NewTable_mul, METH_O, NULL},
+    {"div", (PyCFunction)NewTable_div, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -3963,7 +3963,7 @@ PyTypeObject NewTableType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "NewTable objects. Generates an empty table.",  /* tp_doc */
+    0,  /* tp_doc */
     (traverseproc)NewTable_traverse,   /* tp_traverse */
     (inquiry)NewTable_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -4101,40 +4101,40 @@ DataTable_getRate(DataTable *self)
 
 static PyMemberDef DataTable_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(DataTable, server), 0, "Pyo server."},
-    {"tablestream", T_OBJECT_EX, offsetof(DataTable, tablestream), 0, "Table stream object."},
+    {"server", T_OBJECT_EX, offsetof(DataTable, server), 0, NULL},
+    {"tablestream", T_OBJECT_EX, offsetof(DataTable, tablestream), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef DataTable_methods[] =
 {
-    {"getServer", (PyCFunction)DataTable_getServer, METH_NOARGS, "Returns server object."},
-    {"copy", (PyCFunction)DataTable_copy, METH_O, "Copy data from table given in argument."},
-    {"copyData", (PyCFunction)DataTable_copyData, METH_VARARGS | METH_KEYWORDS, "Copy data from table given in argument."},
-    {"rotate", (PyCFunction)DataTable_rotate, METH_VARARGS | METH_KEYWORDS, "Rotate table around position as argument."},
-    {"setTable", (PyCFunction)DataTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
-    {"getTable", (PyCFunction)DataTable_getTable, METH_NOARGS, "Returns a list of table samples."},
-    {"getTableStream", (PyCFunction)DataTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
-    {"setData", (PyCFunction)DataTable_setData, METH_O, "Sets the table from samples in a text file."},
-    {"normalize", (PyCFunction)DataTable_normalize, METH_VARARGS | METH_KEYWORDS, "Normalize table samples"},
-    {"reset", (PyCFunction)DataTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
-    {"removeDC", (PyCFunction)DataTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
-    {"reverse", (PyCFunction)DataTable_reverse, METH_NOARGS, "Reverse the table's data."},
-    {"invert", (PyCFunction)DataTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
-    {"rectify", (PyCFunction)DataTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
-    {"bipolarGain", (PyCFunction)DataTable_bipolarGain, METH_VARARGS | METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
-    {"lowpass", (PyCFunction)DataTable_lowpass, METH_VARARGS | METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
-    {"fadein", (PyCFunction)DataTable_fadein, METH_VARARGS | METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
-    {"fadeout", (PyCFunction)DataTable_fadeout, METH_VARARGS | METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
-    {"pow", (PyCFunction)DataTable_pow, METH_VARARGS | METH_KEYWORDS, "Apply a power function on each sample in the table."},
-    {"put", (PyCFunction)DataTable_put, METH_VARARGS | METH_KEYWORDS, "Puts a value at specified position in the table."},
-    {"get", (PyCFunction)DataTable_get, METH_VARARGS | METH_KEYWORDS, "Gets the value at specified position in the table."},
-    {"getSize", (PyCFunction)DataTable_getSize, METH_NOARGS, "Return the size of the table in samples."},
-    {"getRate", (PyCFunction)DataTable_getRate, METH_NOARGS, "Return the frequency (in cps) that reads the sound without pitch transposition."},
-    {"add", (PyCFunction)DataTable_add, METH_O, "Performs table addition."},
-    {"sub", (PyCFunction)DataTable_sub, METH_O, "Performs table substraction."},
-    {"mul", (PyCFunction)DataTable_mul, METH_O, "Performs table multiplication."},
-    {"div", (PyCFunction)DataTable_div, METH_O, "Performs table division."},
+    {"getServer", (PyCFunction)DataTable_getServer, METH_NOARGS, NULL},
+    {"copy", (PyCFunction)DataTable_copy, METH_O, NULL},
+    {"copyData", (PyCFunction)DataTable_copyData, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"rotate", (PyCFunction)DataTable_rotate, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setTable", (PyCFunction)DataTable_setTable, METH_O, NULL},
+    {"getTable", (PyCFunction)DataTable_getTable, METH_NOARGS, NULL},
+    {"getTableStream", (PyCFunction)DataTable_getTableStream, METH_NOARGS, NULL},
+    {"setData", (PyCFunction)DataTable_setData, METH_O, NULL},
+    {"normalize", (PyCFunction)DataTable_normalize, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"reset", (PyCFunction)DataTable_reset, METH_NOARGS, NULL},
+    {"removeDC", (PyCFunction)DataTable_removeDC, METH_NOARGS, NULL},
+    {"reverse", (PyCFunction)DataTable_reverse, METH_NOARGS, NULL},
+    {"invert", (PyCFunction)DataTable_invert, METH_NOARGS, NULL},
+    {"rectify", (PyCFunction)DataTable_rectify, METH_NOARGS, NULL},
+    {"bipolarGain", (PyCFunction)DataTable_bipolarGain, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"lowpass", (PyCFunction)DataTable_lowpass, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"fadein", (PyCFunction)DataTable_fadein, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"fadeout", (PyCFunction)DataTable_fadeout, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"pow", (PyCFunction)DataTable_pow, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"put", (PyCFunction)DataTable_put, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"get", (PyCFunction)DataTable_get, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"getSize", (PyCFunction)DataTable_getSize, METH_NOARGS, NULL},
+    {"getRate", (PyCFunction)DataTable_getRate, METH_NOARGS, NULL},
+    {"add", (PyCFunction)DataTable_add, METH_O, NULL},
+    {"sub", (PyCFunction)DataTable_sub, METH_O, NULL},
+    {"mul", (PyCFunction)DataTable_mul, METH_O, NULL},
+    {"div", (PyCFunction)DataTable_div, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -4160,7 +4160,7 @@ PyTypeObject DataTableType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "DataTable objects. Generates an empty table.",  /* tp_doc */
+    0,  /* tp_doc */
     (traverseproc)DataTable_traverse,   /* tp_traverse */
     (inquiry)DataTable_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -4333,41 +4333,41 @@ AtanTable_getSize(AtanTable *self)
 
 static PyMemberDef AtanTable_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(AtanTable, server), 0, "Pyo server."},
-    {"tablestream", T_OBJECT_EX, offsetof(AtanTable, tablestream), 0, "Table stream object."},
+    {"server", T_OBJECT_EX, offsetof(AtanTable, server), 0, NULL},
+    {"tablestream", T_OBJECT_EX, offsetof(AtanTable, tablestream), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef AtanTable_methods[] =
 {
-    {"getServer", (PyCFunction)AtanTable_getServer, METH_NOARGS, "Returns server object."},
-    {"copy", (PyCFunction)AtanTable_copy, METH_O, "Copy data from table given in argument."},
-    {"copyData", (PyCFunction)AtanTable_copyData, METH_VARARGS | METH_KEYWORDS, "Copy data from table given in argument."},
-    {"rotate", (PyCFunction)AtanTable_rotate, METH_VARARGS | METH_KEYWORDS, "Rotate table around position as argument."},
-    {"setTable", (PyCFunction)AtanTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
-    {"getTable", (PyCFunction)AtanTable_getTable, METH_NOARGS, "Returns a list of table samples."},
-    {"getTableStream", (PyCFunction)AtanTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
-    {"setData", (PyCFunction)AtanTable_setData, METH_O, "Sets the table from samples in a text file."},
-    {"normalize", (PyCFunction)AtanTable_normalize, METH_VARARGS | METH_KEYWORDS, "Normalize table samples"},
-    {"reset", (PyCFunction)AtanTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
-    {"removeDC", (PyCFunction)AtanTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
-    {"reverse", (PyCFunction)AtanTable_reverse, METH_NOARGS, "Reverse the table's data."},
-    {"invert", (PyCFunction)AtanTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
-    {"rectify", (PyCFunction)AtanTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
-    {"bipolarGain", (PyCFunction)AtanTable_bipolarGain, METH_VARARGS | METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
-    {"lowpass", (PyCFunction)AtanTable_lowpass, METH_VARARGS | METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
-    {"fadein", (PyCFunction)AtanTable_fadein, METH_VARARGS | METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
-    {"fadeout", (PyCFunction)AtanTable_fadeout, METH_VARARGS | METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
-    {"pow", (PyCFunction)AtanTable_pow, METH_VARARGS | METH_KEYWORDS, "Apply a power function on each sample in the table."},
-    {"setSize", (PyCFunction)AtanTable_setSize, METH_O, "Sets the size of the table in samples"},
-    {"getSize", (PyCFunction)AtanTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
-    {"setSlope", (PyCFunction)AtanTable_setSlope, METH_O, "Sets the slope of the atan function."},
-    {"put", (PyCFunction)AtanTable_put, METH_VARARGS | METH_KEYWORDS, "Puts a value at specified position in the table."},
-    {"get", (PyCFunction)AtanTable_get, METH_VARARGS | METH_KEYWORDS, "Gets the value at specified position in the table."},
-    {"add", (PyCFunction)AtanTable_add, METH_O, "Performs table addition."},
-    {"sub", (PyCFunction)AtanTable_sub, METH_O, "Performs table substraction."},
-    {"mul", (PyCFunction)AtanTable_mul, METH_O, "Performs table multiplication."},
-    {"div", (PyCFunction)AtanTable_div, METH_O, "Performs table division."},
+    {"getServer", (PyCFunction)AtanTable_getServer, METH_NOARGS, NULL},
+    {"copy", (PyCFunction)AtanTable_copy, METH_O, NULL},
+    {"copyData", (PyCFunction)AtanTable_copyData, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"rotate", (PyCFunction)AtanTable_rotate, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setTable", (PyCFunction)AtanTable_setTable, METH_O, NULL},
+    {"getTable", (PyCFunction)AtanTable_getTable, METH_NOARGS, NULL},
+    {"getTableStream", (PyCFunction)AtanTable_getTableStream, METH_NOARGS, NULL},
+    {"setData", (PyCFunction)AtanTable_setData, METH_O, NULL},
+    {"normalize", (PyCFunction)AtanTable_normalize, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"reset", (PyCFunction)AtanTable_reset, METH_NOARGS, NULL},
+    {"removeDC", (PyCFunction)AtanTable_removeDC, METH_NOARGS, NULL},
+    {"reverse", (PyCFunction)AtanTable_reverse, METH_NOARGS, NULL},
+    {"invert", (PyCFunction)AtanTable_invert, METH_NOARGS, NULL},
+    {"rectify", (PyCFunction)AtanTable_rectify, METH_NOARGS, NULL},
+    {"bipolarGain", (PyCFunction)AtanTable_bipolarGain, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"lowpass", (PyCFunction)AtanTable_lowpass, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"fadein", (PyCFunction)AtanTable_fadein, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"fadeout", (PyCFunction)AtanTable_fadeout, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"pow", (PyCFunction)AtanTable_pow, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setSize", (PyCFunction)AtanTable_setSize, METH_O, NULL},
+    {"getSize", (PyCFunction)AtanTable_getSize, METH_NOARGS, NULL},
+    {"setSlope", (PyCFunction)AtanTable_setSlope, METH_O, NULL},
+    {"put", (PyCFunction)AtanTable_put, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"get", (PyCFunction)AtanTable_get, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"add", (PyCFunction)AtanTable_add, METH_O, NULL},
+    {"sub", (PyCFunction)AtanTable_sub, METH_O, NULL},
+    {"mul", (PyCFunction)AtanTable_mul, METH_O, NULL},
+    {"div", (PyCFunction)AtanTable_div, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -4393,7 +4393,7 @@ PyTypeObject AtanTableType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "AtanTable objects. Generates a table filled with a sinc function.",  /* tp_doc */
+    0,  /* tp_doc */
     (traverseproc)AtanTable_traverse,   /* tp_traverse */
     (inquiry)AtanTable_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -4772,46 +4772,46 @@ PadSynthTable_getSize(PadSynthTable *self)
 
 static PyMemberDef PadSynthTable_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(PadSynthTable, server), 0, "Pyo server."},
-    {"tablestream", T_OBJECT_EX, offsetof(PadSynthTable, tablestream), 0, "Table stream object."},
+    {"server", T_OBJECT_EX, offsetof(PadSynthTable, server), 0, NULL},
+    {"tablestream", T_OBJECT_EX, offsetof(PadSynthTable, tablestream), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef PadSynthTable_methods[] =
 {
-    {"getServer", (PyCFunction)PadSynthTable_getServer, METH_NOARGS, "Returns server object."},
-    {"copy", (PyCFunction)PadSynthTable_copy, METH_O, "Copy data from table given in argument."},
-    {"copyData", (PyCFunction)PadSynthTable_copyData, METH_VARARGS | METH_KEYWORDS, "Copy data from table given in argument."},
-    {"rotate", (PyCFunction)PadSynthTable_rotate, METH_VARARGS | METH_KEYWORDS, "Rotate table around position as argument."},
-    {"setTable", (PyCFunction)PadSynthTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
-    {"getTable", (PyCFunction)PadSynthTable_getTable, METH_NOARGS, "Returns a list of table samples."},
-    {"getTableStream", (PyCFunction)PadSynthTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
-    {"setData", (PyCFunction)PadSynthTable_setData, METH_O, "Sets the table from samples in a text file."},
-    {"normalize", (PyCFunction)PadSynthTable_normalize, METH_VARARGS | METH_KEYWORDS, "Normalize table samples"},
-    {"reset", (PyCFunction)PadSynthTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
-    {"removeDC", (PyCFunction)PadSynthTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
-    {"reverse", (PyCFunction)PadSynthTable_reverse, METH_NOARGS, "Reverse the table's data."},
-    {"invert", (PyCFunction)PadSynthTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
-    {"rectify", (PyCFunction)PadSynthTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
-    {"bipolarGain", (PyCFunction)PadSynthTable_bipolarGain, METH_VARARGS | METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
-    {"lowpass", (PyCFunction)PadSynthTable_lowpass, METH_VARARGS | METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
-    {"fadein", (PyCFunction)PadSynthTable_fadein, METH_VARARGS | METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
-    {"fadeout", (PyCFunction)PadSynthTable_fadeout, METH_VARARGS | METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
-    {"pow", (PyCFunction)PadSynthTable_pow, METH_VARARGS | METH_KEYWORDS, "Apply a power function on each sample in the table."},
-    {"getSize", (PyCFunction)PadSynthTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
-    {"setBaseFreq", (PyCFunction)PadSynthTable_setBaseFreq, METH_VARARGS | METH_KEYWORDS, "Sets the base frequency in hertz."},
-    {"setSpread", (PyCFunction)PadSynthTable_setSpread, METH_VARARGS | METH_KEYWORDS, "Sets the frequency spreading factor."},
-    {"setBw", (PyCFunction)PadSynthTable_setBw, METH_VARARGS | METH_KEYWORDS, "Sets the bandwitdh of the first harmonic in cents."},
-    {"setBwScl", (PyCFunction)PadSynthTable_setBwScl, METH_VARARGS | METH_KEYWORDS, "Sets the bandwitdh scaling factor."},
-    {"setNharms", (PyCFunction)PadSynthTable_setNharms, METH_VARARGS | METH_KEYWORDS, "Sets the number of harmonics."},
-    {"setDamp", (PyCFunction)PadSynthTable_setDamp, METH_VARARGS | METH_KEYWORDS, "Sets the damping factor."},
-    {"setSize", (PyCFunction)PadSynthTable_setSize, METH_VARARGS | METH_KEYWORDS, "Sets the size of the table in samples"},
-    {"put", (PyCFunction)PadSynthTable_put, METH_VARARGS | METH_KEYWORDS, "Puts a value at specified position in the table."},
-    {"get", (PyCFunction)PadSynthTable_get, METH_VARARGS | METH_KEYWORDS, "Gets the value at specified position in the table."},
-    {"add", (PyCFunction)PadSynthTable_add, METH_O, "Performs table addition."},
-    {"sub", (PyCFunction)PadSynthTable_sub, METH_O, "Performs table substraction."},
-    {"mul", (PyCFunction)PadSynthTable_mul, METH_O, "Performs table multiplication."},
-    {"div", (PyCFunction)PadSynthTable_div, METH_O, "Performs table division."},
+    {"getServer", (PyCFunction)PadSynthTable_getServer, METH_NOARGS, NULL},
+    {"copy", (PyCFunction)PadSynthTable_copy, METH_O, NULL},
+    {"copyData", (PyCFunction)PadSynthTable_copyData, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"rotate", (PyCFunction)PadSynthTable_rotate, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setTable", (PyCFunction)PadSynthTable_setTable, METH_O, NULL},
+    {"getTable", (PyCFunction)PadSynthTable_getTable, METH_NOARGS, NULL},
+    {"getTableStream", (PyCFunction)PadSynthTable_getTableStream, METH_NOARGS, NULL},
+    {"setData", (PyCFunction)PadSynthTable_setData, METH_O, NULL},
+    {"normalize", (PyCFunction)PadSynthTable_normalize, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"reset", (PyCFunction)PadSynthTable_reset, METH_NOARGS, NULL},
+    {"removeDC", (PyCFunction)PadSynthTable_removeDC, METH_NOARGS, NULL},
+    {"reverse", (PyCFunction)PadSynthTable_reverse, METH_NOARGS, NULL},
+    {"invert", (PyCFunction)PadSynthTable_invert, METH_NOARGS, NULL},
+    {"rectify", (PyCFunction)PadSynthTable_rectify, METH_NOARGS, NULL},
+    {"bipolarGain", (PyCFunction)PadSynthTable_bipolarGain, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"lowpass", (PyCFunction)PadSynthTable_lowpass, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"fadein", (PyCFunction)PadSynthTable_fadein, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"fadeout", (PyCFunction)PadSynthTable_fadeout, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"pow", (PyCFunction)PadSynthTable_pow, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"getSize", (PyCFunction)PadSynthTable_getSize, METH_NOARGS, NULL},
+    {"setBaseFreq", (PyCFunction)PadSynthTable_setBaseFreq, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setSpread", (PyCFunction)PadSynthTable_setSpread, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setBw", (PyCFunction)PadSynthTable_setBw, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setBwScl", (PyCFunction)PadSynthTable_setBwScl, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setNharms", (PyCFunction)PadSynthTable_setNharms, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setDamp", (PyCFunction)PadSynthTable_setDamp, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setSize", (PyCFunction)PadSynthTable_setSize, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"put", (PyCFunction)PadSynthTable_put, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"get", (PyCFunction)PadSynthTable_get, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"add", (PyCFunction)PadSynthTable_add, METH_O, NULL},
+    {"sub", (PyCFunction)PadSynthTable_sub, METH_O, NULL},
+    {"mul", (PyCFunction)PadSynthTable_mul, METH_O, NULL},
+    {"div", (PyCFunction)PadSynthTable_div, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -4837,7 +4837,7 @@ PyTypeObject PadSynthTableType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "PadSynthTable objects. Generates a table filled with a sinc function.",  /* tp_doc */
+    0,  /* tp_doc */
     (traverseproc)PadSynthTable_traverse,   /* tp_traverse */
     (inquiry)PadSynthTable_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -5116,22 +5116,22 @@ TableRec_setTable(TableRec *self, PyObject *arg)
 
 static PyMemberDef TableRec_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(TableRec, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(TableRec, stream), 0, "Stream object."},
-    {"trig_stream", T_OBJECT_EX, offsetof(TableRec, trig_stream), 0, "Trigger Stream object."},
-    {"input", T_OBJECT_EX, offsetof(TableRec, input), 0, "Input sound object."},
-    {"table", T_OBJECT_EX, offsetof(TableRec, table), 0, "Table to record in."},
+    {"server", T_OBJECT_EX, offsetof(TableRec, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(TableRec, stream), 0, NULL},
+    {"trig_stream", T_OBJECT_EX, offsetof(TableRec, trig_stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(TableRec, input), 0, NULL},
+    {"table", T_OBJECT_EX, offsetof(TableRec, table), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef TableRec_methods[] =
 {
-    {"getServer", (PyCFunction)TableRec_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)TableRec_getStream, METH_NOARGS, "Returns stream object."},
-    {"_getTriggerStream", (PyCFunction)TableRec_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
-    {"setTable", (PyCFunction)TableRec_setTable, METH_O, "Sets a new table."},
-    {"play", (PyCFunction)TableRec_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)TableRec_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"getServer", (PyCFunction)TableRec_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)TableRec_getStream, METH_NOARGS, NULL},
+    {"_getTriggerStream", (PyCFunction)TableRec_getTriggerStream, METH_NOARGS, NULL},
+    {"setTable", (PyCFunction)TableRec_setTable, METH_O, NULL},
+    {"play", (PyCFunction)TableRec_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)TableRec_stop, METH_VARARGS | METH_KEYWORDS, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -5157,7 +5157,7 @@ PyTypeObject TableRecType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "TableRec objects. Record audio input in a table object.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)TableRec_traverse,   /* tp_traverse */
     (inquiry)TableRec_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -5332,24 +5332,24 @@ static PyObject * TableRecTimeStream_inplace_div(TableRecTimeStream *self, PyObj
 
 static PyMemberDef TableRecTimeStream_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(TableRecTimeStream, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(TableRecTimeStream, stream), 0, "Stream object."},
-    {"mul", T_OBJECT_EX, offsetof(TableRecTimeStream, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(TableRecTimeStream, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(TableRecTimeStream, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(TableRecTimeStream, stream), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(TableRecTimeStream, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(TableRecTimeStream, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef TableRecTimeStream_methods[] =
 {
-    {"getServer", (PyCFunction)TableRecTimeStream_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)TableRecTimeStream_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)TableRecTimeStream_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)TableRecTimeStream_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)TableRecTimeStream_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setMul", (PyCFunction)TableRecTimeStream_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)TableRecTimeStream_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)TableRecTimeStream_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)TableRecTimeStream_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)TableRecTimeStream_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)TableRecTimeStream_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)TableRecTimeStream_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)TableRecTimeStream_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)TableRecTimeStream_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setMul", (PyCFunction)TableRecTimeStream_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)TableRecTimeStream_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)TableRecTimeStream_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)TableRecTimeStream_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -5413,7 +5413,7 @@ PyTypeObject TableRecTimeStreamType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "TableRecTimeStream objects. Returns the current recording time, in samples, of a TableRec object.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)TableRecTimeStream_traverse,   /* tp_traverse */
     (inquiry)TableRecTimeStream_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -5620,22 +5620,22 @@ TableMorph_setSources(TableMorph *self, PyObject *arg)
 
 static PyMemberDef TableMorph_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(TableMorph, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(TableMorph, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(TableMorph, input), 0, "Input sound object."},
-    {"table", T_OBJECT_EX, offsetof(TableMorph, table), 0, "Table to record in."},
-    {"sources", T_OBJECT_EX, offsetof(TableMorph, sources), 0, "list of tables to interpolate from."},
+    {"server", T_OBJECT_EX, offsetof(TableMorph, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(TableMorph, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(TableMorph, input), 0, NULL},
+    {"table", T_OBJECT_EX, offsetof(TableMorph, table), 0, NULL},
+    {"sources", T_OBJECT_EX, offsetof(TableMorph, sources), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef TableMorph_methods[] =
 {
-    {"getServer", (PyCFunction)TableMorph_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)TableMorph_getStream, METH_NOARGS, "Returns stream object."},
-    {"setTable", (PyCFunction)TableMorph_setTable, METH_O, "Sets a new table."},
-    {"setSources", (PyCFunction)TableMorph_setSources, METH_O, "Changes the sources tables."},
-    {"play", (PyCFunction)TableMorph_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)TableMorph_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"getServer", (PyCFunction)TableMorph_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)TableMorph_getStream, METH_NOARGS, NULL},
+    {"setTable", (PyCFunction)TableMorph_setTable, METH_O, NULL},
+    {"setSources", (PyCFunction)TableMorph_setSources, METH_O, NULL},
+    {"play", (PyCFunction)TableMorph_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)TableMorph_stop, METH_VARARGS | METH_KEYWORDS, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -5661,7 +5661,7 @@ PyTypeObject TableMorphType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "TableMorph objects. Interpolation contents of different table objects.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)TableMorph_traverse,   /* tp_traverse */
     (inquiry)TableMorph_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -5964,23 +5964,23 @@ TrigTableRec_setTable(TrigTableRec *self, PyObject *arg)
 
 static PyMemberDef TrigTableRec_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(TrigTableRec, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(TrigTableRec, stream), 0, "Stream object."},
-    {"trig_stream", T_OBJECT_EX, offsetof(TrigTableRec, trig_stream), 0, "Trigger Stream object."},
-    {"input", T_OBJECT_EX, offsetof(TrigTableRec, input), 0, "Input sound object."},
-    {"trigger", T_OBJECT_EX, offsetof(TrigTableRec, trigger), 0, "Trigger object."},
-    {"table", T_OBJECT_EX, offsetof(TrigTableRec, table), 0, "Table to record in."},
+    {"server", T_OBJECT_EX, offsetof(TrigTableRec, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(TrigTableRec, stream), 0, NULL},
+    {"trig_stream", T_OBJECT_EX, offsetof(TrigTableRec, trig_stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(TrigTableRec, input), 0, NULL},
+    {"trigger", T_OBJECT_EX, offsetof(TrigTableRec, trigger), 0, NULL},
+    {"table", T_OBJECT_EX, offsetof(TrigTableRec, table), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef TrigTableRec_methods[] =
 {
-    {"getServer", (PyCFunction)TrigTableRec_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)TrigTableRec_getStream, METH_NOARGS, "Returns stream object."},
-    {"_getTriggerStream", (PyCFunction)TrigTableRec_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
-    {"setTable", (PyCFunction)TrigTableRec_setTable, METH_O, "Sets a new table."},
-    {"play", (PyCFunction)TrigTableRec_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)TrigTableRec_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"getServer", (PyCFunction)TrigTableRec_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)TrigTableRec_getStream, METH_NOARGS, NULL},
+    {"_getTriggerStream", (PyCFunction)TrigTableRec_getTriggerStream, METH_NOARGS, NULL},
+    {"setTable", (PyCFunction)TrigTableRec_setTable, METH_O, NULL},
+    {"play", (PyCFunction)TrigTableRec_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)TrigTableRec_stop, METH_VARARGS | METH_KEYWORDS, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -6006,7 +6006,7 @@ PyTypeObject TrigTableRecType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "TrigTableRec objects. Record audio input in a table object.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)TrigTableRec_traverse,   /* tp_traverse */
     (inquiry)TrigTableRec_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -6181,24 +6181,24 @@ static PyObject * TrigTableRecTimeStream_inplace_div(TrigTableRecTimeStream *sel
 
 static PyMemberDef TrigTableRecTimeStream_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(TrigTableRecTimeStream, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(TrigTableRecTimeStream, stream), 0, "Stream object."},
-    {"mul", T_OBJECT_EX, offsetof(TrigTableRecTimeStream, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(TrigTableRecTimeStream, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(TrigTableRecTimeStream, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(TrigTableRecTimeStream, stream), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(TrigTableRecTimeStream, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(TrigTableRecTimeStream, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef TrigTableRecTimeStream_methods[] =
 {
-    {"getServer", (PyCFunction)TrigTableRecTimeStream_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)TrigTableRecTimeStream_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)TrigTableRecTimeStream_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)TrigTableRecTimeStream_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)TrigTableRecTimeStream_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setMul", (PyCFunction)TrigTableRecTimeStream_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)TrigTableRecTimeStream_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)TrigTableRecTimeStream_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)TrigTableRecTimeStream_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)TrigTableRecTimeStream_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)TrigTableRecTimeStream_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)TrigTableRecTimeStream_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)TrigTableRecTimeStream_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)TrigTableRecTimeStream_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setMul", (PyCFunction)TrigTableRecTimeStream_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)TrigTableRecTimeStream_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)TrigTableRecTimeStream_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)TrigTableRecTimeStream_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -6262,7 +6262,7 @@ PyTypeObject TrigTableRecTimeStreamType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,  /*tp_flags*/
-    "TrigTableRecTimeStream objects. Returns the current recording time, in samples, of a TableRec object.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)TrigTableRecTimeStream_traverse,   /* tp_traverse */
     (inquiry)TrigTableRecTimeStream_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -6439,22 +6439,22 @@ TablePut_setTable(TablePut *self, PyObject *arg)
 
 static PyMemberDef TablePut_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(TablePut, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(TablePut, stream), 0, "Stream object."},
-    {"trig_stream", T_OBJECT_EX, offsetof(TablePut, trig_stream), 0, "Trigger Stream object."},
-    {"input", T_OBJECT_EX, offsetof(TablePut, input), 0, "Input sound object."},
-    {"table", T_OBJECT_EX, offsetof(TablePut, table), 0, "Table to record in."},
+    {"server", T_OBJECT_EX, offsetof(TablePut, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(TablePut, stream), 0, NULL},
+    {"trig_stream", T_OBJECT_EX, offsetof(TablePut, trig_stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(TablePut, input), 0, NULL},
+    {"table", T_OBJECT_EX, offsetof(TablePut, table), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef TablePut_methods[] =
 {
-    {"getServer", (PyCFunction)TablePut_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)TablePut_getStream, METH_NOARGS, "Returns stream object."},
-    {"_getTriggerStream", (PyCFunction)TablePut_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
-    {"setTable", (PyCFunction)TablePut_setTable, METH_O, "Sets a new data table."},
-    {"play", (PyCFunction)TablePut_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)TablePut_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"getServer", (PyCFunction)TablePut_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)TablePut_getStream, METH_NOARGS, NULL},
+    {"_getTriggerStream", (PyCFunction)TablePut_getTriggerStream, METH_NOARGS, NULL},
+    {"setTable", (PyCFunction)TablePut_setTable, METH_O, NULL},
+    {"play", (PyCFunction)TablePut_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)TablePut_stop, METH_VARARGS | METH_KEYWORDS, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -6480,7 +6480,7 @@ PyTypeObject TablePutType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "TablePut objects. Record new value in input in a data table object.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)TablePut_traverse,   /* tp_traverse */
     (inquiry)TablePut_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -6734,22 +6734,22 @@ TableWrite_setTable(TableWrite *self, PyObject *arg)
 
 static PyMemberDef TableWrite_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(TableWrite, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(TableWrite, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(TableWrite, input), 0, "Input sound object."},
-    {"table", T_OBJECT_EX, offsetof(TableWrite, table), 0, "Table to record in."},
-    {"pos", T_OBJECT_EX, offsetof(TableWrite, pos), 0, "Position in the Table to record in."},
+    {"server", T_OBJECT_EX, offsetof(TableWrite, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(TableWrite, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(TableWrite, input), 0, NULL},
+    {"table", T_OBJECT_EX, offsetof(TableWrite, table), 0, NULL},
+    {"pos", T_OBJECT_EX, offsetof(TableWrite, pos), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef TableWrite_methods[] =
 {
-    {"getServer", (PyCFunction)TableWrite_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)TableWrite_getStream, METH_NOARGS, "Returns stream object."},
-    {"setTable", (PyCFunction)TableWrite_setTable, METH_O, "Sets a new table."},
-    {"setPos", (PyCFunction)TableWrite_setPos, METH_O, "Sets position in the sound table."},
-    {"play", (PyCFunction)TableWrite_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)TableWrite_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"getServer", (PyCFunction)TableWrite_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)TableWrite_getStream, METH_NOARGS, NULL},
+    {"setTable", (PyCFunction)TableWrite_setTable, METH_O, NULL},
+    {"setPos", (PyCFunction)TableWrite_setPos, METH_O, NULL},
+    {"play", (PyCFunction)TableWrite_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)TableWrite_stop, METH_VARARGS | METH_KEYWORDS, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -6775,7 +6775,7 @@ PyTypeObject TableWriteType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "TableWrite objects. Record audio input in a table object.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)TableWrite_traverse,   /* tp_traverse */
     (inquiry)TableWrite_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
@@ -6960,40 +6960,40 @@ SharedTable_getRate(SharedTable *self)
 
 static PyMemberDef SharedTable_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(SharedTable, server), 0, "Pyo server."},
-    {"tablestream", T_OBJECT_EX, offsetof(SharedTable, tablestream), 0, "Table stream object."},
+    {"server", T_OBJECT_EX, offsetof(SharedTable, server), 0, NULL},
+    {"tablestream", T_OBJECT_EX, offsetof(SharedTable, tablestream), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef SharedTable_methods[] =
 {
-    {"getServer", (PyCFunction)SharedTable_getServer, METH_NOARGS, "Returns server object."},
-    {"copy", (PyCFunction)SharedTable_copy, METH_O, "Copy data from table given in argument."},
-    {"copyData", (PyCFunction)SharedTable_copyData, METH_VARARGS | METH_KEYWORDS, "Copy data from table given in argument."},
-    {"rotate", (PyCFunction)SharedTable_rotate, METH_VARARGS | METH_KEYWORDS, "Rotate table around position as argument."},
-    {"setTable", (PyCFunction)SharedTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
-    {"getTable", (PyCFunction)SharedTable_getTable, METH_NOARGS, "Returns a list of table samples."},
-    {"getTableStream", (PyCFunction)SharedTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
-    {"setData", (PyCFunction)SharedTable_setData, METH_O, "Sets the table from samples in a text file."},
-    {"normalize", (PyCFunction)SharedTable_normalize, METH_VARARGS | METH_KEYWORDS, "Normalize table samples"},
-    {"reset", (PyCFunction)SharedTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
-    {"removeDC", (PyCFunction)SharedTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
-    {"reverse", (PyCFunction)SharedTable_reverse, METH_NOARGS, "Reverse the table's data."},
-    {"invert", (PyCFunction)SharedTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
-    {"rectify", (PyCFunction)SharedTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
-    {"bipolarGain", (PyCFunction)SharedTable_bipolarGain, METH_VARARGS | METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
-    {"lowpass", (PyCFunction)SharedTable_lowpass, METH_VARARGS | METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
-    {"fadein", (PyCFunction)SharedTable_fadein, METH_VARARGS | METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
-    {"fadeout", (PyCFunction)SharedTable_fadeout, METH_VARARGS | METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
-    {"pow", (PyCFunction)SharedTable_pow, METH_VARARGS | METH_KEYWORDS, "Apply a power function on each sample in the table."},
-    {"put", (PyCFunction)SharedTable_put, METH_VARARGS | METH_KEYWORDS, "Puts a value at specified position in the table."},
-    {"get", (PyCFunction)SharedTable_get, METH_VARARGS | METH_KEYWORDS, "Gets the value at specified position in the table."},
-    {"getSize", (PyCFunction)SharedTable_getSize, METH_NOARGS, "Return the size of the table in samples."},
-    {"getRate", (PyCFunction)SharedTable_getRate, METH_NOARGS, "Return the frequency (in cps) that reads the sound without pitch transposition."},
-    {"add", (PyCFunction)SharedTable_add, METH_O, "Performs table addition."},
-    {"sub", (PyCFunction)SharedTable_sub, METH_O, "Performs table substraction."},
-    {"mul", (PyCFunction)SharedTable_mul, METH_O, "Performs table multiplication."},
-    {"div", (PyCFunction)SharedTable_div, METH_O, "Performs table division."},
+    {"getServer", (PyCFunction)SharedTable_getServer, METH_NOARGS, NULL},
+    {"copy", (PyCFunction)SharedTable_copy, METH_O, NULL},
+    {"copyData", (PyCFunction)SharedTable_copyData, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"rotate", (PyCFunction)SharedTable_rotate, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setTable", (PyCFunction)SharedTable_setTable, METH_O, NULL},
+    {"getTable", (PyCFunction)SharedTable_getTable, METH_NOARGS, NULL},
+    {"getTableStream", (PyCFunction)SharedTable_getTableStream, METH_NOARGS, NULL},
+    {"setData", (PyCFunction)SharedTable_setData, METH_O, NULL},
+    {"normalize", (PyCFunction)SharedTable_normalize, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"reset", (PyCFunction)SharedTable_reset, METH_NOARGS, NULL},
+    {"removeDC", (PyCFunction)SharedTable_removeDC, METH_NOARGS, NULL},
+    {"reverse", (PyCFunction)SharedTable_reverse, METH_NOARGS, NULL},
+    {"invert", (PyCFunction)SharedTable_invert, METH_NOARGS, NULL},
+    {"rectify", (PyCFunction)SharedTable_rectify, METH_NOARGS, NULL},
+    {"bipolarGain", (PyCFunction)SharedTable_bipolarGain, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"lowpass", (PyCFunction)SharedTable_lowpass, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"fadein", (PyCFunction)SharedTable_fadein, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"fadeout", (PyCFunction)SharedTable_fadeout, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"pow", (PyCFunction)SharedTable_pow, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"put", (PyCFunction)SharedTable_put, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"get", (PyCFunction)SharedTable_get, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"getSize", (PyCFunction)SharedTable_getSize, METH_NOARGS, NULL},
+    {"getRate", (PyCFunction)SharedTable_getRate, METH_NOARGS, NULL},
+    {"add", (PyCFunction)SharedTable_add, METH_O, NULL},
+    {"sub", (PyCFunction)SharedTable_sub, METH_O, NULL},
+    {"mul", (PyCFunction)SharedTable_mul, METH_O, NULL},
+    {"div", (PyCFunction)SharedTable_div, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -7019,7 +7019,7 @@ PyTypeObject SharedTableType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "SharedTable objects. Generates an empty table.",  /* tp_doc */
+    0,  /* tp_doc */
     (traverseproc)SharedTable_traverse,   /* tp_traverse */
     (inquiry)SharedTable_clear,           /* tp_clear */
     0,                     /* tp_richcompare */

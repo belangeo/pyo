@@ -266,27 +266,27 @@ Convolve_setTable(Convolve *self, PyObject *arg)
 
 static PyMemberDef Convolve_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(Convolve, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(Convolve, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(Convolve, input), 0, "Input sound object."},
-    {"mul", T_OBJECT_EX, offsetof(Convolve, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(Convolve, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(Convolve, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(Convolve, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(Convolve, input), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(Convolve, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(Convolve, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef Convolve_methods[] =
 {
-    {"getTable", (PyCFunction)Convolve_getTable, METH_NOARGS, "Returns impulse response table object."},
-    {"getServer", (PyCFunction)Convolve_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)Convolve_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Convolve_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)Convolve_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Convolve_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setTable", (PyCFunction)Convolve_setTable, METH_O, "Sets inpulse response table."},
-    {"setMul", (PyCFunction)Convolve_setMul, METH_O, "Sets mul factor."},
-    {"setAdd", (PyCFunction)Convolve_setAdd, METH_O, "Sets add factor."},
-    {"setSub", (PyCFunction)Convolve_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)Convolve_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getTable", (PyCFunction)Convolve_getTable, METH_NOARGS, NULL},
+    {"getServer", (PyCFunction)Convolve_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)Convolve_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)Convolve_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)Convolve_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)Convolve_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setTable", (PyCFunction)Convolve_setTable, METH_O, NULL},
+    {"setMul", (PyCFunction)Convolve_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)Convolve_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)Convolve_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)Convolve_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -350,7 +350,7 @@ PyTypeObject ConvolveType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Convolve objects. Implements a circular convolution.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)Convolve_traverse,                  /* tp_traverse */
     (inquiry)Convolve_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -853,30 +853,30 @@ IRWinSinc_setType(IRWinSinc *self, PyObject *arg)
 
 static PyMemberDef IRWinSinc_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(IRWinSinc, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(IRWinSinc, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(IRWinSinc, input), 0, "Input sound object."},
-    {"freq", T_OBJECT_EX, offsetof(IRWinSinc, freq), 0, "Cutoff or center frequency."},
-    {"bandwidth", T_OBJECT_EX, offsetof(IRWinSinc, bandwidth), 0, "Bandwidth, in Hz, for bandreject and bandpass filters."},
-    {"mul", T_OBJECT_EX, offsetof(IRWinSinc, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(IRWinSinc, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(IRWinSinc, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(IRWinSinc, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(IRWinSinc, input), 0, NULL},
+    {"freq", T_OBJECT_EX, offsetof(IRWinSinc, freq), 0, NULL},
+    {"bandwidth", T_OBJECT_EX, offsetof(IRWinSinc, bandwidth), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(IRWinSinc, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(IRWinSinc, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef IRWinSinc_methods[] =
 {
-    {"getServer", (PyCFunction)IRWinSinc_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)IRWinSinc_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)IRWinSinc_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)IRWinSinc_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)IRWinSinc_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setFreq", (PyCFunction)IRWinSinc_setFreq, METH_O, "Sets center/cutoff frequency."},
-    {"setBandwidth", (PyCFunction)IRWinSinc_setBandwidth, METH_O, "Sets bandwidth in Hz."},
-    {"setType", (PyCFunction)IRWinSinc_setType, METH_O, "Sets filter type factor."},
-    {"setMul", (PyCFunction)IRWinSinc_setMul, METH_O, "Sets mul factor."},
-    {"setAdd", (PyCFunction)IRWinSinc_setAdd, METH_O, "Sets add factor."},
-    {"setSub", (PyCFunction)IRWinSinc_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)IRWinSinc_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)IRWinSinc_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)IRWinSinc_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)IRWinSinc_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)IRWinSinc_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)IRWinSinc_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setFreq", (PyCFunction)IRWinSinc_setFreq, METH_O, NULL},
+    {"setBandwidth", (PyCFunction)IRWinSinc_setBandwidth, METH_O, NULL},
+    {"setType", (PyCFunction)IRWinSinc_setType, METH_O, NULL},
+    {"setMul", (PyCFunction)IRWinSinc_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)IRWinSinc_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)IRWinSinc_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)IRWinSinc_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -940,7 +940,7 @@ PyTypeObject IRWinSincType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "IRWinSinc objects. Windowed-sinc filter.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)IRWinSinc_traverse,                  /* tp_traverse */
     (inquiry)IRWinSinc_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -1193,25 +1193,25 @@ static PyObject * IRAverage_inplace_div(IRAverage *self, PyObject *arg) { INPLAC
 
 static PyMemberDef IRAverage_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(IRAverage, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(IRAverage, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(IRAverage, input), 0, "Input sound object."},
-    {"mul", T_OBJECT_EX, offsetof(IRAverage, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(IRAverage, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(IRAverage, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(IRAverage, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(IRAverage, input), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(IRAverage, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(IRAverage, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef IRAverage_methods[] =
 {
-    {"getServer", (PyCFunction)IRAverage_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)IRAverage_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)IRAverage_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)IRAverage_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)IRAverage_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setMul", (PyCFunction)IRAverage_setMul, METH_O, "Sets mul factor."},
-    {"setAdd", (PyCFunction)IRAverage_setAdd, METH_O, "Sets add factor."},
-    {"setSub", (PyCFunction)IRAverage_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)IRAverage_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)IRAverage_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)IRAverage_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)IRAverage_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)IRAverage_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)IRAverage_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setMul", (PyCFunction)IRAverage_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)IRAverage_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)IRAverage_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)IRAverage_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -1275,7 +1275,7 @@ PyTypeObject IRAverageType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "IRAverage objects. Moving average FIR filter.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)IRAverage_traverse,                  /* tp_traverse */
     (inquiry)IRAverage_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -1811,30 +1811,30 @@ IRPulse_setType(IRPulse *self, PyObject *arg)
 
 static PyMemberDef IRPulse_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(IRPulse, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(IRPulse, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(IRPulse, input), 0, "Input sound object."},
-    {"freq", T_OBJECT_EX, offsetof(IRPulse, freq), 0, "Cutoff or center frequency."},
-    {"bandwidth", T_OBJECT_EX, offsetof(IRPulse, bandwidth), 0, "Bandwidth, in Hz, for bandreject and bandpass filters."},
-    {"mul", T_OBJECT_EX, offsetof(IRPulse, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(IRPulse, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(IRPulse, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(IRPulse, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(IRPulse, input), 0, NULL},
+    {"freq", T_OBJECT_EX, offsetof(IRPulse, freq), 0, NULL},
+    {"bandwidth", T_OBJECT_EX, offsetof(IRPulse, bandwidth), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(IRPulse, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(IRPulse, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef IRPulse_methods[] =
 {
-    {"getServer", (PyCFunction)IRPulse_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)IRPulse_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)IRPulse_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)IRPulse_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)IRPulse_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setFreq", (PyCFunction)IRPulse_setFreq, METH_O, "Sets center/cutoff frequency."},
-    {"setBandwidth", (PyCFunction)IRPulse_setBandwidth, METH_O, "Sets bandwidth in Hz."},
-    {"setType", (PyCFunction)IRPulse_setType, METH_O, "Sets filter type factor."},
-    {"setMul", (PyCFunction)IRPulse_setMul, METH_O, "Sets mul factor."},
-    {"setAdd", (PyCFunction)IRPulse_setAdd, METH_O, "Sets add factor."},
-    {"setSub", (PyCFunction)IRPulse_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)IRPulse_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)IRPulse_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)IRPulse_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)IRPulse_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)IRPulse_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)IRPulse_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setFreq", (PyCFunction)IRPulse_setFreq, METH_O, NULL},
+    {"setBandwidth", (PyCFunction)IRPulse_setBandwidth, METH_O, NULL},
+    {"setType", (PyCFunction)IRPulse_setType, METH_O, NULL},
+    {"setMul", (PyCFunction)IRPulse_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)IRPulse_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)IRPulse_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)IRPulse_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -1898,7 +1898,7 @@ PyTypeObject IRPulseType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "IRPulse objects. Windowed-sinc filter.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)IRPulse_traverse,                  /* tp_traverse */
     (inquiry)IRPulse_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */
@@ -2352,31 +2352,31 @@ IRFM_setIndex(IRFM *self, PyObject *arg)
 
 static PyMemberDef IRFM_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(IRFM, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(IRFM, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(IRFM, input), 0, "Input sound object."},
-    {"carrier", T_OBJECT_EX, offsetof(IRFM, carrier), 0, "Carrier frequency."},
-    {"ratio", T_OBJECT_EX, offsetof(IRFM, ratio), 0, "Modulator / carrier ratio."},
-    {"index", T_OBJECT_EX, offsetof(IRFM, index), 0, "Modulation index."},
-    {"mul", T_OBJECT_EX, offsetof(IRFM, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(IRFM, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(IRFM, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(IRFM, stream), 0, NULL},
+    {"input", T_OBJECT_EX, offsetof(IRFM, input), 0, NULL},
+    {"carrier", T_OBJECT_EX, offsetof(IRFM, carrier), 0, NULL},
+    {"ratio", T_OBJECT_EX, offsetof(IRFM, ratio), 0, NULL},
+    {"index", T_OBJECT_EX, offsetof(IRFM, index), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(IRFM, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(IRFM, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef IRFM_methods[] =
 {
-    {"getServer", (PyCFunction)IRFM_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)IRFM_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)IRFM_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)IRFM_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)IRFM_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setCarrier", (PyCFunction)IRFM_setCarrier, METH_O, "Sets carrier frequency."},
-    {"setRatio", (PyCFunction)IRFM_setRatio, METH_O, "Sets ratio."},
-    {"setIndex", (PyCFunction)IRFM_setIndex, METH_O, "Sets the modulation index."},
-    {"setMul", (PyCFunction)IRFM_setMul, METH_O, "Sets mul factor."},
-    {"setAdd", (PyCFunction)IRFM_setAdd, METH_O, "Sets add factor."},
-    {"setSub", (PyCFunction)IRFM_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)IRFM_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)IRFM_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)IRFM_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)IRFM_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)IRFM_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)IRFM_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setCarrier", (PyCFunction)IRFM_setCarrier, METH_O, NULL},
+    {"setRatio", (PyCFunction)IRFM_setRatio, METH_O, NULL},
+    {"setIndex", (PyCFunction)IRFM_setIndex, METH_O, NULL},
+    {"setMul", (PyCFunction)IRFM_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)IRFM_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)IRFM_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)IRFM_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -2440,7 +2440,7 @@ PyTypeObject IRFMType =
     0,                                              /*tp_setattro*/
     0,                                              /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "IRFM objects. Convolve an input signal with a frequency modulation spectrum.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)IRFM_traverse,                  /* tp_traverse */
     (inquiry)IRFM_clear,                          /* tp_clear */
     0,                                              /* tp_richcompare */

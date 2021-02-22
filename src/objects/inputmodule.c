@@ -186,24 +186,24 @@ static PyObject * Input_inplace_div(Input *self, PyObject *arg) { INPLACE_DIV };
 
 static PyMemberDef Input_members[] =
 {
-    {"server", T_OBJECT_EX, offsetof(Input, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(Input, stream), 0, "Stream object."},
-    {"mul", T_OBJECT_EX, offsetof(Input, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(Input, add), 0, "Add factor."},
+    {"server", T_OBJECT_EX, offsetof(Input, server), 0, NULL},
+    {"stream", T_OBJECT_EX, offsetof(Input, stream), 0, NULL},
+    {"mul", T_OBJECT_EX, offsetof(Input, mul), 0, NULL},
+    {"add", T_OBJECT_EX, offsetof(Input, add), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef Input_methods[] =
 {
-    {"getServer", (PyCFunction)Input_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)Input_getStream, METH_NOARGS, "Returns stream object."},
-    {"play", (PyCFunction)Input_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)Input_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"stop", (PyCFunction)Input_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
-    {"setMul", (PyCFunction)Input_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)Input_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)Input_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)Input_setDiv, METH_O, "Sets inverse mul factor."},
+    {"getServer", (PyCFunction)Input_getServer, METH_NOARGS, NULL},
+    {"_getStream", (PyCFunction)Input_getStream, METH_NOARGS, NULL},
+    {"play", (PyCFunction)Input_play, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"out", (PyCFunction)Input_out, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"stop", (PyCFunction)Input_stop, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"setMul", (PyCFunction)Input_setMul, METH_O, NULL},
+    {"setAdd", (PyCFunction)Input_setAdd, METH_O, NULL},
+    {"setSub", (PyCFunction)Input_setSub, METH_O, NULL},
+    {"setDiv", (PyCFunction)Input_setDiv, METH_O, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -267,7 +267,7 @@ PyTypeObject InputType =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-    "Input objects. Retreive audio from an input channel.",           /* tp_doc */
+    0,           /* tp_doc */
     (traverseproc)Input_traverse,   /* tp_traverse */
     (inquiry)Input_clear,           /* tp_clear */
     0,                     /* tp_richcompare */
