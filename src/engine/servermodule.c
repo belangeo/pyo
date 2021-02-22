@@ -356,7 +356,7 @@ Server_embedded_ni_startIdx(int idx)
 }
 
 int
-Server_embedded_nb_start(Server *self)
+Server_embedded_start(Server *self)
 {
     return 0;
 }
@@ -1795,7 +1795,7 @@ Server_start(Server *self)
             break;
 
         case PyoEmbedded:
-            err = Server_embedded_nb_start(self);
+            err = Server_embedded_start(self);
             break;
 
         case PyoManual:
