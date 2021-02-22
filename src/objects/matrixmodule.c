@@ -25,10 +25,7 @@
 #include "servermodule.h"
 #include "streammodule.h"
 #include "dummymodule.h"
-
-#define __MATRIX_MODULE
 #include "matrixmodule.h"
-#undef __MATRIX_MODULE
 
 /*************************/
 /* MatrixStream structure */

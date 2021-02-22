@@ -531,8 +531,8 @@ p_savefileFromTable(PyObject *self, PyObject *args, PyObject *kwds)
         PyList_SET_ITEM(tablestreamlist, i, PyObject_CallMethod(PyList_GetItem(base_objs, i), "getTableStream", NULL));
     }
 
-    sr = (int)TableStream_getSamplingRate((PyObject *)PyList_GetItem(tablestreamlist, 0));
-    size = TableStream_getSize((PyObject *)PyList_GetItem(tablestreamlist, 0));
+    sr = (int)TableStream_getSamplingRate((TableStream *)PyList_GetItem(tablestreamlist, 0));
+    size = TableStream_getSize((TableStream *)PyList_GetItem(tablestreamlist, 0));
 
     recinfo.samplerate = sr;
     recinfo.channels = channels;
@@ -558,7 +558,7 @@ p_savefileFromTable(PyObject *self, PyObject *args, PyObject *kwds)
 
         if (size < (sr * 60))
         {
-            data = TableStream_getData((PyObject *)PyList_GetItem(tablestreamlist, 0));
+            data = TableStream_getData((TableStream *)PyList_GetItem(tablestreamlist, 0));
             sampsarray = (MYFLT *)malloc(size * sizeof(MYFLT));
 
             for (i = 0; i < size; i++)
@@ -570,7 +570,7 @@ p_savefileFromTable(PyObject *self, PyObject *args, PyObject *kwds)
         }
         else
         {
-            data = TableStream_getData((PyObject *)PyList_GetItem(tablestreamlist, 0));
+            data = TableStream_getData((TableStream *)PyList_GetItem(tablestreamlist, 0));
             num_items = sr * 30;
             sampsarray = (MYFLT *)malloc(num_items * sizeof(MYFLT));
 
@@ -597,7 +597,7 @@ p_savefileFromTable(PyObject *self, PyObject *args, PyObject *kwds)
         {
             for (j = 0; j < channels; j++)
             {
-                data[j] = TableStream_getData((PyObject *)PyList_GetItem(tablestreamlist, j));
+                data[j] = TableStream_getData((TableStream *)PyList_GetItem(tablestreamlist, j));
             }
 
             sampsarray = (MYFLT *)malloc(size * channels * sizeof(MYFLT));
@@ -616,7 +616,7 @@ p_savefileFromTable(PyObject *self, PyObject *args, PyObject *kwds)
         {
             for (j = 0; j < channels; j++)
             {
-                data[j] = TableStream_getData((PyObject *)PyList_GetItem(tablestreamlist, j));
+                data[j] = TableStream_getData((TableStream *)PyList_GetItem(tablestreamlist, j));
             }
 
             num_items = sr * 30;

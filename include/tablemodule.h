@@ -18,10 +18,11 @@
  * License along with pyo.  If not, see <http://www.gnu.org/licenses/>.   *
  *************************************************************************/
 
+#ifndef _TABLEMODULE_H
+#define _TABLEMODULE_H
+
 #include "Python.h"
 #include "pyomodule.h"
-
-#ifdef __TABLE_MODULE
 
 typedef struct
 {
@@ -39,11 +40,10 @@ if ((self) == rt_error) { return rt_error; }    \
 \
 (self)->size = 0
 
-#else
 
-T_SIZE_T TableStream_getSize(PyObject *self);
-double TableStream_getSamplingRate(PyObject *self);
-MYFLT * TableStream_getData(PyObject *self);
+extern T_SIZE_T TableStream_getSize(TableStream *self);
+extern double TableStream_getSamplingRate(TableStream *self);
+extern MYFLT * TableStream_getData(TableStream *self);
 extern PyTypeObject TableStreamType;
 
-#endif
+#endif // _TABLEMODULE_H

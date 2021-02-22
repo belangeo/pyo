@@ -17,10 +17,12 @@
  * You should have received a copy of the GNU Lesser General Public       *
  * License along with pyo.  If not, see <http://www.gnu.org/licenses/>.   *
  *************************************************************************/
+
+#ifndef _FFT_H
+#define _FFT_H
+
 #include "pyomodule.h"
 
-#ifndef _FFT_
-#define _FFT_
 /* in-place split-radix real fft */
 void realfft_split(MYFLT *data, MYFLT *outdata, int n, MYFLT **twiddle);
 void irealfft_split(MYFLT *data, MYFLT *outdata, int n, MYFLT **twiddle);
@@ -32,4 +34,5 @@ void irealfft_packed(MYFLT *data, MYFLT *outdata, int size, MYFLT *twiddle);
 /* Prototype for array generation of twiddle factors */
 void fft_compute_split_twiddle(MYFLT **twiddle, int size);
 void fft_compute_radix2_twiddle(MYFLT *twiddle, int size);
-#endif
+
+#endif // _FFT_H

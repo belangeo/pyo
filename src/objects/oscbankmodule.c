@@ -166,8 +166,8 @@ OscBank_readframes(OscBank *self)
 {
     MYFLT freq, spread, slope, frndf, frnda, arndf, arnda, amp, modamp, pos, inc, x, y, fpart;
     int i, j, ipart;
-    MYFLT *tablelist = TableStream_getData(self->table);
-    int size = TableStream_getSize(self->table);
+    MYFLT *tablelist = TableStream_getData((TableStream *)self->table);
+    int size = TableStream_getSize((TableStream *)self->table);
     MYFLT tabscl = size / self->sr;
 
     for (i = 0; i < self->bufsize; i++)

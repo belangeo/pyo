@@ -20,11 +20,10 @@
 
 // This header includes some compatibility code between python 2 and python 3
 
-#include "Python.h"
-
 #ifndef _PY_2TO3_H
 #define _PY_2TO3_H
 
+#include "Python.h"
 
 #if PY_MAJOR_VERSION >= 3
 /* This is the default on Python3 and constant has been removed. */
@@ -53,8 +52,6 @@
 #define PyInt_Type PyLong_Type
 
 #endif /* PY_MAJOR_VERSION >= 3 */
-
-#endif
 
 // See PEP 238
 #define PyNumber_Divide PyNumber_TrueDivide
@@ -89,3 +86,5 @@
 #define PY_BYTES_FROM_STRING(a) PyString_FromString(a)
 #define PY_UNICODE_GET_SIZE(a) PyUnicode_GetSize(a)
 #endif
+
+#endif // _PY_2TO3_H

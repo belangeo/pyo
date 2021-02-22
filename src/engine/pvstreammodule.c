@@ -21,10 +21,7 @@
 #include <Python.h>
 #include "structmember.h"
 #include "pyomodule.h"
-
-#define __PV_STREAM_MODULE
 #include "pvstreammodule.h"
-#undef __PV_STREAM_MODULE
 
 /************************/
 /* PVStream object */

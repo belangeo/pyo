@@ -18,6 +18,9 @@
  * License along with pyo.  If not, see <http://www.gnu.org/licenses/>.   *
  *************************************************************************/
 
+#ifndef _DUMMYMODULE_H
+#define _DUMMYMODULE_H
+
 #include <Python.h>
 #include "pyomodule.h"
 
@@ -34,3 +37,5 @@ extern PyObject * Dummy_initialize(Dummy *self);
 #define MAKE_NEW_DUMMY(self, type, rt_error)    \
 (self) = (Dummy *)(type)->tp_alloc((type), 0);  \
 if ((self) == rt_error) { return rt_error; }
+
+#endif // _DUMMYMODULE_H

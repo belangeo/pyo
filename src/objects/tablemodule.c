@@ -37,9 +37,7 @@
 #include <sys/mman.h>
 #endif
 
-#define __TABLE_MODULE
 #include "tablemodule.h"
-#undef __TABLE_MODULE
 
 /*************************/
 /* TableStream structure */

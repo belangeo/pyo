@@ -62,11 +62,11 @@ Granulator_transform_iii(Granulator *self)
     int i, j;
     T_SIZE_T ipart;
 
-    MYFLT *tablelist = TableStream_getData(self->table);
-    T_SIZE_T size = TableStream_getSize(self->table);
+    MYFLT *tablelist = TableStream_getData((TableStream *)self->table);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
 
-    MYFLT *envlist = TableStream_getData(self->env);
-    T_SIZE_T envsize = TableStream_getSize(self->env);
+    MYFLT *envlist = TableStream_getData((TableStream *)self->env);
+    T_SIZE_T envsize = TableStream_getSize((TableStream *)self->env);
 
     MYFLT pit = PyFloat_AS_DOUBLE(self->pitch);
     MYFLT pos = PyFloat_AS_DOUBLE(self->pos);
@@ -135,11 +135,11 @@ Granulator_transform_aii(Granulator *self)
     int i, j;
     T_SIZE_T ipart;
 
-    MYFLT *tablelist = TableStream_getData(self->table);
-    T_SIZE_T size = TableStream_getSize(self->table);
+    MYFLT *tablelist = TableStream_getData((TableStream *)self->table);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
 
-    MYFLT *envlist = TableStream_getData(self->env);
-    T_SIZE_T envsize = TableStream_getSize(self->env);
+    MYFLT *envlist = TableStream_getData((TableStream *)self->env);
+    T_SIZE_T envsize = TableStream_getSize((TableStream *)self->env);
 
     MYFLT *pit = Stream_getData((Stream *)self->pitch_stream);
     MYFLT pos = PyFloat_AS_DOUBLE(self->pos);
@@ -209,11 +209,11 @@ Granulator_transform_iai(Granulator *self)
     int i, j;
     T_SIZE_T ipart;
 
-    MYFLT *tablelist = TableStream_getData(self->table);
-    T_SIZE_T size = TableStream_getSize(self->table);
+    MYFLT *tablelist = TableStream_getData((TableStream *)self->table);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
 
-    MYFLT *envlist = TableStream_getData(self->env);
-    T_SIZE_T envsize = TableStream_getSize(self->env);
+    MYFLT *envlist = TableStream_getData((TableStream *)self->env);
+    T_SIZE_T envsize = TableStream_getSize((TableStream *)self->env);
 
     MYFLT pit = PyFloat_AS_DOUBLE(self->pitch);
     MYFLT *pos = Stream_getData((Stream *)self->pos_stream);
@@ -288,11 +288,11 @@ Granulator_transform_aai(Granulator *self)
     int i, j;
     T_SIZE_T ipart;
 
-    MYFLT *tablelist = TableStream_getData(self->table);
-    T_SIZE_T size = TableStream_getSize(self->table);
+    MYFLT *tablelist = TableStream_getData((TableStream *)self->table);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
 
-    MYFLT *envlist = TableStream_getData(self->env);
-    T_SIZE_T envsize = TableStream_getSize(self->env);
+    MYFLT *envlist = TableStream_getData((TableStream *)self->env);
+    T_SIZE_T envsize = TableStream_getSize((TableStream *)self->env);
 
     MYFLT *pit = Stream_getData((Stream *)self->pitch_stream);
     MYFLT *pos = Stream_getData((Stream *)self->pos_stream);
@@ -362,11 +362,11 @@ Granulator_transform_iia(Granulator *self)
     int i, j;
     T_SIZE_T ipart;
 
-    MYFLT *tablelist = TableStream_getData(self->table);
-    T_SIZE_T size = TableStream_getSize(self->table);
+    MYFLT *tablelist = TableStream_getData((TableStream *)self->table);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
 
-    MYFLT *envlist = TableStream_getData(self->env);
-    T_SIZE_T envsize = TableStream_getSize(self->env);
+    MYFLT *envlist = TableStream_getData((TableStream *)self->env);
+    T_SIZE_T envsize = TableStream_getSize((TableStream *)self->env);
 
     MYFLT pit = PyFloat_AS_DOUBLE(self->pitch);
     MYFLT pos = PyFloat_AS_DOUBLE(self->pos);
@@ -435,11 +435,11 @@ Granulator_transform_aia(Granulator *self)
     int i, j;
     T_SIZE_T ipart;
 
-    MYFLT *tablelist = TableStream_getData(self->table);
-    T_SIZE_T size = TableStream_getSize(self->table);
+    MYFLT *tablelist = TableStream_getData((TableStream *)self->table);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
 
-    MYFLT *envlist = TableStream_getData(self->env);
-    T_SIZE_T envsize = TableStream_getSize(self->env);
+    MYFLT *envlist = TableStream_getData((TableStream *)self->env);
+    T_SIZE_T envsize = TableStream_getSize((TableStream *)self->env);
 
     MYFLT *pit = Stream_getData((Stream *)self->pitch_stream);
     MYFLT pos = PyFloat_AS_DOUBLE(self->pos);
@@ -509,11 +509,11 @@ Granulator_transform_iaa(Granulator *self)
     int i, j;
     T_SIZE_T ipart;
 
-    MYFLT *tablelist = TableStream_getData(self->table);
-    T_SIZE_T size = TableStream_getSize(self->table);
+    MYFLT *tablelist = TableStream_getData((TableStream *)self->table);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
 
-    MYFLT *envlist = TableStream_getData(self->env);
-    T_SIZE_T envsize = TableStream_getSize(self->env);
+    MYFLT *envlist = TableStream_getData((TableStream *)self->env);
+    T_SIZE_T envsize = TableStream_getSize((TableStream *)self->env);
 
     MYFLT pit = PyFloat_AS_DOUBLE(self->pitch);
     MYFLT *pos = Stream_getData((Stream *)self->pos_stream);
@@ -582,11 +582,11 @@ Granulator_transform_aaa(Granulator *self)
     int i, j;
     T_SIZE_T ipart;
 
-    MYFLT *tablelist = TableStream_getData(self->table);
-    T_SIZE_T size = TableStream_getSize(self->table);
+    MYFLT *tablelist = TableStream_getData((TableStream *)self->table);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
 
-    MYFLT *envlist = TableStream_getData(self->env);
-    T_SIZE_T envsize = TableStream_getSize(self->env);
+    MYFLT *envlist = TableStream_getData((TableStream *)self->env);
+    T_SIZE_T envsize = TableStream_getSize((TableStream *)self->env);
 
     MYFLT *pit = Stream_getData((Stream *)self->pitch_stream);
     MYFLT *pos = Stream_getData((Stream *)self->pos_stream);
@@ -829,7 +829,7 @@ Granulator_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
-    self->srScale = TableStream_getSamplingRate(self->table) / self->sr;
+    self->srScale = TableStream_getSamplingRate((TableStream *)self->table) / self->sr;
 
     if ( PyObject_HasAttrString((PyObject *)envtmp, "getTableStream") == 0 )
     {
@@ -1306,8 +1306,8 @@ Looper_reset(Looper *self, int x, int which, int init)
 {
     MYFLT start, dur, xfade;
 
-    T_SIZE_T size = TableStream_getSize(self->table) - 1;
-    double tableSr = TableStream_getSamplingRate(self->table);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table) - 1;
+    double tableSr = TableStream_getSamplingRate((TableStream *)self->table);
 
     if (self->modebuffer[3] == 0)
         start = PyFloat_AS_DOUBLE(self->start);
@@ -1519,9 +1519,9 @@ Looper_transform_i(Looper *self)
     int i, j, k;
     T_SIZE_T ipart;
 
-    MYFLT *tablelist = TableStream_getData(self->table);
-    T_SIZE_T size = TableStream_getSize(self->table);
-    double tableSr = TableStream_getSamplingRate(self->table);
+    MYFLT *tablelist = TableStream_getData((TableStream *)self->table);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
+    double tableSr = TableStream_getSamplingRate((TableStream *)self->table);
 
     MYFLT pitval = PyFloat_AS_DOUBLE(self->pitch);
 
@@ -1794,9 +1794,9 @@ Looper_transform_a(Looper *self)
     int i, j, k;
     T_SIZE_T ipart;
 
-    MYFLT *tablelist = TableStream_getData(self->table);
-    T_SIZE_T size = TableStream_getSize(self->table);
-    double tableSr = TableStream_getSamplingRate(self->table);
+    MYFLT *tablelist = TableStream_getData((TableStream *)self->table);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
+    double tableSr = TableStream_getSamplingRate((TableStream *)self->table);
 
     MYFLT *pitch = Stream_getData((Stream *)self->pitch_stream);
 
@@ -3014,11 +3014,11 @@ Granule_transform_i(Granule *self)
     T_SIZE_T ipart;
     MYFLT pit = 0, pos = 0, dur = 0;
 
-    MYFLT *tablelist = TableStream_getData(self->table);
-    T_SIZE_T size = TableStream_getSize(self->table);
+    MYFLT *tablelist = TableStream_getData((TableStream *)self->table);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
 
-    MYFLT *envlist = TableStream_getData(self->env);
-    T_SIZE_T envsize = TableStream_getSize(self->env);
+    MYFLT *envlist = TableStream_getData((TableStream *)self->env);
+    T_SIZE_T envsize = TableStream_getSize((TableStream *)self->env);
 
     dens = PyFloat_AS_DOUBLE(self->dens);
 
@@ -3135,11 +3135,11 @@ Granule_transform_a(Granule *self)
     T_SIZE_T ipart;
     MYFLT pit = 0, pos = 0, dur = 0;
 
-    MYFLT *tablelist = TableStream_getData(self->table);
-    T_SIZE_T size = TableStream_getSize(self->table);
+    MYFLT *tablelist = TableStream_getData((TableStream *)self->table);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
 
-    MYFLT *envlist = TableStream_getData(self->env);
-    T_SIZE_T envsize = TableStream_getSize(self->env);
+    MYFLT *envlist = TableStream_getData((TableStream *)self->env);
+    T_SIZE_T envsize = TableStream_getSize((TableStream *)self->env);
 
     MYFLT *density = Stream_getData((Stream *)self->dens_stream);
 
@@ -3842,11 +3842,11 @@ MainParticle_transform_mono_i(MainParticle *self)
     T_SIZE_T ipart;
     MYFLT pit = 0, pos = 0, dur = 0, dev = 0;
 
-    MYFLT *tablelist = TableStream_getData(self->table);
-    T_SIZE_T size = TableStream_getSize(self->table);
+    MYFLT *tablelist = TableStream_getData((TableStream *)self->table);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
 
-    MYFLT *envlist = TableStream_getData(self->env);
-    T_SIZE_T envsize = TableStream_getSize(self->env);
+    MYFLT *envlist = TableStream_getData((TableStream *)self->env);
+    T_SIZE_T envsize = TableStream_getSize((TableStream *)self->env);
 
     dens = PyFloat_AS_DOUBLE(self->dens);
 
@@ -3968,11 +3968,11 @@ MainParticle_transform_mono_a(MainParticle *self)
     T_SIZE_T ipart;
     MYFLT pit = 0, pos = 0, dur = 0, dev = 0;
 
-    MYFLT *tablelist = TableStream_getData(self->table);
-    T_SIZE_T size = TableStream_getSize(self->table);
+    MYFLT *tablelist = TableStream_getData((TableStream *)self->table);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
 
-    MYFLT *envlist = TableStream_getData(self->env);
-    T_SIZE_T envsize = TableStream_getSize(self->env);
+    MYFLT *envlist = TableStream_getData((TableStream *)self->env);
+    T_SIZE_T envsize = TableStream_getSize((TableStream *)self->env);
 
     MYFLT *density = Stream_getData((Stream *)self->dens_stream);
 
@@ -4094,11 +4094,11 @@ MainParticle_transform_i(MainParticle *self)
     T_SIZE_T ipart;
     MYFLT pit = 0, pos = 0, dur = 0, dev = 0, pan = 0;
 
-    MYFLT *tablelist = TableStream_getData(self->table);
-    T_SIZE_T size = TableStream_getSize(self->table);
+    MYFLT *tablelist = TableStream_getData((TableStream *)self->table);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
 
-    MYFLT *envlist = TableStream_getData(self->env);
-    T_SIZE_T envsize = TableStream_getSize(self->env);
+    MYFLT *envlist = TableStream_getData((TableStream *)self->env);
+    T_SIZE_T envsize = TableStream_getSize((TableStream *)self->env);
 
     dens = PyFloat_AS_DOUBLE(self->dens);
 
@@ -4266,11 +4266,11 @@ MainParticle_transform_a(MainParticle *self)
     T_SIZE_T ipart;
     MYFLT pit = 0, pos = 0, dur = 0, dev = 0, pan = 0;
 
-    MYFLT *tablelist = TableStream_getData(self->table);
-    T_SIZE_T size = TableStream_getSize(self->table);
+    MYFLT *tablelist = TableStream_getData((TableStream *)self->table);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
 
-    MYFLT *envlist = TableStream_getData(self->env);
-    T_SIZE_T envsize = TableStream_getSize(self->env);
+    MYFLT *envlist = TableStream_getData((TableStream *)self->env);
+    T_SIZE_T envsize = TableStream_getSize((TableStream *)self->env);
 
     MYFLT *density = Stream_getData((Stream *)self->dens_stream);
 
@@ -4573,7 +4573,7 @@ MainParticle_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
-    self->srScale = TableStream_getSamplingRate(self->table) / self->sr;
+    self->srScale = TableStream_getSamplingRate((TableStream *)self->table) / self->sr;
 
     if ( PyObject_HasAttrString((PyObject *)envtmp, "getTableStream") == 0 )
     {
@@ -4860,7 +4860,7 @@ MainParticle_setTable(MainParticle *self, PyObject *arg)
     tmp = arg;
     Py_DECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
-    self->srScale = TableStream_getSamplingRate(self->table) / self->sr;
+    self->srScale = TableStream_getSamplingRate((TableStream *)self->table) / self->sr;
 
     Py_RETURN_NONE;
 }
@@ -5368,11 +5368,11 @@ MainParticle2_transform_mono_i(MainParticle2 *self)
     T_SIZE_T ipart;
     MYFLT pit = 0, pos = 0, dur = 0, dev = 0, filterfreq = 0, filterq = 0, filtertype = 0;
 
-    MYFLT *tablelist = TableStream_getData(self->table);
-    T_SIZE_T size = TableStream_getSize(self->table);
+    MYFLT *tablelist = TableStream_getData((TableStream *)self->table);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
 
-    MYFLT *envlist = TableStream_getData(self->env);
-    T_SIZE_T envsize = TableStream_getSize(self->env);
+    MYFLT *envlist = TableStream_getData((TableStream *)self->env);
+    T_SIZE_T envsize = TableStream_getSize((TableStream *)self->env);
 
     dens = PyFloat_AS_DOUBLE(self->dens);
 
@@ -5558,11 +5558,11 @@ MainParticle2_transform_mono_a(MainParticle2 *self)
     T_SIZE_T ipart;
     MYFLT pit = 0, pos = 0, dur = 0, dev = 0, filterfreq = 0, filterq = 0, filtertype = 0;
 
-    MYFLT *tablelist = TableStream_getData(self->table);
-    T_SIZE_T size = TableStream_getSize(self->table);
+    MYFLT *tablelist = TableStream_getData((TableStream *)self->table);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
 
-    MYFLT *envlist = TableStream_getData(self->env);
-    T_SIZE_T envsize = TableStream_getSize(self->env);
+    MYFLT *envlist = TableStream_getData((TableStream *)self->env);
+    T_SIZE_T envsize = TableStream_getSize((TableStream *)self->env);
 
     MYFLT *density = Stream_getData((Stream *)self->dens_stream);
 
@@ -5748,11 +5748,11 @@ MainParticle2_transform_i(MainParticle2 *self)
     T_SIZE_T ipart;
     MYFLT pit = 0, pos = 0, dur = 0, dev = 0, pan = 0, filterfreq = 0, filterq = 0, filtertype = 0;
 
-    MYFLT *tablelist = TableStream_getData(self->table);
-    T_SIZE_T size = TableStream_getSize(self->table);
+    MYFLT *tablelist = TableStream_getData((TableStream *)self->table);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
 
-    MYFLT *envlist = TableStream_getData(self->env);
-    T_SIZE_T envsize = TableStream_getSize(self->env);
+    MYFLT *envlist = TableStream_getData((TableStream *)self->env);
+    T_SIZE_T envsize = TableStream_getSize((TableStream *)self->env);
 
     dens = PyFloat_AS_DOUBLE(self->dens);
 
@@ -5983,11 +5983,11 @@ MainParticle2_transform_a(MainParticle2 *self)
     T_SIZE_T ipart;
     MYFLT pit = 0, pos = 0, dur = 0, dev = 0, pan = 0, filterfreq = 0, filterq = 0, filtertype = 0;
 
-    MYFLT *tablelist = TableStream_getData(self->table);
-    T_SIZE_T size = TableStream_getSize(self->table);
+    MYFLT *tablelist = TableStream_getData((TableStream *)self->table);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
 
-    MYFLT *envlist = TableStream_getData(self->env);
-    T_SIZE_T envsize = TableStream_getSize(self->env);
+    MYFLT *envlist = TableStream_getData((TableStream *)self->env);
+    T_SIZE_T envsize = TableStream_getSize((TableStream *)self->env);
 
     MYFLT *density = Stream_getData((Stream *)self->dens_stream);
 
@@ -6392,7 +6392,7 @@ MainParticle2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
-    self->srScale = TableStream_getSamplingRate(self->table) / self->sr;
+    self->srScale = TableStream_getSamplingRate((TableStream *)self->table) / self->sr;
 
     if ( PyObject_HasAttrString((PyObject *)envtmp, "getTableStream") == 0 )
     {
@@ -6808,7 +6808,7 @@ MainParticle2_setTable(MainParticle2 *self, PyObject *arg)
     tmp = arg;
     Py_DECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
-    self->srScale = TableStream_getSamplingRate(self->table) / self->sr;
+    self->srScale = TableStream_getSamplingRate((TableStream *)self->table) / self->sr;
 
     Py_RETURN_NONE;
 }

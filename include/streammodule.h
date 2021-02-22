@@ -18,6 +18,9 @@
  * License along with pyo.  If not, see <http://www.gnu.org/licenses/>.   *
  *************************************************************************/
 
+#ifndef _STREAMMODULE_H
+#define _STREAMMODULE_H
+
 #include <Python.h>
 #include "pyomodule.h"
 
@@ -74,12 +77,6 @@ extern PyTypeObject TriggerStreamType;
     (self) = (TriggerStream *)(type)->tp_alloc((type), 0); \
 
 
-#ifdef __STREAM_MODULE
-/* include from stream.c */
-
-#else
-/* include from other modules to use API */
-
 #define Stream_setStreamObject(op, v) (((Stream *)(op))->streamobject = (v))
 #define Stream_setStreamId(op, v) (((Stream *)(op))->sid = (v))
 #define Stream_setStreamChnl(op, v) (((Stream *)(op))->chnl = (v))
@@ -90,5 +87,4 @@ extern PyTypeObject TriggerStreamType;
 #define Stream_setBufferSize(op, v) (((Stream *)(op))->bufsize = (v))
 #define Stream_resetBufferCount(op) (((Stream *)(op))->bufferCount = 0)
 
-#endif
-/* __STREAMMODULE */
+#endif // _STREAMMODULE_H

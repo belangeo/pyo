@@ -17,14 +17,14 @@
  * You should have received a copy of the GNU Lesser General Public       *
  * License along with pyo.  If not, see <http://www.gnu.org/licenses/>.   *
  *************************************************************************/
-#include "pyomodule.h"
+#ifndef _INTERPOLATION_H
+#define _INTERPOLATION_H
 
-#ifndef _INTERPOLATION_
-#define _INTERPOLATION_
+#include "pyomodule.h"
 
 MYFLT nointerp(MYFLT *buf, T_SIZE_T index, MYFLT frac, T_SIZE_T size);
 MYFLT linear(MYFLT *buf, T_SIZE_T index, MYFLT frac, T_SIZE_T size);
 MYFLT cosine(MYFLT *buf, T_SIZE_T index, MYFLT frac, T_SIZE_T size);
 MYFLT cubic(MYFLT *buf, T_SIZE_T index, MYFLT frac, T_SIZE_T size);
 
-#endif
+#endif // _INTERPOLATION_H

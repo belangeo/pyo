@@ -18,6 +18,9 @@
  * License along with pyo.  If not, see <http://www.gnu.org/licenses/>.   *
  *************************************************************************/
 
+#ifndef _PYOMODULE_H
+#define _PYOMODULE_H
+
 #include "Python.h"
 
 #include <stdint.h>
@@ -222,8 +225,8 @@ typedef Py_ssize_t T_SIZE_T;
 #define MYEXP exp
 #define MYROUND round
 
-#endif
-#endif
+#endif // USE_DOUBLE
+#endif // __MYFLT_DEF
 
 #ifdef COMPILE_EXTERNALS
 #include "externalmodule.h"
@@ -2097,3 +2100,5 @@ extern PyTypeObject MMLZStreamType;
     view->internal = NULL; \
     Py_INCREF(self); \
     return 0;
+
+#endif // _PYOMODULE_H
