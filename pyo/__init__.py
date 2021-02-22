@@ -501,7 +501,7 @@ def getPyoKeywords():
         ["PyoObjectBase", "PyoObject", "PyoTableObject", "PyoMatrixObject", "PyoPVObject",]
     )
     _list.extend(
-        ["Server", "Map", "SLMap", "MidiListener", "OscListener", "Stream", "TableStream",]
+        ["Server", "Map", "SLMap", "MidiListener", "MidiDispatcher", "OscListener", "Stream", "TableStream",]
     )
     return _list
 
