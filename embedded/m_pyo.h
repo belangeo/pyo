@@ -92,11 +92,14 @@ INLINE PyThreadState * pyo_new_interpreter(float sr, int bufsize, int chnls) {
     /* On MacOS, trying to import wxPython in embedded python hang the process. */
     PyRun_SimpleString("import os; os.environ['PYO_GUI_WX'] = '0'");
 
+    /* Force embedded audio server. */
+    PyRun_SimpleString("os.environ['PYO_SERVER_AUDIO'] = 'embedded'");
+
     /* Set the default BPM (60 beat per minute). */
     PyRun_SimpleString("BPM = 60.0");
 
     PyRun_SimpleString("from pyo import *");
-    sprintf(msg, "_s_ = Server(%f, %d, %d, 1, 'embedded')", sr, chnls, bufsize);
+    sprintf(msg, "_s_ = Server(%f, %d, %d, 1)", sr, chnls, bufsize);
     PyRun_SimpleString(msg);
     PyRun_SimpleString("_s_.boot()\n_s_.start()\n_s_.setServer()");
     PyRun_SimpleString("_server_id_ = _s_.getServerID()");
