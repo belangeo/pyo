@@ -136,7 +136,7 @@
         {
             "label": "Run unit tests linux",
             "type": "shell",
-            "command": "cd ${workspaceRoot}/tests/pytests; python3 -m pytest",
+            "command": "export -n PYO_SERVER_AUDIO; cd ${workspaceRoot}/tests/pytests; python3 -m pytest",
             "problemMatcher": [],
             "presentation": {
                 "echo": true,
