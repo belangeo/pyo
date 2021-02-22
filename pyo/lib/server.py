@@ -58,7 +58,7 @@ class Server(object):
         duplex: int {0, 1}, optional
             Input - output mode. 0 is output only and 1 is both ways.
             Defaults to 1.
-        audio: string {'portaudio', 'pa', 'jack', 'coreaudio', 'offline', 'offline_nb', 'embedded'}, optional
+        audio: string {'portaudio', 'pa', 'jack', 'coreaudio', 'offline', 'offline_nb', 'embedded', 'manual'}, optional
             Audio backend to use. 'pa' is equivalent to 'portaudio'. Default is 'portaudio'.
 
             'offline' save the audio output in a soundfile as fast as possible in blocking mode,
@@ -158,6 +158,7 @@ class Server(object):
             self._ichnls = nchnls
         else:
             self._ichnls = ichnls
+        self._audio = audio
         self._winhost = winhost
         self._amp = 1.0
         self._verbosity = 7
@@ -183,9 +184,11 @@ class Server(object):
         if self.getIsBooted():
             if self.getIsStarted():
                 self.stop()
-                self._time.sleep(0.25)
+                if self._audio not in ["offline", "offline_nb", "embedded", "manual"]:
+                    self._time.sleep(0.25)
             self.shutdown()
-            self._time.sleep(0.25)
+            if self._audio not in ["offline", "offline_nb", "embedded", "manual"]:
+                self._time.sleep(0.25)
 
     def reinit(
         self,
@@ -220,6 +223,7 @@ class Server(object):
             self._ichnls = nchnls
         else:
             self._ichnls = ichnls
+        self._audio = audio
         self._winhost = winhost
         self._amp = 1.0
         self._verbosity = 7
