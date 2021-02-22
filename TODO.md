@@ -14,12 +14,6 @@ Roadmap 1.0.4
 
 - unit testing with pytest
 
-- NewTable and DataTable mutable size attribute.
-  Overall PyoTableObject.setSize method does not behave consistently for every table.
-  Most of them re-generate the table after a resize, but the doc says that the table is zero'd.
-
-- PyoTableObject.getSize(all=False), but SndTable.getSize(all=True)
-
 Roadmap 1.0.5
 -------------
 
@@ -28,6 +22,12 @@ Roadmap 1.0.5
 - PyoMatrixObject.get(x, y) inverts arguments. Add PyoMatrixObject.getValue(x, y) with x and y in the good order (also putValue(value, x, y))
 - PyoMatrixObject.getMatrix()
 - A new implementation, Pyo2DTableObject, doint the right things.
+
+- NewTable and DataTable mutable size attribute.
+  Overall PyoTableObject.setSize method does not behave consistently for every table.
+  Most of them re-generate the table after a resize, but the doc says that the table is zero'd.
+
+- PyoTableObject.getSize(all=False), but SndTable.getSize(all=True)
 
 Internal
 --------

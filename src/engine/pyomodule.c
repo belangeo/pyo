@@ -1073,7 +1073,6 @@ reducePoints(PyObject *self, PyObject *args, PyObject *kwds)
 
     nPointsCount = PyList_Size(pointlist);
 
-    // TODO: these malloc's are never freed.
     pPointsX = (MYFLT *)malloc(nPointsCount * sizeof(MYFLT));
     pPointsY = (MYFLT *)malloc(nPointsCount * sizeof(MYFLT));
     pnUseFlag = (int *)malloc(nPointsCount * sizeof(int));
