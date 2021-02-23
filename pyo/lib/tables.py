@@ -20,6 +20,11 @@ from ._core import *
 from math import pi
 import copy
 
+# For simplified SndTable
+import sndhdr
+import struct
+import wave
+
 ######################################################################
 ### Tables
 ######################################################################
@@ -957,3 +962,171 @@ class SharedTable(PyoTableObject):
     @size.setter
     def size(self, x):
         print("SharedTable 'size' attribute is read-only.")
+
+# SndTable in "stripped" branch only accept WAV file, 8-bit int or 16-bit int.
+class SndTable(PyoTableObject):
+
+    def __init__(self, path=None, chnl=None, start=0, stop=None, initchnls=1):
+        PyoTableObject.__init__(self)
+
+        header = sndhdr.what(path)
+        if header is None:
+            path = None
+
+        reader = None
+        if path is not None:
+            if header[0] == "wav":
+                reader = wave.open(path, "rb")
+            else:
+                path = None
+
+        data = [[]]
+        if reader is not None:
+            sr = reader.getframerate()
+            nchnls = reader.getnchannels()
+            nframes = reader.getnframes()
+            maxamp = 2 ** (reader.getsampwidth() * 8 - 1)
+
+            fstart = int(start * sr)
+            if fstart > nframes:
+                fstart = 0
+            fstop = nframes
+            if stop is not None:
+                fstop = int(stop * sr)
+                if fstop > nframes or fstop < fstart:
+                    fstop = nframes
+
+            nframes = fstop - fstart
+            reader.setpos(fstart)
+            wavedata = reader.readframes(nframes)
+            data = struct.unpack("<{}h".format(nframes*nchnls), wavedata)
+            data = [x / maxamp for x in data]
+            if nchnls > 1:
+                data = [[data[i + chnl] for i in range(0, len(data), nchnls)] for chnl in range(nchnls)]
+            else:
+                data = [data]
+
+            reader.close()
+
+        self._path = path
+        self._chnl = chnl
+        self._start = start
+        self._stop = stop
+        self._size = []
+        self._dur = []
+        self._base_objs = []
+        path, lmax = convertArgsToLists(path)
+        if self._path is None:
+            self._base_objs = [DataTable_base(self.getSamplingRate()) for i in range(initchnls)]
+        else:
+            if chnl is None:
+                self._base_objs = [DataTable(len(l), init=l) for l in data]
+            elif chnl < len(data):
+                self._base_objs = [DataTable(len(data[chnl]), init=data[chnl])]
+            else:
+                self._base_objs = [DataTable(len(data[0]), init=data[0])]
+
+            self._size = self._base_objs[-1].getSize()
+            self._dur = self._size / self.getSamplingRate()
+
+    def setSound(self, path, start=0, stop=None):
+        print("SndTable.setSound is a no-op in stripped branch.")
+
+    def append(self, path, crossfade=0, start=0, stop=None):
+        print("SndTable.append is a no-op in stripped branch.")
+
+    def insert(self, path, pos=0, crossfade=0, start=0, stop=None):
+        print("SndTable.insert is a no-op in stripped branch.")
+
+    def getRate(self, all=True):
+        if type(self._path) == list:
+            _rate = [obj.getRate() for obj in self._base_objs]
+        else:
+            _rate = self._base_objs[0].getRate()
+
+        if all:
+            return _rate
+        else:
+            if type(_rate) == list:
+                return _rate[0]
+            else:
+                return _rate
+
+    def getDur(self, all=True):
+        if type(self._path) == list:
+            _dur = [1.0 / obj.getRate() for obj in self._base_objs]
+        else:
+            _dur = 1.0 / self._base_objs[0].getRate()
+
+        if all:
+            return _dur
+        else:
+            if type(_dur) == list:
+                return _dur[0]
+            else:
+                return _dur
+
+    def setSize(self, x):
+        print("SndTable has no setSize method!")
+
+    def getSize(self, all=True):
+        if len(self._base_objs) > 1:
+            _size = [obj.getSize() for obj in self._base_objs]
+        else:
+            _size = self._base_objs[0].getSize()
+
+        if all:
+            return _size
+        else:
+            if type(_size) == list:
+                return _size[0]
+            else:
+                return _size
+
+    @property
+    def sound(self):
+        return self._path
+
+    @sound.setter
+    def sound(self, x):
+        self.setSound(x)
+
+    @property
+    def path(self):
+        return self._path
+
+    @path.setter
+    def path(self, x):
+        self.setSound(x)
+
+    @property
+    def chnl(self):
+        return self._chnl
+
+    @chnl.setter
+    def chnl(self, x):
+        print("'chnl' attribute is read-only.")
+
+    @property
+    def start(self):
+        return self._start
+
+    @start.setter
+    def start(self, x):
+        print("'start' attribute is read-only.")
+
+    @property
+    def stop(self):
+        return self._stop
+
+    @stop.setter
+    def stop(self, x):
+        print("SndTable 'stop' attribute is read-only.")
+
+    @property
+    def size(self):
+        return self._size
+
+    @size.setter
+    def size(self, x):
+        print("SndTable 'size' attribute is read-only.")
