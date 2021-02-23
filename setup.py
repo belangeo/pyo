@@ -18,8 +18,8 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
-from distutils.sysconfig import get_python_lib
 from setuptools import setup, Extension
+from distutils.sysconfig import get_python_lib
 import os, sys, py_compile, subprocess, platform
 
 
