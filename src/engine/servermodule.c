@@ -135,6 +135,12 @@ Server_debug(Server *self, char * format, ...)
     }
 }
 
+void
+Server_manual_process(Server *self)
+{
+    Server_process_buffers(self);
+}
+
 /** Embedded server. **/
 /**********************/
 
@@ -904,6 +910,14 @@ Server_getAutoStartChildren(Server *self)
     return PyLong_FromLong(self->autoStartChildren);
 }
 
+static PyObject *
+Server_manualProcess(Server *self)
+{
+    Server_manual_process(self);
+
+    Py_RETURN_NONE;
+}
+
 static PyMethodDef Server_methods[] =
 {
     {"setSamplingRate", (PyCFunction)Server_setSamplingRate, METH_O, NULL},
@@ -943,6 +957,7 @@ static PyMethodDef Server_methods[] =
     {"getEmbedICallbackAddr", (PyCFunction)Server_getEmbedICallbackAddr, METH_NOARGS, NULL},
     {"setAutoStartChildren", (PyCFunction)Server_setAutoStartChildren, METH_O, NULL},
     {"getAutoStartChildren", (PyCFunction)Server_getAutoStartChildren, METH_NOARGS, NULL},
+    {"process", (PyCFunction)Server_manualProcess, METH_NOARGS, "Compute one buffer size of samples in manual mode."},
     {NULL}  /* Sentinel */
 };
 

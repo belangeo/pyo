@@ -48,7 +48,6 @@ class HarmTable(PyoTableObject):
         [obj.replace(list) for obj in self._base_objs]
         if self._auto_normalize:
             self.normalize()
-        self.refreshView()
 
     @property
     def list(self):
@@ -73,7 +72,6 @@ class SawTable(PyoTableObject):
         self._order = x
         list = [1.0 / i for i in range(1, (self._order + 1))]
         [obj.replace(list) for obj in self._base_objs]
-        self.refreshView()
 
     @property
     def order(self):
@@ -108,7 +106,6 @@ class SquareTable(PyoTableObject):
             else:
                 list.append(0.0)
         [obj.replace(list) for obj in self._base_objs]
-        self.refreshView()
 
     @property
     def order(self):
@@ -143,7 +140,6 @@ class TriangleTable(PyoTableObject):
             else:
                 list.append(0.0)
         [obj.replace(list) for obj in self._base_objs]
-        self.refreshView()
 
     @property
     def order(self):
@@ -174,7 +170,6 @@ class ChebyTable(PyoTableObject):
         [obj.replace(list) for obj in self._base_objs]
         if self._auto_normalize:
             self.normalize()
-        self.refreshView()
 
     def getNormTable(self):
         if sum(self._list[1::2]) == 0:
@@ -213,13 +208,11 @@ class SincTable(PyoTableObject):
         pyoArgsAssert(self, "N", x)
         self._freq = x
         [obj.setFreq(x) for obj in self._base_objs]
-        self.refreshView()
 
     def setWindowed(self, x):
         pyoArgsAssert(self, "B", x)
         self._windowed = x
         [obj.setWindowed(x) for obj in self._base_objs]
-        self.refreshView()
 
     @property
     def freq(self):
@@ -250,7 +243,6 @@ class WinTable(PyoTableObject):
         pyoArgsAssert(self, "I", type)
         self._type = type
         [obj.setType(type) for obj in self._base_objs]
-        self.refreshView()
 
     @property
     def type(self):
@@ -285,7 +277,6 @@ class LinTable(PyoTableObject):
         pyoArgsAssert(self, "l", list)
         self._list = list
         [obj.replace(list) for obj in self._base_objs]
-        self.refreshView()
 
     def loadRecFile(self, filename, tolerance=0.02):
         pyoArgsAssert(self, "SN", filename, tolerance)
@@ -303,7 +294,6 @@ class LinTable(PyoTableObject):
             values = reducePoints(values, tolerance=tolerance)
             self._list = values
             obj.replace(values)
-        self.refreshView()
 
     def getPoints(self):
         return self._base_objs[0].getPoints()
@@ -333,7 +323,6 @@ class LogTable(PyoTableObject):
         pyoArgsAssert(self, "l", list)
         self._list = list
         [obj.replace(list) for obj in self._base_objs]
-        self.refreshView()
 
     def loadRecFile(self, filename, tolerance=0.02):
         pyoArgsAssert(self, "SN", filename, tolerance)
@@ -351,7 +340,6 @@ class LogTable(PyoTableObject):
             values = reducePoints(values, tolerance=tolerance)
             self._list = values
             obj.replace(values)
-        self.refreshView()
 
     def getPoints(self):
         return self._base_objs[0].getPoints()
@@ -381,7 +369,6 @@ class CosLogTable(PyoTableObject):
         pyoArgsAssert(self, "l", list)
         self._list = list
         [obj.replace(list) for obj in self._base_objs]
-        self.refreshView()
 
     def loadRecFile(self, filename, tolerance=0.02):
         pyoArgsAssert(self, "SN", filename, tolerance)
@@ -399,7 +386,6 @@ class CosLogTable(PyoTableObject):
             values = reducePoints(values, tolerance=tolerance)
             self._list = values
             obj.replace(values)
-        self.refreshView()
 
     def getPoints(self):
         return self._base_objs[0].getPoints()
@@ -429,7 +415,6 @@ class CosTable(PyoTableObject):
         pyoArgsAssert(self, "l", list)
         self._list = list
         [obj.replace(list) for obj in self._base_objs]
-        self.refreshView()
 
     def loadRecFile(self, filename, tolerance=0.02):
         pyoArgsAssert(self, "SN", filename, tolerance)
@@ -447,7 +432,6 @@ class CosTable(PyoTableObject):
             values = reducePoints(values, tolerance=tolerance)
             self._list = values
             obj.replace(values)
-        self.refreshView()
 
     def getPoints(self):
         return self._base_objs[0].getPoints()
@@ -479,19 +463,16 @@ class CurveTable(PyoTableObject):
         pyoArgsAssert(self, "N", x)
         self._tension = x
         [obj.setTension(x) for obj in self._base_objs]
-        self.refreshView()
 
     def setBias(self, x):
         pyoArgsAssert(self, "N", x)
         self._bias = x
         [obj.setBias(x) for obj in self._base_objs]
-        self.refreshView()
 
     def replace(self, list):
         pyoArgsAssert(self, "l", list)
         self._list = list
         [obj.replace(list) for obj in self._base_objs]
-        self.refreshView()
 
     def loadRecFile(self, filename, tolerance=0.02):
         pyoArgsAssert(self, "SN", filename, tolerance)
@@ -509,7 +490,6 @@ class CurveTable(PyoTableObject):
             values = reducePoints(values, tolerance=tolerance)
             self._list = values
             obj.replace(values)
-        self.refreshView()
 
     def getPoints(self):
         return self._base_objs[0].getPoints()
@@ -557,19 +537,16 @@ class ExpTable(PyoTableObject):
         pyoArgsAssert(self, "N", x)
         self._exp = x
         [obj.setExp(x) for obj in self._base_objs]
-        self.refreshView()
 
     def setInverse(self, x):
         pyoArgsAssert(self, "B", x)
         self._inverse = x
         [obj.setInverse(x) for obj in self._base_objs]
-        self.refreshView()
 
     def replace(self, list):
         pyoArgsAssert(self, "l", list)
         self._list = list
         [obj.replace(list) for obj in self._base_objs]
-        self.refreshView()
 
     def loadRecFile(self, filename, tolerance=0.02):
         pyoArgsAssert(self, "SN", filename, tolerance)
@@ -587,7 +564,6 @@ class ExpTable(PyoTableObject):
             values = reducePoints(values, tolerance=tolerance)
             self._list = values
             obj.replace(values)
-        self.refreshView()
 
     def getPoints(self):
         return self._base_objs[0].getPoints()
@@ -649,7 +625,6 @@ class NewTable(PyoTableObject):
         if type(x[0]) != list:
             x = [x]
         [obj.setTable(self._check_data_size(wrap(x, i))) for i, obj in enumerate(self._base_objs)]
-        self.refreshView()
 
     def setFeedback(self, x):
         pyoArgsAssert(self, "N", x)
@@ -735,7 +710,6 @@ class DataTable(PyoTableObject):
         if type(x[0]) != list:
             x = [x]
         [obj.setTable(self._check_data_size(wrap(x, i))) for i, obj in enumerate(self._base_objs)]
-        self.refreshView()
 
     def getRate(self):
         return self._base_objs[0].getRate()
@@ -777,7 +751,6 @@ class AtanTable(PyoTableObject):
         pyoArgsAssert(self, "N", x)
         self._slope = x
         [obj.setSlope(x) for obj in self._base_objs]
-        self.refreshView()
 
     @property
     def slope(self):
@@ -818,7 +791,6 @@ class PartialTable(PyoTableObject):
         self._list = list
         [obj.replace(self._create_list()) for obj in self._base_objs]
         self.normalize()
-        self.refreshView()
 
     @property
     def list(self):
@@ -846,51 +818,37 @@ class PadSynthTable(PyoTableObject):
         pyoArgsAssert(self, "NB", x, generate)
         self._basefreq = x
         [obj.setBaseFreq(x, generate) for obj in self._base_objs]
-        if generate:
-            self.refreshView()
-
+    
     def setSpread(self, x, generate=True):
         pyoArgsAssert(self, "NB", x, generate)
         self._spread = x
         [obj.setSpread(x, generate) for obj in self._base_objs]
-        if generate:
-            self.refreshView()
-
+    
     def setBw(self, x, generate=True):
         pyoArgsAssert(self, "NB", x, generate)
         self._bw = x
         [obj.setBw(x, generate) for obj in self._base_objs]
-        if generate:
-            self.refreshView()
-
+    
     def setBwScl(self, x, generate=True):
         pyoArgsAssert(self, "NB", x, generate)
         self._bwscl = x
         [obj.setBwScl(x, generate) for obj in self._base_objs]
-        if generate:
-            self.refreshView()
-
+    
     def setNharms(self, x, generate=True):
         pyoArgsAssert(self, "IB", x, generate)
         self._nharms = x
         [obj.setNharms(x, generate) for obj in self._base_objs]
-        if generate:
-            self.refreshView()
-
+    
     def setDamp(self, x, generate=True):
         pyoArgsAssert(self, "NB", x, generate)
         self._damp = x
         [obj.setDamp(x, generate) for obj in self._base_objs]
-        if generate:
-            self.refreshView()
-
+    
     def setSize(self, size, generate=True):
         pyoArgsAssert(self, "IB", size, generate)
         self._size = size
         [obj.setSize(size, generate) for obj in self._base_objs]
-        if generate:
-            self.refreshView()
-
+    
     @property
     def basefreq(self):
         return self._basefreq

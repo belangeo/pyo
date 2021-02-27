@@ -35,7 +35,6 @@ class NewMatrix(PyoMatrixObject):
     def replace(self, x):
         pyoArgsAssert(self, "l", x)
         [obj.setMatrix(x) for obj in self._base_objs]
-        self.refreshView()
 
     def getRate(self):
         return self._base_objs[0].getRate()
@@ -43,4 +42,3 @@ class NewMatrix(PyoMatrixObject):
     def genSineTerrain(self, freq=1, phase=0.0625):
         pyoArgsAssert(self, "NN", freq, phase)
         [obj.genSineTerrain(freq, phase) for obj in self._base_objs]
-        self.refreshView()

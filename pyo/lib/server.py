@@ -196,6 +196,9 @@ class Server(object):
     def setAutoStartChildren(self, state):
         self._server.setAutoStartChildren(state)
 
+    def process(self):
+        self._server.process()
+
     @property
     def verbosity(self):
         return self._verbosity

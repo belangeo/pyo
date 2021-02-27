@@ -58,8 +58,7 @@ Tutorial about recreating a custom PyoTableObject (TriangleTable)
             self._order = x
             self._tri_table.replace(self._create_list(x))
             self.normalize()
-            self.refreshView()
-
+    
         @property
         def order(self): 
             """int. Number of harmonics triangular waveform is made of."""

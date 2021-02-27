@@ -944,7 +944,6 @@ class PyoTableObject(PyoObjectBase):
             self._size = self._base_objs[0].getSize()
         else:
             self._size = [obj.getSize() for obj in self._base_objs]
-        self.refreshView()
 
     def getBuffer(self, chnl=0):
         if chnl < 0 or chnl >= len(self):
@@ -956,7 +955,6 @@ class PyoTableObject(PyoObjectBase):
         pyoArgsAssert(self, "I", size)
         self._size = size
         [obj.setSize(size) for obj in self._base_objs]
-        self.refreshView()
 
     def getSize(self, all=False):
         pyoArgsAssert(self, "B", all)
@@ -971,7 +969,6 @@ class PyoTableObject(PyoObjectBase):
     def put(self, value, pos=0):
         pyoArgsAssert(self, "NI", value, pos)
         [obj.put(value, pos) for obj in self._base_objs]
-        self.refreshView()
 
     def get(self, pos):
         pyoArgsAssert(self, "I", pos)
@@ -990,50 +987,41 @@ class PyoTableObject(PyoObjectBase):
 
     def normalize(self, level=0.99):
         [obj.normalize(level) for obj in self._base_objs]
-        self.refreshView()
         return self
 
     def reset(self):
         [obj.reset() for obj in self._base_objs]
-        self.refreshView()
         return self
 
     def removeDC(self):
         [obj.removeDC() for obj in self._base_objs]
-        self.refreshView()
         return self
 
     def reverse(self):
         [obj.reverse() for obj in self._base_objs]
-        self.refreshView()
         return self
 
     def invert(self):
         [obj.invert() for obj in self._base_objs]
-        self.refreshView()
         return self
 
     def rectify(self):
         [obj.rectify() for obj in self._base_objs]
-        self.refreshView()
         return self
 
     def pow(self, exp=10):
         pyoArgsAssert(self, "N", exp)
         [obj.pow(exp) for obj in self._base_objs]
-        self.refreshView()
         return self
 
     def bipolarGain(self, gpos=1, gneg=1):
         pyoArgsAssert(self, "NN", gpos, gneg)
         [obj.bipolarGain(gpos, gneg) for obj in self._base_objs]
-        self.refreshView()
         return self
 
     def lowpass(self, freq=1000):
         pyoArgsAssert(self, "N", freq)
         [obj.lowpass(freq) for obj in self._base_objs]
-        self.refreshView()
         return self
 
     def fadein(self, dur=0.1, shape=0):
@@ -1041,7 +1029,6 @@ class PyoTableObject(PyoObjectBase):
         if shape < 0 or shape > 3:
             shape = 0
         [obj.fadein(dur, shape) for obj in self._base_objs]
-        self.refreshView()
         return self
 
     def fadeout(self, dur=0.1, shape=0):
@@ -1049,7 +1036,6 @@ class PyoTableObject(PyoObjectBase):
         if shape < 0 or shape > 3:
             shape = 0
         [obj.fadeout(dur, shape) for obj in self._base_objs]
-        self.refreshView()
         return self
 
     def add(self, x):
@@ -1062,7 +1048,6 @@ class PyoTableObject(PyoObjectBase):
         else:
             x, _ = convertArgsToLists(x)
             [obj.add(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
-        self.refreshView()
         return self
 
     def sub(self, x):
@@ -1075,7 +1060,6 @@ class PyoTableObject(PyoObjectBase):
         else:
             x, _ = convertArgsToLists(x)
             [obj.sub(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
-        self.refreshView()
         return self
 
     def mul(self, x):
@@ -1088,7 +1072,6 @@ class PyoTableObject(PyoObjectBase):
         else:
             x, _ = convertArgsToLists(x)
             [obj.mul(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
-        self.refreshView()
         return self
 
     def div(self, x):
@@ -1101,18 +1084,15 @@ class PyoTableObject(PyoObjectBase):
         else:
             x, _ = convertArgsToLists(x)
             [obj.div(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
-        self.refreshView()
         return self
 
     def copyData(self, table, srcpos=0, destpos=0, length=-1):
         pyoArgsAssert(self, "tIII", table, srcpos, destpos, length)
         [obj.copyData(table[i], srcpos, destpos, length) for i, obj in enumerate(self._base_objs)]
-        self.refreshView()
 
     def rotate(self, pos):
         pyoArgsAssert(self, "I", pos)
         [obj.rotate(pos) for obj in self._base_objs]
-        self.refreshView()
 
     def copy(self):
         args = [getattr(self, att) for att in self.__dir__()]
