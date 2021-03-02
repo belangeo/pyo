@@ -439,7 +439,7 @@ Seqer_reset(Seqer *self)
     int i;
 
     self->seqsize = PyList_Size(self->tmp);
-    self->seq = (double *)realloc(self->seq, self->seqsize * sizeof(double));
+    self->seq = (double *)PyMem_Realloc(self->seq, self->seqsize * sizeof(double));
 
     for (i = 0; i < self->seqsize; i++)
     {
@@ -729,8 +729,8 @@ static void
 Seqer_dealloc(Seqer* self)
 {
     pyo_DEALLOC
-    free(self->seq);
-    free(self->buffer_streams);
+    PyMem_Free(self->seq);
+    PyMem_Free(self->buffer_streams);
     Seqer_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -747,7 +747,7 @@ Seqer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->speed = PyFloat_FromDouble(1.);
     self->poly = 1;
     self->seqsize = 1;
-    self->seq = (double *)realloc(self->seq, self->seqsize * sizeof(double));
+    self->seq = (double *)PyMem_Realloc(self->seq, self->seqsize * sizeof(double));
     self->seq[0] = 1.0;
     self->newseq = 0;
     self->tap = 0;
@@ -790,7 +790,7 @@ Seqer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    self->buffer_streams = (MYFLT *)realloc(self->buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
+    self->buffer_streams = (MYFLT *)PyMem_Realloc(self->buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
 
     (*self->mode_func_ptr)(self);
 
@@ -1378,7 +1378,7 @@ static void
 Clouder_dealloc(Clouder* self)
 {
     pyo_DEALLOC
-    free(self->buffer_streams);
+    PyMem_Free(self->buffer_streams);
     Clouder_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -1418,7 +1418,7 @@ Clouder_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     Server_generateSeed((Server *)self->server, CLOUD_ID);
 
-    self->buffer_streams = (MYFLT *)realloc(self->buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
+    self->buffer_streams = (MYFLT *)PyMem_Realloc(self->buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
 
     return (PyObject *)self;
 }
@@ -2637,12 +2637,12 @@ static void
 Beater_dealloc(Beater* self)
 {
     pyo_DEALLOC
-    free(self->buffer_streams);
-    free(self->tap_buffer_streams);
-    free(self->amp_buffer_streams);
-    free(self->dur_buffer_streams);
-    free(self->end_buffer_streams);
-    free(self->amplitudes);
+    PyMem_Free(self->buffer_streams);
+    PyMem_Free(self->tap_buffer_streams);
+    PyMem_Free(self->amp_buffer_streams);
+    PyMem_Free(self->dur_buffer_streams);
+    PyMem_Free(self->end_buffer_streams);
+    PyMem_Free(self->amplitudes);
     Beater_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -2707,18 +2707,18 @@ Beater_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     Server_generateSeed((Server *)self->server, BEATER_ID);
 
-    self->buffer_streams = (MYFLT *)realloc(self->buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
-    self->tap_buffer_streams = (MYFLT *)realloc(self->tap_buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
-    self->amp_buffer_streams = (MYFLT *)realloc(self->amp_buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
-    self->dur_buffer_streams = (MYFLT *)realloc(self->dur_buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
-    self->end_buffer_streams = (MYFLT *)realloc(self->end_buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
+    self->buffer_streams = (MYFLT *)PyMem_Realloc(self->buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
+    self->tap_buffer_streams = (MYFLT *)PyMem_Realloc(self->tap_buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
+    self->amp_buffer_streams = (MYFLT *)PyMem_Realloc(self->amp_buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
+    self->dur_buffer_streams = (MYFLT *)PyMem_Realloc(self->dur_buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
+    self->end_buffer_streams = (MYFLT *)PyMem_Realloc(self->end_buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
 
     for (i = 0; i < (self->poly * self->bufsize); i++)
     {
         self->buffer_streams[i] = self->tap_buffer_streams[i] = self->amp_buffer_streams[i] = self->dur_buffer_streams[i] = self->end_buffer_streams[i] = 0.0;
     }
 
-    self->amplitudes = (MYFLT *)realloc(self->amplitudes, self->poly * sizeof(MYFLT));
+    self->amplitudes = (MYFLT *)PyMem_Realloc(self->amplitudes, self->poly * sizeof(MYFLT));
 
     for (i = 0; i < self->poly; i++)
     {
@@ -4524,14 +4524,14 @@ static void
 TrigBurster_dealloc(TrigBurster* self)
 {
     pyo_DEALLOC
-    free(self->buffer_streams);
-    free(self->tap_buffer_streams);
-    free(self->amp_buffer_streams);
-    free(self->dur_buffer_streams);
-    free(self->end_buffer_streams);
-    free(self->currentTap);
-    free(self->currentAmp);
-    free(self->currentDur);
+    PyMem_Free(self->buffer_streams);
+    PyMem_Free(self->tap_buffer_streams);
+    PyMem_Free(self->amp_buffer_streams);
+    PyMem_Free(self->dur_buffer_streams);
+    PyMem_Free(self->end_buffer_streams);
+    PyMem_Free(self->currentTap);
+    PyMem_Free(self->currentAmp);
+    PyMem_Free(self->currentDur);
     TrigBurster_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -4575,20 +4575,20 @@ TrigBurster_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     (*self->mode_func_ptr)(self);
 
-    self->buffer_streams = (MYFLT *)realloc(self->buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
-    self->tap_buffer_streams = (MYFLT *)realloc(self->tap_buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
-    self->amp_buffer_streams = (MYFLT *)realloc(self->amp_buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
-    self->dur_buffer_streams = (MYFLT *)realloc(self->dur_buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
-    self->end_buffer_streams = (MYFLT *)realloc(self->end_buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
+    self->buffer_streams = (MYFLT *)PyMem_Realloc(self->buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
+    self->tap_buffer_streams = (MYFLT *)PyMem_Realloc(self->tap_buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
+    self->amp_buffer_streams = (MYFLT *)PyMem_Realloc(self->amp_buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
+    self->dur_buffer_streams = (MYFLT *)PyMem_Realloc(self->dur_buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
+    self->end_buffer_streams = (MYFLT *)PyMem_Realloc(self->end_buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
 
     for (i = 0; i < (self->poly * self->bufsize); i++)
     {
         self->buffer_streams[i] = self->tap_buffer_streams[i] = self->amp_buffer_streams[i] = self->dur_buffer_streams[i] = self->end_buffer_streams[i] = 0.0;
     }
 
-    self->currentTap = (int *)realloc(self->currentTap, self->poly * sizeof(int));
-    self->currentAmp = (MYFLT *)realloc(self->currentAmp, self->poly * sizeof(MYFLT));
-    self->currentDur = (MYFLT *)realloc(self->currentDur, self->poly * sizeof(MYFLT));
+    self->currentTap = (int *)PyMem_Realloc(self->currentTap, self->poly * sizeof(int));
+    self->currentAmp = (MYFLT *)PyMem_Realloc(self->currentAmp, self->poly * sizeof(MYFLT));
+    self->currentDur = (MYFLT *)PyMem_Realloc(self->currentDur, self->poly * sizeof(MYFLT));
 
     for (i = 0; i < (self->poly); i++)
     {

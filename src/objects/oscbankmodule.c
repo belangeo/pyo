@@ -472,14 +472,14 @@ static void
 OscBank_dealloc(OscBank* self)
 {
     pyo_DEALLOC
-    free(self->pointerPos);
-    free(self->frequencies);
-    free(self->fOldValues);
-    free(self->fValues);
-    free(self->fDiffs);
-    free(self->aOldValues);
-    free(self->aValues);
-    free(self->aDiffs);
+    PyMem_Free(self->pointerPos);
+    PyMem_Free(self->frequencies);
+    PyMem_Free(self->fOldValues);
+    PyMem_Free(self->fValues);
+    PyMem_Free(self->fDiffs);
+    PyMem_Free(self->aOldValues);
+    PyMem_Free(self->aValues);
+    PyMem_Free(self->aDiffs);
     OscBank_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -585,14 +585,14 @@ OscBank_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     (*self->mode_func_ptr)(self);
 
-    self->pointerPos = (MYFLT *)realloc(self->pointerPos, self->stages * sizeof(MYFLT));
-    self->frequencies = (MYFLT *)realloc(self->frequencies, self->stages * sizeof(MYFLT));
-    self->fOldValues = (MYFLT *)realloc(self->fOldValues, self->stages * sizeof(MYFLT));
-    self->fValues = (MYFLT *)realloc(self->fValues, self->stages * sizeof(MYFLT));
-    self->fDiffs = (MYFLT *)realloc(self->fDiffs, self->stages * sizeof(MYFLT));
-    self->aOldValues = (MYFLT *)realloc(self->aOldValues, self->stages * sizeof(MYFLT));
-    self->aValues = (MYFLT *)realloc(self->aValues, self->stages * sizeof(MYFLT));
-    self->aDiffs = (MYFLT *)realloc(self->aDiffs, self->stages * sizeof(MYFLT));
+    self->pointerPos = (MYFLT *)PyMem_Realloc(self->pointerPos, self->stages * sizeof(MYFLT));
+    self->frequencies = (MYFLT *)PyMem_Realloc(self->frequencies, self->stages * sizeof(MYFLT));
+    self->fOldValues = (MYFLT *)PyMem_Realloc(self->fOldValues, self->stages * sizeof(MYFLT));
+    self->fValues = (MYFLT *)PyMem_Realloc(self->fValues, self->stages * sizeof(MYFLT));
+    self->fDiffs = (MYFLT *)PyMem_Realloc(self->fDiffs, self->stages * sizeof(MYFLT));
+    self->aOldValues = (MYFLT *)PyMem_Realloc(self->aOldValues, self->stages * sizeof(MYFLT));
+    self->aValues = (MYFLT *)PyMem_Realloc(self->aValues, self->stages * sizeof(MYFLT));
+    self->aDiffs = (MYFLT *)PyMem_Realloc(self->aDiffs, self->stages * sizeof(MYFLT));
 
     for (i = 0; i < self->stages; i++)
     {

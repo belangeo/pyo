@@ -1107,7 +1107,7 @@ static void
 TrigChoice_dealloc(TrigChoice* self)
 {
     pyo_DEALLOC
-    free(self->choice);
+    PyMem_Free(self->choice);
     TrigChoice_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -1200,7 +1200,7 @@ TrigChoice_setChoice(TrigChoice *self, PyObject *arg)
 
     tmp = arg;
     self->chSize = PyList_Size(tmp);
-    self->choice = (MYFLT *)realloc(self->choice, self->chSize * sizeof(MYFLT));
+    self->choice = (MYFLT *)PyMem_Realloc(self->choice, self->chSize * sizeof(MYFLT));
 
     for (i = 0; i < self->chSize; i++)
     {
@@ -1804,7 +1804,7 @@ static void
 TrigEnv_dealloc(TrigEnv* self)
 {
     pyo_DEALLOC
-    free(self->trigsBuffer);
+    PyMem_Free(self->trigsBuffer);
     TrigEnv_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -1865,7 +1865,7 @@ TrigEnv_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
+    self->trigsBuffer = (MYFLT *)PyMem_Realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
 
     for (i = 0; i < self->bufsize; i++)
     {
@@ -2121,8 +2121,8 @@ TrigLinseg_convert_pointslist(TrigLinseg *self)
     PyObject *tup;
 
     self->listsize = PyList_Size(self->pointslist);
-    self->targets = (MYFLT *)realloc(self->targets, self->listsize * sizeof(MYFLT));
-    self->times = (MYFLT *)realloc(self->times, self->listsize * sizeof(MYFLT));
+    self->targets = (MYFLT *)PyMem_Realloc(self->targets, self->listsize * sizeof(MYFLT));
+    self->times = (MYFLT *)PyMem_Realloc(self->times, self->listsize * sizeof(MYFLT));
 
     for (i = 0; i < self->listsize; i++)
     {
@@ -2280,9 +2280,9 @@ static void
 TrigLinseg_dealloc(TrigLinseg* self)
 {
     pyo_DEALLOC
-    free(self->targets);
-    free(self->times);
-    free(self->trigsBuffer);
+    PyMem_Free(self->targets);
+    PyMem_Free(self->times);
+    PyMem_Free(self->trigsBuffer);
     TrigLinseg_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -2329,7 +2329,7 @@ TrigLinseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
+    self->trigsBuffer = (MYFLT *)PyMem_Realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
 
     for (i = 0; i < self->bufsize; i++)
     {
@@ -2537,8 +2537,8 @@ TrigExpseg_convert_pointslist(TrigExpseg *self)
     PyObject *tup;
 
     self->listsize = PyList_Size(self->pointslist);
-    self->targets = (MYFLT *)realloc(self->targets, self->listsize * sizeof(MYFLT));
-    self->times = (MYFLT *)realloc(self->times, self->listsize * sizeof(MYFLT));
+    self->targets = (MYFLT *)PyMem_Realloc(self->targets, self->listsize * sizeof(MYFLT));
+    self->times = (MYFLT *)PyMem_Realloc(self->times, self->listsize * sizeof(MYFLT));
 
     for (i = 0; i < self->listsize; i++)
     {
@@ -2718,9 +2718,9 @@ static void
 TrigExpseg_dealloc(TrigExpseg* self)
 {
     pyo_DEALLOC
-    free(self->targets);
-    free(self->times);
-    free(self->trigsBuffer);
+    PyMem_Free(self->targets);
+    PyMem_Free(self->times);
+    PyMem_Free(self->trigsBuffer);
     TrigExpseg_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -2769,7 +2769,7 @@ TrigExpseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
+    self->trigsBuffer = (MYFLT *)PyMem_Realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
 
     for (i = 0; i < self->bufsize; i++)
     {
@@ -6451,7 +6451,7 @@ static void
 Iter_dealloc(Iter* self)
 {
     pyo_DEALLOC
-    free(self->trigsBuffer);
+    PyMem_Free(self->trigsBuffer);
     Iter_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -6501,7 +6501,7 @@ Iter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self->value = inittmp;
 
-    self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
+    self->trigsBuffer = (MYFLT *)PyMem_Realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
 
     for (i = 0; i < self->bufsize; i++)
     {

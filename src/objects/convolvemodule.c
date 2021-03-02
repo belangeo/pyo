@@ -163,7 +163,7 @@ static void
 Convolve_dealloc(Convolve* self)
 {
     pyo_DEALLOC
-    free(self->input_tmp);
+    PyMem_Free(self->input_tmp);
     Convolve_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -214,7 +214,7 @@ Convolve_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     (*self->mode_func_ptr)(self);
 
-    self->input_tmp = (MYFLT *)realloc(self->input_tmp, self->size * sizeof(MYFLT));
+    self->input_tmp = (MYFLT *)PyMem_Realloc(self->input_tmp, self->size * sizeof(MYFLT));
 
     for (i = 0; i < self->size; i++)
     {
@@ -411,9 +411,9 @@ IRWinSinc_alloc_memory(IRWinSinc *self)
 
     self->size = self->order + 1;
 
-    self->input_tmp = (MYFLT *)realloc(self->input_tmp, self->size * sizeof(MYFLT));
-    self->impulse = (MYFLT *)realloc(self->impulse, self->size * sizeof(MYFLT));
-    self->impulse_tmp = (MYFLT *)realloc(self->impulse_tmp, self->size * sizeof(MYFLT));
+    self->input_tmp = (MYFLT *)PyMem_Realloc(self->input_tmp, self->size * sizeof(MYFLT));
+    self->impulse = (MYFLT *)PyMem_Realloc(self->impulse, self->size * sizeof(MYFLT));
+    self->impulse_tmp = (MYFLT *)PyMem_Realloc(self->impulse_tmp, self->size * sizeof(MYFLT));
 
     for (i = 0; i < self->size; i++)
     {
@@ -691,9 +691,9 @@ static void
 IRWinSinc_dealloc(IRWinSinc* self)
 {
     pyo_DEALLOC
-    free(self->input_tmp);
-    free(self->impulse);
-    free(self->impulse_tmp);
+    PyMem_Free(self->input_tmp);
+    PyMem_Free(self->impulse);
+    PyMem_Free(self->impulse_tmp);
     IRWinSinc_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -998,8 +998,8 @@ IRAverage_alloc_memory(IRAverage *self)
 
     self->size = self->order + 1;
 
-    self->input_tmp = (MYFLT *)realloc(self->input_tmp, self->size * sizeof(MYFLT));
-    self->impulse = (MYFLT *)realloc(self->impulse, self->size * sizeof(MYFLT));
+    self->input_tmp = (MYFLT *)PyMem_Realloc(self->input_tmp, self->size * sizeof(MYFLT));
+    self->impulse = (MYFLT *)PyMem_Realloc(self->impulse, self->size * sizeof(MYFLT));
 
     sum = 0.0;
 
@@ -1133,8 +1133,8 @@ static void
 IRAverage_dealloc(IRAverage* self)
 {
     pyo_DEALLOC
-    free(self->input_tmp);
-    free(self->impulse);
+    PyMem_Free(self->input_tmp);
+    PyMem_Free(self->impulse);
     IRAverage_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -1345,8 +1345,8 @@ IRPulse_alloc_memory(IRPulse *self)
 
     self->size = self->order + 1;
 
-    self->input_tmp = (MYFLT *)realloc(self->input_tmp, self->size * sizeof(MYFLT));
-    self->impulse = (MYFLT *)realloc(self->impulse, self->size * sizeof(MYFLT));
+    self->input_tmp = (MYFLT *)PyMem_Realloc(self->input_tmp, self->size * sizeof(MYFLT));
+    self->impulse = (MYFLT *)PyMem_Realloc(self->impulse, self->size * sizeof(MYFLT));
 
     for (i = 0; i < self->size; i++)
     {
@@ -1659,8 +1659,8 @@ static void
 IRPulse_dealloc(IRPulse* self)
 {
     pyo_DEALLOC
-    free(self->input_tmp);
-    free(self->impulse);
+    PyMem_Free(self->input_tmp);
+    PyMem_Free(self->impulse);
     IRPulse_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -1974,8 +1974,8 @@ IRFM_alloc_memory(IRFM *self)
 
     self->size = self->order + 1;
 
-    self->input_tmp = (MYFLT *)realloc(self->input_tmp, self->size * sizeof(MYFLT));
-    self->impulse = (MYFLT *)realloc(self->impulse, self->size * sizeof(MYFLT));
+    self->input_tmp = (MYFLT *)PyMem_Realloc(self->input_tmp, self->size * sizeof(MYFLT));
+    self->impulse = (MYFLT *)PyMem_Realloc(self->impulse, self->size * sizeof(MYFLT));
 
     for (i = 0; i < self->size; i++)
     {
@@ -2185,8 +2185,8 @@ static void
 IRFM_dealloc(IRFM* self)
 {
     pyo_DEALLOC
-    free(self->input_tmp);
-    free(self->impulse);
+    PyMem_Free(self->input_tmp);
+    PyMem_Free(self->impulse);
     IRFM_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }

@@ -6579,7 +6579,7 @@ static void
 TableRead_dealloc(TableRead* self)
 {
     pyo_DEALLOC
-    free(self->trigsBuffer);
+    PyMem_Free(self->trigsBuffer);
     TableRead_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -6639,7 +6639,7 @@ TableRead_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
+    self->trigsBuffer = (MYFLT *)PyMem_Realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
 
     tablelist = TableStream_getData((TableStream *)self->table);
 
@@ -9026,7 +9026,7 @@ static void
 Rossler_dealloc(Rossler* self)
 {
     pyo_DEALLOC
-    free(self->altBuffer);
+    PyMem_Free(self->altBuffer);
     Rossler_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -9083,7 +9083,7 @@ Rossler_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    self->altBuffer = (MYFLT *)realloc(self->altBuffer, self->bufsize * sizeof(MYFLT));
+    self->altBuffer = (MYFLT *)PyMem_Realloc(self->altBuffer, self->bufsize * sizeof(MYFLT));
 
     for (i = 0; i < self->bufsize; i++)
     {
@@ -9866,7 +9866,7 @@ static void
 Lorenz_dealloc(Lorenz* self)
 {
     pyo_DEALLOC
-    free(self->altBuffer);
+    PyMem_Free(self->altBuffer);
     Lorenz_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -9923,7 +9923,7 @@ Lorenz_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    self->altBuffer = (MYFLT *)realloc(self->altBuffer, self->bufsize * sizeof(MYFLT));
+    self->altBuffer = (MYFLT *)PyMem_Realloc(self->altBuffer, self->bufsize * sizeof(MYFLT));
 
     for (i = 0; i < self->bufsize; i++)
     {
@@ -10714,7 +10714,7 @@ static void
 ChenLee_dealloc(ChenLee* self)
 {
     pyo_DEALLOC
-    free(self->altBuffer);
+    PyMem_Free(self->altBuffer);
     ChenLee_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -10771,7 +10771,7 @@ ChenLee_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    self->altBuffer = (MYFLT *)realloc(self->altBuffer, self->bufsize * sizeof(MYFLT));
+    self->altBuffer = (MYFLT *)PyMem_Realloc(self->altBuffer, self->bufsize * sizeof(MYFLT));
 
     for (i = 0; i < self->bufsize; i++)
     {

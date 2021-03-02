@@ -693,7 +693,7 @@ extern PyTypeObject MMLZStreamType;
 #define pyo_DEALLOC \
     if (self->server != NULL && self->stream != NULL) \
         Server_removeStream((Server *)self->server, Stream_getStreamId(self->stream)); \
-    free(self->data); \
+    PyMem_Free(self->data); \
 
 #define ASSERT_ARG_NOT_NULL \
     if (arg == NULL) { \
@@ -733,7 +733,7 @@ extern PyTypeObject MMLZStreamType;
     self->sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL)); \
     self->nchnls = PyInt_AsLong(PyObject_CallMethod(self->server, "getNchnls", NULL)); \
     self->ichnls = PyInt_AsLong(PyObject_CallMethod(self->server, "getIchnls", NULL)); \
-    self->data = (MYFLT *)realloc(self->data, (self->bufsize) * sizeof(MYFLT)); \
+    self->data = (MYFLT *)PyMem_Realloc(self->data, (self->bufsize) * sizeof(MYFLT)); \
     for (i=0; i<self->bufsize; i++) \
         self->data[i] = 0.0; \
     MAKE_NEW_STREAM(self->stream, &StreamType, NULL); \
@@ -762,7 +762,7 @@ extern PyTypeObject MMLZStreamType;
         return PyInt_FromLong(-1); \
     } \
     self->size = (T_SIZE_T)PyList_Size(arg); \
-    self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT)); \
+    self->data = (MYFLT *)PyMem_Realloc(self->data, (self->size+1) * sizeof(MYFLT)); \
     TableStream_setSize(self->tablestream, self->size+1); \
  \
     for (i=0; i<(self->size); i++) { \
@@ -782,13 +782,13 @@ extern PyTypeObject MMLZStreamType;
         return PyInt_FromLong(-1); \
     } \
     for (i = 0; i < (self->height + 1); i++) { \
-        free(self->data[i]); \
+        PyMem_Free(self->data[i]); \
     } \
     self->height = PyList_Size(arg); \
     self->width = PyList_Size(PyList_GetItem(arg, 0)); \
-    self->data = (MYFLT **)realloc(self->data, (self->height + 1) * sizeof(MYFLT *)); \
+    self->data = (MYFLT **)PyMem_Realloc(self->data, (self->height + 1) * sizeof(MYFLT *)); \
     for (i=0; i<(self->height+1); i++) { \
-        self->data[i] = (MYFLT *)malloc((self->width + 1) * sizeof(MYFLT)); \
+        self->data[i] = (MYFLT *)PyMem_Malloc((self->width + 1) * sizeof(MYFLT)); \
     } \
     MatrixStream_setWidth(self->matrixstream, self->width); \
     MatrixStream_setHeight(self->matrixstream, self->height); \
@@ -1437,7 +1437,7 @@ extern PyTypeObject MMLZStreamType;
  \
     self->size = PyInt_AsLong(value); \
  \
-    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT)); \
+    self->data = (MYFLT *)PyMem_Realloc(self->data, (self->size + 1) * sizeof(MYFLT)); \
     TableStream_setSize(self->tablestream, self->size);
 
 #define TABLE_SET_SIZE_WITH_POINT_LIST \
@@ -1462,7 +1462,7 @@ extern PyTypeObject MMLZStreamType;
  \
     factor = (MYFLT)(self->size) / old_size; \
  \
-    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT)); \
+    self->data = (MYFLT *)PyMem_Realloc(self->data, (self->size + 1) * sizeof(MYFLT)); \
     TableStream_setSize(self->tablestream, self->size); \
  \
     T_SIZE_T listsize = PyList_Size(self->pointslist); \

@@ -650,9 +650,9 @@ Server_dealloc(Server* self)
         Server_shutdown(self);
 
     Server_clear(self);
-    free(self->input_buffer);
-    free(self->output_buffer);
-    free(self->serverName);
+    PyMem_Free(self->input_buffer);
+    PyMem_Free(self->output_buffer);
+    PyMem_Free(self->serverName);
 
     if (self->withGUI == 1)
         free(self->lastRms);
@@ -1666,14 +1666,14 @@ Server_boot(Server *self, PyObject *arg)
         /* Must allocate buffer after initializing the audio backend in case parameters change there */
         if (self->input_buffer)
         {
-            free(self->input_buffer);
+            PyMem_Free(self->input_buffer);
         }
 
         self->input_buffer = (MYFLT *)malloc(self->bufferSize * self->ichnls * sizeof(MYFLT));
 
         if (self->output_buffer)
         {
-            free(self->output_buffer);
+            PyMem_Free(self->output_buffer);
         }
 
         self->output_buffer = (float *)malloc(self->bufferSize * self->nchnls * sizeof(float));

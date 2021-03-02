@@ -236,10 +236,10 @@ NewMatrix_dealloc(NewMatrix* self)
 
     for (i = 0; i < (self->height + 1); i++)
     {
-        free(self->data[i]);
+        PyMem_Free(self->data[i]);
     }
 
-    free(self->data);
+    PyMem_Free(self->data);
     NewMatrix_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -265,11 +265,11 @@ NewMatrix_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "ii|O", kwlist, &self->width, &self->height, &inittmp))
         Py_RETURN_NONE;
 
-    self->data = (MYFLT **)realloc(self->data, (self->height + 1) * sizeof(MYFLT *));
+    self->data = (MYFLT **)PyMem_Realloc(self->data, (self->height + 1) * sizeof(MYFLT *));
 
     for (i = 0; i < (self->height + 1); i++)
     {
-        self->data[i] = (MYFLT *)malloc((self->width + 1) * sizeof(MYFLT));
+        self->data[i] = (MYFLT *)PyMem_Malloc((self->width + 1) * sizeof(MYFLT));
     }
 
     for (i = 0; i < (self->height + 1); i++)
@@ -648,7 +648,7 @@ static void
 MatrixRec_dealloc(MatrixRec* self)
 {
     pyo_DEALLOC
-    free(self->trigsBuffer);
+    PyMem_Free(self->trigsBuffer);
     MatrixRec_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -683,7 +683,7 @@ MatrixRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
+    self->trigsBuffer = (MYFLT *)PyMem_Realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
 
     for (i = 0; i < self->bufsize; i++)
     {
@@ -864,7 +864,7 @@ static void
 MatrixRecLoop_dealloc(MatrixRecLoop* self)
 {
     pyo_DEALLOC
-    free(self->trigsBuffer);
+    PyMem_Free(self->trigsBuffer);
     MatrixRecLoop_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -896,7 +896,7 @@ MatrixRecLoop_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
+    self->trigsBuffer = (MYFLT *)PyMem_Realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
 
     for (i = 0; i < self->bufsize; i++)
     {
@@ -1081,7 +1081,7 @@ static void
 MatrixMorph_dealloc(MatrixMorph* self)
 {
     pyo_DEALLOC
-    free(self->buffer);
+    PyMem_Free(self->buffer);
     MatrixMorph_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -1113,7 +1113,7 @@ MatrixMorph_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     width = NewMatrix_getWidth((NewMatrix *)self->matrix);
     height = NewMatrix_getHeight((NewMatrix *)self->matrix);
     numsamps = width * height;
-    self->buffer = (MYFLT *)realloc(self->buffer, (numsamps) * sizeof(MYFLT));
+    self->buffer = (MYFLT *)PyMem_Realloc(self->buffer, (numsamps) * sizeof(MYFLT));
 
     Py_XDECREF(self->sources);
     Py_INCREF(sourcestmp);

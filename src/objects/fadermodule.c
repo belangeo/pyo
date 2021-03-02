@@ -253,7 +253,7 @@ static void
 Fader_dealloc(Fader* self)
 {
     pyo_DEALLOC
-    free(self->trigsBuffer);
+    PyMem_Free(self->trigsBuffer);
     Fader_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -302,7 +302,7 @@ Fader_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
+    self->trigsBuffer = (MYFLT *)PyMem_Realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
 
     for (i = 0; i < self->bufsize; i++)
     {
@@ -734,7 +734,7 @@ static void
 Adsr_dealloc(Adsr* self)
 {
     pyo_DEALLOC
-    free(self->trigsBuffer);
+    PyMem_Free(self->trigsBuffer);
     Adsr_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -799,7 +799,7 @@ Adsr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     else if (self->sustain > 1.0)
         self->sustain = 1.0;
 
-    self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
+    self->trigsBuffer = (MYFLT *)PyMem_Realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
 
     for (i = 0; i < self->bufsize; i++)
     {
@@ -1077,8 +1077,8 @@ Linseg_convert_pointslist(Linseg *self)
     PyObject *tup;
 
     self->listsize = PyList_Size(self->pointslist);
-    self->targets = (MYFLT *)realloc(self->targets, self->listsize * sizeof(MYFLT));
-    self->times = (MYFLT *)realloc(self->times, self->listsize * sizeof(MYFLT));
+    self->targets = (MYFLT *)PyMem_Realloc(self->targets, self->listsize * sizeof(MYFLT));
+    self->times = (MYFLT *)PyMem_Realloc(self->times, self->listsize * sizeof(MYFLT));
 
     for (i = 0; i < self->listsize; i++)
     {
@@ -1233,8 +1233,8 @@ static void
 Linseg_dealloc(Linseg* self)
 {
     pyo_DEALLOC
-    free(self->targets);
-    free(self->times);
+    PyMem_Free(self->targets);
+    PyMem_Free(self->times);
     Linseg_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -1523,8 +1523,8 @@ Expseg_convert_pointslist(Expseg *self)
     PyObject *tup;
 
     self->listsize = PyList_Size(self->pointslist);
-    self->targets = (MYFLT *)realloc(self->targets, self->listsize * sizeof(MYFLT));
-    self->times = (MYFLT *)realloc(self->times, self->listsize * sizeof(MYFLT));
+    self->targets = (MYFLT *)PyMem_Realloc(self->targets, self->listsize * sizeof(MYFLT));
+    self->times = (MYFLT *)PyMem_Realloc(self->times, self->listsize * sizeof(MYFLT));
 
     for (i = 0; i < self->listsize; i++)
     {
@@ -1698,8 +1698,8 @@ static void
 Expseg_dealloc(Expseg* self)
 {
     pyo_DEALLOC
-    free(self->targets);
-    free(self->times);
+    PyMem_Free(self->targets);
+    PyMem_Free(self->times);
     Expseg_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }

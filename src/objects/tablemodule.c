@@ -223,7 +223,7 @@ HarmTable_clear(HarmTable *self)
 static void
 HarmTable_dealloc(HarmTable* self)
 {
-    free(self->data);
+    PyMem_Free(self->data);
     HarmTable_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -256,7 +256,7 @@ HarmTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         self->amplist = amplist;
     }
 
-    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
+    self->data = (MYFLT *)PyMem_Realloc(self->data, (self->size + 1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
     TableStream_setData(self->tablestream, self->data);
     HarmTable_generate(self);
@@ -540,7 +540,7 @@ ChebyTable_clear(ChebyTable *self)
 static void
 ChebyTable_dealloc(ChebyTable* self)
 {
-    free(self->data);
+    PyMem_Free(self->data);
     ChebyTable_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -573,7 +573,7 @@ ChebyTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         self->amplist = amplist;
     }
 
-    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
+    self->data = (MYFLT *)PyMem_Realloc(self->data, (self->size + 1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
     TableStream_setData(self->tablestream, self->data);
     ChebyTable_generate(self);
@@ -876,7 +876,7 @@ HannTable_clear(HannTable *self)
 static void
 HannTable_dealloc(HannTable* self)
 {
-    free(self->data);
+    PyMem_Free(self->data);
     HannTable_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -899,7 +899,7 @@ HannTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|n", kwlist, &self->size))
         Py_RETURN_NONE;
 
-    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
+    self->data = (MYFLT *)PyMem_Realloc(self->data, (self->size + 1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
     TableStream_setData(self->tablestream, self->data);
     HannTable_generate(self);
@@ -1105,7 +1105,7 @@ SincTable_clear(SincTable *self)
 static void
 SincTable_dealloc(SincTable* self)
 {
-    free(self->data);
+    PyMem_Free(self->data);
     SincTable_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -1130,7 +1130,7 @@ SincTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__FIN, kwlist, &self->freq, &self->windowed, &self->size))
         Py_RETURN_NONE;
 
-    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
+    self->data = (MYFLT *)PyMem_Realloc(self->data, (self->size + 1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
     TableStream_setData(self->tablestream, self->data);
     SincTable_generate(self);
@@ -1335,7 +1335,7 @@ WinTable_clear(WinTable *self)
 static void
 WinTable_dealloc(WinTable* self)
 {
-    free(self->data);
+    PyMem_Free(self->data);
     WinTable_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -1359,7 +1359,7 @@ WinTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|in", kwlist, &self->type, &self->size))
         Py_RETURN_NONE;
 
-    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
+    self->data = (MYFLT *)PyMem_Realloc(self->data, (self->size + 1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
     TableStream_setData(self->tablestream, self->data);
     WinTable_generate(self);
@@ -1567,7 +1567,7 @@ ParaTable_clear(ParaTable *self)
 static void
 ParaTable_dealloc(ParaTable* self)
 {
-    free(self->data);
+    PyMem_Free(self->data);
     ParaTable_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -1590,7 +1590,7 @@ ParaTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|n", kwlist, &self->size))
         Py_RETURN_NONE;
 
-    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
+    self->data = (MYFLT *)PyMem_Realloc(self->data, (self->size + 1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
     TableStream_setData(self->tablestream, self->data);
     ParaTable_generate(self);
@@ -1817,7 +1817,7 @@ LinTable_clear(LinTable *self)
 static void
 LinTable_dealloc(LinTable* self)
 {
-    free(self->data);
+    PyMem_Free(self->data);
     LinTable_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -1854,7 +1854,7 @@ LinTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         PyList_Append(self->pointslist, PyTuple_Pack(2, PyInt_FromLong(self->size), PyFloat_FromDouble(1.)));
     }
 
-    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
+    self->data = (MYFLT *)PyMem_Realloc(self->data, (self->size + 1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
     TableStream_setData(self->tablestream, self->data);
     LinTable_generate(self);
@@ -2147,7 +2147,7 @@ LogTable_clear(LogTable *self)
 static void
 LogTable_dealloc(LogTable* self)
 {
-    free(self->data);
+    PyMem_Free(self->data);
     LogTable_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -2184,7 +2184,7 @@ LogTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         PyList_Append(self->pointslist, PyTuple_Pack(2, PyInt_FromLong(self->size), PyFloat_FromDouble(1.)));
     }
 
-    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
+    self->data = (MYFLT *)PyMem_Realloc(self->data, (self->size + 1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
     TableStream_setData(self->tablestream, self->data);
     LogTable_generate(self);
@@ -2445,7 +2445,7 @@ CosTable_clear(CosTable *self)
 static void
 CosTable_dealloc(CosTable* self)
 {
-    free(self->data);
+    PyMem_Free(self->data);
     CosTable_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -2482,7 +2482,7 @@ CosTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         PyList_Append(self->pointslist, PyTuple_Pack(2, PyInt_FromLong(self->size), PyFloat_FromDouble(1.)));
     }
 
-    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
+    self->data = (MYFLT *)PyMem_Realloc(self->data, (self->size + 1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
     TableStream_setData(self->tablestream, self->data);
     CosTable_generate(self);
@@ -2776,7 +2776,7 @@ CosLogTable_clear(CosLogTable *self)
 static void
 CosLogTable_dealloc(CosLogTable* self)
 {
-    free(self->data);
+    PyMem_Free(self->data);
     CosLogTable_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -2813,7 +2813,7 @@ CosLogTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         PyList_Append(self->pointslist, PyTuple_Pack(2, PyInt_FromLong(self->size), PyFloat_FromDouble(1.)));
     }
 
-    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
+    self->data = (MYFLT *)PyMem_Realloc(self->data, (self->size + 1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
     TableStream_setData(self->tablestream, self->data);
     CosLogTable_generate(self);
@@ -3101,7 +3101,7 @@ CurveTable_clear(CurveTable *self)
 static void
 CurveTable_dealloc(CurveTable* self)
 {
-    free(self->data);
+    PyMem_Free(self->data);
     CurveTable_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -3140,7 +3140,7 @@ CurveTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         PyList_Append(self->pointslist, PyTuple_Pack(2, PyInt_FromLong(self->size), PyFloat_FromDouble(1.)));
     }
 
-    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
+    self->data = (MYFLT *)PyMem_Realloc(self->data, (self->size + 1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
     TableStream_setData(self->tablestream, self->data);
     CurveTable_generate(self);
@@ -3474,7 +3474,7 @@ ExpTable_clear(ExpTable *self)
 static void
 ExpTable_dealloc(ExpTable* self)
 {
-    free(self->data);
+    PyMem_Free(self->data);
     ExpTable_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -3513,7 +3513,7 @@ ExpTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         PyList_Append(self->pointslist, PyTuple_Pack(2, PyInt_FromLong(self->size), PyFloat_FromDouble(1.)));
     }
 
-    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
+    self->data = (MYFLT *)PyMem_Realloc(self->data, (self->size + 1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
     TableStream_setData(self->tablestream, self->data);
     ExpTable_generate(self);
@@ -4733,7 +4733,7 @@ NewTable_clear(NewTable *self)
 static void
 NewTable_dealloc(NewTable* self)
 {
-    free(self->data);
+    PyMem_Free(self->data);
     NewTable_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -4761,7 +4761,7 @@ NewTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self->sr = (MYFLT)PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
     self->size = (T_SIZE_T)(self->length * self->sr + 0.5);
-    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
+    self->data = (MYFLT *)PyMem_Realloc(self->data, (self->size + 1) * sizeof(MYFLT));
 
     for (i = 0; i < (self->size + 1); i++)
     {
@@ -5106,7 +5106,7 @@ DataTable_clear(DataTable *self)
 static void
 DataTable_dealloc(DataTable* self)
 {
-    free(self->data);
+    PyMem_Free(self->data);
     DataTable_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -5129,7 +5129,7 @@ DataTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "n|O", kwlist, &self->size, &inittmp))
         Py_RETURN_NONE;
 
-    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
+    self->data = (MYFLT *)PyMem_Realloc(self->data, (self->size + 1) * sizeof(MYFLT));
 
     for (i = 0; i < (self->size + 1); i++)
     {
@@ -5326,7 +5326,7 @@ AtanTable_clear(AtanTable *self)
 static void
 AtanTable_dealloc(AtanTable* self)
 {
-    free(self->data);
+    PyMem_Free(self->data);
     AtanTable_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -5350,7 +5350,7 @@ AtanTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F_N, kwlist, &self->slope, &self->size))
         Py_RETURN_NONE;
 
-    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
+    self->data = (MYFLT *)PyMem_Realloc(self->data, (self->size + 1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
     TableStream_setData(self->tablestream, self->data);
     AtanTable_generate(self);
@@ -5538,10 +5538,10 @@ PadSynthTable_gen_twiddle(PadSynthTable *self)
 {
     int i, n8;
     n8 = self->size >> 3;
-    self->twiddle = (MYFLT **)realloc(self->twiddle, 4 * sizeof(MYFLT *));
+    self->twiddle = (MYFLT **)PyMem_Realloc(self->twiddle, 4 * sizeof(MYFLT *));
 
     for (i = 0; i < 4; i++)
-        self->twiddle[i] = (MYFLT *)malloc(n8 * sizeof(MYFLT));
+        self->twiddle[i] = (MYFLT *)PyMem_Malloc(n8 * sizeof(MYFLT));
 
     fft_compute_split_twiddle(self->twiddle, self->size);
 }
@@ -5642,13 +5642,13 @@ PadSynthTable_dealloc(PadSynthTable* self)
 
     for (i = 0; i < 4; i++)
     {
-        free(self->twiddle[i]);
+        PyMem_Free(self->twiddle[i]);
     }
 
-    free(self->twiddle);
-    free(self->data);
-    free(self->amp);
-    free(self->inframe);
+    PyMem_Free(self->twiddle);
+    PyMem_Free(self->data);
+    PyMem_Free(self->amp);
+    PyMem_Free(self->inframe);
     PadSynthTable_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -5689,9 +5689,9 @@ PadSynthTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         PySys_WriteStdout("PadSynthTable size must be a power-of-2, using the next power-of-2 greater than size : %ld\n", (long)self->size);
     }
 
-    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
-    self->amp = (MYFLT *)realloc(self->amp, (self->size / 2) * sizeof(MYFLT));
-    self->inframe = (MYFLT *)realloc(self->inframe, self->size * sizeof(MYFLT));
+    self->data = (MYFLT *)PyMem_Realloc(self->data, (self->size + 1) * sizeof(MYFLT));
+    self->amp = (MYFLT *)PyMem_Realloc(self->amp, (self->size / 2) * sizeof(MYFLT));
+    self->inframe = (MYFLT *)PyMem_Realloc(self->inframe, self->size * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
     TableStream_setData(self->tablestream, self->data);
 
@@ -5850,9 +5850,9 @@ PadSynthTable_setSize(PadSynthTable *self, PyObject *args, PyObject *kwds)
         PySys_WriteStdout("PadSynthTable size must be a power-of-2, using the next power-of-2 greater than size : %ld\n", (long)self->size);
     }
 
-    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
-    self->amp = (MYFLT *)realloc(self->amp, (self->size / 2) * sizeof(MYFLT));
-    self->inframe = (MYFLT *)realloc(self->inframe, self->size * sizeof(MYFLT));
+    self->data = (MYFLT *)PyMem_Realloc(self->data, (self->size + 1) * sizeof(MYFLT));
+    self->amp = (MYFLT *)PyMem_Realloc(self->amp, (self->size / 2) * sizeof(MYFLT));
+    self->inframe = (MYFLT *)PyMem_Realloc(self->inframe, self->size * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
 
     if (generate)
@@ -6079,9 +6079,9 @@ static void
 TableRec_dealloc(TableRec* self)
 {
     pyo_DEALLOC
-    free(self->buffer);
-    free(self->trigsBuffer);
-    free(self->time_buffer_streams);
+    PyMem_Free(self->buffer);
+    PyMem_Free(self->trigsBuffer);
+    PyMem_Free(self->time_buffer_streams);
     TableRec_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -6121,9 +6121,9 @@ TableRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    self->buffer = (MYFLT *)realloc(self->buffer, self->bufsize * sizeof(MYFLT));
-    self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
-    self->time_buffer_streams = (MYFLT *)realloc(self->time_buffer_streams, self->bufsize * sizeof(MYFLT));
+    self->buffer = (MYFLT *)PyMem_Realloc(self->buffer, self->bufsize * sizeof(MYFLT));
+    self->trigsBuffer = (MYFLT *)PyMem_Realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
+    self->time_buffer_streams = (MYFLT *)PyMem_Realloc(self->time_buffer_streams, self->bufsize * sizeof(MYFLT));
 
     for (i = 0; i < self->bufsize; i++)
     {
@@ -6567,7 +6567,7 @@ TableMorph_alloc_memories(TableMorph *self)
     T_SIZE_T i, size;
     size = PyInt_AsLong(NewTable_getSize((NewTable *)self->table));
     self->last_size = size;
-    self->buffer = (MYFLT *)realloc(self->buffer, size * sizeof(MYFLT));
+    self->buffer = (MYFLT *)PyMem_Realloc(self->buffer, size * sizeof(MYFLT));
 
     for (i = 0; i < size; i++)
     {
@@ -6637,7 +6637,7 @@ static void
 TableMorph_dealloc(TableMorph* self)
 {
     pyo_DEALLOC
-    free(self->buffer);
+    PyMem_Free(self->buffer);
     TableMorph_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -6970,9 +6970,9 @@ static void
 TrigTableRec_dealloc(TrigTableRec* self)
 {
     pyo_DEALLOC
-    free(self->trigsBuffer);
+    PyMem_Free(self->trigsBuffer);
     TrigTableRec_clear(self);
-    free(self->time_buffer_streams);
+    PyMem_Free(self->time_buffer_streams);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -7019,8 +7019,8 @@ TrigTableRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
-    self->time_buffer_streams = (MYFLT *)realloc(self->time_buffer_streams, self->bufsize * sizeof(MYFLT));
+    self->trigsBuffer = (MYFLT *)PyMem_Realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
+    self->time_buffer_streams = (MYFLT *)PyMem_Realloc(self->time_buffer_streams, self->bufsize * sizeof(MYFLT));
 
     for (i = 0; i < self->bufsize; i++)
     {
@@ -7464,7 +7464,7 @@ static void
 TablePut_dealloc(TablePut* self)
 {
     pyo_DEALLOC
-    free(self->trigsBuffer);
+    PyMem_Free(self->trigsBuffer);
     TablePut_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -7504,7 +7504,7 @@ TablePut_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
+    self->trigsBuffer = (MYFLT *)PyMem_Realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
 
     for (i = 0; i < self->bufsize; i++)
     {
