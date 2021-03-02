@@ -781,10 +781,10 @@ static void
 Granulator_dealloc(Granulator* self)
 {
     pyo_DEALLOC
-    free(self->startPos);
-    free(self->gphase);
-    free(self->gsize);
-    free(self->lastppos);
+    PyMem_Free(self->startPos);
+    PyMem_Free(self->gphase);
+    PyMem_Free(self->gsize);
+    PyMem_Free(self->lastppos);
     Granulator_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -866,10 +866,10 @@ Granulator_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    self->startPos = (MYFLT *)realloc(self->startPos, self->ngrains * sizeof(MYFLT));
-    self->gsize = (MYFLT *)realloc(self->gsize, self->ngrains * sizeof(MYFLT));
-    self->gphase = (MYFLT *)realloc(self->gphase, self->ngrains * sizeof(MYFLT));
-    self->lastppos = (MYFLT *)realloc(self->lastppos, self->ngrains * sizeof(MYFLT));
+    self->startPos = (MYFLT *)PyMem_Realloc(self->startPos, self->ngrains * sizeof(MYFLT));
+    self->gsize = (MYFLT *)PyMem_Realloc(self->gsize, self->ngrains * sizeof(MYFLT));
+    self->gphase = (MYFLT *)PyMem_Realloc(self->gphase, self->ngrains * sizeof(MYFLT));
+    self->lastppos = (MYFLT *)PyMem_Realloc(self->lastppos, self->ngrains * sizeof(MYFLT));
 
     Server_generateSeed((Server *)self->server, GRANULATOR_ID);
 
@@ -1071,10 +1071,10 @@ Granulator_setGrains(Granulator *self, PyObject *arg)
     if (PyLong_Check(arg))
     {
         self->ngrains = PyLong_AsLong(arg);
-        self->startPos = (MYFLT *)realloc(self->startPos, self->ngrains * sizeof(MYFLT));
-        self->gsize = (MYFLT *)realloc(self->gsize, self->ngrains * sizeof(MYFLT));
-        self->gphase = (MYFLT *)realloc(self->gphase, self->ngrains * sizeof(MYFLT));
-        self->lastppos = (MYFLT *)realloc(self->lastppos, self->ngrains * sizeof(MYFLT));
+        self->startPos = (MYFLT *)PyMem_Realloc(self->startPos, self->ngrains * sizeof(MYFLT));
+        self->gsize = (MYFLT *)PyMem_Realloc(self->gsize, self->ngrains * sizeof(MYFLT));
+        self->gphase = (MYFLT *)PyMem_Realloc(self->gphase, self->ngrains * sizeof(MYFLT));
+        self->lastppos = (MYFLT *)PyMem_Realloc(self->lastppos, self->ngrains * sizeof(MYFLT));
 
         for (i = 0; i < self->ngrains; i++)
         {
@@ -2177,8 +2177,8 @@ static void
 Looper_dealloc(Looper* self)
 {
     pyo_DEALLOC
-    free(self->trigsBuffer);
-    free(self->time_buffer);
+    PyMem_Free(self->trigsBuffer);
+    PyMem_Free(self->time_buffer);
     Looper_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -2266,8 +2266,8 @@ Looper_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     (*self->mode_func_ptr)(self);
 
-    self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
-    self->time_buffer = (MYFLT *)realloc(self->time_buffer, self->bufsize * sizeof(MYFLT));
+    self->trigsBuffer = (MYFLT *)PyMem_Realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
+    self->time_buffer = (MYFLT *)PyMem_Realloc(self->time_buffer, self->bufsize * sizeof(MYFLT));
 
     for (i = 0; i < self->bufsize; i++)
     {
@@ -3340,11 +3340,11 @@ static void
 Granule_dealloc(Granule* self)
 {
     pyo_DEALLOC
-    free(self->gpos);
-    free(self->glen);
-    free(self->inc);
-    free(self->flags);
-    free(self->phase);
+    PyMem_Free(self->gpos);
+    PyMem_Free(self->glen);
+    PyMem_Free(self->inc);
+    PyMem_Free(self->flags);
+    PyMem_Free(self->phase);
     Granule_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -3434,11 +3434,11 @@ Granule_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    self->gpos = (MYFLT *)realloc(self->gpos, Granule_MAX_GRAINS * sizeof(MYFLT));
-    self->glen = (MYFLT *)realloc(self->glen, Granule_MAX_GRAINS * sizeof(MYFLT));
-    self->inc = (MYFLT *)realloc(self->inc, Granule_MAX_GRAINS * sizeof(MYFLT));
-    self->phase = (MYFLT *)realloc(self->phase, Granule_MAX_GRAINS * sizeof(MYFLT));
-    self->flags = (int *)realloc(self->flags, Granule_MAX_GRAINS * sizeof(int));
+    self->gpos = (MYFLT *)PyMem_Realloc(self->gpos, Granule_MAX_GRAINS * sizeof(MYFLT));
+    self->glen = (MYFLT *)PyMem_Realloc(self->glen, Granule_MAX_GRAINS * sizeof(MYFLT));
+    self->inc = (MYFLT *)PyMem_Realloc(self->inc, Granule_MAX_GRAINS * sizeof(MYFLT));
+    self->phase = (MYFLT *)PyMem_Realloc(self->phase, Granule_MAX_GRAINS * sizeof(MYFLT));
+    self->flags = (int *)PyMem_Realloc(self->flags, Granule_MAX_GRAINS * sizeof(int));
 
     for (i = 0; i < Granule_MAX_GRAINS; i++)
     {
@@ -4486,16 +4486,16 @@ static void
 MainParticle_dealloc(MainParticle* self)
 {
     pyo_DEALLOC
-    free(self->gpos);
-    free(self->glen);
-    free(self->inc);
-    free(self->flags);
-    free(self->k1);
-    free(self->k2);
-    free(self->phase);
-    free(self->amp1);
-    free(self->amp2);
-    free(self->buffer_streams);
+    PyMem_Free(self->gpos);
+    PyMem_Free(self->glen);
+    PyMem_Free(self->inc);
+    PyMem_Free(self->flags);
+    PyMem_Free(self->k1);
+    PyMem_Free(self->k2);
+    PyMem_Free(self->phase);
+    PyMem_Free(self->amp1);
+    PyMem_Free(self->amp2);
+    PyMem_Free(self->buffer_streams);
     MainParticle_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -4598,15 +4598,15 @@ MainParticle_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (self->chnls < 1)
         self->chnls = 1;
 
-    self->gpos = (MYFLT *)realloc(self->gpos, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
-    self->glen = (MYFLT *)realloc(self->glen, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
-    self->inc = (MYFLT *)realloc(self->inc, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
-    self->phase = (MYFLT *)realloc(self->phase, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
-    self->amp1 = (MYFLT *)realloc(self->amp1, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
-    self->amp2 = (MYFLT *)realloc(self->amp2, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
-    self->flags = (int *)realloc(self->flags, MAINPARTICLE_MAX_GRAINS * sizeof(int));
-    self->k1 = (int *)realloc(self->k1, MAINPARTICLE_MAX_GRAINS * sizeof(int));
-    self->k2 = (int *)realloc(self->k2, MAINPARTICLE_MAX_GRAINS * sizeof(int));
+    self->gpos = (MYFLT *)PyMem_Realloc(self->gpos, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
+    self->glen = (MYFLT *)PyMem_Realloc(self->glen, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
+    self->inc = (MYFLT *)PyMem_Realloc(self->inc, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
+    self->phase = (MYFLT *)PyMem_Realloc(self->phase, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
+    self->amp1 = (MYFLT *)PyMem_Realloc(self->amp1, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
+    self->amp2 = (MYFLT *)PyMem_Realloc(self->amp2, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
+    self->flags = (int *)PyMem_Realloc(self->flags, MAINPARTICLE_MAX_GRAINS * sizeof(int));
+    self->k1 = (int *)PyMem_Realloc(self->k1, MAINPARTICLE_MAX_GRAINS * sizeof(int));
+    self->k2 = (int *)PyMem_Realloc(self->k2, MAINPARTICLE_MAX_GRAINS * sizeof(int));
 
     for (i = 0; i < MAINPARTICLE_MAX_GRAINS; i++)
     {
@@ -4614,7 +4614,7 @@ MainParticle_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         self->flags[i] = self->k1[i] = self->k2[i] = 0;
     }
 
-    self->buffer_streams = (MYFLT *)realloc(self->buffer_streams, self->bufsize * self->chnls * sizeof(MYFLT));
+    self->buffer_streams = (MYFLT *)PyMem_Realloc(self->buffer_streams, self->bufsize * self->chnls * sizeof(MYFLT));
 
     for (i = 0; i < self->bufsize * self->chnls; i++)
     {
@@ -6273,33 +6273,33 @@ static void
 MainParticle2_dealloc(MainParticle2* self)
 {
     pyo_DEALLOC
-    free(self->gpos);
-    free(self->glen);
-    free(self->inc);
-    free(self->flags);
-    free(self->k1);
-    free(self->k2);
-    free(self->phase);
-    free(self->amp1);
-    free(self->amp2);
-    free(self->last_freq);
-    free(self->last_q);
-    free(self->last_type);
-    free(self->x1);
-    free(self->x2);
-    free(self->y1);
-    free(self->y2);
-    free(self->c);
-    free(self->w0);
-    free(self->alpha);
-    free(self->qcomp);
-    free(self->b0);
-    free(self->b1);
-    free(self->b2);
-    free(self->a0);
-    free(self->a1);
-    free(self->a2);
-    free(self->buffer_streams);
+    PyMem_Free(self->gpos);
+    PyMem_Free(self->glen);
+    PyMem_Free(self->inc);
+    PyMem_Free(self->flags);
+    PyMem_Free(self->k1);
+    PyMem_Free(self->k2);
+    PyMem_Free(self->phase);
+    PyMem_Free(self->amp1);
+    PyMem_Free(self->amp2);
+    PyMem_Free(self->last_freq);
+    PyMem_Free(self->last_q);
+    PyMem_Free(self->last_type);
+    PyMem_Free(self->x1);
+    PyMem_Free(self->x2);
+    PyMem_Free(self->y1);
+    PyMem_Free(self->y2);
+    PyMem_Free(self->c);
+    PyMem_Free(self->w0);
+    PyMem_Free(self->alpha);
+    PyMem_Free(self->qcomp);
+    PyMem_Free(self->b0);
+    PyMem_Free(self->b1);
+    PyMem_Free(self->b2);
+    PyMem_Free(self->a0);
+    PyMem_Free(self->a1);
+    PyMem_Free(self->a2);
+    PyMem_Free(self->buffer_streams);
     MainParticle2_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -6427,32 +6427,32 @@ MainParticle2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (self->chnls < 1)
         self->chnls = 1;
 
-    self->gpos = (MYFLT *)realloc(self->gpos, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
-    self->glen = (MYFLT *)realloc(self->glen, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
-    self->inc = (MYFLT *)realloc(self->inc, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
-    self->phase = (MYFLT *)realloc(self->phase, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
-    self->amp1 = (MYFLT *)realloc(self->amp1, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
-    self->amp2 = (MYFLT *)realloc(self->amp2, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
-    self->flags = (int *)realloc(self->flags, MAINPARTICLE_MAX_GRAINS * sizeof(int));
-    self->k1 = (int *)realloc(self->k1, MAINPARTICLE_MAX_GRAINS * sizeof(int));
-    self->k2 = (int *)realloc(self->k2, MAINPARTICLE_MAX_GRAINS * sizeof(int));
-    self->last_freq = (MYFLT *)realloc(self->last_freq, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
-    self->last_q = (MYFLT *)realloc(self->last_q, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
-    self->last_type = (MYFLT *)realloc(self->last_type, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
-    self->x1 = (MYFLT *)realloc(self->x1, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
-    self->x2 = (MYFLT *)realloc(self->x2, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
-    self->y1 = (MYFLT *)realloc(self->y1, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
-    self->y2 = (MYFLT *)realloc(self->y2, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
-    self->c = (MYFLT *)realloc(self->c, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
-    self->w0 = (MYFLT *)realloc(self->w0, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
-    self->alpha = (MYFLT *)realloc(self->alpha, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
-    self->qcomp = (MYFLT *)realloc(self->qcomp, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
-    self->b0 = (MYFLT *)realloc(self->b0, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
-    self->b1 = (MYFLT *)realloc(self->b1, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
-    self->b2 = (MYFLT *)realloc(self->b2, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
-    self->a0 = (MYFLT *)realloc(self->a0, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
-    self->a1 = (MYFLT *)realloc(self->a1, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
-    self->a2 = (MYFLT *)realloc(self->a2, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
+    self->gpos = (MYFLT *)PyMem_Realloc(self->gpos, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
+    self->glen = (MYFLT *)PyMem_Realloc(self->glen, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
+    self->inc = (MYFLT *)PyMem_Realloc(self->inc, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
+    self->phase = (MYFLT *)PyMem_Realloc(self->phase, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
+    self->amp1 = (MYFLT *)PyMem_Realloc(self->amp1, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
+    self->amp2 = (MYFLT *)PyMem_Realloc(self->amp2, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
+    self->flags = (int *)PyMem_Realloc(self->flags, MAINPARTICLE_MAX_GRAINS * sizeof(int));
+    self->k1 = (int *)PyMem_Realloc(self->k1, MAINPARTICLE_MAX_GRAINS * sizeof(int));
+    self->k2 = (int *)PyMem_Realloc(self->k2, MAINPARTICLE_MAX_GRAINS * sizeof(int));
+    self->last_freq = (MYFLT *)PyMem_Realloc(self->last_freq, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
+    self->last_q = (MYFLT *)PyMem_Realloc(self->last_q, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
+    self->last_type = (MYFLT *)PyMem_Realloc(self->last_type, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
+    self->x1 = (MYFLT *)PyMem_Realloc(self->x1, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
+    self->x2 = (MYFLT *)PyMem_Realloc(self->x2, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
+    self->y1 = (MYFLT *)PyMem_Realloc(self->y1, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
+    self->y2 = (MYFLT *)PyMem_Realloc(self->y2, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
+    self->c = (MYFLT *)PyMem_Realloc(self->c, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
+    self->w0 = (MYFLT *)PyMem_Realloc(self->w0, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
+    self->alpha = (MYFLT *)PyMem_Realloc(self->alpha, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
+    self->qcomp = (MYFLT *)PyMem_Realloc(self->qcomp, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
+    self->b0 = (MYFLT *)PyMem_Realloc(self->b0, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
+    self->b1 = (MYFLT *)PyMem_Realloc(self->b1, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
+    self->b2 = (MYFLT *)PyMem_Realloc(self->b2, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
+    self->a0 = (MYFLT *)PyMem_Realloc(self->a0, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
+    self->a1 = (MYFLT *)PyMem_Realloc(self->a1, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
+    self->a2 = (MYFLT *)PyMem_Realloc(self->a2, MAINPARTICLE_MAX_GRAINS * sizeof(MYFLT));
 
     for (i = 0; i < MAINPARTICLE_MAX_GRAINS; i++)
     {
@@ -6464,7 +6464,7 @@ MainParticle2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         self->flags[i] = self->k1[i] = self->k2[i] = 0;
     }
 
-    self->buffer_streams = (MYFLT *)realloc(self->buffer_streams, self->bufsize * self->chnls * sizeof(MYFLT));
+    self->buffer_streams = (MYFLT *)PyMem_Realloc(self->buffer_streams, self->bufsize * self->chnls * sizeof(MYFLT));
 
     for (i = 0; i < self->bufsize * self->chnls; i++)
     {

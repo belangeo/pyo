@@ -503,7 +503,7 @@ static void
 Harmonizer_dealloc(Harmonizer* self)
 {
     pyo_DEALLOC
-    free(self->buffer);
+    PyMem_Free(self->buffer);
     Harmonizer_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -561,7 +561,7 @@ Harmonizer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    self->buffer = (MYFLT *)realloc(self->buffer, (self->sr + 1) * sizeof(MYFLT));
+    self->buffer = (MYFLT *)PyMem_Realloc(self->buffer, (self->sr + 1) * sizeof(MYFLT));
 
     for (i = 0; i < (self->sr + 1); i++)
     {

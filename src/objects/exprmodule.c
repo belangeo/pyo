@@ -135,21 +135,21 @@ typedef struct
 void
 clearexpr(expr ex)
 {
-    if (ex.nodes) { free(ex.nodes); }
+    if (ex.nodes) { PyMem_Free(ex.nodes); }
 
-    if (ex.vars) { free(ex.vars); }
+    if (ex.vars) { PyMem_Free(ex.vars); }
 
-    if (ex.input) { free(ex.input); }
+    if (ex.input) { PyMem_Free(ex.input); }
 
-    if (ex.inchnls) { free(ex.inchnls); }
+    if (ex.inchnls) { PyMem_Free(ex.inchnls); }
 
-    if (ex.output) { free(ex.output); }
+    if (ex.output) { PyMem_Free(ex.output); }
 
-    if (ex.outchnls) { free(ex.outchnls); }
+    if (ex.outchnls) { PyMem_Free(ex.outchnls); }
 
-    if (ex.values) { free(ex.values); }
+    if (ex.values) { PyMem_Free(ex.values); }
 
-    if (ex.previous) { free(ex.previous); }
+    if (ex.previous) { PyMem_Free(ex.previous); }
 }
 
 expr
@@ -220,14 +220,14 @@ initexpr(const char *op, int size)
 
     ex.type_op = value;
     ex.num = num;
-    ex.nodes = (int *)malloc(num * sizeof(int));
-    ex.vars = (int *)malloc(num * sizeof(int));
-    ex.input = (int *)malloc(num * sizeof(int));
-    ex.inchnls = (int *)malloc(num * sizeof(int));
-    ex.output = (int *)malloc(num * sizeof(int));
-    ex.outchnls = (int *)malloc(num * sizeof(int));
-    ex.values = (MYFLT *)malloc(num * sizeof(MYFLT));
-    ex.previous = (MYFLT *)malloc(num * sizeof(MYFLT));
+    ex.nodes = (int *)PyMem_Malloc(num * sizeof(int));
+    ex.vars = (int *)PyMem_Malloc(num * sizeof(int));
+    ex.input = (int *)PyMem_Malloc(num * sizeof(int));
+    ex.inchnls = (int *)PyMem_Malloc(num * sizeof(int));
+    ex.output = (int *)PyMem_Malloc(num * sizeof(int));
+    ex.outchnls = (int *)PyMem_Malloc(num * sizeof(int));
+    ex.values = (MYFLT *)PyMem_Malloc(num * sizeof(MYFLT));
+    ex.previous = (MYFLT *)PyMem_Malloc(num * sizeof(MYFLT));
 
     for (i = 0; i < num; i++)
     {
@@ -741,8 +741,8 @@ Exprer_dealloc(Exprer* self)
         clearexpr(self->lexp[i]);
     }
 
-    free(self->input_buffer);
-    free(self->output_buffer);
+    PyMem_Free(self->input_buffer);
+    PyMem_Free(self->output_buffer);
     Exprer_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -783,8 +783,8 @@ Exprer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (self->chnls < 1)
         self->chnls = 1;
 
-    self->input_buffer = (MYFLT *)realloc(self->input_buffer, PyList_Size(self->input) * self->bufsize * sizeof(MYFLT));
-    self->output_buffer = (MYFLT *)realloc(self->output_buffer, self->chnls * self->bufsize * sizeof(MYFLT));
+    self->input_buffer = (MYFLT *)PyMem_Realloc(self->input_buffer, PyList_Size(self->input) * self->bufsize * sizeof(MYFLT));
+    self->output_buffer = (MYFLT *)PyMem_Realloc(self->output_buffer, self->chnls * self->bufsize * sizeof(MYFLT));
 
     for (i = 0; i < (PyList_Size(self->input) * self->bufsize); i++)
     {

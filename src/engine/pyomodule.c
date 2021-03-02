@@ -43,7 +43,7 @@ STACK_RECORD *m_pStack = NULL;
 static void StackPush( int nAnchorIndex, int nFloaterIndex )
 {
     STACK_RECORD *precPrev = m_pStack;
-    m_pStack = (STACK_RECORD *)malloc( sizeof(STACK_RECORD) );
+    m_pStack = (STACK_RECORD *)PyMem_Malloc( sizeof(STACK_RECORD) );
     m_pStack->nAnchorIndex = nAnchorIndex;
     m_pStack->nFloaterIndex = nFloaterIndex;
     m_pStack->precPrev = precPrev;
@@ -59,7 +59,7 @@ static int StackPop( int *pnAnchorIndex, int *pnFloaterIndex )
     *pnAnchorIndex = precStack->nAnchorIndex;
     *pnFloaterIndex = precStack->nFloaterIndex;
     m_pStack = precStack->precPrev;
-    free( precStack );
+    PyMem_Free( precStack );
     return 1;
 }
 
@@ -89,10 +89,9 @@ reducePoints(PyObject *self, PyObject *args, PyObject *kwds)
 
     nPointsCount = PyList_Size(pointlist);
 
-    // TODO: these malloc's are never freed.
-    pPointsX = (MYFLT *)malloc(nPointsCount * sizeof(MYFLT));
-    pPointsY = (MYFLT *)malloc(nPointsCount * sizeof(MYFLT));
-    pnUseFlag = (int *)malloc(nPointsCount * sizeof(int));
+    pPointsX = (MYFLT *)PyMem_Malloc(nPointsCount * sizeof(MYFLT));
+    pPointsY = (MYFLT *)PyMem_Malloc(nPointsCount * sizeof(MYFLT));
+    pnUseFlag = (int *)PyMem_Malloc(nPointsCount * sizeof(int));
 
     tup = PyList_GET_ITEM(pointlist, 0);
 
@@ -213,9 +212,9 @@ reducePoints(PyObject *self, PyObject *args, PyObject *kwds)
         }
     }
 
-    free(pPointsX);
-    free(pPointsY);
-    free(pnUseFlag);
+    PyMem_Free(pPointsX);
+    PyMem_Free(pPointsY);
+    PyMem_Free(pnUseFlag);
 
     return pPointsOut;
 }
@@ -328,8 +327,8 @@ linToCosCurve(PyObject *self, PyObject *args, PyObject *kwds)
 
     fdata = PySequence_Fast(data, NULL);
     datasize = PySequence_Fast_GET_SIZE(fdata);
-    xdata = (double *)malloc(datasize * sizeof(double));
-    ydata = (double *)malloc(datasize * sizeof(double));
+    xdata = (double *)PyMem_Malloc(datasize * sizeof(double));
+    ydata = (double *)PyMem_Malloc(datasize * sizeof(double));
 
     /* acquire data + normalization */
     if (log == 0)
@@ -355,8 +354,8 @@ linToCosCurve(PyObject *self, PyObject *args, PyObject *kwds)
         }
     }
 
-    cxdata = (double *)malloc((num + 5) * sizeof(double));
-    cydata = (double *)malloc((num + 5) * sizeof(double));
+    cxdata = (double *)PyMem_Malloc((num + 5) * sizeof(double));
+    cydata = (double *)PyMem_Malloc((num + 5) * sizeof(double));
 
     /* generates cos interpolation */
     for (i = 0; i < (datasize - 1); i++)
@@ -410,10 +409,10 @@ linToCosCurve(PyObject *self, PyObject *args, PyObject *kwds)
         PyList_Append(out, inout);
     }
 
-    free(xdata);
-    free(ydata);
-    free(cxdata);
-    free(cydata);
+    PyMem_Free(xdata);
+    PyMem_Free(ydata);
+    PyMem_Free(cxdata);
+    PyMem_Free(cydata);
 
     return out;
 }

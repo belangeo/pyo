@@ -119,7 +119,7 @@ ControlRec_dealloc(ControlRec* self)
     pyo_DEALLOC
 
     if (self->buffer != NULL)
-        free(self->buffer);
+        PyMem_Free(self->buffer);
 
     ControlRec_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
@@ -154,7 +154,7 @@ ControlRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (self->dur > 0.0)
     {
         self->size = (long)(self->dur * self->rate + 1);
-        self->buffer = (MYFLT *)realloc(self->buffer, self->size * sizeof(MYFLT));
+        self->buffer = (MYFLT *)PyMem_Realloc(self->buffer, self->size * sizeof(MYFLT));
 
         for (j = 0; j < self->size; j++)
         {
@@ -429,8 +429,8 @@ static void
 ControlRead_dealloc(ControlRead* self)
 {
     pyo_DEALLOC
-    free(self->values);
-    free(self->trigsBuffer);
+    PyMem_Free(self->values);
+    PyMem_Free(self->trigsBuffer);
     ControlRead_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -476,7 +476,7 @@ ControlRead_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
+    self->trigsBuffer = (MYFLT *)PyMem_Realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
 
     for (i = 0; i < self->bufsize; i++)
     {
@@ -533,7 +533,7 @@ ControlRead_setValues(ControlRead *self, PyObject *arg)
     ASSERT_ARG_NOT_NULL
 
     self->size = PyList_Size(arg);
-    self->values = (MYFLT *)realloc(self->values, self->size * sizeof(MYFLT));
+    self->values = (MYFLT *)PyMem_Realloc(self->values, self->size * sizeof(MYFLT));
 
     for (i = 0; i < self->size; i++)
     {
@@ -1062,9 +1062,9 @@ static void
 NoteinRead_dealloc(NoteinRead* self)
 {
     pyo_DEALLOC
-    free(self->values);
-    free(self->timestamps);
-    free(self->trigsBuffer);
+    PyMem_Free(self->values);
+    PyMem_Free(self->timestamps);
+    PyMem_Free(self->trigsBuffer);
     NoteinRead_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -1114,7 +1114,7 @@ NoteinRead_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
+    self->trigsBuffer = (MYFLT *)PyMem_Realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
 
     for (i = 0; i < self->bufsize; i++)
     {
@@ -1167,7 +1167,7 @@ NoteinRead_setValues(NoteinRead *self, PyObject *arg)
     ASSERT_ARG_NOT_NULL
 
     self->size = PyList_Size(arg);
-    self->values = (MYFLT *)realloc(self->values, self->size * sizeof(MYFLT));
+    self->values = (MYFLT *)PyMem_Realloc(self->values, self->size * sizeof(MYFLT));
 
     for (i = 0; i < self->size; i++)
     {
@@ -1185,7 +1185,7 @@ NoteinRead_setTimestamps(NoteinRead *self, PyObject *arg)
     ASSERT_ARG_NOT_NULL
 
     self->size = PyList_Size(arg);
-    self->timestamps = (long *)realloc(self->timestamps, self->size * sizeof(long));
+    self->timestamps = (long *)PyMem_Realloc(self->timestamps, self->size * sizeof(long));
 
     for (i = 0; i < self->size; i++)
     {

@@ -59,26 +59,26 @@ FFTMain_realloc_memories(FFTMain *self)
     int i, n8;
     self->hsize = self->size / 2;
     n8 = self->size >> 3;
-    self->inframe = (MYFLT *)realloc(self->inframe, self->size * sizeof(MYFLT));
-    self->outframe = (MYFLT *)realloc(self->outframe, self->size * sizeof(MYFLT));
+    self->inframe = (MYFLT *)PyMem_Realloc(self->inframe, self->size * sizeof(MYFLT));
+    self->outframe = (MYFLT *)PyMem_Realloc(self->outframe, self->size * sizeof(MYFLT));
 
     for (i = 0; i < self->size; i++)
         self->inframe[i] = self->outframe[i] = 0.0;
 
-    self->buffer_streams = (MYFLT *)realloc(self->buffer_streams, 3 * self->bufsize * sizeof(MYFLT));
+    self->buffer_streams = (MYFLT *)PyMem_Realloc(self->buffer_streams, 3 * self->bufsize * sizeof(MYFLT));
 
     for (i = 0; i < (self->bufsize * 3); i++)
         self->buffer_streams[i] = 0.0;
 
-    self->twiddle = (MYFLT **)realloc(self->twiddle, 4 * sizeof(MYFLT *));
+    self->twiddle = (MYFLT **)PyMem_Realloc(self->twiddle, 4 * sizeof(MYFLT *));
 
     for (i = 0; i < 4; i++)
-        self->twiddle[i] = (MYFLT *)malloc(n8 * sizeof(MYFLT));
+        self->twiddle[i] = (MYFLT *)PyMem_Malloc(n8 * sizeof(MYFLT));
 
     fft_compute_split_twiddle(self->twiddle, self->size);
-    //self->twiddle2 = (MYFLT *)realloc(self->twiddle2, self->size * sizeof(MYFLT));
+    //self->twiddle2 = (MYFLT *)PyMem_Realloc(self->twiddle2, self->size * sizeof(MYFLT));
     //fft_compute_radix2_twiddle(self->twiddle2, self->size);
-    self->window = (MYFLT *)realloc(self->window, self->size * sizeof(MYFLT));
+    self->window = (MYFLT *)PyMem_Realloc(self->window, self->size * sizeof(MYFLT));
     gen_window(self->window, self->size, self->wintype);
     self->incount = -self->hopsize;
 }
@@ -186,17 +186,17 @@ FFTMain_dealloc(FFTMain* self)
 {
     int i;
     pyo_DEALLOC
-    free(self->inframe);
-    free(self->outframe);
-    free(self->window);
-    free(self->buffer_streams);
+    PyMem_Free(self->inframe);
+    PyMem_Free(self->outframe);
+    PyMem_Free(self->window);
+    PyMem_Free(self->buffer_streams);
 
     for (i = 0; i < 4; i++)
     {
-        free(self->twiddle[i]);
+        PyMem_Free(self->twiddle[i]);
     }
 
-    free(self->twiddle);
+    PyMem_Free(self->twiddle);
     //free(self->twiddle2);
     FFTMain_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
@@ -630,21 +630,21 @@ IFFT_realloc_memories(IFFT *self)
     int i, n8;
     self->hsize = self->size / 2;
     n8 = self->size >> 3;
-    self->inframe = (MYFLT *)realloc(self->inframe, self->size * sizeof(MYFLT));
-    self->outframe = (MYFLT *)realloc(self->outframe, self->size * sizeof(MYFLT));
+    self->inframe = (MYFLT *)PyMem_Realloc(self->inframe, self->size * sizeof(MYFLT));
+    self->outframe = (MYFLT *)PyMem_Realloc(self->outframe, self->size * sizeof(MYFLT));
 
     for (i = 0; i < self->size; i++)
         self->inframe[i] = self->outframe[i] = 0.0;
 
-    self->twiddle = (MYFLT **)realloc(self->twiddle, 4 * sizeof(MYFLT *));
+    self->twiddle = (MYFLT **)PyMem_Realloc(self->twiddle, 4 * sizeof(MYFLT *));
 
     for (i = 0; i < 4; i++)
-        self->twiddle[i] = (MYFLT *)malloc(n8 * sizeof(MYFLT));
+        self->twiddle[i] = (MYFLT *)PyMem_Malloc(n8 * sizeof(MYFLT));
 
     fft_compute_split_twiddle(self->twiddle, self->size);
-    //self->twiddle2 = (MYFLT *)realloc(self->twiddle2, self->size * sizeof(MYFLT));
+    //self->twiddle2 = (MYFLT *)PyMem_Realloc(self->twiddle2, self->size * sizeof(MYFLT));
     //fft_compute_radix2_twiddle(self->twiddle2, self->size);
-    self->window = (MYFLT *)realloc(self->window, self->size * sizeof(MYFLT));
+    self->window = (MYFLT *)PyMem_Realloc(self->window, self->size * sizeof(MYFLT));
     gen_window(self->window, self->size, self->wintype);
     self->incount = -self->hopsize;
 }
@@ -797,16 +797,16 @@ IFFT_dealloc(IFFT* self)
 {
     int i;
     pyo_DEALLOC
-    free(self->inframe);
-    free(self->outframe);
-    free(self->window);
+    PyMem_Free(self->inframe);
+    PyMem_Free(self->outframe);
+    PyMem_Free(self->window);
 
     for (i = 0; i < 4; i++)
     {
-        free(self->twiddle[i]);
+        PyMem_Free(self->twiddle[i]);
     }
 
-    free(self->twiddle);
+    PyMem_Free(self->twiddle);
     //free(self->twiddle2);
     IFFT_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
@@ -1741,11 +1741,11 @@ FrameDeltaMain_dealloc(FrameDeltaMain* self)
 
     for (i = 0; i < self->overlaps; i++)
     {
-        free(self->frameBuffer[i]);
+        PyMem_Free(self->frameBuffer[i]);
     }
 
-    free(self->frameBuffer);
-    free(self->buffer_streams);
+    PyMem_Free(self->frameBuffer);
+    PyMem_Free(self->buffer_streams);
     FrameDeltaMain_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -1777,11 +1777,11 @@ FrameDeltaMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     self->hopsize = self->frameSize / self->overlaps;
-    self->frameBuffer = (MYFLT **)realloc(self->frameBuffer, self->overlaps * sizeof(MYFLT *));
+    self->frameBuffer = (MYFLT **)PyMem_Realloc(self->frameBuffer, self->overlaps * sizeof(MYFLT *));
 
     for (i = 0; i < self->overlaps; i++)
     {
-        self->frameBuffer[i] = (MYFLT *)malloc(self->frameSize * sizeof(MYFLT));
+        self->frameBuffer[i] = (MYFLT *)PyMem_Malloc(self->frameSize * sizeof(MYFLT));
 
         for (j = 0; j < self->frameSize; j++)
         {
@@ -1789,7 +1789,7 @@ FrameDeltaMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         }
     }
 
-    self->buffer_streams = (MYFLT *)realloc(self->buffer_streams, self->overlaps * self->bufsize * sizeof(MYFLT));
+    self->buffer_streams = (MYFLT *)PyMem_Realloc(self->buffer_streams, self->overlaps * self->bufsize * sizeof(MYFLT));
 
     for (i = 0; i < (self->overlaps * self->bufsize); i++)
     {
@@ -1841,11 +1841,11 @@ FrameDeltaMain_setFrameSize(FrameDeltaMain *self, PyObject *arg)
             self->frameSize = tmp;
             self->hopsize = self->frameSize / self->overlaps;
 
-            self->frameBuffer = (MYFLT **)realloc(self->frameBuffer, self->overlaps * sizeof(MYFLT *));
+            self->frameBuffer = (MYFLT **)PyMem_Realloc(self->frameBuffer, self->overlaps * sizeof(MYFLT *));
 
             for (i = 0; i < self->overlaps; i++)
             {
-                self->frameBuffer[i] = (MYFLT *)malloc(self->frameSize * sizeof(MYFLT));
+                self->frameBuffer[i] = (MYFLT *)PyMem_Malloc(self->frameSize * sizeof(MYFLT));
 
                 for (j = 0; j < self->frameSize; j++)
                 {
@@ -2296,11 +2296,11 @@ FrameAccumMain_dealloc(FrameAccumMain* self)
 
     for (i = 0; i < self->overlaps; i++)
     {
-        free(self->frameBuffer[i]);
+        PyMem_Free(self->frameBuffer[i]);
     }
 
-    free(self->frameBuffer);
-    free(self->buffer_streams);
+    PyMem_Free(self->frameBuffer);
+    PyMem_Free(self->buffer_streams);
     FrameAccumMain_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -2332,11 +2332,11 @@ FrameAccumMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     self->hopsize = self->frameSize / self->overlaps;
-    self->frameBuffer = (MYFLT **)realloc(self->frameBuffer, self->overlaps * sizeof(MYFLT *));
+    self->frameBuffer = (MYFLT **)PyMem_Realloc(self->frameBuffer, self->overlaps * sizeof(MYFLT *));
 
     for (i = 0; i < self->overlaps; i++)
     {
-        self->frameBuffer[i] = (MYFLT *)malloc(self->frameSize * sizeof(MYFLT));
+        self->frameBuffer[i] = (MYFLT *)PyMem_Malloc(self->frameSize * sizeof(MYFLT));
 
         for (j = 0; j < self->frameSize; j++)
         {
@@ -2344,7 +2344,7 @@ FrameAccumMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         }
     }
 
-    self->buffer_streams = (MYFLT *)realloc(self->buffer_streams, self->overlaps * self->bufsize * sizeof(MYFLT));
+    self->buffer_streams = (MYFLT *)PyMem_Realloc(self->buffer_streams, self->overlaps * self->bufsize * sizeof(MYFLT));
 
     for (i = 0; i < (self->overlaps * self->bufsize); i++)
     {
@@ -2396,11 +2396,11 @@ FrameAccumMain_setFrameSize(FrameAccumMain *self, PyObject *arg)
             self->frameSize = tmp;
             self->hopsize = self->frameSize / self->overlaps;
 
-            self->frameBuffer = (MYFLT **)realloc(self->frameBuffer, self->overlaps * sizeof(MYFLT *));
+            self->frameBuffer = (MYFLT **)PyMem_Realloc(self->frameBuffer, self->overlaps * sizeof(MYFLT *));
 
             for (i = 0; i < self->overlaps; i++)
             {
-                self->frameBuffer[i] = (MYFLT *)malloc(self->frameSize * sizeof(MYFLT));
+                self->frameBuffer[i] = (MYFLT *)PyMem_Malloc(self->frameSize * sizeof(MYFLT));
 
                 for (j = 0; j < self->frameSize; j++)
                 {
@@ -2919,11 +2919,11 @@ VectralMain_dealloc(VectralMain* self)
 
     for (i = 0; i < self->overlaps; i++)
     {
-        free(self->frameBuffer[i]);
+        PyMem_Free(self->frameBuffer[i]);
     }
 
-    free(self->frameBuffer);
-    free(self->buffer_streams);
+    PyMem_Free(self->frameBuffer);
+    PyMem_Free(self->buffer_streams);
     VectralMain_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -2978,11 +2978,11 @@ VectralMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     self->hopsize = self->frameSize / self->overlaps;
-    self->frameBuffer = (MYFLT **)realloc(self->frameBuffer, self->overlaps * sizeof(MYFLT *));
+    self->frameBuffer = (MYFLT **)PyMem_Realloc(self->frameBuffer, self->overlaps * sizeof(MYFLT *));
 
     for (i = 0; i < self->overlaps; i++)
     {
-        self->frameBuffer[i] = (MYFLT *)malloc(self->frameSize * sizeof(MYFLT));
+        self->frameBuffer[i] = (MYFLT *)PyMem_Malloc(self->frameSize * sizeof(MYFLT));
 
         for (j = 0; j < self->frameSize; j++)
         {
@@ -2990,7 +2990,7 @@ VectralMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         }
     }
 
-    self->buffer_streams = (MYFLT *)realloc(self->buffer_streams, self->overlaps * self->bufsize * sizeof(MYFLT));
+    self->buffer_streams = (MYFLT *)PyMem_Realloc(self->buffer_streams, self->overlaps * self->bufsize * sizeof(MYFLT));
 
     for (i = 0; i < (self->overlaps * self->bufsize); i++)
     {
@@ -3042,11 +3042,11 @@ VectralMain_setFrameSize(VectralMain *self, PyObject *arg)
             self->frameSize = tmp;
             self->hopsize = self->frameSize / self->overlaps;
 
-            self->frameBuffer = (MYFLT **)realloc(self->frameBuffer, self->overlaps * sizeof(MYFLT *));
+            self->frameBuffer = (MYFLT **)PyMem_Realloc(self->frameBuffer, self->overlaps * sizeof(MYFLT *));
 
             for (i = 0; i < self->overlaps; i++)
             {
-                self->frameBuffer[i] = (MYFLT *)malloc(self->frameSize * sizeof(MYFLT));
+                self->frameBuffer[i] = (MYFLT *)PyMem_Malloc(self->frameSize * sizeof(MYFLT));
 
                 for (j = 0; j < self->frameSize; j++)
                 {
@@ -3525,27 +3525,27 @@ Spectrum_realloc_memories(Spectrum *self)
     int i, n8;
     self->hsize = self->size / 2;
     n8 = self->size >> 3;
-    self->input_buffer = (MYFLT *)realloc(self->input_buffer, self->size * sizeof(MYFLT));
-    self->inframe = (MYFLT *)realloc(self->inframe, self->size * sizeof(MYFLT));
-    self->outframe = (MYFLT *)realloc(self->outframe, self->size * sizeof(MYFLT));
+    self->input_buffer = (MYFLT *)PyMem_Realloc(self->input_buffer, self->size * sizeof(MYFLT));
+    self->inframe = (MYFLT *)PyMem_Realloc(self->inframe, self->size * sizeof(MYFLT));
+    self->outframe = (MYFLT *)PyMem_Realloc(self->outframe, self->size * sizeof(MYFLT));
 
     for (i = 0; i < self->size; i++)
         self->input_buffer[i] = self->inframe[i] = self->outframe[i] = 0.0;
 
-    self->magnitude = (MYFLT *)realloc(self->magnitude, self->hsize * sizeof(MYFLT));
-    self->last_magnitude = (MYFLT *)realloc(self->last_magnitude, self->hsize * sizeof(MYFLT));
-    self->tmpmag = (MYFLT *)realloc(self->tmpmag, (self->hsize + 6) * sizeof(MYFLT));
+    self->magnitude = (MYFLT *)PyMem_Realloc(self->magnitude, self->hsize * sizeof(MYFLT));
+    self->last_magnitude = (MYFLT *)PyMem_Realloc(self->last_magnitude, self->hsize * sizeof(MYFLT));
+    self->tmpmag = (MYFLT *)PyMem_Realloc(self->tmpmag, (self->hsize + 6) * sizeof(MYFLT));
 
     for (i = 0; i < self->hsize; i++)
         self->magnitude[i] = self->last_magnitude[i] = self->tmpmag[i + 3] = 0.0;
 
-    self->twiddle = (MYFLT **)realloc(self->twiddle, 4 * sizeof(MYFLT *));
+    self->twiddle = (MYFLT **)PyMem_Realloc(self->twiddle, 4 * sizeof(MYFLT *));
 
     for (i = 0; i < 4; i++)
-        self->twiddle[i] = (MYFLT *)malloc(n8 * sizeof(MYFLT));
+        self->twiddle[i] = (MYFLT *)PyMem_Malloc(n8 * sizeof(MYFLT));
 
     fft_compute_split_twiddle(self->twiddle, self->size);
-    self->window = (MYFLT *)realloc(self->window, self->size * sizeof(MYFLT));
+    self->window = (MYFLT *)PyMem_Realloc(self->window, self->size * sizeof(MYFLT));
     gen_window(self->window, self->size, self->wintype);
     self->incount = self->hsize;
     self->freqPerBin = self->sr / self->size;
@@ -3733,20 +3733,20 @@ Spectrum_dealloc(Spectrum* self)
 {
     int i;
     pyo_DEALLOC
-    free(self->input_buffer);
-    free(self->inframe);
-    free(self->outframe);
-    free(self->window);
-    free(self->magnitude);
-    free(self->last_magnitude);
-    free(self->tmpmag);
+    PyMem_Free(self->input_buffer);
+    PyMem_Free(self->inframe);
+    PyMem_Free(self->outframe);
+    PyMem_Free(self->window);
+    PyMem_Free(self->magnitude);
+    PyMem_Free(self->last_magnitude);
+    PyMem_Free(self->tmpmag);
 
     for (i = 0; i < 4; i++)
     {
-        free(self->twiddle[i]);
+        PyMem_Free(self->twiddle[i]);
     }
 
-    free(self->twiddle);
+    PyMem_Free(self->twiddle);
     Spectrum_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -4035,19 +4035,19 @@ IFFTMatrix_realloc_memories(IFFTMatrix *self)
     int i, n8;
     self->hsize = self->size / 2;
     n8 = self->size >> 3;
-    self->inframe = (MYFLT *)realloc(self->inframe, self->size * sizeof(MYFLT));
-    self->outframe = (MYFLT *)realloc(self->outframe, self->size * sizeof(MYFLT));
+    self->inframe = (MYFLT *)PyMem_Realloc(self->inframe, self->size * sizeof(MYFLT));
+    self->outframe = (MYFLT *)PyMem_Realloc(self->outframe, self->size * sizeof(MYFLT));
 
     for (i = 0; i < self->size; i++)
         self->inframe[i] = self->outframe[i] = 0.0;
 
-    self->twiddle = (MYFLT **)realloc(self->twiddle, 4 * sizeof(MYFLT *));
+    self->twiddle = (MYFLT **)PyMem_Realloc(self->twiddle, 4 * sizeof(MYFLT *));
 
     for (i = 0; i < 4; i++)
-        self->twiddle[i] = (MYFLT *)malloc(n8 * sizeof(MYFLT));
+        self->twiddle[i] = (MYFLT *)PyMem_Malloc(n8 * sizeof(MYFLT));
 
     fft_compute_split_twiddle(self->twiddle, self->size);
-    self->window = (MYFLT *)realloc(self->window, self->size * sizeof(MYFLT));
+    self->window = (MYFLT *)PyMem_Realloc(self->window, self->size * sizeof(MYFLT));
     gen_window(self->window, self->size, self->wintype);
     self->incount = -self->hopsize;
 }
@@ -4193,16 +4193,16 @@ IFFTMatrix_dealloc(IFFTMatrix* self)
 {
     int i;
     pyo_DEALLOC
-    free(self->inframe);
-    free(self->outframe);
-    free(self->window);
+    PyMem_Free(self->inframe);
+    PyMem_Free(self->outframe);
+    PyMem_Free(self->window);
 
     for (i = 0; i < 4; i++)
     {
-        free(self->twiddle[i]);
+        PyMem_Free(self->twiddle[i]);
     }
 
-    free(self->twiddle);
+    PyMem_Free(self->twiddle);
     IFFTMatrix_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }

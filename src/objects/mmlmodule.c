@@ -658,20 +658,20 @@ static void
 MMLMain_dealloc(MMLMain* self)
 {
     pyo_DEALLOC
-    free(self->buffer_streams);
-    free(self->fre_buffer_streams);
-    free(self->amp_buffer_streams);
-    free(self->dur_buffer_streams);
-    free(self->end_buffer_streams);
-    free(self->x_buffer_streams);
-    free(self->y_buffer_streams);
-    free(self->z_buffer_streams);
-    free(self->curFrequencies);
-    free(self->curAmplitudes);
-    free(self->curDurations);
-    free(self->curXs);
-    free(self->curYs);
-    free(self->curZs);
+    PyMem_Free(self->buffer_streams);
+    PyMem_Free(self->fre_buffer_streams);
+    PyMem_Free(self->amp_buffer_streams);
+    PyMem_Free(self->dur_buffer_streams);
+    PyMem_Free(self->end_buffer_streams);
+    PyMem_Free(self->x_buffer_streams);
+    PyMem_Free(self->y_buffer_streams);
+    PyMem_Free(self->z_buffer_streams);
+    PyMem_Free(self->curFrequencies);
+    PyMem_Free(self->curAmplitudes);
+    PyMem_Free(self->curDurations);
+    PyMem_Free(self->curXs);
+    PyMem_Free(self->curYs);
+    PyMem_Free(self->curZs);
     MMLMain_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -727,14 +727,14 @@ MMLMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     (*self->mode_func_ptr)(self);
 
-    self->buffer_streams = (MYFLT *)realloc(self->buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
-    self->fre_buffer_streams = (MYFLT *)realloc(self->fre_buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
-    self->amp_buffer_streams = (MYFLT *)realloc(self->amp_buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
-    self->dur_buffer_streams = (MYFLT *)realloc(self->dur_buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
-    self->end_buffer_streams = (MYFLT *)realloc(self->end_buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
-    self->x_buffer_streams = (MYFLT *)realloc(self->x_buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
-    self->y_buffer_streams = (MYFLT *)realloc(self->y_buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
-    self->z_buffer_streams = (MYFLT *)realloc(self->z_buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
+    self->buffer_streams = (MYFLT *)PyMem_Realloc(self->buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
+    self->fre_buffer_streams = (MYFLT *)PyMem_Realloc(self->fre_buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
+    self->amp_buffer_streams = (MYFLT *)PyMem_Realloc(self->amp_buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
+    self->dur_buffer_streams = (MYFLT *)PyMem_Realloc(self->dur_buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
+    self->end_buffer_streams = (MYFLT *)PyMem_Realloc(self->end_buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
+    self->x_buffer_streams = (MYFLT *)PyMem_Realloc(self->x_buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
+    self->y_buffer_streams = (MYFLT *)PyMem_Realloc(self->y_buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
+    self->z_buffer_streams = (MYFLT *)PyMem_Realloc(self->z_buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
 
     for (i = 0; i < (self->poly * self->bufsize); i++)
     {
@@ -742,12 +742,12 @@ MMLMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         self->x_buffer_streams[i] = self->y_buffer_streams[i] = self->z_buffer_streams[i] = 0.0;
     }
 
-    self->curFrequencies = (MYFLT *)realloc(self->curFrequencies, self->poly * sizeof(MYFLT));
-    self->curAmplitudes = (MYFLT *)realloc(self->curAmplitudes, self->poly * sizeof(MYFLT));
-    self->curDurations = (MYFLT *)realloc(self->curDurations, self->poly * sizeof(MYFLT));
-    self->curXs = (MYFLT *)realloc(self->curXs, self->poly * sizeof(MYFLT));
-    self->curYs = (MYFLT *)realloc(self->curYs, self->poly * sizeof(MYFLT));
-    self->curZs = (MYFLT *)realloc(self->curZs, self->poly * sizeof(MYFLT));
+    self->curFrequencies = (MYFLT *)PyMem_Realloc(self->curFrequencies, self->poly * sizeof(MYFLT));
+    self->curAmplitudes = (MYFLT *)PyMem_Realloc(self->curAmplitudes, self->poly * sizeof(MYFLT));
+    self->curDurations = (MYFLT *)PyMem_Realloc(self->curDurations, self->poly * sizeof(MYFLT));
+    self->curXs = (MYFLT *)PyMem_Realloc(self->curXs, self->poly * sizeof(MYFLT));
+    self->curYs = (MYFLT *)PyMem_Realloc(self->curYs, self->poly * sizeof(MYFLT));
+    self->curZs = (MYFLT *)PyMem_Realloc(self->curZs, self->poly * sizeof(MYFLT));
 
     for (i = 0; i < self->poly; i++)
     {
