@@ -833,8 +833,8 @@ load_speakers_setup(int count, float *azi, float *ele)
         exit(-1);
     }
 
-    setup->azimuth = (float *)calloc(count, sizeof(float));
-    setup->elevation = (float *)calloc(count, sizeof(float));
+    setup->azimuth = (float *)PyMem_Calloc(count, sizeof(float));
+    setup->elevation = (float *)PyMem_Calloc(count, sizeof(float));
 
     for (i = 0; i < count; i++)
     {
@@ -877,8 +877,8 @@ load_speakers_setup_from_file(const char *filename)
             exit(-1);
         }
 
-        setup->azimuth = (float *)calloc(count, sizeof(float));
-        setup->elevation = (float *)calloc(count, sizeof(float));
+        setup->azimuth = (float *)PyMem_Calloc(count, sizeof(float));
+        setup->elevation = (float *)PyMem_Calloc(count, sizeof(float));
 
         while (1)
         {
