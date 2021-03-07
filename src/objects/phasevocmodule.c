@@ -79,23 +79,23 @@ PVAnal_realloc_memories(PVAnal *self)
     self->incount = self->inputLatency;
     self->overcount = 0;
     n8 = self->size >> 3;
-    self->input_buffer = (MYFLT *)PyMem_Realloc(self->input_buffer, self->size * sizeof(MYFLT));
-    self->inframe = (MYFLT *)PyMem_Realloc(self->inframe, self->size * sizeof(MYFLT));
-    self->outframe = (MYFLT *)PyMem_Realloc(self->outframe, self->size * sizeof(MYFLT));
+    self->input_buffer = (MYFLT *)PyMem_RawRealloc(self->input_buffer, self->size * sizeof(MYFLT));
+    self->inframe = (MYFLT *)PyMem_RawRealloc(self->inframe, self->size * sizeof(MYFLT));
+    self->outframe = (MYFLT *)PyMem_RawRealloc(self->outframe, self->size * sizeof(MYFLT));
 
     for (i = 0; i < self->size; i++)
         self->input_buffer[i] = self->inframe[i] = self->outframe[i] = 0.0;
 
-    self->lastPhase = (MYFLT *)PyMem_Realloc(self->lastPhase, self->hsize * sizeof(MYFLT));
-    self->real = (MYFLT *)PyMem_Realloc(self->real, self->hsize * sizeof(MYFLT));
-    self->imag = (MYFLT *)PyMem_Realloc(self->imag, self->hsize * sizeof(MYFLT));
-    self->magn = (MYFLT **)PyMem_Realloc(self->magn, self->olaps * sizeof(MYFLT *));
-    self->freq = (MYFLT **)PyMem_Realloc(self->freq, self->olaps * sizeof(MYFLT *));
+    self->lastPhase = (MYFLT *)PyMem_RawRealloc(self->lastPhase, self->hsize * sizeof(MYFLT));
+    self->real = (MYFLT *)PyMem_RawRealloc(self->real, self->hsize * sizeof(MYFLT));
+    self->imag = (MYFLT *)PyMem_RawRealloc(self->imag, self->hsize * sizeof(MYFLT));
+    self->magn = (MYFLT **)PyMem_RawRealloc(self->magn, self->olaps * sizeof(MYFLT *));
+    self->freq = (MYFLT **)PyMem_RawRealloc(self->freq, self->olaps * sizeof(MYFLT *));
 
     for (i = 0; i < self->olaps; i++)
     {
-        self->magn[i] = (MYFLT *)PyMem_Malloc(self->hsize * sizeof(MYFLT));
-        self->freq[i] = (MYFLT *)PyMem_Malloc(self->hsize * sizeof(MYFLT));
+        self->magn[i] = (MYFLT *)PyMem_RawMalloc(self->hsize * sizeof(MYFLT));
+        self->freq[i] = (MYFLT *)PyMem_RawMalloc(self->hsize * sizeof(MYFLT));
 
         for (j = 0; j < self->hsize; j++)
             self->magn[i][j] = self->freq[i][j] = 0.0;
@@ -104,13 +104,13 @@ PVAnal_realloc_memories(PVAnal *self)
     for (i = 0; i < self->hsize; i++)
         self->lastPhase[i] = self->real[i] = self->imag[i] = 0.0;
 
-    self->twiddle = (MYFLT **)PyMem_Realloc(self->twiddle, 4 * sizeof(MYFLT *));
+    self->twiddle = (MYFLT **)PyMem_RawRealloc(self->twiddle, 4 * sizeof(MYFLT *));
 
     for (i = 0; i < 4; i++)
-        self->twiddle[i] = (MYFLT *)PyMem_Malloc(n8 * sizeof(MYFLT));
+        self->twiddle[i] = (MYFLT *)PyMem_RawMalloc(n8 * sizeof(MYFLT));
 
     fft_compute_split_twiddle(self->twiddle, self->size);
-    self->window = (MYFLT *)PyMem_Realloc(self->window, self->size * sizeof(MYFLT));
+    self->window = (MYFLT *)PyMem_RawRealloc(self->window, self->size * sizeof(MYFLT));
     gen_window(self->window, self->size, self->wintype);
 
     for (i = 0; i < self->bufsize; i++)
@@ -269,30 +269,30 @@ PVAnal_dealloc(PVAnal* self)
 {
     int i;
     pyo_DEALLOC
-    PyMem_Free(self->input_buffer);
-    PyMem_Free(self->inframe);
-    PyMem_Free(self->outframe);
-    PyMem_Free(self->real);
-    PyMem_Free(self->imag);
-    PyMem_Free(self->lastPhase);
+    PyMem_RawFree(self->input_buffer);
+    PyMem_RawFree(self->inframe);
+    PyMem_RawFree(self->outframe);
+    PyMem_RawFree(self->real);
+    PyMem_RawFree(self->imag);
+    PyMem_RawFree(self->lastPhase);
 
     for (i = 0; i < 4; i++)
     {
-        PyMem_Free(self->twiddle[i]);
+        PyMem_RawFree(self->twiddle[i]);
     }
 
-    PyMem_Free(self->twiddle);
-    PyMem_Free(self->window);
+    PyMem_RawFree(self->twiddle);
+    PyMem_RawFree(self->window);
 
     for (i = 0; i < self->olaps; i++)
     {
-        PyMem_Free(self->magn[i]);
-        PyMem_Free(self->freq[i]);
+        PyMem_RawFree(self->magn[i]);
+        PyMem_RawFree(self->freq[i]);
     }
 
-    PyMem_Free(self->magn);
-    PyMem_Free(self->freq);
-    PyMem_Free(self->count);
+    PyMem_RawFree(self->magn);
+    PyMem_RawFree(self->freq);
+    PyMem_RawFree(self->count);
     PVAnal_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -341,7 +341,7 @@ PVAnal_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         PySys_WriteStdout("FFT size must be a power-of-2, using the next power-of-2 greater than size : %d\n", self->size);
     }
 
-    self->count = (int *)PyMem_Realloc(self->count, self->bufsize * sizeof(int));
+    self->count = (int *)PyMem_RawRealloc(self->count, self->bufsize * sizeof(int));
 
     PVAnal_realloc_memories(self);
 
@@ -548,32 +548,32 @@ PVSynth_realloc_memories(PVSynth *self)
     self->overcount = 0;
     self->ampscl = 1.0 / MYSQRT(self->olaps);
     n8 = self->size >> 3;
-    self->output_buffer = (MYFLT *)PyMem_Realloc(self->output_buffer, self->size * sizeof(MYFLT));
-    self->inframe = (MYFLT *)PyMem_Realloc(self->inframe, self->size * sizeof(MYFLT));
-    self->outframe = (MYFLT *)PyMem_Realloc(self->outframe, self->size * sizeof(MYFLT));
+    self->output_buffer = (MYFLT *)PyMem_RawRealloc(self->output_buffer, self->size * sizeof(MYFLT));
+    self->inframe = (MYFLT *)PyMem_RawRealloc(self->inframe, self->size * sizeof(MYFLT));
+    self->outframe = (MYFLT *)PyMem_RawRealloc(self->outframe, self->size * sizeof(MYFLT));
 
     for (i = 0; i < self->size; i++)
         self->output_buffer[i] = self->inframe[i] = self->outframe[i] = 0.0;
 
-    self->sumPhase = (MYFLT *)PyMem_Realloc(self->sumPhase, self->hsize * sizeof(MYFLT));
-    self->real = (MYFLT *)PyMem_Realloc(self->real, self->hsize * sizeof(MYFLT));
-    self->imag = (MYFLT *)PyMem_Realloc(self->imag, self->hsize * sizeof(MYFLT));
+    self->sumPhase = (MYFLT *)PyMem_RawRealloc(self->sumPhase, self->hsize * sizeof(MYFLT));
+    self->real = (MYFLT *)PyMem_RawRealloc(self->real, self->hsize * sizeof(MYFLT));
+    self->imag = (MYFLT *)PyMem_RawRealloc(self->imag, self->hsize * sizeof(MYFLT));
 
     for (i = 0; i < self->hsize; i++)
         self->sumPhase[i] = self->real[i] = self->imag[i] = 0.0;
 
-    self->outputAccum = (MYFLT *)PyMem_Realloc(self->outputAccum, (self->size + self->hopsize) * sizeof(MYFLT));
+    self->outputAccum = (MYFLT *)PyMem_RawRealloc(self->outputAccum, (self->size + self->hopsize) * sizeof(MYFLT));
 
     for (i = 0; i < (self->size + self->hopsize); i++)
         self->outputAccum[i] = 0.0;
 
-    self->twiddle = (MYFLT **)PyMem_Realloc(self->twiddle, 4 * sizeof(MYFLT *));
+    self->twiddle = (MYFLT **)PyMem_RawRealloc(self->twiddle, 4 * sizeof(MYFLT *));
 
     for (i = 0; i < 4; i++)
-        self->twiddle[i] = (MYFLT *)PyMem_Malloc(n8 * sizeof(MYFLT));
+        self->twiddle[i] = (MYFLT *)PyMem_RawMalloc(n8 * sizeof(MYFLT));
 
     fft_compute_split_twiddle(self->twiddle, self->size);
-    self->window = (MYFLT *)PyMem_Realloc(self->window, self->size * sizeof(MYFLT));
+    self->window = (MYFLT *)PyMem_RawRealloc(self->window, self->size * sizeof(MYFLT));
     gen_window(self->window, self->size, self->wintype);
 }
 
@@ -735,21 +735,21 @@ PVSynth_dealloc(PVSynth* self)
 {
     int i;
     pyo_DEALLOC
-    PyMem_Free(self->output_buffer);
-    PyMem_Free(self->outputAccum);
-    PyMem_Free(self->inframe);
-    PyMem_Free(self->outframe);
-    PyMem_Free(self->real);
-    PyMem_Free(self->imag);
-    PyMem_Free(self->sumPhase);
+    PyMem_RawFree(self->output_buffer);
+    PyMem_RawFree(self->outputAccum);
+    PyMem_RawFree(self->inframe);
+    PyMem_RawFree(self->outframe);
+    PyMem_RawFree(self->real);
+    PyMem_RawFree(self->imag);
+    PyMem_RawFree(self->sumPhase);
 
     for (i = 0; i < 4; i++)
     {
-        PyMem_Free(self->twiddle[i]);
+        PyMem_RawFree(self->twiddle[i]);
     }
 
-    PyMem_Free(self->twiddle);
-    PyMem_Free(self->window);
+    PyMem_RawFree(self->twiddle);
+    PyMem_RawFree(self->window);
     PVSynth_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -1010,9 +1010,9 @@ PVAddSynth_realloc_memories(PVAddSynth *self)
     self->hopsize = self->size / self->olaps;
     self->inputLatency = self->size - self->hopsize;
     self->overcount = 0;
-    self->ppos = (MYFLT *)PyMem_Realloc(self->ppos, self->num * sizeof(MYFLT));
-    self->amp = (MYFLT *)PyMem_Realloc(self->amp, self->num * sizeof(MYFLT));
-    self->freq = (MYFLT *)PyMem_Realloc(self->freq, self->num * sizeof(MYFLT));
+    self->ppos = (MYFLT *)PyMem_RawRealloc(self->ppos, self->num * sizeof(MYFLT));
+    self->amp = (MYFLT *)PyMem_RawRealloc(self->amp, self->num * sizeof(MYFLT));
+    self->freq = (MYFLT *)PyMem_RawRealloc(self->freq, self->num * sizeof(MYFLT));
 
     for (i = 0; i < self->num; i++)
     {
@@ -1020,7 +1020,7 @@ PVAddSynth_realloc_memories(PVAddSynth *self)
         self->freq[i] = (i * self->inc + self->first) * self->size / self->sr;
     }
 
-    self->outbuf = (MYFLT *)PyMem_Realloc(self->outbuf, self->hopsize * sizeof(MYFLT));
+    self->outbuf = (MYFLT *)PyMem_RawRealloc(self->outbuf, self->hopsize * sizeof(MYFLT));
 
     for (i = 0; i < self->hopsize; i++)
         self->outbuf[i] = 0.0;
@@ -1267,11 +1267,11 @@ static void
 PVAddSynth_dealloc(PVAddSynth* self)
 {
     pyo_DEALLOC
-    PyMem_Free(self->ppos);
-    PyMem_Free(self->outbuf);
-    PyMem_Free(self->table);
-    PyMem_Free(self->amp);
-    PyMem_Free(self->freq);
+    PyMem_RawFree(self->ppos);
+    PyMem_RawFree(self->outbuf);
+    PyMem_RawFree(self->table);
+    PyMem_RawFree(self->amp);
+    PyMem_RawFree(self->freq);
     PVAddSynth_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -1336,7 +1336,7 @@ PVAddSynth_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    self->table = (MYFLT *)PyMem_Realloc(self->table, 8193 * sizeof(MYFLT));
+    self->table = (MYFLT *)PyMem_RawRealloc(self->table, 8193 * sizeof(MYFLT));
 
     for (i = 0; i < 8192; i++)
         self->table[i] = (MYFLT)(MYSIN(TWOPI * i / 8192.0));
@@ -1621,13 +1621,13 @@ PVTranspose_realloc_memories(PVTranspose *self)
     self->hopsize = self->size / self->olaps;
     inputLatency = self->size - self->hopsize;
     self->overcount = 0;
-    self->magn = (MYFLT **)PyMem_Realloc(self->magn, self->olaps * sizeof(MYFLT *));
-    self->freq = (MYFLT **)PyMem_Realloc(self->freq, self->olaps * sizeof(MYFLT *));
+    self->magn = (MYFLT **)PyMem_RawRealloc(self->magn, self->olaps * sizeof(MYFLT *));
+    self->freq = (MYFLT **)PyMem_RawRealloc(self->freq, self->olaps * sizeof(MYFLT *));
 
     for (i = 0; i < self->olaps; i++)
     {
-        self->magn[i] = (MYFLT *)PyMem_Malloc(self->hsize * sizeof(MYFLT));
-        self->freq[i] = (MYFLT *)PyMem_Malloc(self->hsize * sizeof(MYFLT));
+        self->magn[i] = (MYFLT *)PyMem_RawMalloc(self->hsize * sizeof(MYFLT));
+        self->freq[i] = (MYFLT *)PyMem_RawMalloc(self->hsize * sizeof(MYFLT));
 
         for (j = 0; j < self->hsize; j++)
             self->magn[i][j] = self->freq[i][j] = 0.0;
@@ -1801,13 +1801,13 @@ PVTranspose_dealloc(PVTranspose* self)
 
     for (i = 0; i < self->olaps; i++)
     {
-        PyMem_Free(self->magn[i]);
-        PyMem_Free(self->freq[i]);
+        PyMem_RawFree(self->magn[i]);
+        PyMem_RawFree(self->freq[i]);
     }
 
-    PyMem_Free(self->magn);
-    PyMem_Free(self->freq);
-    PyMem_Free(self->count);
+    PyMem_RawFree(self->magn);
+    PyMem_RawFree(self->freq);
+    PyMem_RawFree(self->count);
     PVTranspose_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -1858,7 +1858,7 @@ PVTranspose_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     MAKE_NEW_PV_STREAM(self->pv_stream, &PVStreamType, NULL);
 
-    self->count = (int *)PyMem_Realloc(self->count, self->bufsize * sizeof(int));
+    self->count = (int *)PyMem_RawRealloc(self->count, self->bufsize * sizeof(int));
 
     PVTranspose_realloc_memories(self);
 
@@ -2029,19 +2029,19 @@ PVVerb_realloc_memories(PVVerb *self)
     self->hopsize = self->size / self->olaps;
     inputLatency = self->size - self->hopsize;
     self->overcount = 0;
-    self->l_magn = (MYFLT *)PyMem_Realloc(self->l_magn, self->hsize * sizeof(MYFLT));
-    self->l_freq = (MYFLT *)PyMem_Realloc(self->l_freq, self->hsize * sizeof(MYFLT));
+    self->l_magn = (MYFLT *)PyMem_RawRealloc(self->l_magn, self->hsize * sizeof(MYFLT));
+    self->l_freq = (MYFLT *)PyMem_RawRealloc(self->l_freq, self->hsize * sizeof(MYFLT));
 
     for (i = 0; i < self->hsize; i++)
         self->l_magn[i] = self->l_freq[i] = 0.0;
 
-    self->magn = (MYFLT **)PyMem_Realloc(self->magn, self->olaps * sizeof(MYFLT *));
-    self->freq = (MYFLT **)PyMem_Realloc(self->freq, self->olaps * sizeof(MYFLT *));
+    self->magn = (MYFLT **)PyMem_RawRealloc(self->magn, self->olaps * sizeof(MYFLT *));
+    self->freq = (MYFLT **)PyMem_RawRealloc(self->freq, self->olaps * sizeof(MYFLT *));
 
     for (i = 0; i < self->olaps; i++)
     {
-        self->magn[i] = (MYFLT *)PyMem_Malloc(self->hsize * sizeof(MYFLT));
-        self->freq[i] = (MYFLT *)PyMem_Malloc(self->hsize * sizeof(MYFLT));
+        self->magn[i] = (MYFLT *)PyMem_RawMalloc(self->hsize * sizeof(MYFLT));
+        self->freq[i] = (MYFLT *)PyMem_RawMalloc(self->hsize * sizeof(MYFLT));
 
         for (j = 0; j < self->hsize; j++)
             self->magn[i][j] = self->freq[i][j] = 0.0;
@@ -2405,15 +2405,15 @@ PVVerb_dealloc(PVVerb* self)
 
     for (i = 0; i < self->olaps; i++)
     {
-        PyMem_Free(self->magn[i]);
-        PyMem_Free(self->freq[i]);
+        PyMem_RawFree(self->magn[i]);
+        PyMem_RawFree(self->freq[i]);
     }
 
-    PyMem_Free(self->magn);
-    PyMem_Free(self->freq);
-    PyMem_Free(self->l_magn);
-    PyMem_Free(self->l_freq);
-    PyMem_Free(self->count);
+    PyMem_RawFree(self->magn);
+    PyMem_RawFree(self->freq);
+    PyMem_RawFree(self->l_magn);
+    PyMem_RawFree(self->l_freq);
+    PyMem_RawFree(self->count);
     PVVerb_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -2470,7 +2470,7 @@ PVVerb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     MAKE_NEW_PV_STREAM(self->pv_stream, &PVStreamType, NULL);
 
-    self->count = (int *)PyMem_Realloc(self->count, self->bufsize * sizeof(int));
+    self->count = (int *)PyMem_RawRealloc(self->count, self->bufsize * sizeof(int));
 
     PVVerb_realloc_memories(self);
 
@@ -2675,13 +2675,13 @@ PVGate_realloc_memories(PVGate *self)
     self->hopsize = self->size / self->olaps;
     inputLatency = self->size - self->hopsize;
     self->overcount = 0;
-    self->magn = (MYFLT **)PyMem_Realloc(self->magn, self->olaps * sizeof(MYFLT *));
-    self->freq = (MYFLT **)PyMem_Realloc(self->freq, self->olaps * sizeof(MYFLT *));
+    self->magn = (MYFLT **)PyMem_RawRealloc(self->magn, self->olaps * sizeof(MYFLT *));
+    self->freq = (MYFLT **)PyMem_RawRealloc(self->freq, self->olaps * sizeof(MYFLT *));
 
     for (i = 0; i < self->olaps; i++)
     {
-        self->magn[i] = (MYFLT *)PyMem_Malloc(self->hsize * sizeof(MYFLT));
-        self->freq[i] = (MYFLT *)PyMem_Malloc(self->hsize * sizeof(MYFLT));
+        self->magn[i] = (MYFLT *)PyMem_RawMalloc(self->hsize * sizeof(MYFLT));
+        self->freq[i] = (MYFLT *)PyMem_RawMalloc(self->hsize * sizeof(MYFLT));
 
         for (j = 0; j < self->hsize; j++)
             self->magn[i][j] = self->freq[i][j] = 0.0;
@@ -3028,13 +3028,13 @@ PVGate_dealloc(PVGate* self)
 
     for (i = 0; i < self->olaps; i++)
     {
-        PyMem_Free(self->magn[i]);
-        PyMem_Free(self->freq[i]);
+        PyMem_RawFree(self->magn[i]);
+        PyMem_RawFree(self->freq[i]);
     }
 
-    PyMem_Free(self->magn);
-    PyMem_Free(self->freq);
-    PyMem_Free(self->count);
+    PyMem_RawFree(self->magn);
+    PyMem_RawFree(self->freq);
+    PyMem_RawFree(self->count);
     PVGate_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -3092,7 +3092,7 @@ PVGate_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     MAKE_NEW_PV_STREAM(self->pv_stream, &PVStreamType, NULL);
 
-    self->count = (int *)PyMem_Realloc(self->count, self->bufsize * sizeof(int));
+    self->count = (int *)PyMem_RawRealloc(self->count, self->bufsize * sizeof(int));
 
     PVGate_realloc_memories(self);
 
@@ -3310,13 +3310,13 @@ PVCross_realloc_memories(PVCross *self)
     self->hopsize = self->size / self->olaps;
     inputLatency = self->size - self->hopsize;
     self->overcount = 0;
-    self->magn = (MYFLT **)PyMem_Realloc(self->magn, self->olaps * sizeof(MYFLT *));
-    self->freq = (MYFLT **)PyMem_Realloc(self->freq, self->olaps * sizeof(MYFLT *));
+    self->magn = (MYFLT **)PyMem_RawRealloc(self->magn, self->olaps * sizeof(MYFLT *));
+    self->freq = (MYFLT **)PyMem_RawRealloc(self->freq, self->olaps * sizeof(MYFLT *));
 
     for (i = 0; i < self->olaps; i++)
     {
-        self->magn[i] = (MYFLT *)PyMem_Malloc(self->hsize * sizeof(MYFLT));
-        self->freq[i] = (MYFLT *)PyMem_Malloc(self->hsize * sizeof(MYFLT));
+        self->magn[i] = (MYFLT *)PyMem_RawMalloc(self->hsize * sizeof(MYFLT));
+        self->freq[i] = (MYFLT *)PyMem_RawMalloc(self->hsize * sizeof(MYFLT));
 
         for (j = 0; j < self->hsize; j++)
             self->magn[i][j] = self->freq[i][j] = 0.0;
@@ -3474,13 +3474,13 @@ PVCross_dealloc(PVCross* self)
 
     for (i = 0; i < self->olaps; i++)
     {
-        PyMem_Free(self->magn[i]);
-        PyMem_Free(self->freq[i]);
+        PyMem_RawFree(self->magn[i]);
+        PyMem_RawFree(self->freq[i]);
     }
 
-    PyMem_Free(self->magn);
-    PyMem_Free(self->freq);
-    PyMem_Free(self->count);
+    PyMem_RawFree(self->magn);
+    PyMem_RawFree(self->freq);
+    PyMem_RawFree(self->count);
     PVCross_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -3545,7 +3545,7 @@ PVCross_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     MAKE_NEW_PV_STREAM(self->pv_stream, &PVStreamType, NULL);
 
-    self->count = (int *)PyMem_Realloc(self->count, self->bufsize * sizeof(int));
+    self->count = (int *)PyMem_RawRealloc(self->count, self->bufsize * sizeof(int));
 
     PVCross_realloc_memories(self);
 
@@ -3737,13 +3737,13 @@ PVMult_realloc_memories(PVMult *self)
     self->hopsize = self->size / self->olaps;
     inputLatency = self->size - self->hopsize;
     self->overcount = 0;
-    self->magn = (MYFLT **)PyMem_Realloc(self->magn, self->olaps * sizeof(MYFLT *));
-    self->freq = (MYFLT **)PyMem_Realloc(self->freq, self->olaps * sizeof(MYFLT *));
+    self->magn = (MYFLT **)PyMem_RawRealloc(self->magn, self->olaps * sizeof(MYFLT *));
+    self->freq = (MYFLT **)PyMem_RawRealloc(self->freq, self->olaps * sizeof(MYFLT *));
 
     for (i = 0; i < self->olaps; i++)
     {
-        self->magn[i] = (MYFLT *)PyMem_Malloc(self->hsize * sizeof(MYFLT));
-        self->freq[i] = (MYFLT *)PyMem_Malloc(self->hsize * sizeof(MYFLT));
+        self->magn[i] = (MYFLT *)PyMem_RawMalloc(self->hsize * sizeof(MYFLT));
+        self->freq[i] = (MYFLT *)PyMem_RawMalloc(self->hsize * sizeof(MYFLT));
 
         for (j = 0; j < self->hsize; j++)
             self->magn[i][j] = self->freq[i][j] = 0.0;
@@ -3841,13 +3841,13 @@ PVMult_dealloc(PVMult* self)
 
     for (i = 0; i < self->olaps; i++)
     {
-        PyMem_Free(self->magn[i]);
-        PyMem_Free(self->freq[i]);
+        PyMem_RawFree(self->magn[i]);
+        PyMem_RawFree(self->freq[i]);
     }
 
-    PyMem_Free(self->magn);
-    PyMem_Free(self->freq);
-    PyMem_Free(self->count);
+    PyMem_RawFree(self->magn);
+    PyMem_RawFree(self->freq);
+    PyMem_RawFree(self->count);
     PVMult_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -3906,7 +3906,7 @@ PVMult_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     MAKE_NEW_PV_STREAM(self->pv_stream, &PVStreamType, NULL);
 
-    self->count = (int *)PyMem_Realloc(self->count, self->bufsize * sizeof(int));
+    self->count = (int *)PyMem_RawRealloc(self->count, self->bufsize * sizeof(int));
 
     PVMult_realloc_memories(self);
 
@@ -4066,13 +4066,13 @@ PVMorph_realloc_memories(PVMorph *self)
     self->hopsize = self->size / self->olaps;
     inputLatency = self->size - self->hopsize;
     self->overcount = 0;
-    self->magn = (MYFLT **)PyMem_Realloc(self->magn, self->olaps * sizeof(MYFLT *));
-    self->freq = (MYFLT **)PyMem_Realloc(self->freq, self->olaps * sizeof(MYFLT *));
+    self->magn = (MYFLT **)PyMem_RawRealloc(self->magn, self->olaps * sizeof(MYFLT *));
+    self->freq = (MYFLT **)PyMem_RawRealloc(self->freq, self->olaps * sizeof(MYFLT *));
 
     for (i = 0; i < self->olaps; i++)
     {
-        self->magn[i] = (MYFLT *)PyMem_Malloc(self->hsize * sizeof(MYFLT));
-        self->freq[i] = (MYFLT *)PyMem_Malloc(self->hsize * sizeof(MYFLT));
+        self->magn[i] = (MYFLT *)PyMem_RawMalloc(self->hsize * sizeof(MYFLT));
+        self->freq[i] = (MYFLT *)PyMem_RawMalloc(self->hsize * sizeof(MYFLT));
 
         for (j = 0; j < self->hsize; j++)
             self->magn[i][j] = self->freq[i][j] = 0.0;
@@ -4240,13 +4240,13 @@ PVMorph_dealloc(PVMorph* self)
 
     for (i = 0; i < self->olaps; i++)
     {
-        PyMem_Free(self->magn[i]);
-        PyMem_Free(self->freq[i]);
+        PyMem_RawFree(self->magn[i]);
+        PyMem_RawFree(self->freq[i]);
     }
 
-    PyMem_Free(self->magn);
-    PyMem_Free(self->freq);
-    PyMem_Free(self->count);
+    PyMem_RawFree(self->magn);
+    PyMem_RawFree(self->freq);
+    PyMem_RawFree(self->count);
     PVMorph_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -4311,7 +4311,7 @@ PVMorph_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     MAKE_NEW_PV_STREAM(self->pv_stream, &PVStreamType, NULL);
 
-    self->count = (int *)PyMem_Realloc(self->count, self->bufsize * sizeof(int));
+    self->count = (int *)PyMem_RawRealloc(self->count, self->bufsize * sizeof(int));
 
     PVMorph_realloc_memories(self);
 
@@ -4506,13 +4506,13 @@ PVFilter_realloc_memories(PVFilter *self)
     self->hopsize = self->size / self->olaps;
     inputLatency = self->size - self->hopsize;
     self->overcount = 0;
-    self->magn = (MYFLT **)PyMem_Realloc(self->magn, self->olaps * sizeof(MYFLT *));
-    self->freq = (MYFLT **)PyMem_Realloc(self->freq, self->olaps * sizeof(MYFLT *));
+    self->magn = (MYFLT **)PyMem_RawRealloc(self->magn, self->olaps * sizeof(MYFLT *));
+    self->freq = (MYFLT **)PyMem_RawRealloc(self->freq, self->olaps * sizeof(MYFLT *));
 
     for (i = 0; i < self->olaps; i++)
     {
-        self->magn[i] = (MYFLT *)PyMem_Malloc(self->hsize * sizeof(MYFLT));
-        self->freq[i] = (MYFLT *)PyMem_Malloc(self->hsize * sizeof(MYFLT));
+        self->magn[i] = (MYFLT *)PyMem_RawMalloc(self->hsize * sizeof(MYFLT));
+        self->freq[i] = (MYFLT *)PyMem_RawMalloc(self->hsize * sizeof(MYFLT));
 
         for (j = 0; j < self->hsize; j++)
             self->magn[i][j] = self->freq[i][j] = 0.0;
@@ -4726,13 +4726,13 @@ PVFilter_dealloc(PVFilter* self)
 
     for (i = 0; i < self->olaps; i++)
     {
-        PyMem_Free(self->magn[i]);
-        PyMem_Free(self->freq[i]);
+        PyMem_RawFree(self->magn[i]);
+        PyMem_RawFree(self->freq[i]);
     }
 
-    PyMem_Free(self->magn);
-    PyMem_Free(self->freq);
-    PyMem_Free(self->count);
+    PyMem_RawFree(self->magn);
+    PyMem_RawFree(self->freq);
+    PyMem_RawFree(self->count);
     PVFilter_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -4788,7 +4788,7 @@ PVFilter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     MAKE_NEW_PV_STREAM(self->pv_stream, &PVStreamType, NULL);
 
-    self->count = (int *)PyMem_Realloc(self->count, self->bufsize * sizeof(int));
+    self->count = (int *)PyMem_RawRealloc(self->count, self->bufsize * sizeof(int));
 
     PVFilter_realloc_memories(self);
 
@@ -5005,25 +5005,25 @@ PVDelay_realloc_memories(PVDelay *self)
     self->numFrames = (int)(self->maxdelay * self->sr / self->hopsize + 0.5);
     self->overcount = 0;
     self->framecount = 0;
-    self->magn = (MYFLT **)PyMem_Realloc(self->magn, self->olaps * sizeof(MYFLT *));
-    self->freq = (MYFLT **)PyMem_Realloc(self->freq, self->olaps * sizeof(MYFLT *));
+    self->magn = (MYFLT **)PyMem_RawRealloc(self->magn, self->olaps * sizeof(MYFLT *));
+    self->freq = (MYFLT **)PyMem_RawRealloc(self->freq, self->olaps * sizeof(MYFLT *));
 
     for (i = 0; i < self->olaps; i++)
     {
-        self->magn[i] = (MYFLT *)PyMem_Malloc(self->hsize * sizeof(MYFLT));
-        self->freq[i] = (MYFLT *)PyMem_Malloc(self->hsize * sizeof(MYFLT));
+        self->magn[i] = (MYFLT *)PyMem_RawMalloc(self->hsize * sizeof(MYFLT));
+        self->freq[i] = (MYFLT *)PyMem_RawMalloc(self->hsize * sizeof(MYFLT));
 
         for (j = 0; j < self->hsize; j++)
             self->magn[i][j] = self->freq[i][j] = 0.0;
     }
 
-    self->magn_buf = (MYFLT **)PyMem_Realloc(self->magn_buf, self->numFrames * sizeof(MYFLT *));
-    self->freq_buf = (MYFLT **)PyMem_Realloc(self->freq_buf, self->numFrames * sizeof(MYFLT *));
+    self->magn_buf = (MYFLT **)PyMem_RawRealloc(self->magn_buf, self->numFrames * sizeof(MYFLT *));
+    self->freq_buf = (MYFLT **)PyMem_RawRealloc(self->freq_buf, self->numFrames * sizeof(MYFLT *));
 
     for (i = 0; i < self->numFrames; i++)
     {
-        self->magn_buf[i] = (MYFLT *)PyMem_Malloc(self->hsize * sizeof(MYFLT));
-        self->freq_buf[i] = (MYFLT *)PyMem_Malloc(self->hsize * sizeof(MYFLT));
+        self->magn_buf[i] = (MYFLT *)PyMem_RawMalloc(self->hsize * sizeof(MYFLT));
+        self->freq_buf[i] = (MYFLT *)PyMem_RawMalloc(self->hsize * sizeof(MYFLT));
 
         for (j = 0; j < self->hsize; j++)
             self->magn_buf[i][j] = self->freq_buf[i][j] = 0.0;
@@ -5255,22 +5255,22 @@ PVDelay_dealloc(PVDelay* self)
 
     for (i = 0; i < self->olaps; i++)
     {
-        PyMem_Free(self->magn[i]);
-        PyMem_Free(self->freq[i]);
+        PyMem_RawFree(self->magn[i]);
+        PyMem_RawFree(self->freq[i]);
     }
 
-    PyMem_Free(self->magn);
-    PyMem_Free(self->freq);
+    PyMem_RawFree(self->magn);
+    PyMem_RawFree(self->freq);
 
     for (i = 0; i < self->numFrames; i++)
     {
-        PyMem_Free(self->magn_buf[i]);
-        PyMem_Free(self->freq_buf[i]);
+        PyMem_RawFree(self->magn_buf[i]);
+        PyMem_RawFree(self->freq_buf[i]);
     }
 
-    PyMem_Free(self->magn_buf);
-    PyMem_Free(self->freq_buf);
-    PyMem_Free(self->count);
+    PyMem_RawFree(self->magn_buf);
+    PyMem_RawFree(self->freq_buf);
+    PyMem_RawFree(self->count);
     PVDelay_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -5323,7 +5323,7 @@ PVDelay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     MAKE_NEW_PV_STREAM(self->pv_stream, &PVStreamType, NULL);
 
-    self->count = (int *)PyMem_Realloc(self->count, self->bufsize * sizeof(int));
+    self->count = (int *)PyMem_RawRealloc(self->count, self->bufsize * sizeof(int));
 
     PVDelay_realloc_memories(self);
 
@@ -5534,25 +5534,25 @@ PVBuffer_realloc_memories(PVBuffer *self)
     self->numFrames = (int)(self->length * self->sr / self->hopsize + 0.5);
     self->overcount = 0;
     self->framecount = 0;
-    self->magn = (MYFLT **)PyMem_Realloc(self->magn, self->olaps * sizeof(MYFLT *));
-    self->freq = (MYFLT **)PyMem_Realloc(self->freq, self->olaps * sizeof(MYFLT *));
+    self->magn = (MYFLT **)PyMem_RawRealloc(self->magn, self->olaps * sizeof(MYFLT *));
+    self->freq = (MYFLT **)PyMem_RawRealloc(self->freq, self->olaps * sizeof(MYFLT *));
 
     for (i = 0; i < self->olaps; i++)
     {
-        self->magn[i] = (MYFLT *)PyMem_Malloc(self->hsize * sizeof(MYFLT));
-        self->freq[i] = (MYFLT *)PyMem_Malloc(self->hsize * sizeof(MYFLT));
+        self->magn[i] = (MYFLT *)PyMem_RawMalloc(self->hsize * sizeof(MYFLT));
+        self->freq[i] = (MYFLT *)PyMem_RawMalloc(self->hsize * sizeof(MYFLT));
 
         for (j = 0; j < self->hsize; j++)
             self->magn[i][j] = self->freq[i][j] = 0.0;
     }
 
-    self->magn_buf = (MYFLT **)PyMem_Realloc(self->magn_buf, self->numFrames * sizeof(MYFLT *));
-    self->freq_buf = (MYFLT **)PyMem_Realloc(self->freq_buf, self->numFrames * sizeof(MYFLT *));
+    self->magn_buf = (MYFLT **)PyMem_RawRealloc(self->magn_buf, self->numFrames * sizeof(MYFLT *));
+    self->freq_buf = (MYFLT **)PyMem_RawRealloc(self->freq_buf, self->numFrames * sizeof(MYFLT *));
 
     for (i = 0; i < self->numFrames; i++)
     {
-        self->magn_buf[i] = (MYFLT *)PyMem_Malloc(self->hsize * sizeof(MYFLT));
-        self->freq_buf[i] = (MYFLT *)PyMem_Malloc(self->hsize * sizeof(MYFLT));
+        self->magn_buf[i] = (MYFLT *)PyMem_RawMalloc(self->hsize * sizeof(MYFLT));
+        self->freq_buf[i] = (MYFLT *)PyMem_RawMalloc(self->hsize * sizeof(MYFLT));
 
         for (j = 0; j < self->hsize; j++)
             self->magn_buf[i][j] = self->freq_buf[i][j] = 0.0;
@@ -5771,22 +5771,22 @@ PVBuffer_dealloc(PVBuffer* self)
 
     for (i = 0; i < self->olaps; i++)
     {
-        PyMem_Free(self->magn[i]);
-        PyMem_Free(self->freq[i]);
+        PyMem_RawFree(self->magn[i]);
+        PyMem_RawFree(self->freq[i]);
     }
 
-    PyMem_Free(self->magn);
-    PyMem_Free(self->freq);
+    PyMem_RawFree(self->magn);
+    PyMem_RawFree(self->freq);
 
     for (i = 0; i < self->numFrames; i++)
     {
-        PyMem_Free(self->magn_buf[i]);
-        PyMem_Free(self->freq_buf[i]);
+        PyMem_RawFree(self->magn_buf[i]);
+        PyMem_RawFree(self->freq_buf[i]);
     }
 
-    PyMem_Free(self->magn_buf);
-    PyMem_Free(self->freq_buf);
-    PyMem_Free(self->count);
+    PyMem_RawFree(self->magn_buf);
+    PyMem_RawFree(self->freq_buf);
+    PyMem_RawFree(self->count);
     PVBuffer_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -5843,7 +5843,7 @@ PVBuffer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     MAKE_NEW_PV_STREAM(self->pv_stream, &PVStreamType, NULL);
 
-    self->count = (int *)PyMem_Realloc(self->count, self->bufsize * sizeof(int));
+    self->count = (int *)PyMem_RawRealloc(self->count, self->bufsize * sizeof(int));
 
     PVBuffer_realloc_memories(self);
 
@@ -6059,13 +6059,13 @@ PVShift_realloc_memories(PVShift *self)
     self->hopsize = self->size / self->olaps;
     inputLatency = self->size - self->hopsize;
     self->overcount = 0;
-    self->magn = (MYFLT **)PyMem_Realloc(self->magn, self->olaps * sizeof(MYFLT *));
-    self->freq = (MYFLT **)PyMem_Realloc(self->freq, self->olaps * sizeof(MYFLT *));
+    self->magn = (MYFLT **)PyMem_RawRealloc(self->magn, self->olaps * sizeof(MYFLT *));
+    self->freq = (MYFLT **)PyMem_RawRealloc(self->freq, self->olaps * sizeof(MYFLT *));
 
     for (i = 0; i < self->olaps; i++)
     {
-        self->magn[i] = (MYFLT *)PyMem_Malloc(self->hsize * sizeof(MYFLT));
-        self->freq[i] = (MYFLT *)PyMem_Malloc(self->hsize * sizeof(MYFLT));
+        self->magn[i] = (MYFLT *)PyMem_RawMalloc(self->hsize * sizeof(MYFLT));
+        self->freq[i] = (MYFLT *)PyMem_RawMalloc(self->hsize * sizeof(MYFLT));
 
         for (j = 0; j < self->hsize; j++)
             self->magn[i][j] = self->freq[i][j] = 0.0;
@@ -6245,13 +6245,13 @@ PVShift_dealloc(PVShift* self)
 
     for (i = 0; i < self->olaps; i++)
     {
-        PyMem_Free(self->magn[i]);
-        PyMem_Free(self->freq[i]);
+        PyMem_RawFree(self->magn[i]);
+        PyMem_RawFree(self->freq[i]);
     }
 
-    PyMem_Free(self->magn);
-    PyMem_Free(self->freq);
-    PyMem_Free(self->count);
+    PyMem_RawFree(self->magn);
+    PyMem_RawFree(self->freq);
+    PyMem_RawFree(self->count);
     PVShift_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -6302,7 +6302,7 @@ PVShift_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     MAKE_NEW_PV_STREAM(self->pv_stream, &PVStreamType, NULL);
 
-    self->count = (int *)PyMem_Realloc(self->count, self->bufsize * sizeof(int));
+    self->count = (int *)PyMem_RawRealloc(self->count, self->bufsize * sizeof(int));
 
     PVShift_realloc_memories(self);
 
@@ -6562,18 +6562,18 @@ PVAmpMod_realloc_memories(PVAmpMod *self)
     inputLatency = self->size - self->hopsize;
     self->overcount = 0;
     self->factor = 8192.0 / (self->sr / self->hopsize);
-    self->pointers = (MYFLT *)PyMem_Realloc(self->pointers, self->hsize * sizeof(MYFLT));
+    self->pointers = (MYFLT *)PyMem_RawRealloc(self->pointers, self->hsize * sizeof(MYFLT));
 
     for (i = 0; i < self->hsize; i++)
         self->pointers[i] = 0.0;
 
-    self->magn = (MYFLT **)PyMem_Realloc(self->magn, self->olaps * sizeof(MYFLT *));
-    self->freq = (MYFLT **)PyMem_Realloc(self->freq, self->olaps * sizeof(MYFLT *));
+    self->magn = (MYFLT **)PyMem_RawRealloc(self->magn, self->olaps * sizeof(MYFLT *));
+    self->freq = (MYFLT **)PyMem_RawRealloc(self->freq, self->olaps * sizeof(MYFLT *));
 
     for (i = 0; i < self->olaps; i++)
     {
-        self->magn[i] = (MYFLT *)PyMem_Malloc(self->hsize * sizeof(MYFLT));
-        self->freq[i] = (MYFLT *)PyMem_Malloc(self->hsize * sizeof(MYFLT));
+        self->magn[i] = (MYFLT *)PyMem_RawMalloc(self->hsize * sizeof(MYFLT));
+        self->freq[i] = (MYFLT *)PyMem_RawMalloc(self->hsize * sizeof(MYFLT));
 
         for (j = 0; j < self->hsize; j++)
             self->magn[i][j] = self->freq[i][j] = 0.0;
@@ -6872,15 +6872,15 @@ PVAmpMod_dealloc(PVAmpMod* self)
 
     for (i = 0; i < self->olaps; i++)
     {
-        PyMem_Free(self->magn[i]);
-        PyMem_Free(self->freq[i]);
+        PyMem_RawFree(self->magn[i]);
+        PyMem_RawFree(self->freq[i]);
     }
 
-    PyMem_Free(self->magn);
-    PyMem_Free(self->freq);
-    PyMem_Free(self->table);
-    PyMem_Free(self->pointers);
-    PyMem_Free(self->count);
+    PyMem_RawFree(self->magn);
+    PyMem_RawFree(self->freq);
+    PyMem_RawFree(self->table);
+    PyMem_RawFree(self->pointers);
+    PyMem_RawFree(self->count);
     PVAmpMod_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -6937,9 +6937,9 @@ PVAmpMod_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     MAKE_NEW_PV_STREAM(self->pv_stream, &PVStreamType, NULL);
 
-    self->count = (int *)PyMem_Realloc(self->count, self->bufsize * sizeof(int));
+    self->count = (int *)PyMem_RawRealloc(self->count, self->bufsize * sizeof(int));
 
-    self->table = (MYFLT *)PyMem_Realloc(self->table, 8193 * sizeof(MYFLT));
+    self->table = (MYFLT *)PyMem_RawRealloc(self->table, 8193 * sizeof(MYFLT));
     PVMod_setTable(self->table, shape);
 
     PVAmpMod_realloc_memories(self);
@@ -7176,18 +7176,18 @@ PVFreqMod_realloc_memories(PVFreqMod *self)
     inputLatency = self->size - self->hopsize;
     self->overcount = 0;
     self->factor = 8192.0 / (self->sr / self->hopsize);
-    self->pointers = (MYFLT *)PyMem_Realloc(self->pointers, self->hsize * sizeof(MYFLT));
+    self->pointers = (MYFLT *)PyMem_RawRealloc(self->pointers, self->hsize * sizeof(MYFLT));
 
     for (i = 0; i < self->hsize; i++)
         self->pointers[i] = 0.0;
 
-    self->magn = (MYFLT **)PyMem_Realloc(self->magn, self->olaps * sizeof(MYFLT *));
-    self->freq = (MYFLT **)PyMem_Realloc(self->freq, self->olaps * sizeof(MYFLT *));
+    self->magn = (MYFLT **)PyMem_RawRealloc(self->magn, self->olaps * sizeof(MYFLT *));
+    self->freq = (MYFLT **)PyMem_RawRealloc(self->freq, self->olaps * sizeof(MYFLT *));
 
     for (i = 0; i < self->olaps; i++)
     {
-        self->magn[i] = (MYFLT *)PyMem_Malloc(self->hsize * sizeof(MYFLT));
-        self->freq[i] = (MYFLT *)PyMem_Malloc(self->hsize * sizeof(MYFLT));
+        self->magn[i] = (MYFLT *)PyMem_RawMalloc(self->hsize * sizeof(MYFLT));
+        self->freq[i] = (MYFLT *)PyMem_RawMalloc(self->hsize * sizeof(MYFLT));
 
         for (j = 0; j < self->hsize; j++)
             self->magn[i][j] = self->freq[i][j] = 0.0;
@@ -7583,15 +7583,15 @@ PVFreqMod_dealloc(PVFreqMod* self)
 
     for (i = 0; i < self->olaps; i++)
     {
-        PyMem_Free(self->magn[i]);
-        PyMem_Free(self->freq[i]);
+        PyMem_RawFree(self->magn[i]);
+        PyMem_RawFree(self->freq[i]);
     }
 
-    PyMem_Free(self->magn);
-    PyMem_Free(self->freq);
-    PyMem_Free(self->table);
-    PyMem_Free(self->pointers);
-    PyMem_Free(self->count);
+    PyMem_RawFree(self->magn);
+    PyMem_RawFree(self->freq);
+    PyMem_RawFree(self->table);
+    PyMem_RawFree(self->pointers);
+    PyMem_RawFree(self->count);
     PVFreqMod_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -7654,9 +7654,9 @@ PVFreqMod_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     MAKE_NEW_PV_STREAM(self->pv_stream, &PVStreamType, NULL);
 
-    self->count = (int *)PyMem_Realloc(self->count, self->bufsize * sizeof(int));
+    self->count = (int *)PyMem_RawRealloc(self->count, self->bufsize * sizeof(int));
 
-    self->table = (MYFLT *)PyMem_Realloc(self->table, 8193 * sizeof(MYFLT));
+    self->table = (MYFLT *)PyMem_RawRealloc(self->table, 8193 * sizeof(MYFLT));
     PVMod_setTable(self->table, shape);
 
     PVFreqMod_realloc_memories(self);
@@ -7937,8 +7937,8 @@ PVBufLoops_realloc_memories(PVBufLoops *self)
     self->OneOnNumFrames = 1.0 / self->numFrames;
     self->overcount = 0;
     self->framecount = 0;
-    self->speeds = (MYFLT *)PyMem_Realloc(self->speeds, self->hsize * sizeof(MYFLT));
-    self->pointers = (MYFLT *)PyMem_Realloc(self->pointers, self->hsize * sizeof(MYFLT));
+    self->speeds = (MYFLT *)PyMem_RawRealloc(self->speeds, self->hsize * sizeof(MYFLT));
+    self->pointers = (MYFLT *)PyMem_RawRealloc(self->pointers, self->hsize * sizeof(MYFLT));
 
     for (i = 0; i < self->hsize; i++)
     {
@@ -7946,25 +7946,25 @@ PVBufLoops_realloc_memories(PVBufLoops *self)
         self->pointers[i] = 0.0;
     }
 
-    self->magn = (MYFLT **)PyMem_Realloc(self->magn, self->olaps * sizeof(MYFLT *));
-    self->freq = (MYFLT **)PyMem_Realloc(self->freq, self->olaps * sizeof(MYFLT *));
+    self->magn = (MYFLT **)PyMem_RawRealloc(self->magn, self->olaps * sizeof(MYFLT *));
+    self->freq = (MYFLT **)PyMem_RawRealloc(self->freq, self->olaps * sizeof(MYFLT *));
 
     for (i = 0; i < self->olaps; i++)
     {
-        self->magn[i] = (MYFLT *)PyMem_Malloc(self->hsize * sizeof(MYFLT));
-        self->freq[i] = (MYFLT *)PyMem_Malloc(self->hsize * sizeof(MYFLT));
+        self->magn[i] = (MYFLT *)PyMem_RawMalloc(self->hsize * sizeof(MYFLT));
+        self->freq[i] = (MYFLT *)PyMem_RawMalloc(self->hsize * sizeof(MYFLT));
 
         for (j = 0; j < self->hsize; j++)
             self->magn[i][j] = self->freq[i][j] = 0.0;
     }
 
-    self->magn_buf = (MYFLT **)PyMem_Realloc(self->magn_buf, self->numFrames * sizeof(MYFLT *));
-    self->freq_buf = (MYFLT **)PyMem_Realloc(self->freq_buf, self->numFrames * sizeof(MYFLT *));
+    self->magn_buf = (MYFLT **)PyMem_RawRealloc(self->magn_buf, self->numFrames * sizeof(MYFLT *));
+    self->freq_buf = (MYFLT **)PyMem_RawRealloc(self->freq_buf, self->numFrames * sizeof(MYFLT *));
 
     for (i = 0; i < self->numFrames; i++)
     {
-        self->magn_buf[i] = (MYFLT *)PyMem_Malloc(self->hsize * sizeof(MYFLT));
-        self->freq_buf[i] = (MYFLT *)PyMem_Malloc(self->hsize * sizeof(MYFLT));
+        self->magn_buf[i] = (MYFLT *)PyMem_RawMalloc(self->hsize * sizeof(MYFLT));
+        self->freq_buf[i] = (MYFLT *)PyMem_RawMalloc(self->hsize * sizeof(MYFLT));
 
         for (j = 0; j < self->hsize; j++)
             self->magn_buf[i][j] = self->freq_buf[i][j] = 0.0;
@@ -8199,24 +8199,24 @@ PVBufLoops_dealloc(PVBufLoops* self)
 
     for (i = 0; i < self->olaps; i++)
     {
-        PyMem_Free(self->magn[i]);
-        PyMem_Free(self->freq[i]);
+        PyMem_RawFree(self->magn[i]);
+        PyMem_RawFree(self->freq[i]);
     }
 
-    PyMem_Free(self->magn);
-    PyMem_Free(self->freq);
+    PyMem_RawFree(self->magn);
+    PyMem_RawFree(self->freq);
 
     for (i = 0; i < self->numFrames; i++)
     {
-        PyMem_Free(self->magn_buf[i]);
-        PyMem_Free(self->freq_buf[i]);
+        PyMem_RawFree(self->magn_buf[i]);
+        PyMem_RawFree(self->freq_buf[i]);
     }
 
-    PyMem_Free(self->magn_buf);
-    PyMem_Free(self->freq_buf);
-    PyMem_Free(self->count);
-    PyMem_Free(self->speeds);
-    PyMem_Free(self->pointers);
+    PyMem_RawFree(self->magn_buf);
+    PyMem_RawFree(self->freq_buf);
+    PyMem_RawFree(self->count);
+    PyMem_RawFree(self->speeds);
+    PyMem_RawFree(self->pointers);
     PVBufLoops_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -8277,7 +8277,7 @@ PVBufLoops_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     MAKE_NEW_PV_STREAM(self->pv_stream, &PVStreamType, NULL);
 
-    self->count = (int *)PyMem_Realloc(self->count, self->bufsize * sizeof(int));
+    self->count = (int *)PyMem_RawRealloc(self->count, self->bufsize * sizeof(int));
 
     PVBufLoops_realloc_memories(self);
 
@@ -8526,32 +8526,32 @@ PVBufTabLoops_realloc_memories(PVBufTabLoops *self)
     self->OneOnNumFrames = 1.0 / self->numFrames;
     self->overcount = 0;
     self->framecount = 0;
-    self->pointers = (MYFLT *)PyMem_Realloc(self->pointers, self->hsize * sizeof(MYFLT));
+    self->pointers = (MYFLT *)PyMem_RawRealloc(self->pointers, self->hsize * sizeof(MYFLT));
 
     for (i = 0; i < self->hsize; i++)
     {
         self->pointers[i] = 0.0;
     }
 
-    self->magn = (MYFLT **)PyMem_Realloc(self->magn, self->olaps * sizeof(MYFLT *));
-    self->freq = (MYFLT **)PyMem_Realloc(self->freq, self->olaps * sizeof(MYFLT *));
+    self->magn = (MYFLT **)PyMem_RawRealloc(self->magn, self->olaps * sizeof(MYFLT *));
+    self->freq = (MYFLT **)PyMem_RawRealloc(self->freq, self->olaps * sizeof(MYFLT *));
 
     for (i = 0; i < self->olaps; i++)
     {
-        self->magn[i] = (MYFLT *)PyMem_Malloc(self->hsize * sizeof(MYFLT));
-        self->freq[i] = (MYFLT *)PyMem_Malloc(self->hsize * sizeof(MYFLT));
+        self->magn[i] = (MYFLT *)PyMem_RawMalloc(self->hsize * sizeof(MYFLT));
+        self->freq[i] = (MYFLT *)PyMem_RawMalloc(self->hsize * sizeof(MYFLT));
 
         for (j = 0; j < self->hsize; j++)
             self->magn[i][j] = self->freq[i][j] = 0.0;
     }
 
-    self->magn_buf = (MYFLT **)PyMem_Realloc(self->magn_buf, self->numFrames * sizeof(MYFLT *));
-    self->freq_buf = (MYFLT **)PyMem_Realloc(self->freq_buf, self->numFrames * sizeof(MYFLT *));
+    self->magn_buf = (MYFLT **)PyMem_RawRealloc(self->magn_buf, self->numFrames * sizeof(MYFLT *));
+    self->freq_buf = (MYFLT **)PyMem_RawRealloc(self->freq_buf, self->numFrames * sizeof(MYFLT *));
 
     for (i = 0; i < self->numFrames; i++)
     {
-        self->magn_buf[i] = (MYFLT *)PyMem_Malloc(self->hsize * sizeof(MYFLT));
-        self->freq_buf[i] = (MYFLT *)PyMem_Malloc(self->hsize * sizeof(MYFLT));
+        self->magn_buf[i] = (MYFLT *)PyMem_RawMalloc(self->hsize * sizeof(MYFLT));
+        self->freq_buf[i] = (MYFLT *)PyMem_RawMalloc(self->hsize * sizeof(MYFLT));
 
         for (j = 0; j < self->hsize; j++)
             self->magn_buf[i][j] = self->freq_buf[i][j] = 0.0;
@@ -8679,23 +8679,23 @@ PVBufTabLoops_dealloc(PVBufTabLoops* self)
 
     for (i = 0; i < self->olaps; i++)
     {
-        PyMem_Free(self->magn[i]);
-        PyMem_Free(self->freq[i]);
+        PyMem_RawFree(self->magn[i]);
+        PyMem_RawFree(self->freq[i]);
     }
 
-    PyMem_Free(self->magn);
-    PyMem_Free(self->freq);
+    PyMem_RawFree(self->magn);
+    PyMem_RawFree(self->freq);
 
     for (i = 0; i < self->numFrames; i++)
     {
-        PyMem_Free(self->magn_buf[i]);
-        PyMem_Free(self->freq_buf[i]);
+        PyMem_RawFree(self->magn_buf[i]);
+        PyMem_RawFree(self->freq_buf[i]);
     }
 
-    PyMem_Free(self->magn_buf);
-    PyMem_Free(self->freq_buf);
-    PyMem_Free(self->count);
-    PyMem_Free(self->pointers);
+    PyMem_RawFree(self->magn_buf);
+    PyMem_RawFree(self->freq_buf);
+    PyMem_RawFree(self->count);
+    PyMem_RawFree(self->pointers);
     PVBufTabLoops_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -8744,7 +8744,7 @@ PVBufTabLoops_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     MAKE_NEW_PV_STREAM(self->pv_stream, &PVStreamType, NULL);
 
-    self->count = (int *)PyMem_Realloc(self->count, self->bufsize * sizeof(int));
+    self->count = (int *)PyMem_RawRealloc(self->count, self->bufsize * sizeof(int));
 
     PVBufTabLoops_realloc_memories(self);
 
@@ -8913,13 +8913,13 @@ PVMix_realloc_memories(PVMix *self)
     self->hopsize = self->size / self->olaps;
     inputLatency = self->size - self->hopsize;
     self->overcount = 0;
-    self->magn = (MYFLT **)PyMem_Realloc(self->magn, self->olaps * sizeof(MYFLT *));
-    self->freq = (MYFLT **)PyMem_Realloc(self->freq, self->olaps * sizeof(MYFLT *));
+    self->magn = (MYFLT **)PyMem_RawRealloc(self->magn, self->olaps * sizeof(MYFLT *));
+    self->freq = (MYFLT **)PyMem_RawRealloc(self->freq, self->olaps * sizeof(MYFLT *));
 
     for (i = 0; i < self->olaps; i++)
     {
-        self->magn[i] = (MYFLT *)PyMem_Malloc(self->hsize * sizeof(MYFLT));
-        self->freq[i] = (MYFLT *)PyMem_Malloc(self->hsize * sizeof(MYFLT));
+        self->magn[i] = (MYFLT *)PyMem_RawMalloc(self->hsize * sizeof(MYFLT));
+        self->freq[i] = (MYFLT *)PyMem_RawMalloc(self->hsize * sizeof(MYFLT));
 
         for (j = 0; j < self->hsize; j++)
             self->magn[i][j] = self->freq[i][j] = 0.0;
@@ -9026,13 +9026,13 @@ PVMix_dealloc(PVMix* self)
 
     for (i = 0; i < self->olaps; i++)
     {
-        PyMem_Free(self->magn[i]);
-        PyMem_Free(self->freq[i]);
+        PyMem_RawFree(self->magn[i]);
+        PyMem_RawFree(self->freq[i]);
     }
 
-    PyMem_Free(self->magn);
-    PyMem_Free(self->freq);
-    PyMem_Free(self->count);
+    PyMem_RawFree(self->magn);
+    PyMem_RawFree(self->freq);
+    PyMem_RawFree(self->count);
     PVMix_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -9091,7 +9091,7 @@ PVMix_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     MAKE_NEW_PV_STREAM(self->pv_stream, &PVStreamType, NULL);
 
-    self->count = (int *)PyMem_Realloc(self->count, self->bufsize * sizeof(int));
+    self->count = (int *)PyMem_RawRealloc(self->count, self->bufsize * sizeof(int));
 
     PVMix_realloc_memories(self);
 

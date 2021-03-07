@@ -234,8 +234,8 @@ Server_dealloc(Server* self)
         Server_shutdown(self);
 
     Server_clear(self);
-    PyMem_Free(self->input_buffer);
-    PyMem_Free(self->output_buffer);
+    PyMem_RawFree(self->input_buffer);
+    PyMem_RawFree(self->output_buffer);
 
     my_server[self->thisServerID] = NULL;
     Py_TYPE(self)->tp_free((PyObject*)self);
@@ -577,17 +577,17 @@ Server_boot(Server *self, PyObject *arg)
         /* Must allocate buffer after initializing the audio backend in case parameters change there */
         if (self->input_buffer)
         {
-            PyMem_Free(self->input_buffer);
+            PyMem_RawFree(self->input_buffer);
         }
 
-        self->input_buffer = (MYFLT *)PyMem_Malloc(self->bufferSize * self->ichnls * sizeof(MYFLT));
+        self->input_buffer = (MYFLT *)PyMem_RawMalloc(self->bufferSize * self->ichnls * sizeof(MYFLT));
 
         if (self->output_buffer)
         {
-            PyMem_Free(self->output_buffer);
+            PyMem_RawFree(self->output_buffer);
         }
 
-        self->output_buffer = (float *)PyMem_Malloc(self->bufferSize * self->nchnls * sizeof(float));
+        self->output_buffer = (float *)PyMem_RawMalloc(self->bufferSize * self->nchnls * sizeof(float));
     }
 
     for (i = 0; i < self->bufferSize * self->ichnls; i++)

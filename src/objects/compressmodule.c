@@ -266,7 +266,7 @@ static void
 Compress_dealloc(Compress* self)
 {
     pyo_DEALLOC
-    PyMem_Free(self->lh_buffer);
+    PyMem_RawFree(self->lh_buffer);
     Compress_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -342,7 +342,7 @@ Compress_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject_CallMethod((PyObject *)self, "setKnee", "O", kneetmp);
 
     self->lh_size = (long)(0.025 * self->sr + 0.5);
-    self->lh_buffer = (MYFLT *)PyMem_Realloc(self->lh_buffer, (self->lh_size + 1) * sizeof(MYFLT));
+    self->lh_buffer = (MYFLT *)PyMem_RawRealloc(self->lh_buffer, (self->lh_size + 1) * sizeof(MYFLT));
 
     for (i = 0; i < (self->lh_size + 1); i++)
     {
@@ -1369,7 +1369,7 @@ static void
 Gate_dealloc(Gate* self)
 {
     pyo_DEALLOC
-    PyMem_Free(self->lh_buffer);
+    PyMem_RawFree(self->lh_buffer);
     Gate_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -1441,7 +1441,7 @@ Gate_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject_CallMethod((PyObject *)self, "setLookAhead", "O", looktmp);
 
     self->lh_size = (long)(0.025 * self->sr + 0.5);
-    self->lh_buffer = (MYFLT *)PyMem_Realloc(self->lh_buffer, (self->lh_size + 1) * sizeof(MYFLT));
+    self->lh_buffer = (MYFLT *)PyMem_RawRealloc(self->lh_buffer, (self->lh_size + 1) * sizeof(MYFLT));
 
     for (i = 0; i < (self->lh_size + 1); i++)
     {
@@ -2366,7 +2366,7 @@ static void
 Expand_dealloc(Expand* self)
 {
     pyo_DEALLOC
-    PyMem_Free(self->lh_buffer);
+    PyMem_RawFree(self->lh_buffer);
     Expand_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -2447,7 +2447,7 @@ Expand_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject_CallMethod((PyObject *)self, "setLookAhead", "O", looktmp);
 
     self->lh_size = (long)(0.025 * self->sr + 0.5);
-    self->lh_buffer = (MYFLT *)PyMem_Realloc(self->lh_buffer, (self->lh_size + 1) * sizeof(MYFLT));
+    self->lh_buffer = (MYFLT *)PyMem_RawRealloc(self->lh_buffer, (self->lh_size + 1) * sizeof(MYFLT));
 
     for (i = 0; i < (self->lh_size + 1); i++)
     {

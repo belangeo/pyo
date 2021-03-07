@@ -214,17 +214,17 @@ static void
 BandSplitter_dealloc(BandSplitter* self)
 {
     pyo_DEALLOC
-    PyMem_Free(self->band_freqs);
-    PyMem_Free(self->x1);
-    PyMem_Free(self->x2);
-    PyMem_Free(self->y1);
-    PyMem_Free(self->y2);
-    PyMem_Free(self->b0);
-    PyMem_Free(self->b2);
-    PyMem_Free(self->a0);
-    PyMem_Free(self->a1);
-    PyMem_Free(self->a2);
-    PyMem_Free(self->buffer_streams);
+    PyMem_RawFree(self->band_freqs);
+    PyMem_RawFree(self->x1);
+    PyMem_RawFree(self->x2);
+    PyMem_RawFree(self->y1);
+    PyMem_RawFree(self->y2);
+    PyMem_RawFree(self->b0);
+    PyMem_RawFree(self->b2);
+    PyMem_RawFree(self->a0);
+    PyMem_RawFree(self->a1);
+    PyMem_RawFree(self->a2);
+    PyMem_RawFree(self->buffer_streams);
     BandSplitter_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -258,17 +258,17 @@ BandSplitter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    self->band_freqs = (MYFLT *)PyMem_Realloc(self->band_freqs, self->bands * sizeof(MYFLT));
-    self->x1 = (MYFLT *)PyMem_Realloc(self->x1, self->bands * sizeof(MYFLT));
-    self->x2 = (MYFLT *)PyMem_Realloc(self->x2, self->bands * sizeof(MYFLT));
-    self->y1 = (MYFLT *)PyMem_Realloc(self->y1, self->bands * sizeof(MYFLT));
-    self->y2 = (MYFLT *)PyMem_Realloc(self->y2, self->bands * sizeof(MYFLT));
-    self->b0 = (MYFLT *)PyMem_Realloc(self->b0, self->bands * sizeof(MYFLT));
-    self->b2 = (MYFLT *)PyMem_Realloc(self->b2, self->bands * sizeof(MYFLT));
-    self->a0 = (MYFLT *)PyMem_Realloc(self->a0, self->bands * sizeof(MYFLT));
-    self->a1 = (MYFLT *)PyMem_Realloc(self->a1, self->bands * sizeof(MYFLT));
-    self->a2 = (MYFLT *)PyMem_Realloc(self->a2, self->bands * sizeof(MYFLT));
-    self->buffer_streams = (MYFLT *)PyMem_Realloc(self->buffer_streams, self->bands * self->bufsize * sizeof(MYFLT));
+    self->band_freqs = (MYFLT *)PyMem_RawRealloc(self->band_freqs, self->bands * sizeof(MYFLT));
+    self->x1 = (MYFLT *)PyMem_RawRealloc(self->x1, self->bands * sizeof(MYFLT));
+    self->x2 = (MYFLT *)PyMem_RawRealloc(self->x2, self->bands * sizeof(MYFLT));
+    self->y1 = (MYFLT *)PyMem_RawRealloc(self->y1, self->bands * sizeof(MYFLT));
+    self->y2 = (MYFLT *)PyMem_RawRealloc(self->y2, self->bands * sizeof(MYFLT));
+    self->b0 = (MYFLT *)PyMem_RawRealloc(self->b0, self->bands * sizeof(MYFLT));
+    self->b2 = (MYFLT *)PyMem_RawRealloc(self->b2, self->bands * sizeof(MYFLT));
+    self->a0 = (MYFLT *)PyMem_RawRealloc(self->a0, self->bands * sizeof(MYFLT));
+    self->a1 = (MYFLT *)PyMem_RawRealloc(self->a1, self->bands * sizeof(MYFLT));
+    self->a2 = (MYFLT *)PyMem_RawRealloc(self->a2, self->bands * sizeof(MYFLT));
+    self->buffer_streams = (MYFLT *)PyMem_RawRealloc(self->buffer_streams, self->bands * self->bufsize * sizeof(MYFLT));
 
     BandSplitter_setFrequencies((BandSplitter *)self);
 
@@ -944,7 +944,7 @@ static void
 FourBandMain_dealloc(FourBandMain* self)
 {
     pyo_DEALLOC
-    PyMem_Free(self->buffer_streams);
+    PyMem_RawFree(self->buffer_streams);
     FourBandMain_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -984,7 +984,7 @@ FourBandMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         self->x1[i] = self->x2[i] = self->x3[i] = self->x4[i] = self->y1[i] = self->y2[i] = self->y3[i] = self->y4[i] = 0.0;
     }
 
-    self->buffer_streams = (MYFLT *)PyMem_Realloc(self->buffer_streams, 4 * self->bufsize * sizeof(MYFLT));
+    self->buffer_streams = (MYFLT *)PyMem_RawRealloc(self->buffer_streams, 4 * self->bufsize * sizeof(MYFLT));
 
     for (i = 0; i < (4 * self->bufsize); i++)
     {
@@ -1692,7 +1692,7 @@ static void
 MultiBandMain_dealloc(MultiBandMain* self)
 {
     pyo_DEALLOC
-    PyMem_Free(self->buffer_streams);
+    PyMem_RawFree(self->buffer_streams);
     MultiBandMain_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -1735,7 +1735,7 @@ MultiBandMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         self->la1[i] = self->la2[i] = self->ha0[i] = self->ha1[i] = self->ha2[i] = 0.0;
     }
 
-    self->buffer_streams = (MYFLT *)PyMem_Realloc(self->buffer_streams, self->nbands * self->bufsize * sizeof(MYFLT));
+    self->buffer_streams = (MYFLT *)PyMem_RawRealloc(self->buffer_streams, self->nbands * self->bufsize * sizeof(MYFLT));
 
     for (i = 0; i < (self->nbands * self->bufsize); i++)
     {

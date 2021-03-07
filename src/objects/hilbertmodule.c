@@ -135,7 +135,7 @@ static void
 HilbertMain_dealloc(HilbertMain* self)
 {
     pyo_DEALLOC
-    PyMem_Free(self->buffer_streams);
+    PyMem_RawFree(self->buffer_streams);
     HilbertMain_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -167,7 +167,7 @@ HilbertMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    self->buffer_streams = (MYFLT *)PyMem_Realloc(self->buffer_streams, 2 * self->bufsize * sizeof(MYFLT));
+    self->buffer_streams = (MYFLT *)PyMem_RawRealloc(self->buffer_streams, 2 * self->bufsize * sizeof(MYFLT));
 
     HilbertMain_compute_variables((HilbertMain *)self);
 
