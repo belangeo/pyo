@@ -1669,14 +1669,14 @@ Server_boot(Server *self, PyObject *arg)
             PyMem_Free(self->input_buffer);
         }
 
-        self->input_buffer = (MYFLT *)PyMem_Calloc(self->bufferSize * self->ichnls, sizeof(MYFLT));
+        self->input_buffer = (MYFLT *)PyMem_Malloc(self->bufferSize * self->ichnls * sizeof(MYFLT));
 
         if (self->output_buffer)
         {
             PyMem_Free(self->output_buffer);
         }
 
-        self->output_buffer = (float *)PyMem_Calloc(self->bufferSize * self->nchnls, sizeof(float));
+        self->output_buffer = (float *)PyMem_Malloc(self->bufferSize * self->nchnls * sizeof(float));
     }
 
     for (i = 0; i < self->bufferSize * self->ichnls; i++)
