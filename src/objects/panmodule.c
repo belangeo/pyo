@@ -296,7 +296,7 @@ static void
 Panner_dealloc(Panner* self)
 {
     pyo_DEALLOC
-    PyMem_Free(self->buffer_streams);
+    PyMem_RawFree(self->buffer_streams);
     Panner_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -341,7 +341,7 @@ Panner_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (self->chnls < 1)
         self->chnls = 1;
 
-    self->buffer_streams = (MYFLT *)PyMem_Realloc(self->buffer_streams, self->chnls * self->bufsize * sizeof(MYFLT));
+    self->buffer_streams = (MYFLT *)PyMem_RawRealloc(self->buffer_streams, self->chnls * self->bufsize * sizeof(MYFLT));
 
     (*self->mode_func_ptr)(self);
 
@@ -996,7 +996,7 @@ static void
 SPanner_dealloc(SPanner* self)
 {
     pyo_DEALLOC
-    PyMem_Free(self->buffer_streams);
+    PyMem_RawFree(self->buffer_streams);
     SPanner_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -1036,7 +1036,7 @@ SPanner_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (self->chnls < 1)
         self->chnls = 1;
 
-    self->buffer_streams = (MYFLT *)PyMem_Realloc(self->buffer_streams, self->chnls * self->bufsize * sizeof(MYFLT));
+    self->buffer_streams = (MYFLT *)PyMem_RawRealloc(self->buffer_streams, self->chnls * self->bufsize * sizeof(MYFLT));
 
     (*self->mode_func_ptr)(self);
 
@@ -1586,7 +1586,7 @@ static void
 Switcher_dealloc(Switcher* self)
 {
     pyo_DEALLOC
-    PyMem_Free(self->buffer_streams);
+    PyMem_RawFree(self->buffer_streams);
     Switcher_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -1623,7 +1623,7 @@ Switcher_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    self->buffer_streams = (MYFLT *)PyMem_Realloc(self->buffer_streams, self->chnls * self->bufsize * sizeof(MYFLT));
+    self->buffer_streams = (MYFLT *)PyMem_RawRealloc(self->buffer_streams, self->chnls * self->bufsize * sizeof(MYFLT));
 
     (*self->mode_func_ptr)(self);
 
@@ -2168,8 +2168,8 @@ VoiceManager_dealloc(VoiceManager* self)
 
     if (self->voices != NULL)
     {
-        PyMem_Free(self->voices);
-        PyMem_Free(self->trigger_streams);
+        PyMem_RawFree(self->voices);
+        PyMem_RawFree(self->trigger_streams);
     }
 
     Py_TYPE(self)->tp_free((PyObject*)self);
@@ -2252,8 +2252,8 @@ VoiceManager_setTriggers(VoiceManager *self, PyObject *arg)
     }
 
     self->maxVoices = PyList_Size(arg);
-    self->trigger_streams = (Stream **)PyMem_Realloc(self->trigger_streams, self->maxVoices * sizeof(Stream *));
-    self->voices = (int *)PyMem_Realloc(self->voices, self->maxVoices * sizeof(int));
+    self->trigger_streams = (Stream **)PyMem_RawRealloc(self->trigger_streams, self->maxVoices * sizeof(Stream *));
+    self->voices = (int *)PyMem_RawRealloc(self->voices, self->maxVoices * sizeof(int));
 
     for (i = 0; i < self->maxVoices; i++)
     {
@@ -2507,7 +2507,7 @@ static void
 Mixer_dealloc(Mixer* self)
 {
     pyo_DEALLOC
-    PyMem_Free(self->buffer_streams);
+    PyMem_RawFree(self->buffer_streams);
     Mixer_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -2546,7 +2546,7 @@ Mixer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    self->buffer_streams = (MYFLT *)PyMem_Realloc(self->buffer_streams, self->num_outs * self->bufsize * sizeof(MYFLT));
+    self->buffer_streams = (MYFLT *)PyMem_RawRealloc(self->buffer_streams, self->num_outs * self->bufsize * sizeof(MYFLT));
 
     (*self->mode_func_ptr)(self);
 

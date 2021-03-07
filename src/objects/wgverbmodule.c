@@ -559,7 +559,7 @@ WGVerb_dealloc(WGVerb* self)
 
     for (i = 0; i < 8; i++)
     {
-        PyMem_Free(self->buffer[i]);
+        PyMem_RawFree(self->buffer[i]);
     }
 
     WGVerb_clear(self);
@@ -639,7 +639,7 @@ WGVerb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     for (i = 0; i < 8; i++)
     {
         self->size[i] = reverbParams[i][0] * (self->sr / 44100.0) + (int)(reverbParams[i][1] * self->sr + 0.5);
-        self->buffer[i] = (MYFLT *)PyMem_Realloc(self->buffer[i], (self->size[i] + 1) * sizeof(MYFLT));
+        self->buffer[i] = (MYFLT *)PyMem_RawRealloc(self->buffer[i], (self->size[i] + 1) * sizeof(MYFLT));
 
         for (j = 0; j < (self->size[i] + 1); j++)
         {
@@ -1709,20 +1709,20 @@ STReverb_dealloc(STReverb* self)
 
     for (k = 0; k < 2; k++)
     {
-        PyMem_Free(self->input_buffer[k]);
+        PyMem_RawFree(self->input_buffer[k]);
 
         for (i = 0; i < 8; i++)
         {
-            PyMem_Free(self->buffer[k][i]);
+            PyMem_RawFree(self->buffer[k][i]);
         }
     }
 
     for (i = 0; i < NUM_REFS; i++)
     {
-        PyMem_Free(self->ref_buffer[i]);
+        PyMem_RawFree(self->ref_buffer[i]);
     }
 
-    PyMem_Free(self->buffer_streams);
+    PyMem_RawFree(self->buffer_streams);
     STReverb_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -1811,7 +1811,7 @@ STReverb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
             self->avg_time += self->delays[k][i] / self->sr;
             self->size[k][i] = reverbParams[i][din] * self->srfac * roomSize + (int)(reverbParams[i][1] * self->sr + 0.5);
             maxsize = reverbParams[i][din] * self->srfac * 4.0 + (int)(reverbParams[i][1] * self->sr + 0.5);
-            self->buffer[k][i] = (MYFLT *)PyMem_Realloc(self->buffer[k][i], (maxsize + 1) * sizeof(MYFLT));
+            self->buffer[k][i] = (MYFLT *)PyMem_RawRealloc(self->buffer[k][i], (maxsize + 1) * sizeof(MYFLT));
 
             for (j = 0; j < (maxsize + 1); j++)
             {
@@ -1827,7 +1827,7 @@ STReverb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         self->ref_in_count[k] = 0;
         self->ref_size[k] = (int)(first_ref_delays[k] * self->srfac * roomSize + 0.5);
         maxsize = (int)(first_ref_delays[k] * self->srfac * 4.0 + 0.5);
-        self->ref_buffer[k] = (MYFLT *)PyMem_Realloc(self->ref_buffer[k], (maxsize + 1) * sizeof(MYFLT));
+        self->ref_buffer[k] = (MYFLT *)PyMem_RawRealloc(self->ref_buffer[k], (maxsize + 1) * sizeof(MYFLT));
 
         for (i = 0; i < (maxsize + 1); i++)
         {
@@ -1837,7 +1837,7 @@ STReverb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     for (k = 0; k < 2; k++)
     {
-        self->input_buffer[k] = (MYFLT *)PyMem_Realloc(self->input_buffer[k], self->bufsize * sizeof(MYFLT));
+        self->input_buffer[k] = (MYFLT *)PyMem_RawRealloc(self->input_buffer[k], self->bufsize * sizeof(MYFLT));
 
         for (i = 0; i < self->bufsize; i++)
         {
@@ -1845,7 +1845,7 @@ STReverb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         }
     }
 
-    self->buffer_streams = (MYFLT *)PyMem_Realloc(self->buffer_streams, 2 * self->bufsize * sizeof(MYFLT));
+    self->buffer_streams = (MYFLT *)PyMem_RawRealloc(self->buffer_streams, 2 * self->bufsize * sizeof(MYFLT));
 
     for (i = 0; i < (2 * self->bufsize); i++)
     {

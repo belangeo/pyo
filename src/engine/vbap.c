@@ -90,7 +90,7 @@ void free_ls_triplet_chain(ls_triplet_chain *ls_triplets)
     while (ptr != NULL)
     {
         next = ptr->next;
-        PyMem_Free(ptr);
+        PyMem_RawFree(ptr);
         ptr = next;
     }
 }
@@ -110,7 +110,7 @@ static void add_ldsp_triplet(int i, int j, int k,
         trip_ptr = trip_ptr->next;
     }
 
-    trip_ptr = (ls_triplet_chain *)PyMem_Malloc(sizeof(ls_triplet_chain));
+    trip_ptr = (ls_triplet_chain *)PyMem_RawMalloc(sizeof(ls_triplet_chain));
 
     if (prev == NULL)
         *ls_triplets = trip_ptr;
@@ -182,7 +182,7 @@ static void cross_prod(CART_VEC v1, CART_VEC v2, CART_VEC *res)
 static double * angle_to_cart(float azi, float ele) {
     double *res;
     double atorad = (PIx2 / 360.0) ;
-    res = (double *)PyMem_Malloc(3 * sizeof(double));
+    res = (double *)PyMem_RawMalloc(3 * sizeof(double));
     res[0] = cos((double)(azi * atorad)) * cos((double)(ele * atorad));
     res[1] = sin((double)(azi * atorad)) * cos((double)(ele * atorad));
     res[2] = sin((double)(ele * atorad));
@@ -814,9 +814,9 @@ static void spreadit_azi_flip_y_z(float azi, float sp_azi, VBAP_DATA *data)
 
 void free_speakers_setup(SPEAKERS_SETUP *setup)
 {
-    PyMem_Free(setup->azimuth);
-    PyMem_Free(setup->elevation);
-    PyMem_Free(setup);
+    PyMem_RawFree(setup->azimuth);
+    PyMem_RawFree(setup->elevation);
+    PyMem_RawFree(setup);
 }
 
 SPEAKERS_SETUP *
@@ -824,17 +824,17 @@ load_speakers_setup(int count, float *azi, float *ele)
 {
     int i;
     SPEAKERS_SETUP *setup;
-    setup = (SPEAKERS_SETUP *)PyMem_Malloc(sizeof(SPEAKERS_SETUP));
+    setup = (SPEAKERS_SETUP *)PyMem_RawMalloc(sizeof(SPEAKERS_SETUP));
 
     if (count < 3)
     {
         fprintf(stderr, "Too few loudspeakers %d\n", count);
-        PyMem_Free(setup);
+        PyMem_RawFree(setup);
         exit(-1);
     }
 
-    setup->azimuth = (float *)PyMem_Calloc(count, sizeof(float));
-    setup->elevation = (float *)PyMem_Calloc(count, sizeof(float));
+    setup->azimuth = (float *)PyMem_RawCalloc(count, sizeof(float));
+    setup->elevation = (float *)PyMem_RawCalloc(count, sizeof(float));
 
     for (i = 0; i < count; i++)
     {
@@ -856,12 +856,12 @@ load_speakers_setup_from_file(const char *filename)
     char c[10000];
     FILE *fp;
     SPEAKERS_SETUP *setup = NULL;
-    setup = (SPEAKERS_SETUP *)PyMem_Malloc(sizeof(SPEAKERS_SETUP));
+    setup = (SPEAKERS_SETUP *)PyMem_RawMalloc(sizeof(SPEAKERS_SETUP));
 
     if ((fp = fopen(filename, "r")) == NULL)
     {
         fprintf(stderr, "Could not open loudspeaker setup file.\n");
-        PyMem_Free(setup);
+        PyMem_RawFree(setup);
         exit(-1);
     }
 
@@ -873,12 +873,12 @@ load_speakers_setup_from_file(const char *filename)
         if (count < 3)
         {
             fprintf(stderr, "Too few loudspeakers %d\n", count);
-            PyMem_Free(setup);
+            PyMem_RawFree(setup);
             exit(-1);
         }
 
-        setup->azimuth = (float *)PyMem_Calloc(count, sizeof(float));
-        setup->elevation = (float *)PyMem_Calloc(count, sizeof(float));
+        setup->azimuth = (float *)PyMem_RawCalloc(count, sizeof(float));
+        setup->elevation = (float *)PyMem_RawCalloc(count, sizeof(float));
 
         while (1)
         {
@@ -1074,7 +1074,7 @@ void choose_ls_tuplets(ls lss[MAX_LS_AMOUNT],
                 tr_ptr = tr_ptr->next;
             }
 
-            tr_ptr = (struct ls_triplet_chain *)PyMem_Malloc(sizeof(struct ls_triplet_chain));
+            tr_ptr = (struct ls_triplet_chain *)PyMem_RawMalloc(sizeof(struct ls_triplet_chain));
 
             if (prev == NULL)
                 *ls_triplets = tr_ptr;
@@ -1100,7 +1100,7 @@ void choose_ls_tuplets(ls lss[MAX_LS_AMOUNT],
             tr_ptr = tr_ptr->next;
         }
 
-        tr_ptr = (struct ls_triplet_chain *)PyMem_Malloc(sizeof(struct ls_triplet_chain));
+        tr_ptr = (struct ls_triplet_chain *)PyMem_RawMalloc(sizeof(struct ls_triplet_chain));
 
         if (prev == NULL)
             *ls_triplets = tr_ptr;
@@ -1252,14 +1252,14 @@ void choose_ls_triplets(ls lss[MAX_LS_AMOUNT],
                 prev->next = trip_ptr->next;
                 tmp_ptr = trip_ptr;
                 trip_ptr = trip_ptr->next;
-                PyMem_Free(tmp_ptr);
+                PyMem_RawFree(tmp_ptr);
             }
             else
             {
                 *ls_triplets = trip_ptr->next;
                 tmp_ptr = trip_ptr;
                 trip_ptr = trip_ptr->next;
-                PyMem_Free(tmp_ptr);
+                PyMem_RawFree(tmp_ptr);
             }
         }
         else
@@ -1364,7 +1364,7 @@ void load_ls_triplets(ls lss[MAX_LS_AMOUNT],
             break;
         }
 
-        trip_ptr = (ls_triplet_chain *)PyMem_Malloc(sizeof(ls_triplet_chain));
+        trip_ptr = (ls_triplet_chain *)PyMem_RawMalloc(sizeof(ls_triplet_chain));
 
         if (prev == NULL)
             *ls_triplets = trip_ptr;
@@ -1386,7 +1386,7 @@ VBAP_DATA * init_vbap_data(SPEAKERS_SETUP *setup, int **triplets)
     ls lss[MAX_LS_AMOUNT];
     ls_triplet_chain *ls_triplets = NULL;
     ls_triplet_chain *ls_ptr;
-    VBAP_DATA *data = (VBAP_DATA *)PyMem_Malloc(sizeof(VBAP_DATA));
+    VBAP_DATA *data = (VBAP_DATA *)PyMem_RawMalloc(sizeof(VBAP_DATA));
 
     build_speakers_list(setup, lss);
 
@@ -1399,7 +1399,7 @@ VBAP_DATA * init_vbap_data(SPEAKERS_SETUP *setup, int **triplets)
 
     if (ret == 0)
     {
-        PyMem_Free(data);
+        PyMem_RawFree(data);
         return NULL;
     }
 
@@ -1421,7 +1421,7 @@ VBAP_DATA * init_vbap_data(SPEAKERS_SETUP *setup, int **triplets)
     }
 
     data->ls_set_am = i;
-    data->ls_sets = (LS_SET *)PyMem_Malloc(sizeof(LS_SET) * i);
+    data->ls_sets = (LS_SET *)PyMem_RawMalloc(sizeof(LS_SET) * i);
 
     i = 0;
     ls_ptr = ls_triplets;
@@ -1454,7 +1454,7 @@ VBAP_DATA * init_vbap_from_speakers(ls lss[MAX_LS_AMOUNT], int count,
     int i, j, ret, offset = 0;
     ls_triplet_chain *ls_triplets = NULL;
     ls_triplet_chain *ls_ptr;
-    VBAP_DATA *data = (VBAP_DATA *)PyMem_Malloc(sizeof(VBAP_DATA));
+    VBAP_DATA *data = (VBAP_DATA *)PyMem_RawMalloc(sizeof(VBAP_DATA));
 
     if (dim == 3)
     {
@@ -1467,7 +1467,7 @@ VBAP_DATA * init_vbap_from_speakers(ls lss[MAX_LS_AMOUNT], int count,
 
         if (ret == 0)
         {
-            PyMem_Free(data);
+            PyMem_RawFree(data);
             return NULL;
         }
 
@@ -1503,7 +1503,7 @@ VBAP_DATA * init_vbap_from_speakers(ls lss[MAX_LS_AMOUNT], int count,
     }
 
     data->ls_set_am = i;
-    data->ls_sets = (LS_SET *)PyMem_Malloc(sizeof(LS_SET) * i);
+    data->ls_sets = (LS_SET *)PyMem_RawMalloc(sizeof(LS_SET) * i);
 
     i = 0;
     ls_ptr = ls_triplets;
@@ -1533,7 +1533,7 @@ VBAP_DATA * init_vbap_from_speakers(ls lss[MAX_LS_AMOUNT], int count,
 VBAP_DATA * copy_vbap_data(VBAP_DATA *data)
 {
     int i, j;
-    VBAP_DATA *nw = (VBAP_DATA *)PyMem_Malloc(sizeof(VBAP_DATA));
+    VBAP_DATA *nw = (VBAP_DATA *)PyMem_RawMalloc(sizeof(VBAP_DATA));
     nw->dimension = data->dimension;
     nw->ls_out = data->ls_out;
 
@@ -1551,7 +1551,7 @@ VBAP_DATA * copy_vbap_data(VBAP_DATA *data)
         nw->y[i] = data->y[i];
     }
 
-    nw->ls_sets = (LS_SET *)PyMem_Malloc(sizeof(LS_SET) * nw->ls_set_am);
+    nw->ls_sets = (LS_SET *)PyMem_RawMalloc(sizeof(LS_SET) * nw->ls_set_am);
 
     for (i = 0; i < nw->ls_set_am; i++)
     {
@@ -1580,8 +1580,8 @@ VBAP_DATA * copy_vbap_data(VBAP_DATA *data)
 
 void free_vbap_data(VBAP_DATA *data)
 {
-    PyMem_Free(data->ls_sets);
-    PyMem_Free(data);
+    PyMem_RawFree(data->ls_sets);
+    PyMem_RawFree(data);
 }
 
 void vbap(float azi, float ele, float spread, VBAP_DATA *data)
@@ -1797,11 +1797,11 @@ void compute_gains(int ls_set_am, LS_SET *sets, float *gains,
 int vbap_get_triplets(VBAP_DATA *data, int ***triplets)
 {
     int i, num = data->ls_set_am;
-    (*triplets) = (int **)PyMem_Malloc(num * sizeof(int *));
+    (*triplets) = (int **)PyMem_RawMalloc(num * sizeof(int *));
 
     for (i = 0; i < num; i++)
     {
-        (*triplets)[i] = (int *)PyMem_Malloc(3 * sizeof(int));
+        (*triplets)[i] = (int *)PyMem_RawMalloc(3 * sizeof(int));
         (*triplets)[i][0] = data->ls_sets[i].ls_nos[0];
         (*triplets)[i][1] = data->ls_sets[i].ls_nos[1];
         (*triplets)[i][2] = data->ls_sets[i].ls_nos[2];

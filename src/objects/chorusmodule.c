@@ -489,7 +489,7 @@ Chorus_dealloc(Chorus* self)
 
     for (i = 0; i < 8; i++)
     {
-        PyMem_Free(self->buffer[i]);
+        PyMem_RawFree(self->buffer[i]);
     }
 
     Chorus_clear(self);
@@ -568,7 +568,7 @@ Chorus_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     for (i = 0; i < 8; i++)
     {
         self->size[i] = (long)(chorusParams[i][0] * srfac * 2 + 0.5);
-        self->buffer[i] = (MYFLT *)PyMem_Realloc(self->buffer[i], (self->size[i] + 1) * sizeof(MYFLT));
+        self->buffer[i] = (MYFLT *)PyMem_RawRealloc(self->buffer[i], (self->size[i] + 1) * sizeof(MYFLT));
 
         for (j = 0; j < (self->size[i] + 1); j++)
         {

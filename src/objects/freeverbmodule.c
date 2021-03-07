@@ -701,12 +701,12 @@ Freeverb_dealloc(Freeverb* self)
 
     for (i = 0; i < NUM_COMB; i++)
     {
-        PyMem_Free(self->comb_buf[i]);
+        PyMem_RawFree(self->comb_buf[i]);
     }
 
     for (i = 0; i < NUM_ALLPASS; i++)
     {
-        PyMem_Free(self->allpass_buf[i]);
+        PyMem_RawFree(self->allpass_buf[i]);
     }
 
     Freeverb_clear(self);
@@ -780,7 +780,7 @@ Freeverb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     for (i = 0; i < NUM_COMB; i++)
     {
         nsamps = Freeverb_calc_nsamples((Freeverb *)self, comb_delays[i] + rndSamps);
-        self->comb_buf[i] = (MYFLT *)PyMem_Realloc(self->comb_buf[i], (nsamps + 1) * sizeof(MYFLT));
+        self->comb_buf[i] = (MYFLT *)PyMem_RawRealloc(self->comb_buf[i], (nsamps + 1) * sizeof(MYFLT));
         self->comb_nSamples[i] = nsamps;
         self->comb_bufPos[i] = 0;
         self->comb_filterState[i] = 0.0;
@@ -794,7 +794,7 @@ Freeverb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     for (i = 0; i < NUM_ALLPASS; i++)
     {
         nsamps = Freeverb_calc_nsamples((Freeverb *)self, allpass_delays[i] + rndSamps);
-        self->allpass_buf[i] = (MYFLT *)PyMem_Realloc(self->allpass_buf[i], (nsamps + 1) * sizeof(MYFLT));
+        self->allpass_buf[i] = (MYFLT *)PyMem_RawRealloc(self->allpass_buf[i], (nsamps + 1) * sizeof(MYFLT));
         self->allpass_nSamples[i] = nsamps;
         self->allpass_bufPos[i] = 0;
 

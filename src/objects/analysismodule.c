@@ -1527,8 +1527,8 @@ static void
 Yin_dealloc(Yin* self)
 {
     pyo_DEALLOC
-    PyMem_Free(self->input_buffer);
-    PyMem_Free(self->yin_buffer);
+    PyMem_RawFree(self->input_buffer);
+    PyMem_RawFree(self->yin_buffer);
     Yin_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -1580,13 +1580,13 @@ Yin_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (self->winsize % 2 == 1)
         self->winsize += 1;
 
-    self->input_buffer = (MYFLT *)PyMem_Realloc(self->input_buffer, self->winsize * sizeof(MYFLT));
+    self->input_buffer = (MYFLT *)PyMem_RawRealloc(self->input_buffer, self->winsize * sizeof(MYFLT));
 
     for (i = 0; i < self->winsize; i++)
         self->input_buffer[i] = 0.0;
 
     self->halfsize = self->winsize / 2;
-    self->yin_buffer = (MYFLT *)PyMem_Realloc(self->yin_buffer, self->halfsize * sizeof(MYFLT));
+    self->yin_buffer = (MYFLT *)PyMem_RawRealloc(self->yin_buffer, self->halfsize * sizeof(MYFLT));
 
     for (i = 0; i < self->halfsize; i++)
         self->yin_buffer[i] = 0.0;
@@ -1814,20 +1814,20 @@ Centroid_alloc_memories(Centroid *self)
     int i, n8;
     self->hsize = self->size / 2;
     n8 = self->size >> 3;
-    self->inframe = (MYFLT *)PyMem_Realloc(self->inframe, self->size * sizeof(MYFLT));
-    self->outframe = (MYFLT *)PyMem_Realloc(self->outframe, self->size * sizeof(MYFLT));
-    self->input_buffer = (MYFLT *)PyMem_Realloc(self->input_buffer, self->size * sizeof(MYFLT));
+    self->inframe = (MYFLT *)PyMem_RawRealloc(self->inframe, self->size * sizeof(MYFLT));
+    self->outframe = (MYFLT *)PyMem_RawRealloc(self->outframe, self->size * sizeof(MYFLT));
+    self->input_buffer = (MYFLT *)PyMem_RawRealloc(self->input_buffer, self->size * sizeof(MYFLT));
 
     for (i = 0; i < self->size; i++)
         self->inframe[i] = self->outframe[i] = self->input_buffer[i] = 0.0;
 
-    self->twiddle = (MYFLT **)PyMem_Realloc(self->twiddle, 4 * sizeof(MYFLT *));
+    self->twiddle = (MYFLT **)PyMem_RawRealloc(self->twiddle, 4 * sizeof(MYFLT *));
 
     for (i = 0; i < 4; i++)
-        self->twiddle[i] = (MYFLT *)PyMem_Malloc(n8 * sizeof(MYFLT));
+        self->twiddle[i] = (MYFLT *)PyMem_RawMalloc(n8 * sizeof(MYFLT));
 
     fft_compute_split_twiddle(self->twiddle, self->size);
-    self->window = (MYFLT *)PyMem_Realloc(self->window, self->size * sizeof(MYFLT));
+    self->window = (MYFLT *)PyMem_RawRealloc(self->window, self->size * sizeof(MYFLT));
     gen_window(self->window, self->size, 2);
 }
 
@@ -1970,17 +1970,17 @@ Centroid_dealloc(Centroid* self)
 {
     int i;
     pyo_DEALLOC
-    PyMem_Free(self->inframe);
-    PyMem_Free(self->outframe);
-    PyMem_Free(self->input_buffer);
+    PyMem_RawFree(self->inframe);
+    PyMem_RawFree(self->outframe);
+    PyMem_RawFree(self->input_buffer);
 
     for (i = 0; i < 4; i++)
     {
-        PyMem_Free(self->twiddle[i]);
+        PyMem_RawFree(self->twiddle[i]);
     }
 
-    PyMem_Free(self->twiddle);
-    PyMem_Free(self->window);
+    PyMem_RawFree(self->twiddle);
+    PyMem_RawFree(self->window);
     Centroid_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -2345,7 +2345,7 @@ static void
 AttackDetector_dealloc(AttackDetector* self)
 {
     pyo_DEALLOC
-    PyMem_Free(self->buffer);
+    PyMem_RawFree(self->buffer);
     AttackDetector_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -2397,7 +2397,7 @@ AttackDetector_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     self->memsize = (int)(0.055 * self->sr + 0.5);
-    self->buffer = (MYFLT *)PyMem_Realloc(self->buffer, (self->memsize + 1) * sizeof(MYFLT));
+    self->buffer = (MYFLT *)PyMem_RawRealloc(self->buffer, (self->memsize + 1) * sizeof(MYFLT));
 
     for (i = 0; i < (self->memsize + 1); i++)
     {
@@ -2779,7 +2779,7 @@ static void
 Scope_dealloc(Scope* self)
 {
     pyo_DEALLOC
-    PyMem_Free(self->buffer);
+    PyMem_RawFree(self->buffer);
     Scope_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -2811,7 +2811,7 @@ Scope_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_INPUT_STREAM
 
     maxsize = (int)(self->sr);
-    self->buffer = (MYFLT *)PyMem_Realloc(self->buffer, maxsize * sizeof(MYFLT));
+    self->buffer = (MYFLT *)PyMem_RawRealloc(self->buffer, maxsize * sizeof(MYFLT));
 
     self->size = 0;
     target = (int)(length * self->sr);

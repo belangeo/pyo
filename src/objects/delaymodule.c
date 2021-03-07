@@ -355,7 +355,7 @@ static void
 Delay_dealloc(Delay* self)
 {
     pyo_DEALLOC
-    PyMem_Free(self->buffer);
+    PyMem_RawFree(self->buffer);
     Delay_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -415,7 +415,7 @@ Delay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self->size = (long)(self->maxdelay * self->sr + 0.5);
 
-    self->buffer = (MYFLT *)PyMem_Realloc(self->buffer, (self->size + 1) * sizeof(MYFLT));
+    self->buffer = (MYFLT *)PyMem_RawRealloc(self->buffer, (self->size + 1) * sizeof(MYFLT));
 
     for (i = 0; i < (self->size + 1); i++)
     {
@@ -845,7 +845,7 @@ static void
 SDelay_dealloc(SDelay* self)
 {
     pyo_DEALLOC
-    PyMem_Free(self->buffer);
+    PyMem_RawFree(self->buffer);
     SDelay_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -895,7 +895,7 @@ SDelay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self->size = (long)(self->maxdelay * self->sr + 0.5);
 
-    self->buffer = (MYFLT *)PyMem_Realloc(self->buffer, (self->size + 1) * sizeof(MYFLT));
+    self->buffer = (MYFLT *)PyMem_RawRealloc(self->buffer, (self->size + 1) * sizeof(MYFLT));
 
     for (i = 0; i < (self->size + 1); i++)
     {
@@ -1603,7 +1603,7 @@ static void
 Waveguide_dealloc(Waveguide* self)
 {
     pyo_DEALLOC
-    PyMem_Free(self->buffer);
+    PyMem_RawFree(self->buffer);
     Waveguide_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -1676,7 +1676,7 @@ Waveguide_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self->size = (long)(1.0 / self->minfreq * self->sr + 0.5);
 
-    self->buffer = (MYFLT *)PyMem_Realloc(self->buffer, (self->size + 1) * sizeof(MYFLT));
+    self->buffer = (MYFLT *)PyMem_RawRealloc(self->buffer, (self->size + 1) * sizeof(MYFLT));
 
     for (i = 0; i < (self->size + 1); i++)
     {
@@ -2810,11 +2810,11 @@ AllpassWG_dealloc(AllpassWG* self)
 {
     int i;
     pyo_DEALLOC
-    PyMem_Free(self->buffer);
+    PyMem_RawFree(self->buffer);
 
     for (i = 0; i < 3; i++)
     {
-        PyMem_Free(self->alpbuffer[i]);
+        PyMem_RawFree(self->alpbuffer[i]);
     }
 
     AllpassWG_clear(self);
@@ -2884,7 +2884,7 @@ AllpassWG_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     self->size = (long)(1.0 / self->minfreq * self->sr + 0.5);
-    self->buffer = (MYFLT *)PyMem_Realloc(self->buffer, (self->size + 1) * sizeof(MYFLT));
+    self->buffer = (MYFLT *)PyMem_RawRealloc(self->buffer, (self->size + 1) * sizeof(MYFLT));
 
     for (i = 0; i < (self->size + 1); i++)
     {
@@ -2895,7 +2895,7 @@ AllpassWG_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     for (i = 0; i < 3; i++)
     {
-        self->alpbuffer[i] = (MYFLT *)PyMem_Realloc(self->alpbuffer[i], (self->alpsize + 1) * sizeof(MYFLT));
+        self->alpbuffer[i] = (MYFLT *)PyMem_RawRealloc(self->alpbuffer[i], (self->alpsize + 1) * sizeof(MYFLT));
 
         for (j = 0; j < (self->alpsize + 1); j++)
         {
@@ -3960,7 +3960,7 @@ static void
 SmoothDelay_dealloc(SmoothDelay* self)
 {
     pyo_DEALLOC
-    PyMem_Free(self->buffer);
+    PyMem_RawFree(self->buffer);
     SmoothDelay_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -4026,7 +4026,7 @@ SmoothDelay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self->size = (long)(self->maxdelay * self->sr + 0.5);
 
-    self->buffer = (MYFLT *)PyMem_Realloc(self->buffer, (self->size + 1) * sizeof(MYFLT));
+    self->buffer = (MYFLT *)PyMem_RawRealloc(self->buffer, (self->size + 1) * sizeof(MYFLT));
 
     for (i = 0; i < (self->size + 1); i++)
     {

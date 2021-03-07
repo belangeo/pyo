@@ -1550,7 +1550,7 @@ static void
 Choice_dealloc(Choice* self)
 {
     pyo_DEALLOC
-    PyMem_Free(self->choice);
+    PyMem_RawFree(self->choice);
     Choice_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -1642,7 +1642,7 @@ Choice_setChoice(Choice *self, PyObject *arg)
 
     tmp = arg;
     self->chSize = PyList_Size(tmp);
-    self->choice = (MYFLT *)PyMem_Realloc(self->choice, self->chSize * sizeof(MYFLT));
+    self->choice = (MYFLT *)PyMem_RawRealloc(self->choice, self->chSize * sizeof(MYFLT));
 
     for (i = 0; i < self->chSize; i++)
     {
@@ -5898,7 +5898,7 @@ Urn_reset(Urn *self)
     int i;
     self->lastvalue = (int)self->value;
     self->length = self->max;
-    self->list = (int *)PyMem_Realloc(self->list, self->max * sizeof(int));
+    self->list = (int *)PyMem_RawRealloc(self->list, self->max * sizeof(int));
 
     for (i = 0; i < self->max; i++)
     {
@@ -6092,8 +6092,8 @@ static void
 Urn_dealloc(Urn* self)
 {
     pyo_DEALLOC
-    PyMem_Free(self->list);
-    PyMem_Free(self->trigsBuffer);
+    PyMem_RawFree(self->list);
+    PyMem_RawFree(self->trigsBuffer);
     Urn_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -6142,7 +6142,7 @@ Urn_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    self->trigsBuffer = (MYFLT *)PyMem_Realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
+    self->trigsBuffer = (MYFLT *)PyMem_RawRealloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
 
     for (i = 0; i < self->bufsize; i++)
     {

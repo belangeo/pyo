@@ -687,10 +687,10 @@ typedef struct
 static void
 Biquadx_allocate_memories(Biquadx *self)
 {
-    self->x1 = (MYFLT *)PyMem_Realloc(self->x1, self->stages * sizeof(MYFLT));
-    self->x2 = (MYFLT *)PyMem_Realloc(self->x2, self->stages * sizeof(MYFLT));
-    self->y1 = (MYFLT *)PyMem_Realloc(self->y1, self->stages * sizeof(MYFLT));
-    self->y2 = (MYFLT *)PyMem_Realloc(self->y2, self->stages * sizeof(MYFLT));
+    self->x1 = (MYFLT *)PyMem_RawRealloc(self->x1, self->stages * sizeof(MYFLT));
+    self->x2 = (MYFLT *)PyMem_RawRealloc(self->x2, self->stages * sizeof(MYFLT));
+    self->y1 = (MYFLT *)PyMem_RawRealloc(self->y1, self->stages * sizeof(MYFLT));
+    self->y2 = (MYFLT *)PyMem_RawRealloc(self->y2, self->stages * sizeof(MYFLT));
     self->init = 1;
 }
 
@@ -1055,10 +1055,10 @@ static void
 Biquadx_dealloc(Biquadx* self)
 {
     pyo_DEALLOC
-    PyMem_Free(self->x1);
-    PyMem_Free(self->x2);
-    PyMem_Free(self->y1);
-    PyMem_Free(self->y2);
+    PyMem_RawFree(self->x1);
+    PyMem_RawFree(self->x2);
+    PyMem_RawFree(self->y1);
+    PyMem_RawFree(self->y2);
     Biquadx_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -4500,7 +4500,7 @@ static void
 Allpass_dealloc(Allpass* self)
 {
     pyo_DEALLOC
-    PyMem_Free(self->buffer);
+    PyMem_RawFree(self->buffer);
     Allpass_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -4557,7 +4557,7 @@ Allpass_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self->size = self->maxDelay * self->sr + 0.5;
 
-    self->buffer = (MYFLT *)PyMem_Realloc(self->buffer, (self->size + 1) * sizeof(MYFLT));
+    self->buffer = (MYFLT *)PyMem_RawRealloc(self->buffer, (self->size + 1) * sizeof(MYFLT));
 
     for (i = 0; i < (self->size + 1); i++)
     {
@@ -5903,10 +5903,10 @@ static void
 Phaser_dealloc(Phaser* self)
 {
     pyo_DEALLOC
-    PyMem_Free(self->y1);
-    PyMem_Free(self->y2);
-    PyMem_Free(self->alpha);
-    PyMem_Free(self->beta);
+    PyMem_RawFree(self->y1);
+    PyMem_RawFree(self->y2);
+    PyMem_RawFree(self->alpha);
+    PyMem_RawFree(self->beta);
     Phaser_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -5949,10 +5949,10 @@ Phaser_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_INPUT_STREAM
 
-    self->y1 = (MYFLT *)PyMem_Realloc(self->y1, self->stages * sizeof(MYFLT));
-    self->y2 = (MYFLT *)PyMem_Realloc(self->y2, self->stages * sizeof(MYFLT));
-    self->alpha = (MYFLT *)PyMem_Realloc(self->alpha, self->stages * sizeof(MYFLT));
-    self->beta = (MYFLT *)PyMem_Realloc(self->beta, self->stages * sizeof(MYFLT));
+    self->y1 = (MYFLT *)PyMem_RawRealloc(self->y1, self->stages * sizeof(MYFLT));
+    self->y2 = (MYFLT *)PyMem_RawRealloc(self->y2, self->stages * sizeof(MYFLT));
+    self->alpha = (MYFLT *)PyMem_RawRealloc(self->alpha, self->stages * sizeof(MYFLT));
+    self->beta = (MYFLT *)PyMem_RawRealloc(self->beta, self->stages * sizeof(MYFLT));
 
 
     if (freqtmp)
@@ -6309,16 +6309,16 @@ static void
 Vocoder_allocate_memories(Vocoder *self)
 {
     int i, i2j, j;
-    self->y1 = (MYFLT *)PyMem_Realloc(self->y1, self->stages * 2 *  sizeof(MYFLT));
-    self->y2 = (MYFLT *)PyMem_Realloc(self->y2, self->stages * 2 *  sizeof(MYFLT));
-    self->yy1 = (MYFLT *)PyMem_Realloc(self->yy1, self->stages * 2 *  sizeof(MYFLT));
-    self->yy2 = (MYFLT *)PyMem_Realloc(self->yy2, self->stages * 2 *  sizeof(MYFLT));
-    self->b0 = (MYFLT *)PyMem_Realloc(self->b0, self->stages *  sizeof(MYFLT));
-    self->b2 = (MYFLT *)PyMem_Realloc(self->b2, self->stages *  sizeof(MYFLT));
-    self->a0 = (MYFLT *)PyMem_Realloc(self->a0, self->stages *  sizeof(MYFLT));
-    self->a1 = (MYFLT *)PyMem_Realloc(self->a1, self->stages *  sizeof(MYFLT));
-    self->a2 = (MYFLT *)PyMem_Realloc(self->a2, self->stages *  sizeof(MYFLT));
-    self->follow = (MYFLT *)PyMem_Realloc(self->follow, self->stages *  sizeof(MYFLT));
+    self->y1 = (MYFLT *)PyMem_RawRealloc(self->y1, self->stages * 2 *  sizeof(MYFLT));
+    self->y2 = (MYFLT *)PyMem_RawRealloc(self->y2, self->stages * 2 *  sizeof(MYFLT));
+    self->yy1 = (MYFLT *)PyMem_RawRealloc(self->yy1, self->stages * 2 *  sizeof(MYFLT));
+    self->yy2 = (MYFLT *)PyMem_RawRealloc(self->yy2, self->stages * 2 *  sizeof(MYFLT));
+    self->b0 = (MYFLT *)PyMem_RawRealloc(self->b0, self->stages *  sizeof(MYFLT));
+    self->b2 = (MYFLT *)PyMem_RawRealloc(self->b2, self->stages *  sizeof(MYFLT));
+    self->a0 = (MYFLT *)PyMem_RawRealloc(self->a0, self->stages *  sizeof(MYFLT));
+    self->a1 = (MYFLT *)PyMem_RawRealloc(self->a1, self->stages *  sizeof(MYFLT));
+    self->a2 = (MYFLT *)PyMem_RawRealloc(self->a2, self->stages *  sizeof(MYFLT));
+    self->follow = (MYFLT *)PyMem_RawRealloc(self->follow, self->stages *  sizeof(MYFLT));
 
     for (i = 0; i < self->stages; i++)
     {
@@ -7298,16 +7298,16 @@ static void
 Vocoder_dealloc(Vocoder* self)
 {
     pyo_DEALLOC
-    PyMem_Free(self->y1);
-    PyMem_Free(self->y2);
-    PyMem_Free(self->yy1);
-    PyMem_Free(self->yy2);
-    PyMem_Free(self->b0);
-    PyMem_Free(self->b2);
-    PyMem_Free(self->a0);
-    PyMem_Free(self->a1);
-    PyMem_Free(self->a2);
-    PyMem_Free(self->follow);
+    PyMem_RawFree(self->y1);
+    PyMem_RawFree(self->y2);
+    PyMem_RawFree(self->yy1);
+    PyMem_RawFree(self->yy2);
+    PyMem_RawFree(self->b0);
+    PyMem_RawFree(self->b2);
+    PyMem_RawFree(self->a0);
+    PyMem_RawFree(self->a1);
+    PyMem_RawFree(self->a2);
+    PyMem_RawFree(self->follow);
     Vocoder_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -9710,7 +9710,7 @@ static void
 Average_dealloc(Average* self)
 {
     pyo_DEALLOC
-    PyMem_Free(self->buffer);
+    PyMem_RawFree(self->buffer);
     Average_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -9756,7 +9756,7 @@ Average_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->halfSize = (int)(self->size / 2);
     self->oneOnSize = 1.0 / (double)self->size;
 
-    self->buffer = (MYFLT *)PyMem_Realloc(self->buffer, (self->size) * sizeof(MYFLT));
+    self->buffer = (MYFLT *)PyMem_RawRealloc(self->buffer, (self->size) * sizeof(MYFLT));
 
     for (i = 0; i < (self->size); i++)
     {
@@ -9805,7 +9805,7 @@ Average_setSize(Average *self, PyObject *arg)
         self->init = 1;
         self->in_count = 0;
         self->currentValue = 0.0;
-        self->buffer = (MYFLT *)PyMem_Realloc(self->buffer, (self->size) * sizeof(MYFLT));
+        self->buffer = (MYFLT *)PyMem_RawRealloc(self->buffer, (self->size) * sizeof(MYFLT));
 
         for (i = 0; i < (self->size); i++)
         {
@@ -10488,10 +10488,10 @@ static void
 Resonx_allocate_memories(Resonx *self)
 {
     int i;
-    self->x1 = (MYFLT *)PyMem_Realloc(self->x1, self->stages * sizeof(MYFLT));
-    self->x2 = (MYFLT *)PyMem_Realloc(self->x2, self->stages * sizeof(MYFLT));
-    self->y1 = (MYFLT *)PyMem_Realloc(self->y1, self->stages * sizeof(MYFLT));
-    self->y2 = (MYFLT *)PyMem_Realloc(self->y2, self->stages * sizeof(MYFLT));
+    self->x1 = (MYFLT *)PyMem_RawRealloc(self->x1, self->stages * sizeof(MYFLT));
+    self->x2 = (MYFLT *)PyMem_RawRealloc(self->x2, self->stages * sizeof(MYFLT));
+    self->y1 = (MYFLT *)PyMem_RawRealloc(self->y1, self->stages * sizeof(MYFLT));
+    self->y2 = (MYFLT *)PyMem_RawRealloc(self->y2, self->stages * sizeof(MYFLT));
 
     for (i = 0; i < self->stages; i++)
     {
@@ -10776,10 +10776,10 @@ static void
 Resonx_dealloc(Resonx* self)
 {
     pyo_DEALLOC
-    PyMem_Free(self->x1);
-    PyMem_Free(self->x2);
-    PyMem_Free(self->y1);
-    PyMem_Free(self->y2);
+    PyMem_RawFree(self->x1);
+    PyMem_RawFree(self->x2);
+    PyMem_RawFree(self->y1);
+    PyMem_RawFree(self->y2);
     Resonx_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }

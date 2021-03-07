@@ -440,7 +440,7 @@ static void
 Snap_dealloc(Snap* self)
 {
     pyo_DEALLOC
-    PyMem_Free(self->choice);
+    PyMem_RawFree(self->choice);
     Snap_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -527,7 +527,7 @@ Snap_setChoice(Snap *self, PyObject *arg)
 
     tmp = arg;
     self->chSize = PyList_Size(tmp);
-    self->choice = (MYFLT *)PyMem_Realloc(self->choice, self->chSize * sizeof(MYFLT));
+    self->choice = (MYFLT *)PyMem_RawRealloc(self->choice, self->chSize * sizeof(MYFLT));
 
     for (i = 0; i < self->chSize; i++)
     {
@@ -5891,13 +5891,13 @@ Resample_update_mode(Resample *self)
 
     if (self->size > self->factor)
     {
-        self->pimpulse = (MYFLT **)PyMem_Realloc(self->pimpulse, self->factor * sizeof(MYFLT *));
-        self->pinput = (MYFLT **)PyMem_Realloc(self->pinput, self->factor * sizeof(MYFLT *));
+        self->pimpulse = (MYFLT **)PyMem_RawRealloc(self->pimpulse, self->factor * sizeof(MYFLT *));
+        self->pinput = (MYFLT **)PyMem_RawRealloc(self->pinput, self->factor * sizeof(MYFLT *));
 
         for (j = 0; j < self->factor; j++)
         {
-            self->pimpulse[j] = (MYFLT *)PyMem_Malloc(self->size / self->factor * sizeof(MYFLT));
-            self->pinput[j] = (MYFLT *)PyMem_Malloc(self->size / self->factor * sizeof(MYFLT));
+            self->pimpulse[j] = (MYFLT *)PyMem_RawMalloc(self->size / self->factor * sizeof(MYFLT));
+            self->pinput[j] = (MYFLT *)PyMem_RawMalloc(self->size / self->factor * sizeof(MYFLT));
 
             for (i = 0; i < self->size / self->factor; i++)
             {
@@ -6128,12 +6128,12 @@ Resample_dealloc(Resample* self)
     {
         for (i = 0; i < self->factor; i++)
         {
-            PyMem_Free(self->pimpulse[i]);
-            PyMem_Free(self->pinput[i]);
+            PyMem_RawFree(self->pimpulse[i]);
+            PyMem_RawFree(self->pinput[i]);
         }
 
-        PyMem_Free(self->pimpulse);
-        PyMem_Free(self->pinput);
+        PyMem_RawFree(self->pimpulse);
+        PyMem_RawFree(self->pinput);
     }
 
     Resample_clear(self);
