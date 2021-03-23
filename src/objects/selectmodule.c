@@ -31,7 +31,7 @@ typedef struct
     pyo_audio_HEAD
     PyObject *input;
     Stream *input_stream;
-    long value;
+    long long value;
     MYFLT last_value;
     int modebuffer[2]; // need at least 2 slots for mul & add
 } Select;
@@ -170,7 +170,7 @@ Select_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "value", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iOO", kwlist, &inputtmp, &self->value, &multmp, &addtmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|LOO", kwlist, &inputtmp, &self->value, &multmp, &addtmp))
         Py_RETURN_NONE;
 
     INIT_INPUT_STREAM
