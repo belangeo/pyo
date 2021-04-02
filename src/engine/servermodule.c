@@ -655,7 +655,7 @@ Server_dealloc(Server* self)
     PyMem_RawFree(self->serverName);
 
     if (self->withGUI == 1)
-        free(self->lastRms);
+        PyMem_RawFree(self->lastRms);
 
     my_server[self->thisServerID] = NULL;
     Py_TYPE(self)->tp_free((PyObject*)self);
@@ -703,7 +703,7 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->server_booted = 0;
     self->audio_be_data = NULL;
     self->midi_be_data = NULL;
-    self->serverName = (char *) calloc(32, sizeof(char));
+    self->serverName = (char *) PyMem_RawCalloc(32, sizeof(char));
     self->jackautoin = 1;
     self->jackautoout = 1;
     self->streams = PyList_New(0);
@@ -1339,7 +1339,7 @@ Server_setAmpCallable(Server *self, PyObject *arg)
     Py_INCREF(tmp);
     self->GUI = tmp;
 
-    self->lastRms = (float *)realloc(self->lastRms, self->nchnls * sizeof(float));
+    self->lastRms = (float *)PyMem_RawRealloc(self->lastRms, self->nchnls * sizeof(float));
 
     for (i = 0; i < self->nchnls; i++)
     {

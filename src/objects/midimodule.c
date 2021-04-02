@@ -2213,8 +2213,8 @@ static void
 MidiNote_dealloc(MidiNote* self)
 {
     pyo_DEALLOC
-    free(self->notebuf);
-    free(self->trigger_streams);
+    PyMem_RawFree(self->notebuf);
+    PyMem_RawFree(self->trigger_streams);
     MidiNote_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -2253,8 +2253,8 @@ MidiNote_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    self->notebuf = (int *)realloc(self->notebuf, self->voices * 3 * sizeof(int));
-    self->trigger_streams = (MYFLT *)realloc(self->trigger_streams, self->bufsize * self->voices * 2 * sizeof(MYFLT));
+    self->notebuf = (int *)PyMem_RawRealloc(self->notebuf, self->voices * 3 * sizeof(int));
+    self->trigger_streams = (MYFLT *)PyMem_RawRealloc(self->trigger_streams, self->bufsize * self->voices * 2 * sizeof(MYFLT));
 
     for (i = 0; i < self->bufsize * self->voices * 2; i++)
     {
@@ -3278,7 +3278,7 @@ static void
 MidiAdsr_dealloc(MidiAdsr* self)
 {
     pyo_DEALLOC
-    free(self->buf);
+    PyMem_RawFree(self->buf);
     MidiAdsr_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -3328,7 +3328,7 @@ MidiAdsr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    self->buf = (MYFLT *)realloc(self->buf, self->bufsize * sizeof(MYFLT));
+    self->buf = (MYFLT *)PyMem_RawRealloc(self->buf, self->bufsize * sizeof(MYFLT));
 
     for (i = 0; i < self->bufsize; i++)
     {
@@ -3757,7 +3757,7 @@ static void
 MidiDelAdsr_dealloc(MidiDelAdsr* self)
 {
     pyo_DEALLOC
-    free(self->buf);
+    PyMem_RawFree(self->buf);
     MidiDelAdsr_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -3808,7 +3808,7 @@ MidiDelAdsr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    self->buf = (MYFLT *)realloc(self->buf, self->bufsize * sizeof(MYFLT));
+    self->buf = (MYFLT *)PyMem_RawRealloc(self->buf, self->bufsize * sizeof(MYFLT));
 
     for (i = 0; i < self->bufsize; i++)
     {
@@ -4269,8 +4269,8 @@ MidiLinseg_convert_pointslist(MidiLinseg *self)
     PyObject *tup;
 
     self->listsize = PyList_Size(self->pointslist);
-    self->targets = (MYFLT *)realloc(self->targets, self->listsize * sizeof(MYFLT));
-    self->times = (MYFLT *)realloc(self->times, self->listsize * sizeof(MYFLT));
+    self->targets = (MYFLT *)PyMem_RawRealloc(self->targets, self->listsize * sizeof(MYFLT));
+    self->times = (MYFLT *)PyMem_RawRealloc(self->times, self->listsize * sizeof(MYFLT));
 
     for (i = 0; i < self->listsize; i++)
     {
@@ -4488,9 +4488,9 @@ static void
 MidiLinseg_dealloc(MidiLinseg* self)
 {
     pyo_DEALLOC
-    free(self->targets);
-    free(self->times);
-    free(self->trigsBuffer);
+    PyMem_RawFree(self->targets);
+    PyMem_RawFree(self->times);
+    PyMem_RawFree(self->trigsBuffer);
     MidiLinseg_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -4542,7 +4542,7 @@ MidiLinseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
+    self->trigsBuffer = (MYFLT *)PyMem_RawRealloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
 
     for (i = 0; i < self->bufsize; i++)
     {

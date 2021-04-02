@@ -3566,13 +3566,13 @@ CvlVerb_alloc_memories(CvlVerb *self)
     self->hsize = self->size / 2;
     self->size2 = self->size * 2;
     n8 = self->size2 >> 3;
-    self->real = (MYFLT *)realloc(self->real, self->size * sizeof(MYFLT));
-    self->imag = (MYFLT *)realloc(self->imag, self->size * sizeof(MYFLT));
-    self->inframe = (MYFLT *)realloc(self->inframe, self->size2 * sizeof(MYFLT));
-    self->outframe = (MYFLT *)realloc(self->outframe, self->size2 * sizeof(MYFLT));
-    self->last_half_frame = (MYFLT *)realloc(self->last_half_frame, self->size * sizeof(MYFLT));
-    self->input_buffer = (MYFLT *)realloc(self->input_buffer, self->size * sizeof(MYFLT));
-    self->output_buffer = (MYFLT *)realloc(self->output_buffer, self->size2 * sizeof(MYFLT));
+    self->real = (MYFLT *)PyMem_RawRealloc(self->real, self->size * sizeof(MYFLT));
+    self->imag = (MYFLT *)PyMem_RawRealloc(self->imag, self->size * sizeof(MYFLT));
+    self->inframe = (MYFLT *)PyMem_RawRealloc(self->inframe, self->size2 * sizeof(MYFLT));
+    self->outframe = (MYFLT *)PyMem_RawRealloc(self->outframe, self->size2 * sizeof(MYFLT));
+    self->last_half_frame = (MYFLT *)PyMem_RawRealloc(self->last_half_frame, self->size * sizeof(MYFLT));
+    self->input_buffer = (MYFLT *)PyMem_RawRealloc(self->input_buffer, self->size * sizeof(MYFLT));
+    self->output_buffer = (MYFLT *)PyMem_RawRealloc(self->output_buffer, self->size2 * sizeof(MYFLT));
 
     for (i = 0; i < self->size2; i++)
         self->inframe[i] = self->outframe[i] = self->output_buffer[i] = 0.0;
@@ -3580,10 +3580,10 @@ CvlVerb_alloc_memories(CvlVerb *self)
     for (i = 0; i < self->size; i++)
         self->last_half_frame[i] = self->input_buffer[i] = 0.0;
 
-    self->twiddle = (MYFLT **)realloc(self->twiddle, 4 * sizeof(MYFLT *));
+    self->twiddle = (MYFLT **)PyMem_RawRealloc(self->twiddle, 4 * sizeof(MYFLT *));
 
     for (i = 0; i < 4; i++)
-        self->twiddle[i] = (MYFLT *)malloc(n8 * sizeof(MYFLT));
+        self->twiddle[i] = (MYFLT *)PyMem_RawMalloc(n8 * sizeof(MYFLT));
 
     fft_compute_split_twiddle(self->twiddle, self->size2);
 }
@@ -3618,8 +3618,8 @@ CvlVerb_analyse_impulse(CvlVerb *self)
     self->num_iter = (int)MYCEIL((MYFLT)snd_size / self->size);
     self->impulse_len = self->num_iter * self->size;
 
-    tmp = (MYFLT *)malloc(num_items * sizeof(MYFLT));
-    tmp2 = (MYFLT *)malloc(self->impulse_len * sizeof(MYFLT));
+    tmp = (MYFLT *)PyMem_RawMalloc(num_items * sizeof(MYFLT));
+    tmp2 = (MYFLT *)PyMem_RawMalloc(self->impulse_len * sizeof(MYFLT));
 
     sf_seek(sf, 0, SEEK_SET);
     num = SF_READ(sf, tmp, num_items);
@@ -3635,17 +3635,17 @@ CvlVerb_analyse_impulse(CvlVerb *self)
         tmp2[i] = 0.0;
     }
 
-    self->impulse_real = (MYFLT **)realloc(self->impulse_real, self->num_iter * sizeof(MYFLT *));
-    self->impulse_imag = (MYFLT **)realloc(self->impulse_imag, self->num_iter * sizeof(MYFLT *));
-    self->accum_real = (MYFLT **)realloc(self->accum_real, self->num_iter * sizeof(MYFLT *));
-    self->accum_imag = (MYFLT **)realloc(self->accum_imag, self->num_iter * sizeof(MYFLT *));
+    self->impulse_real = (MYFLT **)PyMem_RawRealloc(self->impulse_real, self->num_iter * sizeof(MYFLT *));
+    self->impulse_imag = (MYFLT **)PyMem_RawRealloc(self->impulse_imag, self->num_iter * sizeof(MYFLT *));
+    self->accum_real = (MYFLT **)PyMem_RawRealloc(self->accum_real, self->num_iter * sizeof(MYFLT *));
+    self->accum_imag = (MYFLT **)PyMem_RawRealloc(self->accum_imag, self->num_iter * sizeof(MYFLT *));
 
     for (i = 0; i < self->num_iter; i++)
     {
-        self->impulse_real[i] = (MYFLT *)malloc(self->size * sizeof(MYFLT));
-        self->impulse_imag[i] = (MYFLT *)malloc(self->size * sizeof(MYFLT));
-        self->accum_real[i] = (MYFLT *)malloc(self->size * sizeof(MYFLT));
-        self->accum_imag[i] = (MYFLT *)malloc(self->size * sizeof(MYFLT));
+        self->impulse_real[i] = (MYFLT *)PyMem_RawMalloc(self->size * sizeof(MYFLT));
+        self->impulse_imag[i] = (MYFLT *)PyMem_RawMalloc(self->size * sizeof(MYFLT));
+        self->accum_real[i] = (MYFLT *)PyMem_RawMalloc(self->size * sizeof(MYFLT));
+        self->accum_imag[i] = (MYFLT *)PyMem_RawMalloc(self->size * sizeof(MYFLT));
 
         for (j = 0; j < self->size; j++)
         {
@@ -3654,8 +3654,8 @@ CvlVerb_analyse_impulse(CvlVerb *self)
         }
     }
 
-    inframe = (MYFLT *)malloc(self->size2 * sizeof(MYFLT));
-    outframe = (MYFLT *)malloc(self->size2 * sizeof(MYFLT));
+    inframe = (MYFLT *)PyMem_RawMalloc(self->size2 * sizeof(MYFLT));
+    outframe = (MYFLT *)PyMem_RawMalloc(self->size2 * sizeof(MYFLT));
 
     for (j = 0; j < self->num_iter; j++)
     {
@@ -3682,10 +3682,10 @@ CvlVerb_analyse_impulse(CvlVerb *self)
         }
     }
 
-    free(tmp);
-    free(tmp2);
-    free(inframe);
-    free(outframe);
+    PyMem_RawFree(tmp);
+    PyMem_RawFree(tmp2);
+    PyMem_RawFree(inframe);
+    PyMem_RawFree(outframe);
 }
 
 static void
@@ -3963,33 +3963,33 @@ CvlVerb_dealloc(CvlVerb* self)
 {
     int i;
     pyo_DEALLOC
-    free(self->inframe);
-    free(self->outframe);
-    free(self->input_buffer);
-    free(self->output_buffer);
-    free(self->last_half_frame);
+    PyMem_RawFree(self->inframe);
+    PyMem_RawFree(self->outframe);
+    PyMem_RawFree(self->input_buffer);
+    PyMem_RawFree(self->output_buffer);
+    PyMem_RawFree(self->last_half_frame);
 
     for (i = 0; i < 4; i++)
     {
-        free(self->twiddle[i]);
+        PyMem_RawFree(self->twiddle[i]);
     }
 
-    free(self->twiddle);
+    PyMem_RawFree(self->twiddle);
 
     for (i = 0; i < self->num_iter; i++)
     {
-        free(self->impulse_real[i]);
-        free(self->impulse_imag[i]);
-        free(self->accum_real[i]);
-        free(self->accum_imag[i]);
+        PyMem_RawFree(self->impulse_real[i]);
+        PyMem_RawFree(self->impulse_imag[i]);
+        PyMem_RawFree(self->accum_real[i]);
+        PyMem_RawFree(self->accum_imag[i]);
     }
 
-    free(self->impulse_real);
-    free(self->impulse_imag);
-    free(self->accum_real);
-    free(self->accum_imag);
-    free(self->real);
-    free(self->imag);
+    PyMem_RawFree(self->impulse_real);
+    PyMem_RawFree(self->impulse_imag);
+    PyMem_RawFree(self->accum_real);
+    PyMem_RawFree(self->accum_imag);
+    PyMem_RawFree(self->real);
+    PyMem_RawFree(self->imag);
     CvlVerb_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }

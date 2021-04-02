@@ -452,7 +452,7 @@ p_savefile(PyObject *self, PyObject *args, PyObject *kwds)
     if (channels == 1)
     {
         size = PyList_Size(samples);
-        sampsarray = (MYFLT *)malloc(size * sizeof(MYFLT));
+        sampsarray = (MYFLT *)PyMem_RawMalloc(size * sizeof(MYFLT));
 
         for (i = 0; i < size; i++)
         {
@@ -468,7 +468,7 @@ p_savefile(PyObject *self, PyObject *args, PyObject *kwds)
         }
 
         size = PyList_Size(PyList_GET_ITEM(samples, 0)) * channels;
-        sampsarray = (MYFLT *)malloc(size * sizeof(MYFLT));
+        sampsarray = (MYFLT *)PyMem_RawMalloc(size * sizeof(MYFLT));
 
         for (i = 0; i < (size / channels); i++)
         {
@@ -493,7 +493,7 @@ p_savefile(PyObject *self, PyObject *args, PyObject *kwds)
 
     SF_WRITE(recfile, sampsarray, size);
     sf_close(recfile);
-    free(sampsarray);
+    PyMem_RawFree(sampsarray);
 
     Py_RETURN_NONE;
 }
@@ -559,7 +559,7 @@ p_savefileFromTable(PyObject *self, PyObject *args, PyObject *kwds)
         if (size < (sr * 60))
         {
             data = TableStream_getData((TableStream *)PyList_GetItem(tablestreamlist, 0));
-            sampsarray = (MYFLT *)malloc(size * sizeof(MYFLT));
+            sampsarray = (MYFLT *)PyMem_RawMalloc(size * sizeof(MYFLT));
 
             for (i = 0; i < size; i++)
             {
@@ -572,7 +572,7 @@ p_savefileFromTable(PyObject *self, PyObject *args, PyObject *kwds)
         {
             data = TableStream_getData((TableStream *)PyList_GetItem(tablestreamlist, 0));
             num_items = sr * 30;
-            sampsarray = (MYFLT *)malloc(num_items * sizeof(MYFLT));
+            sampsarray = (MYFLT *)PyMem_RawMalloc(num_items * sizeof(MYFLT));
 
             do
             {
@@ -600,7 +600,7 @@ p_savefileFromTable(PyObject *self, PyObject *args, PyObject *kwds)
                 data[j] = TableStream_getData((TableStream *)PyList_GetItem(tablestreamlist, j));
             }
 
-            sampsarray = (MYFLT *)malloc(size * channels * sizeof(MYFLT));
+            sampsarray = (MYFLT *)PyMem_RawMalloc(size * channels * sizeof(MYFLT));
 
             for (i = 0; i < size; i++)
             {
@@ -620,7 +620,7 @@ p_savefileFromTable(PyObject *self, PyObject *args, PyObject *kwds)
             }
 
             num_items = sr * 30;
-            sampsarray = (MYFLT *)malloc(num_items * channels * sizeof(MYFLT));
+            sampsarray = (MYFLT *)PyMem_RawMalloc(num_items * channels * sizeof(MYFLT));
 
             do
             {
@@ -644,7 +644,7 @@ p_savefileFromTable(PyObject *self, PyObject *args, PyObject *kwds)
     }
 
     sf_close(recfile);
-    free(sampsarray);
+    PyMem_RawFree(sampsarray);
     Py_XDECREF(base_objs);
     Py_XDECREF(tablestreamlist);
 
@@ -778,25 +778,25 @@ p_upsamp(PyObject *self, PyObject *args, PyObject *kwds)
     snd_sr = info.samplerate;
     snd_chnls = info.channels;
     num_items = snd_size * snd_chnls;
-    tmp = (MYFLT *)malloc(num_items * sizeof(MYFLT));
+    tmp = (MYFLT *)PyMem_RawMalloc(num_items * sizeof(MYFLT));
     sf_seek(sf, 0, SEEK_SET);
     SF_READ(sf, tmp, num_items);
     sf_close(sf);
-    samples = (MYFLT **)malloc(snd_chnls * sizeof(MYFLT *));
+    samples = (MYFLT **)PyMem_RawMalloc(snd_chnls * sizeof(MYFLT *));
 
     for (i = 0; i < snd_chnls; i++)
-        samples[i] = (MYFLT *)malloc(snd_size * sizeof(MYFLT));
+        samples[i] = (MYFLT *)PyMem_RawMalloc(snd_size * sizeof(MYFLT));
 
     for (i = 0; i < num_items; i++)
         samples[i % snd_chnls][(int)(i / snd_chnls)] = tmp[i];
 
-    free(tmp);
+    PyMem_RawFree(tmp);
 
     /* upsampling */
-    upsamples = (MYFLT **)malloc(snd_chnls * sizeof(MYFLT *));
+    upsamples = (MYFLT **)PyMem_RawMalloc(snd_chnls * sizeof(MYFLT *));
 
     for (i = 0; i < snd_chnls; i++)
-        upsamples[i] = (MYFLT *)malloc(snd_size * up * sizeof(MYFLT));
+        upsamples[i] = (MYFLT *)PyMem_RawMalloc(snd_size * up * sizeof(MYFLT));
 
     for (i = 0; i < snd_size; i++)
     {
@@ -814,7 +814,7 @@ p_upsamp(PyObject *self, PyObject *args, PyObject *kwds)
     if (order > 2)
     {
         /* apply lowpass filter */
-        sincfunc = (MYFLT *)malloc(order * sizeof(MYFLT));
+        sincfunc = (MYFLT *)PyMem_RawMalloc(order * sizeof(MYFLT));
         gen_lp_impulse(sincfunc, order, PI / up);
 
         for (i = 0; i < snd_chnls; i++)
@@ -822,12 +822,12 @@ p_upsamp(PyObject *self, PyObject *args, PyObject *kwds)
             lp_conv(upsamples[i], sincfunc, snd_size * up, order, up);
         }
 
-        free(sincfunc);
+        PyMem_RawFree(sincfunc);
     }
 
     /* save upsampled file */
     info.samplerate = snd_sr * up;
-    tmp = (MYFLT *)malloc(num_items * up * sizeof(MYFLT));
+    tmp = (MYFLT *)PyMem_RawMalloc(num_items * up * sizeof(MYFLT));
 
     for (i = 0; i < (snd_size * up); i++)
     {
@@ -840,16 +840,16 @@ p_upsamp(PyObject *self, PyObject *args, PyObject *kwds)
     if (! (sf = sf_open(outpath, SFM_WRITE, &info)))
     {
         PySys_WriteStdout("Pyo error: upsamp failed to open output file %s.\n", outpath);
-        free(tmp);
+        PyMem_RawFree(tmp);
 
         for (i = 0; i < snd_chnls; i++)
         {
-            free(samples[i]);
-            free(upsamples[i]);
+            PyMem_RawFree(samples[i]);
+            PyMem_RawFree(upsamples[i]);
         }
 
-        free(samples);
-        free(upsamples);
+        PyMem_RawFree(samples);
+        PyMem_RawFree(upsamples);
         return PyInt_FromLong(-1);
     }
 
@@ -857,16 +857,16 @@ p_upsamp(PyObject *self, PyObject *args, PyObject *kwds)
     sf_close(sf);
 
     /* clean-up */
-    free(tmp);
+    PyMem_RawFree(tmp);
 
     for (i = 0; i < snd_chnls; i++)
     {
-        free(samples[i]);
-        free(upsamples[i]);
+        PyMem_RawFree(samples[i]);
+        PyMem_RawFree(upsamples[i]);
     }
 
-    free(samples);
-    free(upsamples);
+    PyMem_RawFree(samples);
+    PyMem_RawFree(upsamples);
 
     Py_RETURN_NONE;
 }
@@ -906,24 +906,24 @@ p_downsamp(PyObject *self, PyObject *args, PyObject *kwds)
     snd_sr = info.samplerate;
     snd_chnls = info.channels;
     num_items = snd_size * snd_chnls;
-    tmp = (MYFLT *)malloc(num_items * sizeof(MYFLT));
+    tmp = (MYFLT *)PyMem_RawMalloc(num_items * sizeof(MYFLT));
     sf_seek(sf, 0, SEEK_SET);
     SF_READ(sf, tmp, num_items);
     sf_close(sf);
-    samples = (MYFLT **)malloc(snd_chnls * sizeof(MYFLT *));
+    samples = (MYFLT **)PyMem_RawMalloc(snd_chnls * sizeof(MYFLT *));
 
     for (i = 0; i < snd_chnls; i++)
-        samples[i] = (MYFLT *)malloc(snd_size * sizeof(MYFLT));
+        samples[i] = (MYFLT *)PyMem_RawMalloc(snd_size * sizeof(MYFLT));
 
     for (i = 0; i < num_items; i++)
         samples[i % snd_chnls][(int)(i / snd_chnls)] = tmp[i];
 
-    free(tmp);
+    PyMem_RawFree(tmp);
 
     if (order > 2)
     {
         /* apply lowpass filter */
-        sincfunc = (MYFLT *)malloc(order * sizeof(MYFLT));
+        sincfunc = (MYFLT *)PyMem_RawMalloc(order * sizeof(MYFLT));
         gen_lp_impulse(sincfunc, order, PI / down);
 
         for (i = 0; i < snd_chnls; i++)
@@ -931,16 +931,16 @@ p_downsamp(PyObject *self, PyObject *args, PyObject *kwds)
             lp_conv(samples[i], sincfunc, snd_size, order, 1);
         }
 
-        free(sincfunc);
+        PyMem_RawFree(sincfunc);
     }
 
     /* downsampling */
     samples_per_channels = (snd_size / down) + (snd_size % down);
-    downsamples = (MYFLT **)malloc(snd_chnls * sizeof(MYFLT *));
+    downsamples = (MYFLT **)PyMem_RawMalloc(snd_chnls * sizeof(MYFLT *));
 
     for (i = 0; i < snd_chnls; i++)
     {
-        downsamples[i] = (MYFLT *)malloc(samples_per_channels * sizeof(MYFLT));
+        downsamples[i] = (MYFLT *)PyMem_RawMalloc(samples_per_channels * sizeof(MYFLT));
 
         for (j = 0; j < samples_per_channels; j++)
         {
@@ -961,7 +961,7 @@ p_downsamp(PyObject *self, PyObject *args, PyObject *kwds)
 
     /* save downsampled file */
     info.samplerate = snd_sr / down;
-    tmp = (MYFLT *)malloc(snd_chnls * samples_per_channels * sizeof(MYFLT));
+    tmp = (MYFLT *)PyMem_RawMalloc(snd_chnls * samples_per_channels * sizeof(MYFLT));
 
     for (i = 0; i < samples_per_channels; i++)
     {
@@ -974,16 +974,16 @@ p_downsamp(PyObject *self, PyObject *args, PyObject *kwds)
     if (! (sf = sf_open(outpath, SFM_WRITE, &info)))
     {
         PySys_WriteStdout("Pyo error: downsamp failed to open the output file %s.\n", outpath);
-        free(tmp);
+        PyMem_RawFree(tmp);
 
         for (i = 0; i < snd_chnls; i++)
         {
-            free(samples[i]);
-            free(downsamples[i]);
+            PyMem_RawFree(samples[i]);
+            PyMem_RawFree(downsamples[i]);
         }
 
-        free(samples);
-        free(downsamples);
+        PyMem_RawFree(samples);
+        PyMem_RawFree(downsamples);
         return PyInt_FromLong(-1);
     }
 
@@ -991,16 +991,16 @@ p_downsamp(PyObject *self, PyObject *args, PyObject *kwds)
     sf_close(sf);
 
     /* clean-up */
-    free(tmp);
+    PyMem_RawFree(tmp);
 
     for (i = 0; i < snd_chnls; i++)
     {
-        free(samples[i]);
-        free(downsamples[i]);
+        PyMem_RawFree(samples[i]);
+        PyMem_RawFree(downsamples[i]);
     }
 
-    free(samples);
-    free(downsamples);
+    PyMem_RawFree(samples);
+    PyMem_RawFree(downsamples);
 
     Py_RETURN_NONE;
 }

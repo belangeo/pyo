@@ -833,7 +833,7 @@ OscDataSend_compute_next_data_frame(OscDataSend *self)
                 case LO_BLOB:
                     datalist = PyList_GET_ITEM(inlist, i);
                     blobsize = PyList_Size(datalist);
-                    blobdata = (char *)malloc(blobsize * sizeof(char));
+                    blobdata = (char *)PyMem_RawMalloc(blobsize * sizeof(char));
 
                     for (j = 0; j < blobsize; j++)
                     {
@@ -886,7 +886,7 @@ OscDataSend_compute_next_data_frame(OscDataSend *self)
             lo_blob_free(blob);
 
         if (blobdata != NULL)
-            free(blobdata);
+            PyMem_RawFree(blobdata);
     }
 }
 

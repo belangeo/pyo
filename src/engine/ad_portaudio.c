@@ -194,7 +194,7 @@ Server_pa_init(Server *self)
         portaudio_assert(n, "Pa_GetDeviceCount");
     }
 
-    PyoPaBackendData *be_data = (PyoPaBackendData *) malloc(sizeof(PyoPaBackendData));
+    PyoPaBackendData *be_data = (PyoPaBackendData *) PyMem_RawMalloc(sizeof(PyoPaBackendData));
     self->audio_be_data = (void *) be_data;
 
     if (self->output == -1)
@@ -390,7 +390,7 @@ Server_pa_deinit(Server *self)
 
     portaudio_assert(err, "Pa_Terminate (pa_deinit)");
 
-    free(self->audio_be_data);
+    PyMem_RawFree(self->audio_be_data);
     return err;
 }
 

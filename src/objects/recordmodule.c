@@ -120,7 +120,7 @@ Record_dealloc(Record* self)
         PyObject_CallMethod((PyObject *)self, "stop", NULL);
 
     pyo_DEALLOC
-    free(self->buffer);
+    PyMem_RawFree(self->buffer);
     Record_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -247,7 +247,7 @@ Record_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     }
 
     buflen = self->bufsize * self->chnls * self->buffering;
-    self->buffer = (MYFLT *)realloc(self->buffer, buflen * sizeof(MYFLT));
+    self->buffer = (MYFLT *)PyMem_RawRealloc(self->buffer, buflen * sizeof(MYFLT));
 
     for (i = 0; i < buflen; i++)
     {

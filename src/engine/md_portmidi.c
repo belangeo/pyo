@@ -86,7 +86,7 @@ Server_pm_init(Server *self)
         self->withPortMidiOut = 1;
     }
 
-    PyoPmBackendData *be_data = (PyoPmBackendData *) malloc(sizeof(PyoPmBackendData));
+    PyoPmBackendData *be_data = (PyoPmBackendData *) PyMem_RawMalloc(sizeof(PyoPmBackendData));
     self->midi_be_data = (void *) be_data;
 
     if (self->withPortMidi == 1)
@@ -402,7 +402,7 @@ Server_pm_deinit(Server *self)
     self->withPortMidi = 0;
     self->withPortMidiOut = 0;
 
-    free(self->midi_be_data);
+    PyMem_RawFree(self->midi_be_data);
 
     return 0;
 }

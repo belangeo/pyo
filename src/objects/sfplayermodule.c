@@ -326,8 +326,8 @@ SfPlayer_dealloc(SfPlayer* self)
     if (self->sf != NULL)
         sf_close(self->sf);
 
-    free(self->trigsBuffer);
-    free(self->samplesBuffer);
+    PyMem_RawFree(self->trigsBuffer);
+    PyMem_RawFree(self->samplesBuffer);
     SfPlayer_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -382,8 +382,8 @@ SfPlayer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->sndChnls = self->info.channels;
     self->srScale = self->sndSr / self->sr;
 
-    self->samplesBuffer = (MYFLT *)realloc(self->samplesBuffer, self->bufsize * self->sndChnls * sizeof(MYFLT));
-    self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
+    self->samplesBuffer = (MYFLT *)PyMem_RawRealloc(self->samplesBuffer, self->bufsize * self->sndChnls * sizeof(MYFLT));
+    self->trigsBuffer = (MYFLT *)PyMem_RawRealloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
 
     for (i = 0; i < self->bufsize; i++)
     {
@@ -486,7 +486,7 @@ SfPlayer_setSound(SfPlayer *self, PyObject *args)
     //self->sndChnls = self->info.channels;
     self->srScale = self->sndSr / self->sr;
 
-    //self->samplesBuffer = (MYFLT *)realloc(self->samplesBuffer, self->bufsize * self->sndChnls * sizeof(MYFLT));
+    //self->samplesBuffer = (MYFLT *)PyMem_RawRealloc(self->samplesBuffer, self->bufsize * self->sndChnls * sizeof(MYFLT));
 
     self->startPos = 0.0;
     self->pointerPos = self->startPos;
@@ -1311,7 +1311,7 @@ SfMarkerShuffler_setMarkers(SfMarkerShuffler *self, PyObject *markerstmp)
 {
     Py_ssize_t i;
     Py_ssize_t len = PyList_Size(markerstmp);
-    self->markers = (MYFLT *)realloc(self->markers, (len + 2) * sizeof(MYFLT));
+    self->markers = (MYFLT *)PyMem_RawRealloc(self->markers, (len + 2) * sizeof(MYFLT));
     self->markers[0] = 0.;
 
     for (i = 0; i < len; i++)
@@ -1349,8 +1349,8 @@ SfMarkerShuffler_dealloc(SfMarkerShuffler* self)
     if (self->sf != NULL)
         sf_close(self->sf);
 
-    free(self->samplesBuffer);
-    free(self->markers);
+    PyMem_RawFree(self->samplesBuffer);
+    PyMem_RawFree(self->markers);
     SfMarkerShuffler_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -1421,7 +1421,7 @@ SfMarkerShuffler_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Py_INCREF(markerstmp);
     SfMarkerShuffler_setMarkers((SfMarkerShuffler *)self, markerstmp);
 
-    self->samplesBuffer = (MYFLT *)realloc(self->samplesBuffer, self->bufsize * self->sndChnls * sizeof(MYFLT));
+    self->samplesBuffer = (MYFLT *)PyMem_RawRealloc(self->samplesBuffer, self->bufsize * self->sndChnls * sizeof(MYFLT));
 
     Server_generateSeed((Server *)self->server, SFMARKERSHUFFLER_ID);
 
@@ -2213,7 +2213,7 @@ SfMarkerLooper_setMarkers(SfMarkerLooper *self, PyObject *markerstmp)
 {
     Py_ssize_t i;
     Py_ssize_t len = PyList_Size(markerstmp);
-    self->markers = (MYFLT *)realloc(self->markers, (len + 2) * sizeof(MYFLT));
+    self->markers = (MYFLT *)PyMem_RawRealloc(self->markers, (len + 2) * sizeof(MYFLT));
     self->markers[0] = 0.;
 
     for (i = 0; i < len; i++)
@@ -2255,8 +2255,8 @@ SfMarkerLooper_dealloc(SfMarkerLooper* self)
     if (self->sf != NULL)
         sf_close(self->sf);
 
-    free(self->samplesBuffer);
-    free(self->markers);
+    PyMem_RawFree(self->samplesBuffer);
+    PyMem_RawFree(self->markers);
     SfMarkerLooper_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -2333,7 +2333,7 @@ SfMarkerLooper_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Py_INCREF(markerstmp);
     SfMarkerLooper_setMarkers((SfMarkerLooper *)self, markerstmp);
 
-    self->samplesBuffer = (MYFLT *)realloc(self->samplesBuffer, self->bufsize * self->sndChnls * sizeof(MYFLT));
+    self->samplesBuffer = (MYFLT *)PyMem_RawRealloc(self->samplesBuffer, self->bufsize * self->sndChnls * sizeof(MYFLT));
 
     Server_generateSeed((Server *)self->server, SFMARKERLOOPER_ID);
 

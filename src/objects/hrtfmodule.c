@@ -71,28 +71,28 @@ HRTFData_dealloc(HRTFData* self)
 
         for (j = 0; j < howmany; j++)
         {
-            free(self->hrtf_left[i][j]);
-            free(self->hrtf_right[i][j]);
-            free(self->mag_left[i][j]);
-            free(self->ang_left[i][j]);
-            free(self->mag_right[i][j]);
-            free(self->ang_right[i][j]);
+            PyMem_RawFree(self->hrtf_left[i][j]);
+            PyMem_RawFree(self->hrtf_right[i][j]);
+            PyMem_RawFree(self->mag_left[i][j]);
+            PyMem_RawFree(self->ang_left[i][j]);
+            PyMem_RawFree(self->mag_right[i][j]);
+            PyMem_RawFree(self->ang_right[i][j]);
         }
 
-        free(self->hrtf_left[i]);
-        free(self->hrtf_right[i]);
-        free(self->mag_left[i]);
-        free(self->ang_left[i]);
-        free(self->mag_right[i]);
-        free(self->ang_right[i]);
+        PyMem_RawFree(self->hrtf_left[i]);
+        PyMem_RawFree(self->hrtf_right[i]);
+        PyMem_RawFree(self->mag_left[i]);
+        PyMem_RawFree(self->ang_left[i]);
+        PyMem_RawFree(self->mag_right[i]);
+        PyMem_RawFree(self->ang_right[i]);
     }
 
-    free(self->hrtf_left);
-    free(self->hrtf_right);
-    free(self->mag_left);
-    free(self->ang_left);
-    free(self->mag_right);
-    free(self->ang_right);
+    PyMem_RawFree(self->hrtf_left);
+    PyMem_RawFree(self->hrtf_right);
+    PyMem_RawFree(self->mag_left);
+    PyMem_RawFree(self->ang_left);
+    PyMem_RawFree(self->mag_right);
+    PyMem_RawFree(self->ang_right);
     HRTFData_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -166,19 +166,19 @@ HRTFData_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
 
     /* Store HRIRs. */
-    self->hrtf_left = (MYFLT ***)realloc(self->hrtf_left, 14 * sizeof(MYFLT **));
-    self->hrtf_right = (MYFLT ***)realloc(self->hrtf_right, 14 * sizeof(MYFLT **));
+    self->hrtf_left = (MYFLT ***)PyMem_RawRealloc(self->hrtf_left, 14 * sizeof(MYFLT **));
+    self->hrtf_right = (MYFLT ***)PyMem_RawRealloc(self->hrtf_right, 14 * sizeof(MYFLT **));
 
     for (i = 0; i < 14; i++)
     {
         howmany = files_per_folder[i];
-        self->hrtf_left[i] = (MYFLT **)malloc((howmany * 2 - 1) * sizeof(MYFLT *));
-        self->hrtf_right[i] = (MYFLT **)malloc((howmany * 2 - 1) * sizeof(MYFLT *));
+        self->hrtf_left[i] = (MYFLT **)PyMem_RawMalloc((howmany * 2 - 1) * sizeof(MYFLT *));
+        self->hrtf_right[i] = (MYFLT **)PyMem_RawMalloc((howmany * 2 - 1) * sizeof(MYFLT *));
 
         for (j = 0; j < howmany; j++)
         {
-            self->hrtf_left[i][j] = (MYFLT *)malloc(self->length * sizeof(MYFLT));
-            self->hrtf_right[i][j] = (MYFLT *)malloc(self->length * sizeof(MYFLT));
+            self->hrtf_left[i][j] = (MYFLT *)PyMem_RawMalloc(self->length * sizeof(MYFLT));
+            self->hrtf_right[i][j] = (MYFLT *)PyMem_RawMalloc(self->length * sizeof(MYFLT));
 
             for (k = 0; k < self->length; k++)
             {
@@ -189,8 +189,8 @@ HRTFData_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
         for (j = 0; j < (howmany - 1); j++)
         {
-            self->hrtf_left[i][howmany + j] = (MYFLT *)malloc(self->length * sizeof(MYFLT));
-            self->hrtf_right[i][howmany + j] = (MYFLT *)malloc(self->length * sizeof(MYFLT));
+            self->hrtf_left[i][howmany + j] = (MYFLT *)PyMem_RawMalloc(self->length * sizeof(MYFLT));
+            self->hrtf_right[i][howmany + j] = (MYFLT *)PyMem_RawMalloc(self->length * sizeof(MYFLT));
 
             for (k = 0; k < self->length; k++)
             {
@@ -218,32 +218,32 @@ HRTFData_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         real[i] = imag[i] = magn[i] = freq[i] = 0.0;
     }
 
-    MYFLT **twiddle = (MYFLT **)malloc(4 * sizeof(MYFLT *));
+    MYFLT **twiddle = (MYFLT **)PyMem_RawMalloc(4 * sizeof(MYFLT *));
 
     for (i = 0; i < 4; i++)
-        twiddle[i] = (MYFLT *)malloc(n8 * sizeof(MYFLT));
+        twiddle[i] = (MYFLT *)PyMem_RawMalloc(n8 * sizeof(MYFLT));
 
     fft_compute_split_twiddle(twiddle, self->length);
 
-    self->mag_left = (MYFLT ***)realloc(self->mag_left, 14 * sizeof(MYFLT **));
-    self->ang_left = (MYFLT ***)realloc(self->ang_left, 14 * sizeof(MYFLT **));
-    self->mag_right = (MYFLT ***)realloc(self->mag_right, 14 * sizeof(MYFLT **));
-    self->ang_right = (MYFLT ***)realloc(self->ang_right, 14 * sizeof(MYFLT **));
+    self->mag_left = (MYFLT ***)PyMem_RawRealloc(self->mag_left, 14 * sizeof(MYFLT **));
+    self->ang_left = (MYFLT ***)PyMem_RawRealloc(self->ang_left, 14 * sizeof(MYFLT **));
+    self->mag_right = (MYFLT ***)PyMem_RawRealloc(self->mag_right, 14 * sizeof(MYFLT **));
+    self->ang_right = (MYFLT ***)PyMem_RawRealloc(self->ang_right, 14 * sizeof(MYFLT **));
 
     for (i = 0; i < 14; i++)
     {
         howmany = files_per_folder[i];
-        self->mag_left[i] = (MYFLT **)malloc((howmany * 2 - 1) * sizeof(MYFLT *));
-        self->ang_left[i] = (MYFLT **)malloc((howmany * 2 - 1) * sizeof(MYFLT *));
-        self->mag_right[i] = (MYFLT **)malloc((howmany * 2 - 1) * sizeof(MYFLT *));
-        self->ang_right[i] = (MYFLT **)malloc((howmany * 2 - 1) * sizeof(MYFLT *));
+        self->mag_left[i] = (MYFLT **)PyMem_RawMalloc((howmany * 2 - 1) * sizeof(MYFLT *));
+        self->ang_left[i] = (MYFLT **)PyMem_RawMalloc((howmany * 2 - 1) * sizeof(MYFLT *));
+        self->mag_right[i] = (MYFLT **)PyMem_RawMalloc((howmany * 2 - 1) * sizeof(MYFLT *));
+        self->ang_right[i] = (MYFLT **)PyMem_RawMalloc((howmany * 2 - 1) * sizeof(MYFLT *));
 
         for (j = 0; j < (howmany * 2 - 1); j++)
         {
-            self->mag_left[i][j] = (MYFLT *)malloc(hsize * sizeof(MYFLT));
-            self->ang_left[i][j] = (MYFLT *)malloc(hsize * sizeof(MYFLT));
-            self->mag_right[i][j] = (MYFLT *)malloc(hsize * sizeof(MYFLT));
-            self->ang_right[i][j] = (MYFLT *)malloc(hsize * sizeof(MYFLT));
+            self->mag_left[i][j] = (MYFLT *)PyMem_RawMalloc(hsize * sizeof(MYFLT));
+            self->ang_left[i][j] = (MYFLT *)PyMem_RawMalloc(hsize * sizeof(MYFLT));
+            self->mag_right[i][j] = (MYFLT *)PyMem_RawMalloc(hsize * sizeof(MYFLT));
+            self->ang_right[i][j] = (MYFLT *)PyMem_RawMalloc(hsize * sizeof(MYFLT));
 
             /* Left channel */
             realfft_split(self->hrtf_left[i][j], outframe, self->length, twiddle);
@@ -632,24 +632,24 @@ HRTFSpatter_dealloc(HRTFSpatter* self)
 {
     int i;
     pyo_DEALLOC
-    free(self->buffer_streams);
-    free(self->hrtf_input_tmp);
+    PyMem_RawFree(self->buffer_streams);
+    PyMem_RawFree(self->hrtf_input_tmp);
 
     for (i = 0; i < 2; i++)
     {
-        free(self->current_impulses[i]);
-        free(self->previous_impulses[i]);
+        PyMem_RawFree(self->current_impulses[i]);
+        PyMem_RawFree(self->previous_impulses[i]);
     }
 
-    free(self->current_impulses);
-    free(self->previous_impulses);
+    PyMem_RawFree(self->current_impulses);
+    PyMem_RawFree(self->previous_impulses);
 
     for (i = 0; i < 4; i++)
     {
-        free(self->twiddle[i]);
+        PyMem_RawFree(self->twiddle[i]);
     }
 
-    free(self->twiddle);
+    PyMem_RawFree(self->twiddle);
     HRTFSpatter_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -700,10 +700,10 @@ HRTFSpatter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    self->buffer_streams = (MYFLT *)realloc(self->buffer_streams, 2 * self->bufsize * sizeof(MYFLT));
-    self->hrtf_input_tmp = (MYFLT *)realloc(self->hrtf_input_tmp, self->length * sizeof(MYFLT));
-    self->current_impulses = (MYFLT **)realloc(self->current_impulses, 2 * sizeof(MYFLT *));
-    self->previous_impulses = (MYFLT **)realloc(self->previous_impulses, 2 * sizeof(MYFLT *));
+    self->buffer_streams = (MYFLT *)PyMem_RawRealloc(self->buffer_streams, 2 * self->bufsize * sizeof(MYFLT));
+    self->hrtf_input_tmp = (MYFLT *)PyMem_RawRealloc(self->hrtf_input_tmp, self->length * sizeof(MYFLT));
+    self->current_impulses = (MYFLT **)PyMem_RawRealloc(self->current_impulses, 2 * sizeof(MYFLT *));
+    self->previous_impulses = (MYFLT **)PyMem_RawRealloc(self->previous_impulses, 2 * sizeof(MYFLT *));
 
     for (k = 0; k < (2 * self->bufsize); k++)
     {
@@ -712,8 +712,8 @@ HRTFSpatter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     for (j = 0; j < 2; j++)
     {
-        self->current_impulses[j] = (MYFLT *)malloc(self->length * sizeof(MYFLT));
-        self->previous_impulses[j] = (MYFLT *)malloc(self->length * sizeof(MYFLT));
+        self->current_impulses[j] = (MYFLT *)PyMem_RawMalloc(self->length * sizeof(MYFLT));
+        self->previous_impulses[j] = (MYFLT *)PyMem_RawMalloc(self->length * sizeof(MYFLT));
 
         for (k = 0; k < self->length; k++)
         {
@@ -728,10 +728,10 @@ HRTFSpatter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     }
 
     int n8 = self->length >> 3;
-    self->twiddle = (MYFLT **)realloc(self->twiddle, 4 * sizeof(MYFLT *));
+    self->twiddle = (MYFLT **)PyMem_RawRealloc(self->twiddle, 4 * sizeof(MYFLT *));
 
     for (i = 0; i < 4; i++)
-        self->twiddle[i] = (MYFLT *)malloc(n8 * sizeof(MYFLT));
+        self->twiddle[i] = (MYFLT *)PyMem_RawMalloc(n8 * sizeof(MYFLT));
 
     fft_compute_split_twiddle(self->twiddle, self->length);
 
@@ -1375,15 +1375,15 @@ Binauraler_dealloc(Binauraler* self)
 {
     int i;
     pyo_DEALLOC
-    free(self->buffer_streams);
+    PyMem_RawFree(self->buffer_streams);
     free_vbap_data(self->paramVBap);
 
     for (i = 0; i < 16; i++)
     {
-        free(self->vbap_buffer[i]);
+        PyMem_RawFree(self->vbap_buffer[i]);
     }
 
-    free(self->vbap_buffer);
+    PyMem_RawFree(self->vbap_buffer);
     Binauraler_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -1503,14 +1503,14 @@ Binauraler_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         self->hrtf_right_impulses[15][i] = BINAURAL_RIGHT_HRTF_15[i];
     }
 
-    self->vbap_buffer = (MYFLT **)realloc(self->vbap_buffer, 16 * sizeof(MYFLT *));
+    self->vbap_buffer = (MYFLT **)PyMem_RawRealloc(self->vbap_buffer, 16 * sizeof(MYFLT *));
 
     for (i = 0; i < 16; i++)
     {
-        self->vbap_buffer[i] = (MYFLT *)malloc(self->bufsize * sizeof(MYFLT));
+        self->vbap_buffer[i] = (MYFLT *)PyMem_RawMalloc(self->bufsize * sizeof(MYFLT));
     }
 
-    self->buffer_streams = (MYFLT *)realloc(self->buffer_streams, 2 * self->bufsize * sizeof(MYFLT));
+    self->buffer_streams = (MYFLT *)PyMem_RawRealloc(self->buffer_streams, 2 * self->bufsize * sizeof(MYFLT));
 
     for (k = 0; k < (2 * self->bufsize); k++)
     {

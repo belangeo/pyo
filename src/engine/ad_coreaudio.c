@@ -135,13 +135,13 @@ Server_coreaudio_init(Server *self)
     /* List Coreaudio available devices */
     /************************************/
     err = AudioHardwareGetPropertyInfo(kAudioHardwarePropertyDevices, &count, 0);
-    AudioDeviceID *devices = (AudioDeviceID*) malloc(count);
+    AudioDeviceID *devices = (AudioDeviceID*) PyMem_RawMalloc(count);
     err = AudioHardwareGetProperty(kAudioHardwarePropertyDevices, &count, devices);
 
     if (err != kAudioHardwareNoError)
     {
         Server_error(self, "Get kAudioHardwarePropertyDevices error %s\n", (char*)&err);
-        free(devices);
+        PyMem_RawFree(devices);
     }
 
     numdevices = count / sizeof(AudioDeviceID);
@@ -157,18 +157,18 @@ Server_coreaudio_init(Server *self)
             break;
         }
 
-        char *name = (char*)malloc(count);
+        char *name = (char*)PyMem_RawMalloc(count);
         err = AudioDeviceGetProperty(devices[i], 0, false, kAudioDevicePropertyDeviceName, &count, name);
 
         if (err != kAudioHardwareNoError)
         {
             Server_error(self, "Get kAudioDevicePropertyDeviceName error %s A %d %08X\n", (char*)&err, i, devices[i]);
-            free(name);
+            PyMem_RawFree(name);
             break;
         }
 
         Server_debug(self, "   %d : \"%s\"\n", i, name);
-        free(name);
+        PyMem_RawFree(name);
     }
 
     /************************************/
@@ -199,7 +199,7 @@ Server_coreaudio_init(Server *self)
             Server_error(self, "Info kAudioDevicePropertyDeviceName error %s A %08X\n", (char*)&err, mInputDevice);
         }
 
-        name = (char*)malloc(namelen);
+        name = (char*)PyMem_RawMalloc(namelen);
         err = AudioDeviceGetProperty(mInputDevice, 0, false, kAudioDevicePropertyDeviceName, &namelen, name);
 
         if (err != kAudioHardwareNoError)
@@ -209,7 +209,7 @@ Server_coreaudio_init(Server *self)
 
         Server_debug(self, "Coreaudio : Uses input device : \"%s\"\n", name);
         self->input = mInputDevice;
-        free(name);
+        PyMem_RawFree(name);
     }
 
     /* Acquire output audio device */
@@ -235,7 +235,7 @@ Server_coreaudio_init(Server *self)
         Server_error(self, "Info kAudioDevicePropertyDeviceName error %s A %08X\n", (char*)&err, mOutputDevice);
     }
 
-    name = (char*)malloc(namelen);
+    name = (char*)PyMem_RawMalloc(namelen);
     err = AudioDeviceGetProperty(mOutputDevice, 0, false, kAudioDevicePropertyDeviceName, &namelen, name);
 
     if (err != kAudioHardwareNoError)
@@ -245,7 +245,7 @@ Server_coreaudio_init(Server *self)
 
     Server_debug(self, "Coreaudio : Uses output device : \"%s\"\n", name);
     self->output = mOutputDevice;
-    free(name);
+    PyMem_RawFree(name);
 
     /*************************************************/
     /* Get in/out buffer frame and buffer frame size */
@@ -442,7 +442,7 @@ Server_coreaudio_init(Server *self)
         }
 
         err = AudioDeviceGetPropertyInfo(self->input, 0, true, kAudioDevicePropertyIOProcStreamUsage, &propertySize, &writable);
-        AudioHardwareIOProcStreamUsage *input_su = (AudioHardwareIOProcStreamUsage*)malloc(propertySize);
+        AudioHardwareIOProcStreamUsage *input_su = (AudioHardwareIOProcStreamUsage*)PyMem_RawMalloc(propertySize);
         input_su->mIOProc = (void*)coreaudio_input_callback;
         err = AudioDeviceGetProperty(self->input, 0, true, kAudioDevicePropertyIOProcStreamUsage, &propertySize, input_su);
 
@@ -463,7 +463,7 @@ Server_coreaudio_init(Server *self)
     }
 
     err = AudioDeviceGetPropertyInfo(self->output, 0, false, kAudioDevicePropertyIOProcStreamUsage, &propertySize, &writable);
-    AudioHardwareIOProcStreamUsage *output_su = (AudioHardwareIOProcStreamUsage*)malloc(propertySize);
+    AudioHardwareIOProcStreamUsage *output_su = (AudioHardwareIOProcStreamUsage*)PyMem_RawMalloc(propertySize);
     output_su->mIOProc = (void*)coreaudio_output_callback;
     err = AudioDeviceGetProperty(self->output, 0, false, kAudioDevicePropertyIOProcStreamUsage, &propertySize, output_su);
 

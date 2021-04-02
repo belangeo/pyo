@@ -314,7 +314,7 @@ Server_jack_autoconnect(Server *self)
                 i++;
             }
 
-            free(ports);
+            PyMem_RawFree(ports);
         }
     }
 
@@ -347,7 +347,7 @@ Server_jack_autoconnect(Server *self)
             i++;
         }
 
-        free(ports);
+        PyMem_RawFree(ports);
     }
 
     if (self->duplex == 1)
@@ -505,7 +505,7 @@ Server_jack_init(Server *self)
     int index = 0;
     int ret = 0;
     assert(self->audio_be_data == NULL);
-    PyoJackBackendData *be_data = (PyoJackBackendData *) malloc(sizeof(PyoJackBackendData));
+    PyoJackBackendData *be_data = (PyoJackBackendData *) PyMem_RawMalloc(sizeof(PyoJackBackendData));
     self->audio_be_data = (void *) be_data;
     be_data->activated = 0;
     strncpy(client_name, self->serverName, 31);
@@ -515,19 +515,19 @@ Server_jack_init(Server *self)
 
     if (self->duplex == 1)
     {
-        be_data->jack_in_ports = (jack_port_t **) calloc(self->ichnls + self->input_offset, sizeof(jack_port_t *));
+        be_data->jack_in_ports = (jack_port_t **) PyMem_RawCalloc(self->ichnls + self->input_offset, sizeof(jack_port_t *));
     }
     else
     {
         be_data->jack_in_ports = NULL;
     }
 
-    be_data->jack_out_ports = (jack_port_t **) calloc(self->nchnls + self->output_offset, sizeof(jack_port_t *));
+    be_data->jack_out_ports = (jack_port_t **) PyMem_RawCalloc(self->nchnls + self->output_offset, sizeof(jack_port_t *));
     be_data->jack_client = jack_client_open(client_name, options, &status, server_name);
 
     if (self->withJackMidi)
     {
-        be_data->midi_events = (PyoJackMidiEvent *)malloc(512 * sizeof(PyoJackMidiEvent));
+        be_data->midi_events = (PyoJackMidiEvent *)PyMem_RawMalloc(512 * sizeof(PyoJackMidiEvent));
 
         for (i = 0; i < 512; i++)
         {
@@ -718,17 +718,17 @@ Server_jack_deinit(Server *self)
 
     if (be_data->jack_in_ports != NULL)
     {
-        free(be_data->jack_in_ports);
+        PyMem_RawFree(be_data->jack_in_ports);
     }
 
-    free(be_data->jack_out_ports);
+    PyMem_RawFree(be_data->jack_out_ports);
 
     if (self->withJackMidi == 1)
     {
-        free(be_data->midi_events);
+        PyMem_RawFree(be_data->midi_events);
     }
 
-    free(self->audio_be_data);
+    PyMem_RawFree(self->audio_be_data);
 
     return ret;
 }

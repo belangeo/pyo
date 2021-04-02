@@ -3794,12 +3794,12 @@ SndTable_loadSound(SndTable *self)
     num_items = self->size * num_chnls;
 
     /* Allocate space for the data to be read, then read it. */
-    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
+    self->data = (MYFLT *)PyMem_RawRealloc(self->data, (self->size + 1) * sizeof(MYFLT));
 
     /* For sound longer than 1 minute, load 30 sec chunks. */
     if (self->size > (T_SIZE_T)(self->sndSr * 60 * num_chnls))
     {
-        tmp = (MYFLT *)malloc(self->sndSr * 30 * num_chnls * sizeof(MYFLT));
+        tmp = (MYFLT *)PyMem_RawMalloc(self->sndSr * 30 * num_chnls * sizeof(MYFLT));
         sf_seek(sf, start, SEEK_SET);
         num_items = self->sndSr * 30 * num_chnls;
 
@@ -3822,7 +3822,7 @@ SndTable_loadSound(SndTable *self)
     /* For sound shorter than 1 minute, load sound in one pass. */
     else
     {
-        tmp = (MYFLT *)malloc(num_items * sizeof(MYFLT));
+        tmp = (MYFLT *)PyMem_RawMalloc(num_items * sizeof(MYFLT));
         sf_seek(sf, start, SEEK_SET);
         num = SF_READ(sf, tmp, num_items);
         sf_close(sf);
@@ -3840,7 +3840,7 @@ SndTable_loadSound(SndTable *self)
 
     self->start = 0.0;
     self->stop = -1.0;
-    free(tmp);
+    PyMem_RawFree(tmp);
     TableStream_setSize(self->tablestream, self->size);
     TableStream_setSamplingRate(self->tablestream, self->sndSr);
     TableStream_setData(self->tablestream, self->data);
@@ -3889,8 +3889,8 @@ SndTable_appendSound(SndTable *self)
         cross_in_samps = self->size - 1;
 
     /* Allocate space for the data to be read, then read it. */
-    tmp = (MYFLT *)malloc(num_items * sizeof(MYFLT));
-    tmp_data = (MYFLT *)malloc(self->size * sizeof(MYFLT));
+    tmp = (MYFLT *)PyMem_RawMalloc(num_items * sizeof(MYFLT));
+    tmp_data = (MYFLT *)PyMem_RawMalloc(self->size * sizeof(MYFLT));
 
     sf_seek(sf, start, SEEK_SET);
     SF_READ(sf, tmp, num_items);
@@ -3906,7 +3906,7 @@ SndTable_appendSound(SndTable *self)
 
     cross_point = self->size - cross_in_samps;
     self->size = self->size + to_load_size - cross_in_samps;
-    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
+    self->data = (MYFLT *)PyMem_RawRealloc(self->data, (self->size + 1) * sizeof(MYFLT));
 
     if (cross_in_samps != 0)
     {
@@ -3952,8 +3952,8 @@ SndTable_appendSound(SndTable *self)
 
     self->start = 0.0;
     self->stop = -1.0;
-    free(tmp);
-    free(tmp_data);
+    PyMem_RawFree(tmp);
+    PyMem_RawFree(tmp_data);
     TableStream_setSize(self->tablestream, self->size);
     TableStream_setSamplingRate(self->tablestream, self->sndSr);
     TableStream_setData(self->tablestream, self->data);
@@ -4002,8 +4002,8 @@ SndTable_prependSound(SndTable *self)
         cross_in_samps = self->size - 1;
 
     /* Allocate space for the data to be read, then read it. */
-    tmp = (MYFLT *)malloc(num_items * sizeof(MYFLT));
-    tmp_data = (MYFLT *)malloc(self->size * sizeof(MYFLT));
+    tmp = (MYFLT *)PyMem_RawMalloc(num_items * sizeof(MYFLT));
+    tmp_data = (MYFLT *)PyMem_RawMalloc(self->size * sizeof(MYFLT));
 
     sf_seek(sf, start, SEEK_SET);
     SF_READ(sf, tmp, num_items);
@@ -4016,7 +4016,7 @@ SndTable_prependSound(SndTable *self)
 
     cross_point = to_load_size - cross_in_samps;
     self->size = self->size + to_load_size - cross_in_samps;
-    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
+    self->data = (MYFLT *)PyMem_RawRealloc(self->data, (self->size + 1) * sizeof(MYFLT));
 
     if (self->crossfade == 0.0)
     {
@@ -4058,8 +4058,8 @@ SndTable_prependSound(SndTable *self)
 
     self->start = 0.0;
     self->stop = -1.0;
-    free(tmp);
-    free(tmp_data);
+    PyMem_RawFree(tmp);
+    PyMem_RawFree(tmp_data);
     TableStream_setSize(self->tablestream, self->size);
     TableStream_setSamplingRate(self->tablestream, self->sndSr);
     TableStream_setData(self->tablestream, self->data);
@@ -4119,8 +4119,8 @@ SndTable_insertSound(SndTable *self)
         cross_in_samps = (self->size - insert_point) - 5;
 
     /* Allocate space for the data to be read, then read it. */
-    tmp = (MYFLT *)malloc(num_items * sizeof(MYFLT));
-    tmp_data = (MYFLT *)malloc(self->size * sizeof(MYFLT));
+    tmp = (MYFLT *)PyMem_RawMalloc(num_items * sizeof(MYFLT));
+    tmp_data = (MYFLT *)PyMem_RawMalloc(self->size * sizeof(MYFLT));
 
     sf_seek(sf, start, SEEK_SET);
     SF_READ(sf, tmp, num_items);
@@ -4132,7 +4132,7 @@ SndTable_insertSound(SndTable *self)
     }
 
     self->size = self->size + to_load_size - (cross_in_samps * 2);
-    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
+    self->data = (MYFLT *)PyMem_RawRealloc(self->data, (self->size + 1) * sizeof(MYFLT));
 
     cross_point = insert_point - cross_in_samps;
 
@@ -4191,8 +4191,8 @@ SndTable_insertSound(SndTable *self)
 
     self->start = 0.0;
     self->stop = -1.0;
-    free(tmp);
-    free(tmp_data);
+    PyMem_RawFree(tmp);
+    PyMem_RawFree(tmp_data);
     TableStream_setSize(self->tablestream, self->size);
     TableStream_setSamplingRate(self->tablestream, self->sndSr);
     TableStream_setData(self->tablestream, self->data);
@@ -4215,7 +4215,7 @@ SndTable_clear(SndTable *self)
 static void
 SndTable_dealloc(SndTable* self)
 {
-    free(self->data);
+    PyMem_RawFree(self->data);
     SndTable_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -4248,7 +4248,7 @@ SndTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (strcmp(self->path, "") == 0)
     {
         self->size = (T_SIZE_T)self->sr;
-        self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
+        self->data = (MYFLT *)PyMem_RawRealloc(self->data, (self->size + 1) * sizeof(MYFLT));
 
         SndTable_full_reset(self);
 
