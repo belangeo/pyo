@@ -129,9 +129,10 @@ InputFader_traverse(InputFader *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input1);
-    Py_VISIT(self->input1_stream);
-    Py_VISIT(self->input2);
-    Py_VISIT(self->input2_stream);
+    if (self->input2 != NULL)
+    {
+        Py_VISIT(self->input2);
+    }
     return 0;
 }
 
@@ -140,9 +141,10 @@ InputFader_clear(InputFader *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input1);
-    Py_CLEAR(self->input1_stream);
-    Py_CLEAR(self->input2);
-    Py_CLEAR(self->input2_stream);
+    if (self->input2 != NULL)
+    {
+        Py_CLEAR(self->input2);
+    }
     return 0;
 }
 
@@ -151,6 +153,7 @@ InputFader_dealloc(InputFader* self)
 {
     pyo_DEALLOC
     InputFader_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -165,6 +168,7 @@ InputFader_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->switcher = 0;
     self->fadetime = 0.05;
     self->currentTime = 0.0;
+    self->input2 = NULL;
 
     INIT_OBJECT_COMMON
 
@@ -230,6 +234,7 @@ InputFader_setInput(InputFader *self, PyObject *args, PyObject *kwds)
     {
         Py_XDECREF(self->input2);
         self->input2 = tmp;
+        Py_INCREF(self->input2);
         streamtmp = PyObject_CallMethod((PyObject *)self->input2, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->input2_stream);

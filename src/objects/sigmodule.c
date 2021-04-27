@@ -121,7 +121,6 @@ Sig_traverse(Sig *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->value);
-    Py_VISIT(self->value_stream);
     return 0;
 }
 
@@ -130,7 +129,6 @@ Sig_clear(Sig *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->value);
-    Py_CLEAR(self->value_stream);
     return 0;
 }
 
@@ -139,6 +137,7 @@ Sig_dealloc(Sig* self)
 {
     pyo_DEALLOC
     Sig_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -167,16 +166,19 @@ Sig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (valuetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setValue", "O", valuetmp);
+        Py_DECREF(valuetmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -209,6 +211,7 @@ Sig_setValue(Sig *self, PyObject *arg)
     else
     {
         self->value = tmp;
+        Py_INCREF(self->value);
         streamtmp = PyObject_CallMethod((PyObject *)self->value, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->value_stream);
@@ -527,9 +530,7 @@ SigTo_traverse(SigTo *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->value);
-    Py_VISIT(self->value_stream);
     Py_VISIT(self->time);
-    Py_VISIT(self->time_stream);
     return 0;
 }
 
@@ -538,9 +539,7 @@ SigTo_clear(SigTo *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->value);
-    Py_CLEAR(self->value_stream);
     Py_CLEAR(self->time);
-    Py_CLEAR(self->time_stream);
     return 0;
 }
 
@@ -549,6 +548,7 @@ SigTo_dealloc(SigTo* self)
 {
     pyo_DEALLOC
     SigTo_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -583,21 +583,25 @@ SigTo_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (valuetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setValue", "O", valuetmp);
+        Py_DECREF(valuetmp);
     }
 
     if (timetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setTime", "O", timetmp);
+        Py_DECREF(timetmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -635,6 +639,7 @@ SigTo_setValue(SigTo *self, PyObject *arg)
     else
     {
         self->value = tmp;
+        Py_INCREF(self->value);
         streamtmp = PyObject_CallMethod((PyObject *)self->value, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->value_stream);
@@ -666,6 +671,7 @@ SigTo_setTime(SigTo *self, PyObject *arg)
     else
     {
         self->time = tmp;
+        Py_INCREF(self->time);
         streamtmp = PyObject_CallMethod((PyObject *)self->time, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->time_stream);
@@ -975,6 +981,7 @@ VarPort_dealloc(VarPort* self)
 {
     pyo_DEALLOC
     VarPort_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1016,16 +1023,19 @@ VarPort_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (timetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setTime", "O", timetmp);
+        Py_DECREF(timetmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     if (calltmp)

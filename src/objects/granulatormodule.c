@@ -754,11 +754,8 @@ Granulator_traverse(Granulator *self, visitproc visit, void *arg)
     Py_VISIT(self->table);
     Py_VISIT(self->env);
     Py_VISIT(self->pitch);
-    Py_VISIT(self->pitch_stream);
     Py_VISIT(self->pos);
-    Py_VISIT(self->pos_stream);
     Py_VISIT(self->dur);
-    Py_VISIT(self->dur_stream);
     return 0;
 }
 
@@ -769,11 +766,8 @@ Granulator_clear(Granulator *self)
     Py_CLEAR(self->table);
     Py_CLEAR(self->env);
     Py_CLEAR(self->pitch);
-    Py_CLEAR(self->pitch_stream);
     Py_CLEAR(self->pos);
-    Py_CLEAR(self->pos_stream);
     Py_CLEAR(self->dur);
-    Py_CLEAR(self->dur_stream);
     return 0;
 }
 
@@ -786,6 +780,7 @@ Granulator_dealloc(Granulator* self)
     PyMem_RawFree(self->gsize);
     PyMem_RawFree(self->lastppos);
     Granulator_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -842,26 +837,31 @@ Granulator_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (pitchtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setPitch", "O", pitchtmp);
+        Py_DECREF(pitchtmp);
     }
 
     if (postmp)
     {
         PyObject_CallMethod((PyObject *)self, "setPos", "O", postmp);
+        Py_DECREF(postmp);
     }
 
     if (durtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setDur", "O", durtmp);
+        Py_DECREF(durtmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -933,6 +933,7 @@ Granulator_setPitch(Granulator *self, PyObject *arg)
     else
     {
         self->pitch = tmp;
+        Py_INCREF(self->pitch);
         streamtmp = PyObject_CallMethod((PyObject *)self->pitch, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->pitch_stream);
@@ -966,6 +967,7 @@ Granulator_setPos(Granulator *self, PyObject *arg)
     else
     {
         self->pos = tmp;
+        Py_INCREF(self->pos);
         streamtmp = PyObject_CallMethod((PyObject *)self->pos, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->pos_stream);
@@ -999,6 +1001,7 @@ Granulator_setDur(Granulator *self, PyObject *arg)
     else
     {
         self->dur = tmp;
+        Py_INCREF(self->dur);
         streamtmp = PyObject_CallMethod((PyObject *)self->dur, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->dur_stream);
@@ -2145,14 +2148,9 @@ Looper_traverse(Looper *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->table);
     Py_VISIT(self->pitch);
-    Py_VISIT(self->pitch_stream);
     Py_VISIT(self->start);
-    Py_VISIT(self->start_stream);
     Py_VISIT(self->dur);
-    Py_VISIT(self->dur_stream);
     Py_VISIT(self->xfade);
-    Py_VISIT(self->xfade_stream);
-    Py_VISIT(self->trig_stream);
     return 0;
 }
 
@@ -2162,14 +2160,9 @@ Looper_clear(Looper *self)
     pyo_CLEAR
     Py_CLEAR(self->table);
     Py_CLEAR(self->pitch);
-    Py_CLEAR(self->pitch_stream);
     Py_CLEAR(self->start);
-    Py_CLEAR(self->start_stream);
     Py_CLEAR(self->dur);
-    Py_CLEAR(self->dur_stream);
     Py_CLEAR(self->xfade);
-    Py_CLEAR(self->xfade_stream);
-    Py_CLEAR(self->trig_stream);
     return 0;
 }
 
@@ -2180,6 +2173,8 @@ Looper_dealloc(Looper* self)
     PyMem_RawFree(self->trigsBuffer);
     PyMem_RawFree(self->time_buffer);
     Looper_clear(self);
+    Py_TYPE(self->trig_stream)->tp_free((PyObject*)self->trig_stream);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -2235,31 +2230,37 @@ Looper_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (pitchtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setPitch", "O", pitchtmp);
+        Py_DECREF(pitchtmp);
     }
 
     if (starttmp)
     {
         PyObject_CallMethod((PyObject *)self, "setStart", "O", starttmp);
+        Py_DECREF(starttmp);
     }
 
     if (durtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setDur", "O", durtmp);
+        Py_DECREF(durtmp);
     }
 
     if (xfadetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setXfade", "O", xfadetmp);
+        Py_DECREF(xfadetmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -2329,6 +2330,7 @@ Looper_setPitch(Looper *self, PyObject *arg)
     else
     {
         self->pitch = tmp;
+        Py_INCREF(self->pitch);
         streamtmp = PyObject_CallMethod((PyObject *)self->pitch, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->pitch_stream);
@@ -2362,6 +2364,7 @@ Looper_setStart(Looper *self, PyObject *arg)
     else
     {
         self->start = tmp;
+        Py_INCREF(self->start);
         streamtmp = PyObject_CallMethod((PyObject *)self->start, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->start_stream);
@@ -2393,6 +2396,7 @@ Looper_setDur(Looper *self, PyObject *arg)
     else
     {
         self->dur = tmp;
+        Py_INCREF(self->dur);
         streamtmp = PyObject_CallMethod((PyObject *)self->dur, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->dur_stream);
@@ -2424,6 +2428,7 @@ Looper_setXfade(Looper *self, PyObject *arg)
     else
     {
         self->xfade = tmp;
+        Py_INCREF(self->xfade);
         streamtmp = PyObject_CallMethod((PyObject *)self->xfade, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->xfade_stream);
@@ -2806,6 +2811,7 @@ LooperTimeStream_dealloc(LooperTimeStream* self)
 {
     pyo_DEALLOC
     LooperTimeStream_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -3309,13 +3315,9 @@ Granule_traverse(Granule *self, visitproc visit, void *arg)
     Py_VISIT(self->table);
     Py_VISIT(self->env);
     Py_VISIT(self->dens);
-    Py_VISIT(self->dens_stream);
     Py_VISIT(self->pitch);
-    Py_VISIT(self->pitch_stream);
     Py_VISIT(self->pos);
-    Py_VISIT(self->pos_stream);
     Py_VISIT(self->dur);
-    Py_VISIT(self->dur_stream);
     return 0;
 }
 
@@ -3326,13 +3328,9 @@ Granule_clear(Granule *self)
     Py_CLEAR(self->table);
     Py_CLEAR(self->env);
     Py_CLEAR(self->dens);
-    Py_CLEAR(self->dens_stream);
     Py_CLEAR(self->pitch);
-    Py_CLEAR(self->pitch_stream);
     Py_CLEAR(self->pos);
-    Py_CLEAR(self->pos_stream);
     Py_CLEAR(self->dur);
-    Py_CLEAR(self->dur_stream);
     return 0;
 }
 
@@ -3346,6 +3344,7 @@ Granule_dealloc(Granule* self)
     PyMem_RawFree(self->flags);
     PyMem_RawFree(self->phase);
     Granule_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -3405,31 +3404,37 @@ Granule_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (denstmp)
     {
         PyObject_CallMethod((PyObject *)self, "setDens", "O", denstmp);
+        Py_DECREF(denstmp);
     }
 
     if (pitchtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setPitch", "O", pitchtmp);
+        Py_DECREF(pitchtmp);
     }
 
     if (postmp)
     {
         PyObject_CallMethod((PyObject *)self, "setPos", "O", postmp);
+        Py_DECREF(postmp);
     }
 
     if (durtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setDur", "O", durtmp);
+        Py_DECREF(durtmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -3494,6 +3499,7 @@ Granule_setDens(Granule *self, PyObject *arg)
     else
     {
         self->dens = tmp;
+        Py_INCREF(self->dens);
         streamtmp = PyObject_CallMethod((PyObject *)self->dens, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->dens_stream);
@@ -3527,6 +3533,7 @@ Granule_setPitch(Granule *self, PyObject *arg)
     else
     {
         self->pitch = tmp;
+        Py_INCREF(self->pitch);
         streamtmp = PyObject_CallMethod((PyObject *)self->pitch, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->pitch_stream);
@@ -3558,6 +3565,7 @@ Granule_setPos(Granule *self, PyObject *arg)
     else
     {
         self->pos = tmp;
+        Py_INCREF(self->pos);
         streamtmp = PyObject_CallMethod((PyObject *)self->pos, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->pos_stream);
@@ -3589,6 +3597,7 @@ Granule_setDur(Granule *self, PyObject *arg)
     else
     {
         self->dur = tmp;
+        Py_INCREF(self->dur);
         streamtmp = PyObject_CallMethod((PyObject *)self->dur, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->dur_stream);
@@ -4447,17 +4456,11 @@ MainParticle_traverse(MainParticle *self, visitproc visit, void *arg)
     Py_VISIT(self->table);
     Py_VISIT(self->env);
     Py_VISIT(self->dens);
-    Py_VISIT(self->dens_stream);
     Py_VISIT(self->pitch);
-    Py_VISIT(self->pitch_stream);
     Py_VISIT(self->pos);
-    Py_VISIT(self->pos_stream);
     Py_VISIT(self->dur);
-    Py_VISIT(self->dur_stream);
     Py_VISIT(self->dev);
-    Py_VISIT(self->dev_stream);
     Py_VISIT(self->pan);
-    Py_VISIT(self->pan_stream);
     return 0;
 }
 
@@ -4468,17 +4471,11 @@ MainParticle_clear(MainParticle *self)
     Py_CLEAR(self->table);
     Py_CLEAR(self->env);
     Py_CLEAR(self->dens);
-    Py_CLEAR(self->dens_stream);
     Py_CLEAR(self->pitch);
-    Py_CLEAR(self->pitch_stream);
     Py_CLEAR(self->pos);
-    Py_CLEAR(self->pos_stream);
     Py_CLEAR(self->dur);
-    Py_CLEAR(self->dur_stream);
     Py_CLEAR(self->dev);
-    Py_CLEAR(self->dev_stream);
     Py_CLEAR(self->pan);
-    Py_CLEAR(self->pan_stream);
     return 0;
 }
 
@@ -4497,6 +4494,7 @@ MainParticle_dealloc(MainParticle* self)
     PyMem_RawFree(self->amp2);
     PyMem_RawFree(self->buffer_streams);
     MainParticle_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -4566,31 +4564,37 @@ MainParticle_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (denstmp)
     {
         PyObject_CallMethod((PyObject *)self, "setDens", "O", denstmp);
+        Py_DECREF(denstmp);
     }
 
     if (pitchtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setPitch", "O", pitchtmp);
+        Py_DECREF(pitchtmp);
     }
 
     if (postmp)
     {
         PyObject_CallMethod((PyObject *)self, "setPos", "O", postmp);
+        Py_DECREF(postmp);
     }
 
     if (durtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setDur", "O", durtmp);
+        Py_DECREF(durtmp);
     }
 
     if (devtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setDev", "O", devtmp);
+        Py_DECREF(devtmp);
     }
 
     if (pantmp)
     {
         PyObject_CallMethod((PyObject *)self, "setPan", "O", pantmp);
+        Py_DECREF(pantmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -4655,6 +4659,7 @@ MainParticle_setDens(MainParticle *self, PyObject *arg)
     else
     {
         self->dens = tmp;
+        Py_INCREF(self->dens);
         streamtmp = PyObject_CallMethod((PyObject *)self->dens, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->dens_stream);
@@ -4688,6 +4693,7 @@ MainParticle_setPitch(MainParticle *self, PyObject *arg)
     else
     {
         self->pitch = tmp;
+        Py_INCREF(self->pitch);
         streamtmp = PyObject_CallMethod((PyObject *)self->pitch, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->pitch_stream);
@@ -4719,6 +4725,7 @@ MainParticle_setPos(MainParticle *self, PyObject *arg)
     else
     {
         self->pos = tmp;
+        Py_INCREF(self->pos);
         streamtmp = PyObject_CallMethod((PyObject *)self->pos, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->pos_stream);
@@ -4750,6 +4757,7 @@ MainParticle_setDur(MainParticle *self, PyObject *arg)
     else
     {
         self->dur = tmp;
+        Py_INCREF(self->dur);
         streamtmp = PyObject_CallMethod((PyObject *)self->dur, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->dur_stream);
@@ -4781,6 +4789,7 @@ MainParticle_setDev(MainParticle *self, PyObject *arg)
     else
     {
         self->dev = tmp;
+        Py_INCREF(self->dev);
         streamtmp = PyObject_CallMethod((PyObject *)self->dev, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->dev_stream);
@@ -4812,6 +4821,7 @@ MainParticle_setPan(MainParticle *self, PyObject *arg)
     else
     {
         self->pan = tmp;
+        Py_INCREF(self->pan);
         streamtmp = PyObject_CallMethod((PyObject *)self->pan, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->pan_stream);
@@ -5042,6 +5052,7 @@ Particle_dealloc(Particle* self)
 {
     pyo_DEALLOC
     Particle_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -5072,11 +5083,13 @@ Particle_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -6222,23 +6235,14 @@ MainParticle2_traverse(MainParticle2 *self, visitproc visit, void *arg)
     Py_VISIT(self->table);
     Py_VISIT(self->env);
     Py_VISIT(self->dens);
-    Py_VISIT(self->dens_stream);
     Py_VISIT(self->pitch);
-    Py_VISIT(self->pitch_stream);
     Py_VISIT(self->pos);
-    Py_VISIT(self->pos_stream);
     Py_VISIT(self->dur);
-    Py_VISIT(self->dur_stream);
     Py_VISIT(self->dev);
-    Py_VISIT(self->dev_stream);
     Py_VISIT(self->pan);
-    Py_VISIT(self->pan_stream);
     Py_VISIT(self->filterfreq);
-    Py_VISIT(self->filterfreq_stream);
     Py_VISIT(self->filterq);
-    Py_VISIT(self->filterq_stream);
     Py_VISIT(self->filtertype);
-    Py_VISIT(self->filtertype_stream);
     return 0;
 }
 
@@ -6249,23 +6253,14 @@ MainParticle2_clear(MainParticle2 *self)
     Py_CLEAR(self->table);
     Py_CLEAR(self->env);
     Py_CLEAR(self->dens);
-    Py_CLEAR(self->dens_stream);
     Py_CLEAR(self->pitch);
-    Py_CLEAR(self->pitch_stream);
     Py_CLEAR(self->pos);
-    Py_CLEAR(self->pos_stream);
     Py_CLEAR(self->dur);
-    Py_CLEAR(self->dur_stream);
     Py_CLEAR(self->dev);
-    Py_CLEAR(self->dev_stream);
     Py_CLEAR(self->pan);
-    Py_CLEAR(self->pan_stream);
     Py_CLEAR(self->filterfreq);
-    Py_CLEAR(self->filterfreq_stream);
     Py_CLEAR(self->filterq);
-    Py_CLEAR(self->filterq_stream);
     Py_CLEAR(self->filtertype);
-    Py_CLEAR(self->filtertype_stream);
     return 0;
 }
 
@@ -6301,6 +6296,7 @@ MainParticle2_dealloc(MainParticle2* self)
     PyMem_RawFree(self->a2);
     PyMem_RawFree(self->buffer_streams);
     MainParticle2_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -6380,46 +6376,55 @@ MainParticle2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (denstmp)
     {
         PyObject_CallMethod((PyObject *)self, "setDens", "O", denstmp);
+        Py_DECREF(denstmp);
     }
 
     if (pitchtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setPitch", "O", pitchtmp);
+        Py_DECREF(pitchtmp);
     }
 
     if (postmp)
     {
         PyObject_CallMethod((PyObject *)self, "setPos", "O", postmp);
+        Py_DECREF(postmp);
     }
 
     if (durtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setDur", "O", durtmp);
+        Py_DECREF(durtmp);
     }
 
     if (devtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setDev", "O", devtmp);
+        Py_DECREF(devtmp);
     }
 
     if (pantmp)
     {
         PyObject_CallMethod((PyObject *)self, "setPan", "O", pantmp);
+        Py_DECREF(pantmp);
     }
 
     if (filterfreqtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFilterfreq", "O", filterfreqtmp);
+        Py_DECREF(filterfreqtmp);
     }
 
     if (filterqtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFilterq", "O", filterqtmp);
+        Py_DECREF(filterqtmp);
     }
 
     if (filtertypetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFiltertype", "O", filtertypetmp);
+        Py_DECREF(filtertypetmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -6505,6 +6510,7 @@ MainParticle2_setDens(MainParticle2 *self, PyObject *arg)
     else
     {
         self->dens = tmp;
+        Py_INCREF(self->dens);
         streamtmp = PyObject_CallMethod((PyObject *)self->dens, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->dens_stream);
@@ -6538,6 +6544,7 @@ MainParticle2_setPitch(MainParticle2 *self, PyObject *arg)
     else
     {
         self->pitch = tmp;
+        Py_INCREF(self->pitch);
         streamtmp = PyObject_CallMethod((PyObject *)self->pitch, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->pitch_stream);
@@ -6569,6 +6576,7 @@ MainParticle2_setPos(MainParticle2 *self, PyObject *arg)
     else
     {
         self->pos = tmp;
+        Py_INCREF(self->pos);
         streamtmp = PyObject_CallMethod((PyObject *)self->pos, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->pos_stream);
@@ -6600,6 +6608,7 @@ MainParticle2_setDur(MainParticle2 *self, PyObject *arg)
     else
     {
         self->dur = tmp;
+        Py_INCREF(self->dur);
         streamtmp = PyObject_CallMethod((PyObject *)self->dur, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->dur_stream);
@@ -6631,6 +6640,7 @@ MainParticle2_setDev(MainParticle2 *self, PyObject *arg)
     else
     {
         self->dev = tmp;
+        Py_INCREF(self->dev);
         streamtmp = PyObject_CallMethod((PyObject *)self->dev, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->dev_stream);
@@ -6662,6 +6672,7 @@ MainParticle2_setPan(MainParticle2 *self, PyObject *arg)
     else
     {
         self->pan = tmp;
+        Py_INCREF(self->pan);
         streamtmp = PyObject_CallMethod((PyObject *)self->pan, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->pan_stream);
@@ -6693,6 +6704,7 @@ MainParticle2_setFilterfreq(MainParticle2 *self, PyObject *arg)
     else
     {
         self->filterfreq = tmp;
+        Py_INCREF(self->filterfreq);
         streamtmp = PyObject_CallMethod((PyObject *)self->filterfreq, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->filterfreq_stream);
@@ -6724,6 +6736,7 @@ MainParticle2_setFilterq(MainParticle2 *self, PyObject *arg)
     else
     {
         self->filterq = tmp;
+        Py_INCREF(self->filterq);
         streamtmp = PyObject_CallMethod((PyObject *)self->filterq, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->filterq_stream);
@@ -6755,6 +6768,7 @@ MainParticle2_setFiltertype(MainParticle2 *self, PyObject *arg)
     else
     {
         self->filtertype = tmp;
+        Py_INCREF(self->filtertype);
         streamtmp = PyObject_CallMethod((PyObject *)self->filtertype, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->filtertype_stream);
@@ -6991,6 +7005,7 @@ Particle2_dealloc(Particle2* self)
 {
     pyo_DEALLOC
     Particle2_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -7021,11 +7036,13 @@ Particle2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);

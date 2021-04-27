@@ -1317,9 +1317,7 @@ LFO_traverse(LFO *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->freq);
-    Py_VISIT(self->freq_stream);
     Py_VISIT(self->sharp);
-    Py_VISIT(self->sharp_stream);
     return 0;
 }
 
@@ -1328,9 +1326,7 @@ LFO_clear(LFO *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->freq);
-    Py_CLEAR(self->freq_stream);
     Py_CLEAR(self->sharp);
-    Py_CLEAR(self->sharp_stream);
     return 0;
 }
 
@@ -1339,6 +1335,7 @@ LFO_dealloc(LFO* self)
 {
     pyo_DEALLOC
     LFO_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1378,21 +1375,25 @@ LFO_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (freqtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        Py_DECREF(freqtmp);
     }
 
     if (sharptmp)
     {
         PyObject_CallMethod((PyObject *)self, "setSharp", "O", sharptmp);
+        Py_DECREF(sharptmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1447,6 +1448,7 @@ LFO_setFreq(LFO *self, PyObject *arg)
     else
     {
         self->freq = tmp;
+        Py_INCREF(self->freq);
         streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->freq_stream);
@@ -1480,6 +1482,7 @@ LFO_setSharp(LFO *self, PyObject *arg)
     else
     {
         self->sharp = tmp;
+        Py_INCREF(self->sharp);
         streamtmp = PyObject_CallMethod((PyObject *)self->sharp, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->sharp_stream);

@@ -270,11 +270,8 @@ Panner_traverse(Panner *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     Py_VISIT(self->pan);
-    Py_VISIT(self->pan_stream);
     Py_VISIT(self->spread);
-    Py_VISIT(self->spread_stream);
     return 0;
 }
 
@@ -283,11 +280,8 @@ Panner_clear(Panner *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     Py_CLEAR(self->pan);
-    Py_CLEAR(self->pan_stream);
     Py_CLEAR(self->spread);
-    Py_CLEAR(self->spread_stream);
     return 0;
 }
 
@@ -297,6 +291,7 @@ Panner_dealloc(Panner* self)
     pyo_DEALLOC
     PyMem_RawFree(self->buffer_streams);
     Panner_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -328,11 +323,13 @@ Panner_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (pantmp)
     {
         PyObject_CallMethod((PyObject *)self, "setPan", "O", pantmp);
+        Py_DECREF(pantmp);
     }
 
     if (spreadtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setSpread", "O", spreadtmp);
+        Py_DECREF(spreadtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -374,6 +371,7 @@ Panner_setPan(Panner *self, PyObject *arg)
     else
     {
         self->pan = tmp;
+        Py_INCREF(self->pan);
         streamtmp = PyObject_CallMethod((PyObject *)self->pan, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->pan_stream);
@@ -407,6 +405,7 @@ Panner_setSpread(Panner *self, PyObject *arg)
     else
     {
         self->spread = tmp;
+        Py_INCREF(self->spread);
         streamtmp = PyObject_CallMethod((PyObject *)self->spread, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->spread_stream);
@@ -586,6 +585,7 @@ Pan_dealloc(Pan* self)
 {
     pyo_DEALLOC
     Pan_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -616,11 +616,13 @@ Pan_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -969,9 +971,7 @@ SPanner_traverse(SPanner *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     Py_VISIT(self->pan);
-    Py_VISIT(self->pan_stream);
     return 0;
 }
 
@@ -980,9 +980,7 @@ SPanner_clear(SPanner *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     Py_CLEAR(self->pan);
-    Py_CLEAR(self->pan_stream);
     return 0;
 }
 
@@ -992,6 +990,7 @@ SPanner_dealloc(SPanner* self)
     pyo_DEALLOC
     PyMem_RawFree(self->buffer_streams);
     SPanner_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1023,6 +1022,7 @@ SPanner_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (pantmp)
     {
         PyObject_CallMethod((PyObject *)self, "setPan", "O", pantmp);
+        Py_DECREF(pantmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1071,6 +1071,7 @@ SPanner_setPan(SPanner *self, PyObject *arg)
     else
     {
         self->pan = tmp;
+        Py_INCREF(self->pan);
         streamtmp = PyObject_CallMethod((PyObject *)self->pan, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->pan_stream);
@@ -1248,6 +1249,7 @@ SPan_dealloc(SPan* self)
 {
     pyo_DEALLOC
     SPan_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1278,11 +1280,13 @@ SPan_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1554,9 +1558,7 @@ Switcher_traverse(Switcher *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     Py_VISIT(self->voice);
-    Py_VISIT(self->voice_stream);
     return 0;
 }
 
@@ -1565,9 +1567,7 @@ Switcher_clear(Switcher *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     Py_CLEAR(self->voice);
-    Py_CLEAR(self->voice_stream);
     return 0;
 }
 
@@ -1577,6 +1577,7 @@ Switcher_dealloc(Switcher* self)
     pyo_DEALLOC
     PyMem_RawFree(self->buffer_streams);
     Switcher_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1608,6 +1609,7 @@ Switcher_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (voicetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setVoice", "O", voicetmp);
+        Py_DECREF(voicetmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1653,6 +1655,7 @@ Switcher_setVoice(Switcher *self, PyObject *arg)
     else
     {
         self->voice = tmp;
+        Py_INCREF(self->voice);
         streamtmp = PyObject_CallMethod((PyObject *)self->voice, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->voice_stream);
@@ -1727,7 +1730,7 @@ PyTypeObject SwitcherType =
 };
 
 /************************************************************************************************/
-/* SSwitch streamer object */
+/* Switch streamer object */
 /************************************************************************************************/
 typedef struct
 {
@@ -1830,6 +1833,7 @@ Switch_dealloc(Switch* self)
 {
     pyo_DEALLOC
     Switch_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1860,11 +1864,13 @@ Switch_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -2115,32 +2121,16 @@ VoiceManager_compute_next_data_frame(VoiceManager *self)
 static int
 VoiceManager_traverse(VoiceManager *self, visitproc visit, void *arg)
 {
-    int i;
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
-
-    for (i = 0; i < self->maxVoices; i++)
-    {
-        Py_VISIT(self->trigger_streams[i]);
-    }
-
     return 0;
 }
 
 static int
 VoiceManager_clear(VoiceManager *self)
 {
-    int i;
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
-
-    for (i = 0; i < self->maxVoices; i++)
-    {
-        Py_CLEAR(self->trigger_streams[i]);
-    }
-
     return 0;
 }
 
@@ -2156,6 +2146,7 @@ VoiceManager_dealloc(VoiceManager* self)
         PyMem_RawFree(self->trigger_streams);
     }
 
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -2191,11 +2182,13 @@ VoiceManager_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -2488,6 +2481,7 @@ Mixer_dealloc(Mixer* self)
     pyo_DEALLOC
     PyMem_RawFree(self->buffer_streams);
     Mixer_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -2542,18 +2536,15 @@ static PyObject *
 Mixer_setTime(Mixer *self, PyObject *arg)
 {
     int i, j, num;
-    PyObject *tmp, *keys, *key, *list_of_time_counts;
+    PyObject *keys, *key, *list_of_time_counts;
 
     ASSERT_ARG_NOT_NULL
 
     int isNumber = PyNumber_Check(arg);
 
-    tmp = arg;
-    Py_INCREF(tmp);
-
     if (isNumber == 1)
     {
-        self->time = PyFloat_AsDouble(tmp);
+        self->time = PyFloat_AsDouble(arg);
         self->timeStep = (long)(self->time * self->sr);
 
         keys = PyDict_Keys(self->inputs);
@@ -2603,14 +2594,20 @@ Mixer_addInput(Mixer *self, PyObject *args, PyObject *kwds)
     initStepVals = PyList_New(self->num_outs);
     initTimeCounts = PyList_New(self->num_outs);
 
+    PyObject *zero = PyFloat_FromDouble(0.0);
     for (i = 0; i < self->num_outs; i++)
     {
-        PyList_SET_ITEM(initGains, i, PyFloat_FromDouble(0.0));
-        PyList_SET_ITEM(initLastGains, i, PyFloat_FromDouble(0.0));
-        PyList_SET_ITEM(initCurrentGains, i, PyFloat_FromDouble(0.0));
-        PyList_SET_ITEM(initStepVals, i, PyFloat_FromDouble(0.0));
+        Py_INCREF(zero);
+        PyList_SET_ITEM(initGains, i, zero);
+        Py_INCREF(zero);
+        PyList_SET_ITEM(initLastGains, i, zero);
+        Py_INCREF(zero);
+        PyList_SET_ITEM(initCurrentGains, i, zero);
+        Py_INCREF(zero);
+        PyList_SET_ITEM(initStepVals, i, zero);
         PyList_SET_ITEM(initTimeCounts, i, PyLong_FromLong(0));
     }
+    Py_DECREF(zero);
 
     PyDict_SetItem(self->gains, voice, initGains);
     PyDict_SetItem(self->lastGains, voice, initLastGains);
@@ -2837,6 +2834,7 @@ MixerVoice_dealloc(MixerVoice* self)
 {
     pyo_DEALLOC
     MixerVoice_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -2867,11 +2865,13 @@ MixerVoice_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -3261,7 +3261,6 @@ Selector_traverse(Selector *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->inputs);
     Py_VISIT(self->voice);
-    Py_VISIT(self->voice_stream);
     return 0;
 }
 
@@ -3271,7 +3270,6 @@ Selector_clear(Selector *self)
     pyo_CLEAR
     Py_CLEAR(self->inputs);
     Py_CLEAR(self->voice);
-    Py_CLEAR(self->voice_stream);
     return 0;
 }
 
@@ -3280,6 +3278,7 @@ Selector_dealloc(Selector* self)
 {
     pyo_DEALLOC
     Selector_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -3314,16 +3313,19 @@ Selector_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (voicetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setVoice", "O", voicetmp);
+        Py_DECREF(voicetmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -3394,6 +3396,7 @@ Selector_setVoice(Selector *self, PyObject *arg)
     else
     {
         self->voice = tmp;
+        Py_INCREF(self->voice);
         streamtmp = PyObject_CallMethod((PyObject *)self->voice, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->voice_stream);

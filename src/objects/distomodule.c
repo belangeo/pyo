@@ -241,11 +241,8 @@ Disto_traverse(Disto *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     Py_VISIT(self->drive);
-    Py_VISIT(self->drive_stream);
     Py_VISIT(self->slope);
-    Py_VISIT(self->slope_stream);
     return 0;
 }
 
@@ -254,11 +251,8 @@ Disto_clear(Disto *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     Py_CLEAR(self->drive);
-    Py_CLEAR(self->drive_stream);
     Py_CLEAR(self->slope);
-    Py_CLEAR(self->slope_stream);
     return 0;
 }
 
@@ -267,6 +261,7 @@ Disto_dealloc(Disto* self)
 {
     pyo_DEALLOC
     Disto_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -300,21 +295,25 @@ Disto_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (drivetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setDrive", "O", drivetmp);
+        Py_DECREF(drivetmp);
     }
 
     if (slopetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setSlope", "O", slopetmp);
+        Py_DECREF(slopetmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -365,6 +364,7 @@ Disto_setDrive(Disto *self, PyObject *arg)
     else
     {
         self->drive = tmp;
+        Py_INCREF(self->drive);
         streamtmp = PyObject_CallMethod((PyObject *)self->drive, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->drive_stream);
@@ -398,6 +398,7 @@ Disto_setSlope(Disto *self, PyObject *arg)
     else
     {
         self->slope = tmp;
+        Py_INCREF(self->slope);
         streamtmp = PyObject_CallMethod((PyObject *)self->slope, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->slope_stream);
@@ -714,11 +715,8 @@ Clip_traverse(Clip *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     Py_VISIT(self->min);
-    Py_VISIT(self->min_stream);
     Py_VISIT(self->max);
-    Py_VISIT(self->max_stream);
     return 0;
 }
 
@@ -727,11 +725,8 @@ Clip_clear(Clip *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     Py_CLEAR(self->min);
-    Py_CLEAR(self->min_stream);
     Py_CLEAR(self->max);
-    Py_CLEAR(self->max_stream);
     return 0;
 }
 
@@ -740,6 +735,7 @@ Clip_dealloc(Clip* self)
 {
     pyo_DEALLOC
     Clip_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -772,21 +768,25 @@ Clip_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (mintmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMin", "O", mintmp);
+        Py_DECREF(mintmp);
     }
 
     if (maxtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMax", "O", maxtmp);
+        Py_DECREF(maxtmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -837,6 +837,7 @@ Clip_setMin(Clip *self, PyObject *arg)
     else
     {
         self->min = tmp;
+        Py_INCREF(self->min);
         streamtmp = PyObject_CallMethod((PyObject *)self->min, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->min_stream);
@@ -870,6 +871,7 @@ Clip_setMax(Clip *self, PyObject *arg)
     else
     {
         self->max = tmp;
+        Py_INCREF(self->max);
         streamtmp = PyObject_CallMethod((PyObject *)self->max, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->max_stream);
@@ -1234,11 +1236,8 @@ Mirror_traverse(Mirror *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     Py_VISIT(self->min);
-    Py_VISIT(self->min_stream);
     Py_VISIT(self->max);
-    Py_VISIT(self->max_stream);
     return 0;
 }
 
@@ -1247,11 +1246,8 @@ Mirror_clear(Mirror *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     Py_CLEAR(self->min);
-    Py_CLEAR(self->min_stream);
     Py_CLEAR(self->max);
-    Py_CLEAR(self->max_stream);
     return 0;
 }
 
@@ -1260,6 +1256,7 @@ Mirror_dealloc(Mirror* self)
 {
     pyo_DEALLOC
     Mirror_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1292,21 +1289,25 @@ Mirror_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (mintmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMin", "O", mintmp);
+        Py_DECREF(mintmp);
     }
 
     if (maxtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMax", "O", maxtmp);
+        Py_DECREF(maxtmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1357,6 +1358,7 @@ Mirror_setMin(Mirror *self, PyObject *arg)
     else
     {
         self->min = tmp;
+        Py_INCREF(self->min);
         streamtmp = PyObject_CallMethod((PyObject *)self->min, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->min_stream);
@@ -1390,6 +1392,7 @@ Mirror_setMax(Mirror *self, PyObject *arg)
     else
     {
         self->max = tmp;
+        Py_INCREF(self->max);
         streamtmp = PyObject_CallMethod((PyObject *)self->max, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->max_stream);
@@ -1790,11 +1793,8 @@ Wrap_traverse(Wrap *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     Py_VISIT(self->min);
-    Py_VISIT(self->min_stream);
     Py_VISIT(self->max);
-    Py_VISIT(self->max_stream);
     return 0;
 }
 
@@ -1803,11 +1803,8 @@ Wrap_clear(Wrap *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     Py_CLEAR(self->min);
-    Py_CLEAR(self->min_stream);
     Py_CLEAR(self->max);
-    Py_CLEAR(self->max_stream);
     return 0;
 }
 
@@ -1816,6 +1813,7 @@ Wrap_dealloc(Wrap* self)
 {
     pyo_DEALLOC
     Wrap_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1848,21 +1846,25 @@ Wrap_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (mintmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMin", "O", mintmp);
+        Py_DECREF(mintmp);
     }
 
     if (maxtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMax", "O", maxtmp);
+        Py_DECREF(maxtmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1913,6 +1915,7 @@ Wrap_setMin(Wrap *self, PyObject *arg)
     else
     {
         self->min = tmp;
+        Py_INCREF(self->min);
         streamtmp = PyObject_CallMethod((PyObject *)self->min, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->min_stream);
@@ -1946,6 +1949,7 @@ Wrap_setMax(Wrap *self, PyObject *arg)
     else
     {
         self->max = tmp;
+        Py_INCREF(self->max);
         streamtmp = PyObject_CallMethod((PyObject *)self->max, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->max_stream);
@@ -2315,11 +2319,8 @@ Degrade_traverse(Degrade *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     Py_VISIT(self->bitdepth);
-    Py_VISIT(self->bitdepth_stream);
     Py_VISIT(self->srscale);
-    Py_VISIT(self->srscale_stream);
     return 0;
 }
 
@@ -2328,11 +2329,8 @@ Degrade_clear(Degrade *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     Py_CLEAR(self->bitdepth);
-    Py_CLEAR(self->bitdepth_stream);
     Py_CLEAR(self->srscale);
-    Py_CLEAR(self->srscale_stream);
     return 0;
 }
 
@@ -2341,6 +2339,7 @@ Degrade_dealloc(Degrade* self)
 {
     pyo_DEALLOC
     Degrade_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -2375,21 +2374,25 @@ Degrade_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (bitdepthtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setBitdepth", "O", bitdepthtmp);
+        Py_DECREF(bitdepthtmp);
     }
 
     if (srscaletmp)
     {
         PyObject_CallMethod((PyObject *)self, "setSrscale", "O", srscaletmp);
+        Py_DECREF(srscaletmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -2440,6 +2443,7 @@ Degrade_setBitdepth(Degrade *self, PyObject *arg)
     else
     {
         self->bitdepth = tmp;
+        Py_INCREF(self->bitdepth);
         streamtmp = PyObject_CallMethod((PyObject *)self->bitdepth, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->bitdepth_stream);
@@ -2473,6 +2477,7 @@ Degrade_setSrscale(Degrade *self, PyObject *arg)
     else
     {
         self->srscale = tmp;
+        Py_INCREF(self->srscale);
         streamtmp = PyObject_CallMethod((PyObject *)self->srscale, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->srscale_stream);
@@ -2712,9 +2717,7 @@ Min_traverse(Min *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     Py_VISIT(self->comp);
-    Py_VISIT(self->comp_stream);
     return 0;
 }
 
@@ -2723,9 +2726,7 @@ Min_clear(Min *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     Py_CLEAR(self->comp);
-    Py_CLEAR(self->comp_stream);
     return 0;
 }
 
@@ -2734,6 +2735,7 @@ Min_dealloc(Min* self)
 {
     pyo_DEALLOC
     Min_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -2765,16 +2767,19 @@ Min_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (comptmp)
     {
         PyObject_CallMethod((PyObject *)self, "setComp", "O", comptmp);
+        Py_DECREF(comptmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -2825,6 +2830,7 @@ Min_setComp(Min *self, PyObject *arg)
     else
     {
         self->comp = tmp;
+        Py_INCREF(self->comp);
         streamtmp = PyObject_CallMethod((PyObject *)self->comp, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->comp_stream);
@@ -3062,9 +3068,7 @@ Max_traverse(Max *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     Py_VISIT(self->comp);
-    Py_VISIT(self->comp_stream);
     return 0;
 }
 
@@ -3073,9 +3077,7 @@ Max_clear(Max *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     Py_CLEAR(self->comp);
-    Py_CLEAR(self->comp_stream);
     return 0;
 }
 
@@ -3084,6 +3086,7 @@ Max_dealloc(Max* self)
 {
     pyo_DEALLOC
     Max_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -3115,16 +3118,19 @@ Max_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (comptmp)
     {
         PyObject_CallMethod((PyObject *)self, "setComp", "O", comptmp);
+        Py_DECREF(comptmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -3175,6 +3181,7 @@ Max_setComp(Max *self, PyObject *arg)
     else
     {
         self->comp = tmp;
+        Py_INCREF(self->comp);
         streamtmp = PyObject_CallMethod((PyObject *)self->comp, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->comp_stream);

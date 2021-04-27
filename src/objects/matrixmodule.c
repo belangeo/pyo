@@ -240,6 +240,7 @@ NewMatrix_dealloc(NewMatrix* self)
 
     PyMem_RawFree(self->data);
     NewMatrix_clear(self);
+    Py_TYPE(self->matrixstream)->tp_free((PyObject*)self->matrixstream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -626,9 +627,7 @@ MatrixRec_traverse(MatrixRec *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     Py_VISIT(self->matrix);
-    Py_VISIT(self->trig_stream);
     return 0;
 }
 
@@ -637,9 +636,7 @@ MatrixRec_clear(MatrixRec *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     Py_CLEAR(self->matrix);
-    Py_CLEAR(self->trig_stream);
     return 0;
 }
 
@@ -649,6 +646,8 @@ MatrixRec_dealloc(MatrixRec* self)
     pyo_DEALLOC
     PyMem_RawFree(self->trigsBuffer);
     MatrixRec_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_TYPE(self->trig_stream)->tp_free((PyObject*)self->trig_stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -842,9 +841,7 @@ MatrixRecLoop_traverse(MatrixRecLoop *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     Py_VISIT(self->matrix);
-    Py_VISIT(self->trig_stream);
     return 0;
 }
 
@@ -853,9 +850,7 @@ MatrixRecLoop_clear(MatrixRecLoop *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     Py_CLEAR(self->matrix);
-    Py_CLEAR(self->trig_stream);
     return 0;
 }
 
@@ -865,6 +860,8 @@ MatrixRecLoop_dealloc(MatrixRecLoop* self)
     pyo_DEALLOC
     PyMem_RawFree(self->trigsBuffer);
     MatrixRecLoop_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_TYPE(self->trig_stream)->tp_free((PyObject*)self->trig_stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1059,7 +1056,6 @@ MatrixMorph_traverse(MatrixMorph *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     Py_VISIT(self->matrix);
     Py_VISIT(self->sources);
     return 0;
@@ -1070,7 +1066,6 @@ MatrixMorph_clear(MatrixMorph *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     Py_CLEAR(self->matrix);
     Py_CLEAR(self->sources);
     return 0;
@@ -1082,6 +1077,7 @@ MatrixMorph_dealloc(MatrixMorph* self)
     pyo_DEALLOC
     PyMem_RawFree(self->buffer);
     MatrixMorph_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 

@@ -184,7 +184,6 @@ Metro_traverse(Metro *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->time);
-    Py_VISIT(self->time_stream);
     return 0;
 }
 
@@ -193,7 +192,6 @@ Metro_clear(Metro *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->time);
-    Py_CLEAR(self->time_stream);
     return 0;
 }
 
@@ -202,6 +200,7 @@ Metro_dealloc(Metro* self)
 {
     pyo_DEALLOC
     Metro_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -236,6 +235,7 @@ Metro_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (timetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setTime", "O", timetmp);
+        Py_DECREF(timetmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -285,6 +285,7 @@ Metro_setTime(Metro *self, PyObject *arg)
     else
     {
         self->time = tmp;
+        Py_INCREF(self->time);
         streamtmp = PyObject_CallMethod((PyObject *)self->time, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->time_stream);
@@ -700,9 +701,7 @@ Seqer_traverse(Seqer *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->time);
-    Py_VISIT(self->time_stream);
     Py_VISIT(self->speed);
-    Py_VISIT(self->speed_stream);
     Py_VISIT(self->tmp);
     return 0;
 }
@@ -712,9 +711,7 @@ Seqer_clear(Seqer *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->time);
-    Py_CLEAR(self->time_stream);
     Py_CLEAR(self->speed);
-    Py_CLEAR(self->speed_stream);
     Py_CLEAR(self->tmp);
     return 0;
 }
@@ -726,6 +723,7 @@ Seqer_dealloc(Seqer* self)
     PyMem_RawFree(self->seq);
     PyMem_RawFree(self->buffer_streams);
     Seqer_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -768,11 +766,13 @@ Seqer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (timetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setTime", "O", timetmp);
+        Py_DECREF(timetmp);
     }
 
     if (speedtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setSpeed", "O", speedtmp);
+        Py_DECREF(speedtmp);
     }
 
     if (seqtmp)
@@ -825,6 +825,7 @@ Seqer_setTime(Seqer *self, PyObject *arg)
     else
     {
         self->time = tmp;
+        Py_INCREF(self->time);
         streamtmp = PyObject_CallMethod((PyObject *)self->time, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->time_stream);
@@ -858,6 +859,7 @@ Seqer_setSpeed(Seqer *self, PyObject *arg)
     else
     {
         self->speed = tmp;
+        Py_INCREF(self->time);
         streamtmp = PyObject_CallMethod((PyObject *)self->speed, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->speed_stream);
@@ -1074,6 +1076,7 @@ Seq_dealloc(Seq* self)
 {
     pyo_DEALLOC
     Seq_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1350,7 +1353,6 @@ Clouder_traverse(Clouder *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->density);
-    Py_VISIT(self->density_stream);
     return 0;
 }
 
@@ -1359,7 +1361,6 @@ Clouder_clear(Clouder *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->density);
-    Py_CLEAR(self->density_stream);
     return 0;
 }
 
@@ -1369,6 +1370,7 @@ Clouder_dealloc(Clouder* self)
     pyo_DEALLOC
     PyMem_RawFree(self->buffer_streams);
     Clouder_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1399,6 +1401,7 @@ Clouder_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (densitytmp)
     {
         PyObject_CallMethod((PyObject *)self, "setDensity", "O", densitytmp);
+        Py_DECREF(densitytmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1439,6 +1442,7 @@ Clouder_setDensity(Clouder *self, PyObject *arg)
     else
     {
         self->density = tmp;
+        Py_INCREF(self->density);
         streamtmp = PyObject_CallMethod((PyObject *)self->density, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->density_stream);
@@ -1615,6 +1619,7 @@ Cloud_dealloc(Cloud* self)
 {
     pyo_DEALLOC
     Cloud_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1872,6 +1877,7 @@ Trig_dealloc(Trig* self)
 {
     pyo_DEALLOC
     Trig_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -2599,7 +2605,6 @@ Beater_traverse(Beater *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->time);
-    Py_VISIT(self->time_stream);
     return 0;
 }
 
@@ -2608,7 +2613,6 @@ Beater_clear(Beater *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->time);
-    Py_CLEAR(self->time_stream);
     return 0;
 }
 
@@ -2623,6 +2627,7 @@ Beater_dealloc(Beater* self)
     PyMem_RawFree(self->end_buffer_streams);
     PyMem_RawFree(self->amplitudes);
     Beater_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -2678,6 +2683,7 @@ Beater_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (timetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setTime", "O", timetmp);
+        Py_DECREF(timetmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -2746,6 +2752,7 @@ Beater_setTime(Beater *self, PyObject *arg)
     else
     {
         self->time = tmp;
+        Py_INCREF(self->time);
         streamtmp = PyObject_CallMethod((PyObject *)self->time, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->time_stream);
@@ -3114,6 +3121,7 @@ Beat_dealloc(Beat* self)
 {
     pyo_DEALLOC
     Beat_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -3376,6 +3384,7 @@ BeatTapStream_dealloc(BeatTapStream* self)
 {
     pyo_DEALLOC
     BeatTapStream_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -3638,6 +3647,7 @@ BeatAmpStream_dealloc(BeatAmpStream* self)
 {
     pyo_DEALLOC
     BeatAmpStream_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -3900,6 +3910,7 @@ BeatDurStream_dealloc(BeatDurStream* self)
 {
     pyo_DEALLOC
     BeatDurStream_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -4162,6 +4173,7 @@ BeatEndStream_dealloc(BeatEndStream* self)
 {
     pyo_DEALLOC
     BeatEndStream_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -4461,7 +4473,6 @@ TrigBurster_traverse(TrigBurster *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     return 0;
 }
 
@@ -4470,7 +4481,6 @@ TrigBurster_clear(TrigBurster *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     return 0;
 }
 
@@ -4487,6 +4497,7 @@ TrigBurster_dealloc(TrigBurster* self)
     PyMem_RawFree(self->currentAmp);
     PyMem_RawFree(self->currentDur);
     TrigBurster_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -4774,6 +4785,7 @@ TrigBurst_dealloc(TrigBurst* self)
 {
     pyo_DEALLOC
     TrigBurst_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -5036,6 +5048,7 @@ TrigBurstTapStream_dealloc(TrigBurstTapStream* self)
 {
     pyo_DEALLOC
     TrigBurstTapStream_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -5298,6 +5311,7 @@ TrigBurstAmpStream_dealloc(TrigBurstAmpStream* self)
 {
     pyo_DEALLOC
     TrigBurstAmpStream_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -5560,6 +5574,7 @@ TrigBurstDurStream_dealloc(TrigBurstDurStream* self)
 {
     pyo_DEALLOC
     TrigBurstDurStream_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -5822,6 +5837,7 @@ TrigBurstEndStream_dealloc(TrigBurstEndStream* self)
 {
     pyo_DEALLOC
     TrigBurstEndStream_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 

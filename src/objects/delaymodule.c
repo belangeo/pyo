@@ -329,11 +329,8 @@ Delay_traverse(Delay *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     Py_VISIT(self->delay);
-    Py_VISIT(self->delay_stream);
     Py_VISIT(self->feedback);
-    Py_VISIT(self->feedback_stream);
     return 0;
 }
 
@@ -342,11 +339,8 @@ Delay_clear(Delay *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     Py_CLEAR(self->delay);
-    Py_CLEAR(self->delay_stream);
     Py_CLEAR(self->feedback);
-    Py_CLEAR(self->feedback_stream);
     return 0;
 }
 
@@ -356,6 +350,7 @@ Delay_dealloc(Delay* self)
     pyo_DEALLOC
     PyMem_RawFree(self->buffer);
     Delay_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -393,21 +388,25 @@ Delay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (delaytmp)
     {
         PyObject_CallMethod((PyObject *)self, "setDelay", "O", delaytmp);
+        Py_DECREF(delaytmp);
     }
 
     if (feedbacktmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFeedback", "O", feedbacktmp);
+        Py_DECREF(feedbacktmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -467,6 +466,7 @@ Delay_setDelay(Delay *self, PyObject *arg)
     else
     {
         self->delay = tmp;
+        Py_INCREF(self->delay);
         streamtmp = PyObject_CallMethod((PyObject *)self->delay, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->delay_stream);
@@ -500,6 +500,7 @@ Delay_setFeedback(Delay *self, PyObject *arg)
     else
     {
         self->feedback = tmp;
+        Py_INCREF(self->feedback);
         streamtmp = PyObject_CallMethod((PyObject *)self->feedback, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->feedback_stream);
@@ -818,9 +819,7 @@ SDelay_traverse(SDelay *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     Py_VISIT(self->delay);
-    Py_VISIT(self->delay_stream);
     return 0;
 }
 
@@ -829,9 +828,7 @@ SDelay_clear(SDelay *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     Py_CLEAR(self->delay);
-    Py_CLEAR(self->delay_stream);
     return 0;
 }
 
@@ -841,6 +838,7 @@ SDelay_dealloc(SDelay* self)
     pyo_DEALLOC
     PyMem_RawFree(self->buffer);
     SDelay_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -873,16 +871,19 @@ SDelay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (delaytmp)
     {
         PyObject_CallMethod((PyObject *)self, "setDelay", "O", delaytmp);
+        Py_DECREF(delaytmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -942,6 +943,7 @@ SDelay_setDelay(SDelay *self, PyObject *arg)
     else
     {
         self->delay = tmp;
+        Py_INCREF(self->delay);
         streamtmp = PyObject_CallMethod((PyObject *)self->delay, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->delay_stream);
@@ -1567,11 +1569,8 @@ Waveguide_traverse(Waveguide *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     Py_VISIT(self->freq);
-    Py_VISIT(self->freq_stream);
     Py_VISIT(self->dur);
-    Py_VISIT(self->dur_stream);
     return 0;
 }
 
@@ -1580,11 +1579,8 @@ Waveguide_clear(Waveguide *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     Py_CLEAR(self->freq);
-    Py_CLEAR(self->freq_stream);
     Py_CLEAR(self->dur);
-    Py_CLEAR(self->dur_stream);
     return 0;
 }
 
@@ -1594,6 +1590,7 @@ Waveguide_dealloc(Waveguide* self)
     pyo_DEALLOC
     PyMem_RawFree(self->buffer);
     Waveguide_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1644,21 +1641,25 @@ Waveguide_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (freqtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        Py_DECREF(freqtmp);
     }
 
     if (durtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setDur", "O", durtmp);
+        Py_DECREF(durtmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1740,6 +1741,7 @@ Waveguide_setFreq(Waveguide *self, PyObject *arg)
     else
     {
         self->freq = tmp;
+        Py_INCREF(self->freq);
         streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->freq_stream);
@@ -1773,6 +1775,7 @@ Waveguide_setDur(Waveguide *self, PyObject *arg)
     else
     {
         self->dur = tmp;
+        Py_INCREF(self->dur);
         streamtmp = PyObject_CallMethod((PyObject *)self->dur, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->dur_stream);
@@ -2764,13 +2767,9 @@ AllpassWG_traverse(AllpassWG *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     Py_VISIT(self->freq);
-    Py_VISIT(self->freq_stream);
     Py_VISIT(self->feed);
-    Py_VISIT(self->feed_stream);
     Py_VISIT(self->detune);
-    Py_VISIT(self->detune_stream);
     return 0;
 }
 
@@ -2779,13 +2778,9 @@ AllpassWG_clear(AllpassWG *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     Py_CLEAR(self->freq);
-    Py_CLEAR(self->freq_stream);
     Py_CLEAR(self->feed);
-    Py_CLEAR(self->feed_stream);
     Py_CLEAR(self->detune);
-    Py_CLEAR(self->detune_stream);
     return 0;
 }
 
@@ -2802,6 +2797,7 @@ AllpassWG_dealloc(AllpassWG* self)
     }
 
     AllpassWG_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -2843,26 +2839,31 @@ AllpassWG_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (freqtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        Py_DECREF(freqtmp);
     }
 
     if (feedtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFeed", "O", feedtmp);
+        Py_DECREF(feedtmp);
     }
 
     if (detunetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setDetune", "O", detunetmp);
+        Py_DECREF(detunetmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -2957,6 +2958,7 @@ AllpassWG_setFreq(AllpassWG *self, PyObject *arg)
     else
     {
         self->freq = tmp;
+        Py_INCREF(self->freq);
         streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->freq_stream);
@@ -2990,6 +2992,7 @@ AllpassWG_setFeed(AllpassWG *self, PyObject *arg)
     else
     {
         self->feed = tmp;
+        Py_INCREF(self->feed);
         streamtmp = PyObject_CallMethod((PyObject *)self->feed, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->feed_stream);
@@ -3023,6 +3026,7 @@ AllpassWG_setDetune(AllpassWG *self, PyObject *arg)
     else
     {
         self->detune = tmp;
+        Py_INCREF(self->detune);
         streamtmp = PyObject_CallMethod((PyObject *)self->detune, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->detune_stream);
@@ -3241,7 +3245,6 @@ Delay1_traverse(Delay1 *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     return 0;
 }
 
@@ -3250,7 +3253,6 @@ Delay1_clear(Delay1 *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     return 0;
 }
 
@@ -3259,6 +3261,7 @@ Delay1_dealloc(Delay1* self)
 {
     pyo_DEALLOC
     Delay1_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -3288,11 +3291,13 @@ Delay1_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -3501,6 +3506,9 @@ SmoothDelay_process_ii(SmoothDelay *self)
         while (xind < 0)
             xind += self->size;
 
+        if (xind == self->size)
+            xind = 0;
+
         ind = (long)xind;
         frac = xind - ind;
         val = self->buffer[ind] + (self->buffer[ind + 1] - self->buffer[ind]) * frac;
@@ -3514,6 +3522,9 @@ SmoothDelay_process_ii(SmoothDelay *self)
 
         while (xind < 0)
             xind += self->size;
+
+        if (xind == self->size)
+            xind = 0;
 
         ind = (long)xind;
         frac = xind - ind;
@@ -3593,6 +3604,9 @@ SmoothDelay_process_ai(SmoothDelay *self)
         while (xind < 0)
             xind += self->size;
 
+        if (xind == self->size)
+            xind = 0;
+
         ind = (long)xind;
         frac = xind - ind;
         val = self->buffer[ind] + (self->buffer[ind + 1] - self->buffer[ind]) * frac;
@@ -3606,6 +3620,9 @@ SmoothDelay_process_ai(SmoothDelay *self)
 
         while (xind < 0)
             xind += self->size;
+
+        if (xind == self->size)
+            xind = 0;
 
         ind = (long)xind;
         frac = xind - ind;
@@ -3685,6 +3702,9 @@ SmoothDelay_process_ia(SmoothDelay *self)
         while (xind < 0)
             xind += self->size;
 
+        if (xind == self->size)
+            xind = 0;
+
         ind = (long)xind;
         frac = xind - ind;
         val = self->buffer[ind] + (self->buffer[ind + 1] - self->buffer[ind]) * frac;
@@ -3698,6 +3718,9 @@ SmoothDelay_process_ia(SmoothDelay *self)
 
         while (xind < 0)
             xind += self->size;
+
+        if (xind == self->size)
+            xind = 0;
 
         ind = (long)xind;
         frac = xind - ind;
@@ -3779,6 +3802,9 @@ SmoothDelay_process_aa(SmoothDelay *self)
         while (xind < 0)
             xind += self->size;
 
+        if (xind == self->size)
+            xind = 0;
+
         ind = (long)xind;
         frac = xind - ind;
         val = self->buffer[ind] + (self->buffer[ind + 1] - self->buffer[ind]) * frac;
@@ -3792,6 +3818,9 @@ SmoothDelay_process_aa(SmoothDelay *self)
 
         while (xind < 0)
             xind += self->size;
+
+        if (xind == self->size)
+            xind = 0;
 
         ind = (long)xind;
         frac = xind - ind;
@@ -3909,11 +3938,8 @@ SmoothDelay_traverse(SmoothDelay *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     Py_VISIT(self->delay);
-    Py_VISIT(self->delay_stream);
     Py_VISIT(self->feedback);
-    Py_VISIT(self->feedback_stream);
     return 0;
 }
 
@@ -3922,11 +3948,8 @@ SmoothDelay_clear(SmoothDelay *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     Py_CLEAR(self->delay);
-    Py_CLEAR(self->delay_stream);
     Py_CLEAR(self->feedback);
-    Py_CLEAR(self->feedback_stream);
     return 0;
 }
 
@@ -3936,6 +3959,7 @@ SmoothDelay_dealloc(SmoothDelay* self)
     pyo_DEALLOC
     PyMem_RawFree(self->buffer);
     SmoothDelay_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -3979,21 +4003,25 @@ SmoothDelay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (delaytmp)
     {
         PyObject_CallMethod((PyObject *)self, "setDelay", "O", delaytmp);
+        Py_DECREF(delaytmp);
     }
 
     if (feedbacktmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFeedback", "O", feedbacktmp);
+        Py_DECREF(feedbacktmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -4053,6 +4081,7 @@ SmoothDelay_setDelay(SmoothDelay *self, PyObject *arg)
     else
     {
         self->delay = tmp;
+        Py_INCREF(self->delay);
         streamtmp = PyObject_CallMethod((PyObject *)self->delay, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->delay_stream);
@@ -4086,6 +4115,7 @@ SmoothDelay_setFeedback(SmoothDelay *self, PyObject *arg)
     else
     {
         self->feedback = tmp;
+        Py_INCREF(self->feedback);
         streamtmp = PyObject_CallMethod((PyObject *)self->feedback, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->feedback_stream);

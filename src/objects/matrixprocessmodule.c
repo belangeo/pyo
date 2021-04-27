@@ -125,9 +125,7 @@ MatrixPointer_traverse(MatrixPointer *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->matrix);
     Py_VISIT(self->x);
-    Py_VISIT(self->x_stream);
     Py_VISIT(self->y);
-    Py_VISIT(self->y_stream);
     return 0;
 }
 
@@ -137,9 +135,7 @@ MatrixPointer_clear(MatrixPointer *self)
     pyo_CLEAR
     Py_CLEAR(self->matrix);
     Py_CLEAR(self->x);
-    Py_CLEAR(self->x_stream);
     Py_CLEAR(self->y);
-    Py_CLEAR(self->y_stream);
     return 0;
 }
 
@@ -148,6 +144,7 @@ MatrixPointer_dealloc(MatrixPointer* self)
 {
     pyo_DEALLOC
     MatrixPointer_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -193,11 +190,13 @@ MatrixPointer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);

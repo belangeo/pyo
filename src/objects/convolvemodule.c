@@ -143,7 +143,6 @@ Convolve_traverse(Convolve *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     Py_VISIT(self->table);
     return 0;
 }
@@ -153,7 +152,6 @@ Convolve_clear(Convolve *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     Py_CLEAR(self->table);
     return 0;
 }
@@ -164,6 +162,7 @@ Convolve_dealloc(Convolve* self)
     pyo_DEALLOC
     PyMem_RawFree(self->input_tmp);
     Convolve_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -202,11 +201,13 @@ Convolve_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -660,11 +661,8 @@ IRWinSinc_traverse(IRWinSinc *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     Py_VISIT(self->freq);
-    Py_VISIT(self->freq_stream);
     Py_VISIT(self->bandwidth);
-    Py_VISIT(self->bandwidth_stream);
     return 0;
 }
 
@@ -673,11 +671,8 @@ IRWinSinc_clear(IRWinSinc *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     Py_CLEAR(self->freq);
-    Py_CLEAR(self->freq_stream);
     Py_CLEAR(self->bandwidth);
-    Py_CLEAR(self->bandwidth_stream);
     return 0;
 }
 
@@ -689,6 +684,7 @@ IRWinSinc_dealloc(IRWinSinc* self)
     PyMem_RawFree(self->impulse);
     PyMem_RawFree(self->impulse_tmp);
     IRWinSinc_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -727,21 +723,25 @@ IRWinSinc_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (freqtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        Py_DECREF(freqtmp);
     }
 
     if (bandwidthtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setBandwidth", "O", bandwidthtmp);
+        Py_DECREF(bandwidthtmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -794,6 +794,7 @@ IRWinSinc_setFreq(IRWinSinc *self, PyObject *arg)
     else
     {
         self->freq = tmp;
+        Py_INCREF(self->freq);
         streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->freq_stream);
@@ -825,6 +826,7 @@ IRWinSinc_setBandwidth(IRWinSinc *self, PyObject *arg)
     else
     {
         self->bandwidth = tmp;
+        Py_INCREF(self->bandwidth);
         streamtmp = PyObject_CallMethod((PyObject *)self->bandwidth, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->bandwidth_stream);
@@ -1105,7 +1107,6 @@ IRAverage_traverse(IRAverage *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     return 0;
 }
 
@@ -1114,7 +1115,6 @@ IRAverage_clear(IRAverage *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     return 0;
 }
 
@@ -1125,6 +1125,7 @@ IRAverage_dealloc(IRAverage* self)
     PyMem_RawFree(self->input_tmp);
     PyMem_RawFree(self->impulse);
     IRAverage_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1155,11 +1156,13 @@ IRAverage_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1618,11 +1621,8 @@ IRPulse_traverse(IRPulse *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     Py_VISIT(self->freq);
-    Py_VISIT(self->freq_stream);
     Py_VISIT(self->bandwidth);
-    Py_VISIT(self->bandwidth_stream);
     return 0;
 }
 
@@ -1631,11 +1631,8 @@ IRPulse_clear(IRPulse *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     Py_CLEAR(self->freq);
-    Py_CLEAR(self->freq_stream);
     Py_CLEAR(self->bandwidth);
-    Py_CLEAR(self->bandwidth_stream);
     return 0;
 }
 
@@ -1646,6 +1643,7 @@ IRPulse_dealloc(IRPulse* self)
     PyMem_RawFree(self->input_tmp);
     PyMem_RawFree(self->impulse);
     IRPulse_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1684,21 +1682,25 @@ IRPulse_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (freqtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        Py_DECREF(freqtmp);
     }
 
     if (bandwidthtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setBandwidth", "O", bandwidthtmp);
+        Py_DECREF(bandwidthtmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1751,6 +1753,7 @@ IRPulse_setFreq(IRPulse *self, PyObject *arg)
     else
     {
         self->freq = tmp;
+        Py_INCREF(self->freq);
         streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->freq_stream);
@@ -1782,6 +1785,7 @@ IRPulse_setBandwidth(IRPulse *self, PyObject *arg)
     else
     {
         self->bandwidth = tmp;
+        Py_INCREF(self->bandwidth);
         streamtmp = PyObject_CallMethod((PyObject *)self->bandwidth, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->bandwidth_stream);
@@ -2135,13 +2139,9 @@ IRFM_traverse(IRFM *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     Py_VISIT(self->carrier);
-    Py_VISIT(self->carrier_stream);
     Py_VISIT(self->ratio);
-    Py_VISIT(self->ratio_stream);
     Py_VISIT(self->index);
-    Py_VISIT(self->index_stream);
     return 0;
 }
 
@@ -2150,13 +2150,9 @@ IRFM_clear(IRFM *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     Py_CLEAR(self->carrier);
-    Py_CLEAR(self->carrier_stream);
     Py_CLEAR(self->ratio);
-    Py_CLEAR(self->ratio_stream);
     Py_CLEAR(self->index);
-    Py_CLEAR(self->index_stream);
     return 0;
 }
 
@@ -2167,6 +2163,7 @@ IRFM_dealloc(IRFM* self)
     PyMem_RawFree(self->input_tmp);
     PyMem_RawFree(self->impulse);
     IRFM_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -2206,26 +2203,31 @@ IRFM_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (carriertmp)
     {
         PyObject_CallMethod((PyObject *)self, "setCarrier", "O", carriertmp);
+        Py_DECREF(carriertmp);
     }
 
     if (ratiotmp)
     {
         PyObject_CallMethod((PyObject *)self, "setRatio", "O", ratiotmp);
+        Py_DECREF(ratiotmp);
     }
 
     if (indextmp)
     {
         PyObject_CallMethod((PyObject *)self, "setIndex", "O", indextmp);
+        Py_DECREF(indextmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -2278,6 +2280,7 @@ IRFM_setCarrier(IRFM *self, PyObject *arg)
     else
     {
         self->carrier = tmp;
+        Py_INCREF(self->carrier);
         streamtmp = PyObject_CallMethod((PyObject *)self->carrier, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->carrier_stream);
@@ -2309,6 +2312,7 @@ IRFM_setRatio(IRFM *self, PyObject *arg)
     else
     {
         self->ratio = tmp;
+        Py_INCREF(self->ratio);
         streamtmp = PyObject_CallMethod((PyObject *)self->ratio, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->ratio_stream);
@@ -2340,6 +2344,7 @@ IRFM_setIndex(IRFM *self, PyObject *arg)
     else
     {
         self->index = tmp;
+        Py_INCREF(self->index);
         streamtmp = PyObject_CallMethod((PyObject *)self->index, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->index_stream);

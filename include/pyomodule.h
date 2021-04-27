@@ -596,8 +596,6 @@ extern PyTypeObject MMLZStreamType;
 #define pyo_VISIT \
     if (self->server != NULL) \
         Py_VISIT(self->server); \
-    if (self->stream != NULL) \
-        Py_VISIT(self->stream); \
     Py_VISIT(self->mul); \
     Py_VISIT(self->mul_stream); \
     Py_VISIT(self->add); \
@@ -606,42 +604,30 @@ extern PyTypeObject MMLZStreamType;
 #define pyo_table_VISIT \
     if (self->server != NULL) \
         Py_VISIT(self->server); \
-    if (self->tablestream != NULL) \
-        Py_VISIT(self->tablestream); \
 
 #define pyo_matrix_VISIT \
     if (self->server != NULL) \
         Py_VISIT(self->server); \
-    if (self->matrixstream != NULL) \
-        Py_VISIT(self->matrixstream); \
 
 #define pyo_CLEAR \
     if (self->server != NULL) { \
         Py_DECREF(self->server); \
         self->server = NULL; \
     } \
-    if (self->stream != NULL) \
-        Py_CLEAR(self->stream); \
     Py_CLEAR(self->mul); \
-    Py_CLEAR(self->mul_stream); \
     Py_CLEAR(self->add); \
-    Py_CLEAR(self->add_stream); \
 
 #define pyo_table_CLEAR \
     if (self->server != NULL) { \
         Py_DECREF(self->server); \
         self->server = NULL; \
     } \
-    if (self->tablestream != NULL) \
-        Py_CLEAR(self->tablestream); \
 
 #define pyo_matrix_CLEAR \
     if (self->server != NULL) { \
         Py_DECREF(self->server); \
         self->server = NULL; \
     } \
-    if (self->matrixstream != NULL) \
-        Py_CLEAR(self->matrixstream); \
 
 #define pyo_DEALLOC \
     if (self->server != NULL && self->stream != NULL) \
@@ -682,10 +668,18 @@ extern PyTypeObject MMLZStreamType;
     Py_INCREF(self->server); \
     self->mul = PyFloat_FromDouble(1); \
     self->add = PyFloat_FromDouble(0); \
-    self->bufsize = PyLong_AsLong(PyObject_CallMethod(self->server, "getBufferSize", NULL)); \
-    self->sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL)); \
-    self->nchnls = PyLong_AsLong(PyObject_CallMethod(self->server, "getNchnls", NULL)); \
-    self->ichnls = PyLong_AsLong(PyObject_CallMethod(self->server, "getIchnls", NULL)); \
+    PyObject *bufobj = PyObject_CallMethod(self->server, "getBufferSize", NULL); \
+    self->bufsize = PyLong_AsLong(bufobj); \
+    Py_DECREF(bufobj); \
+    PyObject *srobj = PyObject_CallMethod(self->server, "getSamplingRate", NULL); \
+    self->sr = PyFloat_AsDouble(srobj); \
+    Py_DECREF(srobj); \
+    PyObject *nchobj = PyObject_CallMethod(self->server, "getNchnls", NULL); \
+    self->nchnls = PyLong_AsLong(nchobj); \
+    Py_DECREF(nchobj); \
+    PyObject *ichobj = PyObject_CallMethod(self->server, "getIchnls", NULL); \
+    self->ichnls = PyLong_AsLong(ichobj); \
+    Py_DECREF(ichobj); \
     self->data = (MYFLT *)PyMem_RawRealloc(self->data, (self->bufsize) * sizeof(MYFLT)); \
     for (i=0; i<self->bufsize; i++) \
         self->data[i] = 0.0; \
@@ -759,11 +753,13 @@ extern PyTypeObject MMLZStreamType;
 
 #define COPY \
     T_SIZE_T i; \
-    MYFLT *tab = TableStream_getData((TableStream *)PyObject_CallMethod((PyObject *)arg, "getTableStream", "")); \
+    PyObject *table = PyObject_CallMethod((PyObject *)arg, "getTableStream", ""); \
+    MYFLT *tab = TableStream_getData((TableStream *)table); \
     for (i=0; i<self->size; i++) { \
         self->data[i] = tab[i]; \
     } \
     self->data[self->size] = self->data[0]; \
+    Py_DECREF(table); \
     Py_RETURN_NONE; \
 
 #define TABLE_ADD \
@@ -782,6 +778,7 @@ extern PyTypeObject MMLZStreamType;
         table = PyObject_CallMethod((PyObject *)arg, "getTableStream", ""); \
         list = TableStream_getData((TableStream *)table); \
         tabsize = TableStream_getSize((TableStream *)table); \
+        Py_DECREF(table); \
         if (self->size < tabsize) \
             tabsize = self->size; \
         for (i=0; i<tabsize; i++) { \
@@ -817,6 +814,7 @@ extern PyTypeObject MMLZStreamType;
         table = PyObject_CallMethod((PyObject *)arg, "getTableStream", ""); \
         list = TableStream_getData((TableStream *)table); \
         tabsize = TableStream_getSize((TableStream *)table); \
+        Py_DECREF(table); \
         if (self->size < tabsize) \
             tabsize = self->size; \
         for (i=0; i<tabsize; i++) { \
@@ -852,6 +850,7 @@ extern PyTypeObject MMLZStreamType;
         table = PyObject_CallMethod((PyObject *)arg, "getTableStream", ""); \
         list = TableStream_getData((TableStream *)table); \
         tabsize = TableStream_getSize((TableStream *)table); \
+        Py_DECREF(table); \
         if (self->size < tabsize) \
             tabsize = self->size; \
         for (i=0; i<tabsize; i++) { \
@@ -891,6 +890,7 @@ extern PyTypeObject MMLZStreamType;
         table = PyObject_CallMethod((PyObject *)arg, "getTableStream", ""); \
         list = TableStream_getData((TableStream *)table); \
         tabsize = TableStream_getSize((TableStream *)table); \
+        Py_DECREF(table); \
         if (self->size < tabsize) \
             tabsize = self->size; \
         for (i=0; i<tabsize; i++) { \
@@ -952,7 +952,7 @@ extern PyTypeObject MMLZStreamType;
  \
     return samples;
 
-// TODO: remove...
+// TODO: remove in stripped branch...
 #define GET_VIEW_TABLE \
     int i, y, w, h, h2, amp; \
     float step; \
@@ -1125,6 +1125,7 @@ extern PyTypeObject MMLZStreamType;
         if ((destpos + length) > self->size) \
             length = self->size - destpos; \
         list = TableStream_getData((TableStream *)table); \
+        Py_DECREF(table); \
         for (i=0; i<length; i++) { \
             self->data[destpos+i] = list[srcpos+i]; \
         } \
@@ -1177,7 +1178,9 @@ extern PyTypeObject MMLZStreamType;
 #define TABLE_LOWPASS \
     MYFLT freq, b, c, x, y; \
     T_SIZE_T i; \
-    double sr = PyFloat_AsDouble(PyObject_CallMethod(PyServer_get_server(), "getSamplingRate", NULL)); \
+    PyObject *srobj = PyObject_CallMethod(self->server, "getSamplingRate", NULL); \
+    double sr = PyFloat_AsDouble(srobj); \
+    Py_DECREF(srobj); \
     static char *kwlist[] = {"freq", NULL}; \
  \
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F, kwlist, &freq)) \
@@ -1198,7 +1201,9 @@ extern PyTypeObject MMLZStreamType;
     MYFLT dur, inc; \
     T_SIZE_T i, samp; \
     int shape = 0; \
-    double sr = PyFloat_AsDouble(PyObject_CallMethod(PyServer_get_server(), "getSamplingRate", NULL)); \
+    PyObject *srobj = PyObject_CallMethod(self->server, "getSamplingRate", NULL); \
+    double sr = PyFloat_AsDouble(srobj); \
+    Py_DECREF(srobj); \
     static char *kwlist[] = {"dur", "shape", NULL}; \
  \
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F_I, kwlist, &dur, &shape)) \
@@ -1238,7 +1243,9 @@ extern PyTypeObject MMLZStreamType;
     MYFLT dur, inc; \
     T_SIZE_T i, samp; \
     int shape = 0; \
-    double sr = PyFloat_AsDouble(PyObject_CallMethod(PyServer_get_server(), "getSamplingRate", NULL)); \
+    PyObject *srobj = PyObject_CallMethod(self->server, "getSamplingRate", NULL); \
+    double sr = PyFloat_AsDouble(srobj); \
+    Py_DECREF(srobj); \
     static char *kwlist[] = {"dur", "shape", NULL}; \
  \
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F_I, kwlist, &dur, &shape)) \
@@ -1426,9 +1433,13 @@ extern PyTypeObject MMLZStreamType;
     for (i = 0; i < (listsize); i++) \
     { \
         tup = PyList_GET_ITEM(self->pointslist, i); \
-        x1 = PyLong_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0))); \
-        x2 = PyNumber_Float(PyTuple_GET_ITEM(tup, 1)); \
+        PyObject *p1 = PyTuple_GET_ITEM(tup, 0); \
+        x1 = PyLong_AsLong(PyNumber_Long(p1)); \
+        PyObject *p2 = PyTuple_GET_ITEM(tup, 1); \
+        x2 = PyNumber_Float(p2); \
         PyList_Append(listtemp, PyTuple_Pack(2, PyLong_FromLong((T_SIZE_T)(x1 * factor)), x2)); \
+        Py_DECREF(p1); \
+        Py_DECREF(p2); \
     } \
  \
     Py_INCREF(listtemp); \
@@ -1623,6 +1634,7 @@ extern PyTypeObject MMLZStreamType;
             PyErr_SetString(PyExc_ArithmeticError, "Only number or audio internal object can be used in arithmetic with audio internal objects.\n"); \
             PyErr_Print(); \
         } \
+        Py_INCREF(self->mul); \
         streamtmp = PyObject_CallMethod((PyObject *)self->mul, "_getStream", NULL); \
         Py_INCREF(streamtmp); \
         Py_XDECREF(self->mul_stream); \
@@ -1656,6 +1668,7 @@ extern PyTypeObject MMLZStreamType;
             PyErr_SetString(PyExc_ArithmeticError, "Only number or audio internal object can be used in arithmetic with audio internal objects.\n"); \
             PyErr_Print(); \
         } \
+        Py_INCREF(self->add); \
         streamtmp = PyObject_CallMethod((PyObject *)self->add, "_getStream", NULL); \
         Py_INCREF(streamtmp); \
         Py_XDECREF(self->add_stream); \
@@ -1680,7 +1693,7 @@ extern PyTypeObject MMLZStreamType;
     Py_INCREF(tmp); \
     Py_DECREF(self->add); \
     if (isNumber == 1) { \
-        self->add = PyNumber_Multiply(PyNumber_Float(tmp), PyFloat_FromDouble(-1)); \
+        self->add = PyFloat_FromDouble(PyFloat_AsDouble(tmp) * -1.0); \
         self->modebuffer[1] = 0; \
     } \
     else { \
@@ -1689,6 +1702,7 @@ extern PyTypeObject MMLZStreamType;
             PyErr_SetString(PyExc_ArithmeticError, "Only number or audio internal object can be used in arithmetic with audio internal objects.\n"); \
             PyErr_Print(); \
         } \
+        Py_INCREF(self->add); \
         streamtmp = PyObject_CallMethod((PyObject *)self->add, "_getStream", NULL); \
         Py_INCREF(streamtmp); \
         Py_XDECREF(self->add_stream); \
@@ -1714,7 +1728,7 @@ extern PyTypeObject MMLZStreamType;
     if (isNumber == 1) { \
         if (PyFloat_AsDouble(tmp) != 0.) { \
             Py_DECREF(self->mul); \
-            self->mul = PyNumber_TrueDivide(PyFloat_FromDouble(1.), PyNumber_Float(tmp)); \
+            self->mul = PyFloat_FromDouble(1.0 / PyFloat_AsDouble(tmp)); \
             self->modebuffer[0] = 0; \
         } \
     } \
@@ -1725,6 +1739,7 @@ extern PyTypeObject MMLZStreamType;
             PyErr_SetString(PyExc_ArithmeticError, "Only number or audio internal object can be used in arithmetic with audio internal objects.\n"); \
             PyErr_Print(); \
         } \
+        Py_INCREF(self->mul); \
         streamtmp = PyObject_CallMethod((PyObject *)self->mul, "_getStream", NULL); \
         Py_INCREF(streamtmp); \
         Py_XDECREF(self->mul_stream); \
@@ -1742,11 +1757,14 @@ extern PyTypeObject MMLZStreamType;
     MAKE_NEW_DUMMY(dummy, &DummyType, NULL); \
     Dummy_initialize(dummy); \
     PyObject_CallMethod((PyObject *)dummy, "setMul", "O", arg); \
+    Py_DECREF(arg); \
     PyObject_CallMethod((PyObject *)dummy, "setInput", "O", self); \
     return (PyObject *)dummy;
 
 #define INPLACE_MULTIPLY \
     PyObject_CallMethod((PyObject *)self, "setMul", "O", arg); \
+    Py_DECREF(arg); \
+    Py_INCREF(self); \
     return (PyObject *)self;
 
 #define ADD \
@@ -1754,11 +1772,14 @@ extern PyTypeObject MMLZStreamType;
     MAKE_NEW_DUMMY(dummy, &DummyType, NULL); \
     Dummy_initialize(dummy); \
     PyObject_CallMethod((PyObject *)dummy, "setAdd", "O", arg); \
+    Py_DECREF(arg); \
     PyObject_CallMethod((PyObject *)dummy, "setInput", "O", self); \
     return (PyObject *)dummy;
 
 #define INPLACE_ADD \
     PyObject_CallMethod((PyObject *)self, "setAdd", "O", arg); \
+    Py_DECREF(arg); \
+    Py_INCREF(self); \
     return (PyObject *)self;
 
 #define SUB \
@@ -1766,11 +1787,14 @@ extern PyTypeObject MMLZStreamType;
     MAKE_NEW_DUMMY(dummy, &DummyType, NULL); \
     Dummy_initialize(dummy); \
     PyObject_CallMethod((PyObject *)dummy, "setSub", "O", arg); \
+    Py_DECREF(arg); \
     PyObject_CallMethod((PyObject *)dummy, "setInput", "O", self); \
     return (PyObject *)dummy;
 
 #define INPLACE_SUB \
     PyObject_CallMethod((PyObject *)self, "setSub", "O", arg); \
+    Py_DECREF(arg); \
+    Py_INCREF(self); \
     return (PyObject *)self;
 
 #define DIV \
@@ -1778,11 +1802,14 @@ extern PyTypeObject MMLZStreamType;
     MAKE_NEW_DUMMY(dummy, &DummyType, NULL); \
     Dummy_initialize(dummy); \
     PyObject_CallMethod((PyObject *)dummy, "setDiv", "O", arg); \
+    Py_DECREF(arg); \
     PyObject_CallMethod((PyObject *)dummy, "setInput", "O", self); \
     return (PyObject *)dummy;
 
 #define INPLACE_DIV \
     PyObject_CallMethod((PyObject *)self, "setDiv", "O", arg); \
+    Py_DECREF(arg); \
+    Py_INCREF(self); \
     return (PyObject *)self;
 
 /* PLAY, OUT, STOP */
@@ -1799,8 +1826,12 @@ extern PyTypeObject MMLZStreamType;
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|ff", kwlist, &dur, &del)) \
         return PyLong_FromLong(-1); \
  \
-    globdel = PyFloat_AsDouble(PyObject_CallMethod(PyServer_get_server(), "getGlobalDel", NULL)); \
-    globdur = PyFloat_AsDouble(PyObject_CallMethod(PyServer_get_server(), "getGlobalDur", NULL)); \
+    PyObject *delobj = PyObject_CallMethod(self->server, "getGlobalDel", NULL); \
+    PyObject *durobj = PyObject_CallMethod(self->server, "getGlobalDur", NULL); \
+    globdel = PyFloat_AsDouble(delobj); \
+    globdur = PyFloat_AsDouble(durobj); \
+    Py_DECREF(delobj); \
+    Py_DECREF(durobj); \
  \
     if (globdel != 0) \
         del = globdel; \
@@ -1848,8 +1879,12 @@ extern PyTypeObject MMLZStreamType;
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|iff", kwlist, &chnltmp, &dur, &del)) \
         return PyLong_FromLong(-1); \
  \
-    globdel = PyFloat_AsDouble(PyObject_CallMethod(PyServer_get_server(), "getGlobalDel", NULL)); \
-    globdur = PyFloat_AsDouble(PyObject_CallMethod(PyServer_get_server(), "getGlobalDur", NULL)); \
+    PyObject *delobj = PyObject_CallMethod(self->server, "getGlobalDel", NULL); \
+    PyObject *durobj = PyObject_CallMethod(self->server, "getGlobalDur", NULL); \
+    globdel = PyFloat_AsDouble(delobj); \
+    globdur = PyFloat_AsDouble(durobj); \
+    Py_DECREF(delobj); \
+    Py_DECREF(durobj); \
  \
     if (globdel != 0) \
         del = globdel; \

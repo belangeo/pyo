@@ -667,13 +667,9 @@ Freeverb_traverse(Freeverb *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     Py_VISIT(self->size);
-    Py_VISIT(self->size_stream);
     Py_VISIT(self->damp);
-    Py_VISIT(self->damp_stream);
     Py_VISIT(self->mix);
-    Py_VISIT(self->mix_stream);
     return 0;
 }
 
@@ -682,13 +678,9 @@ Freeverb_clear(Freeverb *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     Py_CLEAR(self->size);
-    Py_CLEAR(self->size_stream);
     Py_CLEAR(self->damp);
-    Py_CLEAR(self->damp_stream);
     Py_CLEAR(self->mix);
-    Py_CLEAR(self->mix_stream);
     return 0;
 }
 
@@ -709,6 +701,7 @@ Freeverb_dealloc(Freeverb* self)
     }
 
     Freeverb_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -746,26 +739,31 @@ Freeverb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (sizetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setSize", "O", sizetmp);
+        Py_DECREF(sizetmp);
     }
 
     if (damptmp)
     {
         PyObject_CallMethod((PyObject *)self, "setDamp", "O", damptmp);
+        Py_DECREF(damptmp);
     }
 
     if (mixtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMix", "O", mixtmp);
+        Py_DECREF(mixtmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -876,6 +874,7 @@ Freeverb_setSize(Freeverb *self, PyObject *arg)
     else
     {
         self->size = tmp;
+        Py_INCREF(self->size);
         streamtmp = PyObject_CallMethod((PyObject *)self->size, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->size_stream);
@@ -909,6 +908,7 @@ Freeverb_setDamp(Freeverb *self, PyObject *arg)
     else
     {
         self->damp = tmp;
+        Py_INCREF(self->damp);
         streamtmp = PyObject_CallMethod((PyObject *)self->damp, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->damp_stream);
@@ -942,6 +942,7 @@ Freeverb_setMix(Freeverb *self, PyObject *arg)
     else
     {
         self->mix = tmp;
+        Py_INCREF(self->mix);
         streamtmp = PyObject_CallMethod((PyObject *)self->mix, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->mix_stream);

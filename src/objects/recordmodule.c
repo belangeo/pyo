@@ -98,7 +98,6 @@ ControlRec_traverse(ControlRec *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     Py_VISIT(self->tmp_list);
     return 0;
 }
@@ -108,7 +107,6 @@ ControlRec_clear(ControlRec *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     Py_CLEAR(self->tmp_list);
     return 0;
 }
@@ -122,6 +120,7 @@ ControlRec_dealloc(ControlRec* self)
         PyMem_RawFree(self->buffer);
 
     ControlRec_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -202,6 +201,10 @@ ControlRec_getData(ControlRec *self)
     }
     else
     {
+        if (Stream_getStreamActive(self->stream))
+        {
+            PyObject_CallMethod((PyObject *)self, "stop", NULL);
+        }
         Py_ssize_t size = PyList_Size(self->tmp_list);
         data = PyList_New(size);
 
@@ -329,7 +332,7 @@ ControlRead_readframes_i(ControlRead *self)
         {
             self->count++;
 
-            if (self->count >= self->size)
+            if (self->count >= (self->size - 1))
             {
                 self->trigsBuffer[i] = 1.0;
 
@@ -413,7 +416,6 @@ static int
 ControlRead_traverse(ControlRead *self, visitproc visit, void *arg)
 {
     pyo_VISIT
-    Py_VISIT(self->trig_stream);
     return 0;
 }
 
@@ -421,7 +423,6 @@ static int
 ControlRead_clear(ControlRead *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->trig_stream);
     return 0;
 }
 
@@ -432,6 +433,8 @@ ControlRead_dealloc(ControlRead* self)
     PyMem_RawFree(self->values);
     PyMem_RawFree(self->trigsBuffer);
     ControlRead_clear(self);
+    Py_TYPE(self->trig_stream)->tp_free((PyObject*)self->trig_stream);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -467,11 +470,13 @@ ControlRead_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -779,6 +784,7 @@ NoteinRec_dealloc(NoteinRec* self)
 {
     pyo_DEALLOC
     NoteinRec_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1046,7 +1052,6 @@ static int
 NoteinRead_traverse(NoteinRead *self, visitproc visit, void *arg)
 {
     pyo_VISIT
-    Py_VISIT(self->trig_stream);
     return 0;
 }
 
@@ -1054,7 +1059,6 @@ static int
 NoteinRead_clear(NoteinRead *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->trig_stream);
     return 0;
 }
 
@@ -1066,6 +1070,7 @@ NoteinRead_dealloc(NoteinRead* self)
     PyMem_RawFree(self->timestamps);
     PyMem_RawFree(self->trigsBuffer);
     NoteinRead_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1105,11 +1110,13 @@ NoteinRead_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);

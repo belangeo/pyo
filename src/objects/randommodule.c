@@ -378,11 +378,8 @@ Randi_traverse(Randi *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->freq);
-    Py_VISIT(self->freq_stream);
     Py_VISIT(self->min);
-    Py_VISIT(self->min_stream);
     Py_VISIT(self->max);
-    Py_VISIT(self->max_stream);
     return 0;
 }
 
@@ -391,11 +388,8 @@ Randi_clear(Randi *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->freq);
-    Py_CLEAR(self->freq_stream);
     Py_CLEAR(self->min);
-    Py_CLEAR(self->min_stream);
     Py_CLEAR(self->max);
-    Py_CLEAR(self->max_stream);
     return 0;
 }
 
@@ -404,6 +398,7 @@ Randi_dealloc(Randi* self)
 {
     pyo_DEALLOC
     Randi_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -439,26 +434,31 @@ Randi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (mintmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMin", "O", mintmp);
+        Py_DECREF(mintmp);
     }
 
     if (maxtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMax", "O", maxtmp);
+        Py_DECREF(maxtmp);
     }
 
     if (freqtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        Py_DECREF(freqtmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -523,6 +523,7 @@ Randi_setMin(Randi *self, PyObject *arg)
     else
     {
         self->min = tmp;
+        Py_INCREF(self->min);
         streamtmp = PyObject_CallMethod((PyObject *)self->min, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->min_stream);
@@ -556,6 +557,7 @@ Randi_setMax(Randi *self, PyObject *arg)
     else
     {
         self->max = tmp;
+        Py_INCREF(self->max);
         streamtmp = PyObject_CallMethod((PyObject *)self->max, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->max_stream);
@@ -589,6 +591,7 @@ Randi_setFreq(Randi *self, PyObject *arg)
     else
     {
         self->freq = tmp;
+        Py_INCREF(self->freq);
         streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->freq_stream);
@@ -1047,11 +1050,8 @@ Randh_traverse(Randh *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->freq);
-    Py_VISIT(self->freq_stream);
     Py_VISIT(self->min);
-    Py_VISIT(self->min_stream);
     Py_VISIT(self->max);
-    Py_VISIT(self->max_stream);
     return 0;
 }
 
@@ -1060,11 +1060,8 @@ Randh_clear(Randh *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->freq);
-    Py_CLEAR(self->freq_stream);
     Py_CLEAR(self->min);
-    Py_CLEAR(self->min_stream);
     Py_CLEAR(self->max);
-    Py_CLEAR(self->max_stream);
     return 0;
 }
 
@@ -1073,6 +1070,7 @@ Randh_dealloc(Randh* self)
 {
     pyo_DEALLOC
     Randh_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1108,26 +1106,31 @@ Randh_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (mintmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMin", "O", mintmp);
+        Py_DECREF(mintmp);
     }
 
     if (maxtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMax", "O", maxtmp);
+        Py_DECREF(maxtmp);
     }
 
     if (freqtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        Py_DECREF(freqtmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1192,6 +1195,7 @@ Randh_setMin(Randh *self, PyObject *arg)
     else
     {
         self->min = tmp;
+        Py_INCREF(self->min);
         streamtmp = PyObject_CallMethod((PyObject *)self->min, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->min_stream);
@@ -1225,6 +1229,7 @@ Randh_setMax(Randh *self, PyObject *arg)
     else
     {
         self->max = tmp;
+        Py_INCREF(self->max);
         streamtmp = PyObject_CallMethod((PyObject *)self->max, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->max_stream);
@@ -1258,6 +1263,7 @@ Randh_setFreq(Randh *self, PyObject *arg)
     else
     {
         self->freq = tmp;
+        Py_INCREF(self->freq);
         streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->freq_stream);
@@ -1522,7 +1528,6 @@ Choice_traverse(Choice *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->freq);
-    Py_VISIT(self->freq_stream);
     return 0;
 }
 
@@ -1531,7 +1536,6 @@ Choice_clear(Choice *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->freq);
-    Py_CLEAR(self->freq_stream);
     return 0;
 }
 
@@ -1541,6 +1545,7 @@ Choice_dealloc(Choice* self)
     pyo_DEALLOC
     PyMem_RawFree(self->choice);
     Choice_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1576,16 +1581,19 @@ Choice_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (freqtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        Py_DECREF(freqtmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1664,6 +1672,7 @@ Choice_setFreq(Choice *self, PyObject *arg)
     else
     {
         self->freq = tmp;
+        Py_INCREF(self->freq);
         streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->freq_stream);
@@ -1985,9 +1994,7 @@ RandInt_traverse(RandInt *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->freq);
-    Py_VISIT(self->freq_stream);
     Py_VISIT(self->max);
-    Py_VISIT(self->max_stream);
     return 0;
 }
 
@@ -1996,9 +2003,7 @@ RandInt_clear(RandInt *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->freq);
-    Py_CLEAR(self->freq_stream);
     Py_CLEAR(self->max);
-    Py_CLEAR(self->max_stream);
     return 0;
 }
 
@@ -2007,6 +2012,7 @@ RandInt_dealloc(RandInt* self)
 {
     pyo_DEALLOC
     RandInt_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -2039,21 +2045,25 @@ RandInt_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (maxtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMax", "O", maxtmp);
+        Py_DECREF(maxtmp);
     }
 
     if (freqtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        Py_DECREF(freqtmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -2106,6 +2116,7 @@ RandInt_setMax(RandInt *self, PyObject *arg)
     else
     {
         self->max = tmp;
+        Py_INCREF(self->max);
         streamtmp = PyObject_CallMethod((PyObject *)self->max, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->max_stream);
@@ -2139,6 +2150,7 @@ RandInt_setFreq(RandInt *self, PyObject *arg)
     else
     {
         self->freq = tmp;
+        Py_INCREF(self->freq);
         streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->freq_stream);
@@ -2500,9 +2512,7 @@ RandDur_traverse(RandDur *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->min);
-    Py_VISIT(self->min_stream);
     Py_VISIT(self->max);
-    Py_VISIT(self->max_stream);
     return 0;
 }
 
@@ -2511,9 +2521,7 @@ RandDur_clear(RandDur *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->min);
-    Py_CLEAR(self->min_stream);
     Py_CLEAR(self->max);
-    Py_CLEAR(self->max_stream);
     return 0;
 }
 
@@ -2522,6 +2530,7 @@ RandDur_dealloc(RandDur* self)
 {
     pyo_DEALLOC
     RandDur_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -2555,21 +2564,25 @@ RandDur_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (mintmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMin", "O", mintmp);
+        Py_DECREF(mintmp);
     }
 
     if (maxtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMax", "O", maxtmp);
+        Py_DECREF(maxtmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -2639,6 +2652,7 @@ RandDur_setMin(RandDur *self, PyObject *arg)
     else
     {
         self->min = tmp;
+        Py_INCREF(self->min);
         streamtmp = PyObject_CallMethod((PyObject *)self->min, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->min_stream);
@@ -2672,6 +2686,7 @@ RandDur_setMax(RandDur *self, PyObject *arg)
     else
     {
         self->max = tmp;
+        Py_INCREF(self->max);
         streamtmp = PyObject_CallMethod((PyObject *)self->max, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->max_stream);
@@ -3463,11 +3478,8 @@ Xnoise_traverse(Xnoise *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->freq);
-    Py_VISIT(self->freq_stream);
     Py_VISIT(self->x1);
-    Py_VISIT(self->x1_stream);
     Py_VISIT(self->x2);
-    Py_VISIT(self->x2_stream);
     return 0;
 }
 
@@ -3476,11 +3488,8 @@ Xnoise_clear(Xnoise *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->freq);
-    Py_CLEAR(self->freq_stream);
     Py_CLEAR(self->x1);
-    Py_CLEAR(self->x1_stream);
     Py_CLEAR(self->x2);
-    Py_CLEAR(self->x2_stream);
     return 0;
 }
 
@@ -3489,6 +3498,7 @@ Xnoise_dealloc(Xnoise* self)
 {
     pyo_DEALLOC
     Xnoise_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -3543,26 +3553,31 @@ Xnoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (x1tmp)
     {
         PyObject_CallMethod((PyObject *)self, "setX1", "O", x1tmp);
+        Py_DECREF(x1tmp);
     }
 
     if (x2tmp)
     {
         PyObject_CallMethod((PyObject *)self, "setX2", "O", x2tmp);
+        Py_DECREF(x2tmp);
     }
 
     if (freqtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        Py_DECREF(freqtmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -3631,6 +3646,7 @@ Xnoise_setX1(Xnoise *self, PyObject *arg)
     else
     {
         self->x1 = tmp;
+        Py_INCREF(self->x1);
         streamtmp = PyObject_CallMethod((PyObject *)self->x1, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->x1_stream);
@@ -3664,6 +3680,7 @@ Xnoise_setX2(Xnoise *self, PyObject *arg)
     else
     {
         self->x2 = tmp;
+        Py_INCREF(self->x2);
         streamtmp = PyObject_CallMethod((PyObject *)self->x2, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->x2_stream);
@@ -3697,6 +3714,7 @@ Xnoise_setFreq(Xnoise *self, PyObject *arg)
     else
     {
         self->freq = tmp;
+        Py_INCREF(self->freq);
         streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->freq_stream);
@@ -4528,11 +4546,8 @@ XnoiseMidi_traverse(XnoiseMidi *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->freq);
-    Py_VISIT(self->freq_stream);
     Py_VISIT(self->x1);
-    Py_VISIT(self->x1_stream);
     Py_VISIT(self->x2);
-    Py_VISIT(self->x2_stream);
     return 0;
 }
 
@@ -4541,11 +4556,8 @@ XnoiseMidi_clear(XnoiseMidi *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->freq);
-    Py_CLEAR(self->freq_stream);
     Py_CLEAR(self->x1);
-    Py_CLEAR(self->x1_stream);
     Py_CLEAR(self->x2);
-    Py_CLEAR(self->x2_stream);
     return 0;
 }
 
@@ -4554,6 +4566,7 @@ XnoiseMidi_dealloc(XnoiseMidi* self)
 {
     pyo_DEALLOC
     XnoiseMidi_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -4612,16 +4625,19 @@ XnoiseMidi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (x1tmp)
     {
         PyObject_CallMethod((PyObject *)self, "setX1", "O", x1tmp);
+        Py_DECREF(x1tmp);
     }
 
     if (x2tmp)
     {
         PyObject_CallMethod((PyObject *)self, "setX2", "O", x2tmp);
+        Py_DECREF(x2tmp);
     }
 
     if (freqtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        Py_DECREF(freqtmp);
     }
 
     if (rangetmp)
@@ -4632,11 +4648,13 @@ XnoiseMidi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -4747,6 +4765,7 @@ XnoiseMidi_setX1(XnoiseMidi *self, PyObject *arg)
     else
     {
         self->x1 = tmp;
+        Py_INCREF(self->x1);
         streamtmp = PyObject_CallMethod((PyObject *)self->x1, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->x1_stream);
@@ -4780,6 +4799,7 @@ XnoiseMidi_setX2(XnoiseMidi *self, PyObject *arg)
     else
     {
         self->x2 = tmp;
+        Py_INCREF(self->x2);
         streamtmp = PyObject_CallMethod((PyObject *)self->x2, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->x2_stream);
@@ -4813,6 +4833,7 @@ XnoiseMidi_setFreq(XnoiseMidi *self, PyObject *arg)
     else
     {
         self->freq = tmp;
+        Py_INCREF(self->freq);
         streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->freq_stream);
@@ -5413,13 +5434,9 @@ XnoiseDur_traverse(XnoiseDur *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->min);
-    Py_VISIT(self->min_stream);
     Py_VISIT(self->max);
-    Py_VISIT(self->max_stream);
     Py_VISIT(self->x1);
-    Py_VISIT(self->x1_stream);
     Py_VISIT(self->x2);
-    Py_VISIT(self->x2_stream);
     return 0;
 }
 
@@ -5428,13 +5445,9 @@ XnoiseDur_clear(XnoiseDur *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->min);
-    Py_CLEAR(self->min_stream);
     Py_CLEAR(self->max);
-    Py_CLEAR(self->max_stream);
     Py_CLEAR(self->x1);
-    Py_CLEAR(self->x1_stream);
     Py_CLEAR(self->x2);
-    Py_CLEAR(self->x2_stream);
     return 0;
 }
 
@@ -5443,6 +5456,7 @@ XnoiseDur_dealloc(XnoiseDur* self)
 {
     pyo_DEALLOC
     XnoiseDur_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -5499,31 +5513,37 @@ XnoiseDur_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (x1tmp)
     {
         PyObject_CallMethod((PyObject *)self, "setX1", "O", x1tmp);
+        Py_DECREF(x1tmp);
     }
 
     if (x2tmp)
     {
         PyObject_CallMethod((PyObject *)self, "setX2", "O", x2tmp);
+        Py_DECREF(x2tmp);
     }
 
     if (mintmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMin", "O", mintmp);
+        Py_DECREF(mintmp);
     }
 
     if (maxtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMax", "O", maxtmp);
+        Py_DECREF(maxtmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -5609,6 +5629,7 @@ XnoiseDur_setX1(XnoiseDur *self, PyObject *arg)
     else
     {
         self->x1 = tmp;
+        Py_INCREF(self->x1);
         streamtmp = PyObject_CallMethod((PyObject *)self->x1, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->x1_stream);
@@ -5642,6 +5663,7 @@ XnoiseDur_setX2(XnoiseDur *self, PyObject *arg)
     else
     {
         self->x2 = tmp;
+        Py_INCREF(self->x2);
         streamtmp = PyObject_CallMethod((PyObject *)self->x2, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->x2_stream);
@@ -5675,6 +5697,7 @@ XnoiseDur_setMin(XnoiseDur *self, PyObject *arg)
     else
     {
         self->min = tmp;
+        Py_INCREF(self->min);
         streamtmp = PyObject_CallMethod((PyObject *)self->min, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->min_stream);
@@ -5708,6 +5731,7 @@ XnoiseDur_setMax(XnoiseDur *self, PyObject *arg)
     else
     {
         self->max = tmp;
+        Py_INCREF(self->max);
         streamtmp = PyObject_CallMethod((PyObject *)self->max, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->max_stream);
@@ -6032,8 +6056,6 @@ Urn_traverse(Urn *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->freq);
-    Py_VISIT(self->freq_stream);
-    Py_VISIT(self->trig_stream);
     return 0;
 }
 
@@ -6042,8 +6064,6 @@ Urn_clear(Urn *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->freq);
-    Py_CLEAR(self->freq_stream);
-    Py_CLEAR(self->trig_stream);
     return 0;
 }
 
@@ -6054,6 +6074,8 @@ Urn_dealloc(Urn* self)
     PyMem_RawFree(self->list);
     PyMem_RawFree(self->trigsBuffer);
     Urn_clear(self);
+    Py_TYPE(self->trig_stream)->tp_free((PyObject*)self->trig_stream);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -6087,16 +6109,19 @@ Urn_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (freqtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        Py_DECREF(freqtmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -6173,6 +6198,7 @@ Urn_setFreq(Urn *self, PyObject *arg)
     else
     {
         self->freq = tmp;
+        Py_INCREF(self->freq);
         streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->freq_stream);
@@ -6513,9 +6539,7 @@ LogiMap_traverse(LogiMap *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->freq);
-    Py_VISIT(self->freq_stream);
     Py_VISIT(self->chaos);
-    Py_VISIT(self->chaos_stream);
     return 0;
 }
 
@@ -6524,9 +6548,7 @@ LogiMap_clear(LogiMap *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->freq);
-    Py_CLEAR(self->freq_stream);
     Py_CLEAR(self->chaos);
-    Py_CLEAR(self->chaos_stream);
     return 0;
 }
 
@@ -6535,6 +6557,7 @@ LogiMap_dealloc(LogiMap* self)
 {
     pyo_DEALLOC
     LogiMap_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -6567,21 +6590,25 @@ LogiMap_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (chaostmp)
     {
         PyObject_CallMethod((PyObject *)self, "setChaos", "O", chaostmp);
+        Py_DECREF(chaostmp);
     }
 
     if (freqtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        Py_DECREF(freqtmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -6643,6 +6670,7 @@ LogiMap_setChaos(LogiMap *self, PyObject *arg)
     else
     {
         self->chaos = tmp;
+        Py_INCREF(self->chaos);
         streamtmp = PyObject_CallMethod((PyObject *)self->chaos, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->chaos_stream);
@@ -6676,6 +6704,7 @@ LogiMap_setFreq(LogiMap *self, PyObject *arg)
     else
     {
         self->freq = tmp;
+        Py_INCREF(self->freq);
         streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->freq_stream);
