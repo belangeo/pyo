@@ -579,6 +579,8 @@ class TestPyoTableObject:
         buf = t.getBuffer(chnl=1)
         assert buf is None
 
+        del arr
+
     def test_setSize(self):
         t = LinTable([(0, 0), (511, 1)], size=512)
         assert t.getSize() == 512
