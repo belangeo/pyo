@@ -194,9 +194,7 @@ BandSplitter_traverse(BandSplitter *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     Py_VISIT(self->q);
-    Py_VISIT(self->q_stream);
     return 0;
 }
 
@@ -205,9 +203,7 @@ BandSplitter_clear(BandSplitter *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     Py_CLEAR(self->q);
-    Py_CLEAR(self->q_stream);
     return 0;
 }
 
@@ -227,6 +223,7 @@ BandSplitter_dealloc(BandSplitter* self)
     PyMem_RawFree(self->a2);
     PyMem_RawFree(self->buffer_streams);
     BandSplitter_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -276,6 +273,7 @@ BandSplitter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (qtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setQ", "O", qtmp);
+        Py_DECREF(qtmp);
     }
     else
     {
@@ -309,6 +307,7 @@ BandSplitter_setQ(BandSplitter *self, PyObject *arg)
     else
     {
         self->q = tmp;
+        Py_INCREF(self->q);
         streamtmp = PyObject_CallMethod((PyObject *)self->q, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->q_stream);
@@ -492,6 +491,7 @@ BandSplit_dealloc(BandSplit* self)
 {
     pyo_DEALLOC
     BandSplit_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -523,11 +523,13 @@ BandSplit_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -921,13 +923,9 @@ FourBandMain_traverse(FourBandMain *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     Py_VISIT(self->freq1);
-    Py_VISIT(self->freq1_stream);
     Py_VISIT(self->freq2);
-    Py_VISIT(self->freq2_stream);
     Py_VISIT(self->freq3);
-    Py_VISIT(self->freq3_stream);
     return 0;
 }
 
@@ -936,13 +934,9 @@ FourBandMain_clear(FourBandMain *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     Py_CLEAR(self->freq1);
-    Py_CLEAR(self->freq1_stream);
     Py_CLEAR(self->freq2);
-    Py_CLEAR(self->freq2_stream);
     Py_CLEAR(self->freq3);
-    Py_CLEAR(self->freq3_stream);
     return 0;
 }
 
@@ -952,6 +946,7 @@ FourBandMain_dealloc(FourBandMain* self)
     pyo_DEALLOC
     PyMem_RawFree(self->buffer_streams);
     FourBandMain_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1000,16 +995,19 @@ FourBandMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (freq1tmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFreq1", "O", freq1tmp);
+        Py_DECREF(freq1tmp);
     }
 
     if (freq2tmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFreq2", "O", freq2tmp);
+        Py_DECREF(freq2tmp);
     }
 
     if (freq3tmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFreq3", "O", freq3tmp);
+        Py_DECREF(freq3tmp);
     }
 
     (*self->mode_func_ptr)(self);
@@ -1038,6 +1036,7 @@ FourBandMain_setFreq1(FourBandMain *self, PyObject *arg)
     else
     {
         self->freq1 = tmp;
+        Py_INCREF(self->freq1);
         streamtmp = PyObject_CallMethod((PyObject *)self->freq1, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->freq1_stream);
@@ -1069,6 +1068,7 @@ FourBandMain_setFreq2(FourBandMain *self, PyObject *arg)
     else
     {
         self->freq2 = tmp;
+        Py_INCREF(self->freq2);
         streamtmp = PyObject_CallMethod((PyObject *)self->freq2, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->freq2_stream);
@@ -1100,6 +1100,7 @@ FourBandMain_setFreq3(FourBandMain *self, PyObject *arg)
     else
     {
         self->freq3 = tmp;
+        Py_INCREF(self->freq3);
         streamtmp = PyObject_CallMethod((PyObject *)self->freq3, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->freq3_stream);
@@ -1285,6 +1286,7 @@ FourBand_dealloc(FourBand* self)
 {
     pyo_DEALLOC
     FourBand_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1316,11 +1318,13 @@ FourBand_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1686,7 +1690,6 @@ MultiBandMain_traverse(MultiBandMain *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     return 0;
 }
 
@@ -1695,7 +1698,6 @@ MultiBandMain_clear(MultiBandMain *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     return 0;
 }
 
@@ -1705,6 +1707,7 @@ MultiBandMain_dealloc(MultiBandMain* self)
     pyo_DEALLOC
     PyMem_RawFree(self->buffer_streams);
     MultiBandMain_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1949,6 +1952,7 @@ MultiBand_dealloc(MultiBand* self)
 {
     pyo_DEALLOC
     MultiBand_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1980,11 +1984,13 @@ MultiBand_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);

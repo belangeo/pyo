@@ -317,6 +317,7 @@ Exprer_process(Exprer *self)
 
                         if (self->lexp[j].num == 1)   // in case let statement try to store a complex number, we save the imag part.
                         {
+                            // Invalid write of size 4, should be `if (self->lexp[j].num > 1)` ?
                             self->lexp[j].values[k + 1] = self->lexp[self->lexp[j].nodes[k]].result2;
                         }
                     }
@@ -777,6 +778,7 @@ Exprer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (exprtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setExpr", "O", exprtmp);
+        Py_DECREF(exprtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1302,11 +1304,13 @@ Expr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);

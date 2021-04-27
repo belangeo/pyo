@@ -268,9 +268,7 @@ Sine_traverse(Sine *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->freq);
-    Py_VISIT(self->freq_stream);
     Py_VISIT(self->phase);
-    Py_VISIT(self->phase_stream);
     return 0;
 }
 
@@ -279,9 +277,7 @@ Sine_clear(Sine *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->freq);
-    Py_CLEAR(self->freq_stream);
     Py_CLEAR(self->phase);
-    Py_CLEAR(self->phase_stream);
     return 0;
 }
 
@@ -290,6 +286,7 @@ Sine_dealloc(Sine* self)
 {
     pyo_DEALLOC
     Sine_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -322,21 +319,25 @@ Sine_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (freqtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        Py_DECREF(freqtmp);
     }
 
     if (phasetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setPhase", "O", phasetmp);
+        Py_DECREF(phasetmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -387,6 +388,7 @@ Sine_setFreq(Sine *self, PyObject *arg)
     else
     {
         self->freq = tmp;
+        Py_INCREF(self->freq);
         streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->freq_stream);
@@ -420,6 +422,7 @@ Sine_setPhase(Sine *self, PyObject *arg)
     else
     {
         self->phase = tmp;
+        Py_INCREF(self->phase);
         streamtmp = PyObject_CallMethod((PyObject *)self->phase, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->phase_stream);
@@ -858,7 +861,6 @@ FastSine_traverse(FastSine *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->freq);
-    Py_VISIT(self->freq_stream);
     return 0;
 }
 
@@ -867,7 +869,6 @@ FastSine_clear(FastSine *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->freq);
-    Py_CLEAR(self->freq_stream);
     return 0;
 }
 
@@ -876,6 +877,7 @@ FastSine_dealloc(FastSine* self)
 {
     pyo_DEALLOC
     FastSine_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -923,16 +925,19 @@ FastSine_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (freqtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        Py_DECREF(freqtmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -984,6 +989,7 @@ FastSine_setFreq(FastSine *self, PyObject *arg)
     else
     {
         self->freq = tmp;
+        Py_INCREF(self->freq);
         streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->freq_stream);
@@ -1323,9 +1329,7 @@ SineLoop_traverse(SineLoop *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->freq);
-    Py_VISIT(self->freq_stream);
     Py_VISIT(self->feedback);
-    Py_VISIT(self->feedback_stream);
     return 0;
 }
 
@@ -1334,9 +1338,7 @@ SineLoop_clear(SineLoop *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->freq);
-    Py_CLEAR(self->freq_stream);
     Py_CLEAR(self->feedback);
-    Py_CLEAR(self->feedback_stream);
     return 0;
 }
 
@@ -1345,6 +1347,7 @@ SineLoop_dealloc(SineLoop* self)
 {
     pyo_DEALLOC
     SineLoop_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1376,21 +1379,25 @@ SineLoop_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (freqtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        Py_DECREF(freqtmp);
     }
 
     if (feedbacktmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFeedback", "O", feedbacktmp);
+        Py_DECREF(feedbacktmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1441,6 +1448,7 @@ SineLoop_setFreq(SineLoop *self, PyObject *arg)
     else
     {
         self->freq = tmp;
+        Py_INCREF(self->freq);
         streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->freq_stream);
@@ -1474,6 +1482,7 @@ SineLoop_setFeedback(SineLoop *self, PyObject *arg)
     else
     {
         self->feedback = tmp;
+        Py_INCREF(self->feedback);
         streamtmp = PyObject_CallMethod((PyObject *)self->feedback, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->feedback_stream);
@@ -1844,9 +1853,7 @@ Osc_traverse(Osc *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->table);
     Py_VISIT(self->phase);
-    Py_VISIT(self->phase_stream);
     Py_VISIT(self->freq);
-    Py_VISIT(self->freq_stream);
     return 0;
 }
 
@@ -1856,9 +1863,7 @@ Osc_clear(Osc *self)
     pyo_CLEAR
     Py_CLEAR(self->table);
     Py_CLEAR(self->phase);
-    Py_CLEAR(self->phase_stream);
     Py_CLEAR(self->freq);
-    Py_CLEAR(self->freq_stream);
     return 0;
 }
 
@@ -1867,6 +1872,7 @@ Osc_dealloc(Osc* self)
 {
     pyo_DEALLOC
     Osc_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1908,21 +1914,25 @@ Osc_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (phasetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setPhase", "O", phasetmp);
+        Py_DECREF(phasetmp);
     }
 
     if (freqtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        Py_DECREF(freqtmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1996,6 +2006,7 @@ Osc_setFreq(Osc *self, PyObject *arg)
     else
     {
         self->freq = tmp;
+        Py_INCREF(self->freq);
         streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->freq_stream);
@@ -2029,6 +2040,7 @@ Osc_setPhase(Osc *self, PyObject *arg)
     else
     {
         self->phase = tmp;
+        Py_INCREF(self->phase);
         streamtmp = PyObject_CallMethod((PyObject *)self->phase, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->phase_stream);
@@ -2409,9 +2421,7 @@ OscLoop_traverse(OscLoop *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->table);
     Py_VISIT(self->feedback);
-    Py_VISIT(self->feedback_stream);
     Py_VISIT(self->freq);
-    Py_VISIT(self->freq_stream);
     return 0;
 }
 
@@ -2421,9 +2431,7 @@ OscLoop_clear(OscLoop *self)
     pyo_CLEAR
     Py_CLEAR(self->table);
     Py_CLEAR(self->feedback);
-    Py_CLEAR(self->feedback_stream);
     Py_CLEAR(self->freq);
-    Py_CLEAR(self->freq_stream);
     return 0;
 }
 
@@ -2432,6 +2440,7 @@ OscLoop_dealloc(OscLoop* self)
 {
     pyo_DEALLOC
     OscLoop_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -2472,21 +2481,25 @@ OscLoop_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (feedbacktmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFeedback", "O", feedbacktmp);
+        Py_DECREF(feedbacktmp);
     }
 
     if (freqtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        Py_DECREF(freqtmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -2558,6 +2571,7 @@ OscLoop_setFreq(OscLoop *self, PyObject *arg)
     else
     {
         self->freq = tmp;
+        Py_INCREF(self->freq);
         streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->freq_stream);
@@ -2591,6 +2605,7 @@ OscLoop_setFeedback(OscLoop *self, PyObject *arg)
     else
     {
         self->feedback = tmp;
+        Py_INCREF(self->feedback);
         streamtmp = PyObject_CallMethod((PyObject *)self->feedback, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->feedback_stream);
@@ -2977,13 +2992,10 @@ static int
 OscTrig_traverse(OscTrig *self, visitproc visit, void *arg)
 {
     pyo_VISIT
-    Py_VISIT(self->table);
+    //Py_VISIT(self->table);
     Py_VISIT(self->phase);
-    Py_VISIT(self->phase_stream);
     Py_VISIT(self->freq);
-    Py_VISIT(self->freq_stream);
     Py_VISIT(self->trig);
-    Py_VISIT(self->trig_stream);
     return 0;
 }
 
@@ -2991,13 +3003,10 @@ static int
 OscTrig_clear(OscTrig *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->table);
+    //Py_CLEAR(self->table);
     Py_CLEAR(self->phase);
-    Py_CLEAR(self->phase_stream);
     Py_CLEAR(self->freq);
-    Py_CLEAR(self->freq_stream);
     Py_CLEAR(self->trig);
-    Py_CLEAR(self->trig_stream);
     return 0;
 }
 
@@ -3006,6 +3015,7 @@ OscTrig_dealloc(OscTrig* self)
 {
     pyo_DEALLOC
     OscTrig_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -3052,21 +3062,25 @@ OscTrig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (phasetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setPhase", "O", phasetmp);
+        Py_DECREF(phasetmp);
     }
 
     if (freqtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        Py_DECREF(freqtmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -3169,6 +3183,7 @@ OscTrig_setFreq(OscTrig *self, PyObject *arg)
     else
     {
         self->freq = tmp;
+        Py_INCREF(self->freq);
         streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->freq_stream);
@@ -3202,6 +3217,7 @@ OscTrig_setPhase(OscTrig *self, PyObject *arg)
     else
     {
         self->phase = tmp;
+        Py_INCREF(self->phase);
         streamtmp = PyObject_CallMethod((PyObject *)self->phase, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->phase_stream);
@@ -3584,9 +3600,7 @@ Phasor_traverse(Phasor *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->phase);
-    Py_VISIT(self->phase_stream);
     Py_VISIT(self->freq);
-    Py_VISIT(self->freq_stream);
     return 0;
 }
 
@@ -3595,9 +3609,7 @@ Phasor_clear(Phasor *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->phase);
-    Py_CLEAR(self->phase_stream);
     Py_CLEAR(self->freq);
-    Py_CLEAR(self->freq_stream);
     return 0;
 }
 
@@ -3606,6 +3618,7 @@ Phasor_dealloc(Phasor* self)
 {
     pyo_DEALLOC
     Phasor_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -3637,21 +3650,25 @@ Phasor_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (freqtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        Py_DECREF(freqtmp);
     }
 
     if (phasetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setPhase", "O", phasetmp);
+        Py_DECREF(phasetmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -3702,6 +3719,7 @@ Phasor_setFreq(Phasor *self, PyObject *arg)
     else
     {
         self->freq = tmp;
+        Py_INCREF(self->freq);
         streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->freq_stream);
@@ -3735,6 +3753,7 @@ Phasor_setPhase(Phasor *self, PyObject *arg)
     else
     {
         self->phase = tmp;
+        Py_INCREF(self->phase);
         streamtmp = PyObject_CallMethod((PyObject *)self->phase, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->phase_stream);
@@ -3971,7 +3990,6 @@ Pointer_traverse(Pointer *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->table);
     Py_VISIT(self->index);
-    Py_VISIT(self->index_stream);
     return 0;
 }
 
@@ -3981,7 +3999,6 @@ Pointer_clear(Pointer *self)
     pyo_CLEAR
     Py_CLEAR(self->table);
     Py_CLEAR(self->index);
-    Py_CLEAR(self->index_stream);
     return 0;
 }
 
@@ -3990,6 +4007,7 @@ Pointer_dealloc(Pointer* self)
 {
     pyo_DEALLOC
     Pointer_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -4025,13 +4043,19 @@ Pointer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (indextmp)
     {
         PyObject_CallMethod((PyObject *)self, "setIndex", "O", indextmp);
+        Py_DECREF(indextmp);
     }
 
-    PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    if (multmp)
+    {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
+    }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -4101,6 +4125,7 @@ Pointer_setIndex(Pointer *self, PyObject *arg)
     Py_XDECREF(self->index);
 
     self->index = tmp;
+    Py_INCREF(self->index);
     streamtmp = PyObject_CallMethod((PyObject *)self->index, "_getStream", NULL);
     Py_INCREF(streamtmp);
     Py_XDECREF(self->index_stream);
@@ -4359,7 +4384,6 @@ Pointer2_traverse(Pointer2 *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->table);
     Py_VISIT(self->index);
-    Py_VISIT(self->index_stream);
     return 0;
 }
 
@@ -4369,7 +4393,6 @@ Pointer2_clear(Pointer2 *self)
     pyo_CLEAR
     Py_CLEAR(self->table);
     Py_CLEAR(self->index);
-    Py_CLEAR(self->index_stream);
     return 0;
 }
 
@@ -4378,6 +4401,7 @@ Pointer2_dealloc(Pointer2* self)
 {
     pyo_DEALLOC
     Pointer2_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -4418,13 +4442,19 @@ Pointer2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (indextmp)
     {
         PyObject_CallMethod((PyObject *)self, "setIndex", "O", indextmp);
+        Py_DECREF(indextmp);
     }
 
-    PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    if (multmp)
+    {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
+    }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -4496,6 +4526,7 @@ Pointer2_setIndex(Pointer2 *self, PyObject *arg)
     Py_XDECREF(self->index);
 
     self->index = tmp;
+    Py_INCREF(self->index);
     streamtmp = PyObject_CallMethod((PyObject *)self->index, "_getStream", NULL);
     Py_INCREF(streamtmp);
     Py_XDECREF(self->index_stream);
@@ -4757,7 +4788,6 @@ TableIndex_traverse(TableIndex *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->table);
     Py_VISIT(self->index);
-    Py_VISIT(self->index_stream);
     return 0;
 }
 
@@ -4767,7 +4797,6 @@ TableIndex_clear(TableIndex *self)
     pyo_CLEAR
     Py_CLEAR(self->table);
     Py_CLEAR(self->index);
-    Py_CLEAR(self->index_stream);
     return 0;
 }
 
@@ -4776,6 +4805,7 @@ TableIndex_dealloc(TableIndex* self)
 {
     pyo_DEALLOC
     TableIndex_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -4811,13 +4841,19 @@ TableIndex_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (indextmp)
     {
         PyObject_CallMethod((PyObject *)self, "setIndex", "O", indextmp);
+        Py_DECREF(indextmp);
     }
 
-    PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    if (multmp)
+    {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
+    }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -4887,6 +4923,7 @@ TableIndex_setIndex(TableIndex *self, PyObject *arg)
     Py_XDECREF(self->index);
 
     self->index = tmp;
+    Py_INCREF(self->index);
     streamtmp = PyObject_CallMethod((PyObject *)self->index, "_getStream", NULL);
     Py_INCREF(streamtmp);
     Py_XDECREF(self->index_stream);
@@ -5122,7 +5159,6 @@ Lookup_traverse(Lookup *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->table);
     Py_VISIT(self->index);
-    Py_VISIT(self->index_stream);
     return 0;
 }
 
@@ -5132,7 +5168,6 @@ Lookup_clear(Lookup *self)
     pyo_CLEAR
     Py_CLEAR(self->table);
     Py_CLEAR(self->index);
-    Py_CLEAR(self->index_stream);
     return 0;
 }
 
@@ -5141,6 +5176,7 @@ Lookup_dealloc(Lookup* self)
 {
     pyo_DEALLOC
     Lookup_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -5176,13 +5212,19 @@ Lookup_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (indextmp)
     {
         PyObject_CallMethod((PyObject *)self, "setIndex", "O", indextmp);
+        Py_DECREF(indextmp);
     }
 
-    PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    if (multmp)
+    {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
+    }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -5252,6 +5294,7 @@ Lookup_setIndex(Lookup *self, PyObject *arg)
     Py_XDECREF(self->index);
 
     self->index = tmp;
+    Py_INCREF(self->index);
     streamtmp = PyObject_CallMethod((PyObject *)self->index, "_getStream", NULL);
     Py_INCREF(streamtmp);
     Py_XDECREF(self->index_stream);
@@ -5923,11 +5966,8 @@ Pulsar_traverse(Pulsar *self, visitproc visit, void *arg)
     Py_VISIT(self->table);
     Py_VISIT(self->env);
     Py_VISIT(self->phase);
-    Py_VISIT(self->phase_stream);
     Py_VISIT(self->freq);
-    Py_VISIT(self->freq_stream);
     Py_VISIT(self->frac);
-    Py_VISIT(self->frac_stream);
     return 0;
 }
 
@@ -5938,11 +5978,8 @@ Pulsar_clear(Pulsar *self)
     Py_CLEAR(self->table);
     Py_CLEAR(self->env);
     Py_CLEAR(self->phase);
-    Py_CLEAR(self->phase_stream);
     Py_CLEAR(self->freq);
-    Py_CLEAR(self->freq_stream);
     Py_CLEAR(self->frac);
-    Py_CLEAR(self->frac_stream);
     return 0;
 }
 
@@ -5951,6 +5988,7 @@ Pulsar_dealloc(Pulsar* self)
 {
     pyo_DEALLOC
     Pulsar_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -6003,26 +6041,31 @@ Pulsar_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (phasetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setPhase", "O", phasetmp);
+        Py_DECREF(phasetmp);
     }
 
     if (freqtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        Py_DECREF(freqtmp);
     }
 
     if (fractmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFrac", "O", fractmp);
+        Py_DECREF(fractmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -6117,6 +6160,7 @@ Pulsar_setFreq(Pulsar *self, PyObject *arg)
     else
     {
         self->freq = tmp;
+        Py_INCREF(self->freq);
         streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->freq_stream);
@@ -6150,6 +6194,7 @@ Pulsar_setPhase(Pulsar *self, PyObject *arg)
     else
     {
         self->phase = tmp;
+        Py_INCREF(self->phase);
         streamtmp = PyObject_CallMethod((PyObject *)self->phase, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->phase_stream);
@@ -6183,6 +6228,7 @@ Pulsar_setFrac(Pulsar *self, PyObject *arg)
     else
     {
         self->frac = tmp;
+        Py_INCREF(self->frac);
         streamtmp = PyObject_CallMethod((PyObject *)self->frac, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->frac_stream);
@@ -6559,8 +6605,6 @@ TableRead_traverse(TableRead *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->table);
     Py_VISIT(self->freq);
-    Py_VISIT(self->freq_stream);
-    Py_VISIT(self->trig_stream);
     return 0;
 }
 
@@ -6570,8 +6614,6 @@ TableRead_clear(TableRead *self)
     pyo_CLEAR
     Py_CLEAR(self->table);
     Py_CLEAR(self->freq);
-    Py_CLEAR(self->freq_stream);
-    Py_CLEAR(self->trig_stream);
     return 0;
 }
 
@@ -6581,6 +6623,8 @@ TableRead_dealloc(TableRead* self)
     pyo_DEALLOC
     PyMem_RawFree(self->trigsBuffer);
     TableRead_clear(self);
+    Py_TYPE(self->trig_stream)->tp_free((PyObject*)self->trig_stream);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -6625,16 +6669,19 @@ TableRead_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (freqtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        Py_DECREF(freqtmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -6777,6 +6824,7 @@ TableRead_setFreq(TableRead *self, PyObject *arg)
     else
     {
         self->freq = tmp;
+        Py_INCREF(self->freq);
         streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->freq_stream);
@@ -7324,11 +7372,8 @@ Fm_traverse(Fm *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->car);
-    Py_VISIT(self->car_stream);
     Py_VISIT(self->ratio);
-    Py_VISIT(self->ratio_stream);
     Py_VISIT(self->index);
-    Py_VISIT(self->index_stream);
     return 0;
 }
 
@@ -7337,11 +7382,8 @@ Fm_clear(Fm *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->car);
-    Py_CLEAR(self->car_stream);
     Py_CLEAR(self->ratio);
-    Py_CLEAR(self->ratio_stream);
     Py_CLEAR(self->index);
-    Py_CLEAR(self->index_stream);
     return 0;
 }
 
@@ -7350,6 +7392,7 @@ Fm_dealloc(Fm* self)
 {
     pyo_DEALLOC
     Fm_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -7385,26 +7428,31 @@ Fm_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (cartmp)
     {
         PyObject_CallMethod((PyObject *)self, "setCarrier", "O", cartmp);
+        Py_DECREF(cartmp);
     }
 
     if (ratiotmp)
     {
         PyObject_CallMethod((PyObject *)self, "setRatio", "O", ratiotmp);
+        Py_DECREF(ratiotmp);
     }
 
     if (indextmp)
     {
         PyObject_CallMethod((PyObject *)self, "setIndex", "O", indextmp);
+        Py_DECREF(indextmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -7455,6 +7503,7 @@ Fm_setCarrier(Fm *self, PyObject *arg)
     else
     {
         self->car = tmp;
+        Py_INCREF(self->car);
         streamtmp = PyObject_CallMethod((PyObject *)self->car, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->car_stream);
@@ -7488,6 +7537,7 @@ Fm_setRatio(Fm *self, PyObject *arg)
     else
     {
         self->ratio = tmp;
+        Py_INCREF(self->ratio);
         streamtmp = PyObject_CallMethod((PyObject *)self->ratio, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->ratio_stream);
@@ -7521,6 +7571,7 @@ Fm_setIndex(Fm *self, PyObject *arg)
     else
     {
         self->index = tmp;
+        Py_INCREF(self->index);
         streamtmp = PyObject_CallMethod((PyObject *)self->index, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->index_stream);
@@ -7847,13 +7898,9 @@ CrossFm_traverse(CrossFm *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->car);
-    Py_VISIT(self->car_stream);
     Py_VISIT(self->ratio);
-    Py_VISIT(self->ratio_stream);
     Py_VISIT(self->ind1);
-    Py_VISIT(self->ind1_stream);
     Py_VISIT(self->ind2);
-    Py_VISIT(self->ind2_stream);
     return 0;
 }
 
@@ -7862,13 +7909,9 @@ CrossFm_clear(CrossFm *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->car);
-    Py_CLEAR(self->car_stream);
     Py_CLEAR(self->ratio);
-    Py_CLEAR(self->ratio_stream);
     Py_CLEAR(self->ind1);
-    Py_CLEAR(self->ind1_stream);
     Py_CLEAR(self->ind2);
-    Py_CLEAR(self->ind2_stream);
     return 0;
 }
 
@@ -7877,6 +7920,7 @@ CrossFm_dealloc(CrossFm* self)
 {
     pyo_DEALLOC
     CrossFm_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -7915,31 +7959,37 @@ CrossFm_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (cartmp)
     {
         PyObject_CallMethod((PyObject *)self, "setCarrier", "O", cartmp);
+        Py_DECREF(cartmp);
     }
 
     if (ratiotmp)
     {
         PyObject_CallMethod((PyObject *)self, "setRatio", "O", ratiotmp);
+        Py_DECREF(ratiotmp);
     }
 
     if (ind1tmp)
     {
         PyObject_CallMethod((PyObject *)self, "setInd1", "O", ind1tmp);
+        Py_DECREF(ind1tmp);
     }
 
     if (ind2tmp)
     {
         PyObject_CallMethod((PyObject *)self, "setInd2", "O", ind2tmp);
+        Py_DECREF(ind2tmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -7990,6 +8040,7 @@ CrossFm_setCarrier(CrossFm *self, PyObject *arg)
     else
     {
         self->car = tmp;
+        Py_INCREF(self->car);
         streamtmp = PyObject_CallMethod((PyObject *)self->car, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->car_stream);
@@ -8023,6 +8074,7 @@ CrossFm_setRatio(CrossFm *self, PyObject *arg)
     else
     {
         self->ratio = tmp;
+        Py_INCREF(self->ratio);
         streamtmp = PyObject_CallMethod((PyObject *)self->ratio, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->ratio_stream);
@@ -8056,6 +8108,7 @@ CrossFm_setInd1(CrossFm *self, PyObject *arg)
     else
     {
         self->ind1 = tmp;
+        Py_INCREF(self->ind1);
         streamtmp = PyObject_CallMethod((PyObject *)self->ind1, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->ind1_stream);
@@ -8089,6 +8142,7 @@ CrossFm_setInd2(CrossFm *self, PyObject *arg)
     else
     {
         self->ind2 = tmp;
+        Py_INCREF(self->ind2);
         streamtmp = PyObject_CallMethod((PyObject *)self->ind2, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->ind2_stream);
@@ -8454,9 +8508,7 @@ Blit_traverse(Blit *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->freq);
-    Py_VISIT(self->freq_stream);
     Py_VISIT(self->harms);
-    Py_VISIT(self->harms_stream);
     return 0;
 }
 
@@ -8465,9 +8517,7 @@ Blit_clear(Blit *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->freq);
-    Py_CLEAR(self->freq_stream);
     Py_CLEAR(self->harms);
-    Py_CLEAR(self->harms_stream);
     return 0;
 }
 
@@ -8476,6 +8526,7 @@ Blit_dealloc(Blit* self)
 {
     pyo_DEALLOC
     Blit_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -8507,21 +8558,25 @@ Blit_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (freqtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        Py_DECREF(freqtmp);
     }
 
     if (harmstmp)
     {
         PyObject_CallMethod((PyObject *)self, "setHarms", "O", harmstmp);
+        Py_DECREF(harmstmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -8572,6 +8627,7 @@ Blit_setFreq(Blit *self, PyObject *arg)
     else
     {
         self->freq = tmp;
+        Py_INCREF(self->freq);
         streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->freq_stream);
@@ -8605,6 +8661,7 @@ Blit_setHarms(Blit *self, PyObject *arg)
     else
     {
         self->harms = tmp;
+        Py_INCREF(self->harms);
         streamtmp = PyObject_CallMethod((PyObject *)self->harms, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->harms_stream);
@@ -9005,9 +9062,7 @@ Rossler_traverse(Rossler *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->pitch);
-    Py_VISIT(self->pitch_stream);
     Py_VISIT(self->chaos);
-    Py_VISIT(self->chaos_stream);
     return 0;
 }
 
@@ -9016,9 +9071,7 @@ Rossler_clear(Rossler *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->pitch);
-    Py_CLEAR(self->pitch_stream);
     Py_CLEAR(self->chaos);
-    Py_CLEAR(self->chaos_stream);
     return 0;
 }
 
@@ -9028,6 +9081,7 @@ Rossler_dealloc(Rossler* self)
     pyo_DEALLOC
     PyMem_RawFree(self->altBuffer);
     Rossler_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -9064,21 +9118,25 @@ Rossler_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (pitchtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setPitch", "O", pitchtmp);
+        Py_DECREF(pitchtmp);
     }
 
     if (chaostmp)
     {
         PyObject_CallMethod((PyObject *)self, "setChaos", "O", chaostmp);
+        Py_DECREF(chaostmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -9136,6 +9194,7 @@ Rossler_setPitch(Rossler *self, PyObject *arg)
     else
     {
         self->pitch = tmp;
+        Py_INCREF(self->pitch);
         streamtmp = PyObject_CallMethod((PyObject *)self->pitch, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->pitch_stream);
@@ -9169,6 +9228,7 @@ Rossler_setChaos(Rossler *self, PyObject *arg)
     else
     {
         self->chaos = tmp;
+        Py_INCREF(self->chaos);
         streamtmp = PyObject_CallMethod((PyObject *)self->chaos, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->chaos_stream);
@@ -9398,6 +9458,7 @@ RosslerAlt_dealloc(RosslerAlt* self)
 {
     pyo_DEALLOC
     RosslerAlt_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -9428,11 +9489,13 @@ RosslerAlt_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -9845,9 +9908,7 @@ Lorenz_traverse(Lorenz *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->pitch);
-    Py_VISIT(self->pitch_stream);
     Py_VISIT(self->chaos);
-    Py_VISIT(self->chaos_stream);
     return 0;
 }
 
@@ -9856,9 +9917,7 @@ Lorenz_clear(Lorenz *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->pitch);
-    Py_CLEAR(self->pitch_stream);
     Py_CLEAR(self->chaos);
-    Py_CLEAR(self->chaos_stream);
     return 0;
 }
 
@@ -9868,6 +9927,7 @@ Lorenz_dealloc(Lorenz* self)
     pyo_DEALLOC
     PyMem_RawFree(self->altBuffer);
     Lorenz_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -9904,21 +9964,25 @@ Lorenz_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (pitchtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setPitch", "O", pitchtmp);
+        Py_DECREF(pitchtmp);
     }
 
     if (chaostmp)
     {
         PyObject_CallMethod((PyObject *)self, "setChaos", "O", chaostmp);
+        Py_DECREF(chaostmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -9976,6 +10040,7 @@ Lorenz_setPitch(Lorenz *self, PyObject *arg)
     else
     {
         self->pitch = tmp;
+        Py_INCREF(self->pitch);
         streamtmp = PyObject_CallMethod((PyObject *)self->pitch, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->pitch_stream);
@@ -10009,6 +10074,7 @@ Lorenz_setChaos(Lorenz *self, PyObject *arg)
     else
     {
         self->chaos = tmp;
+        Py_INCREF(self->chaos);
         streamtmp = PyObject_CallMethod((PyObject *)self->chaos, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->chaos_stream);
@@ -10238,6 +10304,7 @@ LorenzAlt_dealloc(LorenzAlt* self)
 {
     pyo_DEALLOC
     LorenzAlt_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -10268,11 +10335,13 @@ LorenzAlt_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -10693,9 +10762,7 @@ ChenLee_traverse(ChenLee *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->pitch);
-    Py_VISIT(self->pitch_stream);
     Py_VISIT(self->chaos);
-    Py_VISIT(self->chaos_stream);
     return 0;
 }
 
@@ -10704,9 +10771,7 @@ ChenLee_clear(ChenLee *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->pitch);
-    Py_CLEAR(self->pitch_stream);
     Py_CLEAR(self->chaos);
-    Py_CLEAR(self->chaos_stream);
     return 0;
 }
 
@@ -10716,6 +10781,7 @@ ChenLee_dealloc(ChenLee* self)
     pyo_DEALLOC
     PyMem_RawFree(self->altBuffer);
     ChenLee_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -10752,21 +10818,25 @@ ChenLee_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (pitchtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setPitch", "O", pitchtmp);
+        Py_DECREF(pitchtmp);
     }
 
     if (chaostmp)
     {
         PyObject_CallMethod((PyObject *)self, "setChaos", "O", chaostmp);
+        Py_DECREF(chaostmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -10824,6 +10894,7 @@ ChenLee_setPitch(ChenLee *self, PyObject *arg)
     else
     {
         self->pitch = tmp;
+        Py_INCREF(self->pitch);
         streamtmp = PyObject_CallMethod((PyObject *)self->pitch, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->pitch_stream);
@@ -10857,6 +10928,7 @@ ChenLee_setChaos(ChenLee *self, PyObject *arg)
     else
     {
         self->chaos = tmp;
+        Py_INCREF(self->chaos);
         streamtmp = PyObject_CallMethod((PyObject *)self->chaos, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->chaos_stream);
@@ -11086,6 +11158,7 @@ ChenLeeAlt_dealloc(ChenLeeAlt* self)
 {
     pyo_DEALLOC
     ChenLeeAlt_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -11116,11 +11189,13 @@ ChenLeeAlt_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -11742,11 +11817,8 @@ SumOsc_traverse(SumOsc *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->freq);
-    Py_VISIT(self->freq_stream);
     Py_VISIT(self->ratio);
-    Py_VISIT(self->ratio_stream);
     Py_VISIT(self->index);
-    Py_VISIT(self->index_stream);
     return 0;
 }
 
@@ -11755,11 +11827,8 @@ SumOsc_clear(SumOsc *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->freq);
-    Py_CLEAR(self->freq_stream);
     Py_CLEAR(self->ratio);
-    Py_CLEAR(self->ratio_stream);
     Py_CLEAR(self->index);
-    Py_CLEAR(self->index_stream);
     return 0;
 }
 
@@ -11768,6 +11837,7 @@ SumOsc_dealloc(SumOsc* self)
 {
     pyo_DEALLOC
     SumOsc_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -11804,26 +11874,31 @@ SumOsc_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (freqtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        Py_DECREF(freqtmp);
     }
 
     if (ratiotmp)
     {
         PyObject_CallMethod((PyObject *)self, "setRatio", "O", ratiotmp);
+        Py_DECREF(ratiotmp);
     }
 
     if (indextmp)
     {
         PyObject_CallMethod((PyObject *)self, "setIndex", "O", indextmp);
+        Py_DECREF(indextmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -11874,6 +11949,7 @@ SumOsc_setFreq(SumOsc *self, PyObject *arg)
     else
     {
         self->freq = tmp;
+        Py_INCREF(self->freq);
         streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->freq_stream);
@@ -11907,6 +11983,7 @@ SumOsc_setRatio(SumOsc *self, PyObject *arg)
     else
     {
         self->ratio = tmp;
+        Py_INCREF(self->ratio);
         streamtmp = PyObject_CallMethod((PyObject *)self->ratio, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->ratio_stream);
@@ -11940,6 +12017,7 @@ SumOsc_setIndex(SumOsc *self, PyObject *arg)
     else
     {
         self->index = tmp;
+        Py_INCREF(self->index);
         streamtmp = PyObject_CallMethod((PyObject *)self->index, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->index_stream);
@@ -12690,11 +12768,8 @@ SuperSaw_traverse(SuperSaw *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->freq);
-    Py_VISIT(self->freq_stream);
     Py_VISIT(self->detune);
-    Py_VISIT(self->detune_stream);
     Py_VISIT(self->bal);
-    Py_VISIT(self->bal_stream);
     return 0;
 }
 
@@ -12703,11 +12778,8 @@ SuperSaw_clear(SuperSaw *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->freq);
-    Py_CLEAR(self->freq_stream);
     Py_CLEAR(self->detune);
-    Py_CLEAR(self->detune_stream);
     Py_CLEAR(self->bal);
-    Py_CLEAR(self->bal_stream);
     return 0;
 }
 
@@ -12716,6 +12788,7 @@ SuperSaw_dealloc(SuperSaw* self)
 {
     pyo_DEALLOC
     SuperSaw_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -12760,26 +12833,31 @@ SuperSaw_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (freqtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        Py_DECREF(freqtmp);
     }
 
     if (detunetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setDetune", "O", detunetmp);
+        Py_DECREF(detunetmp);
     }
 
     if (baltmp)
     {
         PyObject_CallMethod((PyObject *)self, "setBal", "O", baltmp);
+        Py_DECREF(baltmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -12830,6 +12908,7 @@ SuperSaw_setFreq(SuperSaw *self, PyObject *arg)
     else
     {
         self->freq = tmp;
+        Py_INCREF(self->freq);
         streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->freq_stream);
@@ -12863,6 +12942,7 @@ SuperSaw_setDetune(SuperSaw *self, PyObject *arg)
     else
     {
         self->detune = tmp;
+        Py_INCREF(self->detune);
         streamtmp = PyObject_CallMethod((PyObject *)self->detune, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->detune_stream);
@@ -12896,6 +12976,7 @@ SuperSaw_setBal(SuperSaw *self, PyObject *arg)
     else
     {
         self->bal = tmp;
+        Py_INCREF(self->bal);
         streamtmp = PyObject_CallMethod((PyObject *)self->bal, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->bal_stream);
@@ -13266,9 +13347,7 @@ RCOsc_traverse(RCOsc *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->sharp);
-    Py_VISIT(self->sharp_stream);
     Py_VISIT(self->freq);
-    Py_VISIT(self->freq_stream);
     return 0;
 }
 
@@ -13277,9 +13356,7 @@ RCOsc_clear(RCOsc *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->sharp);
-    Py_CLEAR(self->sharp_stream);
     Py_CLEAR(self->freq);
-    Py_CLEAR(self->freq_stream);
     return 0;
 }
 
@@ -13288,6 +13365,7 @@ RCOsc_dealloc(RCOsc* self)
 {
     pyo_DEALLOC
     RCOsc_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -13319,21 +13397,25 @@ RCOsc_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (freqtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        Py_DECREF(freqtmp);
     }
 
     if (sharptmp)
     {
         PyObject_CallMethod((PyObject *)self, "setSharp", "O", sharptmp);
+        Py_DECREF(sharptmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -13384,6 +13466,7 @@ RCOsc_setFreq(RCOsc *self, PyObject *arg)
     else
     {
         self->freq = tmp;
+        Py_INCREF(self->freq);
         streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->freq_stream);
@@ -13417,6 +13500,7 @@ RCOsc_setSharp(RCOsc *self, PyObject *arg)
     else
     {
         self->sharp = tmp;
+        Py_INCREF(self->sharp);
         streamtmp = PyObject_CallMethod((PyObject *)self->sharp, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->sharp_stream);
@@ -13698,6 +13782,7 @@ TableScale_dealloc(TableScale* self)
 {
     pyo_DEALLOC
     TableScale_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -13739,14 +13824,16 @@ TableScale_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Py_XDECREF(self->outtable);
     self->outtable = PyObject_CallMethod((PyObject *)outtabletmp, "getTableStream", "");
 
-    if (addtmp)
+    if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -13966,7 +14053,6 @@ TableFill_traverse(TableFill *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     Py_VISIT(self->table);
     return 0;
 }
@@ -13976,7 +14062,6 @@ TableFill_clear(TableFill *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     Py_CLEAR(self->table);
     return 0;
 }
@@ -13986,6 +14071,7 @@ TableFill_dealloc(TableFill* self)
 {
     pyo_DEALLOC
     TableFill_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -14230,6 +14316,7 @@ TableScan_dealloc(TableScan* self)
 {
     pyo_DEALLOC
     TableScan_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -14266,11 +14353,13 @@ TableScan_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);

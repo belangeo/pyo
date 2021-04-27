@@ -150,6 +150,7 @@ Noise_dealloc(Noise* self)
 {
     pyo_DEALLOC
     Noise_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -177,11 +178,13 @@ Noise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -455,6 +458,7 @@ PinkNoise_dealloc(PinkNoise* self)
 {
     pyo_DEALLOC
     PinkNoise_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -482,11 +486,13 @@ PinkNoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -730,6 +736,7 @@ BrownNoise_dealloc(BrownNoise* self)
 {
     pyo_DEALLOC
     BrownNoise_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -758,11 +765,13 @@ BrownNoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);

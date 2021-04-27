@@ -456,13 +456,9 @@ Chorus_traverse(Chorus *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     Py_VISIT(self->feedback);
-    Py_VISIT(self->feedback_stream);
     Py_VISIT(self->depth);
-    Py_VISIT(self->depth_stream);
     Py_VISIT(self->mix);
-    Py_VISIT(self->mix_stream);
     return 0;
 }
 
@@ -471,13 +467,9 @@ Chorus_clear(Chorus *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     Py_CLEAR(self->feedback);
-    Py_CLEAR(self->feedback_stream);
     Py_CLEAR(self->depth);
-    Py_CLEAR(self->depth_stream);
     Py_CLEAR(self->mix);
-    Py_CLEAR(self->mix_stream);
     return 0;
 }
 
@@ -493,6 +485,7 @@ Chorus_dealloc(Chorus* self)
     }
 
     Chorus_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -541,26 +534,31 @@ Chorus_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (depthtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setDepth", "O", depthtmp);
+        Py_DECREF(depthtmp);
     }
 
     if (feedbacktmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFeedback", "O", feedbacktmp);
+        Py_DECREF(feedbacktmp);
     }
 
     if (mixtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMix", "O", mixtmp);
+        Py_DECREF(mixtmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -638,6 +636,7 @@ Chorus_setDepth(Chorus *self, PyObject *arg)
     else
     {
         self->depth = tmp;
+        Py_INCREF(self->depth);
         streamtmp = PyObject_CallMethod((PyObject *)self->depth, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->depth_stream);
@@ -671,6 +670,7 @@ Chorus_setFeedback(Chorus *self, PyObject *arg)
     else
     {
         self->feedback = tmp;
+        Py_INCREF(self->feedback);
         streamtmp = PyObject_CallMethod((PyObject *)self->feedback, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->feedback_stream);
@@ -704,6 +704,7 @@ Chorus_setMix(Chorus *self, PyObject *arg)
     else
     {
         self->mix = tmp;
+        Py_INCREF(self->mix);
         streamtmp = PyObject_CallMethod((PyObject *)self->mix, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->mix_stream);

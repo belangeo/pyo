@@ -234,15 +234,10 @@ Compress_traverse(Compress *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     Py_VISIT(self->risetime);
-    Py_VISIT(self->risetime_stream);
     Py_VISIT(self->falltime);
-    Py_VISIT(self->falltime_stream);
     Py_VISIT(self->thresh);
-    Py_VISIT(self->thresh_stream);
     Py_VISIT(self->ratio);
-    Py_VISIT(self->ratio_stream);
     return 0;
 }
 
@@ -251,15 +246,10 @@ Compress_clear(Compress *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     Py_CLEAR(self->risetime);
-    Py_CLEAR(self->risetime_stream);
     Py_CLEAR(self->falltime);
-    Py_CLEAR(self->falltime_stream);
     Py_CLEAR(self->thresh);
-    Py_CLEAR(self->thresh_stream);
     Py_CLEAR(self->ratio);
-    Py_CLEAR(self->ratio_stream);
     return 0;
 }
 
@@ -269,6 +259,7 @@ Compress_dealloc(Compress* self)
     pyo_DEALLOC
     PyMem_RawFree(self->lh_buffer);
     Compress_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -312,31 +303,37 @@ Compress_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (threshtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setThresh", "O", threshtmp);
+        Py_DECREF(threshtmp);
     }
 
     if (ratiotmp)
     {
         PyObject_CallMethod((PyObject *)self, "setRatio", "O", ratiotmp);
+        Py_DECREF(ratiotmp);
     }
 
     if (risetimetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setRiseTime", "O", risetimetmp);
+        Py_DECREF(risetimetmp);
     }
 
     if (falltimetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFallTime", "O", falltimetmp);
+        Py_DECREF(falltimetmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod((PyObject *)self, "setLookAhead", "O", looktmp);
@@ -400,6 +397,7 @@ Compress_setThresh(Compress *self, PyObject *arg)
     else
     {
         self->thresh = tmp;
+        Py_INCREF(self->thresh);
         streamtmp = PyObject_CallMethod((PyObject *)self->thresh, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->thresh_stream);
@@ -431,6 +429,7 @@ Compress_setRatio(Compress *self, PyObject *arg)
     else
     {
         self->ratio = tmp;
+        Py_INCREF(self->ratio);
         streamtmp = PyObject_CallMethod((PyObject *)self->ratio, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->ratio_stream);
@@ -462,6 +461,7 @@ Compress_setRiseTime(Compress *self, PyObject *arg)
     else
     {
         self->risetime = tmp;
+        Py_INCREF(self->risetime);
         streamtmp = PyObject_CallMethod((PyObject *)self->risetime, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->risetime_stream);
@@ -493,6 +493,7 @@ Compress_setFallTime(Compress *self, PyObject *arg)
     else
     {
         self->falltime = tmp;
+        Py_INCREF(self->falltime);
         streamtmp = PyObject_CallMethod((PyObject *)self->falltime, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->falltime_stream);
@@ -1346,13 +1347,9 @@ Gate_traverse(Gate *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     Py_VISIT(self->thresh);
-    Py_VISIT(self->thresh_stream);
     Py_VISIT(self->risetime);
-    Py_VISIT(self->risetime_stream);
     Py_VISIT(self->falltime);
-    Py_VISIT(self->falltime_stream);
     return 0;
 }
 
@@ -1361,13 +1358,9 @@ Gate_clear(Gate *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     Py_CLEAR(self->thresh);
-    Py_CLEAR(self->thresh_stream);
     Py_CLEAR(self->risetime);
-    Py_CLEAR(self->risetime_stream);
     Py_CLEAR(self->falltime);
-    Py_CLEAR(self->falltime_stream);
     return 0;
 }
 
@@ -1377,6 +1370,7 @@ Gate_dealloc(Gate* self)
     pyo_DEALLOC
     PyMem_RawFree(self->lh_buffer);
     Gate_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1422,26 +1416,31 @@ Gate_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (threshtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setThresh", "O", threshtmp);
+        Py_DECREF(threshtmp);
     }
 
     if (risetimetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setRiseTime", "O", risetimetmp);
+        Py_DECREF(risetimetmp);
     }
 
     if (falltimetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFallTime", "O", falltimetmp);
+        Py_DECREF(falltimetmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod((PyObject *)self, "setLookAhead", "O", looktmp);
@@ -1502,6 +1501,7 @@ Gate_setThresh(Gate *self, PyObject *arg)
     else
     {
         self->thresh = tmp;
+        Py_INCREF(self->thresh);
         streamtmp = PyObject_CallMethod((PyObject *)self->thresh, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->thresh_stream);
@@ -1535,6 +1535,7 @@ Gate_setRiseTime(Gate *self, PyObject *arg)
     else
     {
         self->risetime = tmp;
+        Py_INCREF(self->risetime);
         streamtmp = PyObject_CallMethod((PyObject *)self->risetime, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->risetime_stream);
@@ -1568,6 +1569,7 @@ Gate_setFallTime(Gate *self, PyObject *arg)
     else
     {
         self->falltime = tmp;
+        Py_INCREF(self->falltime);
         streamtmp = PyObject_CallMethod((PyObject *)self->falltime, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->falltime_stream);
@@ -1897,11 +1899,8 @@ Balance_traverse(Balance *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     Py_VISIT(self->input2);
-    Py_VISIT(self->input2_stream);
     Py_VISIT(self->freq);
-    Py_VISIT(self->freq_stream);
     return 0;
 }
 
@@ -1910,11 +1909,8 @@ Balance_clear(Balance *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     Py_CLEAR(self->input2);
-    Py_CLEAR(self->input2_stream);
     Py_CLEAR(self->freq);
-    Py_CLEAR(self->freq_stream);
     return 0;
 }
 
@@ -1923,6 +1919,7 @@ Balance_dealloc(Balance* self)
 {
     pyo_DEALLOC
     Balance_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1964,16 +1961,19 @@ Balance_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (freqtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        Py_DECREF(freqtmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -2024,6 +2024,7 @@ Balance_setFreq(Balance *self, PyObject *arg)
     else
     {
         self->freq = tmp;
+        Py_INCREF(self->freq);
         streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->freq_stream);
@@ -2345,17 +2346,11 @@ Expand_traverse(Expand *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     Py_VISIT(self->risetime);
-    Py_VISIT(self->risetime_stream);
     Py_VISIT(self->falltime);
-    Py_VISIT(self->falltime_stream);
     Py_VISIT(self->upthresh);
-    Py_VISIT(self->upthresh_stream);
     Py_VISIT(self->downthresh);
-    Py_VISIT(self->downthresh_stream);
     Py_VISIT(self->ratio);
-    Py_VISIT(self->ratio_stream);
     return 0;
 }
 
@@ -2364,17 +2359,11 @@ Expand_clear(Expand *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     Py_CLEAR(self->risetime);
-    Py_CLEAR(self->risetime_stream);
     Py_CLEAR(self->falltime);
-    Py_CLEAR(self->falltime_stream);
     Py_CLEAR(self->upthresh);
-    Py_CLEAR(self->upthresh_stream);
     Py_CLEAR(self->downthresh);
-    Py_CLEAR(self->downthresh_stream);
     Py_CLEAR(self->ratio);
-    Py_CLEAR(self->ratio_stream);
     return 0;
 }
 
@@ -2384,6 +2373,7 @@ Expand_dealloc(Expand* self)
     pyo_DEALLOC
     PyMem_RawFree(self->lh_buffer);
     Expand_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -2428,36 +2418,43 @@ Expand_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (downthreshtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setDownThresh", "O", downthreshtmp);
+        Py_DECREF(downthreshtmp);
     }
 
     if (upthreshtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setUpThresh", "O", upthreshtmp);
+        Py_DECREF(upthreshtmp);
     }
 
     if (ratiotmp)
     {
         PyObject_CallMethod((PyObject *)self, "setRatio", "O", ratiotmp);
+        Py_DECREF(ratiotmp);
     }
 
     if (risetimetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setRiseTime", "O", risetimetmp);
+        Py_DECREF(risetimetmp);
     }
 
     if (falltimetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFallTime", "O", falltimetmp);
+        Py_DECREF(falltimetmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod((PyObject *)self, "setLookAhead", "O", looktmp);
@@ -2520,6 +2517,7 @@ Expand_setDownThresh(Expand *self, PyObject *arg)
     else
     {
         self->downthresh = tmp;
+        Py_INCREF(self->downthresh);
         streamtmp = PyObject_CallMethod((PyObject *)self->downthresh, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->downthresh_stream);
@@ -2551,6 +2549,7 @@ Expand_setUpThresh(Expand *self, PyObject *arg)
     else
     {
         self->upthresh = tmp;
+        Py_INCREF(self->upthresh);
         streamtmp = PyObject_CallMethod((PyObject *)self->upthresh, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->upthresh_stream);
@@ -2582,6 +2581,7 @@ Expand_setRatio(Expand *self, PyObject *arg)
     else
     {
         self->ratio = tmp;
+        Py_INCREF(self->ratio);
         streamtmp = PyObject_CallMethod((PyObject *)self->ratio, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->ratio_stream);
@@ -2613,6 +2613,7 @@ Expand_setRiseTime(Expand *self, PyObject *arg)
     else
     {
         self->risetime = tmp;
+        Py_INCREF(self->risetime);
         streamtmp = PyObject_CallMethod((PyObject *)self->risetime, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->risetime_stream);
@@ -2644,6 +2645,7 @@ Expand_setFallTime(Expand *self, PyObject *arg)
     else
     {
         self->falltime = tmp;
+        Py_INCREF(self->falltime);
         streamtmp = PyObject_CallMethod((PyObject *)self->falltime, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->falltime_stream);

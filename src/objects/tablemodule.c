@@ -225,6 +225,7 @@ HarmTable_dealloc(HarmTable* self)
 {
     PyMem_RawFree(self->data);
     HarmTable_clear(self);
+    Py_TYPE(self->tablestream)->tp_free((PyObject*)self->tablestream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -239,7 +240,9 @@ HarmTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Py_INCREF(self->server);
 
     self->amplist = PyList_New(0);
-    PyList_Append(self->amplist, PyFloat_FromDouble(1.));
+    PyObject *init = PyFloat_FromDouble(1.);
+    PyList_Append(self->amplist, init);
+    Py_DECREF(init);
     self->size = 8192;
 
     MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
@@ -261,7 +264,10 @@ HarmTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     TableStream_setData(self->tablestream, self->data);
     HarmTable_generate(self);
 
-    double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
+    PyObject *srobj = PyObject_CallMethod(self->server, "getSamplingRate", NULL);
+    double sr = PyFloat_AsDouble(srobj);
+    Py_DECREF(srobj);
+
     TableStream_setSamplingRate(self->tablestream, sr);
 
     return (PyObject *)self;
@@ -542,6 +548,7 @@ ChebyTable_dealloc(ChebyTable* self)
 {
     PyMem_RawFree(self->data);
     ChebyTable_clear(self);
+    Py_TYPE(self->tablestream)->tp_free((PyObject*)self->tablestream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -556,7 +563,9 @@ ChebyTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Py_INCREF(self->server);
 
     self->amplist = PyList_New(0);
-    PyList_Append(self->amplist, PyFloat_FromDouble(1.));
+    PyObject *init = PyFloat_FromDouble(1.);
+    PyList_Append(self->amplist, init);
+    Py_DECREF(init);
     self->size = 8192;
 
     MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
@@ -578,7 +587,10 @@ ChebyTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     TableStream_setData(self->tablestream, self->data);
     ChebyTable_generate(self);
 
-    double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
+    PyObject *srobj = PyObject_CallMethod(self->server, "getSamplingRate", NULL);
+    double sr = PyFloat_AsDouble(srobj);
+    Py_DECREF(srobj);
+
     TableStream_setSamplingRate(self->tablestream, sr);
 
     return (PyObject *)self;
@@ -878,6 +890,7 @@ HannTable_dealloc(HannTable* self)
 {
     PyMem_RawFree(self->data);
     HannTable_clear(self);
+    Py_TYPE(self->tablestream)->tp_free((PyObject*)self->tablestream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -904,7 +917,10 @@ HannTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     TableStream_setData(self->tablestream, self->data);
     HannTable_generate(self);
 
-    double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
+    PyObject *srobj = PyObject_CallMethod(self->server, "getSamplingRate", NULL);
+    double sr = PyFloat_AsDouble(srobj);
+    Py_DECREF(srobj);
+
     TableStream_setSamplingRate(self->tablestream, sr);
 
     return (PyObject *)self;
@@ -1107,6 +1123,7 @@ SincTable_dealloc(SincTable* self)
 {
     PyMem_RawFree(self->data);
     SincTable_clear(self);
+    Py_TYPE(self->tablestream)->tp_free((PyObject*)self->tablestream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1135,7 +1152,10 @@ SincTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     TableStream_setData(self->tablestream, self->data);
     SincTable_generate(self);
 
-    double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
+    PyObject *srobj = PyObject_CallMethod(self->server, "getSamplingRate", NULL);
+    double sr = PyFloat_AsDouble(srobj);
+    Py_DECREF(srobj);
+
     TableStream_setSamplingRate(self->tablestream, sr);
 
     return (PyObject *)self;
@@ -1337,6 +1357,7 @@ WinTable_dealloc(WinTable* self)
 {
     PyMem_RawFree(self->data);
     WinTable_clear(self);
+    Py_TYPE(self->tablestream)->tp_free((PyObject*)self->tablestream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1364,7 +1385,10 @@ WinTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     TableStream_setData(self->tablestream, self->data);
     WinTable_generate(self);
 
-    double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
+    PyObject *srobj = PyObject_CallMethod(self->server, "getSamplingRate", NULL);
+    double sr = PyFloat_AsDouble(srobj);
+    Py_DECREF(srobj);
+
     TableStream_setSamplingRate(self->tablestream, sr);
 
     return (PyObject *)self;
@@ -1569,6 +1593,7 @@ ParaTable_dealloc(ParaTable* self)
 {
     PyMem_RawFree(self->data);
     ParaTable_clear(self);
+    Py_TYPE(self->tablestream)->tp_free((PyObject*)self->tablestream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1595,7 +1620,10 @@ ParaTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     TableStream_setData(self->tablestream, self->data);
     ParaTable_generate(self);
 
-    double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
+    PyObject *srobj = PyObject_CallMethod(self->server, "getSamplingRate", NULL);
+    double sr = PyFloat_AsDouble(srobj);
+    Py_DECREF(srobj);
+
     TableStream_setSamplingRate(self->tablestream, sr);
 
     return (PyObject *)self;
@@ -1758,11 +1786,16 @@ LinTable_generate(LinTable *self)
     for (i = 0; i < (listsize - 1); i++)
     {
         tup = PyList_GET_ITEM(self->pointslist, i);
-        x1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
+        PyObject *p1 = PyTuple_GET_ITEM(tup, 0);
+        x1 = PyLong_AsLong(PyNumber_Long(p1));
         x2 = PyFloat_AsDouble(PyTuple_GET_ITEM(tup, 1));
         tup2 = PyList_GET_ITEM(self->pointslist, i + 1);
-        y1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup2, 0)));
+        PyObject *p2 = PyTuple_GET_ITEM(tup2, 0);
+        y1 = PyLong_AsLong(PyNumber_Long(p2));
         y2 = PyFloat_AsDouble(PyTuple_GET_ITEM(tup2, 1));
+
+        Py_DECREF(p1);
+        Py_DECREF(p2);
 
         steps = y1 - x1;
 
@@ -1819,6 +1852,7 @@ LinTable_dealloc(LinTable* self)
 {
     PyMem_RawFree(self->data);
     LinTable_clear(self);
+    Py_TYPE(self->tablestream)->tp_free((PyObject*)self->tablestream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1859,7 +1893,10 @@ LinTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     TableStream_setData(self->tablestream, self->data);
     LinTable_generate(self);
 
-    double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
+    PyObject *srobj = PyObject_CallMethod(self->server, "getSamplingRate", NULL);
+    double sr = PyFloat_AsDouble(srobj);
+    Py_DECREF(srobj);
+
     TableStream_setSamplingRate(self->tablestream, sr);
 
     return (PyObject *)self;
@@ -2056,11 +2093,16 @@ LogTable_generate(LogTable *self)
     for (i = 0; i < (listsize - 1); i++)
     {
         tup = PyList_GET_ITEM(self->pointslist, i);
-        x1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
+        PyObject *p1 = PyTuple_GET_ITEM(tup, 0);
+        x1 = PyLong_AsLong(PyNumber_Long(p1));
         x2 = PyFloat_AsDouble(PyTuple_GET_ITEM(tup, 1));
         tup2 = PyList_GET_ITEM(self->pointslist, i + 1);
-        y1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup2, 0)));
+        PyObject *p2 = PyTuple_GET_ITEM(tup2, 0);
+        y1 = PyLong_AsLong(PyNumber_Long(p2));
         y2 = PyFloat_AsDouble(PyTuple_GET_ITEM(tup2, 1));
+
+        Py_DECREF(p1);
+        Py_DECREF(p2);
 
         if (x2 <= 0)
             x2 = 0.000001;
@@ -2149,6 +2191,7 @@ LogTable_dealloc(LogTable* self)
 {
     PyMem_RawFree(self->data);
     LogTable_clear(self);
+    Py_TYPE(self->tablestream)->tp_free((PyObject*)self->tablestream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -2189,7 +2232,10 @@ LogTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     TableStream_setData(self->tablestream, self->data);
     LogTable_generate(self);
 
-    double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
+    PyObject *srobj = PyObject_CallMethod(self->server, "getSamplingRate", NULL);
+    double sr = PyFloat_AsDouble(srobj);
+    Py_DECREF(srobj);
+
     TableStream_setSamplingRate(self->tablestream, sr);
 
     return (PyObject *)self;
@@ -2386,11 +2432,16 @@ CosTable_generate(CosTable *self)
     for (i = 0; i < (listsize - 1); i++)
     {
         tup = PyList_GET_ITEM(self->pointslist, i);
-        x1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
+        PyObject *p1 = PyTuple_GET_ITEM(tup, 0);
+        x1 = PyLong_AsLong(PyNumber_Long(p1));
         x2 = PyFloat_AsDouble(PyTuple_GET_ITEM(tup, 1));
         tup2 = PyList_GET_ITEM(self->pointslist, i + 1);
-        y1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup2, 0)));
+        PyObject *p2 = PyTuple_GET_ITEM(tup2, 0);
+        y1 = PyLong_AsLong(PyNumber_Long(p2));
         y2 = PyFloat_AsDouble(PyTuple_GET_ITEM(tup2, 1));
+
+        Py_DECREF(p1);
+        Py_DECREF(p2);
 
         steps = y1 - x1;
 
@@ -2447,6 +2498,7 @@ CosTable_dealloc(CosTable* self)
 {
     PyMem_RawFree(self->data);
     CosTable_clear(self);
+    Py_TYPE(self->tablestream)->tp_free((PyObject*)self->tablestream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -2487,7 +2539,10 @@ CosTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     TableStream_setData(self->tablestream, self->data);
     CosTable_generate(self);
 
-    double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
+    PyObject *srobj = PyObject_CallMethod(self->server, "getSamplingRate", NULL);
+    double sr = PyFloat_AsDouble(srobj);
+    Py_DECREF(srobj);
+
     TableStream_setSamplingRate(self->tablestream, sr);
 
     return (PyObject *)self;
@@ -2684,11 +2739,16 @@ CosLogTable_generate(CosLogTable *self)
     for (i = 0; i < (listsize - 1); i++)
     {
         tup = PyList_GET_ITEM(self->pointslist, i);
-        x1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
+        PyObject *p1 = PyTuple_GET_ITEM(tup, 0);
+        x1 = PyLong_AsLong(PyNumber_Long(p1));
         x2 = PyFloat_AsDouble(PyTuple_GET_ITEM(tup, 1));
         tup2 = PyList_GET_ITEM(self->pointslist, i + 1);
-        y1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup2, 0)));
+        PyObject *p2 = PyTuple_GET_ITEM(tup2, 0);
+        y1 = PyLong_AsLong(PyNumber_Long(p2));
         y2 = PyFloat_AsDouble(PyTuple_GET_ITEM(tup2, 1));
+
+        Py_DECREF(p1);
+        Py_DECREF(p2);
 
         if (x2 <= 0)
             x2 = 0.000001;
@@ -2778,6 +2838,7 @@ CosLogTable_dealloc(CosLogTable* self)
 {
     PyMem_RawFree(self->data);
     CosLogTable_clear(self);
+    Py_TYPE(self->tablestream)->tp_free((PyObject*)self->tablestream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -2818,7 +2879,10 @@ CosLogTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     TableStream_setData(self->tablestream, self->data);
     CosLogTable_generate(self);
 
-    double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
+    PyObject *srobj = PyObject_CallMethod(self->server, "getSamplingRate", NULL);
+    double sr = PyFloat_AsDouble(srobj);
+    Py_DECREF(srobj);
+
     TableStream_setSamplingRate(self->tablestream, sr);
 
     return (PyObject *)self;
@@ -3024,8 +3088,10 @@ CurveTable_generate(CurveTable *self)
     for (i = 0; i < listsize; i++)
     {
         tup = PyList_GET_ITEM(self->pointslist, i);
-        times[i + 1] = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
+        PyObject *p1 = PyTuple_GET_ITEM(tup, 0);
+        times[i + 1] = PyLong_AsLong(PyNumber_Long(p1));
         values[i + 1] = PyFloat_AsDouble(PyTuple_GET_ITEM(tup, 1));
+        Py_DECREF(p1);
     }
 
     // sets imaginary points
@@ -3103,6 +3169,7 @@ CurveTable_dealloc(CurveTable* self)
 {
     PyMem_RawFree(self->data);
     CurveTable_clear(self);
+    Py_TYPE(self->tablestream)->tp_free((PyObject*)self->tablestream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -3145,7 +3212,10 @@ CurveTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     TableStream_setData(self->tablestream, self->data);
     CurveTable_generate(self);
 
-    double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
+    PyObject *srobj = PyObject_CallMethod(self->server, "getSamplingRate", NULL);
+    double sr = PyFloat_AsDouble(srobj);
+    Py_DECREF(srobj);
+
     TableStream_setSamplingRate(self->tablestream, sr);
 
     return (PyObject *)self;
@@ -3395,8 +3465,10 @@ ExpTable_generate(ExpTable *self)
     for (i = 0; i < listsize; i++)
     {
         tup = PyList_GET_ITEM(self->pointslist, i);
-        times[i] = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
+        PyObject *p1 = PyTuple_GET_ITEM(tup, 0);
+        times[i] = PyLong_AsLong(PyNumber_Long(p1));
         values[i] = PyFloat_AsDouble(PyTuple_GET_ITEM(tup, 1));
+        Py_DECREF(p1);
     }
 
     y1 = y2 = 0.0;
@@ -3476,6 +3548,7 @@ ExpTable_dealloc(ExpTable* self)
 {
     PyMem_RawFree(self->data);
     ExpTable_clear(self);
+    Py_TYPE(self->tablestream)->tp_free((PyObject*)self->tablestream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -3518,7 +3591,10 @@ ExpTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     TableStream_setData(self->tablestream, self->data);
     ExpTable_generate(self);
 
-    double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
+    PyObject *srobj = PyObject_CallMethod(self->server, "getSamplingRate", NULL);
+    double sr = PyFloat_AsDouble(srobj);
+    Py_DECREF(srobj);
+
     TableStream_setSamplingRate(self->tablestream, sr);
 
     return (PyObject *)self;
@@ -4735,6 +4811,7 @@ NewTable_dealloc(NewTable* self)
 {
     PyMem_RawFree(self->data);
     NewTable_clear(self);
+    Py_TYPE(self->tablestream)->tp_free((PyObject*)self->tablestream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -4759,7 +4836,10 @@ NewTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F_OF, kwlist, &self->length, &inittmp, &self->feedback))
         Py_RETURN_NONE;
 
-    self->sr = (MYFLT)PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
+    PyObject *srobj = PyObject_CallMethod(self->server, "getSamplingRate", NULL);
+    self->sr = (MYFLT)PyFloat_AsDouble(srobj);
+    Py_DECREF(srobj);
+
     self->size = (T_SIZE_T)(self->length * self->sr + 0.5);
     self->data = (MYFLT *)PyMem_RawRealloc(self->data, (self->size + 1) * sizeof(MYFLT));
 
@@ -4966,9 +5046,7 @@ NewTable_getLength(NewTable *self)
 static PyObject *
 NewTable_getRate(NewTable *self)
 {
-    MYFLT sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
-    \
-    return PyFloat_FromDouble(sr / self->size);
+    return PyFloat_FromDouble(self->sr / self->size);
 };
 
 static PyObject *
@@ -5081,6 +5159,7 @@ PyTypeObject NewTableType =
 typedef struct
 {
     pyo_table_HEAD
+    MYFLT sr;
 } DataTable;
 
 static void
@@ -5108,6 +5187,7 @@ DataTable_dealloc(DataTable* self)
 {
     PyMem_RawFree(self->data);
     DataTable_clear(self);
+    Py_TYPE(self->tablestream)->tp_free((PyObject*)self->tablestream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -5145,8 +5225,11 @@ DataTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     TableStream_setData(self->tablestream, self->data);
 
-    double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
-    TableStream_setSamplingRate(self->tablestream, sr);
+    PyObject *srobj = PyObject_CallMethod(self->server, "getSamplingRate", NULL);
+    self->sr = (MYFLT)PyFloat_AsDouble(srobj);
+    Py_DECREF(srobj);
+
+    TableStream_setSamplingRate(self->tablestream, self->sr);
 
     return (PyObject *)self;
 }
@@ -5187,9 +5270,7 @@ DataTable_getSize(DataTable *self)
 static PyObject *
 DataTable_getRate(DataTable *self)
 {
-    MYFLT sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
-    \
-    return PyFloat_FromDouble(sr / self->size);
+    return PyFloat_FromDouble(self->sr / self->size);
 };
 
 static PyMemberDef DataTable_members[] =
@@ -5328,6 +5409,7 @@ AtanTable_dealloc(AtanTable* self)
 {
     PyMem_RawFree(self->data);
     AtanTable_clear(self);
+    Py_TYPE(self->tablestream)->tp_free((PyObject*)self->tablestream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -5355,7 +5437,10 @@ AtanTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     TableStream_setData(self->tablestream, self->data);
     AtanTable_generate(self);
 
-    double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
+    PyObject *srobj = PyObject_CallMethod(self->server, "getSamplingRate", NULL);
+    double sr = PyFloat_AsDouble(srobj);
+    Py_DECREF(srobj);
+
     TableStream_setSamplingRate(self->tablestream, sr);
 
     return (PyObject *)self;
@@ -5531,6 +5616,7 @@ typedef struct
     double sr;
     MYFLT *amp;
     MYFLT *inframe;
+    int allocated;
 } PadSynthTable;
 
 static void
@@ -5538,12 +5624,21 @@ PadSynthTable_gen_twiddle(PadSynthTable *self)
 {
     int i, n8;
     n8 = self->size >> 3;
+
+    if (self->allocated)
+    {
+        for (i = 0; i < 4; i++)
+            PyMem_RawFree(self->twiddle[i]);
+    }
+
     self->twiddle = (MYFLT **)PyMem_RawRealloc(self->twiddle, 4 * sizeof(MYFLT *));
 
     for (i = 0; i < 4; i++)
         self->twiddle[i] = (MYFLT *)PyMem_RawMalloc(n8 * sizeof(MYFLT));
 
     fft_compute_split_twiddle(self->twiddle, self->size);
+
+    self->allocated = 1;
 }
 
 static void
@@ -5650,6 +5745,7 @@ PadSynthTable_dealloc(PadSynthTable* self)
     PyMem_RawFree(self->amp);
     PyMem_RawFree(self->inframe);
     PadSynthTable_clear(self);
+    Py_TYPE(self->tablestream)->tp_free((PyObject*)self->tablestream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -5669,6 +5765,7 @@ PadSynthTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->bwscl = 1.0;
     self->nharms = 64;
     self->damp = 0.7;
+    self->allocated = 0;
 
     MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
 
@@ -5695,7 +5792,10 @@ PadSynthTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     TableStream_setSize(self->tablestream, self->size);
     TableStream_setData(self->tablestream, self->data);
 
-    self->sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
+    PyObject *srobj = PyObject_CallMethod(self->server, "getSamplingRate", NULL);
+    self->sr = PyFloat_AsDouble(srobj);
+    Py_DECREF(srobj);
+
     TableStream_setSamplingRate(self->tablestream, self->sr);
 
     PadSynthTable_gen_twiddle(self);
@@ -5855,6 +5955,8 @@ PadSynthTable_setSize(PadSynthTable *self, PyObject *args, PyObject *kwds)
     self->inframe = (MYFLT *)PyMem_RawRealloc(self->inframe, self->size * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
 
+    PadSynthTable_gen_twiddle(self);
+
     if (generate)
         PadSynthTable_generate(self);
 
@@ -5979,7 +6081,10 @@ TableRec_compute_next_data_frame(TableRec *self)
 {
     int i;
     MYFLT val;
-    T_SIZE_T num, upBound, size = PyInt_AsLong(NewTable_getSize((NewTable *)self->table));
+    T_SIZE_T num, upBound;
+    PyObject *sizeobj = NewTable_getSize((NewTable *)self->table);
+    T_SIZE_T size = PyLong_AsLong(sizeobj);
+    Py_DECREF(sizeobj);
 
     for (i = 0; i < self->bufsize; i++)
     {
@@ -6058,9 +6163,7 @@ TableRec_traverse(TableRec *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     Py_VISIT(self->table);
-    Py_VISIT(self->trig_stream);
     return 0;
 }
 
@@ -6069,9 +6172,7 @@ TableRec_clear(TableRec *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     Py_CLEAR(self->table);
-    Py_CLEAR(self->trig_stream);
     return 0;
 }
 
@@ -6083,6 +6184,8 @@ TableRec_dealloc(TableRec* self)
     PyMem_RawFree(self->trigsBuffer);
     PyMem_RawFree(self->time_buffer_streams);
     TableRec_clear(self);
+    Py_TYPE(self->trig_stream)->tp_free((PyObject*)self->trig_stream);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -6133,7 +6236,9 @@ TableRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     MAKE_NEW_TRIGGER_STREAM(self->trig_stream, &TriggerStreamType, NULL);
     TriggerStream_setData(self->trig_stream, self->trigsBuffer);
 
-    int size = PyInt_AsLong(NewTable_getSize((NewTable *)self->table));
+    PyObject *sizeobj = NewTable_getSize((NewTable *)self->table);
+    int size = PyLong_AsLong(sizeobj);
+    Py_DECREF(sizeobj);
 
     if ((self->fadetime * self->sr) >= (size * 0.5))
         self->fadetime = size * 0.499 / self->sr;
@@ -6374,6 +6479,7 @@ TableRecTimeStream_dealloc(TableRecTimeStream* self)
 {
     pyo_DEALLOC
     TableRecTimeStream_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -6565,7 +6671,9 @@ static void
 TableMorph_alloc_memories(TableMorph *self)
 {
     T_SIZE_T i, size;
-    size = PyInt_AsLong(NewTable_getSize((NewTable *)self->table));
+    PyObject *sizeobj = NewTable_getSize((NewTable *)self->table);
+    size = PyLong_AsLong(sizeobj);
+    Py_DECREF(sizeobj);
     self->last_size = size;
     self->buffer = (MYFLT *)PyMem_RawRealloc(self->buffer, size * sizeof(MYFLT));
 
@@ -6583,7 +6691,9 @@ TableMorph_compute_next_data_frame(TableMorph *self)
     MYFLT input, interp, interp1, interp2;
 
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    T_SIZE_T size = PyInt_AsLong(NewTable_getSize((NewTable *)self->table));
+    PyObject *sizeobj = NewTable_getSize((NewTable *)self->table);
+    T_SIZE_T size = PyLong_AsLong(sizeobj);
+    Py_DECREF(sizeobj);
     int len = PyList_Size(self->sources);
 
     if (size != self->last_size)
@@ -6616,7 +6726,6 @@ TableMorph_traverse(TableMorph *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     Py_VISIT(self->table);
     Py_VISIT(self->sources);
     return 0;
@@ -6627,7 +6736,6 @@ TableMorph_clear(TableMorph *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     Py_CLEAR(self->table);
     Py_CLEAR(self->sources);
     return 0;
@@ -6639,6 +6747,7 @@ TableMorph_dealloc(TableMorph* self)
     pyo_DEALLOC
     PyMem_RawFree(self->buffer);
     TableMorph_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -6809,7 +6918,10 @@ TrigTableRec_compute_next_data_frame(TrigTableRec *self)
 {
     int i, j, num;
     MYFLT val;
-    T_SIZE_T upBound, size = PyInt_AsLong(NewTable_getSize((NewTable *)self->table));
+    T_SIZE_T upBound;
+    PyObject *sizeobj = NewTable_getSize((NewTable *)self->table);
+    T_SIZE_T size = PyLong_AsLong(sizeobj);
+    Py_DECREF(sizeobj);
 
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *trig = Stream_getData((Stream *)self->trigger_stream);
@@ -6945,11 +7057,8 @@ TrigTableRec_traverse(TrigTableRec *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     Py_VISIT(self->trigger);
-    Py_VISIT(self->trigger_stream);
     Py_VISIT(self->table);
-    Py_VISIT(self->trig_stream);
     return 0;
 }
 
@@ -6958,11 +7067,8 @@ TrigTableRec_clear(TrigTableRec *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     Py_CLEAR(self->trigger);
-    Py_CLEAR(self->trigger_stream);
     Py_CLEAR(self->table);
-    Py_CLEAR(self->trig_stream);
     return 0;
 }
 
@@ -6971,8 +7077,10 @@ TrigTableRec_dealloc(TrigTableRec* self)
 {
     pyo_DEALLOC
     PyMem_RawFree(self->trigsBuffer);
-    TrigTableRec_clear(self);
     PyMem_RawFree(self->time_buffer_streams);
+    TrigTableRec_clear(self);
+    Py_TYPE(self->trig_stream)->tp_free((PyObject*)self->trig_stream);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -7030,7 +7138,9 @@ TrigTableRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     MAKE_NEW_TRIGGER_STREAM(self->trig_stream, &TriggerStreamType, NULL);
     TriggerStream_setData(self->trig_stream, self->trigsBuffer);
 
-    T_SIZE_T size = PyInt_AsLong(NewTable_getSize((NewTable *)self->table));
+    PyObject *sizeobj = NewTable_getSize((NewTable *)self->table);
+    int size = PyLong_AsLong(sizeobj);
+    Py_DECREF(sizeobj);
 
     if ((self->fadetime * self->sr) >= (size * 0.5))
         self->fadetime = size * 0.499 / self->sr;
@@ -7228,6 +7338,7 @@ TrigTableRecTimeStream_dealloc(TrigTableRecTimeStream* self)
 {
     pyo_DEALLOC
     TrigTableRecTimeStream_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -7410,7 +7521,9 @@ static void
 TablePut_compute_next_data_frame(TablePut *self)
 {
     int i;
-    T_SIZE_T size = PyInt_AsLong(DataTable_getSize((DataTable *)self->table));
+    PyObject *sizeobj = NewTable_getSize((NewTable *)self->table);
+    T_SIZE_T size = PyLong_AsLong(sizeobj);
+    Py_DECREF(sizeobj);
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
 
     for (i = 0; i < self->bufsize; i++)
@@ -7443,9 +7556,7 @@ TablePut_traverse(TablePut *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     Py_VISIT(self->table);
-    Py_VISIT(self->trig_stream);
     return 0;
 }
 
@@ -7454,9 +7565,7 @@ TablePut_clear(TablePut *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     Py_CLEAR(self->table);
-    Py_CLEAR(self->trig_stream);
     return 0;
 }
 
@@ -7466,6 +7575,8 @@ TablePut_dealloc(TablePut* self)
     pyo_DEALLOC
     PyMem_RawFree(self->trigsBuffer);
     TablePut_clear(self);
+    Py_TYPE(self->trig_stream)->tp_free((PyObject*)self->trig_stream);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -7718,10 +7829,8 @@ TableWrite_traverse(TableWrite *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     Py_VISIT(self->table);
     Py_VISIT(self->pos);
-    Py_VISIT(self->pos_stream);
     return 0;
 }
 
@@ -7730,10 +7839,8 @@ TableWrite_clear(TableWrite *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     Py_CLEAR(self->table);
     Py_CLEAR(self->pos);
-    Py_CLEAR(self->pos_stream);
     return 0;
 }
 
@@ -7742,6 +7849,7 @@ TableWrite_dealloc(TableWrite* self)
 {
     pyo_DEALLOC
     TableWrite_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -7775,6 +7883,7 @@ TableWrite_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (postmp)
     {
         PyObject_CallMethod((PyObject *)self, "setPos", "O", postmp);
+        Py_DECREF(postmp);
     }
 
     if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 )
@@ -7912,6 +8021,7 @@ typedef struct
     char *name;
     int create;
     int fd;
+    double sr;
 } SharedTable;
 
 static int
@@ -7939,6 +8049,7 @@ SharedTable_dealloc(SharedTable* self)
 
 #endif
     SharedTable_clear(self);
+    Py_TYPE(self->tablestream)->tp_free((PyObject*)self->tablestream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -8020,8 +8131,11 @@ SharedTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     TableStream_setSize(self->tablestream, self->size);
     TableStream_setData(self->tablestream, self->data);
 
-    double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
-    TableStream_setSamplingRate(self->tablestream, sr);
+    PyObject *srobj = PyObject_CallMethod(self->server, "getSamplingRate", NULL);
+    self->sr = PyFloat_AsDouble(srobj);
+    Py_DECREF(srobj);
+
+    TableStream_setSamplingRate(self->tablestream, self->sr);
 
     return (PyObject *)self;
 }
@@ -8062,9 +8176,7 @@ SharedTable_getSize(SharedTable *self)
 static PyObject *
 SharedTable_getRate(SharedTable *self)
 {
-    MYFLT sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
-    \
-    return PyFloat_FromDouble(sr / self->size);
+    return PyFloat_FromDouble((MYFLT)self->sr / self->size);
 };
 
 static PyMemberDef SharedTable_members[] =

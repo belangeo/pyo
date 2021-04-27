@@ -222,9 +222,7 @@ Gain_traverse(Gain *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     Py_VISIT(self->db);
-    Py_VISIT(self->db_stream);
     return 0;
 }
 
@@ -233,9 +231,7 @@ Gain_clear(Gain *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     Py_CLEAR(self->db);
-    Py_CLEAR(self->db_stream);
     return 0;
 }
 
@@ -248,6 +244,7 @@ Gain_dealloc(Gain* self)
 {
     pyo_DEALLOC
     Gain_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -297,16 +294,19 @@ Gain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (dbtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setDB", "O", dbtmp);
+        Py_DECREF(dbtmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     /* Add the object's stream struct to the server registry */
@@ -375,6 +375,7 @@ Gain_setDB(Gain *self, PyObject *arg)
     else
     {
         self->db = tmp;
+        Py_INCREF(self->db);
         streamtmp = PyObject_CallMethod((PyObject *)self->db, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->db_stream);

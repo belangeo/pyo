@@ -115,7 +115,6 @@ Dummy_traverse(Dummy *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     return 0;
 }
 
@@ -124,7 +123,6 @@ Dummy_clear(Dummy *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     return 0;
 }
 
@@ -133,6 +131,7 @@ Dummy_dealloc(Dummy* self)
 {
     pyo_DEALLOC
     Dummy_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -140,6 +139,7 @@ PyObject *
 Dummy_initialize(Dummy *self)
 {
     int i;
+    self->input = PyFloat_FromDouble(0);
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
     self->modebuffer[2] = 0;
@@ -164,7 +164,7 @@ Dummy_setInput(Dummy *self, PyObject *arg)
 
     int isNumber = PyNumber_Check(arg);
 
-    tmp = arg;
+    tmp = arg; // not sure anymore...
     Py_INCREF(tmp);
     Py_XDECREF(self->input);
 
@@ -176,6 +176,7 @@ Dummy_setInput(Dummy *self, PyObject *arg)
     else
     {
         self->input = tmp;
+        Py_INCREF(self->input);
         streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->input_stream);
@@ -406,7 +407,6 @@ TriggerDummy_traverse(TriggerDummy *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     return 0;
 }
 
@@ -415,7 +415,6 @@ TriggerDummy_clear(TriggerDummy *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     return 0;
 }
 
@@ -424,6 +423,7 @@ TriggerDummy_dealloc(TriggerDummy* self)
 {
     pyo_DEALLOC
     TriggerDummy_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -435,6 +435,7 @@ TriggerDummy_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     TriggerDummy *self;
     self = (TriggerDummy *)type->tp_alloc(type, 0);
 
+    self->input = PyFloat_FromDouble(0);
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
 

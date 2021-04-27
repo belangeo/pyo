@@ -1240,6 +1240,13 @@ distanceToSegment(PyObject *self, PyObject *args, PyObject *kwds)
     pf1 = PySequence_Fast(p1, NULL);
     pf2 = PySequence_Fast(p2, NULL);
 
+    if (PyTuple_Check(p))
+        Py_DECREF(p);
+    if (PyTuple_Check(p1))
+        Py_DECREF(p1);
+    if (PyTuple_Check(p2))
+        Py_DECREF(p2);
+
     if (xlog == 0)
     {
         xscale = xmax - xmin;
@@ -1833,7 +1840,10 @@ sampsToSec(PyObject *self, PyObject *arg)
         Py_RETURN_NONE;
     }
 
-    double sr = PyFloat_AsDouble(PyObject_CallMethod(server, "getSamplingRate", NULL));
+    PyObject *srobj = PyObject_CallMethod(server, "getSamplingRate", NULL);
+    double sr = PyFloat_AsDouble(srobj);
+    Py_DECREF(srobj);
+
     int count = 0;
     int i = 0;
     double x = 0.0;
@@ -1898,7 +1908,10 @@ secToSamps(PyObject *self, PyObject *arg)
         Py_RETURN_NONE;
     }
 
-    double sr = PyFloat_AsDouble(PyObject_CallMethod(server, "getSamplingRate", NULL));
+    PyObject *srobj = PyObject_CallMethod(server, "getSamplingRate", NULL);
+    double sr = PyFloat_AsDouble(srobj);
+    Py_DECREF(srobj);
+
     int count = 0;
     int i = 0;
     double x = 0.0;

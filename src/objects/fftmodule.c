@@ -53,6 +53,7 @@ typedef struct
     MYFLT **twiddle;
     //MYFLT *twiddle2;
     MYFLT *buffer_streams;
+    int allocated;
 } FFTMain;
 
 static void
@@ -75,7 +76,13 @@ FFTMain_realloc_memories(FFTMain *self)
     self->twiddle = (MYFLT **)PyMem_RawRealloc(self->twiddle, 4 * sizeof(MYFLT *));
 
     for (i = 0; i < 4; i++)
+    {
+        if (self->allocated)
+        {
+            PyMem_RawFree(self->twiddle[i]);
+        }
         self->twiddle[i] = (MYFLT *)PyMem_RawMalloc(n8 * sizeof(MYFLT));
+    }
 
     fft_compute_split_twiddle(self->twiddle, self->size);
     //self->twiddle2 = (MYFLT *)PyMem_RawRealloc(self->twiddle2, self->size * sizeof(MYFLT));
@@ -83,6 +90,8 @@ FFTMain_realloc_memories(FFTMain *self)
     self->window = (MYFLT *)PyMem_RawRealloc(self->window, self->size * sizeof(MYFLT));
     gen_window(self->window, self->size, self->wintype);
     self->incount = -self->hopsize;
+
+    self->allocated = 1;
 }
 
 static void
@@ -170,7 +179,6 @@ FFTMain_traverse(FFTMain *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     return 0;
 }
 
@@ -179,7 +187,6 @@ FFTMain_clear(FFTMain *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     return 0;
 }
 
@@ -201,6 +208,7 @@ FFTMain_dealloc(FFTMain* self)
     PyMem_RawFree(self->twiddle);
     //free(self->twiddle2);
     FFTMain_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -214,6 +222,7 @@ FFTMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self->size = 1024;
     self->wintype = 2;
+    self->allocated = 0;
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, FFTMain_compute_next_data_frame);
     self->mode_func_ptr = FFTMain_setProcMode;
@@ -441,6 +450,7 @@ FFT_dealloc(FFT* self)
 {
     pyo_DEALLOC
     FFT_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -471,11 +481,13 @@ FFT_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -629,6 +641,7 @@ typedef struct
     MYFLT **twiddle;
     //MYFLT *twiddle2;
     int modebuffer[2];
+    int allocated;
 } IFFT;
 
 static void
@@ -646,7 +659,13 @@ IFFT_realloc_memories(IFFT *self)
     self->twiddle = (MYFLT **)PyMem_RawRealloc(self->twiddle, 4 * sizeof(MYFLT *));
 
     for (i = 0; i < 4; i++)
+    {
+        if (self->allocated)
+        {
+            PyMem_RawFree(self->twiddle[i]);
+        }
         self->twiddle[i] = (MYFLT *)PyMem_RawMalloc(n8 * sizeof(MYFLT));
+    }
 
     fft_compute_split_twiddle(self->twiddle, self->size);
     //self->twiddle2 = (MYFLT *)PyMem_RawRealloc(self->twiddle2, self->size * sizeof(MYFLT));
@@ -654,6 +673,8 @@ IFFT_realloc_memories(IFFT *self)
     self->window = (MYFLT *)PyMem_RawRealloc(self->window, self->size * sizeof(MYFLT));
     gen_window(self->window, self->size, self->wintype);
     self->incount = -self->hopsize;
+
+    self->allocated = 1;
 }
 
 static void
@@ -782,9 +803,7 @@ IFFT_traverse(IFFT *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->inreal);
-    Py_VISIT(self->inreal_stream);
     Py_VISIT(self->inimag);
-    Py_VISIT(self->inimag_stream);
     return 0;
 }
 
@@ -793,9 +812,7 @@ IFFT_clear(IFFT *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->inreal);
-    Py_CLEAR(self->inreal_stream);
     Py_CLEAR(self->inimag);
-    Py_CLEAR(self->inimag_stream);
     return 0;
 }
 
@@ -816,6 +833,7 @@ IFFT_dealloc(IFFT* self)
     PyMem_RawFree(self->twiddle);
     //free(self->twiddle2);
     IFFT_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -831,6 +849,7 @@ IFFT_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->wintype = 2;
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
+    self->allocated = 0;
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, IFFT_compute_next_data_frame);
@@ -841,6 +860,7 @@ IFFT_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|iiiOO", kwlist, &inrealtmp, &inimagtmp, &self->size, &self->hopsize, &self->wintype, &multmp, &addtmp))
         Py_RETURN_NONE;
 
+    Py_INCREF(inimagtmp);
     Py_XDECREF(self->inimag);
     self->inimag = inimagtmp;
     inimag_streamtmp = PyObject_CallMethod((PyObject *)self->inimag, "_getStream", NULL);
@@ -848,6 +868,7 @@ IFFT_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Py_XDECREF(self->inimag_stream);
     self->inimag_stream = (Stream *)inimag_streamtmp;
 
+    Py_INCREF(inrealtmp);
     Py_XDECREF(self->inreal);
     self->inreal = inrealtmp;
     inreal_streamtmp = PyObject_CallMethod((PyObject *)self->inreal, "_getStream", NULL);
@@ -858,11 +879,13 @@ IFFT_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1146,9 +1169,7 @@ CarToPol_traverse(CarToPol *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     Py_VISIT(self->input2);
-    Py_VISIT(self->input2_stream);
     return 0;
 }
 
@@ -1157,9 +1178,7 @@ CarToPol_clear(CarToPol *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     Py_CLEAR(self->input2);
-    Py_CLEAR(self->input2_stream);
     return 0;
 }
 
@@ -1168,6 +1187,7 @@ CarToPol_dealloc(CarToPol* self)
 {
     pyo_DEALLOC
     CarToPol_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1204,11 +1224,13 @@ CarToPol_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1450,9 +1472,7 @@ PolToCar_traverse(PolToCar *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     Py_VISIT(self->input2);
-    Py_VISIT(self->input2_stream);
     return 0;
 }
 
@@ -1461,9 +1481,7 @@ PolToCar_clear(PolToCar *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     Py_CLEAR(self->input2);
-    Py_CLEAR(self->input2_stream);
     return 0;
 }
 
@@ -1472,6 +1490,7 @@ PolToCar_dealloc(PolToCar* self)
 {
     pyo_DEALLOC
     PolToCar_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1508,11 +1527,13 @@ PolToCar_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1769,6 +1790,7 @@ FrameDeltaMain_dealloc(FrameDeltaMain* self)
     PyMem_RawFree(self->frameBuffer);
     PyMem_RawFree(self->buffer_streams);
     FrameDeltaMain_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1794,6 +1816,7 @@ FrameDeltaMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (inputtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setInput", "O", inputtmp);
+        Py_DECREF(inputtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1845,6 +1868,7 @@ FrameDeltaMain_setInput(FrameDeltaMain *self, PyObject *arg)
     Py_INCREF(tmp);
     Py_XDECREF(self->input);
     self->input = tmp;
+    Py_INCREF(self->input);
 
     Py_RETURN_NONE;
 }
@@ -1867,6 +1891,7 @@ FrameDeltaMain_setFrameSize(FrameDeltaMain *self, PyObject *arg)
 
             for (i = 0; i < self->overlaps; i++)
             {
+                PyMem_RawFree(self->frameBuffer[i]);
                 self->frameBuffer[i] = (MYFLT *)PyMem_RawMalloc(self->frameSize * sizeof(MYFLT));
 
                 for (j = 0; j < self->frameSize; j++)
@@ -2049,6 +2074,7 @@ FrameDelta_dealloc(FrameDelta* self)
 {
     pyo_DEALLOC
     FrameDelta_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -2079,11 +2105,13 @@ FrameDelta_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -2329,6 +2357,7 @@ FrameAccumMain_dealloc(FrameAccumMain* self)
     PyMem_RawFree(self->frameBuffer);
     PyMem_RawFree(self->buffer_streams);
     FrameAccumMain_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -2354,6 +2383,7 @@ FrameAccumMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (inputtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setInput", "O", inputtmp);
+        Py_DECREF(inputtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -2405,6 +2435,7 @@ FrameAccumMain_setInput(FrameAccumMain *self, PyObject *arg)
     Py_INCREF(tmp);
     Py_XDECREF(self->input);
     self->input = tmp;
+    Py_INCREF(self->input);
 
     Py_RETURN_NONE;
 }
@@ -2427,6 +2458,7 @@ FrameAccumMain_setFrameSize(FrameAccumMain *self, PyObject *arg)
 
             for (i = 0; i < self->overlaps; i++)
             {
+                PyMem_RawFree(self->frameBuffer[i]);
                 self->frameBuffer[i] = (MYFLT *)PyMem_RawMalloc(self->frameSize * sizeof(MYFLT));
 
                 for (j = 0; j < self->frameSize; j++)
@@ -2609,6 +2641,7 @@ FrameAccum_dealloc(FrameAccum* self)
 {
     pyo_DEALLOC
     FrameAccum_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -2639,11 +2672,13 @@ FrameAccum_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -2921,11 +2956,8 @@ VectralMain_traverse(VectralMain *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->input);
     Py_VISIT(self->up);
-    Py_VISIT(self->up_stream);
     Py_VISIT(self->down);
-    Py_VISIT(self->down_stream);
     Py_VISIT(self->damp);
-    Py_VISIT(self->damp_stream);
     return 0;
 }
 
@@ -2935,11 +2967,8 @@ VectralMain_clear(VectralMain *self)
     pyo_CLEAR
     Py_CLEAR(self->input);
     Py_CLEAR(self->up);
-    Py_CLEAR(self->up_stream);
     Py_CLEAR(self->down);
-    Py_CLEAR(self->down_stream);
     Py_CLEAR(self->damp);
-    Py_CLEAR(self->damp_stream);
     return 0;
 }
 
@@ -2957,6 +2986,7 @@ VectralMain_dealloc(VectralMain* self)
     PyMem_RawFree(self->frameBuffer);
     PyMem_RawFree(self->buffer_streams);
     VectralMain_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -2990,21 +3020,25 @@ VectralMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (inputtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setInput", "O", inputtmp);
+        Py_DECREF(inputtmp);
     }
 
     if (uptmp)
     {
         PyObject_CallMethod((PyObject *)self, "setUp", "O", uptmp);
+        Py_DECREF(uptmp);
     }
 
     if (downtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setDown", "O", downtmp);
+        Py_DECREF(downtmp);
     }
 
     if (damptmp)
     {
         PyObject_CallMethod((PyObject *)self, "setDamp", "O", damptmp);
+        Py_DECREF(damptmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -3056,6 +3090,7 @@ VectralMain_setInput(VectralMain *self, PyObject *arg)
     Py_INCREF(tmp);
     Py_XDECREF(self->input);
     self->input = tmp;
+    Py_INCREF(self->input);
 
     Py_RETURN_NONE;
 }
@@ -3078,6 +3113,7 @@ VectralMain_setFrameSize(VectralMain *self, PyObject *arg)
 
             for (i = 0; i < self->overlaps; i++)
             {
+                PyMem_RawFree(self->frameBuffer[i]);
                 self->frameBuffer[i] = (MYFLT *)PyMem_RawMalloc(self->frameSize * sizeof(MYFLT));
 
                 for (j = 0; j < self->frameSize; j++)
@@ -3116,6 +3152,7 @@ VectralMain_setUp(VectralMain *self, PyObject *arg)
     else
     {
         self->up = tmp;
+        Py_INCREF(self->up);
         streamtmp = PyObject_CallMethod((PyObject *)self->up, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->up_stream);
@@ -3147,6 +3184,7 @@ VectralMain_setDown(VectralMain *self, PyObject *arg)
     else
     {
         self->down = tmp;
+        Py_INCREF(self->down);
         streamtmp = PyObject_CallMethod((PyObject *)self->down, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->down_stream);
@@ -3178,6 +3216,7 @@ VectralMain_setDamp(VectralMain *self, PyObject *arg)
     else
     {
         self->damp = tmp;
+        Py_INCREF(self->damp);
         streamtmp = PyObject_CallMethod((PyObject *)self->damp, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->damp_stream);
@@ -3356,6 +3395,7 @@ Vectral_dealloc(Vectral* self)
 {
     pyo_DEALLOC
     Vectral_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -3386,11 +3426,13 @@ Vectral_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -4446,7 +4488,6 @@ Spectrum_traverse(Spectrum *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     return 0;
 }
 
@@ -4455,7 +4496,6 @@ Spectrum_clear(Spectrum *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     return 0;
 }
 
@@ -4479,6 +4519,7 @@ Spectrum_dealloc(Spectrum* self)
 
     PyMem_RawFree(self->twiddle);
     Spectrum_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -4901,9 +4942,7 @@ IFFTMatrix_traverse(IFFTMatrix *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->matrix);
     Py_VISIT(self->index);
-    Py_VISIT(self->index_stream);
     Py_VISIT(self->phase);
-    Py_VISIT(self->phase_stream);
     return 0;
 }
 
@@ -4913,9 +4952,7 @@ IFFTMatrix_clear(IFFTMatrix *self)
     pyo_CLEAR
     Py_CLEAR(self->matrix);
     Py_CLEAR(self->index);
-    Py_CLEAR(self->index_stream);
     Py_CLEAR(self->phase);
-    Py_CLEAR(self->phase_stream);
     return 0;
 }
 
@@ -4935,6 +4972,7 @@ IFFTMatrix_dealloc(IFFTMatrix* self)
 
     PyMem_RawFree(self->twiddle);
     IFFTMatrix_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -4972,6 +5010,7 @@ IFFTMatrix_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (indextmp)
     {
         PyObject_CallMethod((PyObject *)self, "setIndex", "O", indextmp);
+        Py_DECREF(indextmp);
     }
 
     if (phasetmp)
@@ -4982,11 +5021,13 @@ IFFTMatrix_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);

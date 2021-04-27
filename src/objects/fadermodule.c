@@ -237,7 +237,6 @@ static int
 Fader_traverse(Fader *self, visitproc visit, void *arg)
 {
     pyo_VISIT
-    Py_VISIT(self->trig_stream);
     return 0;
 }
 
@@ -245,7 +244,6 @@ static int
 Fader_clear(Fader *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->trig_stream);
     return 0;
 }
 
@@ -255,6 +253,8 @@ Fader_dealloc(Fader* self)
     pyo_DEALLOC
     PyMem_RawFree(self->trigsBuffer);
     Fader_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_TYPE(self->trig_stream)->tp_free((PyObject*)self->trig_stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -293,11 +293,13 @@ Fader_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -718,7 +720,6 @@ static int
 Adsr_traverse(Adsr *self, visitproc visit, void *arg)
 {
     pyo_VISIT
-    Py_VISIT(self->trig_stream);
     return 0;
 }
 
@@ -726,7 +727,6 @@ static int
 Adsr_clear(Adsr *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->trig_stream);
     return 0;
 }
 
@@ -736,6 +736,8 @@ Adsr_dealloc(Adsr* self)
     pyo_DEALLOC
     PyMem_RawFree(self->trigsBuffer);
     Adsr_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_TYPE(self->trig_stream)->tp_free((PyObject*)self->trig_stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -776,11 +778,13 @@ Adsr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1236,6 +1240,7 @@ Linseg_dealloc(Linseg* self)
     PyMem_RawFree(self->targets);
     PyMem_RawFree(self->times);
     Linseg_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1272,11 +1277,13 @@ Linseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1701,6 +1708,7 @@ Expseg_dealloc(Expseg* self)
     PyMem_RawFree(self->targets);
     PyMem_RawFree(self->times);
     Expseg_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1739,11 +1747,13 @@ Expseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);

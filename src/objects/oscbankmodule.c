@@ -430,19 +430,12 @@ OscBank_traverse(OscBank *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->table);
     Py_VISIT(self->freq);
-    Py_VISIT(self->freq_stream);
     Py_VISIT(self->spread);
-    Py_VISIT(self->spread_stream);
     Py_VISIT(self->slope);
-    Py_VISIT(self->slope_stream);
     Py_VISIT(self->frndf);
-    Py_VISIT(self->frndf_stream);
     Py_VISIT(self->frnda);
-    Py_VISIT(self->frnda_stream);
     Py_VISIT(self->arndf);
-    Py_VISIT(self->arndf_stream);
     Py_VISIT(self->arnda);
-    Py_VISIT(self->arnda_stream);
     return 0;
 }
 
@@ -452,19 +445,12 @@ OscBank_clear(OscBank *self)
     pyo_CLEAR
     Py_CLEAR(self->table);
     Py_CLEAR(self->freq);
-    Py_CLEAR(self->freq_stream);
     Py_CLEAR(self->spread);
-    Py_CLEAR(self->spread_stream);
     Py_CLEAR(self->slope);
-    Py_CLEAR(self->slope_stream);
     Py_CLEAR(self->frndf);
-    Py_CLEAR(self->frndf_stream);
     Py_CLEAR(self->frnda);
-    Py_CLEAR(self->frnda_stream);
     Py_CLEAR(self->arndf);
-    Py_CLEAR(self->arndf_stream);
     Py_CLEAR(self->arnda);
-    Py_CLEAR(self->arnda_stream);
     return 0;
 }
 
@@ -481,6 +467,7 @@ OscBank_dealloc(OscBank* self)
     PyMem_RawFree(self->aValues);
     PyMem_RawFree(self->aDiffs);
     OscBank_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -539,46 +526,55 @@ OscBank_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (freqtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+        Py_DECREF(freqtmp);
     }
 
     if (spreadtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setSpread", "O", spreadtmp);
+        Py_DECREF(spreadtmp);
     }
 
     if (slopetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setSlope", "O", slopetmp);
+        Py_DECREF(slopetmp);
     }
 
     if (frndftmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFrndf", "O", frndftmp);
+        Py_DECREF(frndftmp);
     }
 
     if (frndatmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFrnda", "O", frndatmp);
+        Py_DECREF(frndatmp);
     }
 
     if (arndftmp)
     {
         PyObject_CallMethod((PyObject *)self, "setArndf", "O", arndftmp);
+        Py_DECREF(arndftmp);
     }
 
     if (arndatmp)
     {
         PyObject_CallMethod((PyObject *)self, "setArnda", "O", arndatmp);
+        Py_DECREF(arndatmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -668,6 +664,7 @@ OscBank_setFreq(OscBank *self, PyObject *arg)
     else
     {
         self->freq = tmp;
+        Py_INCREF(self->freq);
         streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->freq_stream);
@@ -699,6 +696,7 @@ OscBank_setSpread(OscBank *self, PyObject *arg)
     else
     {
         self->spread = tmp;
+        Py_INCREF(self->spread);
         streamtmp = PyObject_CallMethod((PyObject *)self->spread, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->spread_stream);
@@ -730,6 +728,7 @@ OscBank_setSlope(OscBank *self, PyObject *arg)
     else
     {
         self->slope = tmp;
+        Py_INCREF(self->slope);
         streamtmp = PyObject_CallMethod((PyObject *)self->slope, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->slope_stream);
@@ -761,6 +760,7 @@ OscBank_setFrndf(OscBank *self, PyObject *arg)
     else
     {
         self->frndf = tmp;
+        Py_INCREF(self->frndf);
         streamtmp = PyObject_CallMethod((PyObject *)self->frndf, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->frndf_stream);
@@ -792,6 +792,7 @@ OscBank_setFrnda(OscBank *self, PyObject *arg)
     else
     {
         self->frnda = tmp;
+        Py_INCREF(self->frnda);
         streamtmp = PyObject_CallMethod((PyObject *)self->frnda, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->frnda_stream);
@@ -823,6 +824,7 @@ OscBank_setArndf(OscBank *self, PyObject *arg)
     else
     {
         self->arndf = tmp;
+        Py_INCREF(self->arndf);
         streamtmp = PyObject_CallMethod((PyObject *)self->arndf, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->arndf_stream);
@@ -854,6 +856,7 @@ OscBank_setArnda(OscBank *self, PyObject *arg)
     else
     {
         self->arnda = tmp;
+        Py_INCREF(self->arnda);
         streamtmp = PyObject_CallMethod((PyObject *)self->arnda, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->arnda_stream);

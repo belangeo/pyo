@@ -56,7 +56,7 @@ Pattern_generate_i(Pattern *self)
 
     for (i = 0; i < self->bufsize; i++)
     {
-        if (self->currentTime >= tm)
+        if (self->currentTime >= tm && PyCallable_Check(self->callable))
         {
             self->currentTime = 0.0;
 
@@ -73,8 +73,10 @@ Pattern_generate_i(Pattern *self)
             else
             {
                 tuple = PyTuple_New(1);
+                Py_INCREF(self->arg);
                 PyTuple_SET_ITEM(tuple, 0, self->arg);
                 result = PyObject_Call((PyObject *)self->callable, tuple, NULL);
+                Py_DECREF(tuple);
 
                 if (result == NULL)
                 {
@@ -104,7 +106,7 @@ Pattern_generate_a(Pattern *self)
 
     for (i = 0; i < self->bufsize; i++)
     {
-        if (self->currentTime >= tm[i])
+        if (self->currentTime >= tm[i] && PyCallable_Check(self->callable))
         {
             self->currentTime = 0.0;
 
@@ -121,8 +123,10 @@ Pattern_generate_a(Pattern *self)
             else
             {
                 tuple = PyTuple_New(1);
+                Py_INCREF(self->arg);
                 PyTuple_SET_ITEM(tuple, 0, self->arg);
                 result = PyObject_Call((PyObject *)self->callable, tuple, NULL);
+                Py_DECREF(tuple);
 
                 if (result == NULL)
                 {
@@ -165,7 +169,6 @@ Pattern_traverse(Pattern *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->callable);
     Py_VISIT(self->time);
-    Py_VISIT(self->time_stream);
     Py_VISIT(self->arg);
     return 0;
 }
@@ -176,7 +179,6 @@ Pattern_clear(Pattern *self)
     pyo_CLEAR
     Py_CLEAR(self->callable);
     Py_CLEAR(self->time);
-    Py_CLEAR(self->time_stream);
     Py_CLEAR(self->arg);
     return 0;
 }
@@ -186,6 +188,7 @@ Pattern_dealloc(Pattern* self)
 {
     pyo_DEALLOC
     Pattern_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -222,6 +225,7 @@ Pattern_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (timetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setTime", "O", timetmp);
+        Py_DECREF(timetmp);
     }
 
     if (argtmp)
@@ -297,6 +301,7 @@ Pattern_setTime(Pattern *self, PyObject *arg)
     else
     {
         self->time = tmp;
+        Py_INCREF(self->time);
         streamtmp = PyObject_CallMethod((PyObject *)self->time, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->time_stream);
@@ -434,7 +439,6 @@ Score_traverse(Score *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     return 0;
 }
 
@@ -443,7 +447,6 @@ Score_clear(Score *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     return 0;
 }
 
@@ -452,6 +455,7 @@ Score_dealloc(Score* self)
 {
     pyo_DEALLOC
     Score_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -574,14 +578,18 @@ CallAfter_generate(CallAfter *self)
                 PyObject_CallMethod((PyObject *)self, "stop", NULL);
 
             if (self->arg == Py_None)
-                tuple = PyTuple_New(0);
+            {
+                result = PyObject_Call(self->callable, PyTuple_New(0), NULL);
+            }
             else
             {
                 tuple = PyTuple_New(1);
+                Py_INCREF(self->arg);
                 PyTuple_SET_ITEM(tuple, 0, self->arg);
-            }
+                result = PyObject_Call(self->callable, tuple, NULL);
+                Py_DECREF(tuple);
 
-            result = PyObject_Call(self->callable, tuple, NULL);
+            }
 
             if (result == NULL)
                 PyErr_Print();
@@ -628,6 +636,7 @@ CallAfter_dealloc(CallAfter* self)
 {
     pyo_DEALLOC
     CallAfter_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 

@@ -151,9 +151,7 @@ TrigRandInt_traverse(TrigRandInt *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     Py_VISIT(self->max);
-    Py_VISIT(self->max_stream);
     return 0;
 }
 
@@ -162,9 +160,7 @@ TrigRandInt_clear(TrigRandInt *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     Py_CLEAR(self->max);
-    Py_CLEAR(self->max_stream);
     return 0;
 }
 
@@ -173,6 +169,7 @@ TrigRandInt_dealloc(TrigRandInt* self)
 {
     pyo_DEALLOC
     TrigRandInt_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -205,16 +202,19 @@ TrigRandInt_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (maxtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMax", "O", maxtmp);
+        Py_DECREF(maxtmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -274,6 +274,7 @@ TrigRandInt_setMax(TrigRandInt *self, PyObject *arg)
     else
     {
         self->max = tmp;
+        Py_INCREF(self->max);
         streamtmp = PyObject_CallMethod((PyObject *)self->max, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->max_stream);
@@ -654,11 +655,8 @@ TrigRand_traverse(TrigRand *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     Py_VISIT(self->min);
-    Py_VISIT(self->min_stream);
     Py_VISIT(self->max);
-    Py_VISIT(self->max_stream);
     return 0;
 }
 
@@ -667,11 +665,8 @@ TrigRand_clear(TrigRand *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     Py_CLEAR(self->min);
-    Py_CLEAR(self->min_stream);
     Py_CLEAR(self->max);
-    Py_CLEAR(self->max_stream);
     return 0;
 }
 
@@ -680,6 +675,7 @@ TrigRand_dealloc(TrigRand* self)
 {
     pyo_DEALLOC
     TrigRand_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -717,21 +713,25 @@ TrigRand_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (mintmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMin", "O", mintmp);
+        Py_DECREF(mintmp);
     }
 
     if (maxtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMax", "O", maxtmp);
+        Py_DECREF(maxtmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -787,6 +787,7 @@ TrigRand_setMin(TrigRand *self, PyObject *arg)
     else
     {
         self->min = tmp;
+        Py_INCREF(self->min);
         streamtmp = PyObject_CallMethod((PyObject *)self->min, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->min_stream);
@@ -820,6 +821,7 @@ TrigRand_setMax(TrigRand *self, PyObject *arg)
     else
     {
         self->max = tmp;
+        Py_INCREF(self->max);
         streamtmp = PyObject_CallMethod((PyObject *)self->max, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->max_stream);
@@ -1090,7 +1092,6 @@ TrigChoice_traverse(TrigChoice *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     return 0;
 }
 
@@ -1099,7 +1100,6 @@ TrigChoice_clear(TrigChoice *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     return 0;
 }
 
@@ -1109,6 +1109,7 @@ TrigChoice_dealloc(TrigChoice* self)
     pyo_DEALLOC
     PyMem_RawFree(self->choice);
     TrigChoice_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1147,11 +1148,13 @@ TrigChoice_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1380,8 +1383,10 @@ TrigFunc_generate(TrigFunc *self)
             else
             {
                 tuple = PyTuple_New(1);
+                Py_INCREF(self->arg);
                 PyTuple_SET_ITEM(tuple, 0, self->arg);
                 result = PyObject_Call(self->func, tuple, NULL);
+                Py_DECREF(tuple);
 
                 if (result == NULL)
                 {
@@ -1404,7 +1409,6 @@ TrigFunc_traverse(TrigFunc *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     Py_VISIT(self->func);
     Py_VISIT(self->arg);
     return 0;
@@ -1415,7 +1419,6 @@ TrigFunc_clear(TrigFunc *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     Py_CLEAR(self->func);
     Py_CLEAR(self->arg);
     return 0;
@@ -1426,6 +1429,7 @@ TrigFunc_dealloc(TrigFunc* self)
 {
     pyo_DEALLOC
     TrigFunc_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1780,10 +1784,7 @@ TrigEnv_traverse(TrigEnv *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->table);
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     Py_VISIT(self->dur);
-    Py_VISIT(self->dur_stream);
-    Py_VISIT(self->trig_stream);
     return 0;
 }
 
@@ -1793,10 +1794,7 @@ TrigEnv_clear(TrigEnv *self)
     pyo_CLEAR
     Py_CLEAR(self->table);
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     Py_CLEAR(self->dur);
-    Py_CLEAR(self->dur_stream);
-    Py_CLEAR(self->trig_stream);
     return 0;
 }
 
@@ -1806,6 +1804,8 @@ TrigEnv_dealloc(TrigEnv* self)
     pyo_DEALLOC
     PyMem_RawFree(self->trigsBuffer);
     TrigEnv_clear(self);
+    Py_TYPE(self->trig_stream)->tp_free((PyObject*)self->trig_stream);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1851,16 +1851,19 @@ TrigEnv_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (durtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setDur", "O", durtmp);
+        Py_DECREF(durtmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1945,6 +1948,7 @@ TrigEnv_setDur(TrigEnv *self, PyObject *arg)
     else
     {
         self->dur = tmp;
+        Py_INCREF(self->dur);
         streamtmp = PyObject_CallMethod((PyObject *)self->dur, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->dur_stream);
@@ -2259,9 +2263,7 @@ TrigLinseg_traverse(TrigLinseg *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->pointslist);
-    Py_VISIT(self->trig_stream);
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     return 0;
 }
 
@@ -2270,9 +2272,7 @@ TrigLinseg_clear(TrigLinseg *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->pointslist);
-    Py_CLEAR(self->trig_stream);
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     return 0;
 }
 
@@ -2284,6 +2284,8 @@ TrigLinseg_dealloc(TrigLinseg* self)
     PyMem_RawFree(self->times);
     PyMem_RawFree(self->trigsBuffer);
     TrigLinseg_clear(self);
+    Py_TYPE(self->trig_stream)->tp_free((PyObject*)self->trig_stream);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -2320,11 +2322,13 @@ TrigLinseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -2697,9 +2701,7 @@ TrigExpseg_traverse(TrigExpseg *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->pointslist);
-    Py_VISIT(self->trig_stream);
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     return 0;
 }
 
@@ -2708,9 +2710,7 @@ TrigExpseg_clear(TrigExpseg *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->pointslist);
-    Py_CLEAR(self->trig_stream);
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     return 0;
 }
 
@@ -2722,6 +2722,8 @@ TrigExpseg_dealloc(TrigExpseg* self)
     PyMem_RawFree(self->times);
     PyMem_RawFree(self->trigsBuffer);
     TrigExpseg_clear(self);
+    Py_TYPE(self->trig_stream)->tp_free((PyObject*)self->trig_stream);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -2760,11 +2762,13 @@ TrigExpseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -3479,11 +3483,8 @@ TrigXnoise_traverse(TrigXnoise *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     Py_VISIT(self->x1);
-    Py_VISIT(self->x1_stream);
     Py_VISIT(self->x2);
-    Py_VISIT(self->x2_stream);
     return 0;
 }
 
@@ -3492,11 +3493,8 @@ TrigXnoise_clear(TrigXnoise *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     Py_CLEAR(self->x1);
-    Py_CLEAR(self->x1_stream);
     Py_CLEAR(self->x2);
-    Py_CLEAR(self->x2_stream);
     return 0;
 }
 
@@ -3505,6 +3503,7 @@ TrigXnoise_dealloc(TrigXnoise* self)
 {
     pyo_DEALLOC
     TrigXnoise_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -3558,21 +3557,25 @@ TrigXnoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (x1tmp)
     {
         PyObject_CallMethod((PyObject *)self, "setX1", "O", x1tmp);
+        Py_DECREF(x1tmp);
     }
 
     if (x2tmp)
     {
         PyObject_CallMethod((PyObject *)self, "setX2", "O", x2tmp);
+        Py_DECREF(x2tmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -3641,6 +3644,7 @@ TrigXnoise_setX1(TrigXnoise *self, PyObject *arg)
     else
     {
         self->x1 = tmp;
+        Py_INCREF(self->x1);
         streamtmp = PyObject_CallMethod((PyObject *)self->x1, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->x1_stream);
@@ -3674,6 +3678,7 @@ TrigXnoise_setX2(TrigXnoise *self, PyObject *arg)
     else
     {
         self->x2 = tmp;
+        Py_INCREF(self->x2);
         streamtmp = PyObject_CallMethod((PyObject *)self->x2, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->x2_stream);
@@ -4353,11 +4358,8 @@ TrigXnoiseMidi_traverse(TrigXnoiseMidi *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     Py_VISIT(self->x1);
-    Py_VISIT(self->x1_stream);
     Py_VISIT(self->x2);
-    Py_VISIT(self->x2_stream);
     return 0;
 }
 
@@ -4366,11 +4368,8 @@ TrigXnoiseMidi_clear(TrigXnoiseMidi *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     Py_CLEAR(self->x1);
-    Py_CLEAR(self->x1_stream);
     Py_CLEAR(self->x2);
-    Py_CLEAR(self->x2_stream);
     return 0;
 }
 
@@ -4379,6 +4378,7 @@ TrigXnoiseMidi_dealloc(TrigXnoiseMidi* self)
 {
     pyo_DEALLOC
     TrigXnoiseMidi_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -4436,11 +4436,13 @@ TrigXnoiseMidi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (x1tmp)
     {
         PyObject_CallMethod((PyObject *)self, "setX1", "O", x1tmp);
+        Py_DECREF(x1tmp);
     }
 
     if (x2tmp)
     {
         PyObject_CallMethod((PyObject *)self, "setX2", "O", x2tmp);
+        Py_DECREF(x2tmp);
     }
 
     if (rangetmp)
@@ -4451,11 +4453,13 @@ TrigXnoiseMidi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -4566,6 +4570,7 @@ TrigXnoiseMidi_setX1(TrigXnoiseMidi *self, PyObject *arg)
     else
     {
         self->x1 = tmp;
+        Py_INCREF(self->x1);
         streamtmp = PyObject_CallMethod((PyObject *)self->x1, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->x1_stream);
@@ -4599,6 +4604,7 @@ TrigXnoiseMidi_setX2(TrigXnoiseMidi *self, PyObject *arg)
     else
     {
         self->x2 = tmp;
+        Py_INCREF(self->x2);
         streamtmp = PyObject_CallMethod((PyObject *)self->x2, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->x2_stream);
@@ -4862,7 +4868,6 @@ Counter_traverse(Counter *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     return 0;
 }
 
@@ -4871,7 +4876,6 @@ Counter_clear(Counter *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     return 0;
 }
 
@@ -4880,6 +4884,7 @@ Counter_dealloc(Counter* self)
 {
     pyo_DEALLOC
     Counter_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -4912,11 +4917,13 @@ Counter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -5342,9 +5349,7 @@ Thresh_traverse(Thresh *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     Py_VISIT(self->threshold);
-    Py_VISIT(self->threshold_stream);
     return 0;
 }
 
@@ -5353,9 +5358,7 @@ Thresh_clear(Thresh *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     Py_CLEAR(self->threshold);
-    Py_CLEAR(self->threshold_stream);
     return 0;
 }
 
@@ -5364,6 +5367,7 @@ Thresh_dealloc(Thresh* self)
 {
     pyo_DEALLOC
     Thresh_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -5396,16 +5400,19 @@ Thresh_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (thresholdtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setThreshold", "O", thresholdtmp);
+        Py_DECREF(thresholdtmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -5455,6 +5462,7 @@ Thresh_setThreshold(Thresh *self, PyObject *arg)
     else
     {
         self->threshold = tmp;
+        Py_INCREF(self->threshold);
         streamtmp = PyObject_CallMethod((PyObject *)self->threshold, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->threshold_stream);
@@ -5729,9 +5737,7 @@ Percent_traverse(Percent *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     Py_VISIT(self->percent);
-    Py_VISIT(self->percent_stream);
     return 0;
 }
 
@@ -5740,9 +5746,7 @@ Percent_clear(Percent *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     Py_CLEAR(self->percent);
-    Py_CLEAR(self->percent_stream);
     return 0;
 }
 
@@ -5751,6 +5755,7 @@ Percent_dealloc(Percent* self)
 {
     pyo_DEALLOC
     Percent_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -5781,16 +5786,19 @@ Percent_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (percenttmp)
     {
         PyObject_CallMethod((PyObject *)self, "setPercent", "O", percenttmp);
+        Py_DECREF(percenttmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -5842,6 +5850,7 @@ Percent_setPercent(Percent *self, PyObject *arg)
     else
     {
         self->percent = tmp;
+        Py_INCREF(self->percent);
         streamtmp = PyObject_CallMethod((PyObject *)self->percent, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->percent_stream);
@@ -6079,9 +6088,7 @@ Timer_traverse(Timer *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     Py_VISIT(self->input2);
-    Py_VISIT(self->input2_stream);
     return 0;
 }
 
@@ -6090,9 +6097,7 @@ Timer_clear(Timer *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     Py_CLEAR(self->input2);
-    Py_CLEAR(self->input2_stream);
     return 0;
 }
 
@@ -6101,6 +6106,7 @@ Timer_dealloc(Timer* self)
 {
     pyo_DEALLOC
     Timer_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -6140,11 +6146,13 @@ Timer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -6428,10 +6436,8 @@ Iter_traverse(Iter *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     Py_VISIT(self->choice);
     Py_VISIT(self->audioval);
-    Py_VISIT(self->trig_stream);
     return 0;
 }
 
@@ -6440,10 +6446,8 @@ Iter_clear(Iter *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     Py_CLEAR(self->choice);
     Py_CLEAR(self->audioval);
-    Py_CLEAR(self->trig_stream);
     return 0;
 }
 
@@ -6453,6 +6457,8 @@ Iter_dealloc(Iter* self)
     pyo_DEALLOC
     PyMem_RawFree(self->trigsBuffer);
     Iter_clear(self);
+    Py_TYPE(self->trig_stream)->tp_free((PyObject*)self->trig_stream);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -6490,11 +6496,13 @@ Iter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -6800,7 +6808,6 @@ Count_traverse(Count *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     return 0;
 }
 
@@ -6809,7 +6816,6 @@ Count_clear(Count *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     return 0;
 }
 
@@ -6818,6 +6824,7 @@ Count_dealloc(Count* self)
 {
     pyo_DEALLOC
     Count_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -6850,11 +6857,13 @@ Count_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -7118,9 +7127,7 @@ NextTrig_traverse(NextTrig *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     Py_VISIT(self->input2);
-    Py_VISIT(self->input2_stream);
     return 0;
 }
 
@@ -7129,9 +7136,7 @@ NextTrig_clear(NextTrig *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     Py_CLEAR(self->input2);
-    Py_CLEAR(self->input2_stream);
     return 0;
 }
 
@@ -7140,6 +7145,7 @@ NextTrig_dealloc(NextTrig* self)
 {
     pyo_DEALLOC
     NextTrig_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -7177,11 +7183,13 @@ NextTrig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -7442,9 +7450,7 @@ TrigVal_traverse(TrigVal *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     Py_VISIT(self->value);
-    Py_VISIT(self->value_stream);
     return 0;
 }
 
@@ -7453,9 +7459,7 @@ TrigVal_clear(TrigVal *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     Py_CLEAR(self->value);
-    Py_CLEAR(self->value_stream);
     return 0;
 }
 
@@ -7464,6 +7468,7 @@ TrigVal_dealloc(TrigVal* self)
 {
     pyo_DEALLOC
     TrigVal_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -7495,16 +7500,19 @@ TrigVal_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (valuetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setValue", "O", valuetmp);
+        Py_DECREF(valuetmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -7555,6 +7563,7 @@ TrigVal_setValue(TrigVal *self, PyObject *arg)
     else
     {
         self->value = tmp;
+        Py_INCREF(self->value);
         streamtmp = PyObject_CallMethod((PyObject *)self->value, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->value_stream);
