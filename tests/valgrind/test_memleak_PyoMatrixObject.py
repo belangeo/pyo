@@ -5,7 +5,7 @@
 import os
 from pyo import *
 
-s = Server(audio="manual").boot().start()
+s = Server().boot().start()
 
 m = NewMatrix(2, 2, [[1,2], [3,4]])
 m.write(os.path.join(os.getcwd(),"matrix_write_temp.txt"))

@@ -4,7 +4,7 @@
 
 from pyo import *
 
-s = Server(audio="manual").boot().start()
+s = Server().boot().start()
 
 t1 = NewTable(2)
 t2 = NewTable(2)

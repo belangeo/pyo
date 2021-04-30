@@ -4,7 +4,7 @@
 
 from pyo import *
 
-s = Server(audio="manual").boot()
+s = Server().boot()
 
 print(serverCreated())
 print(serverBooted())

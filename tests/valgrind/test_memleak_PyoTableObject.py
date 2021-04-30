@@ -4,7 +4,7 @@
 
 from pyo import *
 
-s = Server(audio="manual").boot().start()
+s = Server().boot().start()
 
 t0 = DataTable(size=4, init=[4,3,2,1])
 

@@ -4,7 +4,7 @@
 
 from pyo import *
 
-s = Server(audio="manual").boot().start()
+s = Server().boot().start()
 
 a = Fader().play()
 a.setFadein(0.01)

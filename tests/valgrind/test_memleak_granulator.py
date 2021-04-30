@@ -5,7 +5,7 @@
 from pyo import *
 import random
 
-s = Server(audio="manual").boot().start()
+s = Server().boot().start()
 sr = int(s.getSamplingRate())
 
 t1 = DataTable(sr, init=[random.uniform(-1,1) for i in range(sr)])
