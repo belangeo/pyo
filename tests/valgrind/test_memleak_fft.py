@@ -43,11 +43,6 @@ def callback(x):
 def callback2(x):
     pass
 
-f = Spectrum(i1, function=callback)
-f.size = 512
-f.size = 2048
-f.setFunction(callback2)
-
 
 last = b
 fout = IFFT(last["real"], last["imag"])

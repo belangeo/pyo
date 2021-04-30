@@ -144,8 +144,6 @@ OBJECTS_TREE = {
                     "Yin",
                     "Centroid",
                     "AttackDetector",
-                    "Scope",
-                    "Spectrum",
                     "PeakAmp",
                     "RMS",
                 ]

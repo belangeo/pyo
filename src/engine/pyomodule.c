@@ -1166,7 +1166,6 @@ init_pyo64(void)
     module_add_object(m, "SVF_base", &SVFType);
     module_add_object(m, "SVF2_base", &SVF2Type);
     module_add_object(m, "Average_base", &AverageType);
-    module_add_object(m, "Spectrum_base", &SpectrumType);
     module_add_object(m, "Reson_base", &ResonType);
     module_add_object(m, "Resonx_base", &ResonxType);
     module_add_object(m, "ButLP_base", &ButLPType);
@@ -1208,7 +1207,6 @@ init_pyo64(void)
     module_add_object(m, "TrigBurstAmpStream_base", &TrigBurstAmpStreamType);
     module_add_object(m, "TrigBurstDurStream_base", &TrigBurstDurStreamType);
     module_add_object(m, "TrigBurstEndStream_base", &TrigBurstEndStreamType);
-    module_add_object(m, "Scope_base", &ScopeType);
     module_add_object(m, "PeakAmp_base", &PeakAmpType);
     module_add_object(m, "MainParticle_base", &MainParticleType);
     module_add_object(m, "Particle_base", &ParticleType);
