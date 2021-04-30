@@ -141,6 +141,7 @@ Mix_dealloc(Mix* self)
 {
     pyo_DEALLOC
     Mix_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
