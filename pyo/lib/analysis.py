@@ -447,20 +447,15 @@ class Spectrum(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, size, wintype, lmax = convertArgsToLists(self._in_fader, size, wintype)
         self._base_objs = [Spectrum_base(wrap(in_fader, i), wrap(size, i), wrap(wintype, i)) for i in range(lmax)]
-        self._timer = Pattern(self.refreshView, 0.05).play()
-        if function is None:
-            self.view(wintitle)
         self._init_play()
 
     def play(self, dur=0, delay=0):
-        self._timer.play(dur, delay)
         return PyoObject.play(self, dur, delay)
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
 
     def stop(self, wait=0):
-        self._timer.stop(wait)
         return PyoObject.stop(self, wait)
 
     def setInput(self, x, fadetime=0.05):
@@ -483,17 +478,6 @@ class Spectrum(PyoObject):
     def setFunction(self, function):
         pyoArgsAssert(self, "C", function)
         self._function = getWeakMethodRef(function)
-
-    def poll(self, active):
-        pyoArgsAssert(self, "B", active)
-        if active:
-            self._timer.play()
-        else:
-            self._timer.stop()
-
-    def polltime(self, time):
-        pyoArgsAssert(self, "N", time)
-        self._timer.time = time
 
     def setLowFreq(self, x):
         pyoArgsAssert(self, "n", x)
@@ -524,7 +508,6 @@ class Spectrum(PyoObject):
         return tmp[0]
 
     def getLowfreq(self):
-
         return self._base_objs[0].getLowfreq()
 
     def getHighfreq(self):
