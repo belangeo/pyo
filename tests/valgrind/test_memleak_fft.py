@@ -2,6 +2,9 @@
 #   PYTHONMALLOC=malloc valgrind --tool=memcheck --leak-check=yes --show-leak-kinds=definite --track-origins=yes --num-callers=12 --suppressions=valgrind-python.supp python3 test_memleak_fft.py 
 # There should not be any definitely lost bytes.
 
+import os
+os.environ["PYO_GUI_WX"] = "0"
+
 from pyo import *
 
 s = Server(audio="manual").boot().start()
@@ -40,10 +43,10 @@ def callback(x):
 def callback2(x):
     pass
 
-#f = Spectrum(i1, function=callback)
-#f.size = 512
-#f.size = 2048
-#f.setFunction(callback2)
+f = Spectrum(i1, function=callback)
+f.size = 512
+f.size = 2048
+f.setFunction(callback2)
 
 
 last = b
@@ -52,6 +55,12 @@ fout.setInReal(fin["real"])
 fout.setInImag(fin["imag"])
 fout.setSize(512)
 fout.setSize(2048)
+
+m2 = NewMatrix(512, 512)
+m2.genSineTerrain(1, 0.15)
+index2 = Phasor([0.4, 0.5])
+phase2 = Noise(0.7)
+fout2 = IFFTMatrix(m2, index2, phase2, size=2048, overlaps=16, wintype=2).mix(2).out()
 
 s.process()
 s.process()

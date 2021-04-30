@@ -4290,6 +4290,7 @@ typedef struct
     MYFLT *tmpmag;
     MYFLT *window;
     MYFLT **twiddle;
+    int allocated;
 } Spectrum;
 
 static void
@@ -4315,13 +4316,21 @@ Spectrum_realloc_memories(Spectrum *self)
     self->twiddle = (MYFLT **)PyMem_RawRealloc(self->twiddle, 4 * sizeof(MYFLT *));
 
     for (i = 0; i < 4; i++)
+    {
+        if (self->allocated)
+        {
+            PyMem_RawFree(self->twiddle[i]);
+        }
         self->twiddle[i] = (MYFLT *)PyMem_RawMalloc(n8 * sizeof(MYFLT));
+    }
 
     fft_compute_split_twiddle(self->twiddle, self->size);
     self->window = (MYFLT *)PyMem_RawRealloc(self->window, self->size * sizeof(MYFLT));
     gen_window(self->window, self->size, self->wintype);
     self->incount = self->hsize;
     self->freqPerBin = self->sr / self->size;
+
+    self->allocated = 1;
 }
 
 static PyObject *
@@ -4544,6 +4553,7 @@ Spectrum_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->height = 400;
     self->fscaling = 0;
     self->mscaling = 1;
+    self->allocated = 0;
 
     Stream_setFunctionPtr(self->stream, Spectrum_compute_next_data_frame);
     self->mode_func_ptr = Spectrum_setProcMode;
@@ -5010,7 +5020,6 @@ IFFTMatrix_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (indextmp)
     {
         PyObject_CallMethod((PyObject *)self, "setIndex", "O", indextmp);
-        Py_DECREF(indextmp);
     }
 
     if (phasetmp)
