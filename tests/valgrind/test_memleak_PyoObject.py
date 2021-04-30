@@ -4,7 +4,7 @@
 
 from pyo import *
 
-s = Server().boot().start()
+s = Server(audio="manual").boot().start()
 
 a = Sig(1)
 a1 = Sig(Sig(1))

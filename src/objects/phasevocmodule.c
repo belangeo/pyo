@@ -4829,7 +4829,6 @@ PVFilter_traverse(PVFilter *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->input);
     Py_VISIT(self->gain);
-    Py_VISIT(self->table);
     return 0;
 }
 
@@ -4839,7 +4838,6 @@ PVFilter_clear(PVFilter *self)
     pyo_CLEAR
     Py_CLEAR(self->input);
     Py_CLEAR(self->gain);
-    Py_CLEAR(self->table);
     return 0;
 }
 
@@ -5380,8 +5378,6 @@ PVDelay_traverse(PVDelay *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->deltable);
-    Py_VISIT(self->feedtable);
     return 0;
 }
 
@@ -5390,8 +5386,6 @@ PVDelay_clear(PVDelay *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->deltable);
-    Py_CLEAR(self->feedtable);
     return 0;
 }
 
@@ -8916,7 +8910,6 @@ PVBufTabLoops_traverse(PVBufTabLoops *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->speed);
     return 0;
 }
 
@@ -8925,7 +8918,6 @@ PVBufTabLoops_clear(PVBufTabLoops *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->speed);
     return 0;
 }
 

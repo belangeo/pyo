@@ -4,7 +4,7 @@
 
 from pyo import *
 
-s = Server().boot().start()
+s = Server(audio="manual").boot().start()
 
 a = Fader().play()
 a.setFadein(0.01)
@@ -59,14 +59,13 @@ m.input = i2
 m.voice = Sig(0.5)
 
 # VoiceManager
-if False:
-    env = CosTable([(0,0),(100,1),(500,.5),(8192,0)])
-    met = Metro()
-    vm = VoiceManager(met)
-    sel = Select(vm, value=[0,1,2,3])
-    osc = OscTrig(env, sel)
-    amp = TableRead(env, freq=osc)
-    vm.setTriggers(amp["trig"])
+env = CosTable([(0,0),(100,1),(500,.5),(8192,0)])
+met = Metro()
+vm = VoiceManager(met)
+sel = Select(vm, value=[0,1,2,3])
+osc = OscTrig(env, sel)
+amp = TableRead(env, freq=osc)
+vm.setTriggers(amp["trig"])
 
 # Mixer
 a0 = Sine(freq=100, mul=.2)

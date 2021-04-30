@@ -4,7 +4,7 @@
 
 from pyo import *
 
-s = Server().boot().start()
+s = Server(audio="manual").boot().start()
 
 t1 = Trig().play()
 t2 = Trig().play()

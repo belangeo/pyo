@@ -752,8 +752,6 @@ static int
 Granulator_traverse(Granulator *self, visitproc visit, void *arg)
 {
     pyo_VISIT
-    Py_VISIT(self->table);
-    Py_VISIT(self->env);
     Py_VISIT(self->pitch);
     Py_VISIT(self->pos);
     Py_VISIT(self->dur);
@@ -764,8 +762,6 @@ static int
 Granulator_clear(Granulator *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->table);
-    Py_CLEAR(self->env);
     Py_CLEAR(self->pitch);
     Py_CLEAR(self->pos);
     Py_CLEAR(self->dur);
@@ -2152,7 +2148,6 @@ static int
 Looper_traverse(Looper *self, visitproc visit, void *arg)
 {
     pyo_VISIT
-    Py_VISIT(self->table);
     Py_VISIT(self->pitch);
     Py_VISIT(self->start);
     Py_VISIT(self->dur);
@@ -2164,7 +2159,6 @@ static int
 Looper_clear(Looper *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->table);
     Py_CLEAR(self->pitch);
     Py_CLEAR(self->start);
     Py_CLEAR(self->dur);
@@ -3328,8 +3322,6 @@ static int
 Granule_traverse(Granule *self, visitproc visit, void *arg)
 {
     pyo_VISIT
-    Py_VISIT(self->table);
-    Py_VISIT(self->env);
     Py_VISIT(self->dens);
     Py_VISIT(self->pitch);
     Py_VISIT(self->pos);
@@ -3341,8 +3333,6 @@ static int
 Granule_clear(Granule *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->table);
-    Py_CLEAR(self->env);
     Py_CLEAR(self->dens);
     Py_CLEAR(self->pitch);
     Py_CLEAR(self->pos);
@@ -4474,8 +4464,6 @@ static int
 MainParticle_traverse(MainParticle *self, visitproc visit, void *arg)
 {
     pyo_VISIT
-    Py_VISIT(self->table);
-    Py_VISIT(self->env);
     Py_VISIT(self->dens);
     Py_VISIT(self->pitch);
     Py_VISIT(self->pos);
@@ -4489,8 +4477,6 @@ static int
 MainParticle_clear(MainParticle *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->table);
-    Py_CLEAR(self->env);
     Py_CLEAR(self->dens);
     Py_CLEAR(self->pitch);
     Py_CLEAR(self->pos);
@@ -6258,8 +6244,6 @@ static int
 MainParticle2_traverse(MainParticle2 *self, visitproc visit, void *arg)
 {
     pyo_VISIT
-    Py_VISIT(self->table);
-    Py_VISIT(self->env);
     Py_VISIT(self->dens);
     Py_VISIT(self->pitch);
     Py_VISIT(self->pos);
@@ -6276,8 +6260,6 @@ static int
 MainParticle2_clear(MainParticle2 *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->table);
-    Py_CLEAR(self->env);
     Py_CLEAR(self->dens);
     Py_CLEAR(self->pitch);
     Py_CLEAR(self->pos);

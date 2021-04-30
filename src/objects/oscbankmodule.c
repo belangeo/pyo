@@ -428,7 +428,6 @@ static int
 OscBank_traverse(OscBank *self, visitproc visit, void *arg)
 {
     pyo_VISIT
-    Py_VISIT(self->table);
     Py_VISIT(self->freq);
     Py_VISIT(self->spread);
     Py_VISIT(self->slope);
@@ -443,7 +442,6 @@ static int
 OscBank_clear(OscBank *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->table);
     Py_CLEAR(self->freq);
     Py_CLEAR(self->spread);
     Py_CLEAR(self->slope);
