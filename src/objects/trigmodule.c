@@ -1766,7 +1766,6 @@ static int
 TrigEnv_traverse(TrigEnv *self, visitproc visit, void *arg)
 {
     pyo_VISIT
-    Py_VISIT(self->table);
     Py_VISIT(self->input);
     Py_VISIT(self->dur);
     return 0;
@@ -1776,7 +1775,6 @@ static int
 TrigEnv_clear(TrigEnv *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->table);
     Py_CLEAR(self->input);
     Py_CLEAR(self->dur);
     return 0;

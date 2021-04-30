@@ -496,3 +496,42 @@
    Memcheck:Addr4
    fun:PyUnicode_FSConverter
 }
+
+### Portmidi suppressions
+
+{
+   Portmidi init 1
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:pm_strdup
+   fun:pm_linuxalsa_init
+   fun:pm_init
+   fun:Pm_Initialize
+}
+
+{
+   Portmidi init 2
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:find_default_device
+   fun:pm_init
+   fun:Pm_Initialize
+}
+
+{
+   Portmidi OpenOutput
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:Pm_OpenOutput
+}
+
+{
+   Portmidi OpenInput
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:malloc
+   fun:Pm_OpenInput
+}

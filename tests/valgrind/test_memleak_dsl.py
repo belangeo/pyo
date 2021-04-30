@@ -8,7 +8,7 @@
 
 from pyo import *
 
-s = Server().boot().start()
+s = Server(audio="manual").boot().start()
 
 i1 = Sig(0)
 i2 = Sig(0)

@@ -143,7 +143,6 @@ Convolve_traverse(Convolve *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->table);
     return 0;
 }
 
@@ -152,7 +151,6 @@ Convolve_clear(Convolve *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->table);
     return 0;
 }
 

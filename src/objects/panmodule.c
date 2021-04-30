@@ -2011,7 +2011,7 @@ typedef struct
     pyo_audio_HEAD
     PyObject *input;
     Stream *input_stream;
-    Stream **trigger_streams;
+    PyObject *trigger_streams;
     int maxVoices;
     int *voices;
     int modebuffer[2]; // need at least 2 slots for mul & add
@@ -2021,6 +2021,7 @@ static void
 VoiceManager_generate(VoiceManager *self)
 {
     int j, i;
+    Stream *trig_stream;
 
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
 
@@ -2033,7 +2034,8 @@ VoiceManager_generate(VoiceManager *self)
         {
             for (j = 0; j < self->maxVoices; j++)
             {
-                if (Stream_getData(self->trigger_streams[j])[i] == 1.0)
+                trig_stream = (Stream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->trigger_streams, j), "_getStream", NULL);
+                if (Stream_getData(trig_stream)[i] == 1.0)
                     self->voices[j] = 0;
             }
 
@@ -2143,7 +2145,6 @@ VoiceManager_dealloc(VoiceManager* self)
     if (self->voices != NULL)
     {
         PyMem_RawFree(self->voices);
-        PyMem_RawFree(self->trigger_streams);
     }
 
     Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
@@ -2228,13 +2229,15 @@ VoiceManager_setTriggers(VoiceManager *self, PyObject *arg)
         Py_RETURN_NONE;
     }
 
+    Py_INCREF(arg);
+    Py_XDECREF(self->trigger_streams);
+    self->trigger_streams = arg;
+
     self->maxVoices = PyList_Size(arg);
-    self->trigger_streams = (Stream **)PyMem_RawRealloc(self->trigger_streams, self->maxVoices * sizeof(Stream *));
     self->voices = (int *)PyMem_RawRealloc(self->voices, self->maxVoices * sizeof(int));
 
     for (i = 0; i < self->maxVoices; i++)
     {
-        self->trigger_streams[i] = (Stream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(arg, i), "_getStream", NULL);
         self->voices[i] = 0;
     }
 

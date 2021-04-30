@@ -4,7 +4,7 @@
 
 from pyo import *
 
-s = Server().boot().start()
+s = Server(audio="manual").boot().start()
 
 a = Randi()
 a.min = Sig(0.5)

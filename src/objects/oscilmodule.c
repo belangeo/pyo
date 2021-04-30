@@ -1835,7 +1835,6 @@ static int
 Osc_traverse(Osc *self, visitproc visit, void *arg)
 {
     pyo_VISIT
-    Py_VISIT(self->table);
     Py_VISIT(self->phase);
     Py_VISIT(self->freq);
     return 0;
@@ -1845,7 +1844,6 @@ static int
 Osc_clear(Osc *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->table);
     Py_CLEAR(self->phase);
     Py_CLEAR(self->freq);
     return 0;
@@ -2398,7 +2396,6 @@ static int
 OscLoop_traverse(OscLoop *self, visitproc visit, void *arg)
 {
     pyo_VISIT
-    Py_VISIT(self->table);
     Py_VISIT(self->feedback);
     Py_VISIT(self->freq);
     return 0;
@@ -2408,7 +2405,6 @@ static int
 OscLoop_clear(OscLoop *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->table);
     Py_CLEAR(self->feedback);
     Py_CLEAR(self->freq);
     return 0;
@@ -2966,7 +2962,6 @@ static int
 OscTrig_traverse(OscTrig *self, visitproc visit, void *arg)
 {
     pyo_VISIT
-    //Py_VISIT(self->table);
     Py_VISIT(self->phase);
     Py_VISIT(self->freq);
     Py_VISIT(self->trig);
@@ -2977,7 +2972,6 @@ static int
 OscTrig_clear(OscTrig *self)
 {
     pyo_CLEAR
-    //Py_CLEAR(self->table);
     Py_CLEAR(self->phase);
     Py_CLEAR(self->freq);
     Py_CLEAR(self->trig);
@@ -3952,7 +3946,6 @@ static int
 Pointer_traverse(Pointer *self, visitproc visit, void *arg)
 {
     pyo_VISIT
-    Py_VISIT(self->table);
     Py_VISIT(self->index);
     return 0;
 }
@@ -3961,7 +3954,6 @@ static int
 Pointer_clear(Pointer *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->table);
     Py_CLEAR(self->index);
     return 0;
 }
@@ -4341,7 +4333,6 @@ static int
 Pointer2_traverse(Pointer2 *self, visitproc visit, void *arg)
 {
     pyo_VISIT
-    Py_VISIT(self->table);
     Py_VISIT(self->index);
     return 0;
 }
@@ -4350,7 +4341,6 @@ static int
 Pointer2_clear(Pointer2 *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->table);
     Py_CLEAR(self->index);
     return 0;
 }
@@ -4740,7 +4730,6 @@ static int
 TableIndex_traverse(TableIndex *self, visitproc visit, void *arg)
 {
     pyo_VISIT
-    Py_VISIT(self->table);
     Py_VISIT(self->index);
     return 0;
 }
@@ -4749,7 +4738,6 @@ static int
 TableIndex_clear(TableIndex *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->table);
     Py_CLEAR(self->index);
     return 0;
 }
@@ -5106,7 +5094,6 @@ static int
 Lookup_traverse(Lookup *self, visitproc visit, void *arg)
 {
     pyo_VISIT
-    Py_VISIT(self->table);
     Py_VISIT(self->index);
     return 0;
 }
@@ -5115,7 +5102,6 @@ static int
 Lookup_clear(Lookup *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->table);
     Py_CLEAR(self->index);
     return 0;
 }
@@ -5907,8 +5893,6 @@ static int
 Pulsar_traverse(Pulsar *self, visitproc visit, void *arg)
 {
     pyo_VISIT
-    Py_VISIT(self->table);
-    Py_VISIT(self->env);
     Py_VISIT(self->phase);
     Py_VISIT(self->freq);
     Py_VISIT(self->frac);
@@ -5919,8 +5903,6 @@ static int
 Pulsar_clear(Pulsar *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->table);
-    Py_CLEAR(self->env);
     Py_CLEAR(self->phase);
     Py_CLEAR(self->freq);
     Py_CLEAR(self->frac);
@@ -6542,7 +6524,6 @@ static int
 TableRead_traverse(TableRead *self, visitproc visit, void *arg)
 {
     pyo_VISIT
-    Py_VISIT(self->table);
     Py_VISIT(self->freq);
     return 0;
 }
@@ -6551,7 +6532,6 @@ static int
 TableRead_clear(TableRead *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->table);
     Py_CLEAR(self->freq);
     return 0;
 }
@@ -13637,8 +13617,6 @@ static int
 TableScale_traverse(TableScale *self, visitproc visit, void *arg)
 {
     pyo_VISIT
-    Py_VISIT(self->table);
-    Py_VISIT(self->outtable);
     return 0;
 }
 
@@ -13646,8 +13624,6 @@ static int
 TableScale_clear(TableScale *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->table);
-    Py_CLEAR(self->outtable);
     return 0;
 }
 
@@ -13922,7 +13898,6 @@ TableFill_traverse(TableFill *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->table);
     return 0;
 }
 
@@ -13931,7 +13906,6 @@ TableFill_clear(TableFill *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->table);
     return 0;
 }
 
@@ -14168,7 +14142,6 @@ static int
 TableScan_traverse(TableScan *self, visitproc visit, void *arg)
 {
     pyo_VISIT
-    Py_VISIT(self->table);
     return 0;
 }
 
@@ -14176,7 +14149,6 @@ static int
 TableScan_clear(TableScan *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->table);
     return 0;
 }
 
