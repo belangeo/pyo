@@ -535,3 +535,60 @@
    fun:malloc
    fun:Pm_OpenInput
 }
+
+{
+   Portmidi QueueCreate
+   Memcheck:Leak
+   match-leak-kinds: indirect
+   fun:malloc
+   fun:Pm_QueueCreate
+   fun:Pm_OpenInput
+   fun:Server_pm_init
+   fun:Server_boot
+}
+
+{
+   Portmidi OpenInput (indirect)
+   Memcheck:Leak
+   match-leak-kinds: indirect
+   fun:malloc
+   obj:/usr/lib/x86_64-linux-gnu/libportmidi.so.0.0.0
+   fun:Pm_OpenInput
+   fun:Server_pm_init
+   fun:Server_boot
+}
+
+{
+   Portmidi OpenOutput (indirect)
+   Memcheck:Leak
+   match-leak-kinds: indirect
+   fun:malloc
+   obj:/usr/lib/x86_64-linux-gnu/libportmidi.so.0.0.0
+   fun:Pm_OpenOutput
+   fun:Server_pm_init
+   fun:Server_boot
+}
+
+{
+   Portmidi OpenOutput 2 (indirect)
+   Memcheck:Leak
+   match-leak-kinds: indirect
+   fun:calloc
+   fun:snd_midi_event_new
+   obj:/usr/lib/x86_64-linux-gnu/libportmidi.so.0.0.0
+   fun:Pm_OpenOutput
+   fun:Server_pm_init
+   fun:Server_boot
+}
+
+{
+   Portmidi OpenOutput 3 (indirect)
+   Memcheck:Leak
+   match-leak-kinds: indirect
+   fun:malloc
+   fun:snd_midi_event_new
+   obj:/usr/lib/x86_64-linux-gnu/libportmidi.so.0.0.0
+   fun:Pm_OpenOutput
+   fun:Server_pm_init
+   fun:Server_boot
+}
