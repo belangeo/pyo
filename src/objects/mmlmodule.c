@@ -104,8 +104,6 @@ MMLMain_consume(MMLMain *self, int i)
         }
     }
 
-    PyObject *first = NULL;
-    PyObject *c = NULL;
     PyObject *event = PyList_GetItem(self->sequence, self->count);
 
     self->count++;
@@ -173,8 +171,7 @@ MMLMain_consume(MMLMain *self, int i)
 
     Py_ssize_t eventSize = PySequence_Size(event);
 
-    first = PySequence_GetItem(event, 0);
-
+    PyObject *first = PySequence_GetItem(event, 0);
     PyObject *openBarToken = PyUnicode_FromString("|:");
     PyObject *closeBarToken = PyUnicode_FromString(":|");
     PyObject *plusToken = PyUnicode_FromString("+");
@@ -215,7 +212,11 @@ MMLMain_consume(MMLMain *self, int i)
         }
         else
         {
-            self->octave = 12 * PyLong_AsLong(PyLong_FromUnicodeObject(PySequence_GetItem(event, 1), 10));
+            PyObject *octaveValue = PySequence_GetItem(event, 1);
+            PyObject *octaveValueAsLong = PyLong_FromUnicodeObject(octaveValue, 10);
+            self->octave = 12 * PyLong_AsLong(octaveValueAsLong);
+            Py_DECREF(octaveValue);
+            Py_DECREF(octaveValueAsLong);
         }
 
         MMLMain_consume(self, i);
@@ -540,13 +541,11 @@ MMLMain_consume(MMLMain *self, int i)
 
         if (eventSize > 2)
         {
-            c = PySequence_GetItem(event, 1);
-
-            if (PyUnicode_Compare(c, plusToken) == 0)
+            if (PyUnicode_Compare(second, plusToken) == 0)
             {
                 pitch += 1;
             }
-            else if (PyUnicode_Compare(c, minusToken) == 0)
+            else if (PyUnicode_Compare(second, minusToken) == 0)
             {
                 pitch -= 1;
             }
@@ -558,19 +557,19 @@ MMLMain_consume(MMLMain *self, int i)
         }
         else if (eventSize > 1)
         {
-            c = PySequence_GetItem(event, 1);
-
-            if (PyUnicode_Compare(c, plusToken) == 0)
+            if (PyUnicode_Compare(second, plusToken) == 0)
             {
                 pitch += 1;
             }
-            else if (PyUnicode_Compare(c, minusToken) == 0)
+            else if (PyUnicode_Compare(second, minusToken) == 0)
             {
                 pitch -= 1;
             }
             else
             {
-                pos = PyLong_AsLong(PyLong_FromUnicodeObject(PySequence_GetItem(event, 1), 10));
+                PyObject *posValueAsLong = PyLong_FromUnicodeObject(second, 10);
+                pos = PyLong_AsLong(posValueAsLong);
+                Py_DECREF(posValueAsLong);
                 pos = pos < 0 ? 0 : pos > 9 ? 9 : pos;
                 self->currentDurationCode = pos;
                 duration = self->durOfWhole * MML_DURATIONS[pos] / self->currentDivider;
@@ -602,7 +601,6 @@ MMLMain_consume(MMLMain *self, int i)
         Py_DECREF(second);
         Py_DECREF(eventTwoFirstChars);
     }
-
 }
 
 static void
