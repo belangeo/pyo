@@ -646,15 +646,6 @@ class Expr(PyoObject):
         createExprEditorWindow(self, title, wxnoserver)
 
     @property
-    def input(self):
-        """PyoObject. Input signal to process."""
-        return self._input
-
-    @input.setter
-    def input(self, x):
-        self.setInput(x)
-
-    @property
     def expr(self):
         """string. New expression to process."""
         return self._expr
