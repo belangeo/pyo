@@ -243,14 +243,6 @@ class Expr(PyoObject):
         return x
 
     @property
-    def input(self):
-        return self._input
-
-    @input.setter
-    def input(self, x):
-        self.setInput(x)
-
-    @property
     def expr(self):
         return self._expr
 
