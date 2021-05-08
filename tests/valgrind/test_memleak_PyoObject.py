@@ -40,8 +40,6 @@ a /= Sig(0.5)
 a -= 0.5
 a -= Sig(0.5)
 
-#a[0] *= 0.5
-
 b = Sig(1)
 b.mul = a[0] * 0.5
 b.mul = a[0] * a[0]
@@ -52,17 +50,25 @@ b.mul = a[0] / a[0]
 b.mul = a[0] - 0.5
 b.mul = a[0] - a[0]
 
+c = Sig(1)
+c[0] *= 0.5
+s.process()
+print(c.get())
 
-#a = RCOsc(mul=b)
+d = Sig(1)
+d[0] += 0.5
+s.process()
+print(d.get())
 
-#a = RCOsc(); a.sharp = Sig(0.5)
-#a = RCOsc(); a.sharp = Sig(0.5); a.freq = Sig(100)
-#a = RCOsc(sharp=Sig(0.5))
-#a = RCOsc(freq=Sig(100), sharp=Sig(0.5))
-#_a = Sig(0.5); a = RCOsc(sharp=_a)
+e = Sig(1)
+e[0] /= 0.5
+s.process()
+print(e.get())
 
-#a = RCOsc(); b = Sig(a)
-#a = RCOsc(); b = Sig(a); c = Sig(b)
+f = Sig(1)
+f[0] -= 0.5
+s.process()
+print(f.get())
 
 s.process()
 s.stop()

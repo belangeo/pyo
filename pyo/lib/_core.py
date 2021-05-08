@@ -445,6 +445,9 @@ class PyoObjectBase(object):
                 args = (self._STREAM_TYPE, self.__class__.__name__)
                 print("'i' too large in indexing %s object %s!" % args)
 
+    def __setitem__(self, i, x):
+        self._base_objs[i] = x
+
     def __len__(self):
         return len(self._base_objs)
 
