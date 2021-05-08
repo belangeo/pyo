@@ -5602,12 +5602,16 @@ TableMorph_compute_next_data_frame(TableMorph *self)
 
     MYFLT *tab1 = TableStream_getData((TableStream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->sources, x), "getTableStream", ""));
     MYFLT *tab2 = TableStream_getData((TableStream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->sources, y), "getTableStream", ""));
+    T_SIZE_T size1 = TableStream_getSize((TableStream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->sources, x), "getTableStream", ""));
+    T_SIZE_T size2 = TableStream_getSize((TableStream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->sources, y), "getTableStream", ""));
+
+    size = size < size1 ? size : size1;
+    size = size < size2 ? size : size2;
 
     interp = MYFMOD(interp, 1.0);
     interp1 = 1. - interp;
     interp2 = interp;
 
-    //MYFLT buffer[size];
     for (i = 0; i < size; i++)
     {
         self->buffer[i] = tab1[i] * interp1 + tab2[i] * interp2;
