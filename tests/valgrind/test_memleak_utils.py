@@ -60,7 +60,7 @@ l.inmin = Sig(0.1)
 l.inmax = Sig(1.1)
 l.outmin = Sig(0.1)
 l.outmax = Sig(1.1)
-#l.exp = Sig(3)
+l.exp = Sig(3)
 
 m = CentsToTranspo(i1)
 m.input = i2
