@@ -73,3 +73,10 @@ spectral domain.
 
    .. autoclasstoc::
 
+*IFFTMatrix*
+-----------------------------------
+
+.. autoclass:: IFFTMatrix
+   :members:
+
+   .. autoclasstoc::

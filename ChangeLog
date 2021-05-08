@@ -1,5 +1,9 @@
 2021-05-08 belangeo <belangeo@gmail.com>
 
+    * Added documentation for IFFTMatrix object.
+
+2021-05-08 belangeo <belangeo@gmail.com>
+
     * Added support for item assigment in PyoObjectBase.
 
 2021-01-24 belangeo <belangeo@gmail.com>
