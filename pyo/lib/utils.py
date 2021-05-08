@@ -1394,7 +1394,7 @@ class Scale(PyoObject):
             Minimum output value. Defaults to 0.
         outmax: float or PyoObject, optional
             Maximum output value. Defaults to 1.
-        exp: float, optional
+        exp: float or PyoObject, optional
             Exponent value, specifies the nature of the scaling curve.
             Values between 0 and 1 give a reversed curve.  Defaults to 1.0.
 
@@ -1410,7 +1410,7 @@ class Scale(PyoObject):
     """
 
     def __init__(self, input, inmin=0, inmax=1, outmin=0, outmax=1, exp=1, mul=1, add=0):
-        pyoArgsAssert(self, "oOOOOnOO", input, inmin, inmax, outmin, outmax, exp, mul, add)
+        pyoArgsAssert(self, "oOOOOOOO", input, inmin, inmax, outmin, outmax, exp, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._inmin = inmin
@@ -1519,11 +1519,11 @@ class Scale(PyoObject):
 
         :Args:
 
-            x: float
+            x: float or PyoObject
                 New `exp` attribute.
 
         """
-        pyoArgsAssert(self, "n", x)
+        pyoArgsAssert(self, "O", x)
         self._exp = x
         x, lmax = convertArgsToLists(x)
         [obj.setExp(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
