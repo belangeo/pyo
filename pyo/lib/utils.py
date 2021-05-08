@@ -553,7 +553,7 @@ class AToDB(PyoObject):
 class Scale(PyoObject):
 
     def __init__(self, input, inmin=0, inmax=1, outmin=0, outmax=1, exp=1, mul=1, add=0):
-        pyoArgsAssert(self, "oOOOOnOO", input, inmin, inmax, outmin, outmax, exp, mul, add)
+        pyoArgsAssert(self, "oOOOOOOO", input, inmin, inmax, outmin, outmax, exp, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._inmin = inmin
@@ -610,7 +610,7 @@ class Scale(PyoObject):
         [obj.setOutMax(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def setExp(self, x):
-        pyoArgsAssert(self, "n", x)
+        pyoArgsAssert(self, "O", x)
         self._exp = x
         x, lmax = convertArgsToLists(x)
         [obj.setExp(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
