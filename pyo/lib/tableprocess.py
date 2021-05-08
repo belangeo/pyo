@@ -2028,6 +2028,10 @@ class TableMorph(PyoObject):
 
     .. note::
 
+        The smaller size among the output table and the two current tables to
+        interpolate is used to determine the number of samples to process. Using
+        tables with different size can produce strange behaviours.
+
         The out() method is bypassed. TableMorph returns no signal.
 
         TableMorph has no `mul` and `add` attributes.
