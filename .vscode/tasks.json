@@ -4,9 +4,23 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "Compile linux debug (single, jack)",
+            "type": "shell",
+            "command": "cd ${workspaceRoot}; python3 setup.py bdist_wheel --use-jack --debug --fast-compile; python3 -m pip install --user --force-reinstall dist/pyo-1.0.3-cp37-cp37m-linux_x86_64.whl",
+            "problemMatcher": [],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            }
+        },
+        {
             "label": "Compile linux (single, jack)",
             "type": "shell",
-            "command": "cd ${workspaceRoot}; sudo python3 setup.py bdist_wheel --use-jack; sudo python3 -m pip install --force-reinstall dist/pyo-1.0.3-cp37-cp37m-linux_x86_64.whl",
+            "command": "cd ${workspaceRoot}; python3 setup.py bdist_wheel --use-jack; python3 -m pip install --user --force-reinstall dist/pyo-1.0.3-cp37-cp37m-linux_x86_64.whl",
             "problemMatcher": [],
             "presentation": {
                 "echo": true,
@@ -20,7 +34,7 @@
         {
             "label": "Compile linux (double, jack)",
             "type": "shell",
-            "command": "cd ${workspaceRoot}; sudo python3 setup.py bdist_wheel --use-jack --use-double; sudo python3 -m pip install --force-reinstall dist/pyo-1.0.3-cp37-cp37m-linux_x86_64.whl",
+            "command": "cd ${workspaceRoot}; python3 setup.py bdist_wheel --use-jack --use-double; python3 -m pip install --user --force-reinstall dist/pyo-1.0.3-cp37-cp37m-linux_x86_64.whl",
             "problemMatcher": [],
             "presentation": {
                 "echo": true,
@@ -92,7 +106,7 @@
             "isShellCommand": true,
             "showOutput": "always",
             "type": "shell",
-            "command": "cd ${workspaceRoot}; sudo rm -rf build",
+            "command": "cd ${workspaceRoot}; rm -rf build dist",
             "problemMatcher": [],
             "presentation": {
                 "echo": true,
