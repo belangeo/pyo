@@ -303,8 +303,6 @@ SfPlayer_traverse(SfPlayer *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->speed);
-    Py_VISIT(self->speed_stream);
-    Py_VISIT(self->trig_stream);
     return 0;
 }
 
@@ -313,8 +311,6 @@ SfPlayer_clear(SfPlayer *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->speed);
-    Py_CLEAR(self->speed_stream);
-    Py_CLEAR(self->trig_stream);
     return 0;
 }
 
@@ -329,6 +325,8 @@ SfPlayer_dealloc(SfPlayer* self)
     PyMem_RawFree(self->trigsBuffer);
     PyMem_RawFree(self->samplesBuffer);
     SfPlayer_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
+    Py_TYPE(self->trig_stream)->tp_free((PyObject*)self->trig_stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -360,6 +358,7 @@ SfPlayer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (speedtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setSpeed", "O", speedtmp);
+        Py_DECREF(speedtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -444,6 +443,7 @@ SfPlayer_setSpeed(SfPlayer *self, PyObject *arg)
     else
     {
         self->speed = tmp;
+        Py_INCREF(self->speed);
         streamtmp = PyObject_CallMethod((PyObject *)self->speed, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->speed_stream);
@@ -716,6 +716,7 @@ SfPlay_dealloc(SfPlay* self)
 {
     pyo_DEALLOC
     SfPlay_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -747,11 +748,13 @@ SfPlay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1328,7 +1331,6 @@ SfMarkerShuffler_traverse(SfMarkerShuffler *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->speed);
-    Py_VISIT(self->speed_stream);
     return 0;
 }
 
@@ -1337,7 +1339,6 @@ SfMarkerShuffler_clear(SfMarkerShuffler *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->speed);
-    Py_CLEAR(self->speed_stream);
     return 0;
 }
 
@@ -1352,6 +1353,7 @@ SfMarkerShuffler_dealloc(SfMarkerShuffler* self)
     PyMem_RawFree(self->samplesBuffer);
     PyMem_RawFree(self->markers);
     SfMarkerShuffler_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1383,6 +1385,7 @@ SfMarkerShuffler_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (speedtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setSpeed", "O", speedtmp);
+        Py_DECREF(speedtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1456,6 +1459,7 @@ SfMarkerShuffler_setSpeed(SfMarkerShuffler *self, PyObject *arg)
     else
     {
         self->speed = tmp;
+        Py_INCREF(self->speed);
         streamtmp = PyObject_CallMethod((PyObject *)self->speed, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->speed_stream);
@@ -1745,6 +1749,7 @@ SfMarkerShuffle_dealloc(SfMarkerShuffle* self)
 {
     pyo_DEALLOC
     SfMarkerShuffle_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1776,11 +1781,13 @@ SfMarkerShuffle_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -2230,9 +2237,7 @@ SfMarkerLooper_traverse(SfMarkerLooper *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->speed);
-    Py_VISIT(self->speed_stream);
     Py_VISIT(self->mark);
-    Py_VISIT(self->mark_stream);
     return 0;
 }
 
@@ -2241,9 +2246,7 @@ SfMarkerLooper_clear(SfMarkerLooper *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->speed);
-    Py_CLEAR(self->speed_stream);
     Py_CLEAR(self->mark);
-    Py_CLEAR(self->mark_stream);
     return 0;
 }
 
@@ -2258,6 +2261,7 @@ SfMarkerLooper_dealloc(SfMarkerLooper* self)
     PyMem_RawFree(self->samplesBuffer);
     PyMem_RawFree(self->markers);
     SfMarkerLooper_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -2292,11 +2296,13 @@ SfMarkerLooper_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (speedtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setSpeed", "O", speedtmp);
+        Py_DECREF(speedtmp);
     }
 
     if (marktmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMark", "O", marktmp);
+        Py_DECREF(marktmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -2368,6 +2374,7 @@ SfMarkerLooper_setSpeed(SfMarkerLooper *self, PyObject *arg)
     else
     {
         self->speed = tmp;
+        Py_INCREF(self->speed);
         streamtmp = PyObject_CallMethod((PyObject *)self->speed, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->speed_stream);
@@ -2399,6 +2406,7 @@ SfMarkerLooper_setMark(SfMarkerLooper *self, PyObject *arg)
     else
     {
         self->mark = tmp;
+        Py_INCREF(self->mark);
         streamtmp = PyObject_CallMethod((PyObject *)self->mark, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->mark_stream);
@@ -2610,6 +2618,7 @@ SfMarkerLoop_dealloc(SfMarkerLoop* self)
 {
     pyo_DEALLOC
     SfMarkerLoop_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -2641,11 +2650,13 @@ SfMarkerLoop_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);

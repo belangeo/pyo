@@ -47,7 +47,11 @@ int OscReceiver_handler(const char *path, const char *types, lo_arg **argv, int 
                         void *data, void *user_data)
 {
     OscReceiver *self = user_data;
-    PyDict_SetItem(self->dict, PyUnicode_FromString(path), PyFloat_FromDouble(argv[0]->FLOAT_VALUE));
+    PyObject *pathObj = PyUnicode_FromString(path);
+    PyObject *valueObj = PyFloat_FromDouble(argv[0]->FLOAT_VALUE);
+    PyDict_SetItem(self->dict, pathObj, valueObj);
+    Py_DECREF(pathObj);
+    Py_DECREF(valueObj);
     return 0;
 }
 
@@ -88,6 +92,7 @@ OscReceiver_dealloc(OscReceiver* self)
     lo_server_free(self->osc_server);
     pyo_DEALLOC
     OscReceiver_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -125,10 +130,12 @@ OscReceiver_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     int lsize = PyList_Size(self->address_path);
 
+    PyObject *zero = PyFloat_FromDouble(0.);
     for (i = 0; i < lsize; i++)
     {
-        PyDict_SetItem(self->dict, PyList_GET_ITEM(self->address_path, i), PyFloat_FromDouble(0.));
+        PyDict_SetItem(self->dict, PyList_GET_ITEM(self->address_path, i), zero);
     }
+    Py_DECREF(zero);
 
     char buf[20];
     sprintf(buf, "%i", self->port);
@@ -146,16 +153,20 @@ OscReceiver_addAddress(OscReceiver *self, PyObject *arg)
 
     if (PY_STRING_CHECK(arg))
     {
-        PyDict_SetItem(self->dict, arg, PyFloat_FromDouble(0.));
+        PyObject *zero = PyFloat_FromDouble(0.);
+        PyDict_SetItem(self->dict, arg, zero);
+        Py_DECREF(zero);
     }
     else if (PyList_Check(arg))
     {
         Py_ssize_t lsize = PyList_Size(arg);
 
+        PyObject *zero = PyFloat_FromDouble(0.);
         for (i = 0; i < lsize; i++)
         {
-            PyDict_SetItem(self->dict, PyList_GET_ITEM(arg, i), PyFloat_FromDouble(0.));
+            PyDict_SetItem(self->dict, PyList_GET_ITEM(arg, i), zero);
         }
+        Py_DECREF(zero);
     }
 
     Py_RETURN_NONE;
@@ -379,6 +390,7 @@ OscReceive_dealloc(OscReceive* self)
 {
     pyo_DEALLOC
     OscReceive_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -414,11 +426,13 @@ OscReceive_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -621,7 +635,6 @@ OscSend_traverse(OscSend *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->address_path);
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     return 0;
 }
 
@@ -631,7 +644,6 @@ OscSend_clear(OscSend *self)
     pyo_CLEAR
     Py_CLEAR(self->address_path);
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     return 0;
 }
 
@@ -639,7 +651,9 @@ static void
 OscSend_dealloc(OscSend* self)
 {
     pyo_DEALLOC
+    lo_address_free(self->address);
     OscSend_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -912,7 +926,9 @@ static void
 OscDataSend_dealloc(OscDataSend* self)
 {
     pyo_DEALLOC
+    lo_address_free(self->address);
     OscDataSend_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1206,6 +1222,7 @@ OscDataReceive_dealloc(OscDataReceive* self)
     lo_server_free(self->osc_server);
     pyo_DEALLOC
     OscDataReceive_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1229,6 +1246,7 @@ OscDataReceive_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     Py_XDECREF(self->callable);
     self->callable = calltmp;
+    Py_INCREF(self->callable);
 
     if (PyList_Check(pathtmp))
     {
@@ -1375,10 +1393,15 @@ int OscListReceiver_handler(const char *path, const char *types, lo_arg **argv, 
 
     for (i = 0; i < self->num; i++)
     {
-        PyList_SET_ITEM(flist, i, PyFloat_FromDouble(argv[i]->FLOAT_VALUE));
+        PyObject *valueObj = PyFloat_FromDouble(argv[i]->FLOAT_VALUE);
+        PyList_SET_ITEM(flist, i, valueObj);
+        Py_DECREF(valueObj);
     }
 
-    PyDict_SetItem(self->dict, PyUnicode_FromString(path), flist);
+    PyObject *pathObj = PyUnicode_FromString(path);
+    PyDict_SetItem(self->dict, pathObj, flist);
+    Py_DECREF(pathObj);
+    Py_DECREF(flist);
     return 0;
 }
 
@@ -1420,6 +1443,7 @@ OscListReceiver_dealloc(OscListReceiver* self)
     lo_server_free(self->osc_server);
     pyo_DEALLOC
     OscListReceiver_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1443,7 +1467,9 @@ OscListReceiver_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
+    Py_XDECREF(self->dict);
     self->dict = PyDict_New();
+    Py_INCREF(self->dict);
 
     if (PyList_Check(pathtmp))
     {
@@ -1459,17 +1485,20 @@ OscListReceiver_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     int lsize = PyList_Size(self->address_path);
 
+    PyObject *zero = PyFloat_FromDouble(0.);
     for (i = 0; i < lsize; i++)
     {
         flist = PyList_New(self->num);
 
         for (j = 0; j < self->num; j++)
         {
-            PyList_SET_ITEM(flist, j, PyFloat_FromDouble(0.));
+            PyList_SET_ITEM(flist, j, zero);
         }
 
         PyDict_SetItem(self->dict, PyList_GET_ITEM(self->address_path, i), flist);
+        Py_DECREF(flist);
     }
+    Py_DECREF(zero);
 
     char buf[20];
     sprintf(buf, "%i", self->port);
@@ -1490,10 +1519,12 @@ OscListReceiver_addAddress(OscListReceiver *self, PyObject *arg)
     {
         flist = PyList_New(self->num);
 
+        PyObject *zero = PyFloat_FromDouble(0.);
         for (j = 0; j < self->num; j++)
         {
-            PyList_SET_ITEM(flist, j, PyFloat_FromDouble(0.));
+            PyList_SET_ITEM(flist, j, zero);
         }
+        Py_DECREF(zero);
 
         PyDict_SetItem(self->dict, arg, flist);
     }
@@ -1501,17 +1532,19 @@ OscListReceiver_addAddress(OscListReceiver *self, PyObject *arg)
     {
         Py_ssize_t lsize = PyList_Size(arg);
 
+        PyObject *zero = PyFloat_FromDouble(0.);
         for (i = 0; i < lsize; i++)
         {
             flist = PyList_New(self->num);
 
             for (j = 0; j < self->num; j++)
             {
-                PyList_SET_ITEM(flist, j, PyFloat_FromDouble(0.));
+                PyList_SET_ITEM(flist, j, zero);
             }
 
             PyDict_SetItem(self->dict, PyList_GET_ITEM(arg, i), flist);
         }
+        Py_DECREF(zero);
     }
 
     Py_RETURN_NONE;
@@ -1739,6 +1772,7 @@ OscListReceive_dealloc(OscListReceive* self)
 {
     pyo_DEALLOC
     OscListReceive_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1775,11 +1809,13 @@ OscListReceive_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);

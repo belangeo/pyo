@@ -368,6 +368,8 @@ p_sndinfo(PyObject *self, PyObject *args, PyObject *kwds)
     format = (int)info.format & SF_FORMAT_TYPEMASK;
     subformat = (int)info.format & SF_FORMAT_SUBMASK;
 
+    sf_close(sf);
+
     if (format == SF_FORMAT_WAV)
         strcpy(fileformat, "WAVE");
     else if (format == SF_FORMAT_AIFF)
@@ -418,11 +420,7 @@ p_sndinfo(PyObject *self, PyObject *args, PyObject *kwds)
                           path, (int)info.frames, ((float)info.frames / info.samplerate), (float)info.samplerate, (int)info.channels,
                           fileformat, sampletype);
 
-    PyObject *sndinfos = PyTuple_Pack(6, PyInt_FromLong(info.frames), PyFloat_FromDouble((float)info.frames / info.samplerate),
-                                      PyFloat_FromDouble(info.samplerate), PyInt_FromLong(info.channels),
-                                      PyUnicode_FromString(fileformat), PyUnicode_FromString(sampletype));
-    sf_close(sf);
-    return sndinfos;
+    return Py_BuildValue("lffiss", info.frames, (float)info.frames / info.samplerate, (float)info.samplerate, info.channels, fileformat, sampletype);
 }
 
 static PyObject *

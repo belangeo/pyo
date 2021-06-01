@@ -299,6 +299,13 @@ HRTFData_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         }
     }
 
+    for (i = 0; i < 4; i++)
+    {
+        PyMem_RawFree(twiddle[i]);
+    }
+
+    PyMem_RawFree(twiddle);
+
     return (PyObject *)self;
 }
 
@@ -605,11 +612,8 @@ HRTFSpatter_traverse(HRTFSpatter *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->hrtfdata);
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     Py_VISIT(self->azi);
-    Py_VISIT(self->azi_stream);
     Py_VISIT(self->ele);
-    Py_VISIT(self->ele_stream);
     return 0;
 }
 
@@ -619,11 +623,8 @@ HRTFSpatter_clear(HRTFSpatter *self)
     pyo_CLEAR
     Py_CLEAR(self->hrtfdata);
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     Py_CLEAR(self->azi);
-    Py_CLEAR(self->azi_stream);
     Py_CLEAR(self->ele);
-    Py_CLEAR(self->ele_stream);
     return 0;
 }
 
@@ -651,6 +652,7 @@ HRTFSpatter_dealloc(HRTFSpatter* self)
 
     PyMem_RawFree(self->twiddle);
     HRTFSpatter_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -691,11 +693,13 @@ HRTFSpatter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (azitmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAzimuth", "O", azitmp);
+        Py_DECREF(azitmp);
     }
 
     if (eletmp)
     {
         PyObject_CallMethod((PyObject *)self, "setElevation", "O", eletmp);
+        Py_DECREF(eletmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -767,6 +771,7 @@ HRTFSpatter_setAzimuth(HRTFSpatter *self, PyObject *arg)
     else
     {
         self->azi = tmp;
+        Py_INCREF(self->azi);
         streamtmp = PyObject_CallMethod((PyObject *)self->azi, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->azi_stream);
@@ -800,6 +805,7 @@ HRTFSpatter_setElevation(HRTFSpatter *self, PyObject *arg)
     else
     {
         self->ele = tmp;
+        Py_INCREF(self->ele);
         streamtmp = PyObject_CallMethod((PyObject *)self->ele, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->ele_stream);
@@ -980,6 +986,7 @@ HRTF_dealloc(HRTF* self)
 {
     pyo_DEALLOC
     HRTF_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1010,11 +1017,13 @@ HRTF_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1341,15 +1350,10 @@ Binauraler_traverse(Binauraler *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
     Py_VISIT(self->azi);
-    Py_VISIT(self->azi_stream);
     Py_VISIT(self->ele);
-    Py_VISIT(self->ele_stream);
     Py_VISIT(self->azispan);
-    Py_VISIT(self->azispan_stream);
     Py_VISIT(self->elespan);
-    Py_VISIT(self->elespan_stream);
     return 0;
 }
 
@@ -1358,15 +1362,10 @@ Binauraler_clear(Binauraler *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
     Py_CLEAR(self->azi);
-    Py_CLEAR(self->azi_stream);
     Py_CLEAR(self->ele);
-    Py_CLEAR(self->ele_stream);
     Py_CLEAR(self->azispan);
-    Py_CLEAR(self->azispan_stream);
     Py_CLEAR(self->elespan);
-    Py_CLEAR(self->elespan_stream);
     return 0;
 }
 
@@ -1385,6 +1384,7 @@ Binauraler_dealloc(Binauraler* self)
 
     PyMem_RawFree(self->vbap_buffer);
     Binauraler_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1420,21 +1420,25 @@ Binauraler_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (azitmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAzimuth", "O", azitmp);
+        Py_DECREF(azitmp);
     }
 
     if (eletmp)
     {
         PyObject_CallMethod((PyObject *)self, "setElevation", "O", eletmp);
+        Py_DECREF(eletmp);
     }
 
     if (azispantmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAzispan", "O", azispantmp);
+        Py_DECREF(azispantmp);
     }
 
     if (elespantmp)
     {
         PyObject_CallMethod((PyObject *)self, "setElespan", "O", elespantmp);
+        Py_DECREF(elespantmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1549,6 +1553,7 @@ Binauraler_setAzimuth(Binauraler *self, PyObject *arg)
     else
     {
         self->azi = tmp;
+        Py_INCREF(self->azi);
         streamtmp = PyObject_CallMethod((PyObject *)self->azi, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->azi_stream);
@@ -1582,6 +1587,7 @@ Binauraler_setElevation(Binauraler *self, PyObject *arg)
     else
     {
         self->ele = tmp;
+        Py_INCREF(self->ele);
         streamtmp = PyObject_CallMethod((PyObject *)self->ele, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->ele_stream);
@@ -1615,6 +1621,7 @@ Binauraler_setAzispan(Binauraler *self, PyObject *arg)
     else
     {
         self->azispan = tmp;
+        Py_INCREF(self->azispan);
         streamtmp = PyObject_CallMethod((PyObject *)self->azispan, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->azispan_stream);
@@ -1648,6 +1655,7 @@ Binauraler_setElespan(Binauraler *self, PyObject *arg)
     else
     {
         self->elespan = tmp;
+        Py_INCREF(self->elespan);
         streamtmp = PyObject_CallMethod((PyObject *)self->elespan, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->elespan_stream);
@@ -1831,6 +1839,7 @@ Binaural_dealloc(Binaural* self)
 {
     pyo_DEALLOC
     Binaural_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1861,11 +1870,13 @@ Binaural_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);

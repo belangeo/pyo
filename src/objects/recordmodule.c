@@ -35,7 +35,6 @@ typedef struct
 {
     pyo_audio_HEAD
     PyObject *input_list;
-    PyObject *input_stream_list;
     int chnls;
     int buffering;
     int count;
@@ -69,7 +68,7 @@ Record_process(Record *self)
     for (j = 0; j < self->listlen; j++)
     {
         chnl = j % self->chnls;
-        in = Stream_getData((Stream *)PyList_GET_ITEM(self->input_stream_list, j));
+        in = Stream_getData((Stream *)PyObject_CallMethod(PyList_GET_ITEM(self->input_list, j), "_getStream", NULL));
 
         for (i = 0; i < self->bufsize; i++)
         {
@@ -100,7 +99,6 @@ Record_traverse(Record *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input_list);
-    Py_VISIT(self->input_stream_list);
     return 0;
 }
 
@@ -109,7 +107,6 @@ Record_clear(Record *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input_list);
-    Py_CLEAR(self->input_stream_list);
     return 0;
 }
 
@@ -122,6 +119,7 @@ Record_dealloc(Record* self)
     pyo_DEALLOC
     PyMem_RawFree(self->buffer);
     Record_clear(self);
+    Py_TYPE(self->stream)->tp_free((PyObject*)self->stream);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -152,13 +150,8 @@ Record_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     Py_XDECREF(self->input_list);
     self->input_list = input_listtmp;
+    Py_INCREF(self->input_list);
     self->listlen = PyList_Size(self->input_list);
-    self->input_stream_list = PyList_New(self->listlen);
-
-    for (i = 0; i < self->listlen; i++)
-    {
-        PyList_SET_ITEM(self->input_stream_list, i, PyObject_CallMethod(PyList_GET_ITEM(self->input_list, i), "_getStream", NULL));
-    }
 
     /* Prepare sfinfo */
     self->recinfo.samplerate = (int)self->sr;

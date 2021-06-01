@@ -4,18 +4,14 @@ This is a list of features/fixes to implement for future releases
 Roadmap 1.0.4
 -------------
 
+Roadmap 1.0.5
+-------------
+
 - Add Midifile object
 
 - Add an optional callback on the "stop" event of the PyoObject. 
 
 - Install m_pyo.h configured for the target version in pythonlib/pyo/include/.
-
-- Update pyo-linux-wheels to use manylinux2010 image instead of manylinux1.
-
-- unit testing with pytest
-
-Roadmap 1.0.5
--------------
 
 - Remove handling of python2 vs python3 and keep only python3 code.
 
