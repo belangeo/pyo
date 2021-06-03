@@ -493,7 +493,6 @@ int
 Server_jack_init(Server *self)
 {
     int i = 0;
-    char client_name[32];
     char name[16];
     const char *server_name = "server";
     jack_options_t options = JackNullOption;
@@ -508,7 +507,6 @@ Server_jack_init(Server *self)
     PyoJackBackendData *be_data = (PyoJackBackendData *) PyMem_RawMalloc(sizeof(PyoJackBackendData));
     self->audio_be_data = (void *) be_data;
     be_data->activated = 0;
-    strncpy(client_name, self->serverName, 31);
 
     Py_BEGIN_ALLOW_THREADS
     be_data->midi_event_count = 0;
@@ -523,7 +521,7 @@ Server_jack_init(Server *self)
     }
 
     be_data->jack_out_ports = (jack_port_t **) PyMem_RawCalloc(self->nchnls + self->output_offset, sizeof(jack_port_t *));
-    be_data->jack_client = jack_client_open(client_name, options, &status, server_name);
+    be_data->jack_client = jack_client_open(self->serverName, options, &status, server_name);
 
     if (self->withJackMidi)
     {
