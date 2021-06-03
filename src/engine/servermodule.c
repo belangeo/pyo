@@ -131,7 +131,8 @@ Server_error(Server *self, char * format, ...)
         char buffer[256];
         va_list args;
         va_start (args, format);
-        vsprintf (buffer, format, args);
+        if (vsnprintf(buffer, 255, format, args) >= 255)
+            buffer[255] = '\0';
         va_end (args);
 
         PySys_WriteStdout("Pyo error: %s", buffer);
@@ -148,7 +149,8 @@ Server_message(Server *self, char * format, ...)
         char buffer[256];
         va_list args;
         va_start (args, format);
-        vsprintf (buffer, format, args);
+        if (vsnprintf(buffer, 255, format, args) >= 255)
+            buffer[255] = '\0';
         va_end (args);
 
         PySys_WriteStdout("Pyo message: %s", buffer);
@@ -167,8 +169,10 @@ Server_warning(Server *self, char * format, ...)
         char buffer[256];
         va_list args;
         va_start (args, format);
-        vsprintf (buffer, format, args);
+        if (vsnprintf(buffer, 255, format, args) >= 255)
+            buffer[255] = '\0';
         va_end (args);
+
         PySys_WriteStdout("Pyo warning: %s", buffer);
     }
 
@@ -185,7 +189,8 @@ Server_debug(Server *self, char * format, ...)
         char buffer[256];
         va_list args;
         va_start (args, format);
-        vsprintf (buffer, format, args);
+        if (vsnprintf(buffer, 255, format, args) >= 255)
+            buffer[255] = '\0';
         va_end (args);
 
         PySys_WriteStdout("Pyo debug: %s", buffer);
