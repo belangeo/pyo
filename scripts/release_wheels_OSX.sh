@@ -12,7 +12,7 @@
 #   curl https://bootstrap.pypa.io/get-pip.py | python(3)
 #
 
-version=1.0.3
+version=1.0.4
 replace=XXX
 
 #### Clean up.
