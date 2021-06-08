@@ -1,6 +1,18 @@
+2021-06-07 belangeo <belangeo@gmail.com>
+
+    * Fixed linux libasound and libjack symlinks (included in version 1.0.4).
+
 2021-06-04 belangeo <belangeo@gmail.com>
 
     * Git tag: 1.0.4.
+
+2021-06-03 belangeo <belangeo@gmail.com>
+
+    * Replaced unsecure vsprintf function with vsnprintf in server logging functions (fixed issue #222).
+
+2021-06-02 belangeo <belangeo@gmail.com>
+
+    * Removed useless string copy in the Jack backend (fixed issue #221).
 
 2021-05-08 belangeo <belangeo@gmail.com>
 
@@ -18,9 +30,29 @@
 
     * Added support for item assigment in PyoObjectBase.
 
+2021-04-01 belangeo <belangeo@gmail.com>
+
+    * Replaced all allocation functions with python's memory interface.
+
+2021-03-22 belangeo <belangeo@gmail.com>
+
+    * Fixed Select counter type range (now accept a long long value).
+
+2021-02-21 belangeo <belangeo@gmail.com>
+
+    * Removed unwanted call to Server_process_buffers at start of an embedded audio server.
+
+2021-02-19 belangeo <belangeo@gmail.com>
+
+    * Fixed segfault in embedded pyo_end_interpreter function.
+
 2021-01-24 belangeo <belangeo@gmail.com>
 
     * Fixed FreqShift backward shifting (issue #193).
+
+2021-01-21 belangeo <belangeo@gmail.com>
+
+    * Fixed wx assertion in Scope color rendering.
 
 2021-01-21 belangeo <belangeo@gmail.com>
 
@@ -32,7 +64,15 @@
 
 2021-01-17 belangeo <belangeo@gmail.com>
 
+    * Fixed array out-of-bound bug in SVF2 object.
+
+2021-01-17 belangeo <belangeo@gmail.com>
+
     * Fixed memory allocation in expr's initexpr function (issue #190).
+
+2021-01-12 belangeo <belangeo@gmail.com>
+
+    * Added rt library to linker on linux (should fix shm_unlink undefined symbol) (issue #129).
 
 2020-12-20 belangeo <belangeo@gmail.com>
 
@@ -73,6 +113,14 @@
 2020-11-23 belangeo <belangeo@gmail.com>
 
     * Added a level argument to PyoTableObject.normalize() method.
+
+2020-11-21 belangeo <belangeo@gmail.com>
+
+    * Fix bug in isPlaying() returning wrong value when set from out().
+
+2020-11-21 belangeo <belangeo@gmail.com>
+
+    * Prevent normal order to happen in out() function when scrambling channels.
 
 2020-11-12 belangeo <belangeo@gmail.com>
 
