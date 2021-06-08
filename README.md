@@ -110,4 +110,4 @@ If you feel this project is useful to you and want to support it and it's
 future development please consider donating money. I only ask for a small 
 donation, but of course I appreciate any amount.
 
-[Support via PayPal](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=9CA99DH6ES3HA)
+[Support via PayPal](https://www.paypal.me/belangeo)
