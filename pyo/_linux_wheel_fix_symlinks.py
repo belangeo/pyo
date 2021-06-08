@@ -38,7 +38,7 @@ try:
 except:
     pass
 
-libs = os.listdir(os.path.join(os.path.dirname(pyo.__file__), ".libs"))
+libs = os.listdir("{}{}".format(os.path.dirname(pyo.__file__), ".libs"))
 
 withlibasound = withlibjack = False
 libasound = libjack = ""

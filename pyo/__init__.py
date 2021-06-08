@@ -20,7 +20,7 @@ License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 import os
 import sys
 
-if sys.platform.startswith("linux") and os.path.isdir(os.path.join(os.path.dirname(__file__), ".libs")):
+if sys.platform.startswith("linux") and os.path.isdir("{}{}".format(os.path.dirname(__file__), ".libs")):
     from . import _linux_wheel_fix_symlinks
 
 from .lib._maps import *
