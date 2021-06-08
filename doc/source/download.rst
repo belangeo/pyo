@@ -3,11 +3,11 @@ Installing pyo with pip
 
 In most use cases the best way to install pyo on your system is by using a pre-built
 package for your operating system. These packages are available through pip.
-Python supported version are 2.7 (up to 1.01), 3.5 (up to 1.0.1), 3.6, 3.7 and 3.8.
+Python supported version are 2.7 (up to 1.0.1), 3.5 (up to 1.0.1), 3.6, 3.7 and 3.8.
 To install, run this command (if you have both python2 and python3 installed and want 
 to target python3, use `pip3`)::
 
-    pip install -U pyo
+    pip install --user pyo
 
 If you are not sure to which version of python the `pip` command is bound to, you can
 invoke it as a script from the `python` command.
@@ -15,16 +15,16 @@ invoke it as a script from the `python` command.
 .. code-block:: bash
 
     # for python 2
-    python2 -m pip install -U pyo
+    python2 -m pip install --user pyo
 
-    # for python 3.5
-    python3.6 -m pip install -U pyo
+    # for python 3.7
+    python3.7 -m pip install --user pyo
 
-    # for python 3.6 under Windows (`py` is the python launcher command)
-    py -3.6 -m pip install -U pyo
+    # for python 3.8 under Windows (`py` is the python launcher command)
+    py -3.8 -m pip install --user pyo
 
     # if you want to install system-wide under MacOS or linux, use `sudo`
-    sudo python3 -m pip install -U pyo
+    sudo python3 -m pip install pyo
 
 For instructions on building from source package, see `Compiling pyo from sources <compiling.html>`_.
 This information is useful mainly for advanced users.
@@ -32,14 +32,15 @@ This information is useful mainly for advanced users.
 Pyo is a python module...
 -------------------------
 
-... which means that python must be present (version 2.7, 3.5, 3.6, 3.7 or 3.8) 
+... which means that python must be present (version 3.6, 3.7, 3.8 or 3.9) 
 on the system. If python is not installed, you can download it on 
 `python.org <https://www.python.org/downloads/>`_.
 
 Pyo also offers some GUI facilities to control or visualize the audio processing.
-If you want to use all of pyo's GUI features, you must install WxPython 3.0 
-(**classic** for python 2.7 and **phoenix** for python 3.5+), available on 
-`wxpython.org <http://wxpython.org/download.php>`_.
+If you want to use all of pyo's GUI features, you must install WxPython, available on 
+`wxpython.org <http://wxpython.org/download.php>`_ or with pip::
+
+    pip install --user wxPython
 
 Removing older version of pyo (prior to 1.0.0)
 ----------------------------------------------
@@ -55,11 +56,11 @@ On MacOS, you can run this script for the version of python for which you want t
 `https://github.com/belangeo/pyo/blob/master/scripts/cleanup_older_pyo_versions.py 
 <https://github.com/belangeo/pyo/blob/master/scripts/cleanup_older_pyo_versions.py>`_
 
-As an example, if you want to remove an old installation under python 3.5, run
+As an example, if you want to remove an old installation under python 3.6, run
 
 .. code-block:: bash
 
-    sudo python3.5 cleanup_older_pyo_versions.py
+    sudo python3.6 cleanup_older_pyo_versions.py
 
 You should also delete the **E-pyo** app in the `Applications` folder.
 
@@ -74,7 +75,7 @@ and is named `unins000.exe`.
 On linux, if you installed pyo from the system's package manager, just uninstall it.
 If you compile pyo from sources, you have to delete the files manually (in site-packages 
 or dist-packages folder of your python distribution). Files to delete are:
-pyo.py, pyo64.py, _pyo.so, _pyo64.so, pyolib/ and pyo...egg
+pyo.py, pyo64.py, _pyo.so, _pyo64.so, pyolib/ and pyo...egg.
 
 Running the EPyo text editor
 ----------------------------
@@ -84,8 +85,8 @@ previously installed alongside pyo. But the truth is that this application lives
 python script and can be easily used as long as WxPython is installed under the current python
 distribution. The installation with `pip` puts this program under the `Scripts` folder (or `bin`
 folder, depending on which system you are running) of the python distribution. If python's path
-is in your PATH environment variable (what should really be the case), all you have to do to start
-EPyo is to run this command:
+is in your PATH environment variable (which should really be the case), all you have to do to start
+EPyo is to run this command in a terminal or a command prompt:
 
 .. code-block:: bash
 

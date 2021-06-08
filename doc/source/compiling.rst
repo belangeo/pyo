@@ -11,7 +11,7 @@ Dependencies
 
 To compile pyo with all its features, you will need the following dependencies: 
 
-- `Python 3.6, 3.7 or 3.8 <https://www.python.org/downloads/>`_.
+- `Python 3.6, 3.7, 3.8 or 3.9 <https://www.python.org/downloads/>`_.
 - `WxPython Phoenix 4.1.0 or higher <https://www.wxpython.org/pages/downloads/>`_
 - `Portaudio <http://www.portaudio.com/>`_
 - `Portmidi <http://portmedia.sourceforge.net/portmidi/>`_
@@ -165,7 +165,7 @@ Second step, if you want to be able to use all of pyo's gui widgets, you will ne
 
 .. code-block:: bash
 
-    sudo pip3 install -U wxPython==4.1.0
+    python3 -m pip install --user wxPython
 
 The third step is to install `Homebrew <http://brew.sh/>`_.
 
