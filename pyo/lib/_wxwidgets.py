@@ -1025,7 +1025,7 @@ class PyoObjectControl(wx.Frame):
         panel = wx.Panel(self)
         panel.SetBackgroundColour(BACKGROUND_COLOUR)
         mainBox = wx.BoxSizer(wx.VERTICAL)
-        self.box = wx.FlexGridSizer(10, 2, 5, 5)
+        self.box = wx.FlexGridSizer(len(self._map_list), 2, 5, 5)
 
         for i, m in enumerate(self._map_list):
             key, init, mini, maxi, scl, res, dataOnly = m.name, m.init, m.min, m.max, m.scale, m.res, m.dataOnly
