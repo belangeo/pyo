@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 """
 Algorithmic melody patterns snapped on a specific scale...
 

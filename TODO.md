@@ -13,8 +13,6 @@ Roadmap 1.0.5
 
 - Install m_pyo.h configured for the target version in pythonlib/pyo/include/.
 
-- Remove handling of python2 vs python3 and keep only python3 code.
-
 - PyoMatrixObject.get(x, y) inverts arguments. Add PyoMatrixObject.getValue(x, y) with x and y in the good order (also putValue(value, x, y))
 - PyoMatrixObject.getMatrix()
 - A new implementation, Pyo2DTableObject, doint the right things.

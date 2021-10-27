@@ -5,9 +5,6 @@ SfMarkerXXX objects use markers features (store in the header) from
 an AIFF file to create more specific reading patterns.
 
 """
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
 
 """
 Copyright 2009-2015 Olivier Belanger
@@ -457,7 +454,7 @@ class SfMarkerShuffler(PyoObject):
         """
         dist, x, lmax = convertArgsToLists(dist, x)
         for i, t in enumerate(dist):
-            if type(t) in [bytes_t, unicode_t]:
+            if type(t) in [bytes, str]:
                 dist[i] = XNOISE_DICT.get(t, 0)
         [obj.setRandomType(wrap(dist, i), wrap(x, i)) for i, obj in enumerate(self._base_players)]
 

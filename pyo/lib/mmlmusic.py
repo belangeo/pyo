@@ -101,9 +101,6 @@ Realtime Processing of the music
   limit to the number of levels of loop embedding.
 
 """
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
 
 """
 Copyright 2009-2020 Olivier Belanger

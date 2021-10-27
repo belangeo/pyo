@@ -2,7 +2,6 @@
 Set of objects that implement different kinds of random noise generators.
 
 """
-from __future__ import absolute_import
 
 """
 Copyright 2009-2015 Olivier Belanger
@@ -649,7 +648,7 @@ class Xnoise(PyoObject):
         self._x2 = x2
         dist, freq, x1, x2, mul, add, lmax = convertArgsToLists(dist, freq, x1, x2, mul, add)
         for i, t in enumerate(dist):
-            if type(t) in [bytes_t, unicode_t]:
+            if type(t) in [bytes, str]:
                 dist[i] = XNOISE_DICT.get(t, 0)
         self._base_objs = [
             Xnoise_base(wrap(dist, i), wrap(freq, i), wrap(x1, i), wrap(x2, i), wrap(mul, i), wrap(add, i))
@@ -670,7 +669,7 @@ class Xnoise(PyoObject):
         self._dist = x
         x, lmax = convertArgsToLists(x)
         for i, t in enumerate(x):
-            if type(t) in [bytes_t, unicode_t]:
+            if type(t) in [bytes, str]:
                 x[i] = XNOISE_DICT.get(t, 0)
         [obj.setType(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
@@ -881,7 +880,7 @@ class XnoiseMidi(PyoObject):
             dist, freq, x1, x2, scale, mrange, mul, add
         )
         for i, t in enumerate(dist):
-            if type(t) in [bytes_t, unicode_t]:
+            if type(t) in [bytes, str]:
                 dist[i] = XNOISE_DICT.get(t, 0)
         self._base_objs = [
             XnoiseMidi_base(
@@ -911,7 +910,7 @@ class XnoiseMidi(PyoObject):
         self._dist = x
         x, lmax = convertArgsToLists(x)
         for i, t in enumerate(x):
-            if type(t) in [bytes_t, unicode_t]:
+            if type(t) in [bytes, str]:
                 x[i] = XNOISE_DICT.get(t, 0)
         [obj.setType(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
@@ -1161,7 +1160,7 @@ class XnoiseDur(PyoObject):
         self._x2 = x2
         dist, min, max, x1, x2, mul, add, lmax = convertArgsToLists(dist, min, max, x1, x2, mul, add)
         for i, t in enumerate(dist):
-            if type(t) in [bytes_t, unicode_t]:
+            if type(t) in [bytes, str]:
                 dist[i] = XNOISE_DICT.get(t, 0)
         self._base_objs = [
             XnoiseDur_base(
@@ -1184,7 +1183,7 @@ class XnoiseDur(PyoObject):
         self._dist = x
         x, lmax = convertArgsToLists(x)
         for i, t in enumerate(x):
-            if type(t) in [bytes_t, unicode_t]:
+            if type(t) in [bytes, str]:
                 x[i] = XNOISE_DICT.get(t, 0)
         [obj.setType(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 

@@ -8,7 +8,6 @@ After the playback ending, call "m.view()" from the
 interpreter widget of the Server window to show the spectrum.
 
 """
-from __future__ import division
 from pyo import *
 
 s = Server(duplex=0).boot()

@@ -1,7 +1,3 @@
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
-
 """
 Copyright 2009-2015 Olivier Belanger
 
@@ -32,11 +28,6 @@ if "phoenix" in wx.version():
     wx.BitmapFromImage = wx.Bitmap
     wx.Image_HSVValue = wx.Image.HSVValue
     wx.Image_HSVtoRGB = wx.Image.HSVtoRGB
-
-if sys.version_info[0] < 3:
-    unicode_t = unicode
-else:
-    unicode_t = str
 
 BACKGROUND_COLOUR = "#EBEBEB"
 
@@ -4153,7 +4144,7 @@ def ensureNFD(unistr):
         encodings = [sys.getdefaultencoding(), sys.getfilesystemencoding(), "macroman", "iso-8859-1", "utf-16"]
         format = "NFC"
     decstr = unistr
-    if type(decstr) != unicode_t:
+    if type(decstr) != str:
         for encoding in encodings:
             try:
                 decstr = decstr.decode(encoding)

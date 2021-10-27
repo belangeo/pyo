@@ -3,9 +3,6 @@
 This module defines the base classes for all objects in the library.
 
 """
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
 
 """
 Copyright 2009-2016 Olivier Belanger
@@ -30,33 +27,16 @@ License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 import os
 import sys
 import time
+import builtins
 import inspect
 import tempfile
 import locale
 from subprocess import call
 from weakref import proxy
 
-if sys.version_info[0] < 3:
-    import __builtin__
-
-    builtins = __builtin__
-    bytes_t = str
-    unicode_t = unicode
-
-    def tobytes(strng, encoding=None):
-        "Convert unicode string to bytes."
-        return bytes(strng)
-
-
-else:
-    import builtins
-
-    bytes_t = bytes
-    unicode_t = str
-
-    def tobytes(strng, encoding="utf-8"):
-        "Convert unicode string to bytes."
-        return bytes(strng, encoding=encoding)
+def tobytes(strng, encoding="utf-8"):
+    "Convert unicode string to bytes."
+    return bytes(strng, encoding=encoding)
 
 
 if hasattr(builtins, "pyo_use_double"):
@@ -145,18 +125,12 @@ FUNCTIONS_INIT_LINES = {
 
 
 def get_random_integer(mx=32767):
-    if sys.version_info[0] < 3 or sys.version_info[1] < 3:
-        seed = int(str(time.clock()).split(".")[1])
-    else:
-        seed = int(str(time.process_time()).split(".")[1])
+    seed = int(str(time.process_time()).split(".")[1])
     return (seed * 31351 + 21997) % mx
 
 
 def listscramble(lst):
-    if sys.version_info[0] < 3 or sys.version_info[1] < 3:
-        seed = int(str(time.clock()).split(".")[1])
-    else:
-        seed = int(str(time.process_time()).split(".")[1])
+    seed = int(str(time.process_time()).split(".")[1])
     l = lst[:]
     new = []
     pos = 1
@@ -168,13 +142,8 @@ def listscramble(lst):
 
 
 def stringencode(st):
-    if sys.version_info[0] >= 3:
-        if sys.version_info[1] <= 5:
-            if type(st) is str:
-                st = st.encode(sys.getfilesystemencoding())
-        else:
-            if type(st) is str:
-                st = st.encode(locale.getpreferredencoding())
+    if type(st) is str:
+        st = st.encode(locale.getpreferredencoding())
     return st
 
 
@@ -198,7 +167,7 @@ def sndinfo(path, print=False):
 
     >>> path = SNDS_PATH + '/transparent.aif'
     >>> print(path)
-    /usr/lib/python2.7/dist-packages/pyo/lib/snds/transparent.aif
+    /home/olivier/.local/lib/python3.9/site-packages/pyo/lib/snds/transparent.aif
     >>> info = sndinfo(path)
     >>> print(info)
     (29877, 0.6774829931972789, 44100.0, 1, 'AIFF', '16 bit int')
@@ -445,21 +414,13 @@ def pyoArgsAssert(obj, format, *args):
             Arguments passed to the object's method.
 
     """
-    if sys.version_info[0] < 3:
-        # Python 2
-        longType = int
-    else:
-        # Python 3
-        # Not used in Python 3, ignore it
-        longType = None
-
     i = 0
     expected = ""
     for i, arg in enumerate(args):
         f = format[i]
         argtype = type(arg)
         if f == "O":
-            atypes = [list, int, longType, float]
+            atypes = [list, int, float]
             if not isAudioObject(arg) and argtype not in atypes:
                 expected = "float or PyoObject"
         elif f == "o":
@@ -478,10 +439,10 @@ def pyoArgsAssert(obj, format, *args):
             if not isPVObject(arg) and argtype not in [list]:
                 expected = "PyoPVObject"
         elif f == "n":
-            if argtype not in [list, int, longType, float]:
+            if argtype not in [list, int, float]:
                 expected = "any number"
         elif f == "N":
-            if argtype not in [int, longType, float]:
+            if argtype not in [int, float]:
                 expected = "any number - list not allowed"
         elif f == "f":
             if argtype not in [list, float]:
@@ -490,22 +451,22 @@ def pyoArgsAssert(obj, format, *args):
             if argtype not in [float]:
                 expected = "float - list not allowed"
         elif f == "i":
-            if argtype not in [list, int, longType]:
+            if argtype not in [list, int]:
                 expected = "integer"
         elif f == "I":
-            if argtype not in [int, longType]:
+            if argtype not in [int]:
                 expected = "integer - list not allowed"
         elif f == "s":
-            if argtype not in [list, bytes_t, unicode_t]:
+            if argtype not in [list, bytes, str]:
                 expected = "string"
         elif f == "S":
-            if argtype not in [bytes_t, unicode_t]:
+            if argtype not in [bytes, str]:
                 expected = "string - list not allowed"
         elif f == "b":
-            if argtype not in [bool, list, int, longType]:
+            if argtype not in [bool, list, int]:
                 expected = "boolean"
         elif f == "B":
-            if argtype not in [bool, int, longType]:
+            if argtype not in [bool, int]:
                 expected = "boolean - list not allowed"
         elif f == "l":
             if argtype not in [list]:
@@ -549,7 +510,7 @@ def convertStringToSysEncoding(strng):
             String to convert.
 
     """
-    if type(strng) not in [bytes_t, unicode_t]:
+    if type(strng) not in [bytes, str]:
         strng = strng.decode("utf-8")
     strng = strng.encode(sys.getfilesystemencoding())
     return strng
@@ -656,7 +617,7 @@ def removeExtraDecimals(x):
     "Return a floating-point value as a string with only two digits."
     if isinstance(x, float):
         return "=%.2f" % x
-    elif type(x) in [bytes_t, unicode_t]:
+    elif type(x) in [bytes, str]:
         return '="%s"' % x
     else:
         return "=" + str(x)
@@ -1097,7 +1058,7 @@ class PyoObjectBase(object):
         elif isinstance(i, int) and i < len(self._base_objs):
             return self._base_objs[i]
         else:
-            if type(i) in [bytes_t, unicode_t]:
+            if type(i) in [bytes, str]:
                 args = (self.__class__.__name__, i)
                 print("Object %s has no stream named '%s'!" % args)
             else:

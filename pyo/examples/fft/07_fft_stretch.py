@@ -4,7 +4,6 @@
 Time stretching using FFT/IFFT.
 
 """
-from __future__ import division
 from pyo import *
 
 s = Server(duplex=0).boot()

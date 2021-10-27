@@ -3,9 +3,6 @@
 This module defines GUI widgets built with tkinter.
 
 """
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
 
 """
 Copyright 2009-2015 Olivier Belanger
@@ -28,11 +25,7 @@ License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 import math
 import sys
-
-if sys.version_info[0] < 3:
-    import Tkinter as tk
-else:
-    import tkinter as tk
+import tkinter as tk
 
 # constants for platform displays with Tk
 if sys.platform.startswith("linux"):

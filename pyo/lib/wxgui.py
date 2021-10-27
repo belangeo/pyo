@@ -5,7 +5,6 @@ control and the visualization of audio signals. WxPython must be installed
 under the current Python distribution to access these classes.
 
 """
-from __future__ import absolute_import
 from ._widgets import PYO_USE_WX
 
 if not PYO_USE_WX:

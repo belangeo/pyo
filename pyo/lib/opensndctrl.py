@@ -14,8 +14,6 @@ These objects are available only if pyo is built with OSC (Open Sound
 Control) support.
 
 """
-from __future__ import print_function
-from __future__ import absolute_import
 
 """
 Copyright 2009-2015 Olivier Belanger
@@ -206,7 +204,7 @@ class OscReceive(PyoObject):
         self._init_play()
 
     def __getitem__(self, i):
-        if type(i) in [bytes_t, unicode_t]:
+        if type(i) in [bytes, str]:
             return self._base_objs[self._address.index(i)]
         elif i < len(self._base_objs):
             return self._base_objs[i]
@@ -703,7 +701,7 @@ class OscListReceive(PyoObject):
         self._init_play()
 
     def __getitem__(self, i):
-        if type(i) in [bytes_t, unicode_t]:
+        if type(i) in [bytes, str]:
             first = self._address.index(i) * self._num
             return self._base_objs[first : first + self._num]
         elif i < len(self._base_objs):

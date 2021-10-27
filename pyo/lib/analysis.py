@@ -6,8 +6,6 @@ from an audio stream. Analysis are sent at audio rate, user
 can use them for controlling parameters of others objects.
 
 """
-from __future__ import division
-from __future__ import absolute_import
 
 """
 Copyright 2009-2015 Olivier Belanger

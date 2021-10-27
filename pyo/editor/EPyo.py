@@ -12,9 +12,6 @@ TODO:
     - Fix printing to pdf.
 
 """
-from __future__ import division
-from __future__ import with_statement
-from __future__ import print_function
 import sys
 
 import os, inspect, keyword, wx, codecs, subprocess, unicodedata, types
@@ -30,48 +27,23 @@ import wx.stc as stc
 import wx.lib.agw.flatnotebook as FNB
 from pyo import *  # TODO: what do we really need? OBJECTS_TREE, PYO_VERSION, getPyoKeywords()
 
+exec_string = "python3"
 encoding_to_add = sys.getfilesystemencoding()
-if sys.version_info[0] < 3:
-    from StringIO import StringIO
 
-    unicode_t = unicode
-    reload(sys)
-    sys.setdefaultencoding("utf-8")
-    exec_string = "python"
-    if sys.platform == "win32":
-        encoding_to_add = "utf-8"
-else:
-    from io import StringIO as StringIO
+from io import StringIO as StringIO
 
-    unicode_t = str
-    exec_string = "python3"
-    if sys.platform == "win32":
-        encoding_to_add = "mbcs"
+if sys.platform == "win32":
+    encoding_to_add = "mbcs"
 
-if "phoenix" in wx.version():
-    from wx.adv import AboutDialogInfo, AboutBox
-    from wx import ComboCtrl
-    from wx import ComboPopup
+from wx.adv import AboutDialogInfo, AboutBox
+from wx import ComboCtrl
+from wx import ComboPopup
 
-    def packItemData(obj):
-        return obj
+def packItemData(obj):
+    return obj
 
-    def unpackItemData(obj):
-        return obj
-
-
-else:
-    from wx import AboutDialogInfo, AboutBox
-    from wx.combo import ComboCtrl
-    from wx.combo import ComboPopup
-
-    def packItemData(obj):
-        return wx.TreeItemData(obj)
-
-    def unpackItemData(obj):
-        return obj.GetData()
-
-    wx.QueueEvent = wx.PostEvent
+def unpackItemData(obj):
+    return obj
 
 ################## SETUP ##################
 PLATFORM = sys.platform
@@ -117,7 +89,7 @@ def ensureNFD(unistr):
         encodings = [DEFAULT_ENCODING, ENCODING, "macroman", "iso-8859-1", "utf-16"]
         format = "NFC"
     decstr = unistr
-    if type(decstr) != unicode_t:
+    if type(decstr) != str:
         for encoding in encodings:
             try:
                 decstr = decstr.decode(encoding)
@@ -523,13 +495,8 @@ for f in template_files:
 ################## BUILTIN KEYWORDS COMPLETION ##################
 FROM_COMP = """ `module` import `*`
 """
-if sys.version_info[0] < 3:
-    EXEC_COMP = """ "`expression`" in `self.locals`
+EXEC_COMP = """("`expression`", `globals()`, `locals()`)
 """
-else:
-    EXEC_COMP = """("`expression`", `globals()`, `locals()`)
-"""
-
 RAISE_COMP = """ Exception("`An exception occurred...`")
 """
 TRY_COMP = """:
@@ -1993,37 +1960,25 @@ class ManualFrame(wx.Frame):
         home_ico = catalog["up_%d.png" % tb_size]
         exec_ico = catalog["play_%d.png" % tb_size]
 
-        if sys.version_info[0] < 3:
-            backTool = self.toolbar.AddSimpleTool(wx.ID_BACKWARD, back_ico.GetBitmap(), "Back")
-        else:
-            backTool = self.toolbar.AddTool(wx.ID_BACKWARD, "", back_ico.GetBitmap(), "Back")
+        backTool = self.toolbar.AddTool(wx.ID_BACKWARD, "", back_ico.GetBitmap(), "Back")
         self.toolbar.EnableTool(wx.ID_BACKWARD, False)
         self.Bind(wx.EVT_MENU, self.onBack, backTool)
 
         self.toolbar.AddSeparator()
 
-        if sys.version_info[0] < 3:
-            forwardTool = self.toolbar.AddSimpleTool(wx.ID_FORWARD, forward_ico.GetBitmap(), "Forward")
-        else:
-            forwardTool = self.toolbar.AddTool(wx.ID_FORWARD, "", forward_ico.GetBitmap(), "Forward")
+        forwardTool = self.toolbar.AddTool(wx.ID_FORWARD, "", forward_ico.GetBitmap(), "Forward")
         self.toolbar.EnableTool(wx.ID_FORWARD, False)
         self.Bind(wx.EVT_MENU, self.onForward, forwardTool)
 
         self.toolbar.AddSeparator()
 
-        if sys.version_info[0] < 3:
-            homeTool = self.toolbar.AddSimpleTool(wx.ID_HOME, home_ico.GetBitmap(), "Go Home")
-        else:
-            homeTool = self.toolbar.AddTool(wx.ID_HOME, "", home_ico.GetBitmap(), "Go Home")
+        homeTool = self.toolbar.AddTool(wx.ID_HOME, "", home_ico.GetBitmap(), "Go Home")
         self.toolbar.EnableTool(wx.ID_HOME, True)
         self.Bind(wx.EVT_MENU, self.onHome, homeTool)
 
         self.toolbar.AddSeparator()
 
-        if sys.version_info[0] < 3:
-            execTool = self.toolbar.AddSimpleTool(wx.ID_PREVIEW, exec_ico.GetBitmap(), "Run Example")
-        else:
-            execTool = self.toolbar.AddTool(wx.ID_PREVIEW, "", exec_ico.GetBitmap(), "Run Example")
+        execTool = self.toolbar.AddTool(wx.ID_PREVIEW, "", exec_ico.GetBitmap(), "Run Example")
         self.toolbar.EnableTool(wx.ID_PREVIEW, True)
         self.Bind(wx.EVT_MENU, self.onRun, execTool)
 
@@ -5353,10 +5308,7 @@ class Editor(stc.StyledTextCtrl):
         if ext in ["py", "pyw", "c5"]:
             self.SetLexer(stc.STC_LEX_PYTHON)
             self.SetStyleBits(self.GetStyleBitsNeeded())
-            if sys.version_info[0] < 3:
-                self.SetKeyWords(0, " ".join(keyword.kwlist) + " None True False print ")
-            else:
-                self.SetKeyWords(0, " ".join(keyword.kwlist) + " None True False ")
+            self.SetKeyWords(0, " ".join(keyword.kwlist) + " None True False ")
             self.SetKeyWords(1, " ".join(PYO_WORDLIST))
             self.StyleSetSpec(stc.STC_P_DEFAULT, buildStyle("default"))
             self.StyleSetSpec(stc.STC_P_COMMENTLINE, buildStyle("comment"))

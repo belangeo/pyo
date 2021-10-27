@@ -3,9 +3,6 @@ Set of objects to manage audio voice routing and spread of a sound
 signal into a new stereo or multi-channel sound field.
 
 """
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
 
 """
 Copyright 2009-2015 Olivier Belanger

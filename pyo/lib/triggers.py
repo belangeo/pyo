@@ -7,9 +7,6 @@ TrigXXX objects use this kind of signal to generate different
 processes with sampling rate time accuracy.
 
 """
-from __future__ import division
-from __future__ import print_function
-from __future__ import absolute_import
 
 """
 Copyright 2009-2015 Olivier Belanger
@@ -2046,7 +2043,7 @@ class TrigXnoise(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, dist, x1, x2, mul, add, lmax = convertArgsToLists(self._in_fader, dist, x1, x2, mul, add)
         for i, t in enumerate(dist):
-            if type(t) in [bytes_t, unicode_t]:
+            if type(t) in [bytes, str]:
                 dist[i] = XNOISE_DICT.get(t, 0)
         self._base_objs = [
             TrigXnoise_base(wrap(in_fader, i), wrap(dist, i), wrap(x1, i), wrap(x2, i), wrap(mul, i), wrap(add, i))
@@ -2083,7 +2080,7 @@ class TrigXnoise(PyoObject):
         self._dist = x
         x, lmax = convertArgsToLists(x)
         for i, t in enumerate(x):
-            if type(t) in [bytes_t, unicode_t]:
+            if type(t) in [bytes, str]:
                 x[i] = XNOISE_DICT.get(t, 0)
         [obj.setType(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
@@ -2281,7 +2278,7 @@ class TrigXnoiseMidi(PyoObject):
             self._in_fader, dist, x1, x2, scale, mrange, mul, add
         )
         for i, t in enumerate(dist):
-            if type(t) in [bytes_t, unicode_t]:
+            if type(t) in [bytes, str]:
                 dist[i] = XNOISE_DICT.get(t, 0)
         self._base_objs = [
             TrigXnoiseMidi_base(
@@ -2327,7 +2324,7 @@ class TrigXnoiseMidi(PyoObject):
         self._dist = x
         x, lmax = convertArgsToLists(x)
         for i, t in enumerate(x):
-            if type(t) in [bytes_t, unicode_t]:
+            if type(t) in [bytes, str]:
                 x[i] = XNOISE_DICT.get(t, 0)
         [obj.setType(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 

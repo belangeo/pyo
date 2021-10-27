@@ -11,8 +11,6 @@ and plays the sequence.
 See the Events framework examples in the documentation for different use cases.
 
 """
-from __future__ import division
-from __future__ import absolute_import
 
 """
 Copyright 2019 Olivier Belanger
@@ -44,10 +42,7 @@ from .generators import RCOsc
 from .effects import STRev
 from .pan import Pan
 
-if sys.version_info[0] < 3:
-    inf = float("inf")
-else:
-    inf = math.inf
+inf = math.inf
 
 PYO_EVENT_OPERATOR_ADD = 1000
 PYO_EVENT_OPERATOR_SUB = 1001
