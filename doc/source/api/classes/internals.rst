@@ -52,13 +52,13 @@ A PyoObject can manage many streams if, for example, a list is given to a parame
 A Sine object with only one stream:
 
     >>> a = Sine(freq=1000)
-    >>> print len(a)
+    >>> print(len(a))
     1
 
 A Sine object with four streams:
 
     >>> a = Sine(freq=[250,500,750,100])
-    >>> print len(a)
+    >>> print(len(a))
     4
 
 The first stream of this object contains the samples from the 250Hz waveform. The second stream contains the samples from the 500Hz waveform, and so on.

@@ -57,7 +57,7 @@ class Pattern(PyoObject):
         If `arg` is None, the function must be defined without argument:
 
         >>> def tocall():
-        >>>     # function's body
+        >>>     pass # function's body
 
         If `arg` is not None, the function must be defined with one argument:
 
@@ -295,7 +295,7 @@ class CallAfter(PyoObject):
         If `arg` is None, the function must be defined without argument:
 
         >>> def tocall():
-        >>>     # function's body
+        >>>     pass # function's body
 
         If `arg` is not None, the function must be defined with one argument:
 

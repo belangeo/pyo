@@ -710,7 +710,7 @@ def beatToDur(beat, bpm=120):
             Defaults to 120. `bpm` can be a number, a list or a tuple.
 
     >>> bpm = 90
-    >>> Duration of a sixteenth note.
+    >>> # Duration of a sixteenth note.
     >>> dur = beatToDur(1/4, 90)
     >>> print(dur)
     1.666666666666
@@ -904,7 +904,7 @@ class PyoObjectBase(object):
         >>>               # Illegal indexing returns None.
         >>> dir(obj)      # Return the list of attributes of the object.
         >>> for x in obj: # Can be used as an iterator (iterates over
-        >>>               # object's audio streams).
+        ...     pass      # object's audio streams).
 
     """
 

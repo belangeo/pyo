@@ -1675,7 +1675,8 @@ class PeakAmp(PyoObject):
     the peaking values of all object's streams. Useful for meter drawing.
     Function definition must look like this:
 
-    >>> def getValues(*args)
+    >>> def getValues(*args):
+    ...     print(args)
 
     :Parent: :py:class:`PyoObject`
 
@@ -1816,7 +1817,8 @@ class RMS(PyoObject):
     of all object's streams. Useful for meter drawing. Function
     definition must look like this:
 
-    >>> def getValues(*args)
+    >>> def getValues(*args):
+    ...     print(args)
 
     :Parent: :py:class:`PyoObject`
 
