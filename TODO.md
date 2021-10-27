@@ -87,6 +87,9 @@ Tables
 
 - Objects that can write to tables should accept any PyoTableObject,
   not just a NewTable or a DataTable.
+  - Push all the writing-related code to TableStream object. Forward the
+    feedback parameter when relevant.
+        - Writers: (NewTable) TableRec, TrigTableRec, TableMorph, TableWrite, (DataTable) TablePut
 
 Matrices
 --------
