@@ -6,7 +6,7 @@
             "type": "python",
             "request": "launch",
             "program": "${file}",
-            "console": "internalConsole",
+            "console": "integratedTerminal",
             "cwd": "${fileDirname}"
         },
         {

@@ -91,11 +91,6 @@ TableStream_setSamplingRate(TableStream *self, double sr)
     self->samplingRate = sr;
 }
 
-#if PY_MAJOR_VERSION < 3
-static Py_ssize_t TableStream_getReadBuffer(TableStream *self, Py_ssize_t index, const void **ptr) { TABLESTREAM_READ_WRITE_BUFFER };
-static Py_ssize_t TableStream_getWriteBuffer(TableStream *self, Py_ssize_t index, const void **ptr) { TABLESTREAM_READ_WRITE_BUFFER };
-static Py_ssize_t TableStream_getSegCount(TableStream *self, Py_ssize_t *lenp) { TABLESTREAM_SEG_COUNT };
-#endif
 static int TableStream_getBuffer(PyObject *obj, Py_buffer *view, int flags)
 {
     TableStream *self = (TableStream *)obj;
@@ -104,12 +99,6 @@ static int TableStream_getBuffer(PyObject *obj, Py_buffer *view, int flags)
 
 static PyBufferProcs TableStream_as_buffer =
 {
-#if PY_MAJOR_VERSION < 3
-    (readbufferproc)TableStream_getReadBuffer,
-    (writebufferproc)TableStream_getWriteBuffer,
-    (segcountproc)TableStream_getSegCount,
-    (charbufferproc)NULL,
-#endif
     (getbufferproc)TableStream_getBuffer,
     (releasebufferproc)NULL,
 };

@@ -2102,21 +2102,6 @@ extern PyTypeObject MMLZStreamType;
     }
 
 /* Tables buffer protocol. */
-#if PY_MAJOR_VERSION < 3
-#define TABLESTREAM_READ_WRITE_BUFFER \
-    if ( index != 0 ) { \
-        PySys_WriteStdout("Pyo error: Table buffer, accessing non-existent bytes segment."); \
-        return -1; \
-    } \
-    *ptr = (void *)self->data; \
-    return (Py_ssize_t)self->size * sizeof(MYFLT);
-
-#define TABLESTREAM_SEG_COUNT \
-    if ( lenp ) \
-        *lenp = (Py_ssize_t)self->size * sizeof(MYFLT); \
-    return 1;
-#endif
-
 #define TABLESTREAM_GET_BUFFER \
     if (view == NULL) { \
         PySys_WriteStdout("Pyo error: Table buffer, NULL view in getBuffer."); \
