@@ -688,6 +688,36 @@ class TestPyoTableObject:
         assert t.getSize(all=False) == 11036
         assert t.getSize(all=True) == [11036, 11036]
 
+    def test_getRate(self):
+        t = SndTable(SNDS_PATH + "/IRMediumHallStereo.wav")
+        samplerate = t.getServer().getSamplingRate()
+        expected = samplerate * 44100 / samplerate / 66213
+        assert math.isclose(t.getRate(all=False), expected, abs_tol=0.0000001)
+        assert math.isclose(t.getRate(all=True)[0], expected, abs_tol=0.0000001)
+        assert math.isclose(t.getRate(all=True)[1], expected, abs_tol=0.0000001)
+
+        t = NewTable(1)
+        assert t.getRate() == 1
+
+        t = DataTable(96000, chnls=2)
+        assert t.getRate(False) == 0.5
+        assert t.getRate(True) == [0.5, 0.5]
+
+    def test_getDur(self):
+        t = SndTable(SNDS_PATH + "/IRMediumHallStereo.wav")
+        samplerate = t.getServer().getSamplingRate()
+        expected = 1.0 / (samplerate * 44100 / samplerate / 66213)
+        assert math.isclose(t.getDur(all=False), expected, abs_tol=0.0000001)
+        assert math.isclose(t.getDur(all=True)[0], expected, abs_tol=0.0000001)
+        assert math.isclose(t.getDur(all=True)[1], expected, abs_tol=0.0000001)
+
+        t = NewTable(1)
+        assert t.getDur() == 1
+
+        t = DataTable(96000, chnls=2)
+        assert t.getDur(False) == 2
+        assert t.getDur(True) == [2, 2]
+
     def test_put(self):
         t = DataTable(size=10)
         assert t.get(0) == 0

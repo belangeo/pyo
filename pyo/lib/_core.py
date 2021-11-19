@@ -969,6 +969,45 @@ class PyoTableObject(PyoObjectBase):
             else:
                 return self._size
 
+    def getRate(self, all=False):
+        """
+        Return the frequency in cps at which the table will be read at its
+        original pitch.
+
+        :Args:
+
+            all: boolean
+                If the table contains more than one stream and `all` is True,
+                returns a list of all frequencies. Otherwise, returns only the
+                first frequency as a float. Defaults to False.
+
+        """
+        pyoArgsAssert(self, "B", all)
+        _rate = [obj.getRate() for obj in self._base_objs]
+
+        if all and len(_rate) > 1:
+            return _rate
+        else:
+            return _rate[0]
+
+    def getDur(self, all=False):
+        """
+        Return the duration of the table in seconds.
+
+        :Args:
+
+            all: boolean
+                If the table contains more than one stream and `all` is True,
+                returns a list of all durations. Otherwise, returns only the
+                first duration as a float. Defaults to False.
+
+        """
+        _rate = self.getRate(all)
+        if type(_rate) is list:
+            return [1.0 / x for x in _rate]
+        else:
+            return 1.0 / _rate
+
     def put(self, value, pos=0):
         pyoArgsAssert(self, "NI", value, pos)
         [obj.put(value, pos) for obj in self._base_objs]

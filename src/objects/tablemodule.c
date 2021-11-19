@@ -101,6 +101,42 @@ static int TableStream_getBuffer(PyObject *obj, Py_buffer *view, int flags)
     TABLESTREAM_GET_BUFFER
 };
 
+void TableStream_recordChunk(TableStream *self, MYFLT *data, T_SIZE_T datasize)
+{
+    int i;
+    for (i = 0; i < datasize; i++)
+    {
+        self->data[self->pointer] = data[i] + self->data[self->pointer] * self->feedback;
+        self->pointer++;
+
+        if (self->pointer == self->size)
+        {
+            self->pointer = 0;
+            self->data[self->size] = self->data[0];
+        }
+    } 
+}
+
+void TableStream_resetRecordingPointer(TableStream *self)
+{
+    self->pointer = 0;
+}
+
+void TableStream_setFeedback(TableStream *self, MYFLT feedback)
+{
+    self->feedback = feedback;
+}
+
+MYFLT TableStream_getFeedback(TableStream *self)
+{
+    return self->feedback;
+}
+
+void TableStream_record(TableStream *self, int pos, MYFLT value)
+{
+    self->data[pos] = value;
+}
+
 static PyBufferProcs TableStream_as_buffer =
 {
 #if PY_MAJOR_VERSION < 3
@@ -290,6 +326,7 @@ static PyObject * HarmTable_copyData(HarmTable *self, PyObject *args, PyObject *
 static PyObject * HarmTable_rotate(HarmTable *self, PyObject *args, PyObject *kwds) { TABLE_ROTATE };
 static PyObject * HarmTable_setTable(HarmTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * HarmTable_getTable(HarmTable *self) { GET_TABLE };
+static PyObject * HarmTable_getRate(HarmTable *self) { TABLE_GET_RATE };
 static PyObject * HarmTable_put(HarmTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
 static PyObject * HarmTable_get(HarmTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
 static PyObject * HarmTable_add(HarmTable *self, PyObject *arg) { TABLE_ADD };
@@ -368,6 +405,7 @@ static PyMethodDef HarmTable_methods[] =
     {"setData", (PyCFunction)HarmTable_setData, METH_O, NULL},
     {"setSize", (PyCFunction)HarmTable_setSize, METH_O, NULL},
     {"getSize", (PyCFunction)HarmTable_getSize, METH_NOARGS, NULL},
+    {"getRate", (PyCFunction)HarmTable_getRate, METH_NOARGS, NULL},
     {"put", (PyCFunction)HarmTable_put, METH_VARARGS | METH_KEYWORDS, NULL},
     {"get", (PyCFunction)HarmTable_get, METH_VARARGS | METH_KEYWORDS, NULL},
     {"replace", (PyCFunction)HarmTable_replace, METH_O, NULL},
@@ -611,6 +649,7 @@ static PyObject * ChebyTable_copyData(ChebyTable *self, PyObject *args, PyObject
 static PyObject * ChebyTable_rotate(ChebyTable *self, PyObject *args, PyObject *kwds) { TABLE_ROTATE };
 static PyObject * ChebyTable_setTable(ChebyTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * ChebyTable_getTable(ChebyTable *self) { GET_TABLE };
+static PyObject * ChebyTable_getRate(ChebyTable *self) { TABLE_GET_RATE };
 static PyObject * ChebyTable_put(ChebyTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
 static PyObject * ChebyTable_get(ChebyTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
 static PyObject * ChebyTable_add(ChebyTable *self, PyObject *arg) { TABLE_ADD };
@@ -786,6 +825,7 @@ static PyMethodDef ChebyTable_methods[] =
     {"pow", (PyCFunction)ChebyTable_pow, METH_VARARGS | METH_KEYWORDS, NULL},
     {"setSize", (PyCFunction)ChebyTable_setSize, METH_O, NULL},
     {"getSize", (PyCFunction)ChebyTable_getSize, METH_NOARGS, NULL},
+    {"getRate", (PyCFunction)ChebyTable_getRate, METH_NOARGS, NULL},
     {"put", (PyCFunction)ChebyTable_put, METH_VARARGS | METH_KEYWORDS, NULL},
     {"get", (PyCFunction)ChebyTable_get, METH_VARARGS | METH_KEYWORDS, NULL},
     {"replace", (PyCFunction)ChebyTable_replace, METH_O, NULL},
@@ -939,6 +979,7 @@ static PyObject * HannTable_copyData(HannTable *self, PyObject *args, PyObject *
 static PyObject * HannTable_rotate(HannTable *self, PyObject *args, PyObject *kwds) { TABLE_ROTATE };
 static PyObject * HannTable_setTable(HannTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * HannTable_getTable(HannTable *self) { GET_TABLE };
+static PyObject * HannTable_getRate(HannTable *self) { TABLE_GET_RATE };
 static PyObject * HannTable_put(HannTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
 static PyObject * HannTable_get(HannTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
 static PyObject * HannTable_add(HannTable *self, PyObject *arg) { TABLE_ADD };
@@ -992,6 +1033,7 @@ static PyMethodDef HannTable_methods[] =
     {"pow", (PyCFunction)HannTable_pow, METH_VARARGS | METH_KEYWORDS, NULL},
     {"setSize", (PyCFunction)HannTable_setSize, METH_O, NULL},
     {"getSize", (PyCFunction)HannTable_getSize, METH_NOARGS, NULL},
+    {"getRate", (PyCFunction)HannTable_getRate, METH_NOARGS, NULL},
     {"put", (PyCFunction)HannTable_put, METH_VARARGS | METH_KEYWORDS, NULL},
     {"get", (PyCFunction)HannTable_get, METH_VARARGS | METH_KEYWORDS, NULL},
     {"add", (PyCFunction)HannTable_add, METH_O, NULL},
@@ -1172,6 +1214,7 @@ static PyObject * SincTable_copyData(SincTable *self, PyObject *args, PyObject *
 static PyObject * SincTable_rotate(SincTable *self, PyObject *args, PyObject *kwds) { TABLE_ROTATE };
 static PyObject * SincTable_setTable(SincTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * SincTable_getTable(SincTable *self) { GET_TABLE };
+static PyObject * SincTable_getRate(SincTable *self) { TABLE_GET_RATE };
 static PyObject * SincTable_put(SincTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
 static PyObject * SincTable_get(SincTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
 static PyObject * SincTable_add(SincTable *self, PyObject *arg) { TABLE_ADD };
@@ -1259,6 +1302,7 @@ static PyMethodDef SincTable_methods[] =
     {"pow", (PyCFunction)SincTable_pow, METH_VARARGS | METH_KEYWORDS, NULL},
     {"setSize", (PyCFunction)SincTable_setSize, METH_O, NULL},
     {"getSize", (PyCFunction)SincTable_getSize, METH_NOARGS, NULL},
+    {"getRate", (PyCFunction)SincTable_getRate, METH_NOARGS, NULL},
     {"setFreq", (PyCFunction)SincTable_setFreq, METH_O, NULL},
     {"setWindowed", (PyCFunction)SincTable_setWindowed, METH_O, NULL},
     {"put", (PyCFunction)SincTable_put, METH_VARARGS | METH_KEYWORDS, NULL},
@@ -1403,6 +1447,7 @@ static PyObject * WinTable_copyData(WinTable *self, PyObject *args, PyObject *kw
 static PyObject * WinTable_rotate(WinTable *self, PyObject *args, PyObject *kwds) { TABLE_ROTATE };
 static PyObject * WinTable_setTable(WinTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * WinTable_getTable(WinTable *self) { GET_TABLE };
+static PyObject * WinTable_getRate(WinTable *self) { TABLE_GET_RATE };
 static PyObject * WinTable_put(WinTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
 static PyObject * WinTable_get(WinTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
 static PyObject * WinTable_add(WinTable *self, PyObject *arg) { TABLE_ADD };
@@ -1478,6 +1523,7 @@ static PyMethodDef WinTable_methods[] =
     {"pow", (PyCFunction)WinTable_pow, METH_VARARGS | METH_KEYWORDS, NULL},
     {"setSize", (PyCFunction)WinTable_setSize, METH_O, NULL},
     {"getSize", (PyCFunction)WinTable_getSize, METH_NOARGS, NULL},
+    {"getRate", (PyCFunction)WinTable_getRate, METH_NOARGS, NULL},
     {"setType", (PyCFunction)WinTable_setType, METH_O, NULL},
     {"put", (PyCFunction)WinTable_put, METH_VARARGS | METH_KEYWORDS, NULL},
     {"get", (PyCFunction)WinTable_get, METH_VARARGS | METH_KEYWORDS, NULL},
@@ -1636,6 +1682,7 @@ static PyObject * ParaTable_copyData(ParaTable *self, PyObject *args, PyObject *
 static PyObject * ParaTable_rotate(ParaTable *self, PyObject *args, PyObject *kwds) { TABLE_ROTATE };
 static PyObject * ParaTable_setTable(ParaTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * ParaTable_getTable(ParaTable *self) { GET_TABLE };
+static PyObject * ParaTable_getRate(ParaTable *self) { TABLE_GET_RATE };
 static PyObject * ParaTable_put(ParaTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
 static PyObject * ParaTable_get(ParaTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
 static PyObject * ParaTable_add(ParaTable *self, PyObject *arg) { TABLE_ADD };
@@ -1689,6 +1736,7 @@ static PyMethodDef ParaTable_methods[] =
     {"pow", (PyCFunction)ParaTable_pow, METH_VARARGS | METH_KEYWORDS, NULL},
     {"setSize", (PyCFunction)ParaTable_setSize, METH_O, NULL},
     {"getSize", (PyCFunction)ParaTable_getSize, METH_NOARGS, NULL},
+    {"getRate", (PyCFunction)ParaTable_getRate, METH_NOARGS, NULL},
     {"put", (PyCFunction)ParaTable_put, METH_VARARGS | METH_KEYWORDS, NULL},
     {"get", (PyCFunction)ParaTable_get, METH_VARARGS | METH_KEYWORDS, NULL},
     {"add", (PyCFunction)ParaTable_add, METH_O, NULL},
@@ -1907,6 +1955,7 @@ static PyObject * LinTable_copyData(LinTable *self, PyObject *args, PyObject *kw
 static PyObject * LinTable_rotate(LinTable *self, PyObject *args, PyObject *kwds) { TABLE_ROTATE };
 static PyObject * LinTable_setTable(LinTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * LinTable_getTable(LinTable *self) { GET_TABLE };
+static PyObject * LinTable_getRate(LinTable *self) { TABLE_GET_RATE };
 static PyObject * LinTable_put(LinTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
 static PyObject * LinTable_get(LinTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
 static PyObject * LinTable_add(LinTable *self, PyObject *arg) { TABLE_ADD };
@@ -1992,6 +2041,7 @@ static PyMethodDef LinTable_methods[] =
     {"pow", (PyCFunction)LinTable_pow, METH_VARARGS | METH_KEYWORDS, NULL},
     {"setSize", (PyCFunction)LinTable_setSize, METH_O, NULL},
     {"getSize", (PyCFunction)LinTable_getSize, METH_NOARGS, NULL},
+    {"getRate", (PyCFunction)LinTable_getRate, METH_NOARGS, NULL},
     {"put", (PyCFunction)LinTable_put, METH_VARARGS | METH_KEYWORDS, NULL},
     {"get", (PyCFunction)LinTable_get, METH_VARARGS | METH_KEYWORDS, NULL},
     {"getPoints", (PyCFunction)LinTable_getPoints, METH_NOARGS, NULL},
@@ -2244,6 +2294,7 @@ static PyObject * LogTable_copyData(LogTable *self, PyObject *args, PyObject *kw
 static PyObject * LogTable_rotate(LogTable *self, PyObject *args, PyObject *kwds) { TABLE_ROTATE };
 static PyObject * LogTable_setTable(LogTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * LogTable_getTable(LogTable *self) { GET_TABLE };
+static PyObject * LogTable_getRate(LogTable *self) { TABLE_GET_RATE };
 static PyObject * LogTable_put(LogTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
 static PyObject * LogTable_get(LogTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
 static PyObject * LogTable_add(LogTable *self, PyObject *arg) { TABLE_ADD };
@@ -2329,6 +2380,7 @@ static PyMethodDef LogTable_methods[] =
     {"pow", (PyCFunction)LogTable_pow, METH_VARARGS | METH_KEYWORDS, NULL},
     {"setSize", (PyCFunction)LogTable_setSize, METH_O, NULL},
     {"getSize", (PyCFunction)LogTable_getSize, METH_NOARGS, NULL},
+    {"getRate", (PyCFunction)LogTable_getRate, METH_NOARGS, NULL},
     {"put", (PyCFunction)LogTable_put, METH_VARARGS | METH_KEYWORDS, NULL},
     {"get", (PyCFunction)LogTable_get, METH_VARARGS | METH_KEYWORDS, NULL},
     {"getPoints", (PyCFunction)LogTable_getPoints, METH_NOARGS, NULL},
@@ -2549,6 +2601,7 @@ static PyObject * CosTable_copyData(CosTable *self, PyObject *args, PyObject *kw
 static PyObject * CosTable_rotate(CosTable *self, PyObject *args, PyObject *kwds) { TABLE_ROTATE };
 static PyObject * CosTable_setTable(CosTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * CosTable_getTable(CosTable *self) { GET_TABLE };
+static PyObject * CosTable_getRate(CosTable *self) { TABLE_GET_RATE };
 static PyObject * CosTable_put(CosTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
 static PyObject * CosTable_get(CosTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
 static PyObject * CosTable_add(CosTable *self, PyObject *arg) { TABLE_ADD };
@@ -2634,6 +2687,7 @@ static PyMethodDef CosTable_methods[] =
     {"pow", (PyCFunction)CosTable_pow, METH_VARARGS | METH_KEYWORDS, NULL},
     {"setSize", (PyCFunction)CosTable_setSize, METH_O, NULL},
     {"getSize", (PyCFunction)CosTable_getSize, METH_NOARGS, NULL},
+    {"getRate", (PyCFunction)CosTable_getRate, METH_NOARGS, NULL},
     {"put", (PyCFunction)CosTable_put, METH_VARARGS | METH_KEYWORDS, NULL},
     {"get", (PyCFunction)CosTable_get, METH_VARARGS | METH_KEYWORDS, NULL},
     {"getPoints", (PyCFunction)CosTable_getPoints, METH_NOARGS, NULL},
@@ -2887,6 +2941,7 @@ static PyObject * CosLogTable_copyData(CosLogTable *self, PyObject *args, PyObje
 static PyObject * CosLogTable_rotate(CosLogTable *self, PyObject *args, PyObject *kwds) { TABLE_ROTATE };
 static PyObject * CosLogTable_setTable(CosLogTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * CosLogTable_getTable(CosLogTable *self) { GET_TABLE };
+static PyObject * CosLogTable_getRate(CosLogTable *self) { TABLE_GET_RATE };
 static PyObject * CosLogTable_put(CosLogTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
 static PyObject * CosLogTable_get(CosLogTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
 static PyObject * CosLogTable_add(CosLogTable *self, PyObject *arg) { TABLE_ADD };
@@ -2972,6 +3027,7 @@ static PyMethodDef CosLogTable_methods[] =
     {"pow", (PyCFunction)CosLogTable_pow, METH_VARARGS | METH_KEYWORDS, NULL},
     {"setSize", (PyCFunction)CosLogTable_setSize, METH_O, NULL},
     {"getSize", (PyCFunction)CosLogTable_getSize, METH_NOARGS, NULL},
+    {"getRate", (PyCFunction)CosLogTable_getRate, METH_NOARGS, NULL},
     {"put", (PyCFunction)CosLogTable_put, METH_VARARGS | METH_KEYWORDS, NULL},
     {"get", (PyCFunction)CosLogTable_get, METH_VARARGS | METH_KEYWORDS, NULL},
     {"getPoints", (PyCFunction)CosLogTable_getPoints, METH_NOARGS, NULL},
@@ -3218,6 +3274,7 @@ static PyObject * CurveTable_copyData(CurveTable *self, PyObject *args, PyObject
 static PyObject * CurveTable_rotate(CurveTable *self, PyObject *args, PyObject *kwds) { TABLE_ROTATE };
 static PyObject * CurveTable_setTable(CurveTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * CurveTable_getTable(CurveTable *self) { GET_TABLE };
+static PyObject * CurveTable_getRate(CurveTable *self) { TABLE_GET_RATE };
 static PyObject * CurveTable_put(CurveTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
 static PyObject * CurveTable_get(CurveTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
 static PyObject * CurveTable_add(CurveTable *self, PyObject *arg) { TABLE_ADD };
@@ -3336,6 +3393,7 @@ static PyMethodDef CurveTable_methods[] =
     {"setData", (PyCFunction)CurveTable_setData, METH_O, NULL},
     {"setSize", (PyCFunction)CurveTable_setSize, METH_O, NULL},
     {"getSize", (PyCFunction)CurveTable_getSize, METH_NOARGS, NULL},
+    {"getRate", (PyCFunction)CurveTable_getRate, METH_NOARGS, NULL},
     {"put", (PyCFunction)CurveTable_put, METH_VARARGS | METH_KEYWORDS, NULL},
     {"get", (PyCFunction)CurveTable_get, METH_VARARGS | METH_KEYWORDS, NULL},
     {"getPoints", (PyCFunction)CurveTable_getPoints, METH_NOARGS, NULL},
@@ -3595,6 +3653,7 @@ static PyObject * ExpTable_copyData(ExpTable *self, PyObject *args, PyObject *kw
 static PyObject * ExpTable_rotate(ExpTable *self, PyObject *args, PyObject *kwds) { TABLE_ROTATE };
 static PyObject * ExpTable_setTable(ExpTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * ExpTable_getTable(ExpTable *self) { GET_TABLE };
+static PyObject * ExpTable_getRate(ExpTable *self) { TABLE_GET_RATE };
 static PyObject * ExpTable_put(ExpTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
 static PyObject * ExpTable_get(ExpTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
 static PyObject * ExpTable_add(ExpTable *self, PyObject *arg) { TABLE_ADD };
@@ -3712,6 +3771,7 @@ static PyMethodDef ExpTable_methods[] =
     {"setData", (PyCFunction)ExpTable_setData, METH_O, NULL},
     {"setSize", (PyCFunction)ExpTable_setSize, METH_O, NULL},
     {"getSize", (PyCFunction)ExpTable_getSize, METH_NOARGS, NULL},
+    {"getRate", (PyCFunction)ExpTable_getRate, METH_NOARGS, NULL},
     {"put", (PyCFunction)ExpTable_put, METH_VARARGS | METH_KEYWORDS, NULL},
     {"get", (PyCFunction)ExpTable_get, METH_VARARGS | METH_KEYWORDS, NULL},
     {"getPoints", (PyCFunction)ExpTable_getPoints, METH_NOARGS, NULL},
@@ -3787,48 +3847,7 @@ typedef struct
     MYFLT length;
     MYFLT feedback;
     MYFLT sr;
-    T_SIZE_T pointer;
 } NewTable;
-
-void NewTable_resetRecordingPointer(NewTable *self) { self->pointer = 0; }
-
-MYFLT NewTable_getFeedback(NewTable *self) { return self->feedback; }
-
-static PyObject *
-NewTable_recordChunk(NewTable *self, MYFLT *data, T_SIZE_T datasize)
-{
-    T_SIZE_T i;
-
-    if (self->feedback == 0.0)
-    {
-        for (i = 0; i < datasize; i++)
-        {
-            self->data[self->pointer++] = data[i];
-
-            if (self->pointer == self->size)
-            {
-                self->pointer = 0;
-                self->data[self->size] = self->data[0];
-            }
-        }
-    }
-    else
-    {
-        for (i = 0; i < datasize; i++)
-        {
-            self->data[self->pointer] = data[i] + self->data[self->pointer] * self->feedback;
-            self->pointer++;
-
-            if (self->pointer == self->size)
-            {
-                self->pointer = 0;
-                self->data[self->size] = self->data[0];
-            }
-        }
-    }
-
-    Py_RETURN_NONE;
-}
 
 static int
 NewTable_traverse(NewTable *self, visitproc visit, void *arg)
@@ -3864,7 +3883,6 @@ NewTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->server = PyServer_get_server();
     Py_INCREF(self->server);
 
-    self->pointer = 0;
     self->feedback = 0.0;
 
     MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
@@ -3885,6 +3903,8 @@ NewTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     {
         self->data[i] = 0.;
     }
+
+    TableStream_setFeedback(self->tablestream, self->feedback);
 
     TableStream_setSize(self->tablestream, self->size);
 
@@ -3931,12 +3951,82 @@ static PyObject * NewTable_copyData(NewTable *self, PyObject *args, PyObject *kw
 static PyObject * NewTable_rotate(NewTable *self, PyObject *args, PyObject *kwds) { TABLE_ROTATE };
 static PyObject * NewTable_setTable(NewTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * NewTable_getTable(NewTable *self) { GET_TABLE };
+static PyObject * NewTable_getRate(NewTable *self) { TABLE_GET_RATE };
 static PyObject * NewTable_put(NewTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
 static PyObject * NewTable_get(NewTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
 static PyObject * NewTable_add(NewTable *self, PyObject *arg) { TABLE_ADD };
 static PyObject * NewTable_sub(NewTable *self, PyObject *arg) { TABLE_SUB };
 static PyObject * NewTable_mul(NewTable *self, PyObject *arg) { TABLE_MUL };
 static PyObject * NewTable_div(NewTable *self, PyObject *arg) { TABLE_DIV };
+
+static PyObject *
+NewTable_setLength(NewTable *self, PyObject *value)
+{
+    if (value == NULL)
+    {
+        PyErr_SetString(PyExc_TypeError, "Cannot delete the length attribute.");
+        return PyLong_FromLong(-1);
+    }
+
+    if (! PyNumber_Check(value))
+    {
+        PyErr_SetString(PyExc_TypeError, "The length attribute value must be a number.");
+        return PyLong_FromLong(-1);
+    }
+
+    MYFLT tmp = (MYFLT)PyFloat_AsDouble(value);
+    MYFLT diff = tmp - self->length;
+
+    T_SIZE_T size = (T_SIZE_T)(tmp * self->sr + 0.5);
+
+    MYFLT *data = (MYFLT *)PyMem_RawRealloc(self->data, (size + 1) * sizeof(MYFLT));
+    if (data == NULL)
+    {
+        Py_RETURN_NONE;
+    }
+
+    self->data = data;
+    self->size = size;
+    self->length = tmp;
+    TableStream_setData(self->tablestream, self->data);
+    TableStream_setSize(self->tablestream, self->size);
+
+    if (diff > 0)
+    {
+        MYFLT startf = self->length - diff;
+        T_SIZE_T starti = (T_SIZE_T)(startf * self->sr + 0.5);
+
+        for ( ; starti < (self->size + 1); starti++)
+        {
+            self->data[starti] = 0.0;
+        }
+    }
+
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+NewTable_setSize(NewTable *self, PyObject *value)
+{
+    TABLE_SET_SIZE
+
+    MYFLT oldLength = self->length;
+    self->length = self->size / self->sr;
+    MYFLT diff = self->length - oldLength;
+
+    if (diff > 0)
+    {
+        MYFLT startf = self->length - diff;
+        T_SIZE_T starti = (T_SIZE_T)(startf * self->sr);
+
+        for ( ; starti < (self->size + 1); starti++)
+        {
+            self->data[starti] = 0.0;
+        }
+    }
+
+    Py_RETURN_NONE;
+}
 
 static PyObject *
 NewTable_getSize(NewTable *self)
@@ -3948,12 +4038,6 @@ static PyObject *
 NewTable_getLength(NewTable *self)
 {
     return PyFloat_FromDouble(self->length);
-};
-
-static PyObject *
-NewTable_getRate(NewTable *self)
-{
-    return PyFloat_FromDouble(self->sr / self->size);
 };
 
 static PyObject *
@@ -3971,6 +4055,7 @@ NewTable_setFeedback(NewTable *self, PyObject *value)
             feed = 1.0;
 
         self->feedback = feed;
+        TableStream_setFeedback(self->tablestream, feed);
     }
 
     Py_RETURN_NONE;
@@ -3991,6 +4076,8 @@ static PyMethodDef NewTable_methods[] =
     {"getTableStream", (PyCFunction)NewTable_getTableStream, METH_NOARGS, NULL},
     {"setFeedback", (PyCFunction)NewTable_setFeedback, METH_O, NULL},
     {"setData", (PyCFunction)NewTable_setData, METH_O, NULL},
+    {"setLength", (PyCFunction)NewTable_setLength, METH_O, NULL},
+    {"setSize", (PyCFunction)NewTable_setSize, METH_O, NULL},
     {"copy", (PyCFunction)NewTable_copy, METH_O, NULL},
     {"copyData", (PyCFunction)NewTable_copyData, METH_VARARGS | METH_KEYWORDS, NULL},
     {"rotate", (PyCFunction)NewTable_rotate, METH_VARARGS | METH_KEYWORDS, NULL},
@@ -4067,12 +4154,6 @@ typedef struct
     pyo_table_HEAD
     MYFLT sr;
 } DataTable;
-
-static void
-DataTable_record(DataTable *self, int pos, MYFLT value)
-{
-    self->data[pos] = value;
-}
 
 static int
 DataTable_traverse(DataTable *self, visitproc visit, void *arg)
@@ -4159,6 +4240,7 @@ static PyObject * DataTable_copyData(DataTable *self, PyObject *args, PyObject *
 static PyObject * DataTable_rotate(DataTable *self, PyObject *args, PyObject *kwds) { TABLE_ROTATE };
 static PyObject * DataTable_setTable(DataTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * DataTable_getTable(DataTable *self) { GET_TABLE };
+static PyObject * DataTable_getRate(DataTable *self) { TABLE_GET_RATE };
 static PyObject * DataTable_put(DataTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
 static PyObject * DataTable_get(DataTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
 static PyObject * DataTable_add(DataTable *self, PyObject *arg) { TABLE_ADD };
@@ -4170,12 +4252,6 @@ static PyObject *
 DataTable_getSize(DataTable *self)
 {
     return PyLong_FromLong(self->size);
-};
-
-static PyObject *
-DataTable_getRate(DataTable *self)
-{
-    return PyFloat_FromDouble(self->sr / self->size);
 };
 
 static PyMemberDef DataTable_members[] =
@@ -4369,6 +4445,7 @@ static PyObject * AtanTable_copyData(AtanTable *self, PyObject *args, PyObject *
 static PyObject * AtanTable_rotate(AtanTable *self, PyObject *args, PyObject *kwds) { TABLE_ROTATE };
 static PyObject * AtanTable_setTable(AtanTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * AtanTable_getTable(AtanTable *self) { GET_TABLE };
+static PyObject * AtanTable_getRate(AtanTable *self) { TABLE_GET_RATE };
 static PyObject * AtanTable_put(AtanTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
 static PyObject * AtanTable_get(AtanTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
 static PyObject * AtanTable_add(AtanTable *self, PyObject *arg) { TABLE_ADD };
@@ -4444,6 +4521,7 @@ static PyMethodDef AtanTable_methods[] =
     {"pow", (PyCFunction)AtanTable_pow, METH_VARARGS | METH_KEYWORDS, NULL},
     {"setSize", (PyCFunction)AtanTable_setSize, METH_O, NULL},
     {"getSize", (PyCFunction)AtanTable_getSize, METH_NOARGS, NULL},
+    {"getRate", (PyCFunction)AtanTable_getRate, METH_NOARGS, NULL},
     {"setSlope", (PyCFunction)AtanTable_setSlope, METH_O, NULL},
     {"put", (PyCFunction)AtanTable_put, METH_VARARGS | METH_KEYWORDS, NULL},
     {"get", (PyCFunction)AtanTable_get, METH_VARARGS | METH_KEYWORDS, NULL},
@@ -4727,6 +4805,7 @@ static PyObject * PadSynthTable_copyData(PadSynthTable *self, PyObject *args, Py
 static PyObject * PadSynthTable_rotate(PadSynthTable *self, PyObject *args, PyObject *kwds) { TABLE_ROTATE };
 static PyObject * PadSynthTable_setTable(PadSynthTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * PadSynthTable_getTable(PadSynthTable *self) { GET_TABLE };
+static PyObject * PadSynthTable_getRate(PadSynthTable *self) { TABLE_GET_RATE };
 static PyObject * PadSynthTable_put(PadSynthTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
 static PyObject * PadSynthTable_get(PadSynthTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
 static PyObject * PadSynthTable_add(PadSynthTable *self, PyObject *arg) { TABLE_ADD };
@@ -4899,6 +4978,7 @@ static PyMethodDef PadSynthTable_methods[] =
     {"fadeout", (PyCFunction)PadSynthTable_fadeout, METH_VARARGS | METH_KEYWORDS, NULL},
     {"pow", (PyCFunction)PadSynthTable_pow, METH_VARARGS | METH_KEYWORDS, NULL},
     {"getSize", (PyCFunction)PadSynthTable_getSize, METH_NOARGS, NULL},
+    {"getRate", (PyCFunction)PadSynthTable_getRate, METH_NOARGS, NULL},
     {"setBaseFreq", (PyCFunction)PadSynthTable_setBaseFreq, METH_VARARGS | METH_KEYWORDS, NULL},
     {"setSpread", (PyCFunction)PadSynthTable_setSpread, METH_VARARGS | METH_KEYWORDS, NULL},
     {"setBw", (PyCFunction)PadSynthTable_setBw, METH_VARARGS | METH_KEYWORDS, NULL},
@@ -4965,7 +5045,7 @@ typedef struct
     pyo_audio_HEAD
     PyObject *input;
     Stream *input_stream;
-    NewTable *table;
+    PyObject *table;
     T_SIZE_T pointer;
     int active;
     MYFLT fadetime;
@@ -4982,9 +5062,7 @@ TableRec_compute_next_data_frame(TableRec *self)
     int i;
     MYFLT val;
     T_SIZE_T num, upBound;
-    PyObject *sizeobj = NewTable_getSize((NewTable *)self->table);
-    T_SIZE_T size = PyLong_AsLong(sizeobj);
-    Py_DECREF(sizeobj);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
 
     for (i = 0; i < self->bufsize; i++)
     {
@@ -5040,7 +5118,7 @@ TableRec_compute_next_data_frame(TableRec *self)
             self->time_buffer_streams[i] = self->pointer++;
         }
 
-        NewTable_recordChunk((NewTable *)self->table, self->buffer, num);
+        TableStream_recordChunk((TableStream *)self->table, self->buffer, num);
 
         if (num < self->bufsize)
         {
@@ -5063,7 +5141,6 @@ TableRec_traverse(TableRec *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->table);
     return 0;
 }
 
@@ -5072,7 +5149,6 @@ TableRec_clear(TableRec *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->table);
     return 0;
 }
 
@@ -5119,8 +5195,7 @@ TableRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     }
 
     Py_XDECREF(self->table);
-    Py_INCREF(tabletmp);
-    self->table = (NewTable *)tabletmp;
+    self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
@@ -5136,9 +5211,7 @@ TableRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     MAKE_NEW_TRIGGER_STREAM(self->trig_stream, &TriggerStreamType, NULL);
     TriggerStream_setData(self->trig_stream, self->trigsBuffer);
 
-    PyObject *sizeobj = NewTable_getSize((NewTable *)self->table);
-    int size = PyLong_AsLong(sizeobj);
-    Py_DECREF(sizeobj);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
 
     if ((self->fadetime * self->sr) >= (size * 0.5))
         self->fadetime = size * 0.499 / self->sr;
@@ -5166,7 +5239,7 @@ static PyObject * TableRec_play(TableRec *self, PyObject *args, PyObject *kwds)
 
     self->pointer = 0;
     self->active = 1;
-    NewTable_resetRecordingPointer((NewTable *)self->table);
+    TableStream_resetRecordingPointer((TableStream *)self->table);
     PLAY
 };
 
@@ -5205,14 +5278,11 @@ static PyObject * TableRec_stop(TableRec *self, PyObject *args, PyObject *kwds)
 static PyObject *
 TableRec_setTable(TableRec *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
-    Py_INCREF(tmp);
+    PyObject *tmp = arg;
     Py_DECREF(self->table);
-    self->table = (NewTable *)tmp;
+    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -5565,10 +5635,8 @@ TableMorph_clip(MYFLT x)
 static void
 TableMorph_alloc_memories(TableMorph *self)
 {
-    T_SIZE_T i, size;
-    PyObject *sizeobj = NewTable_getSize((NewTable *)self->table);
-    size = PyLong_AsLong(sizeobj);
-    Py_DECREF(sizeobj);
+    T_SIZE_T i;
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
     self->last_size = size;
     self->buffer = (MYFLT *)PyMem_RawRealloc(self->buffer, size * sizeof(MYFLT));
 
@@ -5586,9 +5654,7 @@ TableMorph_compute_next_data_frame(TableMorph *self)
     MYFLT input, interp, interp1, interp2;
 
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    PyObject *sizeobj = NewTable_getSize((NewTable *)self->table);
-    T_SIZE_T size = PyLong_AsLong(sizeobj);
-    Py_DECREF(sizeobj);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
     int len = PyList_Size(self->sources);
 
     if (size != self->last_size)
@@ -5617,7 +5683,7 @@ TableMorph_compute_next_data_frame(TableMorph *self)
         self->buffer[i] = tab1[i] * interp1 + tab2[i] * interp2;
     }
 
-    NewTable_recordChunk((NewTable *)self->table, self->buffer, size);
+    TableStream_recordChunk((TableStream *)self->table, self->buffer, size);
 }
 
 static int
@@ -5625,7 +5691,6 @@ TableMorph_traverse(TableMorph *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->table);
     Py_VISIT(self->sources);
     return 0;
 }
@@ -5635,7 +5700,6 @@ TableMorph_clear(TableMorph *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->table);
     Py_CLEAR(self->sources);
     return 0;
 }
@@ -5676,8 +5740,7 @@ TableMorph_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     }
 
     Py_XDECREF(self->table);
-    Py_INCREF(tabletmp);
-    self->table = (PyObject *)tabletmp;
+    self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
 
     Py_XDECREF(self->sources);
     Py_INCREF(sourcestmp);
@@ -5699,14 +5762,11 @@ static PyObject * TableMorph_stop(TableMorph *self, PyObject *args, PyObject *kw
 static PyObject *
 TableMorph_setTable(TableMorph *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
-    Py_INCREF(tmp);
+    PyObject *tmp = arg;
     Py_DECREF(self->table);
-    self->table = (PyObject *)tmp;
+    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -5802,7 +5862,7 @@ typedef struct
     Stream *input_stream;
     PyObject *trigger;
     Stream *trigger_stream;
-    NewTable *table;
+    PyObject *table;
     T_SIZE_T pointer;
     int active;
     MYFLT fadetime;
@@ -5818,9 +5878,7 @@ TrigTableRec_compute_next_data_frame(TrigTableRec *self)
     int i, j, num;
     MYFLT val;
     T_SIZE_T upBound;
-    PyObject *sizeobj = NewTable_getSize((NewTable *)self->table);
-    T_SIZE_T size = PyLong_AsLong(sizeobj);
-    Py_DECREF(sizeobj);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
 
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *trig = Stream_getData((Stream *)self->trigger_stream);
@@ -5869,7 +5927,7 @@ TrigTableRec_compute_next_data_frame(TrigTableRec *self)
                 self->time_buffer_streams[i] = self->pointer++;
             }
 
-            NewTable_recordChunk((NewTable *)self->table, buffer, num);
+            TableStream_recordChunk((TableStream *)self->table, buffer, num);
 
             if (num < self->bufsize)
             {
@@ -5890,7 +5948,7 @@ TrigTableRec_compute_next_data_frame(TrigTableRec *self)
             {
                 self->active = 1;
                 self->pointer = 0;
-                NewTable_resetRecordingPointer((NewTable *)self->table);
+                TableStream_resetRecordingPointer((TableStream *)self->table);
 
                 if (size >= self->bufsize)
                     num = self->bufsize - j;
@@ -5929,7 +5987,7 @@ TrigTableRec_compute_next_data_frame(TrigTableRec *self)
                     self->time_buffer_streams[i + j] = self->pointer++;
                 }
 
-                NewTable_recordChunk((NewTable *)self->table, buffer, num);
+                TableStream_recordChunk((TableStream *)self->table, buffer, num);
 
                 if (num < (self->bufsize - j))
                 {
@@ -5957,7 +6015,6 @@ TrigTableRec_traverse(TrigTableRec *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->input);
     Py_VISIT(self->trigger);
-    Py_VISIT(self->table);
     return 0;
 }
 
@@ -5967,7 +6024,6 @@ TrigTableRec_clear(TrigTableRec *self)
     pyo_CLEAR
     Py_CLEAR(self->input);
     Py_CLEAR(self->trigger);
-    Py_CLEAR(self->table);
     return 0;
 }
 
@@ -6021,8 +6077,7 @@ TrigTableRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     }
 
     Py_XDECREF(self->table);
-    Py_INCREF(tabletmp);
-    self->table = (NewTable *)tabletmp;
+    self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
@@ -6037,10 +6092,7 @@ TrigTableRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     MAKE_NEW_TRIGGER_STREAM(self->trig_stream, &TriggerStreamType, NULL);
     TriggerStream_setData(self->trig_stream, self->trigsBuffer);
 
-    PyObject *sizeobj = NewTable_getSize((NewTable *)self->table);
-    int size = PyLong_AsLong(sizeobj);
-    Py_DECREF(sizeobj);
-
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
     if ((self->fadetime * self->sr) >= (size * 0.5))
         self->fadetime = size * 0.499 / self->sr;
 
@@ -6062,14 +6114,11 @@ static PyObject * TrigTableRec_stop(TrigTableRec *self, PyObject *args, PyObject
 static PyObject *
 TrigTableRec_setTable(TrigTableRec *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
-    Py_INCREF(tmp);
+    PyObject *tmp = arg;
     Py_DECREF(self->table);
-    self->table = (NewTable *)tmp;
+    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -6403,7 +6452,7 @@ typedef struct
     pyo_audio_HEAD
     PyObject *input;
     Stream *input_stream;
-    DataTable *table;
+    PyObject *table;
     T_SIZE_T pointer;
     int active;
     MYFLT last_value;
@@ -6415,9 +6464,7 @@ static void
 TablePut_compute_next_data_frame(TablePut *self)
 {
     int i;
-    PyObject *sizeobj = NewTable_getSize((NewTable *)self->table);
-    T_SIZE_T size = PyLong_AsLong(sizeobj);
-    Py_DECREF(sizeobj);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
 
     for (i = 0; i < self->bufsize; i++)
@@ -6432,7 +6479,7 @@ TablePut_compute_next_data_frame(TablePut *self)
             if (in[i] != self->last_value)
             {
                 self->last_value = in[i];
-                DataTable_record((DataTable *)self->table, self->pointer++, self->last_value);
+                TableStream_record((TableStream *)self->table, self->pointer++, self->last_value);
 
                 if (self->pointer >= size)
                 {
@@ -6450,7 +6497,6 @@ TablePut_traverse(TablePut *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->table);
     return 0;
 }
 
@@ -6459,7 +6505,6 @@ TablePut_clear(TablePut *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->table);
     return 0;
 }
 
@@ -6504,8 +6549,7 @@ TablePut_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     }
 
     Py_XDECREF(self->table);
-    Py_INCREF(tabletmp);
-    self->table = (DataTable *)tabletmp;
+    self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
@@ -6538,14 +6582,11 @@ static PyObject * TablePut_stop(TablePut *self, PyObject *args, PyObject *kwds) 
 static PyObject *
 TablePut_setTable(TablePut *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
-    Py_INCREF(tmp);
+    PyObject *tmp = arg;
     Py_DECREF(self->table);
-    self->table = (DataTable *)tmp;
+    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -6623,7 +6664,7 @@ typedef struct
     Stream *input_stream;
     PyObject *pos;
     Stream *pos_stream;
-    NewTable *table;
+    PyObject *table;
     int mode;
     int maxwindow;
     T_SIZE_T lastPos;
@@ -6637,12 +6678,10 @@ static void
 TableWrite_compute_next_data_frame(TableWrite *self)
 {
     T_SIZE_T i, j, ipos;
-    PyObject *table;
 
-    table = PyObject_CallMethod((PyObject *)self->table, "getTableStream", "");
-    MYFLT feed = NewTable_getFeedback((NewTable *)self->table);
-    MYFLT *tablelist = TableStream_getData((TableStream *)table);
-    T_SIZE_T size = TableStream_getSize((TableStream *)table);
+    MYFLT feed = TableStream_getFeedback((TableStream *)self->table);
+    MYFLT *tablelist = TableStream_getData((TableStream *)self->table);
+    T_SIZE_T size = TableStream_getSize((TableStream *)self->table);
 
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *pos = Stream_getData((Stream *)self->pos_stream);
@@ -6723,7 +6762,6 @@ TableWrite_traverse(TableWrite *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
-    Py_VISIT(self->table);
     Py_VISIT(self->pos);
     return 0;
 }
@@ -6733,7 +6771,6 @@ TableWrite_clear(TableWrite *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
-    Py_CLEAR(self->table);
     Py_CLEAR(self->pos);
     return 0;
 }
@@ -6788,8 +6825,7 @@ TableWrite_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     }
 
     Py_XDECREF(self->table);
-    Py_INCREF(tabletmp);
-    self->table = (NewTable *)tabletmp;
+    self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
@@ -6827,14 +6863,11 @@ TableWrite_setPos(TableWrite *self, PyObject *arg)
 static PyObject *
 TableWrite_setTable(TableWrite *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
-    Py_INCREF(tmp);
+    PyObject *tmp = arg;
     Py_DECREF(self->table);
-    self->table = (NewTable *)tmp;
+    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -7049,6 +7082,7 @@ static PyObject * SharedTable_copyData(SharedTable *self, PyObject *args, PyObje
 static PyObject * SharedTable_rotate(SharedTable *self, PyObject *args, PyObject *kwds) { TABLE_ROTATE };
 static PyObject * SharedTable_setTable(SharedTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * SharedTable_getTable(SharedTable *self) { GET_TABLE };
+static PyObject * SharedTable_getRate(SharedTable *self) { TABLE_GET_RATE };
 static PyObject * SharedTable_put(SharedTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
 static PyObject * SharedTable_get(SharedTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
 static PyObject * SharedTable_add(SharedTable *self, PyObject *arg) { TABLE_ADD };
@@ -7060,12 +7094,6 @@ static PyObject *
 SharedTable_getSize(SharedTable *self)
 {
     return PyLong_FromLong(self->size);
-};
-
-static PyObject *
-SharedTable_getRate(SharedTable *self)
-{
-    return PyFloat_FromDouble((MYFLT)self->sr / self->size);
 };
 
 static PyMemberDef SharedTable_members[] =

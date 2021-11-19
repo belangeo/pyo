@@ -640,6 +640,9 @@ class NewTable(PyoTableObject):
     def getRate(self):
         return self._base_objs[0].getRate()
 
+    def getFeedback(self):
+        return self._feedback
+
     @property
     def length(self):
         return self._length
@@ -710,9 +713,6 @@ class DataTable(PyoTableObject):
         if type(x[0]) != list:
             x = [x]
         [obj.setTable(self._check_data_size(wrap(x, i))) for i, obj in enumerate(self._base_objs)]
-
-    def getRate(self):
-        return self._base_objs[0].getRate()
 
     @property
     def size(self):
@@ -909,9 +909,6 @@ class SharedTable(PyoTableObject):
         self._create = create
         name, lmax = convertArgsToLists(name)
         self._base_objs = [SharedTable_base(wrap(name, i), create, size) for i in range(lmax)]
-
-    def getRate(self):
-        return self._base_objs[0].getRate()
 
     @property
     def size(self):
