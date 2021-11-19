@@ -1709,7 +1709,7 @@ class Lookup(PyoObject):
 
 class TableRec(PyoObject):
     """
-    TableRec is for writing samples into a previously created NewTable.
+    TableRec is for writing samples into a previously created table.
 
     See `NewTable` to create an empty table.
 
@@ -1725,7 +1725,7 @@ class TableRec(PyoObject):
 
         input: PyoObject
             Audio signal to write in the table.
-        table: NewTable
+        table: PyoTableObject
             The table where to write samples.
         fadetime: float, optional
             Fade time at the beginning and the end of the recording
@@ -1818,7 +1818,7 @@ class TableRec(PyoObject):
 
         :Args:
 
-            x: NewTable
+            x: PyoTableObject
                 new `table` attribute.
 
         """
@@ -1848,7 +1848,7 @@ class TableRec(PyoObject):
 
 class TableWrite(PyoObject):
     """
-    TableWrite writes samples into a previously created NewTable.
+    TableWrite writes samples into a previously created table.
 
     See `NewTable` to create an empty table.
 
@@ -1869,7 +1869,7 @@ class TableWrite(PyoObject):
             `input` samples. It is a normalized position (in the range
             0 to 1) in mode=0 or the raw position (in samples) for any
             other value of mode.
-        table: NewTable
+        table: PyoTableObject
             The table where to write samples.
         mode: int, optional
             Sets the writing pointer mode. If 0, the position must be
@@ -1951,7 +1951,7 @@ class TableWrite(PyoObject):
 
         :Args:
 
-            x: NewTable
+            x: PyoTableObject
                 new `table` attribute.
 
         """
@@ -2019,7 +2019,7 @@ class TableMorph(PyoObject):
         input: PyoObject
             Morphing index between 0 and 1. 0 is the first table in the list
             and 1 is the last.
-        table: NewTable
+        table: PyoTableObject
             The table where to write morphed waveform.
         sources: list of PyoTableObject
             List of tables to interpolate from.
@@ -2090,7 +2090,7 @@ class TableMorph(PyoObject):
 
         :Args:
 
-            x: NewTable
+            x: PyoTableObject
                 new `table` attribute.
 
         """
@@ -2394,7 +2394,7 @@ class Granulator(PyoObject):
 
 class TrigTableRec(PyoObject):
     """
-    TrigTableRec is for writing samples into a previously created NewTable.
+    TrigTableRec is for writing samples into a previously created table.
 
     See `NewTable` to create an empty table.
 
@@ -2409,7 +2409,7 @@ class TrigTableRec(PyoObject):
             Audio signal to write in the table.
         trig: PyoObject
             Audio signal sending triggers.
-        table: NewTable
+        table: PyoTableObject
             The table where to write samples.
         fadetime: float, optional
             Fade time at the beginning and the end of the recording
@@ -2515,7 +2515,7 @@ class TrigTableRec(PyoObject):
 
         :Args:
 
-            x: NewTable
+            x: PyoTableObject
                 new `table` attribute.
 
         """
@@ -3032,13 +3032,13 @@ class Looper(PyoObject):
 
 class TablePut(PyoObject):
     """
-    Writes values, without repetitions, from an audio stream into a DataTable.
+    Writes values, without repetitions, from an audio stream into a table.
 
     See :py:class:`DataTable` to create an empty table.
 
-    TablePut takes an audio input and writes values into a DataTable but
-    only when value changes. This allow to record only new values, without
-    repetitions.
+    TablePut takes an audio input and writes values into a table, typically
+    a DataTable, but only when value changes. This allow to record only new
+    values, without repetitions.
 
     The play method is not called at the object creation time. It starts
     the recording into the table until the table is full. Calling the
@@ -3052,7 +3052,7 @@ class TablePut(PyoObject):
 
         input: PyoObject
             Audio signal to write in the table.
-        table: DataTable
+        table: PyoTableObject
             The table where to write values.
 
     .. note::
@@ -3121,7 +3121,7 @@ class TablePut(PyoObject):
 
         :Args:
 
-            x: DataTable
+            x: PyoTableObject
                 new `table` attribute.
 
         """

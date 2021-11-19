@@ -1820,57 +1820,6 @@ class SndTable(PyoTableObject):
                 ]
         self.refreshView()
 
-    def getRate(self, all=True):
-        """
-        Return the frequency in cps at which the sound will be read at its
-        original pitch.
-
-        :Args:
-
-            all: boolean
-                If the table contains more than one sound and `all` is True,
-                returns a list of all durations. Otherwise, returns only the
-                first duration as a float.
-
-        """
-        if type(self._path) == list:
-            _rate = [obj.getRate() for obj in self._base_objs]
-        else:
-            _rate = self._base_objs[0].getRate()
-
-        if all:
-            return _rate
-        else:
-            if type(_rate) == list:
-                return _rate[0]
-            else:
-                return _rate
-
-    def getDur(self, all=True):
-        """
-        Return the duration of the sound in seconds.
-
-        :Args:
-
-            all: boolean
-                If the table contains more than one sound and `all` is True,
-                returns a list of all durations. Otherwise, returns only the
-                first duration as a float.
-
-        """
-        if type(self._path) == list:
-            _dur = [1.0 / obj.getRate() for obj in self._base_objs]
-        else:
-            _dur = 1.0 / self._base_objs[0].getRate()
-
-        if all:
-            return _dur
-        else:
-            if type(_dur) == list:
-                return _dur[0]
-            else:
-                return _dur
-
     def setSize(self, x):
         print("SndTable has no setSize method!")
 
@@ -2122,30 +2071,19 @@ class NewTable(PyoTableObject):
         self._feedback = x
         [obj.setFeedback(x) for i, obj in enumerate(self._base_objs)]
 
+    def getFeedback(self):
+        """
+        Returns the current feedback value.
+
+        """
+        return self._feedback
+
     def getLength(self):
         """
         Returns the length of the table in seconds.
 
         """
         return self._base_objs[0].getLength()
-
-    def getDur(self, all=True):
-        """
-        Returns the length of the table in seconds.
-
-        The `all` argument is there for compatibility with SndTable but
-        is not used for now.
-
-        """
-        return self._base_objs[0].getLength()
-
-    def getRate(self):
-        """
-        Returns the frequency (cycle per second) to give to an
-        oscillator to read the sound at its original pitch.
-
-        """
-        return self._base_objs[0].getRate()
 
     def getViewTable(self, size, begin=0, end=0):
         """
@@ -2318,14 +2256,6 @@ class DataTable(PyoTableObject):
             x = [x]
         [obj.setTable(self._check_data_size(wrap(x, i))) for i, obj in enumerate(self._base_objs)]
         self.refreshView()
-
-    def getRate(self):
-        """
-        Returns the frequency (cycle per second) to give to an
-        oscillator to read the sound at its original pitch.
-
-        """
-        return self._base_objs[0].getRate()
 
     def _get_current_data(self):
         # internal that returns the data to draw in a DataTableGrapher.
@@ -2851,14 +2781,6 @@ class SharedTable(PyoTableObject):
         self._create = create
         name, lmax = convertArgsToLists(name)
         self._base_objs = [SharedTable_base(wrap(name, i), create, size) for i in range(lmax)]
-
-    def getRate(self):
-        """
-        Returns the frequency (cycle per second) to give to an
-        oscillator to read the sound at its original pitch.
-
-        """
-        return self._base_objs[0].getRate()
 
     @property
     def size(self):

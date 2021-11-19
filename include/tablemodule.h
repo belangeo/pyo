@@ -31,6 +31,8 @@ typedef struct
     double samplingRate;
     MYFLT *data;
     Py_ssize_t shape[1]; /* 1-dimension array (must be set to table size) needed by the buffer protocol. */
+    T_SIZE_T pointer; /* writing pointer. */
+    MYFLT feedback; /* Recording feedback. */ 
 } TableStream;
 
 
@@ -38,12 +40,19 @@ typedef struct
 (self) = (TableStream *)(type)->tp_alloc((type), 0);    \
 if ((self) == rt_error) { return rt_error; }    \
 \
-(self)->size = 0
+(self)->size = 0; \
+(self)->pointer = 0; \
+(self)->feedback = 0.0
 
 
 extern T_SIZE_T TableStream_getSize(TableStream *self);
 extern double TableStream_getSamplingRate(TableStream *self);
 extern MYFLT * TableStream_getData(TableStream *self);
+extern void TableStream_recordChunk(TableStream *self, MYFLT *data, T_SIZE_T datasize);
+extern void TableStream_resetRecordingPointer(TableStream *self);
+extern void TableStream_setFeedback(TableStream *self, MYFLT feedback);
+extern MYFLT TableStream_getFeedback(TableStream *self);
+extern void TableStream_record(TableStream *self, int pos, MYFLT value);
 extern PyTypeObject TableStreamType;
 
 #endif // _TABLEMODULE_H

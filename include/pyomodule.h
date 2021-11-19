@@ -1430,6 +1430,12 @@ extern PyTypeObject MMLZStreamType;
  \
     return PyFloat_FromDouble(self->data[pos]);
 
+#define TABLE_GET_RATE \
+    PyObject *srobj = PyObject_CallMethod(self->server, "getSamplingRate", NULL); \
+    double sr = PyFloat_AsDouble(srobj); \
+    Py_DECREF(srobj); \
+    return PyFloat_FromDouble((MYFLT)sr / self->size);
+
 #define TABLE_SET_SIZE \
     if (value == NULL) \
     { \
