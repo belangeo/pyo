@@ -1823,31 +1823,6 @@ class SndTable(PyoTableObject):
     def setSize(self, x):
         print("SndTable has no setSize method!")
 
-    def getSize(self, all=True):
-        """
-        Return the size of the table in samples.
-
-        :Args:
-
-            all: boolean
-                If the table contains more than one sound and `all` is True,
-                returns a list of all sizes. Otherwise, returns only the
-                first size as an int.
-
-        """
-        if len(self._base_objs) > 1:
-            _size = [obj.getSize() for obj in self._base_objs]
-        else:
-            _size = self._base_objs[0].getSize()
-
-        if all:
-            return _size
-        else:
-            if type(_size) == list:
-                return _size[0]
-            else:
-                return _size
-
     def getViewTable(self, size, begin=0, end=0):
         """
         Return a list of points (in X, Y pixel values) for each channel in the table.

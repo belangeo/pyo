@@ -21,8 +21,6 @@ Roadmap 1.0.5
   Overall PyoTableObject.setSize method does not behave consistently for every table.
   Most of them re-generate the table after a resize, but the doc says that the table is zero'd.
 
-- PyoTableObject.getSize(all=False), but SndTable.getSize(all=True)
-
 Internal
 --------
 
