@@ -587,6 +587,20 @@ class TestPyoTableObject:
         t.setSize(5)
         assert t.getSize() == 5
 
+    def test_setSize2(self):
+        dummy = Sig(0)
+        samplerate = dummy.getServer().getSamplingRate()
+        t = NewTable(8 / samplerate, init=[1]*8)
+        t.setSize(16)
+        assert t.getTable() == [1]*8 + [0]*8
+
+    def test_setLength(self):
+        dummy = Sig(0)
+        samplerate = dummy.getServer().getSamplingRate()
+        t = NewTable(8 / samplerate, init=[1]*8)
+        t.setLength(2048 / samplerate)
+        assert t.getTable() == [1]*8 + [0]*2040
+
     def test_getSize(self):
         t = SndTable(SNDS_PATH + "/IRMediumHallStereo.wav")
         assert t.getSize(all=False) == 66213

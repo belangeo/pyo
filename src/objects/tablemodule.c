@@ -4674,8 +4674,6 @@ SndTable_setSize(SndTable *self, PyObject *value)
 
     TABLE_SET_SIZE
 
-    SndTable_full_reset(self);
-
     Py_RETURN_NONE;
 }
 
@@ -5041,6 +5039,75 @@ NewTable_getViewTable(NewTable *self, PyObject *args, PyObject *kwds)
 };
 
 static PyObject *
+NewTable_setLength(NewTable *self, PyObject *value)
+{
+    if (value == NULL)
+    {
+        PyErr_SetString(PyExc_TypeError, "Cannot delete the length attribute.");
+        return PyLong_FromLong(-1);
+    }
+
+    if (! PyNumber_Check(value))
+    {
+        PyErr_SetString(PyExc_TypeError, "The length attribute value must be a number.");
+        return PyLong_FromLong(-1);
+    }
+
+    MYFLT tmp = (MYFLT)PyFloat_AsDouble(value);
+    MYFLT diff = tmp - self->length;
+
+    T_SIZE_T size = (T_SIZE_T)(tmp * self->sr + 0.5);
+
+    MYFLT *data = (MYFLT *)PyMem_RawRealloc(self->data, (size + 1) * sizeof(MYFLT));
+    if (data == NULL)
+    {
+        Py_RETURN_NONE;
+    }
+
+    self->data = data;
+    self->size = size;
+    self->length = tmp;
+    TableStream_setData(self->tablestream, self->data);
+    TableStream_setSize(self->tablestream, self->size);
+
+    if (diff > 0)
+    {
+        MYFLT startf = self->length - diff;
+        T_SIZE_T starti = (T_SIZE_T)(startf * self->sr + 0.5);
+
+        for ( ; starti < (self->size + 1); starti++)
+        {
+            self->data[starti] = 0.0;
+        }
+    }
+
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+NewTable_setSize(NewTable *self, PyObject *value)
+{
+    TABLE_SET_SIZE
+
+    MYFLT oldLength = self->length;
+    self->length = self->size / self->sr;
+    MYFLT diff = self->length - oldLength;
+
+    if (diff > 0)
+    {
+        MYFLT startf = self->length - diff;
+        T_SIZE_T starti = (T_SIZE_T)(startf * self->sr);
+
+        for ( ; starti < (self->size + 1); starti++)
+        {
+            self->data[starti] = 0.0;
+        }
+    }
+
+    Py_RETURN_NONE;
+}
+
+static PyObject *
 NewTable_getSize(NewTable *self)
 {
     return PyLong_FromLong(self->size);
@@ -5089,6 +5156,8 @@ static PyMethodDef NewTable_methods[] =
     {"getTableStream", (PyCFunction)NewTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
     {"setFeedback", (PyCFunction)NewTable_setFeedback, METH_O, "Feedback sets the amount of old data to mix with a new recording."},
     {"setData", (PyCFunction)NewTable_setData, METH_O, "Sets the table from samples in a text file."},
+    {"setLength", (PyCFunction)NewTable_setLength, METH_O, "Change the size, given in seconds, of the table."},
+    {"setSize", (PyCFunction)NewTable_setSize, METH_O, "Change the size, given in samples, of the table."},
     {"copy", (PyCFunction)NewTable_copy, METH_O, "Copy data from table given in argument."},
     {"copyData", (PyCFunction)NewTable_copyData, METH_VARARGS | METH_KEYWORDS, "Copy data from table given in argument."},
     {"rotate", (PyCFunction)NewTable_rotate, METH_VARARGS | METH_KEYWORDS, "Rotate table around position as argument."},

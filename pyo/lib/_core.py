@@ -2011,7 +2011,7 @@ class PyoTableObject(PyoObjectBase):
         """
         Change the size of the table.
 
-        This will erase the previously drawn waveform.
+        This will usually regenerate the table content.
 
         :Args:
 

@@ -1,4 +1,10 @@
-2021-19-11 belangeo <belangeo@gmail.com>
+2021-12-07 belangeo <belangeo@gmail.com>
+
+    * Made SndTable, NewTable and DataTable size attribute mutable.
+    * Improved behavior consistency of PyoTableObject.setSize method.
+    * Fixed bug when making the size of a table bigger at runtime. 
+
+2021-11-19 belangeo <belangeo@gmail.com>
 
     * Objects writing samples in tables can now write to any PyoTableObject.
     * Made getRate() and getDur() methods available to all PyoTableObject.

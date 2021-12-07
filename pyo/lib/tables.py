@@ -1820,9 +1820,6 @@ class SndTable(PyoTableObject):
                 ]
         self.refreshView()
 
-    def setSize(self, x):
-        print("SndTable has no setSize method!")
-
     def getViewTable(self, size, begin=0, end=0):
         """
         Return a list of points (in X, Y pixel values) for each channel in the table.
@@ -2045,6 +2042,24 @@ class NewTable(PyoTableObject):
         pyoArgsAssert(self, "N", x)
         self._feedback = x
         [obj.setFeedback(x) for i, obj in enumerate(self._base_objs)]
+
+    def setLength(self, length):
+        """
+        Change the length of the table.
+
+        If the new length is longer than the current one, new samples will
+        be initialized to 0.
+
+        :Args:
+
+            length: float
+                New table length in seconds.
+
+        """
+        pyoArgsAssert(self, "N", length)
+        self._length = length
+        [obj.setLength(length) for obj in self._base_objs]
+        self.refreshView()
 
     def getFeedback(self):
         """

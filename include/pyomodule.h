@@ -1449,10 +1449,16 @@ extern PyTypeObject MMLZStreamType;
         return PyLong_FromLong(-1); \
     } \
  \
-    self->size = PyLong_AsLong(value); \
+    T_SIZE_T size = PyLong_AsLong(value); \
  \
-    self->data = (MYFLT *)PyMem_RawRealloc(self->data, (self->size + 1) * sizeof(MYFLT)); \
-    TableStream_setSize(self->tablestream, self->size);
+    MYFLT *data = (MYFLT *)PyMem_RawRealloc(self->data, (size + 1) * sizeof(MYFLT)); \
+    if (data != NULL) \
+    { \
+        self->data = data; \
+        self->size = size; \
+        TableStream_setData(self->tablestream, self->data); \
+        TableStream_setSize(self->tablestream, self->size); \
+    }
 
 #define TABLE_SET_SIZE_WITH_POINT_LIST \
     T_SIZE_T i, old_size, x1; \
