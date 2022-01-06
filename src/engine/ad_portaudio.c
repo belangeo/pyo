@@ -56,7 +56,7 @@ pa_callback_interleaved( const void *inputBuffer, void *outputBuffer,
     float *out = (float *)outputBuffer;
     Server *server = (Server *) arg;
 
-    assert(framesPerBuffer == server->bufferSize);
+    assert(framesPerBuffer == (unsigned long)server->bufferSize);
     int i, j, bufchnls, index1, index2;
 
     /* avoid unused variable warnings */
@@ -120,7 +120,7 @@ pa_callback_nonInterleaved( const void *inputBuffer, void *outputBuffer,
     float **out = (float **)outputBuffer;
     Server *server = (Server *) arg;
 
-    assert(framesPerBuffer == server->bufferSize);
+    assert(framesPerBuffer == (unsigned long)server->bufferSize);
     int i, j;
 
     /* avoid unused variable warnings */
