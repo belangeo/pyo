@@ -479,6 +479,21 @@ class TestPyoObject:
             assert self.set_b.mul == [0.125, 0.5, 0, 0.25]
             func.assert_called_once()
 
+    def test_number_of_streams(self, audio_server):
+        a = Sine()
+        b = Sine(mul=a)
+        del b
+        del a
+        assert audio_server.getNumberOfStreams() == 0
+
+    def test_number_of_streams_2(self, audio_server):
+        a = Sine()
+        b = Sine()
+        b.setMul(a)
+        del b
+        del a
+        assert audio_server.getNumberOfStreams() == 0
+
 @pytest.mark.usefixtures("audio_server")
 class TestPyoTableObject:
 
