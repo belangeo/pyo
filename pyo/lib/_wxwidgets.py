@@ -581,6 +581,9 @@ class VuMeter(wx.Panel):
 
     def createBitmaps(self):
         w, h = self.GetSize()
+        if w == 0 or h == 0:
+            return
+
         b = wx.EmptyBitmap(w, h)
         f = wx.EmptyBitmap(w, h)
         dcb = wx.MemoryDC(b)
