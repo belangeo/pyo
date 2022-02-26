@@ -134,6 +134,13 @@ Dummy_dealloc(Dummy* self)
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
+static PyObject *
+Dummy_decref(Dummy* self)
+{
+    Py_DECREF(self); 
+    Py_RETURN_NONE;
+};
+
 PyObject *
 Dummy_initialize(Dummy *self)
 {
@@ -157,29 +164,22 @@ Dummy_initialize(Dummy *self)
 static PyObject *
 Dummy_setInput(Dummy *self, PyObject *arg)
 {
-    PyObject *tmp, *streamtmp;
-
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyNumber_Check(arg);
+    Py_DECREF(self->input);
 
-    tmp = arg; // not sure anymore...
-    Py_INCREF(tmp);
-    Py_XDECREF(self->input);
-
-    if (isNumber == 1)
+    if (PyNumber_Check(arg))
     {
-        self->input = PyNumber_Float(tmp);
+        self->input = PyNumber_Float(arg);
         self->modebuffer[2] = 0;
     }
     else
     {
-        self->input = tmp;
+        self->input = arg;
         Py_INCREF(self->input);
-        streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->input_stream);
+        PyObject *streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getStream", NULL);
         self->input_stream = (Stream *)streamtmp;
+        Py_INCREF(self->input_stream);
         self->modebuffer[2] = 1;
     }
 
@@ -232,6 +232,7 @@ static PyMethodDef Dummy_methods[] =
     {"setAdd", (PyCFunction)Dummy_setAdd, METH_O, NULL},
     {"setSub", (PyCFunction)Dummy_setSub, METH_O, NULL},
     {"setDiv", (PyCFunction)Dummy_setDiv, METH_O, NULL},
+    {"decref", (PyCFunction)Dummy_decref, METH_NOARGS, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -429,7 +430,6 @@ TriggerDummy_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     TriggerDummy *self;
     self = (TriggerDummy *)type->tp_alloc(type, 0);
 
-    self->input = PyFloat_FromDouble(0);
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
 

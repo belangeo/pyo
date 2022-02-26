@@ -323,13 +323,11 @@ Panner_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (pantmp)
     {
         PyObject_CallMethod((PyObject *)self, "setPan", "O", pantmp);
-        Py_DECREF(pantmp);
     }
 
     if (spreadtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setSpread", "O", spreadtmp);
-        Py_DECREF(spreadtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -350,73 +348,8 @@ static PyObject * Panner_getStream(Panner* self) { GET_STREAM };
 static PyObject * Panner_play(Panner *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Panner_stop(Panner *self, PyObject *args, PyObject *kwds) { STOP };
 
-static PyObject *
-Panner_setPan(Panner *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->pan);
-
-    if (isNumber == 1)
-    {
-        self->pan = PyNumber_Float(tmp);
-        self->modebuffer[0] = 0;
-    }
-    else
-    {
-        self->pan = tmp;
-        Py_INCREF(self->pan);
-        streamtmp = PyObject_CallMethod((PyObject *)self->pan, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->pan_stream);
-        self->pan_stream = (Stream *)streamtmp;
-        self->modebuffer[0] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-Panner_setSpread(Panner *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->spread);
-
-    if (isNumber == 1)
-    {
-        self->spread = PyNumber_Float(tmp);
-        self->modebuffer[1] = 0;
-    }
-    else
-    {
-        self->spread = tmp;
-        Py_INCREF(self->spread);
-        streamtmp = PyObject_CallMethod((PyObject *)self->spread, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->spread_stream);
-        self->spread_stream = (Stream *)streamtmp;
-        self->modebuffer[1] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * Panner_setPan(Panner *self, PyObject *arg) { SET_PARAM(self->pan, self->pan_stream, 0); }
+static PyObject * Panner_setSpread(Panner *self, PyObject *arg) { SET_PARAM(self->spread, self->spread_stream, 1); }
 
 static PyMemberDef Panner_members[] =
 {
@@ -616,13 +549,11 @@ Pan_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1022,7 +953,6 @@ SPanner_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (pantmp)
     {
         PyObject_CallMethod((PyObject *)self, "setPan", "O", pantmp);
-        Py_DECREF(pantmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1050,39 +980,7 @@ static PyObject * SPanner_getStream(SPanner* self) { GET_STREAM };
 static PyObject * SPanner_play(SPanner *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * SPanner_stop(SPanner *self, PyObject *args, PyObject *kwds) { STOP };
 
-static PyObject *
-SPanner_setPan(SPanner *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->pan);
-
-    if (isNumber == 1)
-    {
-        self->pan = PyNumber_Float(tmp);
-        self->modebuffer[0] = 0;
-    }
-    else
-    {
-        self->pan = tmp;
-        Py_INCREF(self->pan);
-        streamtmp = PyObject_CallMethod((PyObject *)self->pan, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->pan_stream);
-        self->pan_stream = (Stream *)streamtmp;
-        self->modebuffer[0] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * SPanner_setPan(SPanner *self, PyObject *arg) { SET_PARAM(self->pan, self->pan_stream, 0); }
 
 static PyMemberDef SPanner_members[] =
 {
@@ -1280,13 +1178,11 @@ SPan_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1609,7 +1505,6 @@ Switcher_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (voicetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setVoice", "O", voicetmp);
-        Py_DECREF(voicetmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1634,39 +1529,7 @@ static PyObject * Switcher_getStream(Switcher* self) { GET_STREAM };
 static PyObject * Switcher_play(Switcher *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Switcher_stop(Switcher *self, PyObject *args, PyObject *kwds) { STOP };
 
-static PyObject *
-Switcher_setVoice(Switcher *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->voice);
-
-    if (isNumber == 1)
-    {
-        self->voice = PyNumber_Float(tmp);
-        self->modebuffer[0] = 0;
-    }
-    else
-    {
-        self->voice = tmp;
-        Py_INCREF(self->voice);
-        streamtmp = PyObject_CallMethod((PyObject *)self->voice, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->voice_stream);
-        self->voice_stream = (Stream *)streamtmp;
-        self->modebuffer[0] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * Switcher_setVoice(Switcher *self, PyObject *arg) { SET_PARAM(self->voice, self->voice_stream, 0); }
 
 static PyMemberDef Switcher_members[] =
 {
@@ -1864,13 +1727,11 @@ Switch_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -2183,13 +2044,11 @@ VoiceManager_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -2868,13 +2727,11 @@ MixerVoice_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -3316,19 +3173,16 @@ Selector_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (voicetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setVoice", "O", voicetmp);
-        Py_DECREF(voicetmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -3378,39 +3232,7 @@ Selector_setInputs(Selector *self, PyObject *arg)
     Py_RETURN_NONE;
 }
 
-static PyObject *
-Selector_setVoice(Selector *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->voice);
-
-    if (isNumber == 1)
-    {
-        self->voice = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
-    }
-    else
-    {
-        self->voice = tmp;
-        Py_INCREF(self->voice);
-        streamtmp = PyObject_CallMethod((PyObject *)self->voice, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->voice_stream);
-        self->voice_stream = (Stream *)streamtmp;
-        self->modebuffer[2] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * Selector_setVoice(Selector *self, PyObject *arg) { SET_PARAM(self->voice, self->voice_stream, 2); }
 
 static PyObject *
 Selector_setMode(Selector *self, PyObject *arg)

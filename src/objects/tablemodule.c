@@ -6755,6 +6755,8 @@ TableWrite_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     TableWrite *self;
     self = (TableWrite *)type->tp_alloc(type, 0);
 
+    self->pos = PyFloat_FromDouble(0.0);
+
     self->mode = 0;
     self->maxwindow = 1024;
     self->lastPos = -1;
@@ -6777,7 +6779,6 @@ TableWrite_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (postmp)
     {
         PyObject_CallMethod((PyObject *)self, "setPos", "O", postmp);
-        Py_DECREF(postmp);
     }
 
     if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 )
@@ -6804,26 +6805,21 @@ static PyObject * TableWrite_stop(TableWrite *self, PyObject *args, PyObject *kw
 static PyObject *
 TableWrite_setPos(TableWrite *self, PyObject *arg)
 {
-    PyObject *tmp, *streamtmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
-
-    if (PyObject_HasAttrString((PyObject *)tmp, "server") == 0)
+    if (PyObject_HasAttrString((PyObject *)arg, "server") == 0)
     {
         PyErr_SetString(PyExc_TypeError, "\"pos\" argument of TableWrite must be a PyoObject.\n");
         Py_RETURN_NONE;
     }
 
-    Py_INCREF(tmp);
-    Py_XDECREF(self->pos);
+    Py_DECREF(self->pos);
 
-    self->pos = tmp;
-    streamtmp = PyObject_CallMethod((PyObject *)self->pos, "_getStream", NULL);
-    Py_INCREF(streamtmp);
-    Py_XDECREF(self->pos_stream);
+    self->pos = arg;
+    Py_INCREF(self->pos);
+    PyObject *streamtmp = PyObject_CallMethod((PyObject *)self->pos, "_getStream", NULL);
     self->pos_stream = (Stream *)streamtmp;
+    Py_INCREF(self->pos_stream);
 
     Py_RETURN_NONE;
 }

@@ -224,7 +224,6 @@ Pattern_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (timetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setTime", "O", timetmp);
-        Py_DECREF(timetmp);
     }
 
     if (argtmp)
@@ -279,39 +278,7 @@ Pattern_setFunction(Pattern *self, PyObject *arg)
     Py_RETURN_NONE;
 }
 
-static PyObject *
-Pattern_setTime(Pattern *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->time);
-
-    if (isNumber == 1)
-    {
-        self->time = PyNumber_Float(tmp);
-        self->modebuffer[0] = 0;
-    }
-    else
-    {
-        self->time = tmp;
-        Py_INCREF(self->time);
-        streamtmp = PyObject_CallMethod((PyObject *)self->time, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->time_stream);
-        self->time_stream = (Stream *)streamtmp;
-        self->modebuffer[0] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * Pattern_setTime(Pattern *self, PyObject *arg) { SET_PARAM(self->time, self->time_stream, 0); }
 
 static PyObject *
 Pattern_setArg(Pattern *self, PyObject *arg)

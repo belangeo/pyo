@@ -129,10 +129,7 @@ InputFader_traverse(InputFader *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input1);
-    if (self->input2 != NULL)
-    {
-        Py_VISIT(self->input2);
-    }
+    Py_VISIT(self->input2);
     return 0;
 }
 
@@ -141,10 +138,7 @@ InputFader_clear(InputFader *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input1);
-    if (self->input2 != NULL)
-    {
-        Py_CLEAR(self->input2);
-    }
+    Py_CLEAR(self->input2);
     return 0;
 }
 
@@ -161,14 +155,15 @@ static PyObject *
 InputFader_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *inputtmp = NULL, *streamtmp;
+    PyObject *inputtmp = NULL;
     InputFader *self;
     self = (InputFader *)type->tp_alloc(type, 0);
 
     self->switcher = 0;
     self->fadetime = 0.05;
     self->currentTime = 0.0;
-    self->input2 = NULL;
+    self->input1 = PyFloat_FromDouble(0.0);
+    self->input2 = PyFloat_FromDouble(0.0);
 
     INIT_OBJECT_COMMON
 
@@ -189,13 +184,12 @@ InputFader_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    Py_INCREF(inputtmp);
-    Py_XDECREF(self->input1);
+    Py_DECREF(self->input1);
     self->input1 = inputtmp;
-    streamtmp = PyObject_CallMethod((PyObject *)self->input1, "_getStream", NULL);
-    Py_INCREF(streamtmp);
-    Py_XDECREF(self->input1_stream);
+    Py_INCREF(self->input1);
+    PyObject *streamtmp = PyObject_CallMethod((PyObject *)self->input1, "_getStream", NULL);
     self->input1_stream = (Stream *)streamtmp;
+    Py_INCREF(self->input1_stream);
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
@@ -218,27 +212,24 @@ InputFader_setInput(InputFader *self, PyObject *args, PyObject *kwds)
     if (self->fadetime == 0)
         self->fadetime = 0.0001;
 
-    Py_INCREF(tmp);
-
     if (self->switcher == 0)
     {
         Py_DECREF(self->input1);
         self->input1 = tmp;
+        Py_INCREF(self->input1);
         streamtmp = PyObject_CallMethod((PyObject *)self->input1, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->input1_stream);
         self->input1_stream = (Stream *)streamtmp;
+        Py_INCREF(self->input1_stream);
         self->proc_func_ptr = InputFader_process_one;
     }
     else
     {
-        Py_XDECREF(self->input2);
+        Py_DECREF(self->input2);
         self->input2 = tmp;
         Py_INCREF(self->input2);
         streamtmp = PyObject_CallMethod((PyObject *)self->input2, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->input2_stream);
         self->input2_stream = (Stream *)streamtmp;
+        Py_INCREF(self->input2_stream);
         self->proc_func_ptr = InputFader_process_two;
     }
 

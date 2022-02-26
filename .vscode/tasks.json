@@ -150,7 +150,7 @@
         {
             "label": "Run unit tests linux",
             "type": "shell",
-            "command": "cd ${workspaceRoot}/tests/pytests; python3 -m pytest",
+            "command": "jack_control stop; export -n PYO_SERVER_AUDIO; cd ${workspaceRoot}/tests/pytests; python3 -m pytest -vv",
             "problemMatcher": [],
             "presentation": {
                 "echo": true,
@@ -203,7 +203,7 @@
                 "clear": false
             }
         }
-    ]
+    ],
     "inputs": [
         {
             "type": "pickString",

@@ -156,6 +156,9 @@ MatrixPointer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     MatrixPointer *self;
     self = (MatrixPointer *)type->tp_alloc(type, 0);
 
+    self->x = PyFloat_FromDouble(0.0);
+    self->y = PyFloat_FromDouble(0.0);
+
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
 
@@ -190,13 +193,11 @@ MatrixPointer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -255,26 +256,21 @@ MatrixPointer_setMatrix(MatrixPointer *self, PyObject *arg)
 static PyObject *
 MatrixPointer_setX(MatrixPointer *self, PyObject *arg)
 {
-    PyObject *tmp, *streamtmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
-
-    if (PyObject_HasAttrString((PyObject *)tmp, "server") == 0)
+    if (PyObject_HasAttrString((PyObject *)arg, "server") == 0)
     {
         PyErr_SetString(PyExc_TypeError, "\"x\" attribute of MatrixPointer must be a PyoObject.\n");
         Py_RETURN_NONE;
     }
 
-    Py_INCREF(tmp);
-    Py_XDECREF(self->x);
+    Py_DECREF(self->x);
 
-    self->x = tmp;
-    streamtmp = PyObject_CallMethod((PyObject *)self->x, "_getStream", NULL);
-    Py_INCREF(streamtmp);
-    Py_XDECREF(self->x_stream);
+    self->x = arg;
+    Py_INCREF(self->x);
+    PyObject *streamtmp = PyObject_CallMethod((PyObject *)self->x, "_getStream", NULL);
     self->x_stream = (Stream *)streamtmp;
+    Py_INCREF(self->x_stream);
 
     Py_RETURN_NONE;
 }
@@ -282,26 +278,21 @@ MatrixPointer_setX(MatrixPointer *self, PyObject *arg)
 static PyObject *
 MatrixPointer_setY(MatrixPointer *self, PyObject *arg)
 {
-    PyObject *tmp, *streamtmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
-
-    if (PyObject_HasAttrString((PyObject *)tmp, "server") == 0)
+    if (PyObject_HasAttrString((PyObject *)arg, "server") == 0)
     {
         PyErr_SetString(PyExc_TypeError, "\"y\" attribute of MatrixPointer must be a PyoObject.\n");
         Py_RETURN_NONE;
     }
 
-    Py_INCREF(tmp);
-    Py_XDECREF(self->y);
+    Py_DECREF(self->y);
 
-    self->y = tmp;
-    streamtmp = PyObject_CallMethod((PyObject *)self->y, "_getStream", NULL);
-    Py_INCREF(streamtmp);
-    Py_XDECREF(self->y_stream);
+    self->y = arg;
+    Py_INCREF(self->y);
+    PyObject *streamtmp = PyObject_CallMethod((PyObject *)self->y, "_getStream", NULL);
     self->y_stream = (Stream *)streamtmp;
+    Py_INCREF(self->y_stream);
 
     Py_RETURN_NONE;
 }
