@@ -16,9 +16,9 @@ a.mul = 1
 a.mul = Sig(1)
 a.add = 0
 a.add = Sig(0)
-a.mul = Sig(1) * 1
+a.mul = Sine(1) * 1
 a.mul = 1 * Sig(1)
-a.mul = Sig(1) * Sig(1)
+a.mul = Sine(1) * FastSine(1)
 a.add = Sig(0) * 0.5
 a.add = 1 * Sig(0)
 a.add = Sig(0) * Sig(1)
@@ -69,6 +69,27 @@ f = Sig(1)
 f[0] -= 0.5
 s.process()
 print(f.get())
+
+# inplace with internal audio objects
+g = Sig(1)
+g[0] *= a[0]
+s.process()
+print(g.get())
+
+h = Sig(1)
+h[0] += a[0]
+s.process()
+print(h.get())
+
+i = Sig(1)
+i[0] /= a[0]
+s.process()
+print(i.get())
+
+j = Sig(1)
+j[0] -= a[0]
+s.process()
+print(j.get())
 
 s.process()
 s.stop()
