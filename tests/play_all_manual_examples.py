@@ -5,7 +5,7 @@ import inspect
 from pyo import *
 
 # To automate audio output validation, every random has to be properly
-# seeded for the examples to be determinitic.
+# seeded for the examples to be deterministic.
 
 def play_example(cls, dur=5, toprint=True, double=False):
     """

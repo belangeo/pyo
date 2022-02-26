@@ -604,31 +604,26 @@ WGVerb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (feedbacktmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFeedback", "O", feedbacktmp);
-        Py_DECREF(feedbacktmp);
     }
 
     if (cutofftmp)
     {
         PyObject_CallMethod((PyObject *)self, "setCutoff", "O", cutofftmp);
-        Py_DECREF(cutofftmp);
     }
 
     if (mixtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMix", "O", mixtmp);
-        Py_DECREF(mixtmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -690,107 +685,9 @@ WGVerb_reset(WGVerb *self)
     Py_RETURN_NONE;
 }
 
-static PyObject *
-WGVerb_setFeedback(WGVerb *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->feedback);
-
-    if (isNumber == 1)
-    {
-        self->feedback = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
-    }
-    else
-    {
-        self->feedback = tmp;
-        Py_INCREF(self->feedback);
-        streamtmp = PyObject_CallMethod((PyObject *)self->feedback, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->feedback_stream);
-        self->feedback_stream = (Stream *)streamtmp;
-        self->modebuffer[2] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-WGVerb_setCutoff(WGVerb *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->cutoff);
-
-    if (isNumber == 1)
-    {
-        self->cutoff = PyNumber_Float(tmp);
-        self->modebuffer[3] = 0;
-    }
-    else
-    {
-        self->cutoff = tmp;
-        Py_INCREF(self->cutoff);
-        streamtmp = PyObject_CallMethod((PyObject *)self->cutoff, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->cutoff_stream);
-        self->cutoff_stream = (Stream *)streamtmp;
-        self->modebuffer[3] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-WGVerb_setMix(WGVerb *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->mix);
-
-    if (isNumber == 1)
-    {
-        self->mix = PyNumber_Float(tmp);
-        self->modebuffer[4] = 0;
-    }
-    else
-    {
-        self->mix = tmp;
-        Py_INCREF(self->mix);
-        streamtmp = PyObject_CallMethod((PyObject *)self->mix, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->mix_stream);
-        self->mix_stream = (Stream *)streamtmp;
-        self->modebuffer[4] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * WGVerb_setFeedback(WGVerb *self, PyObject *arg) { SET_PARAM(self->feedback, self->feedback_stream, 2); }
+static PyObject * WGVerb_setCutoff(WGVerb *self, PyObject *arg) { SET_PARAM(self->cutoff, self->cutoff_stream, 3); }
+static PyObject * WGVerb_setMix(WGVerb *self, PyObject *arg) {SET_PARAM(self->mix, self->mix_stream, 4); }
 
 static PyMemberDef WGVerb_members[] =
 {
@@ -1733,6 +1630,7 @@ STReverb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
     self->modebuffer[2] = 0;
+    self->modebuffer[3] = 0;
 
     INIT_OBJECT_COMMON
 
@@ -1752,25 +1650,21 @@ STReverb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (inpostmp)
     {
         PyObject_CallMethod((PyObject *)self, "setInpos", "O", inpostmp);
-        Py_DECREF(inpostmp);
     }
 
     if (revtimetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setRevtime", "O", revtimetmp);
-        Py_DECREF(revtimetmp);
     }
 
     if (cutofftmp)
     {
         PyObject_CallMethod((PyObject *)self, "setCutoff", "O", cutofftmp);
-        Py_DECREF(cutofftmp);
     }
 
     if (mixtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMix", "O", mixtmp);
-        Py_DECREF(mixtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1901,141 +1795,10 @@ STReverb_reset(STReverb *self)
     Py_RETURN_NONE;
 }
 
-static PyObject *
-STReverb_setInpos(STReverb *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->inpos);
-
-    if (isNumber == 1)
-    {
-        self->inpos = PyNumber_Float(tmp);
-        self->modebuffer[0] = 0;
-    }
-    else
-    {
-        self->inpos = tmp;
-        Py_INCREF(self->inpos);
-        streamtmp = PyObject_CallMethod((PyObject *)self->inpos, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->inpos_stream);
-        self->inpos_stream = (Stream *)streamtmp;
-        self->modebuffer[0] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-STReverb_setRevtime(STReverb *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->revtime);
-
-    if (isNumber == 1)
-    {
-        self->revtime = PyNumber_Float(tmp);
-        self->modebuffer[1] = 0;
-    }
-    else
-    {
-        self->revtime = tmp;
-        Py_INCREF(self->revtime);
-        streamtmp = PyObject_CallMethod((PyObject *)self->revtime, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->revtime_stream);
-        self->revtime_stream = (Stream *)streamtmp;
-        self->modebuffer[1] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-STReverb_setCutoff(STReverb *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->cutoff);
-
-    if (isNumber == 1)
-    {
-        self->cutoff = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
-    }
-    else
-    {
-        self->cutoff = tmp;
-        Py_INCREF(self->cutoff);
-        streamtmp = PyObject_CallMethod((PyObject *)self->cutoff, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->cutoff_stream);
-        self->cutoff_stream = (Stream *)streamtmp;
-        self->modebuffer[2] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-STReverb_setMix(STReverb *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->mix);
-
-    if (isNumber == 1)
-    {
-        self->mix = PyNumber_Float(tmp);
-        self->modebuffer[3] = 0;
-    }
-    else
-    {
-        self->mix = tmp;
-        Py_INCREF(self->mix);
-        streamtmp = PyObject_CallMethod((PyObject *)self->mix, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->mix_stream);
-        self->mix_stream = (Stream *)streamtmp;
-        self->modebuffer[3] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * STReverb_setInpos(STReverb *self, PyObject *arg) { SET_PARAM(self->inpos, self->inpos_stream, 0); }
+static PyObject * STReverb_setRevtime(STReverb *self, PyObject *arg) { SET_PARAM(self->revtime, self->revtime_stream, 1); }
+static PyObject * STReverb_setCutoff(STReverb *self, PyObject *arg) { SET_PARAM(self->cutoff, self->cutoff_stream, 2); }
+static PyObject * STReverb_setMix(STReverb *self, PyObject *arg) {SET_PARAM(self->mix, self->mix_stream, 3); }
 
 static PyObject *
 STReverb_setRoomSize(STReverb *self, PyObject *arg)
@@ -2322,13 +2085,11 @@ STRev_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);

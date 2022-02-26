@@ -357,7 +357,6 @@ SfPlayer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (speedtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setSpeed", "O", speedtmp);
-        Py_DECREF(speedtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -421,39 +420,7 @@ static PyObject * SfPlayer_out(SfPlayer *self, PyObject *args, PyObject *kwds)
 
 static PyObject * SfPlayer_stop(SfPlayer *self, PyObject *args, PyObject *kwds) { STOP };
 
-static PyObject *
-SfPlayer_setSpeed(SfPlayer *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->speed);
-
-    if (isNumber == 1)
-    {
-        self->speed = PyNumber_Float(tmp);
-        self->modebuffer[0] = 0;
-    }
-    else
-    {
-        self->speed = tmp;
-        Py_INCREF(self->speed);
-        streamtmp = PyObject_CallMethod((PyObject *)self->speed, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->speed_stream);
-        self->speed_stream = (Stream *)streamtmp;
-        self->modebuffer[0] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * SfPlayer_setSpeed(SfPlayer *self, PyObject *arg) { SET_PARAM(self->speed, self->speed_stream, 0); }
 
 static PyObject *
 SfPlayer_setSound(SfPlayer *self, PyObject *args)
@@ -747,13 +714,11 @@ SfPlay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1379,7 +1344,6 @@ SfMarkerShuffler_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (speedtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setSpeed", "O", speedtmp);
-        Py_DECREF(speedtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1432,39 +1396,7 @@ static PyObject * SfMarkerShuffler_play(SfMarkerShuffler *self, PyObject *args, 
 static PyObject * SfMarkerShuffler_out(SfMarkerShuffler *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * SfMarkerShuffler_stop(SfMarkerShuffler *self, PyObject *args, PyObject *kwds) { STOP };
 
-static PyObject *
-SfMarkerShuffler_setSpeed(SfMarkerShuffler *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->speed);
-
-    if (isNumber == 1)
-    {
-        self->speed = PyNumber_Float(tmp);
-        self->modebuffer[0] = 0;
-    }
-    else
-    {
-        self->speed = tmp;
-        Py_INCREF(self->speed);
-        streamtmp = PyObject_CallMethod((PyObject *)self->speed, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->speed_stream);
-        self->speed_stream = (Stream *)streamtmp;
-        self->modebuffer[0] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * SfMarkerShuffler_setSpeed(SfMarkerShuffler *self, PyObject *arg) { SET_PARAM(self->speed, self->speed_stream, 0); }
 
 static PyObject *
 SfMarkerShuffler_setInterp(SfMarkerShuffler *self, PyObject *arg)
@@ -1775,13 +1707,11 @@ SfMarkerShuffle_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -2285,13 +2215,11 @@ SfMarkerLooper_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (speedtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setSpeed", "O", speedtmp);
-        Py_DECREF(speedtmp);
     }
 
     if (marktmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMark", "O", marktmp);
-        Py_DECREF(marktmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -2342,69 +2270,8 @@ static PyObject * SfMarkerLooper_play(SfMarkerLooper *self, PyObject *args, PyOb
 static PyObject * SfMarkerLooper_out(SfMarkerLooper *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * SfMarkerLooper_stop(SfMarkerLooper *self, PyObject *args, PyObject *kwds) { STOP };
 
-static PyObject *
-SfMarkerLooper_setSpeed(SfMarkerLooper *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->speed);
-
-    if (isNumber == 1)
-    {
-        self->speed = PyNumber_Float(tmp);
-        self->modebuffer[0] = 0;
-    }
-    else
-    {
-        self->speed = tmp;
-        Py_INCREF(self->speed);
-        streamtmp = PyObject_CallMethod((PyObject *)self->speed, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->speed_stream);
-        self->speed_stream = (Stream *)streamtmp;
-        self->modebuffer[0] = 1;
-    }
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-SfMarkerLooper_setMark(SfMarkerLooper *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->mark);
-
-    if (isNumber == 1)
-    {
-        self->mark = PyNumber_Float(tmp);
-        self->modebuffer[1] = 0;
-    }
-    else
-    {
-        self->mark = tmp;
-        Py_INCREF(self->mark);
-        streamtmp = PyObject_CallMethod((PyObject *)self->mark, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->mark_stream);
-        self->mark_stream = (Stream *)streamtmp;
-        self->modebuffer[1] = 1;
-    }
-
-    Py_RETURN_NONE;
-}
+static PyObject * SfMarkerLooper_setSpeed(SfMarkerLooper *self, PyObject *arg) { SET_PARAM(self->speed, self->speed_stream, 0); }
+static PyObject * SfMarkerLooper_setMark(SfMarkerLooper *self, PyObject *arg) { SET_PARAM(self->mark, self->mark_stream, 1); }
 
 static PyObject *
 SfMarkerLooper_setInterp(SfMarkerLooper *self, PyObject *arg)
@@ -2639,13 +2506,11 @@ SfMarkerLoop_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);

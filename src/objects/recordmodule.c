@@ -792,13 +792,11 @@ ControlRead_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1132,19 +1130,17 @@ NoteinRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO", kwlist, &inputptmp, &inputvtmp))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->inputp);
     self->inputp = inputptmp;
+    Py_INCREF(self->inputp);
     inputp_streamtmp = PyObject_CallMethod((PyObject *)self->inputp, "_getStream", NULL);
-    Py_INCREF(inputp_streamtmp);
-    Py_XDECREF(self->inputp_stream);
     self->inputp_stream = (Stream *)inputp_streamtmp;
+    Py_INCREF(self->inputp_stream);
 
-    Py_XDECREF(self->inputv);
     self->inputv = inputvtmp;
+    Py_INCREF(self->inputv);
     inputv_streamtmp = PyObject_CallMethod((PyObject *)self->inputv, "_getStream", NULL);
-    Py_INCREF(inputv_streamtmp);
-    Py_XDECREF(self->inputv_stream);
     self->inputv_stream = (Stream *)inputv_streamtmp;
+    Py_INCREF(self->inputv_stream);
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
@@ -1432,13 +1428,11 @@ NoteinRead_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);

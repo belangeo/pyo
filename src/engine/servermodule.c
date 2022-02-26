@@ -97,7 +97,7 @@ static Server *my_server[MAX_NBR_SERVER];
 static int serverID = 0;
 
 /* Function called by any new pyo object to get a pointer to the current server. */
-PyObject * PyServer_get_server() { return (PyObject *)my_server[serverID]; };
+PyObject * PyServer_get_server() { return (PyObject *)my_server[serverID]; }; // TODO: INCREF should be done here.
 
 /** Random generator and object seeds. **/
 /****************************************/
@@ -2045,6 +2045,9 @@ Server_addStream(Server *self, PyObject *args)
         Server_error(self, "Server_addStream function needs a PyoObject as argument.\n");
         return PyLong_FromLong(-1);
     }
+
+    int sid = Stream_getStreamId((Stream *)tmp);
+    Server_debug(self, "Added stream id %d\n", sid);
 
     PyList_Append(self->streams, tmp);
 

@@ -739,31 +739,26 @@ Freeverb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (sizetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setSize", "O", sizetmp);
-        Py_DECREF(sizetmp);
     }
 
     if (damptmp)
     {
         PyObject_CallMethod((PyObject *)self, "setDamp", "O", damptmp);
-        Py_DECREF(damptmp);
     }
 
     if (mixtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMix", "O", mixtmp);
-        Py_DECREF(mixtmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -824,6 +819,10 @@ static PyObject * Freeverb_inplace_sub(Freeverb *self, PyObject *arg) { INPLACE_
 static PyObject * Freeverb_div(Freeverb *self, PyObject *arg) { DIV };
 static PyObject * Freeverb_inplace_div(Freeverb *self, PyObject *arg) { INPLACE_DIV };
 
+static PyObject * Freeverb_setSize(Freeverb *self, PyObject *arg) { SET_PARAM(self->size, self->size_stream, 2); }
+static PyObject * Freeverb_setDamp(Freeverb *self, PyObject *arg) { SET_PARAM(self->damp, self->damp_stream, 3); }
+static PyObject * Freeverb_setMix(Freeverb *self, PyObject *arg) {SET_PARAM(self->mix, self->mix_stream, 4); }
+
 static PyObject *
 Freeverb_reset(Freeverb *self)
 {
@@ -853,107 +852,6 @@ Freeverb_reset(Freeverb *self)
     Py_RETURN_NONE;
 }
 
-static PyObject *
-Freeverb_setSize(Freeverb *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->size);
-
-    if (isNumber == 1)
-    {
-        self->size = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
-    }
-    else
-    {
-        self->size = tmp;
-        Py_INCREF(self->size);
-        streamtmp = PyObject_CallMethod((PyObject *)self->size, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->size_stream);
-        self->size_stream = (Stream *)streamtmp;
-        self->modebuffer[2] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-Freeverb_setDamp(Freeverb *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->damp);
-
-    if (isNumber == 1)
-    {
-        self->damp = PyNumber_Float(tmp);
-        self->modebuffer[3] = 0;
-    }
-    else
-    {
-        self->damp = tmp;
-        Py_INCREF(self->damp);
-        streamtmp = PyObject_CallMethod((PyObject *)self->damp, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->damp_stream);
-        self->damp_stream = (Stream *)streamtmp;
-        self->modebuffer[3] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-Freeverb_setMix(Freeverb *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->mix);
-
-    if (isNumber == 1)
-    {
-        self->mix = PyNumber_Float(tmp);
-        self->modebuffer[4] = 0;
-    }
-    else
-    {
-        self->mix = tmp;
-        Py_INCREF(self->mix);
-        streamtmp = PyObject_CallMethod((PyObject *)self->mix, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->mix_stream);
-        self->mix_stream = (Stream *)streamtmp;
-        self->modebuffer[4] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
 static PyMemberDef Freeverb_members[] =
 {
     {"server", T_OBJECT_EX, offsetof(Freeverb, server), 0, "Pyo server."},
