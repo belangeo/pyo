@@ -727,18 +727,11 @@ static PyObject * TrigRand_setMax(TrigRand *self, PyObject *arg) { SET_PARAM(sel
 static PyObject *
 TrigRand_setPort(TrigRand *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-
-    if (isNumber == 1)
+    if (PyNumber_Check(arg))
     {
-        self->time = PyFloat_AsDouble(tmp);
+        self->time = PyFloat_AsDouble(arg);
         self->timeStep = (int)(self->time * self->sr);
     }
 
@@ -1101,18 +1094,11 @@ TrigChoice_setChoice(TrigChoice *self, PyObject *arg)
 static PyObject *
 TrigChoice_setPort(TrigChoice *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-
-    if (isNumber == 1)
+    if (PyNumber_Check(arg))
     {
-        self->time = PyFloat_AsDouble(tmp);
+        self->time = PyFloat_AsDouble(arg);
         self->timeStep = (int)(self->time * self->sr);
     }
 

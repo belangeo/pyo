@@ -1,5 +1,5 @@
 # Run this file in valgrind with:
-#   PYTHONMALLOC=malloc valgrind --tool=memcheck --leak-check=yes --show-leak-kinds=definite --track-origins=yes --num-callers=12 --suppressions=valgrind-python.supp python3 test_memleak_triggers.py 
+#   PYTHONMALLOC=malloc valgrind --tool=memcheck --leak-check=yes --show-leak-kinds=definite --track-origins=yes --num-callers=12 --suppressions=valgrind-python3.9.supp python3 test_memleak_triggers.py 
 # There should not be any definitely lost bytes.
 
 from pyo import *
