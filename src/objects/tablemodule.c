@@ -4556,9 +4556,7 @@ SndTable_getEnvelope(SndTable *self, PyObject *arg)
 
     ASSERT_ARG_NOT_NULL
 
-    int isInt = PyLong_Check(arg);
-
-    if (isInt)
+    if (PyLong_Check(arg))
     {
         count = 0;
         points = PyLong_AsLong(arg);

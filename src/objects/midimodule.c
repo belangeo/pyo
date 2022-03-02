@@ -160,7 +160,6 @@ CtlScan_setFunction(CtlScan *self, PyObject *arg)
 static PyObject *
 CtlScan_setToprint(CtlScan *self, PyObject *arg)
 {
-
     if (PyLong_Check(arg))
     {
         self->toprint = PyLong_AsLong(arg);
@@ -368,7 +367,6 @@ CtlScan2_setFunction(CtlScan2 *self, PyObject *arg)
 static PyObject *
 CtlScan2_setToprint(CtlScan2 *self, PyObject *arg)
 {
-
     if (PyLong_Check(arg))
     {
         self->toprint = PyLong_AsLong(arg);
@@ -698,9 +696,7 @@ Midictl_setValue(Midictl *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isNum = PyNumber_Check(arg);
-
-    if (isNum == 1)
+    if (PyNumber_Check(arg))
     {
         self->value = PyFloat_AsDouble(arg);
     }
@@ -713,9 +709,7 @@ Midictl_setMinScale(Midictl *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isNum = PyNumber_Check(arg);
-
-    if (isNum == 1)
+    if (PyNumber_Check(arg))
     {
         self->minscale = PyFloat_AsDouble(arg);
     }
@@ -728,9 +722,7 @@ Midictl_setMaxScale(Midictl *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isNum = PyNumber_Check(arg);
-
-    if (isNum == 1)
+    if (PyNumber_Check(arg))
     {
         self->maxscale = PyFloat_AsDouble(arg);
     }
@@ -745,9 +737,7 @@ Midictl_setCtlNumber(Midictl *self, PyObject *arg)
 
     ASSERT_ARG_NOT_NULL
 
-    int isInt = PyLong_Check(arg);
-
-    if (isInt == 1)
+    if (PyLong_Check(arg))
     {
         tmp = PyLong_AsLong(arg);
 
@@ -765,9 +755,7 @@ Midictl_setChannel(Midictl *self, PyObject *arg)
 
     ASSERT_ARG_NOT_NULL
 
-    int isInt = PyLong_Check(arg);
-
-    if (isInt == 1)
+    if (PyLong_Check(arg))
     {
         tmp = PyLong_AsLong(arg);
 
@@ -1128,9 +1116,7 @@ Bendin_setBrange(Bendin *self, PyObject *arg)
 
     ASSERT_ARG_NOT_NULL
 
-    int isNum = PyNumber_Check(arg);
-
-    if (isNum == 1)
+    if (PyNumber_Check(arg))
     {
         tmp = PyFloat_AsDouble(arg);
 
@@ -1148,9 +1134,7 @@ Bendin_setChannel(Bendin *self, PyObject *arg)
 
     ASSERT_ARG_NOT_NULL
 
-    int isInt = PyLong_Check(arg);
-
-    if (isInt == 1)
+    if (PyLong_Check(arg))
     {
         tmp = PyLong_AsLong(arg);
 
@@ -1168,9 +1152,7 @@ Bendin_setScale(Bendin *self, PyObject *arg)
 
     ASSERT_ARG_NOT_NULL
 
-    int isInt = PyLong_Check(arg);
-
-    if (isInt == 1)
+    if (PyLong_Check(arg))
     {
         tmp = PyLong_AsLong(arg);
 
@@ -1866,9 +1848,7 @@ Programin_setChannel(Programin *self, PyObject *arg)
 
     ASSERT_ARG_NOT_NULL
 
-    int isInt = PyLong_Check(arg);
-
-    if (isInt == 1)
+    if (PyLong_Check(arg))
     {
         tmp = PyLong_AsLong(arg);
 
@@ -2387,9 +2367,7 @@ MidiNote_setCentralKey(MidiNote *self, PyObject *arg)
 
     ASSERT_ARG_NOT_NULL
 
-    int isInt = PyLong_Check(arg);
-
-    if (isInt == 1)
+    if (PyLong_Check(arg))
     {
         tmp = PyLong_AsLong(arg);
 
@@ -2405,9 +2383,7 @@ MidiNote_setStealing(MidiNote *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isInt = PyLong_Check(arg);
-
-    if (isInt == 1)
+    if (PyLong_Check(arg))
         self->stealing = PyLong_AsLong(arg);
 
     Py_RETURN_NONE;

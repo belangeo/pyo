@@ -475,9 +475,7 @@ SfPlayer_setOffset(SfPlayer *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyNumber_Check(arg);
-
-    if (isNumber == 1)
+    if (PyNumber_Check(arg))
     {
         self->startPos = PyFloat_AsDouble(arg) * self->sr * self->srScale;
 
@@ -493,9 +491,7 @@ SfPlayer_setInterp(SfPlayer *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyNumber_Check(arg);
-
-    if (isNumber == 1)
+    if (PyNumber_Check(arg))
     {
         self->interp = PyLong_AsLong(PyNumber_Long(arg));
     }
@@ -1403,9 +1399,7 @@ SfMarkerShuffler_setInterp(SfMarkerShuffler *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyNumber_Check(arg);
-
-    if (isNumber == 1)
+    if (PyNumber_Check(arg))
     {
         self->interp = PyLong_AsLong(PyNumber_Long(arg));
     }
@@ -2278,9 +2272,7 @@ SfMarkerLooper_setInterp(SfMarkerLooper *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyNumber_Check(arg);
-
-    if (isNumber == 1)
+    if (PyNumber_Check(arg))
     {
         self->interp = PyLong_AsLong(PyNumber_Long(arg));
     }

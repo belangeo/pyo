@@ -1809,9 +1809,7 @@ STReverb_setRoomSize(STReverb *self, PyObject *arg)
 
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyNumber_Check(arg);
-
-    if (isNumber == 1)
+    if (PyNumber_Check(arg))
     {
         roomSize = PyFloat_AsDouble(arg);
 
@@ -1869,9 +1867,7 @@ STReverb_setFirstRefGain(STReverb *self, PyObject *arg)
 
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyNumber_Check(arg);
-
-    if (isNumber == 1)
+    if (PyNumber_Check(arg))
     {
         tmp = PyFloat_AsDouble(arg);
         self->firstRefGain = MYPOW(10.0, tmp * 0.05);
