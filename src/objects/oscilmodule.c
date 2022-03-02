@@ -1779,13 +1779,10 @@ Osc_getTable(Osc* self)
 static PyObject *
 Osc_setTable(Osc *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
     Py_DECREF(self->table);
-    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    self->table = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -2268,13 +2265,10 @@ OscLoop_getTable(OscLoop* self)
 static PyObject *
 OscLoop_setTable(OscLoop *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
     Py_DECREF(self->table);
-    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    self->table = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -2776,13 +2770,10 @@ OscTrig_getTable(OscTrig* self)
 static PyObject *
 OscTrig_setTable(OscTrig *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
     Py_DECREF(self->table);
-    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    self->table = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -3595,13 +3586,10 @@ Pointer_getTable(Pointer* self)
 static PyObject *
 Pointer_setTable(Pointer *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
     Py_DECREF(self->table);
-    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    self->table = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -3982,13 +3970,10 @@ Pointer2_getTable(Pointer2* self)
 static PyObject *
 Pointer2_setTable(Pointer2 *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
     Py_DECREF(self->table);
-    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    self->table = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -4365,13 +4350,10 @@ TableIndex_getTable(TableIndex* self)
 static PyObject *
 TableIndex_setTable(TableIndex *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
     Py_DECREF(self->table);
-    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    self->table = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -4722,13 +4704,10 @@ Lookup_getTable(Lookup* self)
 static PyObject *
 Lookup_setTable(Lookup *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
     Py_DECREF(self->table);
-    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    self->table = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -5552,13 +5531,10 @@ Pulsar_getEnv(Pulsar* self)
 static PyObject *
 Pulsar_setTable(Pulsar *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
     Py_DECREF(self->table);
-    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    self->table = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -5566,13 +5542,10 @@ Pulsar_setTable(Pulsar *self, PyObject *arg)
 static PyObject *
 Pulsar_setEnv(Pulsar *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
     Py_DECREF(self->env);
-    self->env = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    self->env = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -6122,13 +6095,10 @@ TableRead_getTable(TableRead* self)
 static PyObject *
 TableRead_setTable(TableRead *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
     Py_DECREF(self->table);
-    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    self->table = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -12303,13 +12273,10 @@ TableScale_getTable(TableScale* self)
 static PyObject *
 TableScale_setTable(TableScale *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
     Py_DECREF(self->table);
-    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    self->table = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -12324,13 +12291,10 @@ TableScale_getOuttable(TableScale* self)
 static PyObject *
 TableScale_setOuttable(TableScale *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
     Py_DECREF(self->outtable);
-    self->outtable = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    self->outtable = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -12547,14 +12511,11 @@ static PyObject * TableFill_stop(TableFill *self, PyObject *args, PyObject *kwds
 static PyObject *
 TableFill_setTable(TableFill *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
-    Py_INCREF(tmp);
     Py_DECREF(self->table);
-    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    self->table = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
+    Py_INCREF(self->table);
 
     Py_RETURN_NONE;
 }
@@ -12827,13 +12788,10 @@ TableScan_getTable(TableScan* self)
 static PyObject *
 TableScan_setTable(TableScan *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
     Py_DECREF(self->table);
-    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    self->table = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }

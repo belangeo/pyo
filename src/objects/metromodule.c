@@ -775,18 +775,13 @@ static PyObject * Seqer_setSpeed(Seqer *self, PyObject *arg) { SET_PARAM(self->s
 static PyObject *
 Seqer_setSeq(Seqer *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    int isList = PyList_Check(arg);
-
-    if (isList == 1)
+    if (PyList_Check(arg))
     {
-        tmp = arg;
-        Py_INCREF(tmp);
         Py_XDECREF(self->tmp);
-        self->tmp = tmp;
+        self->tmp = arg;
+        Py_INCREF(self->tmp);
         self->newseq = 1;
     }
 
@@ -798,9 +793,7 @@ Seqer_setOnlyonce(Seqer *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isInt = PyLong_Check(arg);
-
-    if (isInt == 1)
+    if (PyLong_Check(arg))
     {
         self->onlyonce = PyLong_AsLong(arg);
     }

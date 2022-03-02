@@ -1069,7 +1069,6 @@ static PyObject *
 TrigChoice_setChoice(TrigChoice *self, PyObject *arg)
 {
     int i;
-    PyObject *tmp;
 
     if (! PyList_Check(arg))
     {
@@ -1077,13 +1076,12 @@ TrigChoice_setChoice(TrigChoice *self, PyObject *arg)
         Py_RETURN_NONE;
     }
 
-    tmp = arg;
-    self->chSize = PyList_Size(tmp);
+    self->chSize = PyList_Size(arg);
     self->choice = (MYFLT *)PyMem_RawRealloc(self->choice, self->chSize * sizeof(MYFLT));
 
     for (i = 0; i < self->chSize; i++)
     {
-        self->choice[i] = PyFloat_AsDouble(PyList_GET_ITEM(tmp, i));
+        self->choice[i] = PyFloat_AsDouble(PyList_GET_ITEM(arg, i));
     }
 
     (*self->mode_func_ptr)(self);
@@ -1350,18 +1348,15 @@ static PyObject * TrigFunc_stop(TrigFunc *self, PyObject *args, PyObject *kwds) 
 static PyObject *
 TrigFunc_setFunction(TrigFunc *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     if (! PyCallable_Check(arg))
     {
         PyErr_SetString(PyExc_TypeError, "The function attribute must be callable.");
         Py_RETURN_NONE;
     }
 
-    tmp = arg;
     Py_XDECREF(self->func);
-    Py_INCREF(tmp);
-    self->func = tmp;
+    self->func = arg;
+    Py_INCREF(self->func);
 
     Py_RETURN_NONE;
 }
@@ -1369,12 +1364,9 @@ TrigFunc_setFunction(TrigFunc *self, PyObject *arg)
 static PyObject *
 TrigFunc_setArg(TrigFunc *self, PyObject *arg)
 {
-    PyObject *tmp;
-
-    tmp = arg;
     Py_XDECREF(self->arg);
-    Py_INCREF(tmp);
-    self->arg = tmp;
+    self->arg = arg;
+    Py_INCREF(self->arg);
 
     Py_RETURN_NONE;
 }
@@ -1775,13 +1767,10 @@ TrigEnv_getTable(TrigEnv* self)
 static PyObject *
 TrigEnv_setTable(TrigEnv *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
     Py_DECREF(self->table);
-    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    self->table = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -6110,19 +6099,16 @@ static PyObject * Iter_inplace_div(Iter *self, PyObject *arg) { INPLACE_DIV };
 static PyObject *
 Iter_setChoice(Iter *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     if (! PyList_Check(arg))
     {
         PyErr_SetString(PyExc_TypeError, "The choice attribute must be a list.");
         Py_RETURN_NONE;
     }
 
-    tmp = arg;
-    self->chSize = PyList_Size(tmp);
-    Py_INCREF(tmp);
+    self->chSize = PyList_Size(arg);
     Py_XDECREF(self->choice);
-    self->choice = tmp;
+    self->choice = arg;
+    Py_INCREF(arg);
 
     Py_RETURN_NONE;
 }

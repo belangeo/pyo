@@ -440,19 +440,16 @@ PVAnal_setWinType(PVAnal *self, PyObject *arg)
 static PyObject *
 PVAnal_setCallback(PVAnal *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     if (! PyCallable_Check(arg) && arg != Py_None)
     {
         PyErr_SetString(PyExc_TypeError, "The callback attribute must be callable.");
         Py_RETURN_NONE;
     }
 
-    tmp = arg;
     Py_XDECREF(self->callback);
-    Py_INCREF(tmp);
-    self->callback = tmp;
-
+    self->callback = arg;
+    Py_INCREF(self->callback);
+ 
     Py_RETURN_NONE;
 }
 
@@ -4565,13 +4562,10 @@ PVFilter_getTable(PVFilter* self)
 static PyObject *
 PVFilter_setTable(PVFilter *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
     Py_DECREF(self->table);
-    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    self->table = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -5076,13 +5070,10 @@ PVDelay_getDeltable(PVDelay* self)
 static PyObject *
 PVDelay_setDeltable(PVDelay *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
     Py_DECREF(self->deltable);
-    self->deltable = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    self->deltable = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -5097,13 +5088,10 @@ PVDelay_getFeedtable(PVDelay* self)
 static PyObject *
 PVDelay_setFeedtable(PVDelay *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
     Py_DECREF(self->feedtable);
-    self->feedtable = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    self->feedtable = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -8245,13 +8233,10 @@ PVBufTabLoops_setInput(PVBufTabLoops *self, PyObject *arg)
 static PyObject *
 PVBufTabLoops_setSpeed(PVBufTabLoops *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
     Py_DECREF(self->speed);
-    self->speed = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    self->speed = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }

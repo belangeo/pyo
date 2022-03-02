@@ -871,16 +871,13 @@ static PyObject * MMLMain_stop(MMLMain *self, PyObject *args, PyObject *kwds) { 
 static PyObject *
 MMLMain_setSequence(MMLMain *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
     if (PyList_Check(arg))
     {
-        tmp = arg;
-        Py_INCREF(tmp);
         Py_XDECREF(self->sequence);
-        self->sequence = tmp;
+        self->sequence = arg;
+        Py_INCREF(self->sequence);
         self->num_events = PyList_Size(self->sequence);
     }
 
@@ -890,16 +887,13 @@ MMLMain_setSequence(MMLMain *self, PyObject *arg)
 static PyObject *
 MMLMain_setPending(MMLMain *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
     if (PyList_Check(arg))
     {
-        tmp = arg;
-        Py_INCREF(tmp);
         Py_XDECREF(self->pending);
-        self->pending = tmp;
+        self->pending = arg;
+        Py_INCREF(self->pending);
     }
 
     Py_RETURN_NONE;
@@ -908,14 +902,11 @@ MMLMain_setPending(MMLMain *self, PyObject *arg)
 static PyObject *
 MMLMain_update(MMLMain *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
     if (PyList_Check(arg))
     {
-        tmp = arg;
-        Py_INCREF(tmp);
+        Py_INCREF(arg);
 
         if (self->updateAtEnd && self->num_events != 0)
         {

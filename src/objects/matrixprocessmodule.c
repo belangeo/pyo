@@ -235,20 +235,16 @@ MatrixPointer_getMatrix(MatrixPointer* self)
 static PyObject *
 MatrixPointer_setMatrix(MatrixPointer *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
-
-    if ( PyObject_HasAttrString((PyObject *)tmp, "getMatrixStream") == 0 )
+    if ( PyObject_HasAttrString((PyObject *)arg, "getMatrixStream") == 0 )
     {
         PyErr_SetString(PyExc_TypeError, "\"matrix\" argument of MatrixPointer must be a PyoMatrixObject.\n");
         Py_RETURN_NONE;
     }
 
     Py_DECREF(self->matrix);
-    self->matrix = PyObject_CallMethod((PyObject *)tmp, "getMatrixStream", "");
+    self->matrix = PyObject_CallMethod((PyObject *)arg, "getMatrixStream", "");
 
     Py_RETURN_NONE;
 }

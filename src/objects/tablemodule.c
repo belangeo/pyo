@@ -5280,9 +5280,8 @@ TableRec_setTable(TableRec *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    PyObject *tmp = arg;
     Py_DECREF(self->table);
-    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    self->table = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -5764,9 +5763,8 @@ TableMorph_setTable(TableMorph *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    PyObject *tmp = arg;
     Py_DECREF(self->table);
-    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    self->table = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -6116,9 +6114,8 @@ TrigTableRec_setTable(TrigTableRec *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    PyObject *tmp = arg;
     Py_DECREF(self->table);
-    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    self->table = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -6584,9 +6581,8 @@ TablePut_setTable(TablePut *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    PyObject *tmp = arg;
     Py_DECREF(self->table);
-    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    self->table = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -6865,9 +6861,8 @@ TableWrite_setTable(TableWrite *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    PyObject *tmp = arg;
     Py_DECREF(self->table);
-    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    self->table = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }

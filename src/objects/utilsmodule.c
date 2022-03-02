@@ -514,7 +514,6 @@ Snap_setChoice(Snap *self, PyObject *arg)
 {
     int i, oct;
     MYFLT max;
-    PyObject *tmp;
 
     if (! PyList_Check(arg))
     {
@@ -522,13 +521,12 @@ Snap_setChoice(Snap *self, PyObject *arg)
         Py_RETURN_NONE;
     }
 
-    tmp = arg;
-    self->chSize = PyList_Size(tmp);
+    self->chSize = PyList_Size(arg);
     self->choice = (MYFLT *)PyMem_RawRealloc(self->choice, self->chSize * sizeof(MYFLT));
 
     for (i = 0; i < self->chSize; i++)
     {
-        self->choice[i] = PyFloat_AsDouble(PyList_GET_ITEM(tmp, i));
+        self->choice[i] = PyFloat_AsDouble(PyList_GET_ITEM(arg, i));
     }
 
     max = self->choice[self->chSize - 1];

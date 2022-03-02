@@ -917,13 +917,10 @@ Granulator_getTable(Granulator* self)
 static PyObject *
 Granulator_setTable(Granulator *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
     Py_DECREF(self->table);
-    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    self->table = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -938,13 +935,10 @@ Granulator_getEnv(Granulator* self)
 static PyObject *
 Granulator_setEnv(Granulator *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
     Py_DECREF(self->env);
-    self->env = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    self->env = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -2209,13 +2203,10 @@ Looper_getTable(Looper* self)
 static PyObject *
 Looper_setTable(Looper *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
     Py_DECREF(self->table);
-    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    self->table = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -3243,13 +3234,10 @@ Granule_getTable(Granule* self)
 static PyObject *
 Granule_setTable(Granule *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
     Py_DECREF(self->table);
-    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    self->table = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -3264,13 +3252,10 @@ Granule_getEnv(Granule* self)
 static PyObject *
 Granule_setEnv(Granule *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
     Py_DECREF(self->env);
-    self->env = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    self->env = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -4270,13 +4255,10 @@ MainParticle_getTable(MainParticle* self)
 static PyObject *
 MainParticle_setTable(MainParticle *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
     Py_DECREF(self->table);
-    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    self->table = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
     self->srScale = TableStream_getSamplingRate((TableStream *)self->table) / self->sr;
 
     Py_RETURN_NONE;
@@ -4292,13 +4274,10 @@ MainParticle_getEnv(MainParticle* self)
 static PyObject *
 MainParticle_setEnv(MainParticle *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
     Py_DECREF(self->env);
-    self->env = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    self->env = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -5922,13 +5901,10 @@ MainParticle2_getTable(MainParticle2* self)
 static PyObject *
 MainParticle2_setTable(MainParticle2 *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
     Py_DECREF(self->table);
-    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    self->table = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
     self->srScale = TableStream_getSamplingRate((TableStream *)self->table) / self->sr;
 
     Py_RETURN_NONE;
@@ -5944,13 +5920,10 @@ MainParticle2_getEnv(MainParticle2* self)
 static PyObject *
 MainParticle2_setEnv(MainParticle2 *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
     Py_DECREF(self->env);
-    self->env = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    self->env = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }

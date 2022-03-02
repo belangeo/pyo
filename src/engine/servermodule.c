@@ -475,14 +475,25 @@ Server_generateSeed(Server *self, int oid)
 static PyObject *
 Server_setCallback(Server *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
     Py_XDECREF(self->CALLBACK);
-    Py_INCREF(tmp);
-    self->CALLBACK = tmp;
+    self->CALLBACK = arg;
+    Py_INCREF(self->CALLBACK);
+
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+Server_setVerbosity(Server *self, PyObject *arg)
+{
+    if (arg != NULL)
+    {
+        if (PyLong_Check(arg))
+        {
+            self->verbosity = PyLong_AsLong(arg);
+        }
+    }
 
     Py_RETURN_NONE;
 }
@@ -644,21 +655,21 @@ Server_stop(Server *self)
 static PyObject *
 Server_addStream(Server *self, PyObject *args)
 {
-    PyObject *tmp;
+    PyObject *streamtmp;
 
-    if (! PyArg_ParseTuple(args, "O", &tmp))
+    if (! PyArg_ParseTuple(args, "O", &streamtmp))
         return PyLong_FromLong(-1);
 
-    if (tmp == NULL)
+    if (streamtmp == NULL)
     {
         Server_error(self, "Server_addStream function needs a PyoObject as argument.\n");
         return PyLong_FromLong(-1);
     }
 
-    int sid = Stream_getStreamId((Stream *)tmp);
+    int sid = Stream_getStreamId((Stream *)streamtmp);
     Server_debug(self, "Added stream id %d\n", sid);
 
-    PyList_Append(self->streams, tmp);
+    PyList_Append(self->streams, streamtmp);
 
     self->stream_count++;
 
