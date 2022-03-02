@@ -3215,19 +3215,16 @@ static PyObject * Selector_inplace_div(Selector *self, PyObject *arg) { INPLACE_
 static PyObject *
 Selector_setInputs(Selector *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     if (! PyList_Check(arg))
     {
         PyErr_SetString(PyExc_TypeError, "The inputs attribute must be a list.");
         Py_RETURN_NONE;
     }
 
-    tmp = arg;
-    self->chSize = PyList_Size(tmp);
-    Py_INCREF(tmp);
+    self->chSize = PyList_Size(arg);
     Py_XDECREF(self->inputs);
-    self->inputs = tmp;
+    self->inputs = arg;
+    Py_INCREF(self->inputs);
 
     Py_RETURN_NONE;
 }

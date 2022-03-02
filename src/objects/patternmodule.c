@@ -262,18 +262,15 @@ static PyObject * Pattern_stop(Pattern *self, PyObject *args, PyObject *kwds) { 
 static PyObject *
 Pattern_setFunction(Pattern *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     if (! PyCallable_Check(arg))
     {
         PyErr_SetString(PyExc_TypeError, "The callable attribute must be a valid Python function.");
         Py_RETURN_NONE;
     }
 
-    tmp = arg;
     Py_XDECREF(self->callable);
-    Py_INCREF(tmp);
-    self->callable = tmp;
+    self->callable = arg;
+    Py_INCREF(self->callable);
 
     Py_RETURN_NONE;
 }
@@ -283,12 +280,9 @@ static PyObject * Pattern_setTime(Pattern *self, PyObject *arg) { SET_PARAM(self
 static PyObject *
 Pattern_setArg(Pattern *self, PyObject *arg)
 {
-    PyObject *tmp;
-
-    tmp = arg;
     Py_XDECREF(self->arg);
-    Py_INCREF(tmp);
-    self->arg = tmp;
+    self->arg = arg;
+    Py_INCREF(self->arg);
 
     Py_RETURN_NONE;
 }
@@ -674,12 +668,9 @@ CallAfter_setTime(CallAfter *self, PyObject *arg)
 static PyObject *
 CallAfter_setArg(CallAfter *self, PyObject *arg)
 {
-    PyObject *tmp;
-
-    tmp = arg;
     Py_XDECREF(self->arg);
-    Py_INCREF(tmp);
-    self->arg = tmp;
+    self->arg = arg;
+    Py_INCREF(self->arg);
 
     Py_RETURN_NONE;
 }

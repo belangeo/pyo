@@ -56,9 +56,7 @@ int OscReceiver_handler(const char *path, const char *types, lo_arg **argv, int 
 
 MYFLT OscReceiver_getValue(OscReceiver *self, PyObject *path)
 {
-    PyObject *tmp;
-    tmp = PyDict_GetItem(self->dict, path);
-    return PyFloat_AsDouble(tmp);
+    return PyFloat_AsDouble(PyDict_GetItem(self->dict, path));
 }
 
 static void
@@ -974,15 +972,12 @@ static PyObject * OscDataSend_stop(OscDataSend *self, PyObject *args, PyObject *
 static PyObject *
 OscDataSend_send(OscDataSend *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
     if (PyList_Check(arg))
     {
-        tmp = arg;
-        Py_INCREF(tmp);
-        PyList_Append(self->value, tmp);
+        Py_INCREF(arg);
+        PyList_Append(self->value, arg);
         self->something_to_send++;
     }
     else
@@ -1400,9 +1395,9 @@ int OscListReceiver_handler(const char *path, const char *types, lo_arg **argv, 
 PyObject *
 OscListReceiver_getValue(OscListReceiver *self, PyObject *path)
 {
-    PyObject *tmp;
-    tmp = PyDict_GetItem(self->dict, path);
-    return tmp;
+    PyObject *value = PyDict_GetItem(self->dict, path);
+    Py_INCREF(value);
+    return value;
 }
 
 static void
@@ -1795,8 +1790,8 @@ OscListReceive_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
 
     Py_XDECREF(self->input);
-    Py_INCREF(inputtmp);
     self->input = inputtmp;
+    Py_INCREF(self->input);
 
     if (multmp)
     {

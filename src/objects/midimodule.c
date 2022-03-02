@@ -144,18 +144,15 @@ CtlScan_reset(CtlScan *self)
 static PyObject *
 CtlScan_setFunction(CtlScan *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     if (! PyCallable_Check(arg))
     {
         PyErr_SetString(PyExc_TypeError, "The callable attribute must be a valid Python function.");
         Py_RETURN_NONE;
     }
 
-    tmp = arg;
     Py_XDECREF(self->callable);
-    Py_INCREF(tmp);
-    self->callable = tmp;
+    self->callable = arg;
+    Py_INCREF(self->callable);
 
     Py_RETURN_NONE;
 }
@@ -355,18 +352,15 @@ CtlScan2_reset(CtlScan2 *self)
 static PyObject *
 CtlScan2_setFunction(CtlScan2 *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     if (! PyCallable_Check(arg))
     {
         PyErr_SetString(PyExc_TypeError, "The callable attribute must be a valid Python function.");
         Py_RETURN_NONE;
     }
 
-    tmp = arg;
     Py_XDECREF(self->callable);
-    Py_INCREF(tmp);
-    self->callable = tmp;
+    self->callable = arg;
+    Py_INCREF(self->callable);
 
     Py_RETURN_NONE;
 }
@@ -4124,18 +4118,15 @@ static PyObject * RawMidi_stop(RawMidi *self, PyObject *args, PyObject *kwds) { 
 static PyObject *
 RawMidi_setFunction(RawMidi *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     if (! PyCallable_Check(arg))
     {
         PyErr_SetString(PyExc_TypeError, "The callable attribute must be a valid Python function.");
         Py_RETURN_NONE;
     }
 
-    tmp = arg;
     Py_XDECREF(self->callable);
-    Py_INCREF(tmp);
-    self->callable = tmp;
+    self->callable = arg;
+    Py_INCREF(self->callable);
 
     Py_RETURN_NONE;
 }

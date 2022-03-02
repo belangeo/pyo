@@ -720,14 +720,11 @@ static PyObject * MatrixRec_stop(MatrixRec *self, PyObject *args, PyObject *kwds
 static PyObject *
 MatrixRec_setMatrix(MatrixRec *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
-    Py_INCREF(tmp);
     Py_DECREF(self->matrix);
-    self->matrix = (NewMatrix *)tmp;
+    self->matrix = (NewMatrix *)arg;
+    Py_INCREF(self->matrix);
 
     Py_RETURN_NONE;
 }
@@ -915,14 +912,11 @@ static PyObject * MatrixRecLoop_stop(MatrixRecLoop *self, PyObject *args, PyObje
 static PyObject *
 MatrixRecLoop_setMatrix(MatrixRecLoop *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
-    Py_INCREF(tmp);
     Py_DECREF(self->matrix);
-    self->matrix = (NewMatrix *)tmp;
+    self->matrix = (NewMatrix *)arg;
+    Py_INCREF(self->matrix);
 
     Py_RETURN_NONE;
 }
@@ -1128,14 +1122,11 @@ static PyObject * MatrixMorph_stop(MatrixMorph *self, PyObject *args, PyObject *
 static PyObject *
 MatrixMorph_setMatrix(MatrixMorph *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
-    Py_INCREF(tmp);
     Py_DECREF(self->matrix);
-    self->matrix = (PyObject *)tmp;
+    self->matrix = (PyObject *)arg;
+    Py_INCREF(self->matrix);
 
     Py_RETURN_NONE;
 }

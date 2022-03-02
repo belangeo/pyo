@@ -968,17 +968,10 @@ VarPort_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static PyObject *
 VarPort_setValue(VarPort *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-
-    if (isNumber == 1)
-        self->value = PyFloat_AsDouble(tmp);
+    if (PyNumber_Check(arg))
+        self->value = PyFloat_AsDouble(arg);
     else
         self->value = self->lastValue;
 
@@ -1003,18 +996,15 @@ VarPort_setTime(VarPort *self, PyObject *arg)
 static PyObject *
 VarPort_setFunction(VarPort *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     if (! PyCallable_Check(arg))
     {
         PyErr_SetString(PyExc_TypeError, "The function attribute must be callable.");
         Py_RETURN_NONE;
     }
 
-    tmp = arg;
     Py_XDECREF(self->callable);
-    Py_INCREF(tmp);
-    self->callable = tmp;
+    self->callable = arg;
+    Py_INCREF(self->callable);
 
     Py_RETURN_NONE;
 }

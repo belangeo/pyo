@@ -1420,7 +1420,6 @@ static PyObject *
 Choice_setChoice(Choice *self, PyObject *arg)
 {
     int i;
-    PyObject *tmp;
 
     if (! PyList_Check(arg))
     {
@@ -1428,13 +1427,12 @@ Choice_setChoice(Choice *self, PyObject *arg)
         Py_RETURN_NONE;
     }
 
-    tmp = arg;
-    self->chSize = PyList_Size(tmp);
+    self->chSize = PyList_Size(arg);
     self->choice = (MYFLT *)PyMem_RawRealloc(self->choice, self->chSize * sizeof(MYFLT));
 
     for (i = 0; i < self->chSize; i++)
     {
-        self->choice[i] = PyFloat_AsDouble(PyList_GET_ITEM(tmp, i));
+        self->choice[i] = PyFloat_AsDouble(PyList_GET_ITEM(arg, i));
     }
 
     (*self->mode_func_ptr)(self);

@@ -2767,19 +2767,16 @@ Scope_setHeight(Scope *self, PyObject *arg)
 static PyObject *
 Scope_setFunc(Scope *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     if (! PyCallable_Check(arg))
     {
         PyErr_SetString(PyExc_TypeError, "The function attribute must be callable.");
         Py_RETURN_NONE;
     }
 
-    tmp = arg;
     Py_XDECREF(self->func);
-    Py_INCREF(tmp);
-    self->func = tmp;
-
+    self->func = arg;
+    Py_INCREF(self->func);
+ 
     Py_RETURN_NONE;
 }
 
