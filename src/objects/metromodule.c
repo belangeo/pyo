@@ -2761,9 +2761,7 @@ Beater_setOnlyonce(Beater *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isInt = PyLong_Check(arg);
-
-    if (isInt == 1)
+    if (PyLong_Check(arg))
     {
         self->onlyonce = PyLong_AsLong(arg);
     }

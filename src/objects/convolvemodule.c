@@ -770,9 +770,7 @@ IRWinSinc_setType(IRWinSinc *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isInt = PyLong_Check(arg);
-
-    if (isInt == 1)
+    if (PyLong_Check(arg))
     {
         self->filtertype = PyLong_AsLong(arg);
         self->changed = 1;
@@ -1663,9 +1661,7 @@ IRPulse_setType(IRPulse *self, PyObject *arg)
 
     ASSERT_ARG_NOT_NULL
 
-    int isInt = PyLong_Check(arg);
-
-    if (isInt == 1)
+    if (PyLong_Check(arg))
     {
         self->filtertype = PyLong_AsLong(arg);
         self->changed = 1;

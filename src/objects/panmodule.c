@@ -2402,9 +2402,7 @@ Mixer_setTime(Mixer *self, PyObject *arg)
 
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyNumber_Check(arg);
-
-    if (isNumber == 1)
+    if (PyNumber_Check(arg))
     {
         self->time = PyFloat_AsDouble(arg);
         self->timeStep = (long)(self->time * self->sr);

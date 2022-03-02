@@ -498,17 +498,6 @@ Server_setVerbosity(Server *self, PyObject *arg)
     Py_RETURN_NONE;
 }
 
-static PyObject *
-Server_setVerbosity(Server *self, PyObject *arg)
-{
-    if (arg != NULL && PyLong_Check(arg))
-    {
-        self->verbosity = PyLong_AsLong(arg);
-    }
-
-    Py_RETURN_NONE;
-}
-
 /*******************************************/
 /** Server shutdown / boot / start / stop **/
 /*******************************************/

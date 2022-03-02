@@ -1498,9 +1498,7 @@ Yin_setTolerance(Yin *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyNumber_Check(arg);
-
-    if (isNumber == 1)
+    if (PyNumber_Check(arg))
     {
         self->tolerance = PyFloat_AsDouble(arg);
     }
@@ -1513,9 +1511,7 @@ Yin_setMinfreq(Yin *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyNumber_Check(arg);
-
-    if (isNumber == 1)
+    if (PyNumber_Check(arg))
     {
         self->minfreq = PyFloat_AsDouble(arg);
     }
@@ -1528,9 +1524,7 @@ Yin_setMaxfreq(Yin *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyNumber_Check(arg);
-
-    if (isNumber == 1)
+    if (PyNumber_Check(arg))
     {
         self->maxfreq = PyFloat_AsDouble(arg);
     }
@@ -1543,9 +1537,7 @@ Yin_setCutoff(Yin *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyNumber_Check(arg);
-
-    if (isNumber == 1)
+    if (PyNumber_Check(arg))
     {
         self->cutoff = PyFloat_AsDouble(arg);
     }
@@ -2322,9 +2314,7 @@ AttackDetector_setDeltime(AttackDetector *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyNumber_Check(arg);
-
-    if (isNumber == 1)
+    if (PyNumber_Check(arg))
     {
         self->deltime = PyFloat_AsDouble(arg);
 
@@ -2342,9 +2332,7 @@ AttackDetector_setCutoff(AttackDetector *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyNumber_Check(arg);
-
-    if (isNumber == 1)
+    if (PyNumber_Check(arg))
     {
         self->cutoff = PyFloat_AsDouble(arg);
 
@@ -2362,9 +2350,7 @@ AttackDetector_setMaxthresh(AttackDetector *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyNumber_Check(arg);
-
-    if (isNumber == 1)
+    if (PyNumber_Check(arg))
     {
         self->maxthresh = PyFloat_AsDouble(arg);
 
@@ -2380,9 +2366,7 @@ AttackDetector_setMinthresh(AttackDetector *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyNumber_Check(arg);
-
-    if (isNumber == 1)
+    if (PyNumber_Check(arg))
     {
         self->minthresh = PyFloat_AsDouble(arg);
 
@@ -2398,9 +2382,7 @@ AttackDetector_setReltime(AttackDetector *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyNumber_Check(arg);
-
-    if (isNumber == 1)
+    if (PyNumber_Check(arg))
     {
         self->reltime = PyFloat_AsDouble(arg);
 

@@ -639,9 +639,7 @@ static PyObject * OscBank_setArnda(OscBank *self, PyObject *arg) { SET_PARAM(sel
 static PyObject *
 OscBank_setFjit(OscBank *self, PyObject *arg)
 {
-    int isInt = PyLong_Check(arg);
-
-    if (isInt)
+    if (PyLong_Check(arg))
     {
         self->fjit = PyLong_AsLong(arg);
     }

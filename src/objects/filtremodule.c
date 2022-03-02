@@ -456,9 +456,7 @@ Biquad_setType(Biquad *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isInt = PyLong_Check(arg);
-
-    if (isInt == 1)
+    if (PyLong_Check(arg))
     {
         self->filtertype = PyLong_AsLong(arg);
     }
@@ -1073,9 +1071,7 @@ Biquadx_setType(Biquadx *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isInt = PyLong_Check(arg);
-
-    if (isInt == 1)
+    if (PyLong_Check(arg))
     {
         self->filtertype = PyLong_AsLong(arg);
     }
@@ -1090,9 +1086,7 @@ Biquadx_setStages(Biquadx *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isInt = PyLong_Check(arg);
-
-    if (isInt == 1)
+    if (PyLong_Check(arg))
     {
         self->stages = PyLong_AsLong(arg);
         Biquadx_allocate_memories(self);
@@ -2168,9 +2162,7 @@ EQ_setType(EQ *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isInt = PyLong_Check(arg);
-
-    if (isInt == 1)
+    if (PyLong_Check(arg))
     {
         self->filtertype = PyLong_AsLong(arg);
     }
@@ -6693,9 +6685,7 @@ Vocoder_setStages(Vocoder *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isInt = PyLong_Check(arg);
-
-    if (isInt == 1)
+    if (PyLong_Check(arg))
     {
         self->stages = PyLong_AsLong(arg);
         Vocoder_allocate_memories(self);
@@ -8673,9 +8663,7 @@ Average_setSize(Average *self, PyObject *arg)
 
     ASSERT_ARG_NOT_NULL
 
-    int isInt = PyLong_Check(arg);
-
-    if (isInt == 1)
+    if (PyLong_Check(arg))
     {
         self->size = PyLong_AsLong(arg);
         self->halfSize = (int)(self->size / 2);
@@ -9669,9 +9657,7 @@ Resonx_setStages(Resonx *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isInt = PyLong_Check(arg);
-
-    if (isInt == 1)
+    if (PyLong_Check(arg))
     {
         self->stages = PyLong_AsLong(arg);
         Resonx_allocate_memories(self);

@@ -2216,9 +2216,7 @@ Looper_setStartFromLoop(Looper *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isInt = PyLong_Check(arg);
-
-    if (isInt == 1)
+    if (PyLong_Check(arg))
     {
         self->startfromloop = PyLong_AsLong(arg);
     }
@@ -2231,9 +2229,7 @@ Looper_setXfadeShape(Looper *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isInt = PyLong_Check(arg);
-
-    if (isInt == 1)
+    if (PyLong_Check(arg))
     {
         self->xfadeshape = PyLong_AsLong(arg);
     }
@@ -2248,9 +2244,7 @@ Looper_setMode(Looper *self, PyObject *arg)
 
     ASSERT_ARG_NOT_NULL
 
-    int isInt = PyLong_Check(arg);
-
-    if (isInt == 1)
+    if (PyLong_Check(arg))
     {
         tmp = PyLong_AsLong(arg);
 
@@ -2266,9 +2260,7 @@ Looper_setInterp(Looper *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyNumber_Check(arg);
-
-    if (isNumber == 1)
+    if (PyNumber_Check(arg))
     {
         self->interp = PyLong_AsLong(PyNumber_Long(arg));
     }
@@ -2283,9 +2275,7 @@ Looper_setAutoSmooth(Looper *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isInt = PyLong_Check(arg);
-
-    if (isInt == 1)
+    if (PyLong_Check(arg))
     {
         self->autosmooth = PyLong_AsLong(arg);
     }
@@ -2313,9 +2303,7 @@ Looper_appendFadeTime(Looper *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isInt = PyLong_Check(arg);
-
-    if (isInt == 1)
+    if (PyLong_Check(arg))
     {
         self->appendfade = PyLong_AsLong(arg) == 0 ? 0 : 1;
     }
@@ -2328,9 +2316,7 @@ Looper_fadeInSeconds(Looper *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isInt = PyLong_Check(arg);
-
-    if (isInt == 1)
+    if (PyLong_Check(arg))
     {
         self->fadeinseconds = PyLong_AsLong(arg) == 0 ? 0 : 1;
     }

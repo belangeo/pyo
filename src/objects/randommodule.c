@@ -3228,9 +3228,7 @@ Xnoise_setType(Xnoise *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyLong_Check(arg);
-
-    if (isNumber == 1)
+    if (PyLong_Check(arg))
     {
         self->type = PyLong_AsLong(arg);
         Xnoise_setRandomType(self);
@@ -4202,9 +4200,7 @@ XnoiseMidi_setType(XnoiseMidi *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyLong_Check(arg);
-
-    if (isNumber == 1)
+    if (PyLong_Check(arg))
     {
         self->type = PyLong_AsLong(arg);
         XnoiseMidi_setRandomType(self);
@@ -4220,9 +4216,7 @@ XnoiseMidi_setScale(XnoiseMidi *self, PyObject *arg)
 
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyLong_Check(arg);
-
-    if (isNumber == 1)
+    if (PyLong_Check(arg))
     {
         tmp = PyLong_AsLong(arg);
 
@@ -5004,9 +4998,7 @@ XnoiseDur_setType(XnoiseDur *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyLong_Check(arg);
-
-    if (isNumber == 1)
+    if (PyLong_Check(arg))
     {
         self->type = PyLong_AsLong(arg);
         XnoiseDur_setRandomType(self);

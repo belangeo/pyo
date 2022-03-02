@@ -1782,9 +1782,7 @@ TrigEnv_setInterp(TrigEnv *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyNumber_Check(arg);
-
-    if (isNumber == 1)
+    if (PyNumber_Check(arg))
     {
         self->interp = PyLong_AsLong(PyNumber_Long(arg));
     }
@@ -3405,9 +3403,7 @@ TrigXnoise_setType(TrigXnoise *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyLong_Check(arg);
-
-    if (isNumber == 1)
+    if (PyLong_Check(arg))
     {
         self->type = PyLong_AsLong(arg);
         TrigXnoise_setRandomType(self);
@@ -4215,9 +4211,7 @@ TrigXnoiseMidi_setType(TrigXnoiseMidi *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyLong_Check(arg);
-
-    if (isNumber == 1)
+    if (PyLong_Check(arg))
     {
         self->type = PyLong_AsLong(arg);
         TrigXnoiseMidi_setRandomType(self);
@@ -4233,9 +4227,7 @@ TrigXnoiseMidi_setScale(TrigXnoiseMidi *self, PyObject *arg)
 
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyLong_Check(arg);
-
-    if (isNumber == 1)
+    if (PyLong_Check(arg))
     {
         tmp = PyLong_AsLong(arg);
 
