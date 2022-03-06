@@ -62,15 +62,15 @@ INLINE PyThreadState * pyo_new_interpreter(float sr, int bufsize, int chnls) {
     }
 
 #if !defined(_WIN32)
-    /* This call hardcodes 3.7 as the python version to be used to embed pyo in
+    /* This call hardcodes 3.9 as the python version to be used to embed pyo in
        a C or C++ program. This is not a good idea and must be fixed when everthing
        is stable.
     */
     if (libpython_handle == NULL) {
 #ifdef __linux__
-        libpython_handle = dlopen("libpython3.7m.so", RTLD_LAZY | RTLD_GLOBAL);
+        libpython_handle = dlopen("libpython3.9.so", RTLD_LAZY | RTLD_GLOBAL);
 #elif __APPLE__
-        libpython_handle = dlopen("libpython3.7.dylib", RTLD_LAZY | RTLD_GLOBAL);
+        libpython_handle = dlopen("libpython3.9.dylib", RTLD_LAZY | RTLD_GLOBAL);
 #endif
     }
 #endif
