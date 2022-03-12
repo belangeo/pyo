@@ -683,9 +683,8 @@ HRTFSpatter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_INPUT_STREAM
 
-    Py_XDECREF(self->hrtfdata);
-    Py_INCREF(hrtfdatatmp);
     self->hrtfdata = (HRTFData *)hrtfdatatmp;
+    Py_INCREF(self->hrtfdata);
 
     self->length = HRTFData_getImpulseLength(self->hrtfdata);
 
@@ -942,9 +941,8 @@ HRTF_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainSplitter);
-    Py_INCREF(maintmp);
     self->mainSplitter = (HRTFSpatter *)maintmp;
+    Py_INCREF(self->mainSplitter);
 
     if (multmp)
     {
@@ -1653,9 +1651,8 @@ Binaural_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainSplitter);
-    Py_INCREF(maintmp);
     self->mainSplitter = (Binauraler *)maintmp;
+    Py_INCREF(self->mainSplitter);
 
     if (multmp)
     {

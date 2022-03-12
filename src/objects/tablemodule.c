@@ -6278,7 +6278,6 @@ TableRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -6556,9 +6555,8 @@ TableRecTimeStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &maintmp))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainPlayer);
-    Py_INCREF(maintmp);
     self->mainPlayer = (TableRec *)maintmp;
+    Py_INCREF(self->mainPlayer);
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
@@ -6822,12 +6820,10 @@ TableMorph_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
 
-    Py_XDECREF(self->sources);
-    Py_INCREF(sourcestmp);
     self->sources = (PyObject *)sourcestmp;
+    Py_INCREF(self->sources);
 
     TableMorph_alloc_memories(self);
 
@@ -7144,13 +7140,11 @@ TrigTableRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_INPUT_STREAM
 
-    Py_XDECREF(self->trigger);
-    Py_INCREF(trigtmp);
     self->trigger = trigtmp;
+    Py_INCREF(self->trigger);
     trig_streamtmp = PyObject_CallMethod((PyObject *)self->trigger, "_getStream", NULL);
-    Py_INCREF(trig_streamtmp);
-    Py_XDECREF(self->trigger_stream);
     self->trigger_stream = (Stream *)trig_streamtmp;
+    Py_INCREF(self->trigger_stream);
 
     if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 )
     {
@@ -7158,7 +7152,6 @@ TrigTableRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -7391,9 +7384,8 @@ TrigTableRecTimeStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &maintmp))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainPlayer);
-    Py_INCREF(maintmp);
     self->mainPlayer = (TrigTableRec *)maintmp;
+    Py_INCREF(self->mainPlayer);
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
@@ -7629,7 +7621,6 @@ TablePut_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -7904,7 +7895,6 @@ TableWrite_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);

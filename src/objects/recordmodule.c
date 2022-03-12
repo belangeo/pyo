@@ -147,7 +147,6 @@ Record_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "Os#|iiiid", kwlist, &input_listtmp, &self->recpath, &psize, &self->chnls, &fileformat, &sampletype, &self->buffering, &quality))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->input_list);
     self->input_list = input_listtmp;
     Py_INCREF(self->input_list);
     self->listlen = PyList_Size(self->input_list);

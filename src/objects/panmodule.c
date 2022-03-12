@@ -542,9 +542,8 @@ Pan_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainSplitter);
-    Py_INCREF(maintmp);
     self->mainSplitter = (Panner *)maintmp;
+    Py_INCREF(self->mainSplitter);
 
     if (multmp)
     {
@@ -1171,9 +1170,8 @@ SPan_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainSplitter);
-    Py_INCREF(maintmp);
     self->mainSplitter = (SPanner *)maintmp;
+    Py_INCREF(self->mainSplitter);
 
     if (multmp)
     {
@@ -1720,9 +1718,8 @@ Switch_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainSplitter);
-    Py_INCREF(maintmp);
     self->mainSplitter = (Switcher *)maintmp;
+    Py_INCREF(self->mainSplitter);
 
     if (multmp)
     {
@@ -2718,9 +2715,8 @@ MixerVoice_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainMixer);
-    Py_INCREF(maintmp);
     self->mainMixer = (Mixer *)maintmp;
+    Py_INCREF(self->mainMixer);
 
     if (multmp)
     {

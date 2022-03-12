@@ -994,9 +994,8 @@ Seq_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainPlayer);
-    Py_INCREF(maintmp);
     self->mainPlayer = (Seqer *)maintmp;
+    Py_INCREF(self->mainPlayer);
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
@@ -1504,9 +1503,8 @@ Cloud_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainPlayer);
-    Py_INCREF(maintmp);
     self->mainPlayer = (Clouder *)maintmp;
+    Py_INCREF(self->mainPlayer);
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
@@ -2968,9 +2966,8 @@ Beat_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainPlayer);
-    Py_INCREF(maintmp);
     self->mainPlayer = (Beater *)maintmp;
+    Py_INCREF(self->mainPlayer);
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
@@ -3231,9 +3228,8 @@ BeatTapStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainPlayer);
-    Py_INCREF(maintmp);
     self->mainPlayer = (Beater *)maintmp;
+    Py_INCREF(self->mainPlayer);
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
@@ -3494,9 +3490,8 @@ BeatAmpStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainPlayer);
-    Py_INCREF(maintmp);
     self->mainPlayer = (Beater *)maintmp;
+    Py_INCREF(self->mainPlayer);
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
@@ -3757,9 +3752,8 @@ BeatDurStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainPlayer);
-    Py_INCREF(maintmp);
     self->mainPlayer = (Beater *)maintmp;
+    Py_INCREF(self->mainPlayer);
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
@@ -4020,9 +4014,8 @@ BeatEndStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainPlayer);
-    Py_INCREF(maintmp);
     self->mainPlayer = (Beater *)maintmp;
+    Py_INCREF(self->mainPlayer);
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
@@ -4632,9 +4625,8 @@ TrigBurst_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainPlayer);
-    Py_INCREF(maintmp);
     self->mainPlayer = (TrigBurster *)maintmp;
+    Py_INCREF(self->mainPlayer);
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
@@ -4895,9 +4887,8 @@ TrigBurstTapStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainPlayer);
-    Py_INCREF(maintmp);
     self->mainPlayer = (TrigBurster *)maintmp;
+    Py_INCREF(self->mainPlayer);
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
@@ -5158,9 +5149,8 @@ TrigBurstAmpStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainPlayer);
-    Py_INCREF(maintmp);
     self->mainPlayer = (TrigBurster *)maintmp;
+    Py_INCREF(self->mainPlayer);
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
@@ -5421,9 +5411,8 @@ TrigBurstDurStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainPlayer);
-    Py_INCREF(maintmp);
     self->mainPlayer = (TrigBurster *)maintmp;
+    Py_INCREF(self->mainPlayer);
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
@@ -5684,9 +5673,8 @@ TrigBurstEndStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainPlayer);
-    Py_INCREF(maintmp);
     self->mainPlayer = (TrigBurster *)maintmp;
+    Py_INCREF(self->mainPlayer);
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 

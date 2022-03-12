@@ -473,9 +473,8 @@ FFT_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainSplitter);
-    Py_INCREF(maintmp);
     self->mainSplitter = (FFTMain *)maintmp;
+    Py_INCREF(self->mainSplitter);
 
     if (multmp)
     {
@@ -2058,9 +2057,8 @@ FrameDelta_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainSplitter);
-    Py_INCREF(maintmp);
     self->mainSplitter = (FrameDeltaMain *)maintmp;
+    Py_INCREF(self->mainSplitter);
 
     if (multmp)
     {
@@ -2615,9 +2613,8 @@ FrameAccum_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainSplitter);
-    Py_INCREF(maintmp);
     self->mainSplitter = (FrameAccumMain *)maintmp;
+    Py_INCREF(self->mainSplitter);
 
     if (multmp)
     {
@@ -3264,9 +3261,8 @@ Vectral_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainSplitter);
-    Py_INCREF(maintmp);
     self->mainSplitter = (VectralMain *)maintmp;
+    Py_INCREF(self->mainSplitter);
 
     if (multmp)
     {
@@ -4816,7 +4812,6 @@ IFFTMatrix_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    Py_XDECREF(self->matrix);
     self->matrix = PyObject_CallMethod((PyObject *)matrixtmp, "getMatrixStream", "");
 
     if (indextmp)

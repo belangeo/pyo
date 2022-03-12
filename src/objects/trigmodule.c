@@ -1699,7 +1699,6 @@ TrigEnv_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
 
     if (durtmp)
@@ -2123,9 +2122,8 @@ TrigLinseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_INPUT_STREAM
 
-    Py_INCREF(pointslist);
-    Py_XDECREF(self->pointslist);
     self->pointslist = pointslist;
+    Py_INCREF(self->pointslist);
     TrigLinseg_convert_pointslist((TrigLinseg *)self);
 
     if (multmp)
@@ -2556,9 +2554,8 @@ TrigExpseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_INPUT_STREAM
 
-    Py_INCREF(pointslist);
-    Py_XDECREF(self->pointslist);
     self->pointslist = pointslist;
+    Py_INCREF(self->pointslist);
     TrigExpseg_convert_pointslist((TrigExpseg *)self);
 
     if (multmp)
@@ -5859,9 +5856,9 @@ Iter_get_stream(Iter *self, PyObject *obj)
 {
     PyObject *streamtmp;
     streamtmp = PyObject_CallMethod((PyObject *)obj, "_getStream", NULL);
-    Py_INCREF(streamtmp);
     Py_XDECREF(self->audioval);
     self->audioval = (Stream *)streamtmp;
+    Py_INCREF(self->audioval);
 }
 
 static void
@@ -6100,7 +6097,7 @@ Iter_setChoice(Iter *self, PyObject *arg)
     self->chSize = PyList_Size(arg);
     Py_XDECREF(self->choice);
     self->choice = arg;
-    Py_INCREF(arg);
+    Py_INCREF(self->choice);
 
     Py_RETURN_NONE;
 }

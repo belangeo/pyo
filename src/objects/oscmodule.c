@@ -115,9 +115,8 @@ OscReceiver_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     if (PyList_Check(pathtmp))
     {
-        Py_INCREF(pathtmp);
-        Py_XDECREF(self->address_path);
         self->address_path = pathtmp;
+        Py_INCREF(self->address_path);
     }
     else
     {
@@ -416,9 +415,8 @@ OscReceive_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|OO", kwlist, &inputtmp, &pathtmp, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->input);
-    Py_INCREF(inputtmp);
     self->input = inputtmp;
+    Py_INCREF(self->input);
 
     if (multmp)
     {
@@ -438,9 +436,8 @@ OscReceive_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    Py_INCREF(pathtmp);
-    Py_XDECREF(self->address_path);
     self->address_path = pathtmp;
+    Py_INCREF(self->address_path);
 
     (*self->mode_func_ptr)(self);
 
@@ -1789,7 +1786,6 @@ OscListReceive_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOi|OO", kwlist, &inputtmp, &pathtmp, &self->order, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->input);
     self->input = inputtmp;
     Py_INCREF(self->input);
 
@@ -1811,9 +1807,8 @@ OscListReceive_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    Py_INCREF(pathtmp);
-    Py_XDECREF(self->address_path);
     self->address_path = pathtmp;
+    Py_INCREF(self->address_path);
 
     (*self->mode_func_ptr)(self);
 

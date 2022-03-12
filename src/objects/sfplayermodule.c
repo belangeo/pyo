@@ -703,9 +703,8 @@ SfPlay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iOO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainPlayer);
-    Py_INCREF(maintmp);
     self->mainPlayer = (SfPlayer *)maintmp;
+    Py_INCREF(self->mainPlayer);
 
     if (multmp)
     {
@@ -1694,9 +1693,8 @@ SfMarkerShuffle_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iOO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainPlayer);
-    Py_INCREF(maintmp);
     self->mainPlayer = (SfMarkerShuffler *)maintmp;
+    Py_INCREF(self->mainPlayer);
 
     if (multmp)
     {
@@ -2491,9 +2489,8 @@ SfMarkerLoop_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iOO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainPlayer);
-    Py_INCREF(maintmp);
     self->mainPlayer = (SfMarkerLooper *)maintmp;
+    Py_INCREF(self->mainPlayer);
 
     if (multmp)
     {

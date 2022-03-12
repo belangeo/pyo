@@ -1717,7 +1717,6 @@ Osc_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
 
     if (freqtmp)
@@ -2203,7 +2202,6 @@ OscLoop_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
 
     if (feedbacktmp)
@@ -2701,7 +2699,6 @@ OscTrig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
 
     if (trigtmp)
@@ -3527,7 +3524,6 @@ Pointer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
 
     if (indextmp)
@@ -3909,7 +3905,6 @@ Pointer2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
 
     if (indextmp)
@@ -4287,7 +4282,6 @@ TableIndex_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
 
     if (indextmp)
@@ -4641,7 +4635,6 @@ Lookup_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
 
     if (indextmp)
@@ -5440,7 +5433,6 @@ Pulsar_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
 
     if ( PyObject_HasAttrString((PyObject *)envtmp, "getTableStream") == 0 )
@@ -5449,7 +5441,6 @@ Pulsar_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    Py_XDECREF(self->env);
     self->env = PyObject_CallMethod((PyObject *)envtmp, "getTableStream", "");
 
     if (phasetmp)
@@ -5959,7 +5950,6 @@ TableRead_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
 
     if (freqtmp)
@@ -8335,9 +8325,8 @@ RosslerAlt_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &maintmp, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainRossler);
-    Py_INCREF(maintmp);
     self->mainRossler = (Rossler *)maintmp;
+    Py_INCREF(self->mainRossler);
 
     if (multmp)
     {
@@ -9100,9 +9089,8 @@ LorenzAlt_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &maintmp, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainLorenz);
-    Py_INCREF(maintmp);
     self->mainLorenz = (Lorenz *)maintmp;
+    Py_INCREF(self->mainLorenz);
 
     if (multmp)
     {
@@ -9873,9 +9861,8 @@ ChenLeeAlt_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &maintmp, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainChenLee);
-    Py_INCREF(maintmp);
     self->mainChenLee = (ChenLee *)maintmp;
+    Py_INCREF(self->mainChenLee);
 
     if (multmp)
     {
@@ -12202,7 +12189,6 @@ TableScale_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
 
     if ( PyObject_HasAttrString((PyObject *)outtabletmp, "getTableStream") == 0 )
@@ -12211,7 +12197,6 @@ TableScale_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    Py_XDECREF(self->outtable);
     self->outtable = PyObject_CallMethod((PyObject *)outtabletmp, "getTableStream", "");
 
     if (multmp)
@@ -12477,7 +12462,6 @@ TableFill_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -12717,7 +12701,6 @@ TableScan_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
 
     if (multmp)

@@ -481,9 +481,8 @@ BandSplit_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iOO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainSplitter);
-    Py_INCREF(maintmp);
     self->mainSplitter = (BandSplitter *)maintmp;
+    Py_INCREF(self->mainSplitter);
 
     if (multmp)
     {
@@ -1174,9 +1173,8 @@ FourBand_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iOO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainSplitter);
-    Py_INCREF(maintmp);
     self->mainSplitter = (FourBandMain *)maintmp;
+    Py_INCREF(self->mainSplitter);
 
     if (multmp)
     {
@@ -1833,9 +1831,8 @@ MultiBand_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iOO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainSplitter);
-    Py_INCREF(maintmp);
     self->mainSplitter = (MultiBandMain *)maintmp;
+    Py_INCREF(self->mainSplitter);
 
     if (multmp)
     {

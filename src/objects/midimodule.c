@@ -4455,9 +4455,8 @@ MidiLinseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_INPUT_STREAM
 
-    Py_INCREF(pointslist);
-    Py_XDECREF(self->pointslist);
     self->pointslist = pointslist;
+    Py_INCREF(self->pointslist);
     MidiLinseg_convert_pointslist((MidiLinseg *)self);
 
     self->tmphold = self->hold;
