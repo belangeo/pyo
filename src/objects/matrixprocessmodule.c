@@ -177,7 +177,6 @@ MatrixPointer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    Py_XDECREF(self->matrix);
     self->matrix = PyObject_CallMethod((PyObject *)matrixtmp, "getMatrixStream", "");
 
     if (xtmp)

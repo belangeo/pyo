@@ -817,7 +817,6 @@ Granulator_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
     self->srScale = TableStream_getSamplingRate((TableStream *)self->table) / self->sr;
 
@@ -827,7 +826,6 @@ Granulator_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    Py_XDECREF(self->env);
     self->env = PyObject_CallMethod((PyObject *)envtmp, "getTableStream", "");
 
     if (pitchtmp)
@@ -2109,7 +2107,6 @@ Looper_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
 
     if (pitchtmp)
@@ -2572,9 +2569,8 @@ LooperTimeStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &maintmp))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainPlayer);
-    Py_INCREF(maintmp);
     self->mainPlayer = (Looper *)maintmp;
+    Py_INCREF(self->mainPlayer);
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
@@ -3122,7 +3118,6 @@ Granule_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
 
     if ( PyObject_HasAttrString((PyObject *)envtmp, "getTableStream") == 0 )
@@ -3131,7 +3126,6 @@ Granule_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    Py_XDECREF(self->env);
     self->env = PyObject_CallMethod((PyObject *)envtmp, "getTableStream", "");
 
     if (denstmp)
@@ -4140,7 +4134,6 @@ MainParticle_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
     self->srScale = TableStream_getSamplingRate((TableStream *)self->table) / self->sr;
 
@@ -4150,7 +4143,6 @@ MainParticle_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    Py_XDECREF(self->env);
     self->env = PyObject_CallMethod((PyObject *)envtmp, "getTableStream", "");
 
     if (denstmp)
@@ -4469,9 +4461,8 @@ Particle_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainSplitter);
-    Py_INCREF(maintmp);
     self->mainSplitter = (MainParticle *)maintmp;
+    Py_INCREF(self->mainSplitter);
 
     if (multmp)
     {
@@ -5747,7 +5738,6 @@ MainParticle2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
     self->srScale = TableStream_getSamplingRate((TableStream *)self->table) / self->sr;
 
@@ -5757,7 +5747,6 @@ MainParticle2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    Py_XDECREF(self->env);
     self->env = PyObject_CallMethod((PyObject *)envtmp, "getTableStream", "");
 
     if (denstmp)
@@ -6121,9 +6110,8 @@ Particle2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainSplitter);
-    Py_INCREF(maintmp);
     self->mainSplitter = (MainParticle2 *)maintmp;
+    Py_INCREF(self->mainSplitter);
 
     if (multmp)
     {

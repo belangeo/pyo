@@ -4502,7 +4502,6 @@ PVFilter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->size = PVStream_getFFTsize(self->input_stream);
     self->olaps = PVStream_getOlaps(self->input_stream);
 
-    Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
 
     if (gaintmp)

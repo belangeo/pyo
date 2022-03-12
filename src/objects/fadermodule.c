@@ -1254,9 +1254,8 @@ Linseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iiOO", kwlist, &pointslist, &self->loop, &initToFirstVal, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    Py_INCREF(pointslist);
-    Py_XDECREF(self->pointslist);
     self->pointslist = pointslist;
+    Py_INCREF(self->pointslist);
     Linseg_convert_pointslist((Linseg *)self);
 
     if (multmp)
@@ -1717,9 +1716,8 @@ Expseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|idiiOO", kwlist, &pointslist, &self->loop, &self->exp_tmp, &self->inverse_tmp, &initToFirstVal, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    Py_INCREF(pointslist);
-    Py_XDECREF(self->pointslist);
     self->pointslist = pointslist;
+    Py_INCREF(self->pointslist);
     Expseg_convert_pointslist((Expseg *)self);
 
     if (multmp)
