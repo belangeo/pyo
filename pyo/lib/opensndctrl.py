@@ -240,6 +240,7 @@ class OscReceive(PyoObject):
                 self._mainReceiver.addAddress(p)
                 self._address.append(p)
                 self._base_objs.append(OscReceive_base(self._mainReceiver, p, wrap(mul, i), wrap(add, i)))
+                self._base_objs[-1].play()
 
     def delAddress(self, path):
         """
