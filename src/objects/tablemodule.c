@@ -19,6 +19,7 @@
  *************************************************************************/
 
 #define PY_SSIZE_T_CLEAN
+
 #include <Python.h>
 #include <object.h>
 #include "structmember.h"

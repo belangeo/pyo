@@ -18,6 +18,8 @@
  * License along with pyo.  If not, see <http://www.gnu.org/licenses/>.   *
  *************************************************************************/
 
+#define PY_SSIZE_T_CLEAN
+
 #include <Python.h>
 #include "structmember.h"
 #include "pyomodule.h"
