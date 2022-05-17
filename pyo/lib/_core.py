@@ -1225,21 +1225,21 @@ class PyoObject(PyoObjectBase):
     def __add__(self, x):
         x, lmax = convertArgsToLists(x)
         if self.__len__() >= lmax:
-            _add_dummy = Dummy([obj + wrap(x, i // self._op_duplicate) for i, obj in enumerate(self._base_objs)])
+            _add_dummy = ArithmeticDummy([obj + wrap(x, i // self._op_duplicate) for i, obj in enumerate(self._base_objs)])
         else:
             if isinstance(x, PyoObject):
                 _add_dummy = x + self
             else:
-                _add_dummy = Dummy([wrap(self._base_objs, i) + obj for i, obj in enumerate(x)])
+                _add_dummy = ArithmeticDummy([wrap(self._base_objs, i) + obj for i, obj in enumerate(x)])
         self._keep_trace.append(_add_dummy)
         return _add_dummy
 
     def __radd__(self, x):
         x, lmax = convertArgsToLists(x)
         if self.__len__() >= lmax:
-            _add_dummy = Dummy([obj + wrap(x, i // self._op_duplicate) for i, obj in enumerate(self._base_objs)])
+            _add_dummy = ArithmeticDummy([obj + wrap(x, i // self._op_duplicate) for i, obj in enumerate(self._base_objs)])
         else:
-            _add_dummy = Dummy([wrap(self._base_objs, i) + obj for i, obj in enumerate(x)])
+            _add_dummy = ArithmeticDummy([wrap(self._base_objs, i) + obj for i, obj in enumerate(x)])
         self._keep_trace.append(_add_dummy)
         return _add_dummy
 
@@ -1250,21 +1250,21 @@ class PyoObject(PyoObjectBase):
     def __sub__(self, x):
         x, lmax = convertArgsToLists(x)
         if self.__len__() >= lmax:
-            _add_dummy = Dummy([obj - wrap(x, i // self._op_duplicate) for i, obj in enumerate(self._base_objs)])
+            _add_dummy = ArithmeticDummy([obj - wrap(x, i // self._op_duplicate) for i, obj in enumerate(self._base_objs)])
         else:
             if isinstance(x, PyoObject):
-                _add_dummy = Dummy([wrap(self._base_objs, i) - wrap(x, i) for i in range(lmax)])
+                _add_dummy = ArithmeticDummy([wrap(self._base_objs, i) - wrap(x, i) for i in range(lmax)])
             else:
-                _add_dummy = Dummy([wrap(self._base_objs, i) - obj for i, obj in enumerate(x)])
+                _add_dummy = ArithmeticDummy([wrap(self._base_objs, i) - obj for i, obj in enumerate(x)])
         self._keep_trace.append(_add_dummy)
         return _add_dummy
 
     def __rsub__(self, x):
         x, lmax = convertArgsToLists(x)
         if self.__len__() >= lmax:
-            _add_dummy = Dummy([wrap(x, i // self._op_duplicate) - obj for i, obj in enumerate(self._base_objs)])
+            _add_dummy = ArithmeticDummy([wrap(x, i // self._op_duplicate) - obj for i, obj in enumerate(self._base_objs)])
         else:
-            _add_dummy = Dummy([obj - wrap(self._base_objs, i) for i, obj in enumerate(x)])
+            _add_dummy = ArithmeticDummy([obj - wrap(self._base_objs, i) for i, obj in enumerate(x)])
         self._keep_trace.append(_add_dummy)
         return _add_dummy
 
@@ -1275,21 +1275,21 @@ class PyoObject(PyoObjectBase):
     def __mul__(self, x):
         x, lmax = convertArgsToLists(x)
         if self.__len__() >= lmax:
-            _mul_dummy = Dummy([obj * wrap(x, i // self._op_duplicate) for i, obj in enumerate(self._base_objs)])
+            _mul_dummy = ArithmeticDummy([obj * wrap(x, i // self._op_duplicate) for i, obj in enumerate(self._base_objs)])
         else:
             if isinstance(x, PyoObject):
-                _mul_dummy = x * self
+                _mul_dummy = x * self ### RecursionError: maximum recursion depth exceeded while calling a Python object
             else:
-                _mul_dummy = Dummy([wrap(self._base_objs, i) * obj for i, obj in enumerate(x)])
+                _mul_dummy = ArithmeticDummy([wrap(self._base_objs, i) * obj for i, obj in enumerate(x)])
         self._keep_trace.append(_mul_dummy)
         return _mul_dummy
 
     def __rmul__(self, x):
         x, lmax = convertArgsToLists(x)
         if self.__len__() >= lmax:
-            _mul_dummy = Dummy([obj * wrap(x, i // self._op_duplicate) for i, obj in enumerate(self._base_objs)])
+            _mul_dummy = ArithmeticDummy([obj * wrap(x, i // self._op_duplicate) for i, obj in enumerate(self._base_objs)])
         else:
-            _mul_dummy = Dummy([wrap(self._base_objs, i) * obj for i, obj in enumerate(x)])
+            _mul_dummy = ArithmeticDummy([wrap(self._base_objs, i) * obj for i, obj in enumerate(x)])
         self._keep_trace.append(_mul_dummy)
         return _mul_dummy
 
@@ -1309,21 +1309,21 @@ class PyoObject(PyoObjectBase):
     def __div__(self, x):
         x, lmax = convertArgsToLists(x)
         if self.__len__() >= lmax:
-            _mul_dummy = Dummy([obj / wrap(x, i // self._op_duplicate) for i, obj in enumerate(self._base_objs)])
+            _mul_dummy = ArithmeticDummy([obj / wrap(x, i // self._op_duplicate) for i, obj in enumerate(self._base_objs)])
         else:
             if isinstance(x, PyoObject):
-                _mul_dummy = Dummy([wrap(self._base_objs, i) / wrap(x, i) for i in range(lmax)])
+                _mul_dummy = ArithmeticDummy([wrap(self._base_objs, i) / wrap(x, i) for i in range(lmax)])
             else:
-                _mul_dummy = Dummy([wrap(self._base_objs, i) / obj for i, obj in enumerate(x)])
+                _mul_dummy = ArithmeticDummy([wrap(self._base_objs, i) / obj for i, obj in enumerate(x)])
         self._keep_trace.append(_mul_dummy)
         return _mul_dummy
 
     def __rdiv__(self, x):
         x, lmax = convertArgsToLists(x)
         if self.__len__() >= lmax:
-            _mul_dummy = Dummy([wrap(x, i // self._op_duplicate) / obj for i, obj in enumerate(self._base_objs)])
+            _mul_dummy = ArithmeticDummy([wrap(x, i // self._op_duplicate) / obj for i, obj in enumerate(self._base_objs)])
         else:
-            _mul_dummy = Dummy([obj / wrap(self._base_objs, i) for i, obj in enumerate(x)])
+            _mul_dummy = ArithmeticDummy([obj / wrap(self._base_objs, i) for i, obj in enumerate(x)])
         self._keep_trace.append(_mul_dummy)
         return _mul_dummy
 
@@ -3050,6 +3050,24 @@ class Dummy(PyoObject):
                 tmp_list.append(x)
         self._base_objs = tmp_list
 
+class ArithmeticDummy(PyoObject):
+    def __init__(self, objs_list):
+        PyoObject.__init__(self)
+        self._objs_list = objs_list
+        tmp_list = []
+        for x in objs_list:
+            if isinstance(x, Dummy):
+                tmp_list.extend(x.getBaseObjects())
+            else:
+                tmp_list.append(x)
+        self._base_objs = tmp_list
+
+    def __del__(self):
+        try:
+            if sys.getrefcount(self._base_objs[0]) >= 2:
+                [obj.decref() for obj in self._base_objs]
+        except:
+            pass
 
 class InputFader(PyoObject):
     """

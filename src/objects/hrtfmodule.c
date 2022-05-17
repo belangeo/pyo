@@ -683,22 +683,19 @@ HRTFSpatter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_INPUT_STREAM
 
-    Py_XDECREF(self->hrtfdata);
-    Py_INCREF(hrtfdatatmp);
     self->hrtfdata = (HRTFData *)hrtfdatatmp;
+    Py_INCREF(self->hrtfdata);
 
     self->length = HRTFData_getImpulseLength(self->hrtfdata);
 
     if (azitmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAzimuth", "O", azitmp);
-        Py_DECREF(azitmp);
     }
 
     if (eletmp)
     {
         PyObject_CallMethod((PyObject *)self, "setElevation", "O", eletmp);
-        Py_DECREF(eletmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -749,73 +746,8 @@ static PyObject * HRTFSpatter_getStream(HRTFSpatter* self) { GET_STREAM };
 static PyObject * HRTFSpatter_play(HRTFSpatter *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * HRTFSpatter_stop(HRTFSpatter *self, PyObject *args, PyObject *kwds) { STOP };
 
-static PyObject *
-HRTFSpatter_setAzimuth(HRTFSpatter *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->azi);
-
-    if (isNumber == 1)
-    {
-        self->azi = PyNumber_Float(tmp);
-        self->modebuffer[0] = 0;
-    }
-    else
-    {
-        self->azi = tmp;
-        Py_INCREF(self->azi);
-        streamtmp = PyObject_CallMethod((PyObject *)self->azi, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->azi_stream);
-        self->azi_stream = (Stream *)streamtmp;
-        self->modebuffer[0] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-HRTFSpatter_setElevation(HRTFSpatter *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->ele);
-
-    if (isNumber == 1)
-    {
-        self->ele = PyNumber_Float(tmp);
-        self->modebuffer[1] = 0;
-    }
-    else
-    {
-        self->ele = tmp;
-        Py_INCREF(self->ele);
-        streamtmp = PyObject_CallMethod((PyObject *)self->ele, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->ele_stream);
-        self->ele_stream = (Stream *)streamtmp;
-        self->modebuffer[1] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * HRTFSpatter_setAzimuth(HRTFSpatter *self, PyObject *arg) { SET_PARAM(self->azi, self->azi_stream, 0); }
+static PyObject * HRTFSpatter_setElevation(HRTFSpatter *self, PyObject *arg) { SET_PARAM(self->ele, self->ele_stream, 1); }
 
 static PyMemberDef HRTFSpatter_members[] =
 {
@@ -1009,20 +941,17 @@ HRTF_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainSplitter);
-    Py_INCREF(maintmp);
     self->mainSplitter = (HRTFSpatter *)maintmp;
+    Py_INCREF(self->mainSplitter);
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1414,25 +1343,21 @@ Binauraler_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (azitmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAzimuth", "O", azitmp);
-        Py_DECREF(azitmp);
     }
 
     if (eletmp)
     {
         PyObject_CallMethod((PyObject *)self, "setElevation", "O", eletmp);
-        Py_DECREF(eletmp);
     }
 
     if (azispantmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAzispan", "O", azispantmp);
-        Py_DECREF(azispantmp);
     }
 
     if (elespantmp)
     {
         PyObject_CallMethod((PyObject *)self, "setElespan", "O", elespantmp);
-        Py_DECREF(elespantmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1526,141 +1451,10 @@ static PyObject * Binauraler_getStream(Binauraler* self) { GET_STREAM };
 static PyObject * Binauraler_play(Binauraler *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Binauraler_stop(Binauraler *self, PyObject *args, PyObject *kwds) { STOP };
 
-static PyObject *
-Binauraler_setAzimuth(Binauraler *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->azi);
-
-    if (isNumber == 1)
-    {
-        self->azi = PyNumber_Float(tmp);
-        self->modebuffer[0] = 0;
-    }
-    else
-    {
-        self->azi = tmp;
-        Py_INCREF(self->azi);
-        streamtmp = PyObject_CallMethod((PyObject *)self->azi, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->azi_stream);
-        self->azi_stream = (Stream *)streamtmp;
-        self->modebuffer[0] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-Binauraler_setElevation(Binauraler *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->ele);
-
-    if (isNumber == 1)
-    {
-        self->ele = PyNumber_Float(tmp);
-        self->modebuffer[1] = 0;
-    }
-    else
-    {
-        self->ele = tmp;
-        Py_INCREF(self->ele);
-        streamtmp = PyObject_CallMethod((PyObject *)self->ele, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->ele_stream);
-        self->ele_stream = (Stream *)streamtmp;
-        self->modebuffer[1] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-Binauraler_setAzispan(Binauraler *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->azispan);
-
-    if (isNumber == 1)
-    {
-        self->azispan = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
-    }
-    else
-    {
-        self->azispan = tmp;
-        Py_INCREF(self->azispan);
-        streamtmp = PyObject_CallMethod((PyObject *)self->azispan, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->azispan_stream);
-        self->azispan_stream = (Stream *)streamtmp;
-        self->modebuffer[2] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-Binauraler_setElespan(Binauraler *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->elespan);
-
-    if (isNumber == 1)
-    {
-        self->elespan = PyNumber_Float(tmp);
-        self->modebuffer[3] = 0;
-    }
-    else
-    {
-        self->elespan = tmp;
-        Py_INCREF(self->elespan);
-        streamtmp = PyObject_CallMethod((PyObject *)self->elespan, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->elespan_stream);
-        self->elespan_stream = (Stream *)streamtmp;
-        self->modebuffer[3] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * Binauraler_setAzimuth(Binauraler *self, PyObject *arg) { SET_PARAM(self->azi, self->azi_stream, 0); }
+static PyObject * Binauraler_setElevation(Binauraler *self, PyObject *arg) { SET_PARAM(self->ele, self->ele_stream, 1); }
+static PyObject * Binauraler_setAzispan(Binauraler *self, PyObject *arg) { SET_PARAM(self->azispan, self->azispan_stream, 2); }
+static PyObject * Binauraler_setElespan(Binauraler *self, PyObject *arg) { SET_PARAM(self->elespan, self->elespan_stream, 3); }
 
 static PyMemberDef Binauraler_members[] =
 {
@@ -1857,20 +1651,17 @@ Binaural_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainSplitter);
-    Py_INCREF(maintmp);
     self->mainSplitter = (Binauraler *)maintmp;
+    Py_INCREF(self->mainSplitter);
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);

@@ -292,13 +292,11 @@ Fader_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -772,13 +770,11 @@ Adsr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1258,21 +1254,18 @@ Linseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iiOO", kwlist, &pointslist, &self->loop, &initToFirstVal, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    Py_INCREF(pointslist);
-    Py_XDECREF(self->pointslist);
     self->pointslist = pointslist;
+    Py_INCREF(self->pointslist);
     Linseg_convert_pointslist((Linseg *)self);
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1723,21 +1716,18 @@ Expseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|idiiOO", kwlist, &pointslist, &self->loop, &self->exp_tmp, &self->inverse_tmp, &initToFirstVal, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    Py_INCREF(pointslist);
-    Py_XDECREF(self->pointslist);
     self->pointslist = pointslist;
+    Py_INCREF(self->pointslist);
     Expseg_convert_pointslist((Expseg *)self);
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);

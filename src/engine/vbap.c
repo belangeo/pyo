@@ -1149,7 +1149,7 @@ void choose_ls_triplets(ls lss[MAX_LS_AMOUNT],
         {
             for (k = j + 1; k < ls_amount; k++)
             {
-                if(vol_p_side_lgth(i, j, k, lss) > MIN_VOL_P_SIDE_LGTH)
+                if (vol_p_side_lgth(i, j, k, lss) > MIN_VOL_P_SIDE_LGTH)
                 {
                     connections[i][j] = 1;
                     connections[j][i] = 1;
@@ -1158,6 +1158,15 @@ void choose_ls_triplets(ls lss[MAX_LS_AMOUNT],
                     connections[j][k] = 1;
                     connections[k][j] = 1;
                     add_ldsp_triplet(i, j, k, ls_triplets, lss);
+                }
+                else
+                {
+                    connections[i][j] = 0;
+                    connections[j][i] = 0;
+                    connections[i][k] = 0;
+                    connections[k][i] = 0;
+                    connections[j][k] = 0;
+                    connections[k][j] = 0;
                 }
             }
         }
@@ -1175,12 +1184,12 @@ void choose_ls_triplets(ls lss[MAX_LS_AMOUNT],
     {
         for (j = (i + 1); j < ls_amount; j++)
         {
-            if(connections[i][j] == 1)
+            if (connections[i][j] == 1)
             {
                 distance = fabs(vec_angle(lss[i].coords, lss[j].coords));
                 k = 0;
 
-                while(distance_table[k] < distance)
+                while (distance_table[k] < distance)
                 {
                     k++;
                 }

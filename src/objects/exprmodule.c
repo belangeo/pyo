@@ -785,9 +785,8 @@ Exprer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_OIF, kwlist, &inputtmp, &exprtmp, &self->chnls, &initout))
         Py_RETURN_NONE;
 
-    Py_INCREF(inputtmp);
-    Py_XDECREF(self->input);
     self->input = inputtmp;
+    Py_INCREF(self->input);
 
     if (exprtmp)
     {
@@ -1362,20 +1361,17 @@ Expr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainSplitter);
-    Py_INCREF(maintmp);
     self->mainSplitter = (Exprer *)maintmp;
+    Py_INCREF(self->mainSplitter);
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);

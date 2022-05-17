@@ -644,9 +644,7 @@ extern PyTypeObject MMLZStreamType;
     if (self->server != NULL) \
         Py_VISIT(self->server); \
     Py_VISIT(self->mul); \
-    Py_VISIT(self->mul_stream); \
     Py_VISIT(self->add); \
-    Py_VISIT(self->add_stream);
 
 #define pyo_table_VISIT \
     if (self->server != NULL) \
@@ -687,27 +685,45 @@ extern PyTypeObject MMLZStreamType;
     }
 
 /* INIT INPUT STREAM */
+/* self->input should never be a floating-point object. The assigment from PyFloat_FromDouble
+   only serve to initialize the variable and increase its refcnt to 1, before replacing it with
+   the actual audio object.
+*/
 #define INIT_INPUT_STREAM \
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "server") == 0 ) { \
         PyErr_SetString(PyExc_TypeError, "\"input\" argument must be a PyoObject.\n"); \
         Py_RETURN_NONE; \
     } \
-    Py_INCREF(inputtmp); \
-    Py_XDECREF(self->input); \
     self->input = inputtmp; \
+    Py_INCREF(self->input); \
     input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getStream", NULL); \
-    Py_INCREF(input_streamtmp); \
-    Py_XDECREF(self->input_stream); \
-    self->input_stream = (Stream *)input_streamtmp;
+    self->input_stream = (Stream *)input_streamtmp; \
+    Py_INCREF(self->input_stream);
 
 #define INIT_INPUT_TRIGGER_STREAM \
-    Py_INCREF(inputtmp); \
-    Py_XDECREF(self->input); \
+    if ( PyObject_HasAttrString((PyObject *)inputtmp, "server") == 0 ) { \
+        PyErr_SetString(PyExc_TypeError, "\"input\" argument must be a PyoObject.\n"); \
+        Py_RETURN_NONE; \
+    } \
     self->input = inputtmp; \
+    Py_INCREF(self->input); \
     input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getTriggerStream", NULL); \
-    Py_INCREF(input_streamtmp); \
-    Py_XDECREF(self->input_stream); \
-    self->input_stream = (TriggerStream *)input_streamtmp;
+    self->input_stream = (TriggerStream *)input_streamtmp; \
+    Py_INCREF(self->input_stream);
+
+#define INIT_INPUT_PV_STREAM \
+    self->input = inputtmp; \
+    Py_INCREF(self->input); \
+    input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getPVStream", NULL); \
+    self->input_stream = (PVStream *)input_streamtmp; \
+    Py_INCREF(self->input_stream);
+
+#define INIT_INPUT2_PV_STREAM \
+    self->input2 = input2tmp; \
+    Py_INCREF(self->input2); \
+    input2_streamtmp = PyObject_CallMethod((PyObject *)self->input2, "_getPVStream", NULL); \
+    self->input2_stream = (PVStream *)input2_streamtmp; \
+    Py_INCREF(self->input2_stream);
 
 /* Init Server & Stream */
 #define INIT_OBJECT_COMMON \
@@ -734,7 +750,8 @@ extern PyTypeObject MMLZStreamType;
     Stream_setStreamObject(self->stream, (PyObject *)self); \
     Stream_setStreamId(self->stream, Stream_getNewStreamId()); \
     Stream_setBufferSize(self->stream, self->bufsize); \
-    Stream_setData(self->stream, self->data);
+    Stream_setData(self->stream, self->data); \
+    Py_INCREF(self->stream);
 
 #define SET_INTERP_POINTER \
     if (self->interp == 0) \
@@ -1672,32 +1689,26 @@ extern PyTypeObject MMLZStreamType;
     return (PyObject *)self->pv_stream;
 
 #define SET_MUL \
-    PyObject *tmp, *streamtmp; \
- \
     if (arg == NULL) { \
         Py_RETURN_NONE; \
     } \
  \
-    int isNumber = PyNumber_Check(arg); \
- \
-    tmp = arg; \
-    Py_INCREF(tmp); \
     Py_DECREF(self->mul); \
-    if (isNumber == 1) { \
-        self->mul = PyNumber_Float(tmp); \
+ \
+    if (PyNumber_Check(arg)) { \
+        self->mul = PyNumber_Float(arg); \
         self->modebuffer[0] = 0; \
     } \
     else { \
-        self->mul = tmp; \
+        self->mul = arg; \
+        Py_INCREF(self->mul); \
         if (! PyObject_HasAttrString((PyObject *)self->mul, "_getStream")) { \
             PyErr_SetString(PyExc_ArithmeticError, "Only number or audio internal object can be used in arithmetic with audio internal objects.\n"); \
             PyErr_Print(); \
         } \
-        Py_INCREF(self->mul); \
-        streamtmp = PyObject_CallMethod((PyObject *)self->mul, "_getStream", NULL); \
-        Py_INCREF(streamtmp); \
-        Py_XDECREF(self->mul_stream); \
+        PyObject *streamtmp = PyObject_CallMethod((PyObject *)self->mul, "_getStream", NULL); \
         self->mul_stream = (Stream *)streamtmp; \
+        Py_INCREF(self->mul_stream); \
         self->modebuffer[0] = 1; \
     } \
  \
@@ -1706,32 +1717,26 @@ extern PyTypeObject MMLZStreamType;
     Py_RETURN_NONE;
 
 #define SET_ADD \
-    PyObject *tmp, *streamtmp; \
-\
     if (arg == NULL) { \
         Py_RETURN_NONE; \
     } \
 \
-    int isNumber = PyNumber_Check(arg); \
-\
-    tmp = arg; \
-    Py_INCREF(tmp); \
     Py_DECREF(self->add); \
-    if (isNumber == 1) { \
-        self->add = PyNumber_Float(tmp); \
+ \
+    if (PyNumber_Check(arg)) { \
+        self->add = PyNumber_Float(arg); \
         self->modebuffer[1] = 0; \
     } \
     else { \
-        self->add = tmp; \
+        self->add = arg; \
+        Py_INCREF(self->add); \
         if (! PyObject_HasAttrString((PyObject *)self->add, "_getStream")) { \
             PyErr_SetString(PyExc_ArithmeticError, "Only number or audio internal object can be used in arithmetic with audio internal objects.\n"); \
             PyErr_Print(); \
         } \
-        Py_INCREF(self->add); \
-        streamtmp = PyObject_CallMethod((PyObject *)self->add, "_getStream", NULL); \
-        Py_INCREF(streamtmp); \
-        Py_XDECREF(self->add_stream); \
+        PyObject *streamtmp = PyObject_CallMethod((PyObject *)self->add, "_getStream", NULL); \
         self->add_stream = (Stream *)streamtmp; \
+        Py_INCREF(self->add_stream); \
         self->modebuffer[1] = 1; \
     } \
 \
@@ -1740,32 +1745,27 @@ extern PyTypeObject MMLZStreamType;
     Py_RETURN_NONE;
 
 #define SET_SUB \
-    PyObject *tmp, *streamtmp; \
- \
     if (arg == NULL) { \
         Py_RETURN_NONE; \
     } \
  \
-    int isNumber = PyNumber_Check(arg); \
- \
-    tmp = arg; \
-    Py_INCREF(tmp); \
     Py_DECREF(self->add); \
-    if (isNumber == 1) { \
-        self->add = PyFloat_FromDouble(PyFloat_AsDouble(tmp) * -1.0); \
+ \
+    if (PyNumber_Check(arg)) { \
+        double tmp = PyFloat_AsDouble(arg); \
+        self->add = PyFloat_FromDouble(tmp * -1.0); \
         self->modebuffer[1] = 0; \
     } \
     else { \
-        self->add = tmp; \
+        self->add = arg; \
+        Py_INCREF(self->add); \
         if (! PyObject_HasAttrString((PyObject *)self->add, "_getStream")) { \
             PyErr_SetString(PyExc_ArithmeticError, "Only number or audio internal object can be used in arithmetic with audio internal objects.\n"); \
             PyErr_Print(); \
         } \
-        Py_INCREF(self->add); \
-        streamtmp = PyObject_CallMethod((PyObject *)self->add, "_getStream", NULL); \
-        Py_INCREF(streamtmp); \
-        Py_XDECREF(self->add_stream); \
+        PyObject *streamtmp = PyObject_CallMethod((PyObject *)self->add, "_getStream", NULL); \
         self->add_stream = (Stream *)streamtmp; \
+        Py_INCREF(self->add_stream); \
         self->modebuffer[1] = 2; \
     } \
  \
@@ -1774,36 +1774,53 @@ extern PyTypeObject MMLZStreamType;
     Py_RETURN_NONE;
 
 #define SET_DIV \
-    PyObject *tmp, *streamtmp; \
- \
     if (arg == NULL) { \
         Py_RETURN_NONE; \
     } \
  \
-    int isNumber = PyNumber_Check(arg); \
- \
-    tmp = arg; \
-    Py_INCREF(tmp); \
-    if (isNumber == 1) { \
-        if (PyFloat_AsDouble(tmp) != 0.) { \
+    if (PyNumber_Check(arg)) { \
+        if (PyFloat_AsDouble(arg) != 0.) { \
             Py_DECREF(self->mul); \
-            self->mul = PyFloat_FromDouble(1.0 / PyFloat_AsDouble(tmp)); \
+            self->mul = PyFloat_FromDouble(1.0 / PyFloat_AsDouble(arg)); \
             self->modebuffer[0] = 0; \
         } \
     } \
     else { \
         Py_DECREF(self->mul); \
-        self->mul = tmp; \
+        self->mul = arg; \
+        Py_INCREF(self->mul); \
         if (! PyObject_HasAttrString((PyObject *)self->mul, "_getStream")) { \
             PyErr_SetString(PyExc_ArithmeticError, "Only number or audio internal object can be used in arithmetic with audio internal objects.\n"); \
             PyErr_Print(); \
         } \
-        Py_INCREF(self->mul); \
-        streamtmp = PyObject_CallMethod((PyObject *)self->mul, "_getStream", NULL); \
-        Py_INCREF(streamtmp); \
-        Py_XDECREF(self->mul_stream); \
+        PyObject *streamtmp = PyObject_CallMethod((PyObject *)self->mul, "_getStream", NULL); \
         self->mul_stream = (Stream *)streamtmp; \
+        Py_INCREF(self->mul_stream); \
         self->modebuffer[0] = 2; \
+    } \
+ \
+    (*self->mode_func_ptr)(self); \
+ \
+    Py_RETURN_NONE;
+
+#define SET_PARAM(param, paramstream, modebufpos) \
+    if (arg == NULL) { \
+        Py_RETURN_NONE; \
+    } \
+ \
+    Py_DECREF(param); \
+ \
+    if (PyNumber_Check(arg)) { \
+        param = PyNumber_Float(arg); \
+        self->modebuffer[modebufpos] = 0; \
+    } \
+    else { \
+        param = arg; \
+        Py_INCREF(param); \
+        PyObject *streamtmp = PyObject_CallMethod((PyObject *)param, "_getStream", NULL); \
+        paramstream = (Stream *)streamtmp; \
+        Py_INCREF(paramstream); \
+        self->modebuffer[modebufpos] = 1; \
     } \
  \
     (*self->mode_func_ptr)(self); \
@@ -1816,13 +1833,12 @@ extern PyTypeObject MMLZStreamType;
     MAKE_NEW_DUMMY(dummy, &DummyType, NULL); \
     Dummy_initialize(dummy); \
     PyObject_CallMethod((PyObject *)dummy, "setMul", "O", arg); \
-    Py_DECREF(arg); \
     PyObject_CallMethod((PyObject *)dummy, "setInput", "O", self); \
+    Py_INCREF(dummy); \
     return (PyObject *)dummy;
 
 #define INPLACE_MULTIPLY \
     PyObject_CallMethod((PyObject *)self, "setMul", "O", arg); \
-    Py_DECREF(arg); \
     Py_INCREF(self); \
     return (PyObject *)self;
 
@@ -1831,13 +1847,12 @@ extern PyTypeObject MMLZStreamType;
     MAKE_NEW_DUMMY(dummy, &DummyType, NULL); \
     Dummy_initialize(dummy); \
     PyObject_CallMethod((PyObject *)dummy, "setAdd", "O", arg); \
-    Py_DECREF(arg); \
     PyObject_CallMethod((PyObject *)dummy, "setInput", "O", self); \
+    Py_INCREF(dummy); \
     return (PyObject *)dummy;
 
 #define INPLACE_ADD \
     PyObject_CallMethod((PyObject *)self, "setAdd", "O", arg); \
-    Py_DECREF(arg); \
     Py_INCREF(self); \
     return (PyObject *)self;
 
@@ -1846,13 +1861,12 @@ extern PyTypeObject MMLZStreamType;
     MAKE_NEW_DUMMY(dummy, &DummyType, NULL); \
     Dummy_initialize(dummy); \
     PyObject_CallMethod((PyObject *)dummy, "setSub", "O", arg); \
-    Py_DECREF(arg); \
     PyObject_CallMethod((PyObject *)dummy, "setInput", "O", self); \
+    Py_INCREF(dummy); \
     return (PyObject *)dummy;
 
 #define INPLACE_SUB \
     PyObject_CallMethod((PyObject *)self, "setSub", "O", arg); \
-    Py_DECREF(arg); \
     Py_INCREF(self); \
     return (PyObject *)self;
 
@@ -1861,13 +1875,12 @@ extern PyTypeObject MMLZStreamType;
     MAKE_NEW_DUMMY(dummy, &DummyType, NULL); \
     Dummy_initialize(dummy); \
     PyObject_CallMethod((PyObject *)dummy, "setDiv", "O", arg); \
-    Py_DECREF(arg); \
     PyObject_CallMethod((PyObject *)dummy, "setInput", "O", self); \
+    Py_INCREF(dummy); \
     return (PyObject *)dummy;
 
 #define INPLACE_DIV \
     PyObject_CallMethod((PyObject *)self, "setDiv", "O", arg); \
-    Py_DECREF(arg); \
     Py_INCREF(self); \
     return (PyObject *)self;
 

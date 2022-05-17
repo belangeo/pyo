@@ -318,25 +318,21 @@ Sine_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (freqtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
-        Py_DECREF(freqtmp);
     }
 
     if (phasetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setPhase", "O", phasetmp);
-        Py_DECREF(phasetmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -366,73 +362,8 @@ static PyObject * Sine_inplace_sub(Sine *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Sine_div(Sine *self, PyObject *arg) { DIV };
 static PyObject * Sine_inplace_div(Sine *self, PyObject *arg) { INPLACE_DIV };
 
-static PyObject *
-Sine_setFreq(Sine *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->freq);
-
-    if (isNumber == 1)
-    {
-        self->freq = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
-    }
-    else
-    {
-        self->freq = tmp;
-        Py_INCREF(self->freq);
-        streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->freq_stream);
-        self->freq_stream = (Stream *)streamtmp;
-        self->modebuffer[2] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-Sine_setPhase(Sine *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->phase);
-
-    if (isNumber == 1)
-    {
-        self->phase = PyNumber_Float(tmp);
-        self->modebuffer[3] = 0;
-    }
-    else
-    {
-        self->phase = tmp;
-        Py_INCREF(self->phase);
-        streamtmp = PyObject_CallMethod((PyObject *)self->phase, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->phase_stream);
-        self->phase_stream = (Stream *)streamtmp;
-        self->modebuffer[3] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * Sine_setFreq(Sine *self, PyObject *arg) { SET_PARAM(self->freq, self->freq_stream, 2) }
+static PyObject * Sine_setPhase(Sine *self, PyObject *arg) { SET_PARAM(self->phase, self->phase_stream, 3) }
 
 static PyObject *
 Sine_reset(Sine *self)
@@ -919,19 +850,16 @@ FastSine_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (freqtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
-        Py_DECREF(freqtmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -962,39 +890,7 @@ static PyObject * FastSine_inplace_sub(FastSine *self, PyObject *arg) { INPLACE_
 static PyObject * FastSine_div(FastSine *self, PyObject *arg) { DIV };
 static PyObject * FastSine_inplace_div(FastSine *self, PyObject *arg) { INPLACE_DIV };
 
-static PyObject *
-FastSine_setFreq(FastSine *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->freq);
-
-    if (isNumber == 1)
-    {
-        self->freq = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
-    }
-    else
-    {
-        self->freq = tmp;
-        Py_INCREF(self->freq);
-        streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->freq_stream);
-        self->freq_stream = (Stream *)streamtmp;
-        self->modebuffer[2] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * FastSine_setFreq(FastSine *self, PyObject *arg) { SET_PARAM(self->freq, self->freq_stream, 2); }
 
 static PyObject *
 FastSine_setQuality(FastSine *self, PyObject *arg)
@@ -1368,25 +1264,21 @@ SineLoop_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (freqtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
-        Py_DECREF(freqtmp);
     }
 
     if (feedbacktmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFeedback", "O", feedbacktmp);
-        Py_DECREF(feedbacktmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1416,73 +1308,8 @@ static PyObject * SineLoop_inplace_sub(SineLoop *self, PyObject *arg) { INPLACE_
 static PyObject * SineLoop_div(SineLoop *self, PyObject *arg) { DIV };
 static PyObject * SineLoop_inplace_div(SineLoop *self, PyObject *arg) { INPLACE_DIV };
 
-static PyObject *
-SineLoop_setFreq(SineLoop *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->freq);
-
-    if (isNumber == 1)
-    {
-        self->freq = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
-    }
-    else
-    {
-        self->freq = tmp;
-        Py_INCREF(self->freq);
-        streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->freq_stream);
-        self->freq_stream = (Stream *)streamtmp;
-        self->modebuffer[2] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-SineLoop_setFeedback(SineLoop *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->feedback);
-
-    if (isNumber == 1)
-    {
-        self->feedback = PyNumber_Float(tmp);
-        self->modebuffer[3] = 0;
-    }
-    else
-    {
-        self->feedback = tmp;
-        Py_INCREF(self->feedback);
-        streamtmp = PyObject_CallMethod((PyObject *)self->feedback, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->feedback_stream);
-        self->feedback_stream = (Stream *)streamtmp;
-        self->modebuffer[3] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * SineLoop_setFreq(SineLoop *self, PyObject *arg) { SET_PARAM(self->freq, self->freq_stream, 2); }
+static PyObject * SineLoop_setFeedback(SineLoop *self, PyObject *arg) { SET_PARAM(self->feedback, self->feedback_stream, 3); }
 
 static PyMemberDef SineLoop_members[] =
 {
@@ -1890,31 +1717,26 @@ Osc_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
-
-    if (phasetmp)
-    {
-        PyObject_CallMethod((PyObject *)self, "setPhase", "O", phasetmp);
-        Py_DECREF(phasetmp);
-    }
 
     if (freqtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
-        Py_DECREF(freqtmp);
+    }
+
+    if (phasetmp)
+    {
+        PyObject_CallMethod((PyObject *)self, "setPhase", "O", phasetmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1956,93 +1778,23 @@ Osc_getTable(Osc* self)
 static PyObject *
 Osc_setTable(Osc *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
     Py_DECREF(self->table);
-    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    self->table = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
 
-static PyObject *
-Osc_setFreq(Osc *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->freq);
-
-    if (isNumber == 1)
-    {
-        self->freq = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
-    }
-    else
-    {
-        self->freq = tmp;
-        Py_INCREF(self->freq);
-        streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->freq_stream);
-        self->freq_stream = (Stream *)streamtmp;
-        self->modebuffer[2] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-Osc_setPhase(Osc *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->phase);
-
-    if (isNumber == 1)
-    {
-        self->phase = PyNumber_Float(tmp);
-        self->modebuffer[3] = 0;
-    }
-    else
-    {
-        self->phase = tmp;
-        Py_INCREF(self->phase);
-        streamtmp = PyObject_CallMethod((PyObject *)self->phase, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->phase_stream);
-        self->phase_stream = (Stream *)streamtmp;
-        self->modebuffer[3] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * Osc_setFreq(Osc *self, PyObject *arg) { SET_PARAM(self->freq, self->freq_stream, 2); }
+static PyObject * Osc_setPhase(Osc *self, PyObject *arg) { SET_PARAM(self->phase, self->phase_stream, 3); }
 
 static PyObject *
 Osc_setInterp(Osc *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyNumber_Check(arg);
-
-    if (isNumber == 1)
+    if (PyNumber_Check(arg))
     {
         self->interp = PyLong_AsLong(PyNumber_Long(arg));
     }
@@ -2450,31 +2202,26 @@ OscLoop_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
 
     if (feedbacktmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFeedback", "O", feedbacktmp);
-        Py_DECREF(feedbacktmp);
     }
 
     if (freqtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
-        Py_DECREF(freqtmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -2514,84 +2261,16 @@ OscLoop_getTable(OscLoop* self)
 static PyObject *
 OscLoop_setTable(OscLoop *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
     Py_DECREF(self->table);
-    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    self->table = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
 
-static PyObject *
-OscLoop_setFreq(OscLoop *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->freq);
-
-    if (isNumber == 1)
-    {
-        self->freq = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
-    }
-    else
-    {
-        self->freq = tmp;
-        Py_INCREF(self->freq);
-        streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->freq_stream);
-        self->freq_stream = (Stream *)streamtmp;
-        self->modebuffer[2] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-OscLoop_setFeedback(OscLoop *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->feedback);
-
-    if (isNumber == 1)
-    {
-        self->feedback = PyNumber_Float(tmp);
-        self->modebuffer[3] = 0;
-    }
-    else
-    {
-        self->feedback = tmp;
-        Py_INCREF(self->feedback);
-        streamtmp = PyObject_CallMethod((PyObject *)self->feedback, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->feedback_stream);
-        self->feedback_stream = (Stream *)streamtmp;
-        self->modebuffer[3] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * OscLoop_setFreq(OscLoop *self, PyObject *arg) { SET_PARAM(self->freq, self->freq_stream, 2); }
+static PyObject * OscLoop_setFeedback(OscLoop *self, PyObject *arg) { SET_PARAM(self->feedback, self->feedback_stream, 3); }
 
 static PyMemberDef OscLoop_members[] =
 {
@@ -2995,6 +2674,7 @@ OscTrig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     OscTrig *self;
     self = (OscTrig *)type->tp_alloc(type, 0);
 
+    self->trig = PyFloat_FromDouble(0.0);
     self->freq = PyFloat_FromDouble(1000);
     self->phase = PyFloat_FromDouble(0);
     self->modebuffer[0] = 0;
@@ -3019,7 +2699,6 @@ OscTrig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
 
     if (trigtmp)
@@ -3030,25 +2709,21 @@ OscTrig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (phasetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setPhase", "O", phasetmp);
-        Py_DECREF(phasetmp);
     }
 
     if (freqtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
-        Py_DECREF(freqtmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -3090,13 +2765,10 @@ OscTrig_getTable(OscTrig* self)
 static PyObject *
 OscTrig_setTable(OscTrig *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
     Py_DECREF(self->table);
-    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    self->table = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -3104,108 +2776,34 @@ OscTrig_setTable(OscTrig *self, PyObject *arg)
 static PyObject *
 OscTrig_setTrig(OscTrig *self, PyObject *arg)
 {
-    PyObject *tmp, *streamtmp;
-
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_XDECREF(self->trig);
-
-    if (isNumber == 1)
+    if (PyObject_HasAttrString((PyObject *)arg, "server") == 0)
     {
+        PyErr_SetString(PyExc_TypeError, "\"trig\" attribute of OscTrig must be a PyoObject.\n");
         Py_RETURN_NONE;
     }
-    else
-    {
-        self->trig = tmp;
-        streamtmp = PyObject_CallMethod((PyObject *)self->trig, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->trig_stream);
-        self->trig_stream = (Stream *)streamtmp;
-    }
+
+    Py_DECREF(self->trig);
+
+    self->trig = arg;
+    Py_INCREF(self->trig);
+    PyObject *streamtmp = PyObject_CallMethod((PyObject *)self->trig, "_getStream", NULL);
+    self->trig_stream = (Stream *)streamtmp;
+    Py_INCREF(self->trig_stream);
 
     Py_RETURN_NONE;
 }
 
-static PyObject *
-OscTrig_setFreq(OscTrig *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->freq);
-
-    if (isNumber == 1)
-    {
-        self->freq = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
-    }
-    else
-    {
-        self->freq = tmp;
-        Py_INCREF(self->freq);
-        streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->freq_stream);
-        self->freq_stream = (Stream *)streamtmp;
-        self->modebuffer[2] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-OscTrig_setPhase(OscTrig *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->phase);
-
-    if (isNumber == 1)
-    {
-        self->phase = PyNumber_Float(tmp);
-        self->modebuffer[3] = 0;
-    }
-    else
-    {
-        self->phase = tmp;
-        Py_INCREF(self->phase);
-        streamtmp = PyObject_CallMethod((PyObject *)self->phase, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->phase_stream);
-        self->phase_stream = (Stream *)streamtmp;
-        self->modebuffer[3] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * OscTrig_setFreq(OscTrig *self, PyObject *arg) { SET_PARAM(self->freq, self->freq_stream, 2); }
+static PyObject * OscTrig_setPhase(OscTrig *self, PyObject *arg) { SET_PARAM(self->phase, self->phase_stream, 3); }
 
 static PyObject *
 OscTrig_setInterp(OscTrig *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyNumber_Check(arg);
-
-    if (isNumber == 1)
+    if (PyNumber_Check(arg))
     {
         self->interp = PyLong_AsLong(PyNumber_Long(arg));
     }
@@ -3613,25 +3211,21 @@ Phasor_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (freqtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
-        Py_DECREF(freqtmp);
     }
 
     if (phasetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setPhase", "O", phasetmp);
-        Py_DECREF(phasetmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -3661,73 +3255,8 @@ static PyObject * Phasor_inplace_sub(Phasor *self, PyObject *arg) { INPLACE_SUB 
 static PyObject * Phasor_div(Phasor *self, PyObject *arg) { DIV };
 static PyObject * Phasor_inplace_div(Phasor *self, PyObject *arg) { INPLACE_DIV };
 
-static PyObject *
-Phasor_setFreq(Phasor *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->freq);
-
-    if (isNumber == 1)
-    {
-        self->freq = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
-    }
-    else
-    {
-        self->freq = tmp;
-        Py_INCREF(self->freq);
-        streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->freq_stream);
-        self->freq_stream = (Stream *)streamtmp;
-        self->modebuffer[2] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-Phasor_setPhase(Phasor *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->phase);
-
-    if (isNumber == 1)
-    {
-        self->phase = PyNumber_Float(tmp);
-        self->modebuffer[3] = 0;
-    }
-    else
-    {
-        self->phase = tmp;
-        Py_INCREF(self->phase);
-        streamtmp = PyObject_CallMethod((PyObject *)self->phase, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->phase_stream);
-        self->phase_stream = (Stream *)streamtmp;
-        self->modebuffer[3] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * Phasor_setFreq(Phasor *self, PyObject *arg) { SET_PARAM(self->freq, self->freq_stream, 2); }
+static PyObject * Phasor_setPhase(Phasor *self, PyObject *arg) { SET_PARAM(self->phase, self->phase_stream, 3); }
 
 static PyObject *
 Phasor_reset(Phasor *self)
@@ -3975,6 +3504,8 @@ Pointer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Pointer *self;
     self = (Pointer *)type->tp_alloc(type, 0);
 
+    self->index = PyFloat_FromDouble(0.0);
+
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
 
@@ -3993,25 +3524,21 @@ Pointer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
 
     if (indextmp)
     {
         PyObject_CallMethod((PyObject *)self, "setIndex", "O", indextmp);
-        Py_DECREF(indextmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -4051,13 +3578,10 @@ Pointer_getTable(Pointer* self)
 static PyObject *
 Pointer_setTable(Pointer *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
     Py_DECREF(self->table);
-    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    self->table = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -4065,27 +3589,21 @@ Pointer_setTable(Pointer *self, PyObject *arg)
 static PyObject *
 Pointer_setIndex(Pointer *self, PyObject *arg)
 {
-    PyObject *tmp, *streamtmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
-
-    if (PyObject_HasAttrString((PyObject *)tmp, "server") == 0)
+    if (PyObject_HasAttrString((PyObject *)arg, "server") == 0)
     {
         PyErr_SetString(PyExc_TypeError, "\"index\" argument of Pointer must be a PyoObject.\n");
         Py_RETURN_NONE;
     }
 
-    Py_INCREF(tmp);
-    Py_XDECREF(self->index);
+    Py_DECREF(self->index);
 
-    self->index = tmp;
+    self->index = arg;
     Py_INCREF(self->index);
-    streamtmp = PyObject_CallMethod((PyObject *)self->index, "_getStream", NULL);
-    Py_INCREF(streamtmp);
-    Py_XDECREF(self->index_stream);
+    PyObject *streamtmp = PyObject_CallMethod((PyObject *)self->index, "_getStream", NULL);
     self->index_stream = (Stream *)streamtmp;
+    Py_INCREF(self->index_stream);
 
     Py_RETURN_NONE;
 }
@@ -4362,6 +3880,8 @@ Pointer2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Pointer2 *self;
     self = (Pointer2 *)type->tp_alloc(type, 0);
 
+    self->index = PyFloat_FromDouble(0.0);
+
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
     self->interp = 4;
@@ -4385,25 +3905,21 @@ Pointer2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
 
     if (indextmp)
     {
         PyObject_CallMethod((PyObject *)self, "setIndex", "O", indextmp);
-        Py_DECREF(indextmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -4445,13 +3961,10 @@ Pointer2_getTable(Pointer2* self)
 static PyObject *
 Pointer2_setTable(Pointer2 *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
     Py_DECREF(self->table);
-    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    self->table = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -4459,27 +3972,21 @@ Pointer2_setTable(Pointer2 *self, PyObject *arg)
 static PyObject *
 Pointer2_setIndex(Pointer2 *self, PyObject *arg)
 {
-    PyObject *tmp, *streamtmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
-
-    if (PyObject_HasAttrString((PyObject *)tmp, "server") == 0)
+    if (PyObject_HasAttrString((PyObject *)arg, "server") == 0)
     {
         PyErr_SetString(PyExc_TypeError, "\"index\" argument of Pointer2 must be a PyoObject.\n");
         Py_RETURN_NONE;
     }
 
-    Py_INCREF(tmp);
-    Py_XDECREF(self->index);
+    Py_DECREF(self->index);
 
-    self->index = tmp;
+    self->index = arg;
     Py_INCREF(self->index);
-    streamtmp = PyObject_CallMethod((PyObject *)self->index, "_getStream", NULL);
-    Py_INCREF(streamtmp);
-    Py_XDECREF(self->index_stream);
+    PyObject *streamtmp = PyObject_CallMethod((PyObject *)self->index, "_getStream", NULL);
     self->index_stream = (Stream *)streamtmp;
+    Py_INCREF(self->index_stream);
 
     Py_RETURN_NONE;
 }
@@ -4489,9 +3996,7 @@ Pointer2_setInterp(Pointer2 *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyNumber_Check(arg);
-
-    if (isNumber == 1)
+    if (PyNumber_Check(arg))
     {
         self->interp = PyLong_AsLong(PyNumber_Long(arg));
     }
@@ -4506,9 +4011,7 @@ Pointer2_setAutoSmooth(Pointer2 *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyNumber_Check(arg);
-
-    if (isNumber == 1)
+    if (PyNumber_Check(arg))
     {
         self->autosmooth = PyLong_AsLong(PyNumber_Long(arg));
     }
@@ -4759,6 +4262,8 @@ TableIndex_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     TableIndex *self;
     self = (TableIndex *)type->tp_alloc(type, 0);
 
+    self->index = PyFloat_FromDouble(0.0);
+
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
 
@@ -4777,25 +4282,21 @@ TableIndex_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
 
     if (indextmp)
     {
         PyObject_CallMethod((PyObject *)self, "setIndex", "O", indextmp);
-        Py_DECREF(indextmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -4835,13 +4336,10 @@ TableIndex_getTable(TableIndex* self)
 static PyObject *
 TableIndex_setTable(TableIndex *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
     Py_DECREF(self->table);
-    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    self->table = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -4849,27 +4347,21 @@ TableIndex_setTable(TableIndex *self, PyObject *arg)
 static PyObject *
 TableIndex_setIndex(TableIndex *self, PyObject *arg)
 {
-    PyObject *tmp, *streamtmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
-
-    if (PyObject_HasAttrString((PyObject *)tmp, "server") == 0)
+    if (PyObject_HasAttrString((PyObject *)arg, "server") == 0)
     {
         PyErr_SetString(PyExc_TypeError, "\"index\" argument of TableIndex must be a PyoObject.\n");
         Py_RETURN_NONE;
     }
 
-    Py_INCREF(tmp);
-    Py_XDECREF(self->index);
+    Py_DECREF(self->index);
 
-    self->index = tmp;
+    self->index = arg;
     Py_INCREF(self->index);
-    streamtmp = PyObject_CallMethod((PyObject *)self->index, "_getStream", NULL);
-    Py_INCREF(streamtmp);
-    Py_XDECREF(self->index_stream);
+    PyObject *streamtmp = PyObject_CallMethod((PyObject *)self->index, "_getStream", NULL);
     self->index_stream = (Stream *)streamtmp;
+    Py_INCREF(self->index_stream);
 
     Py_RETURN_NONE;
 }
@@ -5123,6 +4615,8 @@ Lookup_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Lookup *self;
     self = (Lookup *)type->tp_alloc(type, 0);
 
+    self->index = PyFloat_FromDouble(0.0);
+
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
 
@@ -5141,25 +4635,21 @@ Lookup_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
 
     if (indextmp)
     {
         PyObject_CallMethod((PyObject *)self, "setIndex", "O", indextmp);
-        Py_DECREF(indextmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -5199,13 +4689,10 @@ Lookup_getTable(Lookup* self)
 static PyObject *
 Lookup_setTable(Lookup *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
     Py_DECREF(self->table);
-    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    self->table = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -5213,27 +4700,21 @@ Lookup_setTable(Lookup *self, PyObject *arg)
 static PyObject *
 Lookup_setIndex(Lookup *self, PyObject *arg)
 {
-    PyObject *tmp, *streamtmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
-
-    if (PyObject_HasAttrString((PyObject *)tmp, "server") == 0)
+    if (PyObject_HasAttrString((PyObject *)arg, "server") == 0)
     {
         PyErr_SetString(PyExc_TypeError, "\"index\" argument of Lookup must be a PyoObject.\n");
         Py_RETURN_NONE;
     }
 
-    Py_INCREF(tmp);
-    Py_XDECREF(self->index);
+    Py_DECREF(self->index);
 
-    self->index = tmp;
+    self->index = arg;
     Py_INCREF(self->index);
-    streamtmp = PyObject_CallMethod((PyObject *)self->index, "_getStream", NULL);
-    Py_INCREF(streamtmp);
-    Py_XDECREF(self->index_stream);
+    PyObject *streamtmp = PyObject_CallMethod((PyObject *)self->index, "_getStream", NULL);
     self->index_stream = (Stream *)streamtmp;
+    Py_INCREF(self->index_stream);
 
     Py_RETURN_NONE;
 }
@@ -5952,7 +5433,6 @@ Pulsar_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
 
     if ( PyObject_HasAttrString((PyObject *)envtmp, "getTableStream") == 0 )
@@ -5961,37 +5441,31 @@ Pulsar_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    Py_XDECREF(self->env);
     self->env = PyObject_CallMethod((PyObject *)envtmp, "getTableStream", "");
 
     if (phasetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setPhase", "O", phasetmp);
-        Py_DECREF(phasetmp);
     }
 
     if (freqtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
-        Py_DECREF(freqtmp);
     }
 
     if (fractmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFrac", "O", fractmp);
-        Py_DECREF(fractmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -6040,13 +5514,10 @@ Pulsar_getEnv(Pulsar* self)
 static PyObject *
 Pulsar_setTable(Pulsar *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
     Py_DECREF(self->table);
-    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    self->table = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -6054,127 +5525,24 @@ Pulsar_setTable(Pulsar *self, PyObject *arg)
 static PyObject *
 Pulsar_setEnv(Pulsar *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
     Py_DECREF(self->env);
-    self->env = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    self->env = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
 
-static PyObject *
-Pulsar_setFreq(Pulsar *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->freq);
-
-    if (isNumber == 1)
-    {
-        self->freq = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
-    }
-    else
-    {
-        self->freq = tmp;
-        Py_INCREF(self->freq);
-        streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->freq_stream);
-        self->freq_stream = (Stream *)streamtmp;
-        self->modebuffer[2] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-Pulsar_setPhase(Pulsar *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->phase);
-
-    if (isNumber == 1)
-    {
-        self->phase = PyNumber_Float(tmp);
-        self->modebuffer[3] = 0;
-    }
-    else
-    {
-        self->phase = tmp;
-        Py_INCREF(self->phase);
-        streamtmp = PyObject_CallMethod((PyObject *)self->phase, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->phase_stream);
-        self->phase_stream = (Stream *)streamtmp;
-        self->modebuffer[3] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-Pulsar_setFrac(Pulsar *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->frac);
-
-    if (isNumber == 1)
-    {
-        self->frac = PyNumber_Float(tmp);
-        self->modebuffer[4] = 0;
-    }
-    else
-    {
-        self->frac = tmp;
-        Py_INCREF(self->frac);
-        streamtmp = PyObject_CallMethod((PyObject *)self->frac, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->frac_stream);
-        self->frac_stream = (Stream *)streamtmp;
-        self->modebuffer[4] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * Pulsar_setFreq(Pulsar *self, PyObject *arg) { SET_PARAM(self->freq, self->freq_stream, 2); }
+static PyObject * Pulsar_setPhase(Pulsar *self, PyObject *arg) { SET_PARAM(self->phase, self->phase_stream, 3); }
+static PyObject * Pulsar_setFrac(Pulsar *self, PyObject *arg) { SET_PARAM(self->frac, self->frac_stream, 4); }
 
 static PyObject *
 Pulsar_setInterp(Pulsar *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyNumber_Check(arg);
-
-    if (isNumber == 1)
+    if (PyNumber_Check(arg))
     {
         self->interp = PyLong_AsLong(PyNumber_Long(arg));
     }
@@ -6582,25 +5950,21 @@ TableRead_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
 
     if (freqtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
-        Py_DECREF(freqtmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -6711,50 +6075,15 @@ TableRead_getTable(TableRead* self)
 static PyObject *
 TableRead_setTable(TableRead *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
     Py_DECREF(self->table);
-    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    self->table = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
 
-static PyObject *
-TableRead_setFreq(TableRead *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->freq);
-
-    if (isNumber == 1)
-    {
-        self->freq = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
-    }
-    else
-    {
-        self->freq = tmp;
-        Py_INCREF(self->freq);
-        streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->freq_stream);
-        self->freq_stream = (Stream *)streamtmp;
-        self->modebuffer[2] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * TableRead_setFreq(TableRead *self, PyObject *arg) { SET_PARAM(self->freq, self->freq_stream, 2); }
 
 static PyObject *
 TableRead_setLoop(TableRead *self, PyObject *arg)
@@ -6771,9 +6100,7 @@ TableRead_setInterp(TableRead *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyNumber_Check(arg);
-
-    if (isNumber == 1)
+    if (PyNumber_Check(arg))
     {
         self->interp = PyLong_AsLong(PyNumber_Long(arg));
     }
@@ -7342,31 +6669,26 @@ Fm_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (cartmp)
     {
         PyObject_CallMethod((PyObject *)self, "setCarrier", "O", cartmp);
-        Py_DECREF(cartmp);
     }
 
     if (ratiotmp)
     {
         PyObject_CallMethod((PyObject *)self, "setRatio", "O", ratiotmp);
-        Py_DECREF(ratiotmp);
     }
 
     if (indextmp)
     {
         PyObject_CallMethod((PyObject *)self, "setIndex", "O", indextmp);
-        Py_DECREF(indextmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -7396,107 +6718,9 @@ static PyObject * Fm_inplace_sub(Fm *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Fm_div(Fm *self, PyObject *arg) { DIV };
 static PyObject * Fm_inplace_div(Fm *self, PyObject *arg) { INPLACE_DIV };
 
-static PyObject *
-Fm_setCarrier(Fm *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->car);
-
-    if (isNumber == 1)
-    {
-        self->car = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
-    }
-    else
-    {
-        self->car = tmp;
-        Py_INCREF(self->car);
-        streamtmp = PyObject_CallMethod((PyObject *)self->car, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->car_stream);
-        self->car_stream = (Stream *)streamtmp;
-        self->modebuffer[2] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-Fm_setRatio(Fm *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->ratio);
-
-    if (isNumber == 1)
-    {
-        self->ratio = PyNumber_Float(tmp);
-        self->modebuffer[3] = 0;
-    }
-    else
-    {
-        self->ratio = tmp;
-        Py_INCREF(self->ratio);
-        streamtmp = PyObject_CallMethod((PyObject *)self->ratio, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->ratio_stream);
-        self->ratio_stream = (Stream *)streamtmp;
-        self->modebuffer[3] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-Fm_setIndex(Fm *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->index);
-
-    if (isNumber == 1)
-    {
-        self->index = PyNumber_Float(tmp);
-        self->modebuffer[4] = 0;
-    }
-    else
-    {
-        self->index = tmp;
-        Py_INCREF(self->index);
-        streamtmp = PyObject_CallMethod((PyObject *)self->index, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->index_stream);
-        self->index_stream = (Stream *)streamtmp;
-        self->modebuffer[4] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * Fm_setCarrier(Fm *self, PyObject *arg) { SET_PARAM(self->car, self->car_stream, 2); }
+static PyObject * Fm_setRatio(Fm *self, PyObject *arg) { SET_PARAM(self->ratio, self->ratio_stream, 3); }
+static PyObject * Fm_setIndex(Fm *self, PyObject *arg) { SET_PARAM(self->index, self->index_stream, 4); }
 
 static PyMemberDef Fm_members[] =
 {
@@ -7868,37 +7092,31 @@ CrossFm_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (cartmp)
     {
         PyObject_CallMethod((PyObject *)self, "setCarrier", "O", cartmp);
-        Py_DECREF(cartmp);
     }
 
     if (ratiotmp)
     {
         PyObject_CallMethod((PyObject *)self, "setRatio", "O", ratiotmp);
-        Py_DECREF(ratiotmp);
     }
 
     if (ind1tmp)
     {
         PyObject_CallMethod((PyObject *)self, "setInd1", "O", ind1tmp);
-        Py_DECREF(ind1tmp);
     }
 
     if (ind2tmp)
     {
         PyObject_CallMethod((PyObject *)self, "setInd2", "O", ind2tmp);
-        Py_DECREF(ind2tmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -7928,141 +7146,10 @@ static PyObject * CrossFm_inplace_sub(CrossFm *self, PyObject *arg) { INPLACE_SU
 static PyObject * CrossFm_div(CrossFm *self, PyObject *arg) { DIV };
 static PyObject * CrossFm_inplace_div(CrossFm *self, PyObject *arg) { INPLACE_DIV };
 
-static PyObject *
-CrossFm_setCarrier(CrossFm *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->car);
-
-    if (isNumber == 1)
-    {
-        self->car = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
-    }
-    else
-    {
-        self->car = tmp;
-        Py_INCREF(self->car);
-        streamtmp = PyObject_CallMethod((PyObject *)self->car, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->car_stream);
-        self->car_stream = (Stream *)streamtmp;
-        self->modebuffer[2] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-CrossFm_setRatio(CrossFm *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->ratio);
-
-    if (isNumber == 1)
-    {
-        self->ratio = PyNumber_Float(tmp);
-        self->modebuffer[3] = 0;
-    }
-    else
-    {
-        self->ratio = tmp;
-        Py_INCREF(self->ratio);
-        streamtmp = PyObject_CallMethod((PyObject *)self->ratio, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->ratio_stream);
-        self->ratio_stream = (Stream *)streamtmp;
-        self->modebuffer[3] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-CrossFm_setInd1(CrossFm *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->ind1);
-
-    if (isNumber == 1)
-    {
-        self->ind1 = PyNumber_Float(tmp);
-        self->modebuffer[4] = 0;
-    }
-    else
-    {
-        self->ind1 = tmp;
-        Py_INCREF(self->ind1);
-        streamtmp = PyObject_CallMethod((PyObject *)self->ind1, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->ind1_stream);
-        self->ind1_stream = (Stream *)streamtmp;
-        self->modebuffer[4] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-CrossFm_setInd2(CrossFm *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->ind2);
-
-    if (isNumber == 1)
-    {
-        self->ind2 = PyNumber_Float(tmp);
-        self->modebuffer[5] = 0;
-    }
-    else
-    {
-        self->ind2 = tmp;
-        Py_INCREF(self->ind2);
-        streamtmp = PyObject_CallMethod((PyObject *)self->ind2, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->ind2_stream);
-        self->ind2_stream = (Stream *)streamtmp;
-        self->modebuffer[5] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * CrossFm_setCarrier(CrossFm *self, PyObject *arg) { SET_PARAM(self->car, self->car_stream, 2); }
+static PyObject * CrossFm_setRatio(CrossFm *self, PyObject *arg) { SET_PARAM(self->ratio, self->ratio_stream, 3); }
+static PyObject * CrossFm_setInd1(CrossFm *self, PyObject *arg) { SET_PARAM(self->ind1, self->ind1_stream, 4); }
+static PyObject * CrossFm_setInd2(CrossFm *self, PyObject *arg) { SET_PARAM(self->ind2, self->ind2_stream, 5); }
 
 static PyMemberDef CrossFm_members[] =
 {
@@ -8462,25 +7549,21 @@ Blit_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (freqtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
-        Py_DECREF(freqtmp);
     }
 
     if (harmstmp)
     {
         PyObject_CallMethod((PyObject *)self, "setHarms", "O", harmstmp);
-        Py_DECREF(harmstmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -8510,73 +7593,8 @@ static PyObject * Blit_inplace_sub(Blit *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Blit_div(Blit *self, PyObject *arg) { DIV };
 static PyObject * Blit_inplace_div(Blit *self, PyObject *arg) { INPLACE_DIV };
 
-static PyObject *
-Blit_setFreq(Blit *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->freq);
-
-    if (isNumber == 1)
-    {
-        self->freq = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
-    }
-    else
-    {
-        self->freq = tmp;
-        Py_INCREF(self->freq);
-        streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->freq_stream);
-        self->freq_stream = (Stream *)streamtmp;
-        self->modebuffer[2] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-Blit_setHarms(Blit *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->harms);
-
-    if (isNumber == 1)
-    {
-        self->harms = PyNumber_Float(tmp);
-        self->modebuffer[3] = 0;
-    }
-    else
-    {
-        self->harms = tmp;
-        Py_INCREF(self->harms);
-        streamtmp = PyObject_CallMethod((PyObject *)self->harms, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->harms_stream);
-        self->harms_stream = (Stream *)streamtmp;
-        self->modebuffer[3] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * Blit_setFreq(Blit *self, PyObject *arg) { SET_PARAM(self->freq, self->freq_stream, 2); }
+static PyObject * Blit_setHarms(Blit *self, PyObject *arg) { SET_PARAM(self->harms, self->harms_stream, 3); }
 
 static PyMemberDef Blit_members[] =
 {
@@ -9017,25 +8035,21 @@ Rossler_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (pitchtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setPitch", "O", pitchtmp);
-        Py_DECREF(pitchtmp);
     }
 
     if (chaostmp)
     {
         PyObject_CallMethod((PyObject *)self, "setChaos", "O", chaostmp);
-        Py_DECREF(chaostmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -9072,73 +8086,8 @@ static PyObject * Rossler_inplace_sub(Rossler *self, PyObject *arg) { INPLACE_SU
 static PyObject * Rossler_div(Rossler *self, PyObject *arg) { DIV };
 static PyObject * Rossler_inplace_div(Rossler *self, PyObject *arg) { INPLACE_DIV };
 
-static PyObject *
-Rossler_setPitch(Rossler *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->pitch);
-
-    if (isNumber == 1)
-    {
-        self->pitch = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
-    }
-    else
-    {
-        self->pitch = tmp;
-        Py_INCREF(self->pitch);
-        streamtmp = PyObject_CallMethod((PyObject *)self->pitch, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->pitch_stream);
-        self->pitch_stream = (Stream *)streamtmp;
-        self->modebuffer[2] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-Rossler_setChaos(Rossler *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->chaos);
-
-    if (isNumber == 1)
-    {
-        self->chaos = PyNumber_Float(tmp);
-        self->modebuffer[3] = 0;
-    }
-    else
-    {
-        self->chaos = tmp;
-        Py_INCREF(self->chaos);
-        streamtmp = PyObject_CallMethod((PyObject *)self->chaos, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->chaos_stream);
-        self->chaos_stream = (Stream *)streamtmp;
-        self->modebuffer[3] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * Rossler_setPitch(Rossler *self, PyObject *arg) { SET_PARAM(self->pitch, self->pitch_stream, 2); }
+static PyObject * Rossler_setChaos(Rossler *self, PyObject *arg) { SET_PARAM(self->chaos, self->chaos_stream, 3); }
 
 MYFLT *
 Rossler_getAltBuffer(Rossler *self)
@@ -9376,20 +8325,17 @@ RosslerAlt_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &maintmp, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainRossler);
-    Py_INCREF(maintmp);
     self->mainRossler = (Rossler *)maintmp;
+    Py_INCREF(self->mainRossler);
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -9853,25 +8799,21 @@ Lorenz_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (pitchtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setPitch", "O", pitchtmp);
-        Py_DECREF(pitchtmp);
     }
 
     if (chaostmp)
     {
         PyObject_CallMethod((PyObject *)self, "setChaos", "O", chaostmp);
-        Py_DECREF(chaostmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -9908,73 +8850,8 @@ static PyObject * Lorenz_inplace_sub(Lorenz *self, PyObject *arg) { INPLACE_SUB 
 static PyObject * Lorenz_div(Lorenz *self, PyObject *arg) { DIV };
 static PyObject * Lorenz_inplace_div(Lorenz *self, PyObject *arg) { INPLACE_DIV };
 
-static PyObject *
-Lorenz_setPitch(Lorenz *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->pitch);
-
-    if (isNumber == 1)
-    {
-        self->pitch = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
-    }
-    else
-    {
-        self->pitch = tmp;
-        Py_INCREF(self->pitch);
-        streamtmp = PyObject_CallMethod((PyObject *)self->pitch, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->pitch_stream);
-        self->pitch_stream = (Stream *)streamtmp;
-        self->modebuffer[2] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-Lorenz_setChaos(Lorenz *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->chaos);
-
-    if (isNumber == 1)
-    {
-        self->chaos = PyNumber_Float(tmp);
-        self->modebuffer[3] = 0;
-    }
-    else
-    {
-        self->chaos = tmp;
-        Py_INCREF(self->chaos);
-        streamtmp = PyObject_CallMethod((PyObject *)self->chaos, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->chaos_stream);
-        self->chaos_stream = (Stream *)streamtmp;
-        self->modebuffer[3] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * Lorenz_setPitch(Lorenz *self, PyObject *arg) { SET_PARAM(self->pitch, self->pitch_stream, 2); }
+static PyObject * Lorenz_setChaos(Lorenz *self, PyObject *arg) { SET_PARAM(self->chaos, self->chaos_stream, 3); }
 
 MYFLT *
 Lorenz_getAltBuffer(Lorenz *self)
@@ -10212,20 +9089,17 @@ LorenzAlt_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &maintmp, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainLorenz);
-    Py_INCREF(maintmp);
     self->mainLorenz = (Lorenz *)maintmp;
+    Py_INCREF(self->mainLorenz);
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -10697,25 +9571,21 @@ ChenLee_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (pitchtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setPitch", "O", pitchtmp);
-        Py_DECREF(pitchtmp);
     }
 
     if (chaostmp)
     {
         PyObject_CallMethod((PyObject *)self, "setChaos", "O", chaostmp);
-        Py_DECREF(chaostmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -10752,73 +9622,8 @@ static PyObject * ChenLee_inplace_sub(ChenLee *self, PyObject *arg) { INPLACE_SU
 static PyObject * ChenLee_div(ChenLee *self, PyObject *arg) { DIV };
 static PyObject * ChenLee_inplace_div(ChenLee *self, PyObject *arg) { INPLACE_DIV };
 
-static PyObject *
-ChenLee_setPitch(ChenLee *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->pitch);
-
-    if (isNumber == 1)
-    {
-        self->pitch = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
-    }
-    else
-    {
-        self->pitch = tmp;
-        Py_INCREF(self->pitch);
-        streamtmp = PyObject_CallMethod((PyObject *)self->pitch, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->pitch_stream);
-        self->pitch_stream = (Stream *)streamtmp;
-        self->modebuffer[2] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-ChenLee_setChaos(ChenLee *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->chaos);
-
-    if (isNumber == 1)
-    {
-        self->chaos = PyNumber_Float(tmp);
-        self->modebuffer[3] = 0;
-    }
-    else
-    {
-        self->chaos = tmp;
-        Py_INCREF(self->chaos);
-        streamtmp = PyObject_CallMethod((PyObject *)self->chaos, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->chaos_stream);
-        self->chaos_stream = (Stream *)streamtmp;
-        self->modebuffer[3] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * ChenLee_setPitch(ChenLee *self, PyObject *arg) { SET_PARAM(self->pitch, self->pitch_stream, 2); }
+static PyObject * ChenLee_setChaos(ChenLee *self, PyObject *arg) { SET_PARAM(self->chaos, self->chaos_stream, 3); }
 
 MYFLT *
 ChenLee_getAltBuffer(ChenLee *self)
@@ -11056,20 +9861,17 @@ ChenLeeAlt_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &maintmp, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainChenLee);
-    Py_INCREF(maintmp);
     self->mainChenLee = (ChenLee *)maintmp;
+    Py_INCREF(self->mainChenLee);
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -11743,31 +10545,26 @@ SumOsc_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (freqtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
-        Py_DECREF(freqtmp);
     }
 
     if (ratiotmp)
     {
         PyObject_CallMethod((PyObject *)self, "setRatio", "O", ratiotmp);
-        Py_DECREF(ratiotmp);
     }
 
     if (indextmp)
     {
         PyObject_CallMethod((PyObject *)self, "setIndex", "O", indextmp);
-        Py_DECREF(indextmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -11797,107 +10594,9 @@ static PyObject * SumOsc_inplace_sub(SumOsc *self, PyObject *arg) { INPLACE_SUB 
 static PyObject * SumOsc_div(SumOsc *self, PyObject *arg) { DIV };
 static PyObject * SumOsc_inplace_div(SumOsc *self, PyObject *arg) { INPLACE_DIV };
 
-static PyObject *
-SumOsc_setFreq(SumOsc *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->freq);
-
-    if (isNumber == 1)
-    {
-        self->freq = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
-    }
-    else
-    {
-        self->freq = tmp;
-        Py_INCREF(self->freq);
-        streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->freq_stream);
-        self->freq_stream = (Stream *)streamtmp;
-        self->modebuffer[2] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-SumOsc_setRatio(SumOsc *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->ratio);
-
-    if (isNumber == 1)
-    {
-        self->ratio = PyNumber_Float(tmp);
-        self->modebuffer[3] = 0;
-    }
-    else
-    {
-        self->ratio = tmp;
-        Py_INCREF(self->ratio);
-        streamtmp = PyObject_CallMethod((PyObject *)self->ratio, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->ratio_stream);
-        self->ratio_stream = (Stream *)streamtmp;
-        self->modebuffer[3] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-SumOsc_setIndex(SumOsc *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->index);
-
-    if (isNumber == 1)
-    {
-        self->index = PyNumber_Float(tmp);
-        self->modebuffer[4] = 0;
-    }
-    else
-    {
-        self->index = tmp;
-        Py_INCREF(self->index);
-        streamtmp = PyObject_CallMethod((PyObject *)self->index, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->index_stream);
-        self->index_stream = (Stream *)streamtmp;
-        self->modebuffer[4] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * SumOsc_setFreq(SumOsc *self, PyObject *arg) { SET_PARAM(self->freq, self->freq_stream, 2); }
+static PyObject * SumOsc_setRatio(SumOsc *self, PyObject *arg) { SET_PARAM(self->ratio, self->ratio_stream, 3); }
+static PyObject * SumOsc_setIndex(SumOsc *self, PyObject *arg) { SET_PARAM(self->index, self->index_stream, 4); }
 
 static PyMemberDef SumOsc_members[] =
 {
@@ -12697,31 +11396,26 @@ SuperSaw_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (freqtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
-        Py_DECREF(freqtmp);
     }
 
     if (detunetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setDetune", "O", detunetmp);
-        Py_DECREF(detunetmp);
     }
 
     if (baltmp)
     {
         PyObject_CallMethod((PyObject *)self, "setBal", "O", baltmp);
-        Py_DECREF(baltmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -12751,107 +11445,9 @@ static PyObject * SuperSaw_inplace_sub(SuperSaw *self, PyObject *arg) { INPLACE_
 static PyObject * SuperSaw_div(SuperSaw *self, PyObject *arg) { DIV };
 static PyObject * SuperSaw_inplace_div(SuperSaw *self, PyObject *arg) { INPLACE_DIV };
 
-static PyObject *
-SuperSaw_setFreq(SuperSaw *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->freq);
-
-    if (isNumber == 1)
-    {
-        self->freq = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
-    }
-    else
-    {
-        self->freq = tmp;
-        Py_INCREF(self->freq);
-        streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->freq_stream);
-        self->freq_stream = (Stream *)streamtmp;
-        self->modebuffer[2] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-SuperSaw_setDetune(SuperSaw *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->detune);
-
-    if (isNumber == 1)
-    {
-        self->detune = PyNumber_Float(tmp);
-        self->modebuffer[3] = 0;
-    }
-    else
-    {
-        self->detune = tmp;
-        Py_INCREF(self->detune);
-        streamtmp = PyObject_CallMethod((PyObject *)self->detune, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->detune_stream);
-        self->detune_stream = (Stream *)streamtmp;
-        self->modebuffer[3] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-SuperSaw_setBal(SuperSaw *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->bal);
-
-    if (isNumber == 1)
-    {
-        self->bal = PyNumber_Float(tmp);
-        self->modebuffer[4] = 0;
-    }
-    else
-    {
-        self->bal = tmp;
-        Py_INCREF(self->bal);
-        streamtmp = PyObject_CallMethod((PyObject *)self->bal, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->bal_stream);
-        self->bal_stream = (Stream *)streamtmp;
-        self->modebuffer[4] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * SuperSaw_setFreq(SuperSaw *self, PyObject *arg) { SET_PARAM(self->freq, self->freq_stream, 2); }
+static PyObject * SuperSaw_setDetune(SuperSaw *self, PyObject *arg) { SET_PARAM(self->detune, self->detune_stream, 3); }
+static PyObject * SuperSaw_setBal(SuperSaw *self, PyObject *arg) { SET_PARAM(self->bal, self->bal_stream, 4); }
 
 static PyMemberDef SuperSaw_members[] =
 {
@@ -13256,25 +11852,21 @@ RCOsc_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (freqtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
-        Py_DECREF(freqtmp);
     }
 
     if (sharptmp)
     {
         PyObject_CallMethod((PyObject *)self, "setSharp", "O", sharptmp);
-        Py_DECREF(sharptmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -13304,73 +11896,8 @@ static PyObject * RCOsc_inplace_sub(RCOsc *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * RCOsc_div(RCOsc *self, PyObject *arg) { DIV };
 static PyObject * RCOsc_inplace_div(RCOsc *self, PyObject *arg) { INPLACE_DIV };
 
-static PyObject *
-RCOsc_setFreq(RCOsc *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->freq);
-
-    if (isNumber == 1)
-    {
-        self->freq = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
-    }
-    else
-    {
-        self->freq = tmp;
-        Py_INCREF(self->freq);
-        streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->freq_stream);
-        self->freq_stream = (Stream *)streamtmp;
-        self->modebuffer[2] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-RCOsc_setSharp(RCOsc *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->sharp);
-
-    if (isNumber == 1)
-    {
-        self->sharp = PyNumber_Float(tmp);
-        self->modebuffer[3] = 0;
-    }
-    else
-    {
-        self->sharp = tmp;
-        Py_INCREF(self->sharp);
-        streamtmp = PyObject_CallMethod((PyObject *)self->sharp, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->sharp_stream);
-        self->sharp_stream = (Stream *)streamtmp;
-        self->modebuffer[3] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * RCOsc_setFreq(RCOsc *self, PyObject *arg) { SET_PARAM(self->freq, self->freq_stream, 2); }
+static PyObject * RCOsc_setSharp(RCOsc *self, PyObject *arg) { SET_PARAM(self->sharp, self->sharp_stream, 3); }
 
 static PyObject *
 RCOsc_reset(RCOsc *self)
@@ -13662,7 +12189,6 @@ TableScale_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
 
     if ( PyObject_HasAttrString((PyObject *)outtabletmp, "getTableStream") == 0 )
@@ -13671,19 +12197,16 @@ TableScale_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    Py_XDECREF(self->outtable);
     self->outtable = PyObject_CallMethod((PyObject *)outtabletmp, "getTableStream", "");
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -13723,13 +12246,10 @@ TableScale_getTable(TableScale* self)
 static PyObject *
 TableScale_setTable(TableScale *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
     Py_DECREF(self->table);
-    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    self->table = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -13744,13 +12264,10 @@ TableScale_getOuttable(TableScale* self)
 static PyObject *
 TableScale_setOuttable(TableScale *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
     Py_DECREF(self->outtable);
-    self->outtable = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    self->outtable = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -13945,7 +12462,6 @@ TableFill_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -13967,14 +12483,11 @@ static PyObject * TableFill_stop(TableFill *self, PyObject *args, PyObject *kwds
 static PyObject *
 TableFill_setTable(TableFill *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
-    Py_INCREF(tmp);
     Py_DECREF(self->table);
-    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    self->table = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
+    Py_INCREF(self->table);
 
     Py_RETURN_NONE;
 }
@@ -14188,19 +12701,16 @@ TableScan_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -14249,13 +12759,10 @@ TableScan_getTable(TableScan* self)
 static PyObject *
 TableScan_setTable(TableScan *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
     Py_DECREF(self->table);
-    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    self->table = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }

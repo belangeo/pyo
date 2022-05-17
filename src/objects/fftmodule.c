@@ -475,20 +475,17 @@ FFT_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainSplitter);
-    Py_INCREF(maintmp);
     self->mainSplitter = (FFTMain *)maintmp;
+    Py_INCREF(self->mainSplitter);
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -856,32 +853,26 @@ IFFT_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|iiiOO", kwlist, &inrealtmp, &inimagtmp, &self->size, &self->hopsize, &self->wintype, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    Py_INCREF(inimagtmp);
-    Py_XDECREF(self->inimag);
     self->inimag = inimagtmp;
+    Py_INCREF(self->inimag);
     inimag_streamtmp = PyObject_CallMethod((PyObject *)self->inimag, "_getStream", NULL);
-    Py_INCREF(inimag_streamtmp);
-    Py_XDECREF(self->inimag_stream);
     self->inimag_stream = (Stream *)inimag_streamtmp;
+    Py_INCREF(self->inimag_stream);
 
-    Py_INCREF(inrealtmp);
-    Py_XDECREF(self->inreal);
     self->inreal = inrealtmp;
+    Py_INCREF(self->inreal);
     inreal_streamtmp = PyObject_CallMethod((PyObject *)self->inreal, "_getStream", NULL);
-    Py_INCREF(inreal_streamtmp);
-    Py_XDECREF(self->inreal_stream);
     self->inreal_stream = (Stream *)inreal_streamtmp;
+    Py_INCREF(self->inreal_stream);
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1204,24 +1195,20 @@ CarToPol_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_INPUT_STREAM
 
-    Py_INCREF(input2tmp);
-    Py_XDECREF(self->input2);
     self->input2 = input2tmp;
+    Py_INCREF(self->input2);
     input2_streamtmp = PyObject_CallMethod((PyObject *)self->input2, "_getStream", NULL);
-    Py_INCREF(input2_streamtmp);
-    Py_XDECREF(self->input2_stream);
     self->input2_stream = (Stream *)input2_streamtmp;
+    Py_INCREF(self->input2_stream);
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1502,24 +1489,20 @@ PolToCar_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_INPUT_STREAM
 
-    Py_INCREF(input2tmp);
-    Py_XDECREF(self->input2);
     self->input2 = input2tmp;
+    Py_INCREF(self->input2);
     input2_streamtmp = PyObject_CallMethod((PyObject *)self->input2, "_getStream", NULL);
-    Py_INCREF(input2_streamtmp);
-    Py_XDECREF(self->input2_stream);
     self->input2_stream = (Stream *)input2_streamtmp;
+    Py_INCREF(self->input2_stream);
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1784,6 +1767,7 @@ FrameDeltaMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (FrameDeltaMain *)type->tp_alloc(type, 0);
 
     self->count = 0;
+    self->input = PyList_New(0);
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, FrameDeltaMain_compute_next_data_frame);
@@ -1797,7 +1781,6 @@ FrameDeltaMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (inputtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setInput", "O", inputtmp);
-        Py_DECREF(inputtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1836,19 +1819,16 @@ static PyObject * FrameDeltaMain_stop(FrameDeltaMain *self, PyObject *args, PyOb
 static PyObject *
 FrameDeltaMain_setInput(FrameDeltaMain *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     if (! PyList_Check(arg))
     {
         PyErr_SetString(PyExc_TypeError, "The inputs attribute must be a list.");
         Py_RETURN_NONE;
     }
 
-    tmp = arg;
-    self->inputSize = PyList_Size(tmp);
-    Py_INCREF(tmp);
-    Py_XDECREF(self->input);
-    self->input = tmp;
+    Py_DECREF(self->input);
+
+    self->inputSize = PyList_Size(arg);
+    self->input = arg;
     Py_INCREF(self->input);
 
     Py_RETURN_NONE;
@@ -2079,20 +2059,17 @@ FrameDelta_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainSplitter);
-    Py_INCREF(maintmp);
     self->mainSplitter = (FrameDeltaMain *)maintmp;
+    Py_INCREF(self->mainSplitter);
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -2346,6 +2323,7 @@ FrameAccumMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (FrameAccumMain *)type->tp_alloc(type, 0);
 
     self->count = 0;
+    self->input = PyList_New(0);
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, FrameAccumMain_compute_next_data_frame);
@@ -2359,7 +2337,6 @@ FrameAccumMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (inputtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setInput", "O", inputtmp);
-        Py_DECREF(inputtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -2398,19 +2375,16 @@ static PyObject * FrameAccumMain_stop(FrameAccumMain *self, PyObject *args, PyOb
 static PyObject *
 FrameAccumMain_setInput(FrameAccumMain *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     if (! PyList_Check(arg))
     {
         PyErr_SetString(PyExc_TypeError, "The inputs attribute must be a list.");
         Py_RETURN_NONE;
     }
 
-    tmp = arg;
-    self->inputSize = PyList_Size(tmp);
-    Py_INCREF(tmp);
-    Py_XDECREF(self->input);
-    self->input = tmp;
+    Py_DECREF(self->input);
+
+    self->inputSize = PyList_Size(arg);
+    self->input = arg;
     Py_INCREF(self->input);
 
     Py_RETURN_NONE;
@@ -2641,20 +2615,17 @@ FrameAccum_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainSplitter);
-    Py_INCREF(maintmp);
     self->mainSplitter = (FrameAccumMain *)maintmp;
+    Py_INCREF(self->mainSplitter);
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -2969,6 +2940,7 @@ VectralMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     VectralMain *self;
     self = (VectralMain *)type->tp_alloc(type, 0);
 
+    self->input = PyList_New(0);
     self->up = PyFloat_FromDouble(1.0);
     self->down = PyFloat_FromDouble(0.7);
     self->damp = PyFloat_FromDouble(0.9);
@@ -2991,25 +2963,21 @@ VectralMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (inputtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setInput", "O", inputtmp);
-        Py_DECREF(inputtmp);
     }
 
     if (uptmp)
     {
         PyObject_CallMethod((PyObject *)self, "setUp", "O", uptmp);
-        Py_DECREF(uptmp);
     }
 
     if (downtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setDown", "O", downtmp);
-        Py_DECREF(downtmp);
     }
 
     if (damptmp)
     {
         PyObject_CallMethod((PyObject *)self, "setDamp", "O", damptmp);
-        Py_DECREF(damptmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -3048,19 +3016,16 @@ static PyObject * VectralMain_stop(VectralMain *self, PyObject *args, PyObject *
 static PyObject *
 VectralMain_setInput(VectralMain *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     if (! PyList_Check(arg))
     {
         PyErr_SetString(PyExc_TypeError, "The inputs attribute must be a list.");
         Py_RETURN_NONE;
     }
 
-    tmp = arg;
-    self->inputSize = PyList_Size(tmp);
-    Py_INCREF(tmp);
-    Py_XDECREF(self->input);
-    self->input = tmp;
+    Py_DECREF(self->input);
+
+    self->inputSize = PyList_Size(arg);
+    self->input = arg;
     Py_INCREF(self->input);
 
     Py_RETURN_NONE;
@@ -3102,101 +3067,9 @@ VectralMain_setFrameSize(VectralMain *self, PyObject *arg)
     Py_RETURN_NONE;
 }
 
-static PyObject *
-VectralMain_setUp(VectralMain *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->up);
-
-    if (isNumber == 1)
-    {
-        self->up = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
-    }
-    else
-    {
-        self->up = tmp;
-        Py_INCREF(self->up);
-        streamtmp = PyObject_CallMethod((PyObject *)self->up, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->up_stream);
-        self->up_stream = (Stream *)streamtmp;
-        self->modebuffer[2] = 1;
-    }
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-VectralMain_setDown(VectralMain *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->down);
-
-    if (isNumber == 1)
-    {
-        self->down = PyNumber_Float(tmp);
-        self->modebuffer[3] = 0;
-    }
-    else
-    {
-        self->down = tmp;
-        Py_INCREF(self->down);
-        streamtmp = PyObject_CallMethod((PyObject *)self->down, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->down_stream);
-        self->down_stream = (Stream *)streamtmp;
-        self->modebuffer[3] = 1;
-    }
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-VectralMain_setDamp(VectralMain *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->damp);
-
-    if (isNumber == 1)
-    {
-        self->damp = PyNumber_Float(tmp);
-        self->modebuffer[4] = 0;
-    }
-    else
-    {
-        self->damp = tmp;
-        Py_INCREF(self->damp);
-        streamtmp = PyObject_CallMethod((PyObject *)self->damp, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->damp_stream);
-        self->damp_stream = (Stream *)streamtmp;
-        self->modebuffer[4] = 1;
-    }
-
-    Py_RETURN_NONE;
-}
+static PyObject * VectralMain_setUp(VectralMain *self, PyObject *arg) { SET_PARAM(self->up, self->up_stream, 2); }
+static PyObject * VectralMain_setDown(VectralMain *self, PyObject *arg) { SET_PARAM(self->down, self->down_stream, 3); }
+static PyObject * VectralMain_setDamp(VectralMain *self, PyObject *arg) { SET_PARAM(self->damp, self->damp_stream, 4); }
 
 static PyMemberDef VectralMain_members[] =
 {
@@ -3390,20 +3263,17 @@ Vectral_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainSplitter);
-    Py_INCREF(maintmp);
     self->mainSplitter = (VectralMain *)maintmp;
+    Py_INCREF(self->mainSplitter);
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -4040,19 +3910,16 @@ CvlVerb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (baltmp)
     {
         PyObject_CallMethod((PyObject *)self, "setBal", "O", baltmp);
-        Py_DECREF(baltmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -4065,39 +3932,7 @@ CvlVerb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     return (PyObject *)self;
 }
 
-static PyObject *
-CvlVerb_setBal(CvlVerb *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->bal);
-
-    if (isNumber == 1)
-    {
-        self->bal = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
-    }
-    else
-    {
-        self->bal = tmp;
-        Py_INCREF(self->bal);
-        streamtmp = PyObject_CallMethod((PyObject *)self->bal, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->bal_stream);
-        self->bal_stream = (Stream *)streamtmp;
-        self->modebuffer[2] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * CvlVerb_setBal(CvlVerb *self, PyObject *arg) { SET_PARAM(self->bal, self->bal_stream, 2); }
 
 static PyObject * CvlVerb_getServer(CvlVerb* self) { GET_SERVER };
 static PyObject * CvlVerb_getStream(CvlVerb* self) { GET_STREAM };
@@ -4956,6 +4791,9 @@ IFFTMatrix_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     IFFTMatrix *self;
     self = (IFFTMatrix *)type->tp_alloc(type, 0);
 
+    self->index = PyFloat_FromDouble(0.0);
+    self->phase = PyFloat_FromDouble(0.0);
+
     self->size = 1024;
     self->wintype = 2;
     self->modebuffer[0] = 0;
@@ -4976,7 +4814,6 @@ IFFTMatrix_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    Py_XDECREF(self->matrix);
     self->matrix = PyObject_CallMethod((PyObject *)matrixtmp, "getMatrixStream", "");
 
     if (indextmp)
@@ -4992,13 +4829,11 @@ IFFTMatrix_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -5030,29 +4865,23 @@ static PyObject * IFFTMatrix_inplace_sub(IFFTMatrix *self, PyObject *arg) { INPL
 static PyObject * IFFTMatrix_div(IFFTMatrix *self, PyObject *arg) { DIV };
 static PyObject * IFFTMatrix_inplace_div(IFFTMatrix *self, PyObject *arg) { INPLACE_DIV };
 
-static PyObject *
-IFFTMatrix_setIndex(IFFTMatrix *self, PyObject *arg)
+static PyObject * IFFTMatrix_setIndex(IFFTMatrix *self, PyObject *arg)
 {
-    PyObject *tmp, *streamtmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
-
-    if (PyObject_HasAttrString((PyObject *)tmp, "server") == 0)
+    if (PyObject_HasAttrString((PyObject *)arg, "server") == 0)
     {
         PyErr_SetString(PyExc_TypeError, "\"index\" attribute of IFFTMatrix must be a PyoObject.\n");
         Py_RETURN_NONE;
     }
 
-    Py_INCREF(tmp);
-    Py_XDECREF(self->index);
+    Py_DECREF(self->index);
 
-    self->index = tmp;
-    streamtmp = PyObject_CallMethod((PyObject *)self->index, "_getStream", NULL);
-    Py_INCREF(streamtmp);
-    Py_XDECREF(self->index_stream);
+    self->index = arg;
+    Py_INCREF(self->index);
+    PyObject *streamtmp = PyObject_CallMethod((PyObject *)self->index, "_getStream", NULL);
     self->index_stream = (Stream *)streamtmp;
+    Py_INCREF(self->index_stream);
 
     Py_RETURN_NONE;
 }
@@ -5060,26 +4889,21 @@ IFFTMatrix_setIndex(IFFTMatrix *self, PyObject *arg)
 static PyObject *
 IFFTMatrix_setPhase(IFFTMatrix *self, PyObject *arg)
 {
-    PyObject *tmp, *streamtmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
-
-    if (PyObject_HasAttrString((PyObject *)tmp, "server") == 0)
+    if (PyObject_HasAttrString((PyObject *)arg, "server") == 0)
     {
         PyErr_SetString(PyExc_TypeError, "\"phase\" attribute of IFFTMatrix must be a PyoObject.\n");
         Py_RETURN_NONE;
     }
 
-    Py_INCREF(tmp);
-    Py_XDECREF(self->phase);
+    Py_DECREF(self->phase);
 
-    self->phase = tmp;
-    streamtmp = PyObject_CallMethod((PyObject *)self->phase, "_getStream", NULL);
-    Py_INCREF(streamtmp);
-    Py_XDECREF(self->phase_stream);
+    self->phase = arg;
+    Py_INCREF(self->phase);
+    PyObject *streamtmp = PyObject_CallMethod((PyObject *)self->phase, "_getStream", NULL);
     self->phase_stream = (Stream *)streamtmp;
+    Py_INCREF(self->phase_stream);
 
     Py_RETURN_NONE;
 }

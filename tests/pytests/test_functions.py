@@ -249,8 +249,8 @@ class TestConversionFunctions:
             v = -0.5 * math.cos(2 * math.pi * i / n) + 0.5
             assert math.isclose(pts[i][1], v, abs_tol=0.000001)
 
-        log10ymin = math.log10(0.001);
-        log10ymax = math.log10(1.0);
+        log10ymin = math.log10(0.001)
+        log10ymax = math.log10(1.0)
         l = [(0,0.001), (0.5, 1), (1,0.001)]
         pts = linToCosCurve(l, yrange=[0.001, 1], totaldur=1, points=n, log=True)
         for i in range(512):
@@ -264,8 +264,8 @@ class TestConversionFunctions:
         assert isinstance(out_num, (int, float))
         assert out_num == 0.5
 
-        log10ymin = math.log10(0.001);
-        log10ymax = math.log10(1.0);
+        log10ymin = math.log10(0.001)
+        log10ymax = math.log10(1.0)
         out_num = rescale(in_num, xmin=-1.0, xmax=1.0, ymin=0.001, ymax=1.0, xlog=False, ylog=True)
         assert math.isclose(out_num, pow(10, 0.5 * (log10ymax - log10ymin) + log10ymin), abs_tol=0.000001)
 

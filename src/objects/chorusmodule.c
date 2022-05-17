@@ -533,31 +533,26 @@ Chorus_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (depthtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setDepth", "O", depthtmp);
-        Py_DECREF(depthtmp);
     }
 
     if (feedbacktmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFeedback", "O", feedbacktmp);
-        Py_DECREF(feedbacktmp);
     }
 
     if (mixtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMix", "O", mixtmp);
-        Py_DECREF(mixtmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -614,107 +609,9 @@ Chorus_reset(Chorus *self)
     Py_RETURN_NONE;
 }
 
-static PyObject *
-Chorus_setDepth(Chorus *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->depth);
-
-    if (isNumber == 1)
-    {
-        self->depth = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
-    }
-    else
-    {
-        self->depth = tmp;
-        Py_INCREF(self->depth);
-        streamtmp = PyObject_CallMethod((PyObject *)self->depth, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->depth_stream);
-        self->depth_stream = (Stream *)streamtmp;
-        self->modebuffer[2] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-Chorus_setFeedback(Chorus *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->feedback);
-
-    if (isNumber == 1)
-    {
-        self->feedback = PyNumber_Float(tmp);
-        self->modebuffer[3] = 0;
-    }
-    else
-    {
-        self->feedback = tmp;
-        Py_INCREF(self->feedback);
-        streamtmp = PyObject_CallMethod((PyObject *)self->feedback, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->feedback_stream);
-        self->feedback_stream = (Stream *)streamtmp;
-        self->modebuffer[3] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-Chorus_setMix(Chorus *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->mix);
-
-    if (isNumber == 1)
-    {
-        self->mix = PyNumber_Float(tmp);
-        self->modebuffer[4] = 0;
-    }
-    else
-    {
-        self->mix = tmp;
-        Py_INCREF(self->mix);
-        streamtmp = PyObject_CallMethod((PyObject *)self->mix, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->mix_stream);
-        self->mix_stream = (Stream *)streamtmp;
-        self->modebuffer[4] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * Chorus_setDepth(Chorus *self, PyObject *arg) { SET_PARAM(self->depth, self->depth_stream, 2); }
+static PyObject * Chorus_setFeedback(Chorus *self, PyObject *arg) { SET_PARAM(self->feedback, self->feedback_stream, 3); }
+static PyObject * Chorus_setMix(Chorus *self, PyObject *arg) {SET_PARAM(self->mix, self->mix_stream, 4); }
 
 static PyMemberDef Chorus_members[] =
 {

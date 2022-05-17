@@ -166,19 +166,16 @@ Sig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (valuetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setValue", "O", valuetmp);
-        Py_DECREF(valuetmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -190,37 +187,7 @@ Sig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     return (PyObject *)self;
 }
 
-static PyObject *
-Sig_setValue(Sig *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->value);
-
-    if (isNumber == 1)
-    {
-        self->value = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
-    }
-    else
-    {
-        self->value = tmp;
-        Py_INCREF(self->value);
-        streamtmp = PyObject_CallMethod((PyObject *)self->value, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->value_stream);
-        self->value_stream = (Stream *)streamtmp;
-        self->modebuffer[2] = 1;
-    }
-
-    Py_RETURN_NONE;
-}
+static PyObject * Sig_setValue(Sig *self, PyObject *arg) { SET_PARAM(self->value, self->value_stream, 2) }
 
 static PyObject * Sig_getServer(Sig* self) { GET_SERVER };
 static PyObject * Sig_getStream(Sig* self) { GET_STREAM };
@@ -583,25 +550,21 @@ SigTo_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (valuetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setValue", "O", valuetmp);
-        Py_DECREF(valuetmp);
     }
 
     if (timetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setTime", "O", timetmp);
-        Py_DECREF(timetmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -618,69 +581,8 @@ SigTo_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     return (PyObject *)self;
 }
 
-static PyObject *
-SigTo_setValue(SigTo *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->value);
-
-    if (isNumber == 1)
-    {
-        self->value = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
-    }
-    else
-    {
-        self->value = tmp;
-        Py_INCREF(self->value);
-        streamtmp = PyObject_CallMethod((PyObject *)self->value, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->value_stream);
-        self->value_stream = (Stream *)streamtmp;
-        self->modebuffer[2] = 1;
-    }
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-SigTo_setTime(SigTo *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->time);
-
-    if (isNumber == 1)
-    {
-        self->time = PyNumber_Float(tmp);
-        self->modebuffer[3] = 0;
-    }
-    else
-    {
-        self->time = tmp;
-        Py_INCREF(self->time);
-        streamtmp = PyObject_CallMethod((PyObject *)self->time, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->time_stream);
-        self->time_stream = (Stream *)streamtmp;
-        self->modebuffer[3] = 1;
-    }
-
-    Py_RETURN_NONE;
-}
+static PyObject * SigTo_setValue(SigTo *self, PyObject *arg) { SET_PARAM(self->value, self->value_stream, 2); }
+static PyObject * SigTo_setTime(SigTo *self, PyObject *arg) { SET_PARAM(self->time, self->time_stream, 3); }
 
 static PyObject * SigTo_getServer(SigTo* self) { GET_SERVER };
 static PyObject * SigTo_getStream(SigTo* self) { GET_STREAM };
@@ -1023,19 +925,16 @@ VarPort_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (timetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setTime", "O", timetmp);
-        Py_DECREF(timetmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     if (calltmp)
@@ -1069,17 +968,10 @@ VarPort_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static PyObject *
 VarPort_setValue(VarPort *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-
-    if (isNumber == 1)
-        self->value = PyFloat_AsDouble(tmp);
+    if (PyNumber_Check(arg))
+        self->value = PyFloat_AsDouble(arg);
     else
         self->value = self->lastValue;
 
@@ -1089,18 +981,11 @@ VarPort_setValue(VarPort *self, PyObject *arg)
 static PyObject *
 VarPort_setTime(VarPort *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-
-    if (isNumber == 1)
+    if (PyNumber_Check(arg))
     {
-        self->time = PyFloat_AsDouble(tmp);
+        self->time = PyFloat_AsDouble(arg);
         self->timeStep = (long)(self->time * self->sr);
         self->timeout = (long)((self->time + 0.1) * self->sr);
     }
@@ -1111,18 +996,15 @@ VarPort_setTime(VarPort *self, PyObject *arg)
 static PyObject *
 VarPort_setFunction(VarPort *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     if (! PyCallable_Check(arg))
     {
         PyErr_SetString(PyExc_TypeError, "The function attribute must be callable.");
         Py_RETURN_NONE;
     }
 
-    tmp = arg;
     Py_XDECREF(self->callable);
-    Py_INCREF(tmp);
-    self->callable = tmp;
+    self->callable = arg;
+    Py_INCREF(self->callable);
 
     Py_RETURN_NONE;
 }

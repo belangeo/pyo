@@ -236,19 +236,16 @@ Follower_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (freqtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
-        Py_DECREF(freqtmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -277,39 +274,7 @@ static PyObject * Follower_inplace_sub(Follower *self, PyObject *arg) { INPLACE_
 static PyObject * Follower_div(Follower *self, PyObject *arg) { DIV };
 static PyObject * Follower_inplace_div(Follower *self, PyObject *arg) { INPLACE_DIV };
 
-static PyObject *
-Follower_setFreq(Follower *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->freq);
-
-    if (isNumber == 1)
-    {
-        self->freq = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
-    }
-    else
-    {
-        self->freq = tmp;
-        Py_INCREF(self->freq);
-        streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->freq_stream);
-        self->freq_stream = (Stream *)streamtmp;
-        self->modebuffer[2] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * Follower_setFreq(Follower *self, PyObject *arg) { SET_PARAM(self->freq, self->freq_stream, 2); }
 
 static PyMemberDef Follower_members[] =
 {
@@ -762,25 +727,21 @@ Follower2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (risetimetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setRisetime", "O", risetimetmp);
-        Py_DECREF(risetimetmp);
     }
 
     if (falltimetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFalltime", "O", falltimetmp);
-        Py_DECREF(falltimetmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -809,73 +770,8 @@ static PyObject * Follower2_inplace_sub(Follower2 *self, PyObject *arg) { INPLAC
 static PyObject * Follower2_div(Follower2 *self, PyObject *arg) { DIV };
 static PyObject * Follower2_inplace_div(Follower2 *self, PyObject *arg) { INPLACE_DIV };
 
-static PyObject *
-Follower2_setRisetime(Follower2 *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->risetime);
-
-    if (isNumber == 1)
-    {
-        self->risetime = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
-    }
-    else
-    {
-        self->risetime = tmp;
-        Py_INCREF(self->risetime);
-        streamtmp = PyObject_CallMethod((PyObject *)self->risetime, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->risetime_stream);
-        self->risetime_stream = (Stream *)streamtmp;
-        self->modebuffer[2] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-Follower2_setFalltime(Follower2 *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->falltime);
-
-    if (isNumber == 1)
-    {
-        self->falltime = PyNumber_Float(tmp);
-        self->modebuffer[3] = 0;
-    }
-    else
-    {
-        self->falltime = tmp;
-        Py_INCREF(self->falltime);
-        streamtmp = PyObject_CallMethod((PyObject *)self->falltime, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->falltime_stream);
-        self->falltime_stream = (Stream *)streamtmp;
-        self->modebuffer[3] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * Follower2_setRisetime(Follower2 *self, PyObject *arg) { SET_PARAM(self->risetime, self->risetime_stream, 2); }
+static PyObject * Follower2_setFalltime(Follower2 *self, PyObject *arg) { SET_PARAM(self->falltime, self->falltime_stream, 3); }
 
 static PyMemberDef Follower2_members[] =
 {
@@ -1145,13 +1041,11 @@ ZCross_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1185,9 +1079,7 @@ ZCross_setThresh(ZCross *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyNumber_Check(arg);
-
-    if (isNumber == 1)
+    if (PyNumber_Check(arg) == 1)
     {
         self->thresh = PyFloat_AsDouble(arg);
     }
@@ -1554,13 +1446,11 @@ Yin_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1608,9 +1498,7 @@ Yin_setTolerance(Yin *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyNumber_Check(arg);
-
-    if (isNumber == 1)
+    if (PyNumber_Check(arg))
     {
         self->tolerance = PyFloat_AsDouble(arg);
     }
@@ -1623,9 +1511,7 @@ Yin_setMinfreq(Yin *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyNumber_Check(arg);
-
-    if (isNumber == 1)
+    if (PyNumber_Check(arg))
     {
         self->minfreq = PyFloat_AsDouble(arg);
     }
@@ -1638,9 +1524,7 @@ Yin_setMaxfreq(Yin *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyNumber_Check(arg);
-
-    if (isNumber == 1)
+    if (PyNumber_Check(arg))
     {
         self->maxfreq = PyFloat_AsDouble(arg);
     }
@@ -1653,9 +1537,7 @@ Yin_setCutoff(Yin *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyNumber_Check(arg);
-
-    if (isNumber == 1)
+    if (PyNumber_Check(arg))
     {
         self->cutoff = PyFloat_AsDouble(arg);
     }
@@ -2004,13 +1886,11 @@ Centroid_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -2365,13 +2245,11 @@ AttackDetector_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -2436,9 +2314,7 @@ AttackDetector_setDeltime(AttackDetector *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyNumber_Check(arg);
-
-    if (isNumber == 1)
+    if (PyNumber_Check(arg))
     {
         self->deltime = PyFloat_AsDouble(arg);
 
@@ -2456,9 +2332,7 @@ AttackDetector_setCutoff(AttackDetector *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyNumber_Check(arg);
-
-    if (isNumber == 1)
+    if (PyNumber_Check(arg))
     {
         self->cutoff = PyFloat_AsDouble(arg);
 
@@ -2476,9 +2350,7 @@ AttackDetector_setMaxthresh(AttackDetector *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyNumber_Check(arg);
-
-    if (isNumber == 1)
+    if (PyNumber_Check(arg))
     {
         self->maxthresh = PyFloat_AsDouble(arg);
 
@@ -2494,9 +2366,7 @@ AttackDetector_setMinthresh(AttackDetector *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyNumber_Check(arg);
-
-    if (isNumber == 1)
+    if (PyNumber_Check(arg))
     {
         self->minthresh = PyFloat_AsDouble(arg);
 
@@ -2512,9 +2382,7 @@ AttackDetector_setReltime(AttackDetector *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyNumber_Check(arg);
-
-    if (isNumber == 1)
+    if (PyNumber_Check(arg))
     {
         self->reltime = PyFloat_AsDouble(arg);
 
@@ -2881,19 +2749,16 @@ Scope_setHeight(Scope *self, PyObject *arg)
 static PyObject *
 Scope_setFunc(Scope *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     if (! PyCallable_Check(arg))
     {
         PyErr_SetString(PyExc_TypeError, "The function attribute must be callable.");
         Py_RETURN_NONE;
     }
 
-    tmp = arg;
     Py_XDECREF(self->func);
-    Py_INCREF(tmp);
-    self->func = tmp;
-
+    self->func = arg;
+    Py_INCREF(self->func);
+ 
     Py_RETURN_NONE;
 }
 
@@ -3128,13 +2993,11 @@ PeakAmp_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -3418,13 +3281,11 @@ RMS_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);

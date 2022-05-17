@@ -4557,9 +4557,7 @@ SndTable_getEnvelope(SndTable *self, PyObject *arg)
 
     ASSERT_ARG_NOT_NULL
 
-    int isInt = PyLong_Check(arg);
-
-    if (isInt)
+    if (PyLong_Check(arg))
     {
         count = 0;
         points = PyLong_AsLong(arg);
@@ -6281,7 +6279,6 @@ TableRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -6367,9 +6364,8 @@ TableRec_setTable(TableRec *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    PyObject *tmp = arg;
     Py_DECREF(self->table);
-    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    self->table = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -6560,9 +6556,8 @@ TableRecTimeStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &maintmp))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainPlayer);
-    Py_INCREF(maintmp);
     self->mainPlayer = (TableRec *)maintmp;
+    Py_INCREF(self->mainPlayer);
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
@@ -6826,12 +6821,10 @@ TableMorph_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
 
-    Py_XDECREF(self->sources);
-    Py_INCREF(sourcestmp);
     self->sources = (PyObject *)sourcestmp;
+    Py_INCREF(self->sources);
 
     TableMorph_alloc_memories(self);
 
@@ -6851,9 +6844,8 @@ TableMorph_setTable(TableMorph *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    PyObject *tmp = arg;
     Py_DECREF(self->table);
-    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    self->table = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -7149,13 +7141,11 @@ TrigTableRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_INPUT_STREAM
 
-    Py_XDECREF(self->trigger);
-    Py_INCREF(trigtmp);
     self->trigger = trigtmp;
+    Py_INCREF(self->trigger);
     trig_streamtmp = PyObject_CallMethod((PyObject *)self->trigger, "_getStream", NULL);
-    Py_INCREF(trig_streamtmp);
-    Py_XDECREF(self->trigger_stream);
     self->trigger_stream = (Stream *)trig_streamtmp;
+    Py_INCREF(self->trigger_stream);
 
     if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 )
     {
@@ -7163,7 +7153,6 @@ TrigTableRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -7203,9 +7192,8 @@ TrigTableRec_setTable(TrigTableRec *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    PyObject *tmp = arg;
     Py_DECREF(self->table);
-    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    self->table = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -7397,9 +7385,8 @@ TrigTableRecTimeStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &maintmp))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainPlayer);
-    Py_INCREF(maintmp);
     self->mainPlayer = (TrigTableRec *)maintmp;
+    Py_INCREF(self->mainPlayer);
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
@@ -7635,7 +7622,6 @@ TablePut_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -7671,9 +7657,8 @@ TablePut_setTable(TablePut *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    PyObject *tmp = arg;
     Py_DECREF(self->table);
-    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    self->table = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
@@ -7879,6 +7864,8 @@ TableWrite_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     TableWrite *self;
     self = (TableWrite *)type->tp_alloc(type, 0);
 
+    self->pos = PyFloat_FromDouble(0.0);
+
     self->mode = 0;
     self->maxwindow = 1024;
     self->lastPos = -1;
@@ -7901,7 +7888,6 @@ TableWrite_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (postmp)
     {
         PyObject_CallMethod((PyObject *)self, "setPos", "O", postmp);
-        Py_DECREF(postmp);
     }
 
     if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 )
@@ -7910,7 +7896,6 @@ TableWrite_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -7927,26 +7912,21 @@ static PyObject * TableWrite_stop(TableWrite *self, PyObject *args, PyObject *kw
 static PyObject *
 TableWrite_setPos(TableWrite *self, PyObject *arg)
 {
-    PyObject *tmp, *streamtmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
-
-    if (PyObject_HasAttrString((PyObject *)tmp, "server") == 0)
+    if (PyObject_HasAttrString((PyObject *)arg, "server") == 0)
     {
         PyErr_SetString(PyExc_TypeError, "\"pos\" argument of TableWrite must be a PyoObject.\n");
         Py_RETURN_NONE;
     }
 
-    Py_INCREF(tmp);
-    Py_XDECREF(self->pos);
+    Py_DECREF(self->pos);
 
-    self->pos = tmp;
-    streamtmp = PyObject_CallMethod((PyObject *)self->pos, "_getStream", NULL);
-    Py_INCREF(streamtmp);
-    Py_XDECREF(self->pos_stream);
+    self->pos = arg;
+    Py_INCREF(self->pos);
+    PyObject *streamtmp = PyObject_CallMethod((PyObject *)self->pos, "_getStream", NULL);
     self->pos_stream = (Stream *)streamtmp;
+    Py_INCREF(self->pos_stream);
 
     Py_RETURN_NONE;
 }
@@ -7956,9 +7936,8 @@ TableWrite_setTable(TableWrite *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    PyObject *tmp = arg;
     Py_DECREF(self->table);
-    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    self->table = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }

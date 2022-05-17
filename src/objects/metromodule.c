@@ -235,7 +235,6 @@ Metro_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (timetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setTime", "O", timetmp);
-        Py_DECREF(timetmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -264,39 +263,7 @@ static PyObject * Metro_inplace_sub(Metro *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Metro_div(Metro *self, PyObject *arg) { DIV };
 static PyObject * Metro_inplace_div(Metro *self, PyObject *arg) { INPLACE_DIV };
 
-static PyObject *
-Metro_setTime(Metro *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->time);
-
-    if (isNumber == 1)
-    {
-        self->time = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
-    }
-    else
-    {
-        self->time = tmp;
-        Py_INCREF(self->time);
-        streamtmp = PyObject_CallMethod((PyObject *)self->time, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->time_stream);
-        self->time_stream = (Stream *)streamtmp;
-        self->modebuffer[2] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * Metro_setTime(Metro *self, PyObject *arg) { SET_PARAM(self->time, self->time_stream, 2); }
 
 static PyMemberDef Metro_members[] =
 {
@@ -766,13 +733,11 @@ Seqer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (timetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setTime", "O", timetmp);
-        Py_DECREF(timetmp);
     }
 
     if (speedtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setSpeed", "O", speedtmp);
-        Py_DECREF(speedtmp);
     }
 
     if (seqtmp)
@@ -804,89 +769,19 @@ static PyObject * Seqer_play(Seqer *self, PyObject *args, PyObject *kwds)
 };
 static PyObject * Seqer_stop(Seqer *self, PyObject *args, PyObject *kwds) { STOP };
 
-static PyObject *
-Seqer_setTime(Seqer *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->time);
-
-    if (isNumber == 1)
-    {
-        self->time = PyNumber_Float(tmp);
-        self->modebuffer[0] = 0;
-    }
-    else
-    {
-        self->time = tmp;
-        Py_INCREF(self->time);
-        streamtmp = PyObject_CallMethod((PyObject *)self->time, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->time_stream);
-        self->time_stream = (Stream *)streamtmp;
-        self->modebuffer[0] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-Seqer_setSpeed(Seqer *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->speed);
-
-    if (isNumber == 1)
-    {
-        self->speed = PyNumber_Float(tmp);
-        self->modebuffer[1] = 0;
-    }
-    else
-    {
-        self->speed = tmp;
-        Py_INCREF(self->time);
-        streamtmp = PyObject_CallMethod((PyObject *)self->speed, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->speed_stream);
-        self->speed_stream = (Stream *)streamtmp;
-        self->modebuffer[1] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * Seqer_setTime(Seqer *self, PyObject *arg) { SET_PARAM(self->time, self->time_stream, 0); }
+static PyObject * Seqer_setSpeed(Seqer *self, PyObject *arg) { SET_PARAM(self->speed, self->speed_stream, 1); }
 
 static PyObject *
 Seqer_setSeq(Seqer *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    int isList = PyList_Check(arg);
-
-    if (isList == 1)
+    if (PyList_Check(arg))
     {
-        tmp = arg;
-        Py_INCREF(tmp);
         Py_XDECREF(self->tmp);
-        self->tmp = tmp;
+        self->tmp = arg;
+        Py_INCREF(self->tmp);
         self->newseq = 1;
     }
 
@@ -898,9 +793,7 @@ Seqer_setOnlyonce(Seqer *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isInt = PyLong_Check(arg);
-
-    if (isInt == 1)
+    if (PyLong_Check(arg))
     {
         self->onlyonce = PyLong_AsLong(arg);
     }
@@ -1101,9 +994,8 @@ Seq_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainPlayer);
-    Py_INCREF(maintmp);
     self->mainPlayer = (Seqer *)maintmp;
+    Py_INCREF(self->mainPlayer);
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
@@ -1401,7 +1293,6 @@ Clouder_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (densitytmp)
     {
         PyObject_CallMethod((PyObject *)self, "setDensity", "O", densitytmp);
-        Py_DECREF(densitytmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1421,39 +1312,7 @@ static PyObject * Clouder_getStream(Clouder* self) { GET_STREAM };
 static PyObject * Clouder_play(Clouder *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Clouder_stop(Clouder *self, PyObject *args, PyObject *kwds) { STOP };
 
-static PyObject *
-Clouder_setDensity(Clouder *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->density);
-
-    if (isNumber == 1)
-    {
-        self->density = PyNumber_Float(tmp);
-        self->modebuffer[0] = 0;
-    }
-    else
-    {
-        self->density = tmp;
-        Py_INCREF(self->density);
-        streamtmp = PyObject_CallMethod((PyObject *)self->density, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->density_stream);
-        self->density_stream = (Stream *)streamtmp;
-        self->modebuffer[0] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * Clouder_setDensity(Clouder *self, PyObject *arg) { SET_PARAM(self->density, self->density_stream, 0); }
 
 static PyMemberDef Clouder_members[] =
 {
@@ -1644,9 +1503,8 @@ Cloud_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainPlayer);
-    Py_INCREF(maintmp);
     self->mainPlayer = (Clouder *)maintmp;
+    Py_INCREF(self->mainPlayer);
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
@@ -2683,7 +2541,6 @@ Beater_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (timetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setTime", "O", timetmp);
-        Py_DECREF(timetmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -2730,42 +2587,7 @@ static PyObject * Beater_play(Beater *self, PyObject *args, PyObject *kwds)
 };
 static PyObject * Beater_stop(Beater *self, PyObject *args, PyObject *kwds) { STOP };
 
-static PyObject *
-Beater_setTime(Beater *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->time);
-
-    if (isNumber == 1)
-    {
-        self->time = PyNumber_Float(tmp);
-        self->tapDur = PyFloat_AS_DOUBLE(self->time);
-        self->modebuffer[0] = 0;
-    }
-    else
-    {
-        self->time = tmp;
-        Py_INCREF(self->time);
-        streamtmp = PyObject_CallMethod((PyObject *)self->time, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->time_stream);
-        self->time_stream = (Stream *)streamtmp;
-        self->modebuffer[0] = 1;
-        MYFLT *time = Stream_getData((Stream *)self->time_stream);
-        self->tapDur = time[0];
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * Beater_setTime(Beater *self, PyObject *arg) { SET_PARAM(self->time, self->time_stream, 0); }
 
 static PyObject *
 Beater_reset(Beater *self)
@@ -2937,9 +2759,7 @@ Beater_setOnlyonce(Beater *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isInt = PyLong_Check(arg);
-
-    if (isInt == 1)
+    if (PyLong_Check(arg))
     {
         self->onlyonce = PyLong_AsLong(arg);
     }
@@ -3146,9 +2966,8 @@ Beat_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainPlayer);
-    Py_INCREF(maintmp);
     self->mainPlayer = (Beater *)maintmp;
+    Py_INCREF(self->mainPlayer);
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
@@ -3409,9 +3228,8 @@ BeatTapStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainPlayer);
-    Py_INCREF(maintmp);
     self->mainPlayer = (Beater *)maintmp;
+    Py_INCREF(self->mainPlayer);
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
@@ -3672,9 +3490,8 @@ BeatAmpStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainPlayer);
-    Py_INCREF(maintmp);
     self->mainPlayer = (Beater *)maintmp;
+    Py_INCREF(self->mainPlayer);
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
@@ -3935,9 +3752,8 @@ BeatDurStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainPlayer);
-    Py_INCREF(maintmp);
     self->mainPlayer = (Beater *)maintmp;
+    Py_INCREF(self->mainPlayer);
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
@@ -4198,9 +4014,8 @@ BeatEndStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainPlayer);
-    Py_INCREF(maintmp);
     self->mainPlayer = (Beater *)maintmp;
+    Py_INCREF(self->mainPlayer);
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
@@ -4810,9 +4625,8 @@ TrigBurst_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainPlayer);
-    Py_INCREF(maintmp);
     self->mainPlayer = (TrigBurster *)maintmp;
+    Py_INCREF(self->mainPlayer);
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
@@ -5073,9 +4887,8 @@ TrigBurstTapStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainPlayer);
-    Py_INCREF(maintmp);
     self->mainPlayer = (TrigBurster *)maintmp;
+    Py_INCREF(self->mainPlayer);
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
@@ -5336,9 +5149,8 @@ TrigBurstAmpStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainPlayer);
-    Py_INCREF(maintmp);
     self->mainPlayer = (TrigBurster *)maintmp;
+    Py_INCREF(self->mainPlayer);
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
@@ -5599,9 +5411,8 @@ TrigBurstDurStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainPlayer);
-    Py_INCREF(maintmp);
     self->mainPlayer = (TrigBurster *)maintmp;
+    Py_INCREF(self->mainPlayer);
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
@@ -5862,9 +5673,8 @@ TrigBurstEndStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainPlayer);
-    Py_INCREF(maintmp);
     self->mainPlayer = (TrigBurster *)maintmp;
+    Py_INCREF(self->mainPlayer);
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 

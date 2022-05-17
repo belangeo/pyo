@@ -192,8 +192,6 @@ OscListener_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static PyObject *
 OscListener_setOscFunction(OscListener *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     if (arg == Py_None)
     {
         Py_RETURN_NONE;
@@ -205,10 +203,9 @@ OscListener_setOscFunction(OscListener *self, PyObject *arg)
         Py_RETURN_NONE;
     }
 
-    tmp = arg;
     Py_XDECREF(self->osccallable);
-    Py_INCREF(tmp);
-    self->osccallable = tmp;
+    self->osccallable = arg;
+    Py_INCREF(self->osccallable);
 
     Py_RETURN_NONE;
 }

@@ -74,7 +74,7 @@ jack_callback(jack_nframes_t nframes, void *arg)
     int i, j;
     Server *server = (Server *) arg;
 
-    assert(nframes == server->bufferSize);
+    assert(nframes == (jack_nframes_t)server->bufferSize);
 
     jack_default_audio_sample_t *in_buffers[server->ichnls], *out_buffers[server->nchnls];
 

@@ -144,18 +144,15 @@ CtlScan_reset(CtlScan *self)
 static PyObject *
 CtlScan_setFunction(CtlScan *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     if (! PyCallable_Check(arg))
     {
         PyErr_SetString(PyExc_TypeError, "The callable attribute must be a valid Python function.");
         Py_RETURN_NONE;
     }
 
-    tmp = arg;
     Py_XDECREF(self->callable);
-    Py_INCREF(tmp);
-    self->callable = tmp;
+    self->callable = arg;
+    Py_INCREF(self->callable);
 
     Py_RETURN_NONE;
 }
@@ -163,7 +160,6 @@ CtlScan_setFunction(CtlScan *self, PyObject *arg)
 static PyObject *
 CtlScan_setToprint(CtlScan *self, PyObject *arg)
 {
-
     if (PyLong_Check(arg))
     {
         self->toprint = PyLong_AsLong(arg);
@@ -355,18 +351,15 @@ CtlScan2_reset(CtlScan2 *self)
 static PyObject *
 CtlScan2_setFunction(CtlScan2 *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     if (! PyCallable_Check(arg))
     {
         PyErr_SetString(PyExc_TypeError, "The callable attribute must be a valid Python function.");
         Py_RETURN_NONE;
     }
 
-    tmp = arg;
     Py_XDECREF(self->callable);
-    Py_INCREF(tmp);
-    self->callable = tmp;
+    self->callable = arg;
+    Py_INCREF(self->callable);
 
     Py_RETURN_NONE;
 }
@@ -374,7 +367,6 @@ CtlScan2_setFunction(CtlScan2 *self, PyObject *arg)
 static PyObject *
 CtlScan2_setToprint(CtlScan2 *self, PyObject *arg)
 {
-
     if (PyLong_Check(arg))
     {
         self->toprint = PyLong_AsLong(arg);
@@ -666,13 +658,11 @@ Midictl_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -706,9 +696,7 @@ Midictl_setValue(Midictl *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isNum = PyNumber_Check(arg);
-
-    if (isNum == 1)
+    if (PyNumber_Check(arg))
     {
         self->value = PyFloat_AsDouble(arg);
     }
@@ -721,9 +709,7 @@ Midictl_setMinScale(Midictl *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isNum = PyNumber_Check(arg);
-
-    if (isNum == 1)
+    if (PyNumber_Check(arg))
     {
         self->minscale = PyFloat_AsDouble(arg);
     }
@@ -736,9 +722,7 @@ Midictl_setMaxScale(Midictl *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isNum = PyNumber_Check(arg);
-
-    if (isNum == 1)
+    if (PyNumber_Check(arg))
     {
         self->maxscale = PyFloat_AsDouble(arg);
     }
@@ -753,9 +737,7 @@ Midictl_setCtlNumber(Midictl *self, PyObject *arg)
 
     ASSERT_ARG_NOT_NULL
 
-    int isInt = PyLong_Check(arg);
-
-    if (isInt == 1)
+    if (PyLong_Check(arg))
     {
         tmp = PyLong_AsLong(arg);
 
@@ -773,9 +755,7 @@ Midictl_setChannel(Midictl *self, PyObject *arg)
 
     ASSERT_ARG_NOT_NULL
 
-    int isInt = PyLong_Check(arg);
-
-    if (isInt == 1)
+    if (PyLong_Check(arg))
     {
         tmp = PyLong_AsLong(arg);
 
@@ -1093,13 +1073,11 @@ Bendin_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1138,9 +1116,7 @@ Bendin_setBrange(Bendin *self, PyObject *arg)
 
     ASSERT_ARG_NOT_NULL
 
-    int isNum = PyNumber_Check(arg);
-
-    if (isNum == 1)
+    if (PyNumber_Check(arg))
     {
         tmp = PyFloat_AsDouble(arg);
 
@@ -1158,9 +1134,7 @@ Bendin_setChannel(Bendin *self, PyObject *arg)
 
     ASSERT_ARG_NOT_NULL
 
-    int isInt = PyLong_Check(arg);
-
-    if (isInt == 1)
+    if (PyLong_Check(arg))
     {
         tmp = PyLong_AsLong(arg);
 
@@ -1178,9 +1152,7 @@ Bendin_setScale(Bendin *self, PyObject *arg)
 
     ASSERT_ARG_NOT_NULL
 
-    int isInt = PyLong_Check(arg);
-
-    if (isInt == 1)
+    if (PyLong_Check(arg))
     {
         tmp = PyLong_AsLong(arg);
 
@@ -1489,13 +1461,11 @@ Touchin_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1838,13 +1808,11 @@ Programin_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1880,9 +1848,7 @@ Programin_setChannel(Programin *self, PyObject *arg)
 
     ASSERT_ARG_NOT_NULL
 
-    int isInt = PyLong_Check(arg);
-
-    if (isInt == 1)
+    if (PyLong_Check(arg))
     {
         tmp = PyLong_AsLong(arg);
 
@@ -2401,9 +2367,7 @@ MidiNote_setCentralKey(MidiNote *self, PyObject *arg)
 
     ASSERT_ARG_NOT_NULL
 
-    int isInt = PyLong_Check(arg);
-
-    if (isInt == 1)
+    if (PyLong_Check(arg))
     {
         tmp = PyLong_AsLong(arg);
 
@@ -2419,9 +2383,7 @@ MidiNote_setStealing(MidiNote *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isInt = PyLong_Check(arg);
-
-    if (isInt == 1)
+    if (PyLong_Check(arg))
         self->stealing = PyLong_AsLong(arg);
 
     Py_RETURN_NONE;
@@ -2674,13 +2636,11 @@ Notein_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -2945,13 +2905,11 @@ NoteinTrig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -3308,13 +3266,11 @@ MidiAdsr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -3784,13 +3740,11 @@ MidiDelAdsr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -4140,18 +4094,15 @@ static PyObject * RawMidi_stop(RawMidi *self, PyObject *args, PyObject *kwds) { 
 static PyObject *
 RawMidi_setFunction(RawMidi *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     if (! PyCallable_Check(arg))
     {
         PyErr_SetString(PyExc_TypeError, "The callable attribute must be a valid Python function.");
         Py_RETURN_NONE;
     }
 
-    tmp = arg;
     Py_XDECREF(self->callable);
-    Py_INCREF(tmp);
-    self->callable = tmp;
+    self->callable = arg;
+    Py_INCREF(self->callable);
 
     Py_RETURN_NONE;
 }
@@ -4504,9 +4455,8 @@ MidiLinseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_INPUT_STREAM
 
-    Py_INCREF(pointslist);
-    Py_XDECREF(self->pointslist);
     self->pointslist = pointslist;
+    Py_INCREF(self->pointslist);
     MidiLinseg_convert_pointslist((MidiLinseg *)self);
 
     self->tmphold = self->hold;
@@ -4514,13 +4464,11 @@ MidiLinseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);

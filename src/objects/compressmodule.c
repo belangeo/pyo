@@ -302,37 +302,31 @@ Compress_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (threshtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setThresh", "O", threshtmp);
-        Py_DECREF(threshtmp);
     }
 
     if (ratiotmp)
     {
         PyObject_CallMethod((PyObject *)self, "setRatio", "O", ratiotmp);
-        Py_DECREF(ratiotmp);
     }
 
     if (risetimetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setRiseTime", "O", risetimetmp);
-        Py_DECREF(risetimetmp);
     }
 
     if (falltimetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFallTime", "O", falltimetmp);
-        Py_DECREF(falltimetmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod((PyObject *)self, "setLookAhead", "O", looktmp);
@@ -375,133 +369,10 @@ static PyObject * Compress_inplace_sub(Compress *self, PyObject *arg) { INPLACE_
 static PyObject * Compress_div(Compress *self, PyObject *arg) { DIV };
 static PyObject * Compress_inplace_div(Compress *self, PyObject *arg) { INPLACE_DIV };
 
-static PyObject *
-Compress_setThresh(Compress *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->thresh);
-
-    if (isNumber == 1)
-    {
-        self->thresh = PyNumber_Float(tmp);
-        self->modebuffer[4] = 0;
-    }
-    else
-    {
-        self->thresh = tmp;
-        Py_INCREF(self->thresh);
-        streamtmp = PyObject_CallMethod((PyObject *)self->thresh, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->thresh_stream);
-        self->thresh_stream = (Stream *)streamtmp;
-        self->modebuffer[4] = 1;
-    }
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-Compress_setRatio(Compress *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->ratio);
-
-    if (isNumber == 1)
-    {
-        self->ratio = PyNumber_Float(tmp);
-        self->modebuffer[5] = 0;
-    }
-    else
-    {
-        self->ratio = tmp;
-        Py_INCREF(self->ratio);
-        streamtmp = PyObject_CallMethod((PyObject *)self->ratio, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->ratio_stream);
-        self->ratio_stream = (Stream *)streamtmp;
-        self->modebuffer[5] = 1;
-    }
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-Compress_setRiseTime(Compress *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->risetime);
-
-    if (isNumber == 1)
-    {
-        self->risetime = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
-    }
-    else
-    {
-        self->risetime = tmp;
-        Py_INCREF(self->risetime);
-        streamtmp = PyObject_CallMethod((PyObject *)self->risetime, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->risetime_stream);
-        self->risetime_stream = (Stream *)streamtmp;
-        self->modebuffer[2] = 1;
-    }
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-Compress_setFallTime(Compress *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->falltime);
-
-    if (isNumber == 1)
-    {
-        self->falltime = PyNumber_Float(tmp);
-        self->modebuffer[3] = 0;
-    }
-    else
-    {
-        self->falltime = tmp;
-        Py_INCREF(self->falltime);
-        streamtmp = PyObject_CallMethod((PyObject *)self->falltime, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->falltime_stream);
-        self->falltime_stream = (Stream *)streamtmp;
-        self->modebuffer[3] = 1;
-    }
-
-    Py_RETURN_NONE;
-}
+static PyObject * Compress_setRiseTime(Compress *self, PyObject *arg) { SET_PARAM(self->risetime, self->risetime_stream, 2); }
+static PyObject * Compress_setFallTime(Compress *self, PyObject *arg) { SET_PARAM(self->falltime, self->falltime_stream, 3); }
+static PyObject * Compress_setThresh(Compress *self, PyObject *arg) { SET_PARAM(self->thresh, self->thresh_stream, 4); }
+static PyObject * Compress_setRatio(Compress *self, PyObject *arg) { SET_PARAM(self->ratio, self->ratio_stream, 5); }
 
 static PyObject *
 Compress_setLookAhead(Compress *self, PyObject *arg)
@@ -1410,31 +1281,26 @@ Gate_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (threshtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setThresh", "O", threshtmp);
-        Py_DECREF(threshtmp);
     }
 
     if (risetimetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setRiseTime", "O", risetimetmp);
-        Py_DECREF(risetimetmp);
     }
 
     if (falltimetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFallTime", "O", falltimetmp);
-        Py_DECREF(falltimetmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod((PyObject *)self, "setLookAhead", "O", looktmp);
@@ -1474,107 +1340,9 @@ static PyObject * Gate_inplace_sub(Gate *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Gate_div(Gate *self, PyObject *arg) { DIV };
 static PyObject * Gate_inplace_div(Gate *self, PyObject *arg) { INPLACE_DIV };
 
-static PyObject *
-Gate_setThresh(Gate *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->thresh);
-
-    if (isNumber == 1)
-    {
-        self->thresh = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
-    }
-    else
-    {
-        self->thresh = tmp;
-        Py_INCREF(self->thresh);
-        streamtmp = PyObject_CallMethod((PyObject *)self->thresh, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->thresh_stream);
-        self->thresh_stream = (Stream *)streamtmp;
-        self->modebuffer[2] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-Gate_setRiseTime(Gate *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->risetime);
-
-    if (isNumber == 1)
-    {
-        self->risetime = PyNumber_Float(tmp);
-        self->modebuffer[3] = 0;
-    }
-    else
-    {
-        self->risetime = tmp;
-        Py_INCREF(self->risetime);
-        streamtmp = PyObject_CallMethod((PyObject *)self->risetime, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->risetime_stream);
-        self->risetime_stream = (Stream *)streamtmp;
-        self->modebuffer[3] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-Gate_setFallTime(Gate *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->falltime);
-
-    if (isNumber == 1)
-    {
-        self->falltime = PyNumber_Float(tmp);
-        self->modebuffer[4] = 0;
-    }
-    else
-    {
-        self->falltime = tmp;
-        Py_INCREF(self->falltime);
-        streamtmp = PyObject_CallMethod((PyObject *)self->falltime, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->falltime_stream);
-        self->falltime_stream = (Stream *)streamtmp;
-        self->modebuffer[4] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * Gate_setThresh(Gate *self, PyObject *arg) { SET_PARAM(self->thresh, self->thresh_stream, 2); }
+static PyObject * Gate_setRiseTime(Gate *self, PyObject *arg) { SET_PARAM(self->risetime, self->risetime_stream, 3); }
+static PyObject * Gate_setFallTime(Gate *self, PyObject *arg) { SET_PARAM(self->falltime, self->falltime_stream, 4); }
 
 static PyObject *
 Gate_setLookAhead(Gate *self, PyObject *arg)
@@ -1939,30 +1707,25 @@ Balance_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_INPUT_STREAM
 
-    Py_INCREF(input2tmp);
-    Py_XDECREF(self->input2);
     self->input2 = input2tmp;
+    Py_INCREF(self->input2);
     input2_streamtmp = PyObject_CallMethod((PyObject *)self->input2, "_getStream", NULL);
-    Py_INCREF(input2_streamtmp);
-    Py_XDECREF(self->input2_stream);
     self->input2_stream = (Stream *)input2_streamtmp;
+    Py_INCREF(self->input2_stream);
 
     if (freqtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
-        Py_DECREF(freqtmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1992,39 +1755,7 @@ static PyObject * Balance_inplace_sub(Balance *self, PyObject *arg) { INPLACE_SU
 static PyObject * Balance_div(Balance *self, PyObject *arg) { DIV };
 static PyObject * Balance_inplace_div(Balance *self, PyObject *arg) { INPLACE_DIV };
 
-static PyObject *
-Balance_setFreq(Balance *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->freq);
-
-    if (isNumber == 1)
-    {
-        self->freq = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
-    }
-    else
-    {
-        self->freq = tmp;
-        Py_INCREF(self->freq);
-        streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->freq_stream);
-        self->freq_stream = (Stream *)streamtmp;
-        self->modebuffer[2] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * Balance_setFreq(Balance *self, PyObject *arg) { SET_PARAM(self->freq, self->freq_stream, 2); }
 
 static PyMemberDef Balance_members[] =
 {
@@ -2402,43 +2133,36 @@ Expand_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (downthreshtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setDownThresh", "O", downthreshtmp);
-        Py_DECREF(downthreshtmp);
     }
 
     if (upthreshtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setUpThresh", "O", upthreshtmp);
-        Py_DECREF(upthreshtmp);
     }
 
     if (ratiotmp)
     {
         PyObject_CallMethod((PyObject *)self, "setRatio", "O", ratiotmp);
-        Py_DECREF(ratiotmp);
     }
 
     if (risetimetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setRiseTime", "O", risetimetmp);
-        Py_DECREF(risetimetmp);
     }
 
     if (falltimetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFallTime", "O", falltimetmp);
-        Py_DECREF(falltimetmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod((PyObject *)self, "setLookAhead", "O", looktmp);
@@ -2480,165 +2204,11 @@ static PyObject * Expand_inplace_sub(Expand *self, PyObject *arg) { INPLACE_SUB 
 static PyObject * Expand_div(Expand *self, PyObject *arg) { DIV };
 static PyObject * Expand_inplace_div(Expand *self, PyObject *arg) { INPLACE_DIV };
 
-static PyObject *
-Expand_setDownThresh(Expand *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->downthresh);
-
-    if (isNumber == 1)
-    {
-        self->downthresh = PyNumber_Float(tmp);
-        self->modebuffer[5] = 0;
-    }
-    else
-    {
-        self->downthresh = tmp;
-        Py_INCREF(self->downthresh);
-        streamtmp = PyObject_CallMethod((PyObject *)self->downthresh, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->downthresh_stream);
-        self->downthresh_stream = (Stream *)streamtmp;
-        self->modebuffer[5] = 1;
-    }
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-Expand_setUpThresh(Expand *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->upthresh);
-
-    if (isNumber == 1)
-    {
-        self->upthresh = PyNumber_Float(tmp);
-        self->modebuffer[4] = 0;
-    }
-    else
-    {
-        self->upthresh = tmp;
-        Py_INCREF(self->upthresh);
-        streamtmp = PyObject_CallMethod((PyObject *)self->upthresh, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->upthresh_stream);
-        self->upthresh_stream = (Stream *)streamtmp;
-        self->modebuffer[4] = 1;
-    }
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-Expand_setRatio(Expand *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->ratio);
-
-    if (isNumber == 1)
-    {
-        self->ratio = PyNumber_Float(tmp);
-        self->modebuffer[6] = 0;
-    }
-    else
-    {
-        self->ratio = tmp;
-        Py_INCREF(self->ratio);
-        streamtmp = PyObject_CallMethod((PyObject *)self->ratio, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->ratio_stream);
-        self->ratio_stream = (Stream *)streamtmp;
-        self->modebuffer[6] = 1;
-    }
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-Expand_setRiseTime(Expand *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->risetime);
-
-    if (isNumber == 1)
-    {
-        self->risetime = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
-    }
-    else
-    {
-        self->risetime = tmp;
-        Py_INCREF(self->risetime);
-        streamtmp = PyObject_CallMethod((PyObject *)self->risetime, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->risetime_stream);
-        self->risetime_stream = (Stream *)streamtmp;
-        self->modebuffer[2] = 1;
-    }
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-Expand_setFallTime(Expand *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->falltime);
-
-    if (isNumber == 1)
-    {
-        self->falltime = PyNumber_Float(tmp);
-        self->modebuffer[3] = 0;
-    }
-    else
-    {
-        self->falltime = tmp;
-        Py_INCREF(self->falltime);
-        streamtmp = PyObject_CallMethod((PyObject *)self->falltime, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->falltime_stream);
-        self->falltime_stream = (Stream *)streamtmp;
-        self->modebuffer[3] = 1;
-    }
-
-    Py_RETURN_NONE;
-}
+static PyObject * Expand_setRiseTime(Expand *self, PyObject *arg) { SET_PARAM(self->risetime, self->risetime_stream, 2); }
+static PyObject * Expand_setFallTime(Expand *self, PyObject *arg) { SET_PARAM(self->falltime, self->falltime_stream, 3); }
+static PyObject * Expand_setUpThresh(Expand *self, PyObject *arg) { SET_PARAM(self->upthresh, self->upthresh_stream, 4); }
+static PyObject * Expand_setDownThresh(Expand *self, PyObject *arg) { SET_PARAM(self->downthresh, self->downthresh_stream, 5); }
+static PyObject * Expand_setRatio(Expand *self, PyObject *arg) { SET_PARAM(self->ratio, self->ratio_stream, 6); }
 
 static PyObject *
 Expand_setLookAhead(Expand *self, PyObject *arg)

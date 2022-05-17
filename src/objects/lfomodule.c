@@ -1375,25 +1375,21 @@ LFO_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (freqtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
-        Py_DECREF(freqtmp);
     }
 
     if (sharptmp)
     {
         PyObject_CallMethod((PyObject *)self, "setSharp", "O", sharptmp);
-        Py_DECREF(sharptmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1427,73 +1423,8 @@ static PyObject * LFO_inplace_sub(LFO *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * LFO_div(LFO *self, PyObject *arg) { DIV };
 static PyObject * LFO_inplace_div(LFO *self, PyObject *arg) { INPLACE_DIV };
 
-static PyObject *
-LFO_setFreq(LFO *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->freq);
-
-    if (isNumber == 1)
-    {
-        self->freq = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
-    }
-    else
-    {
-        self->freq = tmp;
-        Py_INCREF(self->freq);
-        streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->freq_stream);
-        self->freq_stream = (Stream *)streamtmp;
-        self->modebuffer[2] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-LFO_setSharp(LFO *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->sharp);
-
-    if (isNumber == 1)
-    {
-        self->sharp = PyNumber_Float(tmp);
-        self->modebuffer[3] = 0;
-    }
-    else
-    {
-        self->sharp = tmp;
-        Py_INCREF(self->sharp);
-        streamtmp = PyObject_CallMethod((PyObject *)self->sharp, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->sharp_stream);
-        self->sharp_stream = (Stream *)streamtmp;
-        self->modebuffer[3] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * LFO_setFreq(LFO *self, PyObject *arg) { SET_PARAM(self->freq, self->freq_stream, 2); }
+static PyObject * LFO_setSharp(LFO *self, PyObject *arg) { SET_PARAM(self->sharp, self->sharp_stream, 3); }
 
 static PyObject *
 LFO_setType(LFO *self, PyObject *arg)
@@ -1502,9 +1433,7 @@ LFO_setType(LFO *self, PyObject *arg)
 
     ASSERT_ARG_NOT_NULL
 
-    int isInt = PyLong_Check(arg);
-
-    if (isInt == 1)
+    if (PyLong_Check(arg))
     {
         tmp = PyLong_AsLong(arg);
 

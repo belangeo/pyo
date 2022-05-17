@@ -99,7 +99,7 @@ static Server *my_server[MAX_NBR_SERVER];
 static int serverID = 0;
 
 /* Function called by any new pyo object to get a pointer to the current server. */
-PyObject * PyServer_get_server() { return (PyObject *)my_server[serverID]; };
+PyObject * PyServer_get_server() { return (PyObject *)my_server[serverID]; }; // TODO: INCREF should be done here.
 
 /** Random generator and object seeds. **/
 /****************************************/
@@ -1101,16 +1101,13 @@ Server_setJackAuto(Server *self, PyObject *args)
 static PyObject *
 Server_setJackAutoConnectInputPorts(Server *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     if (arg != NULL)
     {
         if (PyList_Check(arg))
         {
-            tmp = arg;
             Py_XDECREF(self->jackAutoConnectInputPorts);
-            Py_INCREF(tmp);
-            self->jackAutoConnectInputPorts = tmp;
+            self->jackAutoConnectInputPorts = arg;
+            Py_INCREF(self->jackAutoConnectInputPorts);
         }
     }
 
@@ -1120,16 +1117,13 @@ Server_setJackAutoConnectInputPorts(Server *self, PyObject *arg)
 static PyObject *
 Server_setJackAutoConnectOutputPorts(Server *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     if (arg != NULL)
     {
         if (PyList_Check(arg))
         {
-            tmp = arg;
             Py_XDECREF(self->jackAutoConnectOutputPorts);
-            Py_INCREF(tmp);
-            self->jackAutoConnectOutputPorts = tmp;
+            self->jackAutoConnectOutputPorts = arg;
+            Py_INCREF(self->jackAutoConnectOutputPorts);
         }
     }
 
@@ -1139,16 +1133,13 @@ Server_setJackAutoConnectOutputPorts(Server *self, PyObject *arg)
 static PyObject *
 Server_setJackAutoConnectMidiInputPort(Server *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     if (arg != NULL)
     {
         if (PyList_Check(arg))
         {
-            tmp = arg;
             Py_XDECREF(self->jackAutoConnectMidiInputPort);
-            Py_INCREF(tmp);
-            self->jackAutoConnectMidiInputPort = tmp;
+            self->jackAutoConnectMidiInputPort = arg;
+            Py_INCREF(self->jackAutoConnectMidiInputPort);
         }
     }
 
@@ -1158,16 +1149,13 @@ Server_setJackAutoConnectMidiInputPort(Server *self, PyObject *arg)
 static PyObject *
 Server_setJackAutoConnectMidiOutputPort(Server *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     if (arg != NULL)
     {
         if (PyList_Check(arg))
         {
-            tmp = arg;
             Py_XDECREF(self->jackAutoConnectMidiOutputPort);
-            Py_INCREF(tmp);
-            self->jackAutoConnectMidiOutputPort = tmp;
+            self->jackAutoConnectMidiOutputPort = arg;
+            Py_INCREF(self->jackAutoConnectMidiOutputPort);
         }
     }
 
@@ -1177,16 +1165,13 @@ Server_setJackAutoConnectMidiOutputPort(Server *self, PyObject *arg)
 static PyObject *
 Server_setJackInputPortNames(Server *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     if (arg != NULL)
     {
         if (PyList_Check(arg) || PyUnicode_Check(arg))
         {
-            tmp = arg;
             Py_XDECREF(self->jackInputPortNames);
-            Py_INCREF(tmp);
-            self->jackInputPortNames = tmp;
+            self->jackInputPortNames = arg;
+            Py_INCREF(self->jackInputPortNames);
 
             jack_input_port_set_names(self);
         }
@@ -1198,16 +1183,13 @@ Server_setJackInputPortNames(Server *self, PyObject *arg)
 static PyObject *
 Server_setJackOutputPortNames(Server *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     if (arg != NULL)
     {
         if (PyList_Check(arg) || PyUnicode_Check(arg))
         {
-            tmp = arg;
             Py_XDECREF(self->jackOutputPortNames);
-            Py_INCREF(tmp);
-            self->jackOutputPortNames = tmp;
+            self->jackOutputPortNames = arg;
+            Py_INCREF(self->jackOutputPortNames);
 
             jack_output_port_set_names(self);
         }
@@ -1219,16 +1201,13 @@ Server_setJackOutputPortNames(Server *self, PyObject *arg)
 static PyObject *
 Server_setJackMidiInputPortName(Server *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     if (arg != NULL)
     {
         if (PyUnicode_Check(arg))
         {
-            tmp = arg;
             Py_XDECREF(self->jackMidiInputPortName);
-            Py_INCREF(tmp);
-            self->jackMidiInputPortName = tmp;
+            self->jackMidiInputPortName = arg;
+            Py_INCREF(self->jackMidiInputPortName);
 
             jack_midi_input_port_set_name(self);
         }
@@ -1240,16 +1219,13 @@ Server_setJackMidiInputPortName(Server *self, PyObject *arg)
 static PyObject *
 Server_setJackMidiOutputPortName(Server *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     if (arg != NULL)
     {
         if (PyUnicode_Check(arg))
         {
-            tmp = arg;
             Py_XDECREF(self->jackMidiOutputPortName);
-            Py_INCREF(tmp);
-            self->jackMidiOutputPortName = tmp;
+            self->jackMidiOutputPortName = arg;
+            Py_INCREF(self->jackMidiOutputPortName);
 
             jack_midi_output_port_set_name(self);
         }
@@ -1336,14 +1312,12 @@ static PyObject *
 Server_setAmpCallable(Server *self, PyObject *arg)
 {
     int i;
-    PyObject *tmp;
 
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
     Py_XDECREF(self->GUI);
-    Py_INCREF(tmp);
-    self->GUI = tmp;
+    self->GUI = arg;
+    Py_INCREF(self->GUI);
 
     self->lastRms = (float *)PyMem_RawRealloc(self->lastRms, self->nchnls * sizeof(float));
 
@@ -1371,14 +1345,12 @@ static PyObject *
 Server_setTimeCallable(Server *self, PyObject *arg)
 {
     int i;
-    PyObject *tmp;
 
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
     Py_XDECREF(self->TIME);
-    Py_INCREF(tmp);
-    self->TIME = tmp;
+    self->TIME = arg;
+    Py_INCREF(self->TIME);
 
     for (i = 1; i < 100; i++)
     {
@@ -1398,14 +1370,11 @@ Server_setTimeCallable(Server *self, PyObject *arg)
 static PyObject *
 Server_setCallback(Server *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
     Py_XDECREF(self->CALLBACK);
-    Py_INCREF(tmp);
-    self->CALLBACK = tmp;
+    self->CALLBACK = arg;
+    Py_INCREF(self->CALLBACK);
 
     Py_RETURN_NONE;
 }
@@ -1415,9 +1384,7 @@ Server_setVerbosity(Server *self, PyObject *arg)
 {
     if (arg != NULL)
     {
-        int check = PyLong_Check(arg);
-
-        if (check)
+        if (PyLong_Check(arg))
         {
             self->verbosity = PyLong_AsLong(arg);
         }
@@ -1431,9 +1398,7 @@ Server_setStartOffset(Server *self, PyObject *arg)
 {
     if (arg != NULL)
     {
-        int check = PyNumber_Check(arg);
-
-        if (check)
+        if (PyNumber_Check(arg))
         {
             self->startoffset = PyFloat_AsDouble(arg);
         }
@@ -2037,18 +2002,21 @@ Server_stop_rec(Server *self, PyObject *args)
 static PyObject *
 Server_addStream(Server *self, PyObject *args)
 {
-    PyObject *tmp;
+    PyObject *streamtmp;
 
-    if (! PyArg_ParseTuple(args, "O", &tmp))
+    if (! PyArg_ParseTuple(args, "O", &streamtmp))
         return PyLong_FromLong(-1);
 
-    if (tmp == NULL)
+    if (streamtmp == NULL)
     {
         Server_error(self, "Server_addStream function needs a PyoObject as argument.\n");
         return PyLong_FromLong(-1);
     }
 
-    PyList_Append(self->streams, tmp);
+    int sid = Stream_getStreamId((Stream *)streamtmp);
+    Server_debug(self, "Added stream id %d\n", sid);
+
+    PyList_Append(self->streams, streamtmp);
 
     self->stream_count++;
 

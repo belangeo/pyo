@@ -475,13 +475,11 @@ Snap_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -516,7 +514,6 @@ Snap_setChoice(Snap *self, PyObject *arg)
 {
     int i, oct;
     MYFLT max;
-    PyObject *tmp;
 
     if (! PyList_Check(arg))
     {
@@ -524,13 +521,12 @@ Snap_setChoice(Snap *self, PyObject *arg)
         Py_RETURN_NONE;
     }
 
-    tmp = arg;
-    self->chSize = PyList_Size(tmp);
+    self->chSize = PyList_Size(arg);
     self->choice = (MYFLT *)PyMem_RawRealloc(self->choice, self->chSize * sizeof(MYFLT));
 
     for (i = 0; i < self->chSize; i++)
     {
-        self->choice[i] = PyFloat_AsDouble(PyList_GET_ITEM(tmp, i));
+        self->choice[i] = PyFloat_AsDouble(PyList_GET_ITEM(arg, i));
     }
 
     max = self->choice[self->chSize - 1];
@@ -556,9 +552,7 @@ Snap_setScale(Snap *self, PyObject *arg)
 
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyLong_Check(arg);
-
-    if (isNumber == 1)
+    if (PyLong_Check(arg))
     {
         tmp = PyLong_AsLong(arg);
 
@@ -861,30 +855,25 @@ Interp_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_INPUT_STREAM
 
-    Py_INCREF(input2tmp);
-    Py_XDECREF(self->input2);
     self->input2 = input2tmp;
+    Py_INCREF(self->input2);
     input2_streamtmp = PyObject_CallMethod((PyObject *)self->input2, "_getStream", NULL);
-    Py_INCREF(input2_streamtmp);
-    Py_XDECREF(self->input2_stream);
     self->input2_stream = (Stream *)input2_streamtmp;
+    Py_INCREF(self->input2_stream);
 
     if (interptmp)
     {
         PyObject_CallMethod((PyObject *)self, "setInterp", "O", interptmp);
-        Py_DECREF(interptmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -914,39 +903,7 @@ static PyObject * Interp_inplace_sub(Interp *self, PyObject *arg) { INPLACE_SUB 
 static PyObject * Interp_div(Interp *self, PyObject *arg) { DIV };
 static PyObject * Interp_inplace_div(Interp *self, PyObject *arg) { INPLACE_DIV };
 
-static PyObject *
-Interp_setInterp(Interp *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->interp);
-
-    if (isNumber == 1)
-    {
-        self->interp = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
-    }
-    else
-    {
-        self->interp = tmp;
-        Py_INCREF(self->interp);
-        streamtmp = PyObject_CallMethod((PyObject *)self->interp, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->interp_stream);
-        self->interp_stream = (Stream *)streamtmp;
-        self->modebuffer[2] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * Interp_setInterp(Interp *self, PyObject *arg) { SET_PARAM(self->interp, self->interp_stream, 2); }
 
 static PyMemberDef Interp_members[] =
 {
@@ -1259,30 +1216,25 @@ SampHold_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_INPUT_STREAM
 
-    Py_INCREF(controlsigtmp);
-    Py_XDECREF(self->controlsig);
     self->controlsig = controlsigtmp;
+    Py_INCREF(self->controlsig);
     controlsig_streamtmp = PyObject_CallMethod((PyObject *)self->controlsig, "_getStream", NULL);
-    Py_INCREF(controlsig_streamtmp);
-    Py_XDECREF(self->controlsig_stream);
     self->controlsig_stream = (Stream *)controlsig_streamtmp;
+    Py_INCREF(self->controlsig_stream);
 
     if (valuetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setValue", "O", valuetmp);
-        Py_DECREF(valuetmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1312,39 +1264,7 @@ static PyObject * SampHold_inplace_sub(SampHold *self, PyObject *arg) { INPLACE_
 static PyObject * SampHold_div(SampHold *self, PyObject *arg) { DIV };
 static PyObject * SampHold_inplace_div(SampHold *self, PyObject *arg) { INPLACE_DIV };
 
-static PyObject *
-SampHold_setValue(SampHold *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->value);
-
-    if (isNumber == 1)
-    {
-        self->value = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
-    }
-    else
-    {
-        self->value = tmp;
-        Py_INCREF(self->value);
-        streamtmp = PyObject_CallMethod((PyObject *)self->value, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->value_stream);
-        self->value_stream = (Stream *)streamtmp;
-        self->modebuffer[2] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * SampHold_setValue(SampHold *self, PyObject *arg) { SET_PARAM(self->value, self->value_stream, 2); }
 
 static PyMemberDef SampHold_members[] =
 {
@@ -1663,30 +1583,25 @@ TrackHold_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_INPUT_STREAM
 
-    Py_INCREF(controlsigtmp);
-    Py_XDECREF(self->controlsig);
     self->controlsig = controlsigtmp;
+    Py_INCREF(self->controlsig);
     controlsig_streamtmp = PyObject_CallMethod((PyObject *)self->controlsig, "_getStream", NULL);
-    Py_INCREF(controlsig_streamtmp);
-    Py_XDECREF(self->controlsig_stream);
     self->controlsig_stream = (Stream *)controlsig_streamtmp;
+    Py_INCREF(self->controlsig_stream);
 
     if (valuetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setValue", "O", valuetmp);
-        Py_DECREF(valuetmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1716,39 +1631,7 @@ static PyObject * TrackHold_inplace_sub(TrackHold *self, PyObject *arg) { INPLAC
 static PyObject * TrackHold_div(TrackHold *self, PyObject *arg) { DIV };
 static PyObject * TrackHold_inplace_div(TrackHold *self, PyObject *arg) { INPLACE_DIV };
 
-static PyObject *
-TrackHold_setValue(TrackHold *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->value);
-
-    if (isNumber == 1)
-    {
-        self->value = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
-    }
-    else
-    {
-        self->value = tmp;
-        Py_INCREF(self->value);
-        streamtmp = PyObject_CallMethod((PyObject *)self->value, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->value_stream);
-        self->value_stream = (Stream *)streamtmp;
-        self->modebuffer[2] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * TrackHold_setValue(TrackHold *self, PyObject *arg) { SET_PARAM(self->value, self->value_stream, 2); }
 
 static PyMemberDef TrackHold_members[] =
 {
@@ -2049,6 +1932,7 @@ Compare_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Compare *self;
     self = (Compare *)type->tp_alloc(type, 0);
 
+    self->comp = PyFloat_FromDouble(0.0);
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
     self->modebuffer[2] = 0;
@@ -2069,7 +1953,6 @@ Compare_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (comptmp)
     {
         PyObject_CallMethod((PyObject *)self, "setComp", "O", comptmp);
-        Py_DECREF(comptmp);
     }
 
     if (modetmp)
@@ -2080,13 +1963,11 @@ Compare_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -2115,39 +1996,7 @@ static PyObject * Compare_inplace_sub(Compare *self, PyObject *arg) { INPLACE_SU
 static PyObject * Compare_div(Compare *self, PyObject *arg) { DIV };
 static PyObject * Compare_inplace_div(Compare *self, PyObject *arg) { INPLACE_DIV };
 
-static PyObject *
-Compare_setComp(Compare *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_XDECREF(self->comp);
-
-    if (isNumber == 1)
-    {
-        self->comp = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
-    }
-    else
-    {
-        self->comp = tmp;
-        Py_INCREF(self->comp);
-        streamtmp = PyObject_CallMethod((PyObject *)self->comp, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->comp_stream);
-        self->comp_stream = (Stream *)streamtmp;
-        self->modebuffer[2] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * Compare_setComp(Compare *self, PyObject *arg) { SET_PARAM(self->comp, self->comp_stream, 2); }
 
 static PyObject *
 Compare_setMode(Compare *self, PyObject *arg)
@@ -2521,25 +2370,21 @@ Between_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (mintmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMin", "O", mintmp);
-        Py_DECREF(mintmp);
     }
 
     if (maxtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMax", "O", maxtmp);
-        Py_DECREF(maxtmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -2569,73 +2414,8 @@ static PyObject * Between_inplace_sub(Between *self, PyObject *arg) { INPLACE_SU
 static PyObject * Between_div(Between *self, PyObject *arg) { DIV };
 static PyObject * Between_inplace_div(Between *self, PyObject *arg) { INPLACE_DIV };
 
-static PyObject *
-Between_setMin(Between *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->min);
-
-    if (isNumber == 1)
-    {
-        self->min = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
-    }
-    else
-    {
-        self->min = tmp;
-        Py_INCREF(self->min);
-        streamtmp = PyObject_CallMethod((PyObject *)self->min, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->min_stream);
-        self->min_stream = (Stream *)streamtmp;
-        self->modebuffer[2] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-Between_setMax(Between *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->max);
-
-    if (isNumber == 1)
-    {
-        self->max = PyNumber_Float(tmp);
-        self->modebuffer[3] = 0;
-    }
-    else
-    {
-        self->max = tmp;
-        Py_INCREF(self->max);
-        streamtmp = PyObject_CallMethod((PyObject *)self->max, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->max_stream);
-        self->max_stream = (Stream *)streamtmp;
-        self->modebuffer[3] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * Between_setMin(Between *self, PyObject *arg) { SET_PARAM(self->min, self->min_stream, 2); }
+static PyObject * Between_setMax(Between *self, PyObject *arg) { SET_PARAM(self->max, self->max_stream, 3); }
 
 static PyMemberDef Between_members[] =
 {
@@ -2890,13 +2670,11 @@ Denorm_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -3188,13 +2966,11 @@ DBToA_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -3484,13 +3260,11 @@ AToDB_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -3937,43 +3711,36 @@ Scale_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (inmintmp)
     {
         PyObject_CallMethod((PyObject *)self, "setInMin", "O", inmintmp);
-        Py_DECREF(inmintmp);
     }
 
     if (inmaxtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setInMax", "O", inmaxtmp);
-        Py_DECREF(inmaxtmp);
     }
 
     if (outmintmp)
     {
         PyObject_CallMethod((PyObject *)self, "setOutMin", "O", outmintmp);
-        Py_DECREF(outmintmp);
     }
 
     if (outmaxtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setOutMax", "O", outmaxtmp);
-        Py_DECREF(outmaxtmp);
     }
 
     if (exptmp)
     {
         PyObject_CallMethod((PyObject *)self, "setExp", "O", exptmp);
-        Py_DECREF(exptmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -4003,175 +3770,11 @@ static PyObject * Scale_inplace_sub(Scale *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Scale_div(Scale *self, PyObject *arg) { DIV };
 static PyObject * Scale_inplace_div(Scale *self, PyObject *arg) { INPLACE_DIV };
 
-static PyObject *
-Scale_setInMin(Scale *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->inmin);
-
-    if (isNumber == 1)
-    {
-        self->inmin = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
-    }
-    else
-    {
-        self->inmin = tmp;
-        Py_INCREF(self->inmin);
-        streamtmp = PyObject_CallMethod((PyObject *)self->inmin, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->inmin_stream);
-        self->inmin_stream = (Stream *)streamtmp;
-        self->modebuffer[2] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-Scale_setInMax(Scale *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->inmax);
-
-    if (isNumber == 1)
-    {
-        self->inmax = PyNumber_Float(tmp);
-        self->modebuffer[3] = 0;
-    }
-    else
-    {
-        self->inmax = tmp;
-        Py_INCREF(self->inmax);
-        streamtmp = PyObject_CallMethod((PyObject *)self->inmax, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->inmax_stream);
-        self->inmax_stream = (Stream *)streamtmp;
-        self->modebuffer[3] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-Scale_setOutMin(Scale *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->outmin);
-
-    if (isNumber == 1)
-    {
-        self->outmin = PyNumber_Float(tmp);
-        self->modebuffer[4] = 0;
-    }
-    else
-    {
-        self->outmin = tmp;
-        Py_INCREF(self->outmin);
-        streamtmp = PyObject_CallMethod((PyObject *)self->outmin, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->outmin_stream);
-        self->outmin_stream = (Stream *)streamtmp;
-        self->modebuffer[4] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-Scale_setOutMax(Scale *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->outmax);
-
-    if (isNumber == 1)
-    {
-        self->outmax = PyNumber_Float(tmp);
-        self->modebuffer[5] = 0;
-    }
-    else
-    {
-        self->outmax = tmp;
-        Py_INCREF(self->outmax);
-        streamtmp = PyObject_CallMethod((PyObject *)self->outmax, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->outmax_stream);
-        self->outmax_stream = (Stream *)streamtmp;
-        self->modebuffer[5] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-Scale_setExp(Scale *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->exp);
-
-    if (isNumber == 1)
-    {
-        self->exp = PyNumber_Float(tmp);
-        self->modebuffer[6] = 0;
-    }
-    else
-    {
-        self->exp = tmp;
-        Py_INCREF(self->exp);
-        streamtmp = PyObject_CallMethod((PyObject *)self->exp, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->exp_stream);
-        self->exp_stream = (Stream *)streamtmp;
-        self->modebuffer[6] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * Scale_setInMin(Scale *self, PyObject *arg) { SET_PARAM(self->inmin, self->inmin_stream, 2); }
+static PyObject * Scale_setInMax(Scale *self, PyObject *arg) { SET_PARAM(self->inmax, self->inmax_stream, 3); }
+static PyObject * Scale_setOutMin(Scale *self, PyObject *arg) { SET_PARAM(self->outmin, self->outmin_stream, 4); }
+static PyObject * Scale_setOutMax(Scale *self, PyObject *arg) { SET_PARAM(self->outmax, self->outmax_stream, 5); }
+static PyObject * Scale_setExp(Scale *self, PyObject *arg) { SET_PARAM(self->exp, self->exp_stream, 6); }
 
 static PyMemberDef Scale_members[] =
 {
@@ -4433,13 +4036,11 @@ CentsToTranspo_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -4724,13 +4325,11 @@ TranspoToCents_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -5015,13 +4614,11 @@ MToF_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -5309,13 +4906,11 @@ FToM_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -5602,13 +5197,11 @@ MToT_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -5623,9 +5216,7 @@ MToT_setCentralKey(MToT *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyNumber_Check(arg);
-
-    if (isNumber == 1)
+    if (PyNumber_Check(arg))
     {
         self->centralkey = PyFloat_AsDouble(arg);
     }
@@ -6148,13 +5739,11 @@ Resample_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);

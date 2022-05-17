@@ -62,7 +62,7 @@ class TestPyoBaseObject:
         # to this dsp chain, so we add it manually.
         assert osc._linked_objects == []
         osc.addLinkedObject(rec)
-        assert osc._linked_objects[0] == rec
+        assert osc._linked_objects == [rec]
 
     def test_indexing_slice(self, capsys):
         a = Sine([1, 2, 3, 4, 5, 6, 7, 8])
@@ -442,6 +442,26 @@ class TestPyoObject:
         b = a.mix(8)
         assert len(b) == 8
 
+        a = Sine([1,2])
+        assert len(a) == 2
+        b = a.mix(5)
+        assert len(b) == 5
+        c = a.mix(3)
+        assert len(c) == 3
+
+    def test_mix_2(self, audio_server):
+        a = Sig([1,1])
+        b = a.mix()
+        assert len(b) == 1
+
+        c = Sig([1.5, 0.5, 0.25, 0.75])
+        d = c.mix(2)
+        assert len(d) == 2
+
+        with StartAndAdvanceOneBuf(audio_server):
+            assert b.get() == 2
+            assert d.get(all=True) == [1.75, 1.25]
+
     def test_range(self):
         a = Sine().range(0, 1)
         assert a.mul == 0.5
@@ -478,6 +498,103 @@ class TestPyoObject:
             cxt.advance(0.5)
             assert self.set_b.mul == [0.125, 0.5, 0, 0.25]
             func.assert_called_once()
+
+    def test_number_of_streams(self, audio_server):
+        a = Sine()
+        b = Sine(mul=a)
+        del b
+        del a
+        assert audio_server.getNumberOfStreams() == 0
+
+    def test_number_of_streams_2(self, audio_server):
+        a = Sine()
+        b = Sine()
+        b.setMul(a)
+        del b
+        del a
+        assert audio_server.getNumberOfStreams() == 0
+
+    def test_number_of_streams_3(self, audio_server):
+        a = Sine()
+        b = Sine()
+        b.setFreq(a)
+        del b
+        del a
+        assert audio_server.getNumberOfStreams() == 0
+
+    def test_number_of_streams_4(self, audio_server):
+        a = Sine()
+        b = Sine()
+        c = Sine()
+        c.setFreq(a)
+        c.setFreq(b)
+        del a, b, c
+        assert audio_server.getNumberOfStreams() == 0
+
+    def test_number_of_streams_5(self, audio_server):
+        a = Sig(0)
+        b = Sig(0)
+        c = Sig(0)
+        c.setMul(a*b)
+        del a, b, c
+        assert audio_server.getNumberOfStreams() == 0
+
+    def test_number_of_streams_6(self, audio_server):
+        a = Sig(0)
+        b = Sig(0)
+        c = Sig(0)
+        d = Sig(0)
+        d.setMul(a+b+c)
+        del a, b, c, d
+        assert audio_server.getNumberOfStreams() == 0
+
+    def test_number_of_streams_sub_streams(self, audio_server):
+        t = CosTable([(0,0), (100,1), (500,.3), (8191,0)])
+        beat = Beat(time=.125, taps=16, w1=[90,80], w2=50, w3=35, poly=1).play()
+        trmid = TrigXnoiseMidi(beat, dist=12, mrange=(60, 96))
+        trhz = Snap(trmid, choice=[0,2,3,5,7,8,10], scale=1)
+        tr2 = TrigEnv(beat, table=t, dur=beat['dur'], mul=beat['amp'])
+        tf = TrigFunc(beat["end"], lambda : True)
+        a = Sine(freq=trhz, mul=tr2*0.3)
+        del a, tf, tr2, trhz, trmid, beat, t
+        assert audio_server.getNumberOfStreams() == 0
+
+    def test_number_of_streams_pv_process(self, audio_server):
+        size = 1024
+        olaps = 4
+        num = olaps * 2  # number of streams for ffts
+
+        src = Sine(freq=[100,110], mul=0.15)
+        delsrc = Delay(src, delay=size / audio_server.getSamplingRate() * 2).out()
+
+        # duplicates bin regions and delays to match the number of channels * overlaps
+        def duplicate(li, num):
+            tmp = [x for x in li for i in range(num)]
+            return tmp
+
+        binmin = duplicate([3, 10, 20, 27, 55, 100], num)
+        binmax = duplicate([5, 15, 30, 40, 80, 145], num)
+        delays = duplicate([80, 20, 40, 100, 60, 120], num)
+        # delays conversion : number of frames -> seconds
+        for i in range(len(delays)):
+            delays[i] = delays[i] * (size // 2) / audio_server.getSamplingRate()
+
+        fin = FFT(src * 1.25, size=size, overlaps=olaps)
+
+        # splits regions between `binmins` and `binmaxs` with time variation
+        lfo = Sine(0.1, mul=0.65, add=1.35)
+        bins = Between(fin["bin"], min=binmin, max=binmax * lfo)
+        swre = fin["real"] * bins
+        swim = fin["imag"] * bins
+        # apply delays with mix to match `num` audio streams
+        delre = Delay(swre, delay=delays, feedback=0.7, maxdelay=2).mix(num)
+        delim = Delay(swim, delay=delays, feedback=0.7, maxdelay=2).mix(num)
+
+        fout = IFFT(delre, delim, size=size, overlaps=olaps).mix(2).out()
+
+        del fout, delim, delre, swre, swim, bins, lfo, fin, delsrc, src
+
+        assert audio_server.getNumberOfStreams() == 0
 
 @pytest.mark.usefixtures("audio_server")
 class TestPyoTableObject:
@@ -1117,17 +1234,15 @@ class TestMix:
 @pytest.mark.usefixtures("audio_server")
 class TestDummy:
 
-    def test_dummy_over_duumy(self, audio_server):
+    def test_dummy(self, audio_server):
         a = Sig(1)
         b = Sig(2)
         c = Sig(3)
 
         d = a + b + c
-        e = Dummy([Dummy(d)])
 
         with StartAndAdvanceOneBuf(audio_server):
             assert d.get() == 6
-            assert e.get() == 6
 
 
 @pytest.mark.usefixtures("audio_server")

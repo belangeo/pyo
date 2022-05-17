@@ -537,25 +537,21 @@ Harmonizer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (transpotmp)
     {
         PyObject_CallMethod((PyObject *)self, "setTranspo", "O", transpotmp);
-        Py_DECREF(transpotmp);
     }
 
     if (feedbacktmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFeedback", "O", feedbacktmp);
-        Py_DECREF(feedbacktmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -597,6 +593,9 @@ static PyObject * Harmonizer_inplace_sub(Harmonizer *self, PyObject *arg) { INPL
 static PyObject * Harmonizer_div(Harmonizer *self, PyObject *arg) { DIV };
 static PyObject * Harmonizer_inplace_div(Harmonizer *self, PyObject *arg) { INPLACE_DIV };
 
+static PyObject * Harmonizer_setTranspo(Harmonizer *self, PyObject *arg) {SET_PARAM(self->transpo, self->transpo_stream, 2); }
+static PyObject * Harmonizer_setFeedback(Harmonizer *self, PyObject *arg) { SET_PARAM(self->feedback, self->feedback_stream, 3); }
+
 static PyObject *
 Harmonizer_reset(Harmonizer *self)
 {
@@ -611,83 +610,13 @@ Harmonizer_reset(Harmonizer *self)
 }
 
 static PyObject *
-Harmonizer_setTranspo(Harmonizer *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->transpo);
-
-    if (isNumber == 1)
-    {
-        self->transpo = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
-    }
-    else
-    {
-        self->transpo = tmp;
-        Py_INCREF(self->transpo);
-        streamtmp = PyObject_CallMethod((PyObject *)self->transpo, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->transpo_stream);
-        self->transpo_stream = (Stream *)streamtmp;
-        self->modebuffer[2] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-Harmonizer_setFeedback(Harmonizer *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->feedback);
-
-    if (isNumber == 1)
-    {
-        self->feedback = PyNumber_Float(tmp);
-        self->modebuffer[3] = 0;
-    }
-    else
-    {
-        self->feedback = tmp;
-        Py_INCREF(self->feedback);
-        streamtmp = PyObject_CallMethod((PyObject *)self->feedback, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->feedback_stream);
-        self->feedback_stream = (Stream *)streamtmp;
-        self->modebuffer[3] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
 Harmonizer_setWinsize(Harmonizer *self, PyObject *arg)
 {
     MYFLT wintmp;
 
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyNumber_Check(arg);
-
-    if (isNumber == 1)
+    if (PyNumber_Check(arg))
     {
         wintmp = PyFloat_AsDouble(arg);
 

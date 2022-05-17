@@ -871,16 +871,13 @@ static PyObject * MMLMain_stop(MMLMain *self, PyObject *args, PyObject *kwds) { 
 static PyObject *
 MMLMain_setSequence(MMLMain *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
     if (PyList_Check(arg))
     {
-        tmp = arg;
-        Py_INCREF(tmp);
         Py_XDECREF(self->sequence);
-        self->sequence = tmp;
+        self->sequence = arg;
+        Py_INCREF(self->sequence);
         self->num_events = PyList_Size(self->sequence);
     }
 
@@ -890,16 +887,13 @@ MMLMain_setSequence(MMLMain *self, PyObject *arg)
 static PyObject *
 MMLMain_setPending(MMLMain *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
     if (PyList_Check(arg))
     {
-        tmp = arg;
-        Py_INCREF(tmp);
         Py_XDECREF(self->pending);
-        self->pending = tmp;
+        self->pending = arg;
+        Py_INCREF(self->pending);
     }
 
     Py_RETURN_NONE;
@@ -908,14 +902,11 @@ MMLMain_setPending(MMLMain *self, PyObject *arg)
 static PyObject *
 MMLMain_update(MMLMain *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
     if (PyList_Check(arg))
     {
-        tmp = arg;
-        Py_INCREF(tmp);
+        Py_INCREF(arg);
 
         if (self->updateAtEnd && self->num_events != 0)
         {
@@ -1123,9 +1114,8 @@ MML_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainPlayer);
-    Py_INCREF(maintmp);
     self->mainPlayer = (MMLMain *)maintmp;
+    Py_INCREF(self->mainPlayer);
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
@@ -1386,9 +1376,8 @@ MMLFreqStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainPlayer);
-    Py_INCREF(maintmp);
     self->mainPlayer = (MMLMain *)maintmp;
+    Py_INCREF(self->mainPlayer);
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
@@ -1649,9 +1638,8 @@ MMLAmpStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainPlayer);
-    Py_INCREF(maintmp);
     self->mainPlayer = (MMLMain *)maintmp;
+    Py_INCREF(self->mainPlayer);
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
@@ -1912,9 +1900,8 @@ MMLDurStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainPlayer);
-    Py_INCREF(maintmp);
     self->mainPlayer = (MMLMain *)maintmp;
+    Py_INCREF(self->mainPlayer);
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
@@ -2175,9 +2162,8 @@ MMLEndStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainPlayer);
-    Py_INCREF(maintmp);
     self->mainPlayer = (MMLMain *)maintmp;
+    Py_INCREF(self->mainPlayer);
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
@@ -2438,9 +2424,8 @@ MMLXStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainPlayer);
-    Py_INCREF(maintmp);
     self->mainPlayer = (MMLMain *)maintmp;
+    Py_INCREF(self->mainPlayer);
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
@@ -2701,9 +2686,8 @@ MMLYStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainPlayer);
-    Py_INCREF(maintmp);
     self->mainPlayer = (MMLMain *)maintmp;
+    Py_INCREF(self->mainPlayer);
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
@@ -2964,9 +2948,8 @@ MMLZStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainPlayer);
-    Py_INCREF(maintmp);
     self->mainPlayer = (MMLMain *)maintmp;
+    Py_INCREF(self->mainPlayer);
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 

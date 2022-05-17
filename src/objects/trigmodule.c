@@ -201,19 +201,16 @@ TrigRandInt_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (maxtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMax", "O", maxtmp);
-        Py_DECREF(maxtmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -252,39 +249,7 @@ static PyObject * TrigRandInt_inplace_sub(TrigRandInt *self, PyObject *arg) { IN
 static PyObject * TrigRandInt_div(TrigRandInt *self, PyObject *arg) { DIV };
 static PyObject * TrigRandInt_inplace_div(TrigRandInt *self, PyObject *arg) { INPLACE_DIV };
 
-static PyObject *
-TrigRandInt_setMax(TrigRandInt *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->max);
-
-    if (isNumber == 1)
-    {
-        self->max = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
-    }
-    else
-    {
-        self->max = tmp;
-        Py_INCREF(self->max);
-        streamtmp = PyObject_CallMethod((PyObject *)self->max, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->max_stream);
-        self->max_stream = (Stream *)streamtmp;
-        self->modebuffer[2] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * TrigRandInt_setMax(TrigRandInt *self, PyObject *arg) { SET_PARAM(self->max, self->max_stream, 2); }
 
 static PyMemberDef TrigRandInt_members[] =
 {
@@ -707,25 +672,21 @@ TrigRand_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (mintmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMin", "O", mintmp);
-        Py_DECREF(mintmp);
     }
 
     if (maxtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMax", "O", maxtmp);
-        Py_DECREF(maxtmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -760,89 +721,17 @@ static PyObject * TrigRand_inplace_sub(TrigRand *self, PyObject *arg) { INPLACE_
 static PyObject * TrigRand_div(TrigRand *self, PyObject *arg) { DIV };
 static PyObject * TrigRand_inplace_div(TrigRand *self, PyObject *arg) { INPLACE_DIV };
 
-static PyObject *
-TrigRand_setMin(TrigRand *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->min);
-
-    if (isNumber == 1)
-    {
-        self->min = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
-    }
-    else
-    {
-        self->min = tmp;
-        Py_INCREF(self->min);
-        streamtmp = PyObject_CallMethod((PyObject *)self->min, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->min_stream);
-        self->min_stream = (Stream *)streamtmp;
-        self->modebuffer[2] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-TrigRand_setMax(TrigRand *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->max);
-
-    if (isNumber == 1)
-    {
-        self->max = PyNumber_Float(tmp);
-        self->modebuffer[3] = 0;
-    }
-    else
-    {
-        self->max = tmp;
-        Py_INCREF(self->max);
-        streamtmp = PyObject_CallMethod((PyObject *)self->max, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->max_stream);
-        self->max_stream = (Stream *)streamtmp;
-        self->modebuffer[3] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * TrigRand_setMin(TrigRand *self, PyObject *arg) { SET_PARAM(self->min, self->min_stream, 2); }
+static PyObject * TrigRand_setMax(TrigRand *self, PyObject *arg) { SET_PARAM(self->max, self->max_stream, 3); }
 
 static PyObject *
 TrigRand_setPort(TrigRand *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-
-    if (isNumber == 1)
+    if (PyNumber_Check(arg))
     {
-        self->time = PyFloat_AsDouble(tmp);
+        self->time = PyFloat_AsDouble(arg);
         self->timeStep = (int)(self->time * self->sr);
     }
 
@@ -1137,13 +1026,11 @@ TrigChoice_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1182,7 +1069,6 @@ static PyObject *
 TrigChoice_setChoice(TrigChoice *self, PyObject *arg)
 {
     int i;
-    PyObject *tmp;
 
     if (! PyList_Check(arg))
     {
@@ -1190,13 +1076,12 @@ TrigChoice_setChoice(TrigChoice *self, PyObject *arg)
         Py_RETURN_NONE;
     }
 
-    tmp = arg;
-    self->chSize = PyList_Size(tmp);
+    self->chSize = PyList_Size(arg);
     self->choice = (MYFLT *)PyMem_RawRealloc(self->choice, self->chSize * sizeof(MYFLT));
 
     for (i = 0; i < self->chSize; i++)
     {
-        self->choice[i] = PyFloat_AsDouble(PyList_GET_ITEM(tmp, i));
+        self->choice[i] = PyFloat_AsDouble(PyList_GET_ITEM(arg, i));
     }
 
     (*self->mode_func_ptr)(self);
@@ -1207,18 +1092,11 @@ TrigChoice_setChoice(TrigChoice *self, PyObject *arg)
 static PyObject *
 TrigChoice_setPort(TrigChoice *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-
-    if (isNumber == 1)
+    if (PyNumber_Check(arg))
     {
-        self->time = PyFloat_AsDouble(tmp);
+        self->time = PyFloat_AsDouble(arg);
         self->timeStep = (int)(self->time * self->sr);
     }
 
@@ -1470,18 +1348,15 @@ static PyObject * TrigFunc_stop(TrigFunc *self, PyObject *args, PyObject *kwds) 
 static PyObject *
 TrigFunc_setFunction(TrigFunc *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     if (! PyCallable_Check(arg))
     {
         PyErr_SetString(PyExc_TypeError, "The function attribute must be callable.");
         Py_RETURN_NONE;
     }
 
-    tmp = arg;
     Py_XDECREF(self->func);
-    Py_INCREF(tmp);
-    self->func = tmp;
+    self->func = arg;
+    Py_INCREF(self->func);
 
     Py_RETURN_NONE;
 }
@@ -1489,12 +1364,9 @@ TrigFunc_setFunction(TrigFunc *self, PyObject *arg)
 static PyObject *
 TrigFunc_setArg(TrigFunc *self, PyObject *arg)
 {
-    PyObject *tmp;
-
-    tmp = arg;
     Py_XDECREF(self->arg);
-    Py_INCREF(tmp);
-    self->arg = tmp;
+    self->arg = arg;
+    Py_INCREF(self->arg);
 
     Py_RETURN_NONE;
 }
@@ -1827,25 +1699,21 @@ TrigEnv_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     }
 
-    Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
 
     if (durtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setDur", "O", durtmp);
-        Py_DECREF(durtmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1898,59 +1766,22 @@ TrigEnv_getTable(TrigEnv* self)
 static PyObject *
 TrigEnv_setTable(TrigEnv *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     ASSERT_ARG_NOT_NULL
 
-    tmp = arg;
     Py_DECREF(self->table);
-    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    self->table = PyObject_CallMethod((PyObject *)arg, "getTableStream", "");
 
     Py_RETURN_NONE;
 }
 
-static PyObject *
-TrigEnv_setDur(TrigEnv *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->dur);
-
-    if (isNumber == 1)
-    {
-        self->dur = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
-    }
-    else
-    {
-        self->dur = tmp;
-        Py_INCREF(self->dur);
-        streamtmp = PyObject_CallMethod((PyObject *)self->dur, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->dur_stream);
-        self->dur_stream = (Stream *)streamtmp;
-        self->modebuffer[2] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * TrigEnv_setDur(TrigEnv *self, PyObject *arg) { SET_PARAM(self->dur, self->dur_stream, 2); }
 
 static PyObject *
 TrigEnv_setInterp(TrigEnv *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyNumber_Check(arg);
-
-    if (isNumber == 1)
+    if (PyNumber_Check(arg))
     {
         self->interp = PyLong_AsLong(PyNumber_Long(arg));
     }
@@ -2291,21 +2122,18 @@ TrigLinseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_INPUT_STREAM
 
-    Py_INCREF(pointslist);
-    Py_XDECREF(self->pointslist);
     self->pointslist = pointslist;
+    Py_INCREF(self->pointslist);
     TrigLinseg_convert_pointslist((TrigLinseg *)self);
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -2726,21 +2554,18 @@ TrigExpseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_INPUT_STREAM
 
-    Py_INCREF(pointslist);
-    Py_XDECREF(self->pointslist);
     self->pointslist = pointslist;
+    Py_INCREF(self->pointslist);
     TrigExpseg_convert_pointslist((TrigExpseg *)self);
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -3524,25 +3349,21 @@ TrigXnoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (x1tmp)
     {
         PyObject_CallMethod((PyObject *)self, "setX1", "O", x1tmp);
-        Py_DECREF(x1tmp);
     }
 
     if (x2tmp)
     {
         PyObject_CallMethod((PyObject *)self, "setX2", "O", x2tmp);
-        Py_DECREF(x2tmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -3579,9 +3400,7 @@ TrigXnoise_setType(TrigXnoise *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyLong_Check(arg);
-
-    if (isNumber == 1)
+    if (PyLong_Check(arg))
     {
         self->type = PyLong_AsLong(arg);
         TrigXnoise_setRandomType(self);
@@ -3590,73 +3409,8 @@ TrigXnoise_setType(TrigXnoise *self, PyObject *arg)
     Py_RETURN_NONE;
 }
 
-static PyObject *
-TrigXnoise_setX1(TrigXnoise *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->x1);
-
-    if (isNumber == 1)
-    {
-        self->x1 = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
-    }
-    else
-    {
-        self->x1 = tmp;
-        Py_INCREF(self->x1);
-        streamtmp = PyObject_CallMethod((PyObject *)self->x1, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->x1_stream);
-        self->x1_stream = (Stream *)streamtmp;
-        self->modebuffer[2] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-TrigXnoise_setX2(TrigXnoise *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->x2);
-
-    if (isNumber == 1)
-    {
-        self->x2 = PyNumber_Float(tmp);
-        self->modebuffer[3] = 0;
-    }
-    else
-    {
-        self->x2 = tmp;
-        Py_INCREF(self->x2);
-        streamtmp = PyObject_CallMethod((PyObject *)self->x2, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->x2_stream);
-        self->x2_stream = (Stream *)streamtmp;
-        self->modebuffer[3] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * TrigXnoise_setX1(TrigXnoise *self, PyObject *arg) { SET_PARAM(self->x1, self->x1_stream, 2); }
+static PyObject * TrigXnoise_setX2(TrigXnoise *self, PyObject *arg) { SET_PARAM(self->x2, self->x2_stream, 3); }
 
 static PyMemberDef TrigXnoise_members[] =
 {
@@ -4398,13 +4152,11 @@ TrigXnoiseMidi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (x1tmp)
     {
         PyObject_CallMethod((PyObject *)self, "setX1", "O", x1tmp);
-        Py_DECREF(x1tmp);
     }
 
     if (x2tmp)
     {
         PyObject_CallMethod((PyObject *)self, "setX2", "O", x2tmp);
-        Py_DECREF(x2tmp);
     }
 
     if (rangetmp)
@@ -4415,13 +4167,11 @@ TrigXnoiseMidi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -4458,9 +4208,7 @@ TrigXnoiseMidi_setType(TrigXnoiseMidi *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyLong_Check(arg);
-
-    if (isNumber == 1)
+    if (PyLong_Check(arg))
     {
         self->type = PyLong_AsLong(arg);
         TrigXnoiseMidi_setRandomType(self);
@@ -4476,9 +4224,7 @@ TrigXnoiseMidi_setScale(TrigXnoiseMidi *self, PyObject *arg)
 
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyLong_Check(arg);
-
-    if (isNumber == 1)
+    if (PyLong_Check(arg))
     {
         tmp = PyLong_AsLong(arg);
 
@@ -4511,73 +4257,8 @@ TrigXnoiseMidi_setRange(TrigXnoiseMidi *self, PyObject *args)
     Py_RETURN_NONE;
 }
 
-static PyObject *
-TrigXnoiseMidi_setX1(TrigXnoiseMidi *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->x1);
-
-    if (isNumber == 1)
-    {
-        self->x1 = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
-    }
-    else
-    {
-        self->x1 = tmp;
-        Py_INCREF(self->x1);
-        streamtmp = PyObject_CallMethod((PyObject *)self->x1, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->x1_stream);
-        self->x1_stream = (Stream *)streamtmp;
-        self->modebuffer[2] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-TrigXnoiseMidi_setX2(TrigXnoiseMidi *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->x2);
-
-    if (isNumber == 1)
-    {
-        self->x2 = PyNumber_Float(tmp);
-        self->modebuffer[3] = 0;
-    }
-    else
-    {
-        self->x2 = tmp;
-        Py_INCREF(self->x2);
-        streamtmp = PyObject_CallMethod((PyObject *)self->x2, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->x2_stream);
-        self->x2_stream = (Stream *)streamtmp;
-        self->modebuffer[3] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * TrigXnoiseMidi_setX1(TrigXnoiseMidi *self, PyObject *arg) { SET_PARAM(self->x1, self->x1_stream, 2); }
+static PyObject * TrigXnoiseMidi_setX2(TrigXnoiseMidi *self, PyObject *arg) { SET_PARAM(self->x2, self->x2_stream, 3); }
 
 static PyMemberDef TrigXnoiseMidi_members[] =
 {
@@ -4874,13 +4555,11 @@ Counter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -5352,19 +5031,16 @@ Thresh_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (thresholdtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setThreshold", "O", thresholdtmp);
-        Py_DECREF(thresholdtmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -5393,39 +5069,7 @@ static PyObject * Thresh_inplace_sub(Thresh *self, PyObject *arg) { INPLACE_SUB 
 static PyObject * Thresh_div(Thresh *self, PyObject *arg) { DIV };
 static PyObject * Thresh_inplace_div(Thresh *self, PyObject *arg) { INPLACE_DIV };
 
-static PyObject *
-Thresh_setThreshold(Thresh *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->threshold);
-
-    if (isNumber == 1)
-    {
-        self->threshold = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
-    }
-    else
-    {
-        self->threshold = tmp;
-        Py_INCREF(self->threshold);
-        streamtmp = PyObject_CallMethod((PyObject *)self->threshold, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->threshold_stream);
-        self->threshold_stream = (Stream *)streamtmp;
-        self->modebuffer[2] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * Thresh_setThreshold(Thresh *self, PyObject *arg) { SET_PARAM(self->threshold, self->threshold_stream, 2); }
 
 static PyObject *
 Thresh_setDir(Thresh *self, PyObject *arg)
@@ -5733,19 +5377,16 @@ Percent_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (percenttmp)
     {
         PyObject_CallMethod((PyObject *)self, "setPercent", "O", percenttmp);
-        Py_DECREF(percenttmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -5776,39 +5417,7 @@ static PyObject * Percent_inplace_sub(Percent *self, PyObject *arg) { INPLACE_SU
 static PyObject * Percent_div(Percent *self, PyObject *arg) { DIV };
 static PyObject * Percent_inplace_div(Percent *self, PyObject *arg) { INPLACE_DIV };
 
-static PyObject *
-Percent_setPercent(Percent *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->percent);
-
-    if (isNumber == 1)
-    {
-        self->percent = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
-    }
-    else
-    {
-        self->percent = tmp;
-        Py_INCREF(self->percent);
-        streamtmp = PyObject_CallMethod((PyObject *)self->percent, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->percent_stream);
-        self->percent_stream = (Stream *)streamtmp;
-        self->modebuffer[2] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * Percent_setPercent(Percent *self, PyObject *arg) { SET_PARAM(self->percent, self->percent_stream, 2); }
 
 static PyMemberDef Percent_members[] =
 {
@@ -6077,24 +5686,20 @@ Timer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_INPUT_STREAM
 
-    Py_INCREF(input2tmp);
-    Py_XDECREF(self->input2);
     self->input2 = input2tmp;
+    Py_INCREF(self->input2);
     input2_streamtmp = PyObject_CallMethod((PyObject *)self->input2, "_getStream", NULL);
-    Py_INCREF(input2_streamtmp);
-    Py_XDECREF(self->input2_stream);
     self->input2_stream = (Stream *)input2_streamtmp;
+    Py_INCREF(self->input2_stream);
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -6251,9 +5856,9 @@ Iter_get_stream(Iter *self, PyObject *obj)
 {
     PyObject *streamtmp;
     streamtmp = PyObject_CallMethod((PyObject *)obj, "_getStream", NULL);
-    Py_INCREF(streamtmp);
     Py_XDECREF(self->audioval);
     self->audioval = (Stream *)streamtmp;
+    Py_INCREF(self->audioval);
 }
 
 static void
@@ -6433,13 +6038,11 @@ Iter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -6485,19 +6088,16 @@ static PyObject * Iter_inplace_div(Iter *self, PyObject *arg) { INPLACE_DIV };
 static PyObject *
 Iter_setChoice(Iter *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     if (! PyList_Check(arg))
     {
         PyErr_SetString(PyExc_TypeError, "The choice attribute must be a list.");
         Py_RETURN_NONE;
     }
 
-    tmp = arg;
-    self->chSize = PyList_Size(tmp);
-    Py_INCREF(tmp);
+    self->chSize = PyList_Size(arg);
     Py_XDECREF(self->choice);
-    self->choice = tmp;
+    self->choice = arg;
+    Py_INCREF(self->choice);
 
     Py_RETURN_NONE;
 }
@@ -6789,13 +6389,11 @@ Count_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -7099,24 +6697,20 @@ NextTrig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_INPUT_STREAM
 
-    Py_INCREF(input2tmp);
-    Py_XDECREF(self->input2);
     self->input2 = input2tmp;
+    Py_INCREF(self->input2);
     input2_streamtmp = PyObject_CallMethod((PyObject *)self->input2, "_getStream", NULL);
-    Py_INCREF(input2_streamtmp);
-    Py_XDECREF(self->input2_stream);
     self->input2_stream = (Stream *)input2_streamtmp;
+    Py_INCREF(self->input2_stream);
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -7422,19 +7016,16 @@ TrigVal_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (valuetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setValue", "O", valuetmp);
-        Py_DECREF(valuetmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -7464,39 +7055,7 @@ static PyObject * TrigVal_inplace_sub(TrigVal *self, PyObject *arg) { INPLACE_SU
 static PyObject * TrigVal_div(TrigVal *self, PyObject *arg) { DIV };
 static PyObject * TrigVal_inplace_div(TrigVal *self, PyObject *arg) { INPLACE_DIV };
 
-static PyObject *
-TrigVal_setValue(TrigVal *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->value);
-
-    if (isNumber == 1)
-    {
-        self->value = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
-    }
-    else
-    {
-        self->value = tmp;
-        Py_INCREF(self->value);
-        streamtmp = PyObject_CallMethod((PyObject *)self->value, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->value_stream);
-        self->value_stream = (Stream *)streamtmp;
-        self->modebuffer[2] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * TrigVal_setValue(TrigVal *self, PyObject *arg) { SET_PARAM(self->value, self->value_stream, 2); }
 
 static PyMemberDef TrigVal_members[] =
 {

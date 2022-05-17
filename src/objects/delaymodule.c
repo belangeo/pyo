@@ -388,25 +388,21 @@ Delay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (delaytmp)
     {
         PyObject_CallMethod((PyObject *)self, "setDelay", "O", delaytmp);
-        Py_DECREF(delaytmp);
     }
 
     if (feedbacktmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFeedback", "O", feedbacktmp);
-        Py_DECREF(feedbacktmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -445,73 +441,8 @@ static PyObject * Delay_inplace_sub(Delay *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Delay_div(Delay *self, PyObject *arg) { DIV };
 static PyObject * Delay_inplace_div(Delay *self, PyObject *arg) { INPLACE_DIV };
 
-static PyObject *
-Delay_setDelay(Delay *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->delay);
-
-    if (isNumber == 1)
-    {
-        self->delay = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
-    }
-    else
-    {
-        self->delay = tmp;
-        Py_INCREF(self->delay);
-        streamtmp = PyObject_CallMethod((PyObject *)self->delay, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->delay_stream);
-        self->delay_stream = (Stream *)streamtmp;
-        self->modebuffer[2] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-Delay_setFeedback(Delay *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->feedback);
-
-    if (isNumber == 1)
-    {
-        self->feedback = PyNumber_Float(tmp);
-        self->modebuffer[3] = 0;
-    }
-    else
-    {
-        self->feedback = tmp;
-        Py_INCREF(self->feedback);
-        streamtmp = PyObject_CallMethod((PyObject *)self->feedback, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->feedback_stream);
-        self->feedback_stream = (Stream *)streamtmp;
-        self->modebuffer[3] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * Delay_setDelay(Delay *self, PyObject *arg) { SET_PARAM(self->delay, self->delay_stream, 2); }
+static PyObject * Delay_setFeedback(Delay *self, PyObject *arg) { SET_PARAM(self->feedback, self->feedback_stream, 3); }
 
 static PyObject *
 Delay_reset(Delay *self)
@@ -871,19 +802,16 @@ SDelay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (delaytmp)
     {
         PyObject_CallMethod((PyObject *)self, "setDelay", "O", delaytmp);
-        Py_DECREF(delaytmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -922,39 +850,7 @@ static PyObject * SDelay_inplace_sub(SDelay *self, PyObject *arg) { INPLACE_SUB 
 static PyObject * SDelay_div(SDelay *self, PyObject *arg) { DIV };
 static PyObject * SDelay_inplace_div(SDelay *self, PyObject *arg) { INPLACE_DIV };
 
-static PyObject *
-SDelay_setDelay(SDelay *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->delay);
-
-    if (isNumber == 1)
-    {
-        self->delay = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
-    }
-    else
-    {
-        self->delay = tmp;
-        Py_INCREF(self->delay);
-        streamtmp = PyObject_CallMethod((PyObject *)self->delay, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->delay_stream);
-        self->delay_stream = (Stream *)streamtmp;
-        self->modebuffer[2] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * SDelay_setDelay(SDelay *self, PyObject *arg) { SET_PARAM(self->delay, self->delay_stream, 2); }
 
 static PyObject *
 SDelay_reset(SDelay *self)
@@ -1641,25 +1537,21 @@ Waveguide_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (freqtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
-        Py_DECREF(freqtmp);
     }
 
     if (durtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setDur", "O", durtmp);
-        Py_DECREF(durtmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1720,73 +1612,8 @@ Waveguide_reset(Waveguide *self)
     Py_RETURN_NONE;
 }
 
-static PyObject *
-Waveguide_setFreq(Waveguide *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->freq);
-
-    if (isNumber == 1)
-    {
-        self->freq = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
-    }
-    else
-    {
-        self->freq = tmp;
-        Py_INCREF(self->freq);
-        streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->freq_stream);
-        self->freq_stream = (Stream *)streamtmp;
-        self->modebuffer[2] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-Waveguide_setDur(Waveguide *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->dur);
-
-    if (isNumber == 1)
-    {
-        self->dur = PyNumber_Float(tmp);
-        self->modebuffer[3] = 0;
-    }
-    else
-    {
-        self->dur = tmp;
-        Py_INCREF(self->dur);
-        streamtmp = PyObject_CallMethod((PyObject *)self->dur, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->dur_stream);
-        self->dur_stream = (Stream *)streamtmp;
-        self->modebuffer[3] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * Waveguide_setFreq(Waveguide *self, PyObject *arg) { SET_PARAM(self->freq, self->freq_stream, 2); }
+static PyObject * Waveguide_setDur(Waveguide *self, PyObject *arg) { SET_PARAM(self->dur, self->dur_stream, 3); }
 
 static PyMemberDef Waveguide_members[] =
 {
@@ -2839,31 +2666,26 @@ AllpassWG_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (freqtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
-        Py_DECREF(freqtmp);
     }
 
     if (feedtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFeed", "O", feedtmp);
-        Py_DECREF(feedtmp);
     }
 
     if (detunetmp)
     {
         PyObject_CallMethod((PyObject *)self, "setDetune", "O", detunetmp);
-        Py_DECREF(detunetmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -2937,107 +2759,9 @@ AllpassWG_reset(AllpassWG *self)
     Py_RETURN_NONE;
 }
 
-static PyObject *
-AllpassWG_setFreq(AllpassWG *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->freq);
-
-    if (isNumber == 1)
-    {
-        self->freq = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
-    }
-    else
-    {
-        self->freq = tmp;
-        Py_INCREF(self->freq);
-        streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->freq_stream);
-        self->freq_stream = (Stream *)streamtmp;
-        self->modebuffer[2] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-AllpassWG_setFeed(AllpassWG *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->feed);
-
-    if (isNumber == 1)
-    {
-        self->feed = PyNumber_Float(tmp);
-        self->modebuffer[3] = 0;
-    }
-    else
-    {
-        self->feed = tmp;
-        Py_INCREF(self->feed);
-        streamtmp = PyObject_CallMethod((PyObject *)self->feed, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->feed_stream);
-        self->feed_stream = (Stream *)streamtmp;
-        self->modebuffer[3] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-AllpassWG_setDetune(AllpassWG *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->detune);
-
-    if (isNumber == 1)
-    {
-        self->detune = PyNumber_Float(tmp);
-        self->modebuffer[4] = 0;
-    }
-    else
-    {
-        self->detune = tmp;
-        Py_INCREF(self->detune);
-        streamtmp = PyObject_CallMethod((PyObject *)self->detune, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->detune_stream);
-        self->detune_stream = (Stream *)streamtmp;
-        self->modebuffer[4] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * AllpassWG_setFreq(AllpassWG *self, PyObject *arg) { SET_PARAM(self->freq, self->freq_stream, 2); }
+static PyObject * AllpassWG_setFeed(AllpassWG *self, PyObject *arg) { SET_PARAM(self->feed, self->feed_stream, 3); }
+static PyObject * AllpassWG_setDetune(AllpassWG *self, PyObject *arg) { SET_PARAM(self->detune, self->detune_stream, 4); }
 
 static PyMemberDef AllpassWG_members[] =
 {
@@ -3291,13 +3015,11 @@ Delay1_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -4003,25 +3725,21 @@ SmoothDelay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (delaytmp)
     {
         PyObject_CallMethod((PyObject *)self, "setDelay", "O", delaytmp);
-        Py_DECREF(delaytmp);
     }
 
     if (feedbacktmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFeedback", "O", feedbacktmp);
-        Py_DECREF(feedbacktmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -4060,82 +3778,15 @@ static PyObject * SmoothDelay_inplace_sub(SmoothDelay *self, PyObject *arg) { IN
 static PyObject * SmoothDelay_div(SmoothDelay *self, PyObject *arg) { DIV };
 static PyObject * SmoothDelay_inplace_div(SmoothDelay *self, PyObject *arg) { INPLACE_DIV };
 
-static PyObject *
-SmoothDelay_setDelay(SmoothDelay *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->delay);
-
-    if (isNumber == 1)
-    {
-        self->delay = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
-    }
-    else
-    {
-        self->delay = tmp;
-        Py_INCREF(self->delay);
-        streamtmp = PyObject_CallMethod((PyObject *)self->delay, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->delay_stream);
-        self->delay_stream = (Stream *)streamtmp;
-        self->modebuffer[2] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-SmoothDelay_setFeedback(SmoothDelay *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->feedback);
-
-    if (isNumber == 1)
-    {
-        self->feedback = PyNumber_Float(tmp);
-        self->modebuffer[3] = 0;
-    }
-    else
-    {
-        self->feedback = tmp;
-        Py_INCREF(self->feedback);
-        streamtmp = PyObject_CallMethod((PyObject *)self->feedback, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->feedback_stream);
-        self->feedback_stream = (Stream *)streamtmp;
-        self->modebuffer[3] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * SmoothDelay_setDelay(SmoothDelay *self, PyObject *arg) { SET_PARAM(self->delay, self->delay_stream, 2); }
+static PyObject * SmoothDelay_setFeedback(SmoothDelay *self, PyObject *arg) { SET_PARAM(self->feedback, self->feedback_stream, 3); }
 
 static PyObject *
 SmoothDelay_setCrossfade(SmoothDelay *self, PyObject *arg)
 {
     ASSERT_ARG_NOT_NULL
 
-    int isNumber = PyNumber_Check(arg);
-
-    if (isNumber == 1)
+    if (PyNumber_Check(arg))
     {
         self->crossfade = PyFloat_AsDouble(arg);
     }

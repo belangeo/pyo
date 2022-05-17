@@ -293,19 +293,16 @@ Gain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (dbtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setDB", "O", dbtmp);
-        Py_DECREF(dbtmp);
     }
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     /* Add the object's stream struct to the server registry */
@@ -351,34 +348,27 @@ a float or an audio signal and adjust consequently its slot in the
 static PyObject *
 Gain_setDB(Gain *self, PyObject *arg)
 {
-    PyObject *tmp, *streamtmp;
-
     if (arg == NULL)
     {
         Py_RETURN_NONE;
     }
 
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
     Py_DECREF(self->db);
 
     /* If it's a numeric value */
-    if (isNumber == 1)
+    if (PyNumber_Check(arg))
     {
-        self->db = PyNumber_Float(tmp);
+        self->db = PyNumber_Float(arg);
         self->modebuffer[2] = 0;
     }
     /* If it's an audio signal */
     else
     {
-        self->db = tmp;
+        self->db = arg;
         Py_INCREF(self->db);
-        streamtmp = PyObject_CallMethod((PyObject *)self->db, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->db_stream);
+        PyObject *streamtmp = PyObject_CallMethod((PyObject *)self->db, "_getStream", NULL);
         self->db_stream = (Stream *)streamtmp;
+        Py_INCREF(self->db_stream);
         self->modebuffer[2] = 1;
     }
 

@@ -272,7 +272,6 @@ BandSplitter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (qtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setQ", "O", qtmp);
-        Py_DECREF(qtmp);
     }
     else
     {
@@ -284,40 +283,7 @@ BandSplitter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     return (PyObject *)self;
 }
 
-static PyObject *
-BandSplitter_setQ(BandSplitter *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->q);
-
-    if (isNumber == 1)
-    {
-        self->q = PyNumber_Float(tmp);
-        self->modebuffer[0] = 0;
-        BandSplitter_compute_variables((BandSplitter *)self, PyFloat_AS_DOUBLE(self->q));
-    }
-    else
-    {
-        self->q = tmp;
-        Py_INCREF(self->q);
-        streamtmp = PyObject_CallMethod((PyObject *)self->q, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->q_stream);
-        self->q_stream = (Stream *)streamtmp;
-        self->modebuffer[0] = 1;
-    }
-
-    (*self->mode_func_ptr)(self);
-
-    Py_RETURN_NONE;
-}
+static PyObject * BandSplitter_setQ(BandSplitter *self, PyObject *arg) { SET_PARAM(self->q, self->q_stream, 0); }
 
 static PyObject * BandSplitter_getServer(BandSplitter* self) { GET_SERVER };
 static PyObject * BandSplitter_getStream(BandSplitter* self) { GET_STREAM };
@@ -515,20 +481,17 @@ BandSplit_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iOO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainSplitter);
-    Py_INCREF(maintmp);
     self->mainSplitter = (BandSplitter *)maintmp;
+    Py_INCREF(self->mainSplitter);
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -989,19 +952,16 @@ FourBandMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (freq1tmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFreq1", "O", freq1tmp);
-        Py_DECREF(freq1tmp);
     }
 
     if (freq2tmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFreq2", "O", freq2tmp);
-        Py_DECREF(freq2tmp);
     }
 
     if (freq3tmp)
     {
         PyObject_CallMethod((PyObject *)self, "setFreq3", "O", freq3tmp);
-        Py_DECREF(freq3tmp);
     }
 
     (*self->mode_func_ptr)(self);
@@ -1009,101 +969,9 @@ FourBandMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     return (PyObject *)self;
 }
 
-static PyObject *
-FourBandMain_setFreq1(FourBandMain *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->freq1);
-
-    if (isNumber == 1)
-    {
-        self->freq1 = PyNumber_Float(tmp);
-        self->modebuffer[0] = 0;
-    }
-    else
-    {
-        self->freq1 = tmp;
-        Py_INCREF(self->freq1);
-        streamtmp = PyObject_CallMethod((PyObject *)self->freq1, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->freq1_stream);
-        self->freq1_stream = (Stream *)streamtmp;
-        self->modebuffer[0] = 1;
-    }
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-FourBandMain_setFreq2(FourBandMain *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->freq2);
-
-    if (isNumber == 1)
-    {
-        self->freq2 = PyNumber_Float(tmp);
-        self->modebuffer[1] = 0;
-    }
-    else
-    {
-        self->freq2 = tmp;
-        Py_INCREF(self->freq2);
-        streamtmp = PyObject_CallMethod((PyObject *)self->freq2, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->freq2_stream);
-        self->freq2_stream = (Stream *)streamtmp;
-        self->modebuffer[1] = 1;
-    }
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-FourBandMain_setFreq3(FourBandMain *self, PyObject *arg)
-{
-    PyObject *tmp, *streamtmp;
-
-    ASSERT_ARG_NOT_NULL
-
-    int isNumber = PyNumber_Check(arg);
-
-    tmp = arg;
-    Py_INCREF(tmp);
-    Py_DECREF(self->freq3);
-
-    if (isNumber == 1)
-    {
-        self->freq3 = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
-    }
-    else
-    {
-        self->freq3 = tmp;
-        Py_INCREF(self->freq3);
-        streamtmp = PyObject_CallMethod((PyObject *)self->freq3, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->freq3_stream);
-        self->freq3_stream = (Stream *)streamtmp;
-        self->modebuffer[2] = 1;
-    }
-
-    Py_RETURN_NONE;
-}
+static PyObject * FourBandMain_setFreq1(FourBandMain *self, PyObject *arg) { SET_PARAM(self->freq1, self->freq1_stream, 0); }
+static PyObject * FourBandMain_setFreq2(FourBandMain *self, PyObject *arg) { SET_PARAM(self->freq2, self->freq2_stream, 1); }
+static PyObject * FourBandMain_setFreq3(FourBandMain *self, PyObject *arg) { SET_PARAM(self->freq3, self->freq3_stream, 2); }
 
 static PyObject * FourBandMain_getServer(FourBandMain* self) { GET_SERVER };
 static PyObject * FourBandMain_getStream(FourBandMain* self) { GET_STREAM };
@@ -1305,20 +1173,17 @@ FourBand_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iOO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainSplitter);
-    Py_INCREF(maintmp);
     self->mainSplitter = (FourBandMain *)maintmp;
+    Py_INCREF(self->mainSplitter);
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1966,20 +1831,17 @@ MultiBand_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iOO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
         Py_RETURN_NONE;
 
-    Py_XDECREF(self->mainSplitter);
-    Py_INCREF(maintmp);
     self->mainSplitter = (MultiBandMain *)maintmp;
+    Py_INCREF(self->mainSplitter);
 
     if (multmp)
     {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
-        Py_DECREF(multmp);
     }
 
     if (addtmp)
     {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
-        Py_DECREF(addtmp);
     }
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);

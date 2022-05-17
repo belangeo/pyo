@@ -320,18 +320,15 @@ static PyObject * MidiListener_stop(MidiListener *self)
 static PyObject *
 MidiListener_setMidiFunction(MidiListener *self, PyObject *arg)
 {
-    PyObject *tmp;
-
     if (! PyCallable_Check(arg))
     {
         PyErr_SetString(PyExc_TypeError, "Pyo error: MidiListener callable attribute must be a valid Python function.");
         Py_RETURN_NONE;
     }
 
-    tmp = arg;
     Py_XDECREF(self->midicallable);
-    Py_INCREF(tmp);
-    self->midicallable = tmp;
+    self->midicallable = arg;
+    Py_INCREF(self->midicallable);
 
     Py_RETURN_NONE;
 }

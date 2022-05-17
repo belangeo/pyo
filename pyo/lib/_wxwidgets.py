@@ -581,6 +581,9 @@ class VuMeter(wx.Panel):
 
     def createBitmaps(self):
         w, h = self.GetSize()
+        if w == 0 or h == 0:
+            return
+
         b = wx.EmptyBitmap(w, h)
         f = wx.EmptyBitmap(w, h)
         dcb = wx.MemoryDC(b)
@@ -3663,6 +3666,7 @@ class Keyboard(wx.Panel):
                     if which in self.blackSelected:
                         self.blackSelected.remove(which)
                         del self.blackVelocities[which]
+                        total -= 1
                         note = (pit, 0)
                     else:
                         if total < self.poly:
@@ -3675,6 +3679,7 @@ class Keyboard(wx.Panel):
                     if which in self.whiteSelected:
                         self.whiteSelected.remove(which)
                         del self.whiteVelocities[which]
+                        total -= 1
                         note = (pit, 0)
                     else:
                         if total < self.poly:
@@ -3785,6 +3790,7 @@ class Keyboard(wx.Panel):
                     if i in self.blackSelected:
                         self.blackSelected.remove(i)
                         del self.blackVelocities[i]
+                        total -= 1
                         vel = 0
                     else:
                         hb = int(h * 4 / 7)
@@ -3802,6 +3808,7 @@ class Keyboard(wx.Panel):
                         if i in self.whiteSelected:
                             self.whiteSelected.remove(i)
                             del self.whiteVelocities[i]
+                            total -= 1
                             vel = 0
                         else:
                             vel = int((h - pos[1]) * 127 / h)
