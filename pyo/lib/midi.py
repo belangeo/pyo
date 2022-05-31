@@ -533,6 +533,7 @@ class Notein(PyoObject):
         self._first = first
         self._last = last
         self._channel = channel
+        self._holdmode = 0
         mul, add, lmax = convertArgsToLists(mul, add)
         self._base_handler = MidiNote_base(self._poly, self._scale, self._first, self._last, self._channel)
         self._base_objs = []
@@ -647,6 +648,39 @@ class Notein(PyoObject):
         pyoArgsAssert(self, "B", x)
         self._base_handler.setStealing(x)
 
+    def setHoldmode(self, x):
+        """
+        Sets the key mode. Defaults to 0.
+
+        Controls the behaviour of an incoming Midi note.
+
+        :Args:
+
+            x: int
+                0 := no hold (default)
+                1 := hold mode, new noteon event will be activate
+                     until the next noteon event with the same pitch,
+                     velocity sensitive
+                2 := onoff mode, new noteon event will be activate
+                     until the next noteon event with the same pitch,
+                     noteon velocity is set to 127
+                3 := single key hold mode, new noteon event will be activate
+                     until any next noteon event, if next noteon event has
+                     the same pitch a noteoff event will be sent,
+                     velocity sensitive
+                4 := single key onoff mode, new noteon event will be activate
+                     until any next noteon event, if next noteon event has
+                     the same pitch a noteoff event will be sent,
+                     noteon velocity is set to 127
+
+        """
+        pyoArgsAssert(self, "I", x)
+        self._holdmode = x
+        self._base_handler.setHoldmode(x)
+
+    def sendAllNotesOff(self):
+        self._base_handler.sendAllNotesOff()
+
     def get(self, identifier="pitch", all=False):
         """
         Return the first sample of the current buffer as a float.
@@ -759,6 +793,15 @@ class Notein(PyoObject):
     @channel.setter
     def channel(self, x):
         self.setChannel(x)
+
+    @property
+    def holdmode(self):
+        """int. Hold mode. 0 = no hold, 1 = hold, 2 = onoff, 3 = single key hold, 4 = single key onoff."""
+        return self._holdmode
+
+    @scale.setter
+    def holdmode(self, x):
+        self.setHoldmode(x)
 
 
 class Bendin(PyoObject):
