@@ -1975,6 +1975,8 @@ typedef struct
     int channel;
     int stealing;
     int holdmode;
+    int firstvelocity;
+    int lastvelocity;
     PyoMidiEvent midiEvents[64];
     int eventcount;
     MYFLT *trigger_streams;
@@ -2093,14 +2095,20 @@ void grabMidiNotes(MidiNote *self, PyoMidiEvent *buffer, int count)
         if (self->channel == 0)
         {
             if (((status & 0xF0) == 0x90 || (status & 0xF0) == 0x80)
-                && pitch >= self->first && pitch <= self->last)
+                && pitch >= self->first && pitch <= self->last
+                && (velocity == 0 || (velocity >= self->firstvelocity && velocity <= self->lastvelocity)))
                 ok = 1;
+            else
+                ok = 0;
         }
         else
         {
             if ((status == (0x90 | (self->channel - 1)) || status == (0x80 | (self->channel - 1)))
-                && pitch >= self->first && pitch <= self->last)
+                && pitch >= self->first && pitch <= self->last
+                && (velocity == 0 || (velocity >= self->firstvelocity && velocity <= self->lastvelocity)))
                 ok = 1;
+            else
+                ok = 0;
         }
 
         if (ok == 1)
@@ -2149,16 +2157,7 @@ void grabMidiNotes(MidiNote *self, PyoMidiEvent *buffer, int count)
                     self->trigger_streams[self->bufsize * (self->vcount * 2) + samp] = 1.0;
                 }
             }
-            else if (pitchIsInBuffer == 1 && kind == 1 && self->holdmode > 0)
-            {
-                //PySys_WriteStdout("%i, %i, %i\n", status, pitch, velocity);
-                voice = whichVoice(self->notebuf, pitch, self->voices);
-                self->notebuf[voice * 3] = -1;
-                self->notebuf[voice * 3 + 1] = 0;
-                self->notebuf[voice * 3 + 2] = samp;
-                self->trigger_streams[self->bufsize * (voice * 2 + 1) + samp] = 1.0;
-            }
-            else if (pitchIsInBuffer == 1 && kind == 0 && self->holdmode == 0)
+            else if (pitchIsInBuffer == 1 && ((kind == 0 && self->holdmode == 0) || (kind == 1 && self->holdmode > 0)))
             {
                 //PySys_WriteStdout("%i, %i, %i\n", status, pitch, velocity);
                 voice = whichVoice(self->notebuf, pitch, self->voices);
@@ -2243,6 +2242,8 @@ MidiNote_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->channel = 0;
     self->stealing = 0;
     self->holdmode = 0;
+    self->firstvelocity = 1;
+    self->lastvelocity = 127;
     self->eventcount = 0;
 
     INIT_OBJECT_COMMON
@@ -2457,6 +2458,58 @@ MidiNote_setHoldmode(MidiNote *self, PyObject *arg)
     Py_RETURN_NONE;
 }
 
+static PyObject *
+MidiNote_setFirstVelocity(MidiNote *self, PyObject *arg)
+{
+    int tmp;
+
+    ASSERT_ARG_NOT_NULL
+
+    if (PyLong_Check(arg))
+    {
+        tmp = PyLong_AsLong(arg);
+
+        if (tmp > 0 && tmp < 128)
+        {
+            self->firstvelocity = tmp;
+            if (self->firstvelocity > self->lastvelocity)
+            {
+                tmp = self->lastvelocity;
+                self->lastvelocity = self->firstvelocity;
+                self->firstvelocity = tmp;
+            }
+        }
+    }
+
+    Py_RETURN_NONE;
+}
+
+static PyObject *
+MidiNote_setLastVelocity(MidiNote *self, PyObject *arg)
+{
+    int tmp;
+
+    ASSERT_ARG_NOT_NULL
+
+    if (PyLong_Check(arg))
+    {
+        tmp = PyLong_AsLong(arg);
+
+        if (tmp > 0 && tmp < 128)
+        {
+            self->lastvelocity = tmp;
+            if (self->firstvelocity > self->lastvelocity)
+            {
+                tmp = self->lastvelocity;
+                self->lastvelocity = self->firstvelocity;
+                self->firstvelocity = tmp;
+            }
+        }
+    }
+
+    Py_RETURN_NONE;
+}
+
 static PyMemberDef MidiNote_members[] =
 {
     {"server", T_OBJECT_EX, offsetof(MidiNote, server), 0, "Pyo server."},
@@ -2477,6 +2530,8 @@ static PyMethodDef MidiNote_methods[] =
     {"setCentralKey", (PyCFunction)MidiNote_setCentralKey, METH_O, "Sets the midi key where there is no transposition."},
     {"setStealing", (PyCFunction)MidiNote_setStealing, METH_O, "Sets the stealing mode."},
     {"setHoldmode", (PyCFunction)MidiNote_setHoldmode, METH_O, "Sets the key hold mode."},
+    {"setFirstVelocity", (PyCFunction)MidiNote_setFirstVelocity, METH_O, "Sets the lowest midi velocity."},
+    {"setLastVelocity", (PyCFunction)MidiNote_setLastVelocity, METH_O, "Sets the highest midi velocity."},
     {"sendAllNotesOff", (PyCFunction)MidiNote_sendAllNotesOff, METH_NOARGS, "Sends all notes off event."},
     {"addMidiEvent", (PyCFunction)MidiNote_addMidiEvent, METH_VARARGS | METH_KEYWORDS, "Add a new midi event in the internal queue."},
     {NULL}  /* Sentinel */
