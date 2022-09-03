@@ -231,33 +231,46 @@ else:
 
 # Platform-specific build settings for the pyo extension(s).
 if sys.platform == "win32":
+    def vcpkg_path(root, pkg, triplet):
+        return os.path.join(root, "_".join((pkg, triplet)))
+
+    pkgs_3rdpary = {
+        #package flags: (include, lib, bin)
+        "libflac": (False, False, True),
+        "liblo": (True, True, True),
+        "libogg": (False, False, True),
+        "libsndfile": (True, True, True),
+        "libvobis": (False, False, True),
+        "opus": (False, False, True),
+        "portaudio": (True, True, True),
+        "portmidi": (True, True, True),
+        "pthreads": (False, True, True),
+    }
+    vcpkg_packages_root = os.environ.get("VCPKG_PACKAGES_ROOT", "../vcpkg/packages")
+    vcpkg_triplet = os.environ.get("VCPKG_DEFAULT_TRIPLET", "x64-windows")
     msys2_mingw_root = os.environ.get("MSYS2_MINGW_ROOT", r"C:\msys64\mingw64")
+
+    include_dirs = []
+    library_dirs = []
+    binary_dirs = []
+
     if win_arch == "32bit":
         print("setup.py is no more configured to compile on 32-bit windows.")
         sys.exit()
     else:
-        include_dirs = [
-            "../vcpkg/packages/portmidi_x64-windows/include",
-            "../vcpkg/packages/portaudio_x64-windows/include",
-            "../vcpkg/packages/libsndfile_x64-windows/include",
-            "../vcpkg/packages/liblo_x64-windows/include",
-            "../vcpkg/packages/pthreads_x64-windows/include",
+        for pkg, req in pkgs_3rdpary.items():
+            pkg_dir = vcpkg_path(vcpkg_packages_root, pkg, vcpkg_triplet)
+            if req[0]:
+                include_dirs.append(os.path.join(pkg_dir, "include"))
+            if req[1]:
+                library_dirs.append(os.path.join(pkg_dir, "lib"))
+            if req[2]:
+                binary_dirs.append(os.path.join(pkg_dir, "bin"))
+        include_dirs.extend([
             os.path.join(msys2_mingw_root, "include"),
             "include",
-        ]
-        library_dirs = [
-            "../vcpkg/packages/portmidi_x64-windows/bin",
-            "../vcpkg/packages/portmidi_x64-windows/lib",
-            "../vcpkg/packages/portaudio_x64-windows/bin",
-            "../vcpkg/packages/portaudio_x64-windows/lib",
-            "../vcpkg/packages/libsndfile_x64-windows/bin",
-            "../vcpkg/packages/libsndfile_x64-windows/lib",
-            "../vcpkg/packages/liblo_x64-windows/bin",
-            "../vcpkg/packages/liblo_x64-windows/lib",
-            "../vcpkg/packages/pthreads_x64-windows/bin",
-            "../vcpkg/packages/pthreads_x64-windows/lib",
-            os.path.join(msys2_mingw_root, "bin"),
-        ]
+        ])
+
         libraries += ["sndfile", "pthreadVC3"]
         macros.append(("MS_WIN64", None))
 else:
