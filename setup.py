@@ -231,6 +231,7 @@ else:
 
 # Platform-specific build settings for the pyo extension(s).
 if sys.platform == "win32":
+    msys2_mingw_root = os.environ.get("MSYS2_MINGW_ROOT", r"C:\msys64\mingw64")
     if win_arch == "32bit":
         print("setup.py is no more configured to compile on 32-bit windows.")
         sys.exit()
@@ -241,7 +242,7 @@ if sys.platform == "win32":
             "../vcpkg/packages/libsndfile_x64-windows/include",
             "../vcpkg/packages/liblo_x64-windows/include",
             "../vcpkg/packages/pthreads_x64-windows/include",
-            r"C:\msys64\mingw64\include",
+            os.path.join(msys2_mingw_root, "include"),
             "include",
         ]
         library_dirs = [
@@ -255,7 +256,7 @@ if sys.platform == "win32":
             "../vcpkg/packages/liblo_x64-windows/lib",
             "../vcpkg/packages/pthreads_x64-windows/bin",
             "../vcpkg/packages/pthreads_x64-windows/lib",
-            r"C:\msys64\mingw64\\bin",
+            os.path.join(msys2_mingw_root, "bin"),
         ]
         libraries += ["sndfile", "pthreadVC3"]
         macros.append(("MS_WIN64", None))
