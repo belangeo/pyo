@@ -244,7 +244,6 @@ if sys.platform == "win32":
         "opus": (False, False, True),
         "portaudio": (True, True, True),
         "portmidi": (True, True, True),
-        "pthreads": (False, True, True),
     }
     vcpkg_packages_root = os.environ.get("VCPKG_PACKAGES_ROOT", "../vcpkg/packages")
     vcpkg_triplet = os.environ.get("VCPKG_DEFAULT_TRIPLET", "x64-windows")
@@ -271,7 +270,7 @@ if sys.platform == "win32":
             "include",
         ])
 
-        libraries += ["sndfile", "pthreadVC3"]
+        libraries += ["sndfile"]
         macros.append(("MS_WIN64", None))
 else:
     include_dirs = ["include", "/usr/include", "/usr/local/include"]
