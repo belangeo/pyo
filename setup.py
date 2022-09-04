@@ -20,7 +20,7 @@ License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 from setuptools import setup, Extension
 from distutils.sysconfig import get_python_lib
-import os, sys, py_compile, subprocess, platform
+import os, sys, py_compile, subprocess, platform, glob
 
 
 def tobytes(strng, encoding="utf-8"):
@@ -240,7 +240,7 @@ if sys.platform == "win32":
         "liblo": (True, True, True),
         "libogg": (False, False, True),
         "libsndfile": (True, True, True),
-        "libvobis": (False, False, True),
+        "libvorbis": (False, False, True),
         "opus": (False, False, True),
         "portaudio": (True, True, True),
         "portmidi": (True, True, True),
@@ -289,17 +289,12 @@ if sys.platform == "win32":
         data_files_dest = os.path.join("Lib", "site-packages", "pyo")
     else:
         data_files_dest = "pyo"
-    data_files_common_path = os.path.join("win64dlls", "win64_pyo_data_files_common")
-    data_files = [
-        (
-            data_files_dest,
-            [
-                os.path.join(data_files_common_path, f)
-                for f in os.listdir(data_files_common_path)
-                if f.endswith(".dll")
-            ],
-        )
-    ]
+    dlls = []
+    for bind in binary_dirs:
+        dlls.extend(glob.glob(os.path.join(bind, "*.dll")))
+    dlls = [item for item in dlls if "FLAC++" not in item]  # Lame: remove this manually
+    dlls.extend(glob.glob(os.path.join(msys2_mingw_root, "bin", "lib*pthread*.dll")))
+    data_files = ((data_files_dest, dlls),)
 elif sys.platform == "darwin":
     if "bdist_wheel" in sys.argv:
         data_files = [
