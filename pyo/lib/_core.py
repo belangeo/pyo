@@ -175,7 +175,10 @@ def sndinfo(path, print=False):
 
     """
     path = stringencode(path)
-    return p_sndinfo(path, print)
+    info = p_sndinfo(path, print)
+    if info is None:
+        raise PyoError("Could not get file info")
+    return info
 
 
 def savefile(samples, path, sr=44100, channels=1, fileformat=0, sampletype=0, quality=0.4):
