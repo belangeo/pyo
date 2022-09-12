@@ -53,6 +53,9 @@ compile_externals = False
 win_arch = platform.architecture()[0]
 
 macros = []
+if sys.version_info[:2] >= (3, 10):  # https://bugs.python.org/issue40943
+    macros.append(("PY_SSIZE_T_CLEAN", None))
+
 extension_names = ["pyo._pyo"]
 extra_macros_per_extension = [[]]
 packages = [
