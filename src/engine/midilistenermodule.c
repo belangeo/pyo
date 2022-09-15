@@ -678,7 +678,8 @@ PyObject *
 MidiDispatcher_sendx(MidiDispatcher *self, PyObject *args)
 {
     unsigned char *msg;
-    int i, size, device;
+    int i, device;
+    Py_ssize_t size;
     long curtime;
     PmTimestamp timestamp;
 
