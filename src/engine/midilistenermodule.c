@@ -18,6 +18,8 @@
  * License along with pyo.  If not, see <http://www.gnu.org/licenses/>.   *
  *************************************************************************/
 
+#define PY_SSIZE_T_CLEAN
+
 #include <Python.h>
 #include "structmember.h"
 #include <math.h>
@@ -678,7 +680,8 @@ PyObject *
 MidiDispatcher_sendx(MidiDispatcher *self, PyObject *args)
 {
     unsigned char *msg;
-    int i, size, device;
+    int i, device;
+    Py_ssize_t size;
     long curtime;
     PmTimestamp timestamp;
 
