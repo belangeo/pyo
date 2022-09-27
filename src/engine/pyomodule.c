@@ -420,7 +420,7 @@ p_sndinfo(PyObject *self, PyObject *args, PyObject *kwds)
                           path, (int)info.frames, ((float)info.frames / info.samplerate), (float)info.samplerate, (int)info.channels,
                           fileformat, sampletype);
 
-    return Py_BuildValue("lffiss", info.frames, (float)info.frames / info.samplerate, (float)info.samplerate, info.channels, fileformat, sampletype);
+    return Py_BuildValue("Lffiss", info.frames, (float)info.frames / info.samplerate, (float)info.samplerate, info.channels, fileformat, sampletype);
 }
 
 static PyObject *
