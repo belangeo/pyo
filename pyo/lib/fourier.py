@@ -1315,7 +1315,7 @@ class CvlVerb(PyoObject):
         impulse, lmax2 = convertArgsToLists(impulse)
         self._base_objs = []
         for file in impulse:
-            _size, _dur, _snd_sr, _snd_chnls, _format, _type = sndinfo(file)
+            _size, _dur, _snd_sr, _snd_chnls, _format, _type = sndinfo(file, raise_on_failure=True)
             lmax3 = max(lmax, _snd_chnls)
             self._base_objs.extend(
                 [
