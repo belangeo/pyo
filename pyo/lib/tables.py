@@ -1643,7 +1643,7 @@ class SndTable(PyoTableObject):
             self._base_objs = [SndTable_base("", 0, 0) for i in range(initchnls)]
         else:
             for p in path:
-                _size, _dur, _snd_sr, _snd_chnls, _format, _type = sndinfo(p)
+                _size, _dur, _snd_sr, _snd_chnls, _format, _type = sndinfo(p, raise_on_failure=True)
                 if chnl is None:
                     if stop is None:
                         self._base_objs.extend([SndTable_base(stringencode(p), i, start) for i in range(_snd_chnls)])
@@ -1689,7 +1689,7 @@ class SndTable(PyoTableObject):
             path, lmax = convertArgsToLists(path)
             for i, obj in enumerate(self._base_objs):
                 p = path[i % lmax]
-                _size, _dur, _snd_sr, _snd_chnls, _format, _type = sndinfo(p)
+                _size, _dur, _snd_sr, _snd_chnls, _format, _type = sndinfo(p, raise_on_failure=True)
                 self._size.append(_size)
                 self._dur.append(_dur)
                 if stop is None:
@@ -1697,7 +1697,7 @@ class SndTable(PyoTableObject):
                 else:
                     obj.setSound(stringencode(p), 0, start, stop)
         else:
-            _size, _dur, _snd_sr, _snd_chnls, _format, _type = sndinfo(path)
+            _size, _dur, _snd_sr, _snd_chnls, _format, _type = sndinfo(path, raise_on_failure=True)
             self._size = _size
             self._dur = _dur
             if stop is None:
@@ -1739,7 +1739,7 @@ class SndTable(PyoTableObject):
             path, lmax = convertArgsToLists(path)
             for i, obj in enumerate(self._base_objs):
                 p = path[i % lmax]
-                _size, _dur, _snd_sr, _snd_chnls, _format, _type = sndinfo(p)
+                _size, _dur, _snd_sr, _snd_chnls, _format, _type = sndinfo(p, raise_on_failure=True)
                 self._size.append(_size)
                 self._dur.append(_dur)
                 if stop is None:
@@ -1747,7 +1747,7 @@ class SndTable(PyoTableObject):
                 else:
                     obj.append(stringencode(p), crossfade, 0, start, stop)
         else:
-            _size, _dur, _snd_sr, _snd_chnls, _format, _type = sndinfo(path)
+            _size, _dur, _snd_sr, _snd_chnls, _format, _type = sndinfo(path, raise_on_failure=True)
             self._size = _size
             self._dur = _dur
             if stop is None:
@@ -1797,7 +1797,7 @@ class SndTable(PyoTableObject):
             path, lmax = convertArgsToLists(path)
             for i, obj in enumerate(self._base_objs):
                 p = path[i % lmax]
-                _size, _dur, _snd_sr, _snd_chnls, _format, _type = sndinfo(p)
+                _size, _dur, _snd_sr, _snd_chnls, _format, _type = sndinfo(p, raise_on_failure=True)
                 self._size.append(_size)
                 self._dur.append(_dur)
                 if stop is None:
@@ -1805,7 +1805,7 @@ class SndTable(PyoTableObject):
                 else:
                     obj.insert(stringencode(p), pos, crossfade, 0, start, stop)
         else:
-            _size, _dur, _snd_sr, _snd_chnls, _format, _type = sndinfo(path)
+            _size, _dur, _snd_sr, _snd_chnls, _format, _type = sndinfo(path, raise_on_failure=True)
             self._size = _size
             self._dur = _dur
             if stop is None:

@@ -110,7 +110,7 @@ class SfPlayer(PyoObject):
         self._base_objs = []
         _trig_objs_tmp = []
         for i in range(lmax):
-            _snd_size, _dur, _snd_sr, _snd_chnls, _format, _type = sndinfo(path[0])
+            _snd_size, _dur, _snd_sr, _snd_chnls, _format, _type = sndinfo(path[0], raise_on_failure=True)
             self._base_players.append(
                 SfPlayer_base(
                     stringencode(wrap(path, i)), wrap(speed, i), wrap(loop, i), wrap(offset, i), wrap(interp, i)
@@ -137,15 +137,15 @@ class SfPlayer(PyoObject):
         """
         pyoArgsAssert(self, "s", path)
         if type(self._path) == list:
-            curNchnls = sndinfo(self._path[0])[3]
+            curNchnls = sndinfo(self._path[0], raise_on_failure=True)[3]
         else:
-            curNchnls = sndinfo(self._path)[3]
+            curNchnls = sndinfo(self._path, raise_on_failure=True)[3]
         if type(path) == list:
             p = path[0]
         else:
             p = path
         try:
-            _snd_size, _dur, _snd_sr, _snd_chnls, _format, _type = sndinfo(p)
+            _snd_size, _dur, _snd_sr, _snd_chnls, _format, _type = sndinfo(p, raise_on_failure=True)
         except:
             return
         if _snd_chnls != curNchnls:
@@ -353,7 +353,7 @@ class SfMarkerShuffler(PyoObject):
         path, speed, interp, mul, add, lmax = convertArgsToLists(path, speed, interp, mul, add)
         self._base_players = []
         self._base_objs = []
-        self._snd_size, self._dur, self._snd_sr, self._snd_chnls, _format, _type = sndinfo(path[0])
+        self._snd_size, self._dur, self._snd_sr, self._snd_chnls, _format, _type = sndinfo(path[0], raise_on_failure=True)
         for i in range(lmax):
             try:
                 sf = aifc.open(wrap(path, i))  # Do we need stringencode() here?
@@ -549,7 +549,7 @@ class SfMarkerLooper(PyoObject):
         path, speed, mark, interp, mul, add, lmax = convertArgsToLists(path, speed, mark, interp, mul, add)
         self._base_players = []
         self._base_objs = []
-        self._snd_size, self._dur, self._snd_sr, self._snd_chnls, _format, _type = sndinfo(path[0])
+        self._snd_size, self._dur, self._snd_sr, self._snd_chnls, _format, _type = sndinfo(path[0], raise_on_failure=True)
         for i in range(lmax):
             try:
                 sf = aifc.open(wrap(path, i))
