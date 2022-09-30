@@ -8049,7 +8049,10 @@ SharedTable_dealloc(SharedTable* self)
 static PyObject *
 SharedTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+#if !defined(_WIN32)
     T_SIZE_T i;
+#endif
+
     SharedTable *self;
     self = (SharedTable *)type->tp_alloc(type, 0);
 
