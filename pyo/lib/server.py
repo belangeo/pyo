@@ -100,7 +100,8 @@ class Server(object):
             the user's responsability to manage the audio/midi configuration of its system.
 
             User can set an environment variable named PYO_SERVER_MIDI to set this value globally.
-
+        verbosity: int, optional
+            Set the server's verbosity.
     .. note::
 
         The following methods must be called **before** booting the server
@@ -142,6 +143,7 @@ class Server(object):
         ichnls=None,
         winhost="directsound",
         midi="portmidi",
+        verbosity=7,
     ):
         if "PYO_SERVER_AUDIO" in os.environ and audio not in ["offline", "offline_nb", "embedded", "manual"]:
             audio = os.environ["PYO_SERVER_AUDIO"]
@@ -159,7 +161,7 @@ class Server(object):
         self._audio = audio
         self._winhost = winhost
         self._amp = 1.0
-        self._verbosity = 7
+        self._verbosity = verbosity
         self._startoffset = 0
         self._dur = -1
         self._filename = None
@@ -168,7 +170,7 @@ class Server(object):
         self._globalseed = 0
         self._resampling = 1
         self._isJackTransportSlave = False
-        self._server = Server_base(sr, nchnls, buffersize, duplex, audio, jackname, self._ichnls, midi)
+        self._server = Server_base(sr, nchnls, buffersize, duplex, audio, jackname, self._ichnls, midi, self._verbosity)
         self._server._setDefaultRecPath(os.path.join(os.path.expanduser("~"), "pyo_rec.wav"))
 
         if sys.platform.startswith("win"):
