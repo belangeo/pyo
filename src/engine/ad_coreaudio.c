@@ -120,8 +120,7 @@ int
 Server_coreaudio_init(Server *self)
 {
     OSStatus err = kAudioHardwareNoError;
-    UInt32 count, namelen, propertySize;
-    int i, numdevices;
+    UInt32 count, i, numdevices;
     char *name;
     AudioDeviceID mOutputDevice = kAudioDeviceUnknown;
     AudioDeviceID mInputDevice = kAudioDeviceUnknown;
@@ -203,7 +202,6 @@ Server_coreaudio_init(Server *self)
         if (err != kAudioHardwareNoError)
         {
             Server_error(self, "Info kAudioDevicePropertyDeviceName error %s A %08X\n", (char*)&err, mInputDevice);
-            self->input = NULL;
         }
 
         Server_debug(self, "Coreaudio : Uses input device : \"%s\"\n", name);
@@ -400,7 +398,7 @@ Server_coreaudio_init(Server *self)
         else
         {
             inputStreamDescription.mSampleRate = (Float64)self->samplingRate;
-            if (self->ichnls + self->input_offset > inputStreamDescription.mChannelsPerFrame)
+            if (self->ichnls + self->input_offset > (int)inputStreamDescription.mChannelsPerFrame)
             {
                 property_address.mSelector = kAudioDevicePropertyDeviceName;
                 name = (char*)PyMem_RawMalloc(256);
@@ -410,12 +408,11 @@ Server_coreaudio_init(Server *self)
                 if (err != kAudioHardwareNoError)
                 {
                     Server_error(self, "Info kAudioDevicePropertyDeviceName error %s A %08X\n", (char*)&err, mInputDevice);
-                    self->input = NULL;
                 }
                 Server_warning(self, "Coreaudio input device `%s` has fewer channels (%d) than requested (%d).\n", name,
                                inputStreamDescription.mChannelsPerFrame,
                                self->ichnls + self->input_offset);
-               PyMem_RawFree(name);
+                PyMem_RawFree(name);
                 self->ichnls = inputStreamDescription.mChannelsPerFrame;
                 self->input_offset = 0;
             }
@@ -458,17 +455,17 @@ Server_coreaudio_init(Server *self)
         }
 
         property_address.mSelector = kAudioDevicePropertyIOProcStreamUsage;
-        err = AudioObjectGetPropertyData(self->input, &property_address, 0, NULL, &propertySize, &writable);
-        AudioHardwareIOProcStreamUsage *input_su = (AudioHardwareIOProcStreamUsage*)PyMem_RawMalloc(propertySize);
+        err = AudioObjectGetPropertyData(self->input, &property_address, 0, NULL, &propertysize, &writable);
+        AudioHardwareIOProcStreamUsage *input_su = (AudioHardwareIOProcStreamUsage*)PyMem_RawMalloc(propertysize);
         input_su->mIOProc = (void*)coreaudio_input_callback;
-        err = AudioObjectGetPropertyData(self->input,&property_address, 0, NULL, &propertySize, input_su);
+        err = AudioObjectGetPropertyData(self->input,&property_address, 0, NULL, &propertysize, input_su);
 
         for (i = 0; i < inputStreamDescription.mChannelsPerFrame; ++i)
         {
             input_su->mStreamIsOn[i] = 1;
         }
 
-        err = AudioObjectSetPropertyData(self->input, &property_address, 0, NULL, propertySize, input_su);
+        err = AudioObjectSetPropertyData(self->input, &property_address, 0, NULL, propertysize, input_su);
         PyMem_RawFree(input_su);
     }
 
@@ -482,16 +479,16 @@ Server_coreaudio_init(Server *self)
     }
 
     property_address.mSelector = kAudioDevicePropertyIOProcStreamUsage;
-    err = AudioObjectGetPropertyData(self->output, &property_address, 0, NULL, &propertySize, &writable);
-    AudioHardwareIOProcStreamUsage *output_su = (AudioHardwareIOProcStreamUsage*)PyMem_RawMalloc(propertySize);
+    err = AudioObjectGetPropertyData(self->output, &property_address, 0, NULL, &propertysize, &writable);
+    AudioHardwareIOProcStreamUsage *output_su = (AudioHardwareIOProcStreamUsage*)PyMem_RawMalloc(propertysize);
     output_su->mIOProc = (void*)coreaudio_output_callback;
-    err = AudioObjectGetPropertyData(self->output, &property_address, 0, NULL, &propertySize, output_su);
+    err = AudioObjectGetPropertyData(self->output, &property_address, 0, NULL, &propertysize, output_su);
 
     for (i = 0; i < outputStreamDescription.mChannelsPerFrame; ++i)
     {
         output_su->mStreamIsOn[i] = 1;
     }
-    err = AudioObjectSetPropertyData(self->output, &property_address, 0, NULL, propertySize, output_su);
+    err = AudioObjectSetPropertyData(self->output, &property_address, 0, NULL, propertysize, output_su);
     PyMem_RawFree(output_su);
     return 0;
 }
