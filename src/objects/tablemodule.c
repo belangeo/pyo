@@ -8049,7 +8049,6 @@ SharedTable_dealloc(SharedTable* self)
 static PyObject *
 SharedTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-    T_SIZE_T i;
     SharedTable *self;
     self = (SharedTable *)type->tp_alloc(type, 0);
 
@@ -8064,6 +8063,7 @@ SharedTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
 
 #if !defined(_WIN32) && !defined(_WIN64)
+    T_SIZE_T i;
 
     /* Open shared memory object. */
     if (self->create)

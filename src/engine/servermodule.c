@@ -2314,7 +2314,7 @@ PyObject *
 Server_sysexout(Server *self, PyObject *args)
 {
     unsigned char *msg;
-    int size;
+    Py_ssize_t size;
     PyoMidiTimestamp timestamp;
 
     if (! PyArg_ParseTuple(args, "s#l", &msg, &size, &timestamp))

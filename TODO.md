@@ -12,6 +12,9 @@ Roadmap 1.0.5
 
 - Add an optional callback on the "stop" event of the PyoObject. 
 
+- Add "loop points" to Linseg, Expseg, and MidiLinseg.
+  ref: https://groups.google.com/g/pyo-discuss/c/Y3Eu-O7lYRM/m/vLoflgWvAQAJ?utm_medium=email&utm_source=footer&pli=1
+
 - Install m_pyo.h configured for the target version in pythonlib/pyo/include/.
 
 - PyoMatrixObject.get(x, y) inverts arguments. Add PyoMatrixObject.getValue(x, y) with x and y in the good order (also putValue(value, x, y))
@@ -44,6 +47,8 @@ Examples
 
 Objects
 -------
+
+- SigTo with independent rising and falling times.
 
 - PVInterp
 

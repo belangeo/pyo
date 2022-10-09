@@ -95,7 +95,7 @@ FUNCTIONS_INIT_LINES = {
     "pm_get_input_devices": "pm_get_input_devices()",
     "pm_list_devices": "pm_list_devices()",
     "pm_count_devices": "pm_count_devices()",
-    "sndinfo": "sndinfo(path, print=False)",
+    "sndinfo": "sndinfo(path, print=False, raise_on_failure=False)",
     "savefile": "savefile(samples, path, sr=44100, channels=1, fileformat=0, sampletype=0, quality=0.4)",
     "savefileFromTable": "savefileFromTable(table, path, fileformat=0, sampletype=0, quality=0.4)",
     "upsamp": "upsamp(path, outfile, up=4, order=128)",
@@ -148,7 +148,7 @@ def stringencode(st):
     return st
 
 
-def sndinfo(path, print=False):
+def sndinfo(path, print=False, raise_on_failure=False):
     """
     Retrieve informations about a soundfile.
 
@@ -165,6 +165,9 @@ def sndinfo(path, print=False):
         print: boolean, optional
             If True, sndinfo will print sound infos to the console.
             Defaults to False.
+        raise_on_failure: boolean, optional
+            If True, sndinfo will raise an exception when failing to get file info.
+            Defaults to False.
 
     >>> path = SNDS_PATH + '/transparent.aif'
     >>> print(path)
@@ -175,7 +178,10 @@ def sndinfo(path, print=False):
 
     """
     path = stringencode(path)
-    return p_sndinfo(path, print)
+    info = p_sndinfo(path, print)
+    if info is None and raise_on_failure:
+        raise PyoError("Could not get file ({:}) info".format(path))
+    return info
 
 
 def savefile(samples, path, sr=44100, channels=1, fileformat=0, sampletype=0, quality=0.4):
