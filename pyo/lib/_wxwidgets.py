@@ -133,7 +133,7 @@ class ControlSlider(wx.Panel):
         if backColour:
             self.backgroundColour = backColour
         else:
-            self.backgroundColour = BACKGROUND_COLOUR
+            self.backgroundColour = wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW)
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
         self.SetBackgroundColour(self.backgroundColour)
         self.orient = orient
@@ -417,7 +417,7 @@ class ControlSlider(wx.Panel):
         else:
             knobColour = "#DDDDDD"
         if self.orient == wx.VERTICAL:
-            rec = wx.Rect(0, self.pos - self.knobHalfSize, w, self.knobSize - 1)
+            rec = wx.Rect(0, int(self.pos - self.knobHalfSize), w, int(self.knobSize - 1))
             if self.selected:
                 brush = wx.Brush("#333333", wx.SOLID)
             else:
@@ -425,7 +425,7 @@ class ControlSlider(wx.Panel):
             gc.SetBrush(brush)
             gc.DrawRoundedRectangle(rec[0], rec[1], rec[2], rec[3], 3)
         else:
-            rec = wx.Rect(int(self.pos) - self.knobHalfSize, 0, self.knobSize - 1, h)
+            rec = wx.Rect(int(self.pos - self.knobHalfSize), 0, int(self.knobSize - 1), h)
             if self.selected:
                 brush = wx.Brush("#333333", wx.SOLID)
             else:
@@ -1017,7 +1017,8 @@ class PyoObjectControl(wx.Frame):
         self._sigs = {}
 
         panel = wx.Panel(self)
-        panel.SetBackgroundColour(BACKGROUND_COLOUR)
+        panel.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW))
+        panel.SetForegroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_MENUTEXT))
         mainBox = wx.BoxSizer(wx.VERTICAL)
         self.box = wx.FlexGridSizer(len(self._map_list), 2, 5, 5)
 
@@ -3990,7 +3991,9 @@ class ServerGUI(wx.Frame):
         self._histo_count = 0
 
         panel = wx.Panel(self)
-        panel.SetBackgroundColour(BACKGROUND_COLOUR)
+        panel.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW))
+        panel.SetForegroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_MENUTEXT))
+
         box = wx.BoxSizer(wx.VERTICAL)
 
         buttonBox = wx.BoxSizer(wx.HORIZONTAL)
