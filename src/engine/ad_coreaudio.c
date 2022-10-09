@@ -191,6 +191,7 @@ Server_coreaudio_init(Server *self)
             if (err != kAudioHardwareNoError)
             {
                 Server_error(self, "Get kAudioHardwarePropertyDefaultInputDevice error %s\n", (char*)&err);
+                PyMem_RawFree(devices);
                 return -1;
             }
         }
@@ -223,6 +224,7 @@ Server_coreaudio_init(Server *self)
         if (err != kAudioHardwareNoError)
         {
             Server_error(self, "Get kAudioHardwarePropertyDefaultOutputDevice error %s\n", (char*)&err);
+            PyMem_RawFree(devices);
             return -1;
         }
     }
@@ -241,6 +243,7 @@ Server_coreaudio_init(Server *self)
     self->output = mOutputDevice;
 
     PyMem_RawFree(name);
+    PyMem_RawFree(devices);
 
     /*************************************************/
     /* Get in/out buffer frame and buffer frame size */
@@ -458,7 +461,7 @@ Server_coreaudio_init(Server *self)
         err = AudioObjectGetPropertyData(self->input, &property_address, 0, NULL, &propertysize, &writable);
         AudioHardwareIOProcStreamUsage *input_su = (AudioHardwareIOProcStreamUsage*)PyMem_RawMalloc(propertysize);
         input_su->mIOProc = (void*)coreaudio_input_callback;
-        err = AudioObjectGetPropertyData(self->input,&property_address, 0, NULL, &propertysize, input_su);
+        err = AudioObjectGetPropertyData(self->input, &property_address, 0, NULL, &propertysize, input_su);
 
         for (i = 0; i < inputStreamDescription.mChannelsPerFrame; ++i)
         {
