@@ -676,14 +676,15 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     int  ichnls = 2;
     int  bufferSize = 256;
     int  duplex = 0;
+    int  verbosity = 7;
     char *audioType = "portaudio";
     char *midiType = "portmidi";
     char *serverName = "pyo";
 
-    static char *kwlist[] = {"sr", "nchnls", "buffersize", "duplex", "audio", "jackname", "ichnls", "midi", NULL};
+    static char *kwlist[] = {"sr", "nchnls", "buffersize", "duplex", "audio", "jackname", "ichnls", "midi", "verbosity", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|diiissis", kwlist,
-                                      &samplingRate, &nchnls, &bufferSize, &duplex, &audioType, &serverName, &ichnls, &midiType))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|diiissisi", kwlist,
+                                      &samplingRate, &nchnls, &bufferSize, &duplex, &audioType, &serverName, &ichnls, &midiType, &verbosity))
     {
         Py_INCREF(Py_False);
         return Py_False;
@@ -734,6 +735,8 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->duplex = 0;
     self->input = -1;
     self->output = -1;
+    self->inprocid = NULL;
+    self->outprocid = NULL;
     self->input_offset = 0;
     self->output_offset = 0;
     self->midiin_count = 0;
@@ -767,14 +770,14 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 Server_init(Server *self, PyObject *args, PyObject *kwds)
 {
-    static char *kwlist[] = {"sr", "nchnls", "buffersize", "duplex", "audio", "jackname", "ichnls", "midi", NULL};
+    static char *kwlist[] = {"sr", "nchnls", "buffersize", "duplex", "audio", "jackname", "ichnls", "midi", "verbosity", NULL};
 
     char *audioType = "portaudio";
     char *midiType = "portmidi";
     char *serverName = "pyo";
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|diiissis", kwlist,
-                                      &self->samplingRate, &self->nchnls, &self->bufferSize, &self->duplex, &audioType, &serverName, &self->ichnls, &midiType))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|diiissisi", kwlist,
+                                      &self->samplingRate, &self->nchnls, &self->bufferSize, &self->duplex, &audioType, &serverName, &self->ichnls, &midiType, &self->verbosity))
         return -1;
 
     if (strcmp(audioType, "jack") == 0)

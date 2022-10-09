@@ -30,6 +30,7 @@ extern "C" {
 
 #include "sndfile.h"
 #include "pyomodule.h"
+#include <CoreAudio/AudioHardware.h>
 
 typedef enum
 {
@@ -104,6 +105,8 @@ typedef struct
     int duplex;
     int input;
     int output;
+    AudioDeviceIOProcID outprocid;
+    AudioDeviceIOProcID inprocid;
     int input_offset;
     int output_offset;
     int midi_input;

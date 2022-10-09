@@ -22,6 +22,7 @@
 #define _AD_COREAUDIO_H
 
 #include <CoreAudio/AudioHardware.h>
+#include <CoreAudio/HostTime.h>
 #include "servermodule.h"
 
 OSStatus coreaudio_input_callback(AudioDeviceID device, const AudioTimeStamp* inNow,
