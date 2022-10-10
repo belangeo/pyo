@@ -67,6 +67,7 @@ OSStatus coreaudio_output_callback(AudioDeviceID device, const AudioTimeStamp* i
     }
 
     Server_process_buffers(server);
+    pthread_mutex_lock(&server->buf_mutex);
     AudioBuffer* outputBuf = outOutputData->mBuffers;
     bufchnls = outputBuf->mNumberChannels;
     servchnls = server->nchnls < bufchnls ? server->nchnls : bufchnls;
@@ -84,6 +85,8 @@ OSStatus coreaudio_output_callback(AudioDeviceID device, const AudioTimeStamp* i
     }
 
     server->midi_count = 0;
+    pthread_cond_signal(&server->buf_cond);
+    pthread_mutex_unlock(&server->buf_mutex);
 
     return kAudioHardwareNoError;
 }
@@ -92,6 +95,14 @@ int
 coreaudio_stop_callback(Server *self)
 {
     OSStatus err = kAudioHardwareNoError;
+
+    err = AudioDeviceStop(self->output, self->outprocid);
+
+    if (err != kAudioHardwareNoError)
+    {
+        Server_error(self, "Output AudioDeviceStop failed %d\n", (int)err);
+        return -1;
+    }
 
     if (self->duplex == 1)
     {
@@ -102,14 +113,6 @@ coreaudio_stop_callback(Server *self)
             Server_error(self, "Input AudioDeviceStop failed %d\n", (int)err);
             return -1;
         }
-    }
-
-    err = AudioDeviceStop(self->output, self->outprocid);
-
-    if (err != kAudioHardwareNoError)
-    {
-        Server_error(self, "Output AudioDeviceStop failed %d\n", (int)err);
-        return -1;
     }
 
     self->server_started = 0;
@@ -135,6 +138,19 @@ Server_coreaudio_init(Server *self)
 
     now.mFlags = kAudioTimeStampHostTimeValid;
     now.mHostTime = AudioGetCurrentHostTime();
+
+    /* create mutex */
+    err = pthread_mutex_init(&self->buf_mutex, NULL);
+    if (err) {
+        Server_error(self, "Could not create mutex\nReason: %s\n", (char*)&err);
+        return -1;
+    }
+    /* create mutex condition*/
+    err = pthread_cond_init(&self->buf_cond, NULL);
+    if (err) {
+        Server_error(self, "Could not create mutex condition\nReason: %s\n", (char*)&err);
+        return -1;
+    }
 
     /************************************/
     /* List Coreaudio available devices */
@@ -457,11 +473,14 @@ Server_coreaudio_init(Server *self)
             return -1;
         }
 
-        property_address.mSelector = kAudioDevicePropertyIOProcStreamUsage;
-        err = AudioObjectGetPropertyData(self->input, &property_address, 0, NULL, &propertysize, &writable);
+        AudioObjectPropertyAddress pas;
+            pas.mSelector = kAudioDevicePropertyIOProcStreamUsage;
+            pas.mScope = kAudioDevicePropertyScopeInput;
+            pas.mElement = kAudioObjectPropertyElementMain;
+        err = AudioObjectGetPropertyData(self->input, &pas, 0, NULL, &propertysize, &writable);
         AudioHardwareIOProcStreamUsage *input_su = (AudioHardwareIOProcStreamUsage*)PyMem_RawMalloc(propertysize);
         input_su->mIOProc = (void*)coreaudio_input_callback;
-        err = AudioObjectGetPropertyData(self->input, &property_address, 0, NULL, &propertysize, input_su);
+        err = AudioObjectGetPropertyData(self->input, &pas, 0, NULL, &propertysize, input_su);
 
         for (i = 0; i < inputStreamDescription.mChannelsPerFrame; ++i)
         {
@@ -500,6 +519,17 @@ int
 Server_coreaudio_deinit(Server *self)
 {
     OSStatus err = kAudioHardwareNoError;
+
+    /* destroy mutex */
+    err = pthread_mutex_destroy(&self->buf_mutex);
+    if (err) {
+        Server_error(self, "Could not destroy mutex\nReason: %s\n", (char*)&err);
+    }
+    /* destroy mutex condition*/
+    err = pthread_cond_destroy(&self->buf_cond);
+    if (err) {
+        Server_error(self, "Could not destroy mutex condition\nReason: %s\n", (char*)&err);
+    }
 
     if (self->duplex == 1)
     {
@@ -546,6 +576,8 @@ Server_coreaudio_start(Server *self)
         Server_error(self, "Output AudioDeviceStart failed %d\n", (int)err);
         return -1;
     }
+    self->server_started = 1;
+    self->server_stopped = 0;
 
     return 0;
 }

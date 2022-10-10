@@ -99,6 +99,8 @@ typedef struct
     double samplingRate;
     int nchnls;
     int ichnls;
+    pthread_mutex_t buf_mutex;
+    pthread_cond_t buf_cond;
     int bufferSize;
     int currentResampling;
     int lastResampling;
