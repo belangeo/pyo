@@ -471,7 +471,7 @@ class ControlSlider(wx.Panel):
 class MultiSlider(wx.Panel):
     def __init__(self, parent, init, key, command, slmap, ctrllabel=""):
         wx.Panel.__init__(self, parent, size=(250, 250))
-        self.backgroundColour = BACKGROUND_COLOUR
+        self.backgroundColour = wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW)
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
         self.SetBackgroundColour(self.backgroundColour)
         self.Bind(wx.EVT_SIZE, self.OnResize)
@@ -717,7 +717,7 @@ class RangeSlider(wx.Panel):
         if backColour:
             self.backgroundColour = backColour
         else:
-            self.backgroundColour = BACKGROUND_COLOUR
+            self.backgroundColour = wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW)
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
         self.SetBackgroundColour(self.backgroundColour)
         self.SetMinSize(self.GetSize())
@@ -1145,7 +1145,7 @@ class ViewTable(wx.Frame):
         self.object = object
         self.Bind(wx.EVT_CLOSE, self._destroy)
         self.panel = wx.Panel(self)
-        self.panel.SetBackgroundColour(BACKGROUND_COLOUR)
+        self.panel.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW))
         self.box = wx.BoxSizer(wx.VERTICAL)
         self.wavePanel = ViewTablePanel(self.panel, object)
         self.box.Add(self.wavePanel, 1, wx.EXPAND | wx.ALL, 5)
@@ -1210,7 +1210,7 @@ class SndViewTable(wx.Frame):
         self.chnls = len(self.obj)
         self.dur = self.obj.getDur(False)
         self.panel = wx.Panel(self)
-        self.panel.SetBackgroundColour(BACKGROUND_COLOUR)
+        self.panel.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW))
         self.box = wx.BoxSizer(wx.VERTICAL)
         self.wavePanel = SndViewTablePanel(self.panel, obj, mouse_callback)
         self.box.Add(self.wavePanel, 1, wx.EXPAND | wx.ALL, 5)
@@ -1548,7 +1548,7 @@ class SpectrumDisplay(wx.Frame):
         self.Bind(wx.EVT_CLOSE, self._destroy)
         self.obj = obj
         self.panel = wx.Panel(self)
-        self.panel.SetBackgroundColour(BACKGROUND_COLOUR)
+        self.panel.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW))
         self.mainBox = wx.BoxSizer(wx.VERTICAL)
         self.toolBox = wx.BoxSizer(wx.HORIZONTAL)
         if sys.platform == "darwin":
@@ -1960,7 +1960,7 @@ class ScopeDisplay(wx.Frame):
         gain = self.obj.gain
         length = self.obj.length
         self.panel = wx.Panel(self)
-        self.panel.SetBackgroundColour(BACKGROUND_COLOUR)
+        self.panel.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW))
         self.mainBox = wx.BoxSizer(wx.VERTICAL)
         self.toolBox = wx.BoxSizer(wx.HORIZONTAL)
         if sys.platform == "darwin":
@@ -2189,7 +2189,7 @@ class Grapher(wx.Panel):
         style=0,
     ):
         wx.Panel.__init__(self, parent, pos=pos, size=size, style=style)
-        self.backgroundColour = BACKGROUND_COLOUR
+        self.backgroundColour = wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW)
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
         self.SetBackgroundColour(self.backgroundColour)
         self.Bind(wx.EVT_LEAVE_WINDOW, self.OnLeave)
@@ -2744,7 +2744,7 @@ class TableGrapher(wx.Frame):
 class DataMultiSlider(wx.Panel):
     def __init__(self, parent, init, yrange=(0, 1), outFunction=None, pos=(0, 0), size=(300, 200), style=0):
         wx.Panel.__init__(self, parent, pos=pos, size=size, style=style)
-        self.backgroundColour = BACKGROUND_COLOUR
+        self.backgroundColour = wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW)
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
         self.SetBackgroundColour(self.backgroundColour)
         self.Bind(wx.EVT_SIZE, self.OnResize)
@@ -3518,7 +3518,7 @@ class Keyboard(wx.Panel):
     ):
         wx.Panel.__init__(self, parent, id, pos, size, style)
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
-        self.SetBackgroundColour(BACKGROUND_COLOUR)
+        self.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW))
         self.parent = parent
         self.outFunction = outFunction
 
