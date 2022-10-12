@@ -1530,12 +1530,6 @@ Server_boot(Server *self, PyObject *arg)
     self->stream_count = 0;
     self->elapsedSamples = 0;
 
-    /* Ensure Python is set up for threading */
-    if (!PyEval_ThreadsInitialized())
-    {
-        PyEval_InitThreads();
-    }
-
     int needNewBuffer = 0;
 
     if (arg != NULL && PyBool_Check(arg))
