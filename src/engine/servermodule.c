@@ -735,8 +735,10 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->duplex = 0;
     self->input = -1;
     self->output = -1;
+#ifdef __APPLE__
     self->inprocid = NULL;
     self->outprocid = NULL;
+#endif
     self->input_offset = 0;
     self->output_offset = 0;
     self->midiin_count = 0;

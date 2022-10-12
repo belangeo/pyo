@@ -30,7 +30,10 @@ extern "C" {
 
 #include "sndfile.h"
 #include "pyomodule.h"
+
+#ifdef __APPLE__
 #include <CoreAudio/AudioHardware.h>
+#endif
 
 typedef enum
 {
@@ -99,16 +102,12 @@ typedef struct
     double samplingRate;
     int nchnls;
     int ichnls;
-    pthread_mutex_t buf_mutex;
-    pthread_cond_t buf_cond;
     int bufferSize;
     int currentResampling;
     int lastResampling;
     int duplex;
     int input;
     int output;
-    AudioDeviceIOProcID outprocid;
-    AudioDeviceIOProcID inprocid;
     int input_offset;
     int output_offset;
     int midi_input;
@@ -124,6 +123,13 @@ typedef struct
     int stream_count;
     int record;
     int thisServerID;       /* To keep the reference index in the array of servers */
+
+#ifdef __APPLE__
+    pthread_mutex_t buf_mutex;
+    pthread_cond_t buf_cond;
+    AudioDeviceIOProcID outprocid;
+    AudioDeviceIOProcID inprocid;
+#endif
 
     /* global amplitude */
     MYFLT amp;
