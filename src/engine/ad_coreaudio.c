@@ -20,6 +20,11 @@
 
 #include "ad_coreaudio.h"
 
+#if !defined(MAC_OS_VERSION_12_0) || \
+    (MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_VERSION_12_0)
+#define kAudioObjectPropertyElementMain kAudioObjectPropertyElementMaster
+#endif
+
 OSStatus coreaudio_input_callback(AudioDeviceID device, const AudioTimeStamp* inNow,
                                   const AudioBufferList* inInputData,
                                   const AudioTimeStamp* inInputTime,
