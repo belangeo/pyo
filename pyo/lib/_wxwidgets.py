@@ -29,6 +29,7 @@ if "phoenix" in wx.version():
     wx.Image_HSVValue = wx.Image.HSVValue
     wx.Image_HSVtoRGB = wx.Image.HSVtoRGB
 
+# TODO: Remove and fix all apps using it (Cecilia, SoundGrain, etc.)
 BACKGROUND_COLOUR = "#EBEBEB"
 
 
@@ -106,8 +107,15 @@ def GetRoundBitmap(w, h, r):
     b.SetMaskColour(maskColor)
     return b
 
+class BasePanel(wx.Panel):
+    def __init__(self, parent=None, id=wx.ID_ANY, pos=wx.DefaultPosition, size=wx.DefaultSize, style=wx.TAB_TRAVERSAL):
+        wx.Panel.__init__(self, parent, id, pos, size, style)
+        self.backgroundColour = wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW)
+        self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
+        self.SetBackgroundColour(self.backgroundColour)
+        self.SetForegroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_MENUTEXT))
 
-class ControlSlider(wx.Panel):
+class ControlSlider(BasePanel):
     def __init__(
         self,
         parent,
@@ -126,15 +134,12 @@ class ControlSlider(wx.Panel):
     ):
         if size == (200, 16) and orient == wx.VERTICAL:
             size = (40, 200)
-        wx.Panel.__init__(
+        BasePanel.__init__(
             self, parent=parent, id=wx.ID_ANY, pos=pos, size=size, style=wx.NO_BORDER | wx.WANTS_CHARS | wx.EXPAND
         )
         self.parent = parent
         if backColour:
             self.backgroundColour = backColour
-        else:
-            self.backgroundColour = BACKGROUND_COLOUR
-        self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
         self.SetBackgroundColour(self.backgroundColour)
         self.orient = orient
         # self.SetMinSize(self.GetSize())
@@ -375,6 +380,7 @@ class ControlSlider(wx.Panel):
         dc = self.dcref(self)
         gc = wx.GraphicsContext_Create(dc)
 
+        self.backgroundColour = wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW)
         dc.SetBrush(wx.Brush(self.backgroundColour, wx.SOLID))
         dc.Clear()
 
@@ -468,12 +474,9 @@ class ControlSlider(wx.Panel):
 
 # TODO: key, command and slmap should be removed from the multislider widget.
 # It should work in the same way as the ControlSlider widget.
-class MultiSlider(wx.Panel):
+class MultiSlider(BasePanel):
     def __init__(self, parent, init, key, command, slmap, ctrllabel=""):
-        wx.Panel.__init__(self, parent, size=(250, 250))
-        self.backgroundColour = BACKGROUND_COLOUR
-        self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
-        self.SetBackgroundColour(self.backgroundColour)
+        BasePanel.__init__(self, parent, size=(250, 250))
         self.Bind(wx.EVT_SIZE, self.OnResize)
         self.Bind(wx.EVT_PAINT, self.OnPaint)
         self.Bind(wx.EVT_LEFT_DOWN, self.MouseDown)
@@ -505,6 +508,7 @@ class MultiSlider(wx.Panel):
     def OnPaint(self, event):
         w, h = self.GetSize()
         dc = wx.AutoBufferedPaintDC(self)
+        self.backgroundColour = wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW)
         dc.SetBrush(wx.Brush(self.backgroundColour))
         dc.Clear()
         dc.DrawRectangle(0, 0, w, h)
@@ -555,17 +559,15 @@ class MultiSlider(wx.Panel):
         return self._labels
 
 
-class VuMeter(wx.Panel):
+class VuMeter(BasePanel):
     def __init__(self, parent, size=(200, 11), numSliders=2, orient=wx.HORIZONTAL, pos=wx.DefaultPosition, style=0):
         if orient == wx.HORIZONTAL:
             size = (size[0], numSliders * 5 + 1)
         else:
             size = (numSliders * 5 + 1, size[1])
-        wx.Panel.__init__(self, parent, -1, pos=pos, size=size, style=style)
+        BasePanel.__init__(self, parent, -1, pos=pos, size=size, style=style)
         self.parent = parent
         self.orient = orient
-        self.SetBackgroundColour("#000000")
-        self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
         self.old_nchnls = numSliders
         self.numSliders = numSliders
         self.amplitude = [0] * self.numSliders
@@ -699,7 +701,7 @@ class VuMeter(wx.Panel):
 
 
 # TODO: BACKGROUND_COLOUR hard-coded all over the place in this class.
-class RangeSlider(wx.Panel):
+class RangeSlider(BasePanel):
     def __init__(
         self,
         parent,
@@ -713,12 +715,9 @@ class RangeSlider(wx.Panel):
         function=None,
         backColour=None,
     ):
-        wx.Panel.__init__(self, parent=parent, id=wx.ID_ANY, pos=pos, size=size, style=wx.NO_BORDER)
+        BasePanel.__init__(self, parent=parent, id=wx.ID_ANY, pos=pos, size=size, style=wx.NO_BORDER)
         if backColour:
             self.backgroundColour = backColour
-        else:
-            self.backgroundColour = BACKGROUND_COLOUR
-        self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
         self.SetBackgroundColour(self.backgroundColour)
         self.SetMinSize(self.GetSize())
         self.sliderHeight = 15
@@ -840,7 +839,6 @@ class RangeSlider(wx.Panel):
 
     def OnResize(self, evt):
         self.createSliderBitmap()
-        self.createBackgroundBitmap()
         self.clampHandlePos()
         self.Refresh()
 
@@ -872,33 +870,12 @@ class HRangeSlider(RangeSlider):
         self.SetMinSize((50, 15))
 
         self.createSliderBitmap()
-        # self.createBackgroundBitmap()
         self.clampHandlePos()
 
     def setSliderHeight(self, height):
         self.sliderHeight = height
         self.createSliderBitmap()
-        # self.createBackgroundBitmap()
         self.Refresh()
-
-    def createBackgroundBitmap(self):
-        w, h = self.GetSize()
-        self.backgroundBitmap = wx.EmptyBitmap(w, h)
-        dc = wx.MemoryDC(self.backgroundBitmap)
-
-        dc.SetBrush(wx.Brush(self.backgroundColour, wx.SOLID))
-        dc.Clear()
-
-        # Draw background
-        dc.SetPen(wx.Pen(self.backgroundColour, width=self.borderWidth, style=wx.SOLID))
-        dc.DrawRectangle(0, 0, w, h)
-
-        # Draw inner part
-        h2 = self.sliderHeight // 4
-        rec = wx.Rect(0, h2, w, self.sliderHeight)
-        dc.GradientFillLinear(rec, "#666666", self.fillcolor, wx.BOTTOM)
-        dc.DrawBitmap(self.sliderMask, 0, 0, True)
-        dc.SelectObject(wx.NullBitmap)
 
     def SetOneValue(self, value, which):
         self.lasthandles = self.handles
@@ -950,21 +927,23 @@ class HRangeSlider(RangeSlider):
         dc = wx.AutoBufferedPaintDC(self)
 
         # Draw background
+        self.backgroundColour = wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW)
+        foregroundColour = wx.SystemSettings.GetColour(wx.SYS_COLOUR_MENUTEXT)
+
         dc.SetBrush(wx.Brush(self.backgroundColour))
         dc.Clear()
         dc.SetPen(wx.Pen(self.backgroundColour))
         dc.DrawRectangle(0, 0, w, h)
 
-        # dc.DrawBitmap(self.backgroundBitmap, 0, 0)
-
         # Draw handles
-        dc.SetPen(wx.Pen(self.handlecolor, width=1, style=wx.SOLID))
-        dc.SetBrush(wx.Brush(self.handlecolor))
+        dc.SetPen(wx.Pen(foregroundColour, width=1, style=wx.SOLID))
+        dc.SetBrush(wx.Brush(foregroundColour))
 
         rec = (self.handlePos[0], 3, self.handlePos[1] - self.handlePos[0], h - 7)
         dc.DrawRoundedRectangle(rec[0], rec[1], rec[2], rec[3], 4)
-        dc.SetPen(wx.Pen(self.fillcolor, width=1, style=wx.SOLID))
-        dc.SetBrush(wx.Brush(self.fillcolor))
+
+        dc.SetPen(wx.Pen(self.backgroundColour, width=1, style=wx.SOLID))
+        dc.SetBrush(wx.Brush(self.backgroundColour))
         mid = (self.handlePos[1] - self.handlePos[0]) // 2 + self.handlePos[0]
         rec = (mid - 4, 4, 8, h - 9)
         dc.DrawRoundedRectangle(rec[0], rec[1], rec[2], rec[3], 3)
@@ -991,6 +970,8 @@ class PyoObjectControl(wx.Frame):
         wx.Frame.__init__(self, parent)
         from .controls import SigTo
 
+        self.Bind(wx.EVT_SYS_COLOUR_CHANGED, self.OnColourChanged)
+
         self.menubar = wx.MenuBar()
         self.fileMenu = wx.Menu()
         self.fileMenu.Append(9999, "Close\tCtrl+W", kind=wx.ITEM_NORMAL)
@@ -1009,6 +990,7 @@ class PyoObjectControl(wx.Frame):
         self.Bind(wx.EVT_CLOSE, self._destroy)
         self._obj = obj
         self._map_list = map_list
+        self._labels = []
         self._sliders = []
         self._excluded = []
         self._values = {}
@@ -1016,8 +998,7 @@ class PyoObjectControl(wx.Frame):
         self._maps = {}
         self._sigs = {}
 
-        panel = wx.Panel(self)
-        panel.SetBackgroundColour(BACKGROUND_COLOUR)
+        panel = BasePanel(self)
         mainBox = wx.BoxSizer(wx.VERTICAL)
         self.box = wx.FlexGridSizer(len(self._map_list), 2, 5, 5)
 
@@ -1033,6 +1014,7 @@ class PyoObjectControl(wx.Frame):
                     label = wx.StaticText(panel, -1, key + " *")
                 else:
                     label = wx.StaticText(panel, -1, key)
+                self._labels.append(label)
                 # create and pack slider
                 if type(init) != list:
                     if scl == "log":
@@ -1077,6 +1059,11 @@ class PyoObjectControl(wx.Frame):
         self.SetClientSize(panel.GetSize())
         self.SetMinSize(self.GetSize())
         self.SetMaxSize((-1, self.GetSize()[1]))
+
+    def OnColourChanged(self, evt):
+        colour = wx.SystemSettings.GetColour(wx.SYS_COLOUR_MENUTEXT)
+        for label in self._labels:
+            label.SetForegroundColour(colour)
 
     def _destroy(self, event):
         for m in self._map_list:
@@ -1143,8 +1130,7 @@ class ViewTable(wx.Frame):
         self.tableclass = tableclass
         self.object = object
         self.Bind(wx.EVT_CLOSE, self._destroy)
-        self.panel = wx.Panel(self)
-        self.panel.SetBackgroundColour(BACKGROUND_COLOUR)
+        self.panel = BasePanel(self)
         self.box = wx.BoxSizer(wx.VERTICAL)
         self.wavePanel = ViewTablePanel(self.panel, object)
         self.box.Add(self.wavePanel, 1, wx.EXPAND | wx.ALL, 5)
@@ -1208,8 +1194,7 @@ class SndViewTable(wx.Frame):
         self.obj = obj
         self.chnls = len(self.obj)
         self.dur = self.obj.getDur(False)
-        self.panel = wx.Panel(self)
-        self.panel.SetBackgroundColour(BACKGROUND_COLOUR)
+        self.panel = BasePanel(self)
         self.box = wx.BoxSizer(wx.VERTICAL)
         self.wavePanel = SndViewTablePanel(self.panel, obj, mouse_callback)
         self.box.Add(self.wavePanel, 1, wx.EXPAND | wx.ALL, 5)
@@ -1546,8 +1531,7 @@ class SpectrumDisplay(wx.Frame):
         self.SetMenuBar(self.menubar)
         self.Bind(wx.EVT_CLOSE, self._destroy)
         self.obj = obj
-        self.panel = wx.Panel(self)
-        self.panel.SetBackgroundColour(BACKGROUND_COLOUR)
+        self.panel = BasePanel(self)
         self.mainBox = wx.BoxSizer(wx.VERTICAL)
         self.toolBox = wx.BoxSizer(wx.HORIZONTAL)
         if sys.platform == "darwin":
@@ -1942,7 +1926,7 @@ class SpectrumPanel(wx.Panel):
 
 
 ######################################################################
-## Spectrum Display
+## Scope Display
 ######################################################################
 class ScopeDisplay(wx.Frame):
     def __init__(self, parent, obj=None):
@@ -1955,11 +1939,12 @@ class ScopeDisplay(wx.Frame):
         self.menubar.Append(self.fileMenu, "&File")
         self.SetMenuBar(self.menubar)
         self.Bind(wx.EVT_CLOSE, self._destroy)
+        self.Bind(wx.EVT_SYS_COLOUR_CHANGED, self.OnColourChanged)
+
         self.obj = obj
         gain = self.obj.gain
         length = self.obj.length
-        self.panel = wx.Panel(self)
-        self.panel.SetBackgroundColour(BACKGROUND_COLOUR)
+        self.panel = BasePanel(self)
         self.mainBox = wx.BoxSizer(wx.VERTICAL)
         self.toolBox = wx.BoxSizer(wx.HORIZONTAL)
         if sys.platform == "darwin":
@@ -1972,7 +1957,8 @@ class ScopeDisplay(wx.Frame):
         self.activeTog.Bind(wx.EVT_TOGGLEBUTTON, self.activate)
         self.toolBox.Add(self.activeTog, 0, wx.TOP | wx.LEFT | wx.RIGHT, 5)
         self.toolBox.AddSpacer(10)
-        self.toolBox.Add(wx.StaticText(self.panel, -1, label="Window length (ms):"), 0, wx.TOP, 11)
+        self.windowLengthText = wx.StaticText(self.panel, -1, label="Window length (ms):")
+        self.toolBox.Add(self.windowLengthText, 0, wx.TOP, 11)
         self.lenSlider = ControlSlider(self.panel, 10, 1000, length * 1000, log=True, outFunction=self.setLength)
         self.toolBox.Add(self.lenSlider, 1, wx.TOP | wx.LEFT | wx.RIGHT, 11)
         self.toolBox.AddSpacer(40)
@@ -1989,6 +1975,10 @@ class ScopeDisplay(wx.Frame):
         self.dispBox.AddSpacer(5)
         self.mainBox.Add(self.dispBox, 1, wx.EXPAND)
         self.panel.SetSizer(self.mainBox)
+
+    def OnColourChanged(self, evt):
+        colour = wx.SystemSettings.GetColour(wx.SYS_COLOUR_MENUTEXT)
+        self.windowLengthText.SetForegroundColour(colour)
 
     def activate(self, evt):
         self.obj.poll(evt.GetInt())
@@ -2188,7 +2178,7 @@ class Grapher(wx.Panel):
         style=0,
     ):
         wx.Panel.__init__(self, parent, pos=pos, size=size, style=style)
-        self.backgroundColour = BACKGROUND_COLOUR
+        self.backgroundColour = "#FFFFFF"
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
         self.SetBackgroundColour(self.backgroundColour)
         self.Bind(wx.EVT_LEAVE_WINDOW, self.OnLeave)
@@ -2740,12 +2730,9 @@ class TableGrapher(wx.Frame):
         self.graph.reset()
 
 
-class DataMultiSlider(wx.Panel):
+class DataMultiSlider(BasePanel):
     def __init__(self, parent, init, yrange=(0, 1), outFunction=None, pos=(0, 0), size=(300, 200), style=0):
-        wx.Panel.__init__(self, parent, pos=pos, size=size, style=style)
-        self.backgroundColour = BACKGROUND_COLOUR
-        self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
-        self.SetBackgroundColour(self.backgroundColour)
+        BasePanel.__init__(self, parent, pos=pos, size=size, style=style)
         self.Bind(wx.EVT_SIZE, self.OnResize)
         self.Bind(wx.EVT_PAINT, self.OnPaint)
         self.Bind(wx.EVT_LEFT_DOWN, self.MouseDown)
@@ -2778,12 +2765,14 @@ class DataMultiSlider(wx.Panel):
         w, h = self.GetSize()
         dc = self.dcref(self)
         gc = wx.GraphicsContext_Create(dc)
-        dc.SetBrush(wx.Brush("#FFFFFF"))
-        dc.SetPen(wx.Pen("#FFFFFF"))
+        backgroundColour = wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW)
+        foregroundColour = wx.SystemSettings.GetColour(wx.SYS_COLOUR_MENUTEXT)
+        dc.SetBrush(wx.Brush(backgroundColour))
+        dc.SetPen(wx.Pen(foregroundColour))
         dc.Clear()
         dc.DrawRectangle(0, 0, w, h)
-        gc.SetBrush(wx.Brush("#000000"))
-        gc.SetPen(wx.Pen("#000000"))
+        gc.SetBrush(wx.Brush(foregroundColour))
+        gc.SetPen(wx.Pen(foregroundColour))
         scl = self.yrange[1] - self.yrange[0]
         mini = self.yrange[0]
         bw = float(w) / self.len
@@ -3517,7 +3506,7 @@ class Keyboard(wx.Panel):
     ):
         wx.Panel.__init__(self, parent, id, pos, size, style)
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
-        self.SetBackgroundColour(BACKGROUND_COLOUR)
+        self.SetBackgroundColour("#FFFFFF")
         self.parent = parent
         self.outFunction = outFunction
 
@@ -3895,7 +3884,7 @@ class Keyboard(wx.Panel):
                 dc.SetPen(wx.Pen("#000000", width=1, style=wx.SOLID))
                 dc.DrawRectangle(rec)
 
-        dc.SetBrush(wx.Brush(BACKGROUND_COLOUR, wx.SOLID))
+        dc.SetBrush(wx.Brush("#FFFFFF", wx.SOLID))
         dc.SetPen(wx.Pen("#AAAAAA", width=1, style=wx.SOLID))
         dc.DrawRectangle(self.offRec)
         dc.DrawRectangle(self.holdRec)
@@ -3989,8 +3978,7 @@ class ServerGUI(wx.Frame):
         self._history = []
         self._histo_count = 0
 
-        panel = wx.Panel(self)
-        panel.SetBackgroundColour(BACKGROUND_COLOUR)
+        panel = BasePanel(self)
         box = wx.BoxSizer(wx.VERTICAL)
 
         buttonBox = wx.BoxSizer(wx.HORIZONTAL)
@@ -4009,7 +3997,11 @@ class ServerGUI(wx.Frame):
         box.Add(buttonBox, 0, wx.TOP, 10)
         box.AddSpacer(10)
 
-        box.Add(wx.StaticText(panel, -1, "Amplitude (dB)"), 0, wx.LEFT, 5)
+        panel.SetForegroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_MENUTEXT))
+
+        self.amplitudeText = wx.StaticText(panel, -1, "Amplitude (dB)")
+        self.amplitudeText.SetForegroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_MENUTEXT))
+        box.Add(self.amplitudeText, 0, wx.LEFT, 5)
         self.ampScale = ControlSlider(panel, -60, 18, 20.0 * math.log10(amp), size=(202, 16), outFunction=self.setAmp)
         box.Add(self.ampScale, 0, wx.LEFT | wx.RIGHT | wx.EXPAND, 5)
 
@@ -4021,16 +4013,16 @@ class ServerGUI(wx.Frame):
 
         if timer:
             box.AddSpacer(10)
-            tt = wx.StaticText(panel, -1, "Elapsed time (hh:mm:ss:ms)")
-            box.Add(tt, 0, wx.LEFT, 5)
+            self.timerText = wx.StaticText(panel, -1, "Elapsed time (hh:mm:ss:ms)")
+            box.Add(self.timerText, 0, wx.LEFT, 5)
             box.AddSpacer(3)
-            self.timetext = wx.StaticText(panel, -1, "00 : 00 : 00 : 000")
-            box.Add(self.timetext, 0, wx.LEFT, 5)
+            self.timeText = wx.StaticText(panel, -1, "00 : 00 : 00 : 000")
+            box.Add(self.timeText, 0, wx.LEFT, 5)
 
         if self.locals is not None:
             box.AddSpacer(10)
-            t = wx.StaticText(panel, -1, "Interpreter")
-            box.Add(t, 0, wx.LEFT, 5)
+            self.interpreterText = wx.StaticText(panel, -1, "Interpreter")
+            box.Add(self.interpreterText, 0, wx.LEFT, 5)
             tw, th = self.GetTextExtent("|")
             self.text = wx.TextCtrl(panel, -1, "", size=(202, th + 8), style=wx.TE_PROCESS_ENTER)
             self.text.Bind(wx.EVT_TEXT_ENTER, self.getText)
@@ -4041,13 +4033,24 @@ class ServerGUI(wx.Frame):
         panel.SetSizerAndFit(box)
         self.SetClientSize(panel.GetSize())
 
+        self.Bind(wx.EVT_SYS_COLOUR_CHANGED, self.OnColourChanged)
         self.Bind(wx.EVT_CLOSE, self.on_quit)
 
         if started == 1:
             self.start(None, True)
 
+    def OnColourChanged(self, evt):
+        colour = wx.SystemSettings.GetColour(wx.SYS_COLOUR_MENUTEXT)
+        self.amplitudeText.SetForegroundColour(colour)
+        if hasattr(self, "timerText"):
+            self.timerText.SetForegroundColour(colour)
+        if hasattr(self, "timeText"):
+           self.timeText.SetForegroundColour(colour)
+        if hasattr(self, "interpreterText"):
+           self.interpreterText.SetForegroundColour(colour)
+
     def setTime(self, *args):
-        wx.CallAfter(self.timetext.SetLabel, "%02d : %02d : %02d : %03d" % (args[0], args[1], args[2], args[3]))
+        wx.CallAfter(self.timeText.SetLabel, "%02d : %02d : %02d : %03d" % (args[0], args[1], args[2], args[3]))
 
     def start(self, evt=None, justSet=False):
         if self._started == False:

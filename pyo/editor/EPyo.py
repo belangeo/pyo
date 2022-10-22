@@ -997,6 +997,29 @@ DOC_STYLES = {
         "bracelight": "#AABBDD",
         "bracebad": "#DD0000",
         "lineedge": "#CCCCCC",
+    },
+    "Monokai-Soda": {
+        "default": "#F8F8F2",
+        "comment": "#75715E",
+        "commentblock": "#75715E",
+        "selback": "#444444",
+        "number": "#AE81FF",
+        "string": "#E6DB74",
+        "triple": "#E6DB74",
+        "keyword": "#F92671",
+        "keyword2": "#A6E22E",
+        "class": "#A6E22E",
+        "function": "#66D9EF",
+        "identifier": "#F8F8F2",
+        "caret": "#FFFFFF",
+        "background": "#222222",
+        "linenumber": "#F8F8F2",
+        "marginback": "#222222",
+        "markerfg": "#222222",
+        "markerbg": "#F8F8F2",
+        "bracelight": "#AABBDD",
+        "bracebad": "#DD0000",
+        "lineedge": "#222222",
     }
 }
 
@@ -1257,6 +1280,14 @@ WXPANEL_METHODS_FILTER = get_object_methods("wx.Panel")
 
 
 def _ed_set_style(editor, searchKey=None):
+    style = "Default"
+    if wx.SystemSettings.GetAppearance().IsDark():
+        style = "Monokai-Soda"
+
+    if style in DOC_STYLES:
+        for key, value in DOC_STYLES[style].items():
+            DOC_FACES[key] = value
+
     editor.SetLexer(stc.STC_LEX_PYTHON)
     editor.SetKeyWords(0, " ".join(_KEYWORDS_LIST))
     if searchKey == None:
@@ -1343,6 +1374,7 @@ class ManualPanel(wx.Treebook):
         self.searchKey = None
         self.needToParse = True
         self.Bind(wx.EVT_TREEBOOK_PAGE_CHANGED, self.OnPageChanged)
+        self.Bind(wx.EVT_SYS_COLOUR_CHANGED, self.OnColourChanged)
         self.parse()
 
     def reset_history(self):
@@ -1920,19 +1952,24 @@ class ManualPanel(wx.Treebook):
         text = stc.GetTextRange(stc.PositionFromLine(start), stc.PositionFromLine(end))
         return text
 
+    def OnColourChanged(self, evt):
+        self.setStyle()
+        stc = self.GetPage(self.GetSelection()).win
+        _ed_set_style(stc)
+
     def setStyle(self):
         # tree = self.GetTreeCtrl() # Should be there now...
         tree = [x for x in self.GetChildren() if isinstance(x, wx.TreeCtrl)][0]
-        tree.SetBackgroundColour(DOC_STYLES["Default"]["background"])
+        tree.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW))
         root = tree.GetRootItem()
-        tree.SetItemTextColour(root, DOC_STYLES["Default"]["identifier"])
+        tree.SetItemTextColour(root, wx.SystemSettings.GetColour(wx.SYS_COLOUR_MENUTEXT))
         (child, cookie) = tree.GetFirstChild(root)
         while child.IsOk():
-            tree.SetItemTextColour(child, DOC_STYLES["Default"]["identifier"])
+            tree.SetItemTextColour(child, wx.SystemSettings.GetColour(wx.SYS_COLOUR_MENUTEXT))
             if tree.ItemHasChildren(child):
                 (child2, cookie2) = tree.GetFirstChild(child)
                 while child2.IsOk():
-                    tree.SetItemTextColour(child2, DOC_STYLES["Default"]["identifier"])
+                    tree.SetItemTextColour(child2, wx.SystemSettings.GetColour(wx.SYS_COLOUR_MENUTEXT))
                     (child2, cookie2) = tree.GetNextChild(child, cookie2)
             (child, cookie) = tree.GetNextChild(root, cookie)
 
@@ -2566,7 +2603,6 @@ class EditorPreview(stc.StyledTextCtrl):
 class ComponentPanel(scrolled.ScrolledPanel):
     def __init__(self, parent, size):
         scrolled.ScrolledPanel.__init__(self, parent, wx.ID_ANY, pos=(0, 0), size=size, style=wx.SUNKEN_BORDER)
-        self.SetBackgroundColour("#FFFFFF")
         self.buttonRefs = {}
         self.bTogRefs = {}
         self.iTogRefs = {}
@@ -2576,17 +2612,17 @@ class ComponentPanel(scrolled.ScrolledPanel):
             box = wx.BoxSizer(wx.HORIZONTAL)
             label = wx.StaticText(self, wx.ID_ANY, label=STYLES_LABELS[component])
             box.Add(label, 1, wx.EXPAND | wx.TOP | wx.LEFT, 3)
-            btog = wx.ToggleButton(self, wx.ID_ANY, label="B", size=(24, 20))
+            btog = wx.ToggleButton(self, wx.ID_ANY, label="B")
             btog.SetValue(STYLES[component]["bold"])
             box.Add(btog, 0, wx.TOP, 1)
             btog.Bind(wx.EVT_TOGGLEBUTTON, self.OnBToggleButton)
             self.bTogRefs[btog] = component
-            itog = wx.ToggleButton(self, wx.ID_ANY, label="I", size=(24, 20))
+            itog = wx.ToggleButton(self, wx.ID_ANY, label="I")
             itog.SetValue(STYLES[component]["italic"])
             box.Add(itog, 0, wx.TOP, 1)
             itog.Bind(wx.EVT_TOGGLEBUTTON, self.OnIToggleButton)
             self.iTogRefs[itog] = component
-            utog = wx.ToggleButton(self, wx.ID_ANY, label="U", size=(24, 20))
+            utog = wx.ToggleButton(self, wx.ID_ANY, label="U")
             utog.SetValue(STYLES[component]["underline"])
             box.Add(utog, 0, wx.TOP, 1)
             utog.Bind(wx.EVT_TOGGLEBUTTON, self.OnUToggleButton)
@@ -2657,7 +2693,7 @@ class ComponentPanel(scrolled.ScrolledPanel):
 class ColourEditor(wx.Frame):
     def __init__(self, parent, title, pos, size):
         wx.Frame.__init__(self, parent, -1, title, pos, size)
-        self.SetMinSize((500, 550))
+        self.SetMinSize((500, 700))
         self.SetMaxSize((500, -1))
 
         self.menuBar = wx.MenuBar()
@@ -2737,8 +2773,8 @@ class ColourEditor(wx.Frame):
         section1Sizer.Add(buttonSizer2, 0, wx.LEFT | wx.RIGHT | wx.TOP, 10)
         mainSizer.Add(section1Sizer, 0, wx.LEFT | wx.RIGHT | wx.TOP, 10)
 
-        self.components = ComponentPanel(self.panel, size=(480, 100))
-        mainSizer.Add(self.components, 1, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, 10)
+        self.components = ComponentPanel(self.panel, size=(480, 220))
+        mainSizer.Add(self.components, 1, wx.EXPAND | wx.ALL, 10)
 
         mainSizer.Add(wx.StaticLine(self.panel), 0, wx.LEFT | wx.RIGHT | wx.EXPAND, 10)
 
@@ -2762,7 +2798,7 @@ class ColourEditor(wx.Frame):
         mainSizer.Add(
             wx.StaticText(self.panel, wx.ID_ANY, label="Preview"), 0, wx.TOP | wx.CENTER, 10,
         )
-        self.editorPreview = EditorPreview(self.panel, wx.ID_ANY, size=(400, 180))
+        self.editorPreview = EditorPreview(self.panel, wx.ID_ANY, size=(400, 200))
         mainSizer.Add(self.editorPreview, 0, wx.ALL | wx.EXPAND, 10)
 
         self.panel.Layout()
@@ -2848,7 +2884,6 @@ class ColourEditor(wx.Frame):
 class SearchProjectPanel(scrolled.ScrolledPanel):
     def __init__(self, parent, root, dict, size):
         scrolled.ScrolledPanel.__init__(self, parent, wx.ID_ANY, pos=(0, 0), size=size, style=wx.SUNKEN_BORDER)
-        self.SetBackgroundColour("#FFFFFF")
         self.root = root
         self.dict = dict
         self.files = sorted(self.dict.keys())
@@ -3074,58 +3109,7 @@ class SnippetEditor(stc.StyledTextCtrl):
         self, parent, id=-1, pos=wx.DefaultPosition, size=wx.DefaultSize, style=wx.SUNKEN_BORDER,
     ):
         stc.StyledTextCtrl.__init__(self, parent, id, pos, size, style)
-        self.SetViewWhiteSpace(False)
-        self.SetIndent(4)
-        self.SetBackSpaceUnIndents(True)
-        self.SetTabIndents(True)
-        self.SetTabWidth(4)
-        self.SetUseTabs(False)
-        self.SetViewWhiteSpace(False)
-        self.SetEOLMode(wx.stc.STC_EOL_LF)
-        self.SetViewEOL(False)
-        self.SetMarginWidth(1, 0)
-        self.SetLexer(stc.STC_LEX_PYTHON)
-        self.SetKeyWords(0, " ".join(keyword.kwlist) + " None True False " + " ".join(PYO_WORDLIST))
-        self.StyleSetSpec(
-            stc.STC_STYLE_DEFAULT, "fore:#000000,face:%(face)s,size:%(size)d,back:#FFFFFF" % snip_faces,
-        )
-        self.StyleClearAll()
-        self.StyleSetSpec(
-            stc.STC_STYLE_DEFAULT, "fore:#000000,face:%(face)s,size:%(size)d" % snip_faces,
-        )
-        self.StyleSetSpec(stc.STC_STYLE_CONTROLCHAR, "fore:#000000,face:%(face)s" % snip_faces)
-        self.StyleSetSpec(stc.STC_STYLE_BRACELIGHT, "fore:#000000,back:#AABBDD,bold" % snip_faces)
-        self.StyleSetSpec(stc.STC_STYLE_BRACEBAD, "fore:#000000,back:#DD0000,bold" % snip_faces)
-        self.StyleSetSpec(stc.STC_P_DEFAULT, "fore:#000000,face:%(face)s,size:%(size)d" % snip_faces)
-        self.StyleSetSpec(
-            stc.STC_P_COMMENTLINE, "fore:#0066FF,face:%(face)s,italic,size:%(size)d" % snip_faces,
-        )
-        self.StyleSetSpec(
-            stc.STC_P_NUMBER, "fore:#0000CD,face:%(face)s,bold,size:%(size)d" % snip_faces,
-        )
-        self.StyleSetSpec(stc.STC_P_STRING, "fore:#036A07,face:%(face)s,size:%(size)d" % snip_faces)
-        self.StyleSetSpec(stc.STC_P_CHARACTER, "fore:#036A07,face:%(face)s,size:%(size)d" % snip_faces)
-        self.StyleSetSpec(stc.STC_P_WORD, "fore:#0000FF,face:%(face)s,bold,size:%(size)d" % snip_faces)
-        self.StyleSetSpec(stc.STC_P_TRIPLE, "fore:#038A07,face:%(face)s,size:%(size)d" % snip_faces)
-        self.StyleSetSpec(
-            stc.STC_P_TRIPLEDOUBLE, "fore:#038A07,face:%(face)s,size:%(size)d" % snip_faces,
-        )
-        self.StyleSetSpec(
-            stc.STC_P_CLASSNAME, "fore:#000097,face:%(face)s,bold,size:%(size)d" % snip_faces,
-        )
-        self.StyleSetSpec(
-            stc.STC_P_DEFNAME, "fore:#0000A2,face:%(face)s,bold,size:%(size)d" % snip_faces,
-        )
-        self.StyleSetSpec(
-            stc.STC_P_OPERATOR, "fore:#000000,face:%(face)s,bold,size:%(size)d" % snip_faces,
-        )
-        self.StyleSetSpec(
-            stc.STC_P_IDENTIFIER, "fore:#000000,face:%(face)s,size:%(size)d" % snip_faces,
-        )
-        self.StyleSetSpec(
-            stc.STC_P_COMMENTBLOCK, "fore:#0066FF,face:%(face)s,size:%(size)d" % snip_faces,
-        )
-        self.SetSelBackground(1, "#C0DFFF")
+        _ed_set_style(self)
         self.Bind(stc.EVT_STC_UPDATEUI, self.OnUpdateUI)
 
     def OnUpdateUI(self, evt):
@@ -3159,7 +3143,6 @@ class SnippetFrame(wx.Frame):
         self.snippet_tree = SnippetTree(self.splitter, (-1, -1))
 
         self.panel = wx.Panel(self.splitter)
-        self.panel.SetBackgroundColour("#DDDDDD")
 
         self.splitter.SplitVertically(self.snippet_tree, self.panel, 150)
 
@@ -3199,7 +3182,6 @@ class SnippetFrame(wx.Frame):
         self.short = wx.TextCtrl(self.panel, wx.ID_ANY, size=(170, -1))
         activateBox.Add(self.short, 1, wx.EXPAND | wx.ALL, 8)
         self.short.SetValue("Type your shortcut...")
-        self.short.SetForegroundColour("#AAAAAA")
         self.short.Bind(wx.EVT_KEY_DOWN, self.onKey)
         self.short.Bind(wx.EVT_LEFT_DOWN, self.onShortLeftClick)
         self.short.Bind(wx.EVT_KILL_FOCUS, self.onShortLooseFocus)
@@ -3230,10 +3212,8 @@ class SnippetFrame(wx.Frame):
             self.entry.SetText(snippet["value"])
             if snippet["shortcut"]:
                 self.short.SetValue(snippet["shortcut"])
-                self.short.SetForegroundColour("#000000")
             else:
                 self.short.SetValue("Type your shortcut...")
-                self.short.SetForegroundColour("#AAAAAA")
 
     def onSave(self, evt):
         dlg = wx.SingleChoiceDialog(
@@ -3295,7 +3275,6 @@ class SnippetFrame(wx.Frame):
                 ch = ch.upper()
             txt += ch
             self.short.SetValue(txt)
-            self.short.SetForegroundColour("#000000")
             self.entry.SetFocus()
         else:
             evt.Skip()
@@ -3759,8 +3738,8 @@ class MainFrame(wx.Frame):
             cch = -1
         elif PLATFORM.startswith("linux"):
             ststyle = wx.TE_PROCESS_ENTER | wx.SIMPLE_BORDER
-            sth = self.status.GetSize()[1] + 1  # 20
-            cch = self.status.GetSize()[1]  # 21
+            sth = self.status.GetSize()[1] - 1 # 18
+            cch = self.status.GetSize()[1] - 2  # 19
         elif PLATFORM == "win32":
             ststyle = wx.TE_PROCESS_ENTER | wx.SIMPLE_BORDER
             sth = 20
@@ -3810,8 +3789,8 @@ class MainFrame(wx.Frame):
             yoff1 = -1
             yoff2 = -5
         elif PLATFORM.startswith("linux"):
-            yoff1 = -2
-            yoff2 = -1
+            yoff1 = -1
+            yoff2 = -0
         elif PLATFORM == "win32":
             yoff1 = 0
             yoff2 = -1
@@ -4806,7 +4785,7 @@ class MainFrame(wx.Frame):
         info = AboutDialogInfo()
         info.Name = APP_NAME
         info.Version = APP_VERSION
-        info.Copyright = u"(C) 2020 Olivier Belanger"
+        info.Copyright = u"(C) 2022 Olivier Belanger"
         info.Description = "E-Pyo is a text editor especially configured to edit pyo audio programs.\n\n"
         AboutBox(info)
 
@@ -4909,6 +4888,14 @@ class MainPanel(wx.Panel):
             | FNB.FNB_DROPDOWN_TABS_LIST
             | FNB.FNB_HIDE_ON_SINGLE_TAB
         )
+        gradientFromCol = wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW)
+        gradientToCol = wx.Colour(gradientFromCol)
+        gradientToCol.ChangeLightness(ialpha = 80)
+        self.notebook.SetGradientColours(
+            gradientFromCol,
+            gradientToCol,
+            gradientFromCol
+        )
         self.editorPanel.AppendWindow(self.notebook)
         self.notebooks = [self.notebook]
         self.addNewPage()
@@ -4937,6 +4924,14 @@ class MainPanel(wx.Panel):
             | FNB.FNB_NO_X_BUTTON
             | FNB.FNB_DROPDOWN_TABS_LIST
             | FNB.FNB_HIDE_ON_SINGLE_TAB
+        )
+        gradientFromCol = wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW)
+        gradientToCol = wx.Colour(gradientFromCol)
+        gradientToCol.ChangeLightness(ialpha = 80)
+        notebook.SetGradientColours(
+            gradientFromCol,
+            gradientToCol,
+            gradientFromCol
         )
         self.notebooks.append(notebook)
         self.editorPanel.AppendWindow(notebook)
