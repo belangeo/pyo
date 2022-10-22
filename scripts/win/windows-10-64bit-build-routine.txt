@@ -29,7 +29,7 @@ C:\msys64\usr\bin
 https://git-scm.com/download/win
 
 === STEP 5 ===
---- Visual Studio Community
+--- Install Visual Studio Community 2022
 
 === STEP 6 ===
 --- Clone vcpkg repo and bootstrap it.
@@ -38,38 +38,28 @@ https://git-scm.com/download/win
 From vcpkg repo, install portaudio, portmidi, libsndfile, liblo and pthreads
 
 === STEP 8 ===
---- Install Python 3.6+ 64-bit.
+--- Install Python 3.7+ 64-bit.
 --- Add PythonXX and PythonXX\Scripts paths to environment variables.
-
+ 
 === STEP 9 ===
---- Install wxPython Phoenix. From a command prompt:
-    
-py -X.X -m pip install -U wxPython
-
-=== STEP 10 ===
 --- Copy PythonXX/vcruntime140.dll in PythonXX/libs/
 
-=== STEP 11 ===
+=== STEP 10 ===
 --- Patch PythonXX/Lib/distutils/cygwinccompiler.py to add missing msc_ver:
     
     elif msc_ver == "1700":
         return ['msvcr110']
     elif msc_ver == "1800":
         return ['msvcr120']
-    elif msc_ver in ["1900", "1915", "1916", "1924"]:
+    elif msc_ver.startswith("19"):
         return ['vcruntime140']
 
+=== STEP 11 ===
+Update python modules (for all python versions)
+
+py -3.x -m pip install -U pip wheel wxPython 
+
 === STEP 12 ===
---- create a file PythonXX/Lib/distutils/distutils.cfg with these lines in it:
-
-[build]
-compiler = mingw32
-
-=== STEP 13 ===
---- Install Git
-https://git-scm.com/download/win
-
-=== STEP 14 ===
 --- Download pyo sources from git and build it with (in a standard command prompt):
 
 py -X.X setup.py install --use-double

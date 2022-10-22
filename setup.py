@@ -20,8 +20,11 @@ License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 from setuptools import setup, Extension
 from distutils.sysconfig import get_python_lib
-import os, sys, py_compile, subprocess, platform, glob
+import os, sys, subprocess, platform, glob
 
+if sys.platform == "win32":
+    with open("setup.cfg", "w") as f:
+       f.write("[build]\ncompiler = mingw32")
 
 def tobytes(strng, encoding="utf-8"):
     "Convert unicode string to bytes."
@@ -244,6 +247,8 @@ if sys.platform == "win32":
         "opus": (False, False, True),
         "portaudio": (True, True, True),
         "portmidi": (True, True, True),
+        "mp3lame": (False, False, True),
+        "mpg123": (False, False, True)
     }
     vcpkg_packages_root = os.environ.get("VCPKG_PACKAGES_ROOT", "../vcpkg/packages")
     vcpkg_triplet = os.environ.get("VCPKG_DEFAULT_TRIPLET", "x64-windows")
@@ -448,3 +453,6 @@ setup(
 
 if compile_externals:
     os.system("rm pyo/lib/external.py")
+
+if sys.platform == "win32" and os.path.isfile("setup.cfg"):
+    os.remove("setup.cfg")
