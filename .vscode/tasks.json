@@ -223,7 +223,7 @@
             "type": "pickString",
             "id": "pythonMinorVersion",
             "description": "Choose your python minor version...",
-            "options": ["6", "7", "8", "9"],
+            "options": ["7", "8", "9", "10"],
             "default": "9"
         }
     ]
