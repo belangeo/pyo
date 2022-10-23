@@ -18,7 +18,7 @@ jobs:
       uses: RalfG/python-wheels-manylinux-build@v0.5.0-manylinux2014_x86_64
       with:
         python-versions: 'cp39-cp39'
-        system-packages: 'guile-devel zlib-devel gettext portaudio-devel portmidi-devel libsndfile-devel alsa-lib-devel autogen libdb-devel jack-audio-connection-kit-devel'
-        #pre-build-command: 'sh pre-build-script.sh'
+        system-packages: 'guile-devel zlib-devel gettext portaudio-devel portmidi-devel libsndfile-devel alsa-lib-devel autogen libdb-devel wget jack-audio-connection-kit-devel'
+        pre-build-command: 'sh manylinux-pre-build-script.sh'
         package-path: 'pyo'
-        pip-wheel-args: '-w ./dist --use-double --use-jack'
+        pip-wheel-args: '-w ./dist --build-option "--use-double" --build-option "--use-jack"'
