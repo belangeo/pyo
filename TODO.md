@@ -19,7 +19,7 @@ Roadmap 1.0.5
 
 - PyoMatrixObject.get(x, y) inverts arguments. Add PyoMatrixObject.getValue(x, y) with x and y in the good order (also putValue(value, x, y))
 - PyoMatrixObject.getMatrix()
-- A new implementation, Pyo2DTableObject, doint the right things.
+- A new implementation, Pyo2DTableObject, doing the right things.
 
 Internal
 --------
