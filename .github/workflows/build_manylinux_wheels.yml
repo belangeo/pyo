@@ -19,6 +19,5 @@ jobs:
       with:
         python-versions: 'cp39-cp39'
         system-packages: 'guile-devel zlib-devel gettext portaudio-devel portmidi-devel libsndfile-devel alsa-lib-devel autogen libdb-devel wget jack-audio-connection-kit-devel'
-        pre-build-command: 'echo pwd; echo ls; sh manylinux-pre-build-script.sh'
-        package-path: 'pyo'
+        pre-build-command: 'sh manylinux-pre-build-script.sh'
         pip-wheel-args: '-w ./dist --build-option "--use-double" --build-option "--use-jack"'
