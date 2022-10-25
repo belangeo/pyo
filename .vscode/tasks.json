@@ -76,7 +76,7 @@
         {
             "label": "Compile MacOS (single)",
             "type": "shell",
-            "command": "cd ${workspaceRoot} && sudo /usr/local/bin/python3.${input:pythonMinorVersion} setup.py bdist_wheel --use-coreaudio && sudo /usr/local/bin/python3.${input:pythonMinorVersion} -m pip install --force-reinstall dist/pyo-1.0.4-cp3${input:pythonMinorVersion}-cp3${input:pythonMinorVersion}-macosx_10_12_x86_64.whl",
+            "command": "cd ${workspaceRoot} && /usr/local/bin/python3.${input:pythonMinorVersion} setup.py bdist_wheel --use-coreaudio && /usr/local/bin/python3.${input:pythonMinorVersion} -m pip install --user --force-reinstall dist/pyo-1.0.4-cp3${input:pythonMinorVersion}-cp3${input:pythonMinorVersion}-macosx_10_12_universal2.whl",
             "problemMatcher": [],
             "presentation": {
                 "echo": true,
@@ -90,7 +90,7 @@
         {
             "label": "Compile MacOS (double)",
             "type": "shell",
-            "command": "cd ${workspaceRoot} && sudo /usr/local/bin/python3.${input:pythonMinorVersion} setup.py bdist_wheel --use-coreaudio --use-double && sudo /usr/local/bin/python3.${input:pythonMinorVersion} -m pip install --force-reinstall dist/pyo-1.0.4-cp3${input:pythonMinorVersion}-cp3${input:pythonMinorVersion}-macosx_10_12_x86_64.whl",
+            "command": "cd ${workspaceRoot} && /usr/local/bin/python3.${input:pythonMinorVersion} setup.py bdist_wheel --use-coreaudio --use-double && /usr/local/bin/python3.${input:pythonMinorVersion} -m pip install --user --force-reinstall dist/pyo-1.0.4-cp3${input:pythonMinorVersion}-cp3${input:pythonMinorVersion}-macosx_10_12_universal2.whl",
             "problemMatcher": [],
             "presentation": {
                 "echo": true,
@@ -136,7 +136,7 @@
             "isShellCommand": true,
             "showOutput": "always",
             "type": "shell",
-            "command": "cd ${workspaceRoot}; sudo rm -rf build dist",
+            "command": "cd ${workspaceRoot}; rm -rf build dist",
             "problemMatcher": [],
             "presentation": {
                 "echo": true,
