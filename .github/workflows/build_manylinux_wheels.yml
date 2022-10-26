@@ -27,4 +27,4 @@ jobs:
         TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
         TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
       run: |
-        twine upload --repository testpypi dist/*-manylinux*.whl
+        /opt/python/cp39-cp39/bin/twine upload --repository testpypi dist/*-manylinux*.whl
