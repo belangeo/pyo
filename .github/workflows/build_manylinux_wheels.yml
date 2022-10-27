@@ -22,7 +22,7 @@ jobs:
       uses: RalfG/python-wheels-manylinux-build@v0.5.0-manylinux2014_x86_64
       with:
         python-versions: 'cp39-cp39'
-        system-packages: 'guile-devel zlib-devel gettext portaudio-devel portmidi-devel libsndfile-devel alsa-lib-devel autogen libdb-devel wget'
+        system-packages: 'guile-devel zlib-devel gettext portaudio-devel portmidi-devel libsndfile-devel alsa-lib-devel autogen libdb-devel wget jack-audio-connection-kit-devel'
         pre-build-command: 'sh manylinux-pre-build-script.sh'
         pip-wheel-args: '-w ./dist --build-option --use-double --build-option --use-jack'
     - name: Publish wheels to test PyPI
