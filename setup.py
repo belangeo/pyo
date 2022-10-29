@@ -310,7 +310,7 @@ elif sys.platform == "darwin":
                     "temp_libs/libportaudio.2.dylib",
                     "temp_libs/libportmidi.dylib",
                     "temp_libs/libsndfile.1.dylib",
-                    "temp_libs/libFLAC.8.dylib",
+                    "temp_libs/libFLAC.12.dylib",
                     "temp_libs/libvorbisenc.2.dylib",
                     "temp_libs/libvorbis.0.dylib",
                     "temp_libs/libogg.0.dylib",
