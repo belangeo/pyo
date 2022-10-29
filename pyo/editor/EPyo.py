@@ -2959,20 +2959,12 @@ class SnippetTree(wx.Panel):
         self.toolbar = wx.ToolBar(self, -1)
         self.toolbar.SetToolBitmapSize(tsize)
 
-        if "phoenix" not in wx.version():
-            self.toolbar.AddLabelTool(
-                SNIPPET_ADD_FOLDER_ID, "Add Category", folder_add_bmp, shortHelp="Add a New Category",
-            )
-            self.toolbar.AddLabelTool(
-                SNIPPET_DEL_FILE_ID, "Delete", file_add_bmp, shortHelp="Delete Snippet or Category",
-            )
-        else:
-            self.toolbar.AddTool(
-                SNIPPET_ADD_FOLDER_ID, "Add Category", folder_add_bmp, shortHelp="Add a New Category",
-            )
-            self.toolbar.AddTool(
-                SNIPPET_DEL_FILE_ID, "Delete", file_add_bmp, shortHelp="Delete Snippet or Category",
-            )
+        self.toolbar.AddTool(
+            SNIPPET_ADD_FOLDER_ID, "Add Category", folder_add_bmp, shortHelp="Add a New Category",
+        )
+        self.toolbar.AddTool(
+            SNIPPET_DEL_FILE_ID, "Delete", file_add_bmp, shortHelp="Delete Snippet or Category",
+        )
 
         self.toolbar.EnableTool(SNIPPET_DEL_FILE_ID, False)
         self.toolbar.Realize()
@@ -3331,10 +3323,7 @@ class TreeCtrlComboPopup(ComboPopup):
 
     def OnPopup(self):
         self.tree.DeleteAllItems()
-        if "phoenix" in wx.version():
-            editor = self.GetComboCtrl().GetParent().GetParent().panel.editor
-        else:
-            editor = self.GetCombo().GetParent().GetParent().panel.editor
+        editor = self.GetComboCtrl().GetParent().GetParent().panel.editor
         count = editor.GetLineCount()
         for i in range(count):
             text = editor.GetLine(i)
@@ -3394,10 +3383,7 @@ class TreeCtrlComboPopup(ComboPopup):
         if item and flags & wx.TREE_HITTEST_ONITEMLABEL:
             self.curitem = item
             self.Dismiss()
-            if "phoenix" in wx.version():
-                editor = self.GetComboCtrl().GetParent().GetParent().panel.editor
-            else:
-                editor = self.GetCombo().GetParent().GetParent().panel.editor
+            editor = self.GetComboCtrl().GetParent().GetParent().panel.editor
             line = unpackItemData(self.tree.GetItemData(item))
             editor.GotoLine(line)
             halfNumLinesOnScreen = editor.LinesOnScreen() // 2
@@ -6737,19 +6723,10 @@ class OutputLogPanel(wx.Panel):
         self.zoomer.SetRange(-10, 10)
         self.toolbar.AddControl(self.zoomer)
         self.zoomer.Bind(wx.EVT_SPINCTRL, self.onZoom)
+        self.toolbar.AddStretchableSpace()
+        self.toolbar.AddTool(17, "Close Panel", close_panel_bmp, shortHelp="Close Panel")
         self.toolbar.Realize()
         toolbarbox.Add(self.toolbar, 1, wx.ALIGN_LEFT | wx.EXPAND, 0)
-
-        tb2 = wx.ToolBar(self, -1)
-        if PLATFORM == "darwin":
-            tb2.SetToolBitmapSize(tsize)
-        tb2.AddSeparator()
-        if "phoenix" not in wx.version():
-            tb2.AddLabelTool(17, "Close Panel", close_panel_bmp, shortHelp="Close Panel")
-        else:
-            tb2.AddTool(17, "Close Panel", close_panel_bmp, shortHelp="Close Panel")
-        tb2.Realize()
-        toolbarbox.Add(tb2, 0)
 
         self.Bind(wx.EVT_TOOL, self.onCloseOutputPanel, id=17)
 
@@ -6880,43 +6857,29 @@ class ProjectTree(wx.Panel):
         close_panel_bmp = catalog["close_panel_icon.png"].GetBitmap()
         refresh_tree_bmp = catalog["refresh_tree_icon.png"].GetBitmap()
 
+        tsize = close_panel_bmp.GetSize()
+
         self.sizer = wx.BoxSizer(wx.VERTICAL)
 
         toolbarbox = wx.BoxSizer(wx.HORIZONTAL)
         self.toolbar = wx.ToolBar(self, -1)
+        self.toolbar.SetToolBitmapSize(tsize)
 
-        if "phoenix" not in wx.version():
-            self.toolbar.AddLabelTool(TOOL_ADD_FILE_ID, "Add File", file_add_bmp, shortHelp="Add File")
-            self.toolbar.AddLabelTool(TOOL_ADD_FOLDER_ID, "Add Folder", folder_add_bmp, shortHelp="Add Folder")
-            self.toolbar.AddLabelTool(
-                TOOL_DEL_FOLDER_ID, "Remove Folder", folder_del_bmp, shortHelp="Remove Folder",
-            )
-            self.toolbar.AddLabelTool(
-                TOOL_REFRESH_TREE_ID, "Refresh Tree", refresh_tree_bmp, shortHelp="Refresh Tree",
-            )
-        else:
-            self.toolbar.AddTool(TOOL_ADD_FILE_ID, "Add File", file_add_bmp, shortHelp="Add File")
-            self.toolbar.AddTool(TOOL_ADD_FOLDER_ID, "Add Folder", folder_add_bmp, shortHelp="Add Folder")
-            self.toolbar.AddTool(
-                TOOL_DEL_FOLDER_ID, "Remove Folder", folder_del_bmp, shortHelp="Remove Folder",
-            )
-            self.toolbar.AddTool(
-                TOOL_REFRESH_TREE_ID, "Refresh Tree", refresh_tree_bmp, shortHelp="Refresh Tree",
-            )
+        self.toolbar.AddTool(TOOL_ADD_FILE_ID, "Add File", file_add_bmp, shortHelp="Add File")
+        self.toolbar.AddTool(TOOL_ADD_FOLDER_ID, "Add Folder", folder_add_bmp, shortHelp="Add Folder")
+        self.toolbar.AddTool(
+            TOOL_DEL_FOLDER_ID, "Remove Folder", folder_del_bmp, shortHelp="Remove Folder",
+        )
+        self.toolbar.AddTool(
+            TOOL_REFRESH_TREE_ID, "Refresh Tree", refresh_tree_bmp, shortHelp="Refresh Tree",
+        )
+
+        self.toolbar.AddStretchableSpace()
+        self.toolbar.AddTool(15, "Close Panel", close_panel_bmp, shortHelp="Close Panel")
 
         self.toolbar.EnableTool(TOOL_ADD_FILE_ID, False)
         self.toolbar.Realize()
         toolbarbox.Add(self.toolbar, 1, wx.ALIGN_LEFT | wx.EXPAND, 0)
-
-        tb2 = wx.ToolBar(self, -1)
-
-        if "phoenix" not in wx.version():
-            tb2.AddLabelTool(15, "Close Panel", close_panel_bmp, shortHelp="Close Panel")
-        else:
-            tb2.AddTool(15, "Close Panel", close_panel_bmp, shortHelp="Close Panel")
-
-        tb2.Realize()
-        toolbarbox.Add(tb2, 0)
 
         self.Bind(wx.EVT_TOOL, self.onAdd, id=TOOL_ADD_FILE_ID)
         self.Bind(wx.EVT_TOOL, self.onAdd, id=TOOL_ADD_FOLDER_ID)
@@ -7284,33 +7247,24 @@ class MarkersPanel(wx.Panel):
 
         delete_all_markers = catalog["delete_all_markers.png"].GetBitmap()
         close_panel_bmp = catalog["close_panel_icon.png"].GetBitmap()
+        tsize = close_panel_bmp.GetSize()
 
         self.sizer = wx.BoxSizer(wx.VERTICAL)
 
         toolbarbox = wx.BoxSizer(wx.HORIZONTAL)
         self.toolbar = wx.ToolBar(self, -1)
+        self.toolbar.SetToolBitmapSize(tsize)
 
-        if "phoenix" not in wx.version():
-            self.toolbar.AddLabelTool(
-                TOOL_DELETE_ALL_MARKERS_ID, "Delete All Markers", delete_all_markers, shortHelp="Delete All Markers",
-            )
-        else:
-            self.toolbar.AddTool(
-                TOOL_DELETE_ALL_MARKERS_ID, "Delete All Markers", delete_all_markers, shortHelp="Delete All Markers",
-            )
+        self.toolbar.AddTool(
+            TOOL_DELETE_ALL_MARKERS_ID, "Delete All Markers", delete_all_markers, shortHelp="Delete All Markers",
+        )
+
+        self.toolbar.AddStretchableSpace()
+
+        self.toolbar.AddTool(16, "Close Panel", close_panel_bmp, shortHelp="Close Panel")
 
         self.toolbar.Realize()
         toolbarbox.Add(self.toolbar, 1, wx.ALIGN_LEFT | wx.EXPAND, 0)
-
-        tb2 = wx.ToolBar(self, -1)
-
-        if "phoenix" not in wx.version():
-            tb2.AddLabelTool(16, "Close Panel", close_panel_bmp, shortHelp="Close Panel")
-        else:
-            tb2.AddTool(16, "Close Panel", close_panel_bmp, shortHelp="Close Panel")
-
-        tb2.Realize()
-        toolbarbox.Add(tb2, 0)
 
         self.Bind(wx.EVT_TOOL, self.onDeleteAll, id=TOOL_DELETE_ALL_MARKERS_ID)
         self.Bind(wx.EVT_TOOL, self.onCloseMarkersPanel, id=16)
