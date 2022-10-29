@@ -6687,8 +6687,8 @@ class OutputLogPanel(wx.Panel):
         self.mainPanel = mainPanel
 
         self.running = 0
-        tsize = (30, 30)
         close_panel_bmp = catalog["close_panel_icon.png"].GetBitmap()
+        tsize = close_panel_bmp.GetSize()
 
         self.sizer = wx.BoxSizer(wx.VERTICAL)
 

@@ -30,19 +30,22 @@ def tobytes(strng, encoding="utf-8"):
     "Convert unicode string to bytes."
     return bytes(strng, encoding=encoding)
 
+JACK1_MIN_VERSION = "0.125.0"
+JACK2_MIN_VERSION = "1.9.11"
 
 def get_jack_api():
     try:
-        output = subprocess.Popen(["jackd", "-V"], stdout=subprocess.PIPE)
+        output = subprocess.check_output(
+            ['pkg-config', '--modversion', 'jack'],
+            shell=True, text=True
+        )
     except:
         # jack2-dbus is probably installed instead of jackd.
         # If jack2-dbus version is >= 1.9.11, we need JACK_NEW_API.
         return "JACK_NEW_API"
 
-    text = output.communicate()[0]
-    if text != "":
-        line = text.splitlines()[0]
-        if tobytes("0.124") in line or tobytes("1.9.10") in line:
+    if output != "":
+        if (output.startswith("0") and output < JACK1_MIN_VERSION) or (output.startswith("1") and output < "JACK2_MIN_VERSION"):
             return "JACK_OLD_API"
         else:
             return "JACK_NEW_API"
@@ -50,7 +53,7 @@ def get_jack_api():
         return "JACK_NEW_API"
 
 
-pyo_version = "1.0.4"
+pyo_version = "1.0.4-4"
 build_with_jack_support = False
 compile_externals = False
 win_arch = platform.architecture()[0]
@@ -160,7 +163,8 @@ if "--use-jack" in sys.argv:
         sys.argv.remove("--jack-force-old-api")
         macros.append(("JACK_OLD_API", None))
     else:
-        macros.append((get_jack_api(), None))
+        # Don't use the old API anymore
+        macros.append(("JACK_NEW_API", None))
     ad_files.append("ad_jack.c")
 
 if "--use-coreaudio" in sys.argv:
