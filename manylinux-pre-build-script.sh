@@ -8,6 +8,16 @@ make install 1>/dev/null
 ldconfig
 cd ..
 
+echo ====== Build and install alsa-lib. ======
+wget https://www.alsa-project.org/files/pub/lib/alsa-lib-1.2.8.tar.bz2
+tar -xjf alsa-lib-1.2.8.tar.bz2
+cd alsa-lib-1.2.8
+./configure --with-configdir=/usr/share/alsa
+make 1>/dev/null
+make install 1>/dev/null
+ldconfig
+cd ..
+
 echo ====== Build and install jack2. ======
 wget -O jack2-1.9.21.tar.gz https://github.com/jackaudio/jack2/archive/refs/tags/v1.9.21.tar.gz
 tar -xzf jack2-1.9.21.tar.gz
