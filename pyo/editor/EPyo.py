@@ -4304,7 +4304,7 @@ class MainFrame(wx.Frame):
             if self.panel.project.IsShownOnScreen():
                 return
             if not self.panel.splitter.IsSplit():
-                self.panel.splitter.SplitVertically(self.panel.left_splitter, self.panel.right_splitter, 200)
+                self.panel.splitter.SplitVertically(self.panel.left_splitter, self.panel.right_splitter, 220)
                 h = self.panel.GetSize()[1]
                 self.panel.left_splitter.SplitHorizontally(self.panel.project, self.panel.markers, h * 3 // 4)
                 self.panel.left_splitter.Unsplit(self.panel.markers)
@@ -4324,7 +4324,7 @@ class MainFrame(wx.Frame):
             if self.panel.markers.IsShownOnScreen():
                 return
             if not self.panel.splitter.IsSplit():
-                self.panel.splitter.SplitVertically(self.panel.left_splitter, self.panel.right_splitter, 200)
+                self.panel.splitter.SplitVertically(self.panel.left_splitter, self.panel.right_splitter, 220)
                 h = self.panel.GetSize()[1]
                 self.panel.left_splitter.SplitHorizontally(self.panel.project, self.panel.markers, h * 3 // 4)
                 self.panel.left_splitter.Unsplit(self.panel.project)
@@ -4856,7 +4856,7 @@ class MainPanel(wx.Panel):
         mainBox = wx.BoxSizer(wx.HORIZONTAL)
 
         self.splitter = wx.SplitterWindow(self, -1, style=wx.SP_LIVE_UPDATE | wx.SP_3DSASH)
-        self.splitter.SetMinimumPaneSize(150)
+        self.splitter.SetMinimumPaneSize(175)
 
         self.left_splitter = wx.SplitterWindow(self.splitter, -1, style=wx.SP_LIVE_UPDATE | wx.SP_3DSASH)
         self.right_splitter = wx.SplitterWindow(self.splitter, -1, style=wx.SP_LIVE_UPDATE | wx.SP_3DSASH)
@@ -6668,7 +6668,7 @@ class OutputLogEditor(SimpleEditor):
 
 
 class OutputLogPanel(wx.Panel):
-    def __init__(self, parent, mainPanel, size=(175, 400)):
+    def __init__(self, parent, mainPanel, size=(200, 400)):
         wx.Panel.__init__(self, parent, wx.ID_ANY, size=size, style=wx.SUNKEN_BORDER)
         self.mainPanel = mainPanel
 
@@ -7983,11 +7983,11 @@ class EPyoApp(wx.App):
         if X < 850:
             X -= 50
         else:
-            X = 850
+            X = 1000
         if Y < 750:
             Y -= 50
         else:
-            Y = 750
+            Y = 800
         self.frame = MainFrame(None, -1, title="E-Pyo Editor", pos=(10, 25), size=(X, Y))
         self.frame.Show()
         return True
