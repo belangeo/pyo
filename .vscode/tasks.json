@@ -6,8 +6,11 @@
         {
             "label": "Compile linux debug (single, jack)",
             "type": "shell",
-            "command": "cd ${workspaceRoot}; python3 setup.py bdist_wheel --use-jack --debug --fast-compile; python3 -m pip install --user --force-reinstall dist/pyo-1.0.4-cp39-cp39-linux_x86_64.whl",
+            "command": "${config:build_linux_debug}; ${config:install_linux}",
             "problemMatcher": [],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
             "presentation": {
                 "echo": true,
                 "reveal": "always",
@@ -20,8 +23,11 @@
         {
             "label": "Compile linux (single, jack)",
             "type": "shell",
-            "command": "cd ${workspaceRoot}; python3 setup.py bdist_wheel --use-jack; python3 -m pip install --user --force-reinstall dist/pyo-1.0.4-cp39-cp39-linux_x86_64.whl",
+            "command": "${config:build_linux_single}; ${config:install_linux}",
             "problemMatcher": [],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
             "presentation": {
                 "echo": true,
                 "reveal": "always",
@@ -34,8 +40,11 @@
         {
             "label": "Compile linux (double, jack)",
             "type": "shell",
-            "command": "cd ${workspaceRoot}; python3 setup.py bdist_wheel --use-jack --use-double; python3 -m pip install --user --force-reinstall dist/pyo-1.0.4-cp39-cp39-linux_x86_64.whl",
+            "command": "${config:build_linux_double}; ${config:install_linux}",
             "problemMatcher": [],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
             "presentation": {
                 "echo": true,
                 "reveal": "always",
@@ -48,8 +57,11 @@
         {
             "label": "Compile Windows (single)",
             "type": "shell",
-            "command": "cd ${workspaceRoot} & py -3.${input:pythonMinorVersion} setup.py bdist_wheel & py -3.${input:pythonMinorVersion} -m pip install --force-reinstall dist\\pyo-1.0.4-cp3${input:pythonMinorVersion}-cp3${input:pythonMinorVersion}-win_amd64.whl",
+            "command": "${config:build_windows_single} & ${config:install_windows}",
             "problemMatcher": [],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
             "presentation": {
                 "echo": true,
                 "reveal": "always",
@@ -62,8 +74,11 @@
         {
             "label": "Compile Windows (double)",
             "type": "shell",
-            "command": "cd ${workspaceRoot} & py -3.${input:pythonMinorVersion} setup.py bdist_wheel --use-double & py -3.${input:pythonMinorVersion} -m pip install --force-reinstall dist\\pyo-1.0.4-cp3${input:pythonMinorVersion}-cp3${input:pythonMinorVersion}-win_amd64.whl",
+            "command": "${config:build_windows_double} & ${config:install_windows}",
             "problemMatcher": [],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
             "presentation": {
                 "echo": true,
                 "reveal": "always",
@@ -76,8 +91,11 @@
         {
             "label": "Compile MacOS (single)",
             "type": "shell",
-            "command": "cd ${workspaceRoot} && /usr/local/bin/python3.${input:pythonMinorVersion} setup.py bdist_wheel --use-coreaudio && /usr/local/bin/python3.${input:pythonMinorVersion} -m pip install --user --force-reinstall dist/pyo-1.0.4-cp3${input:pythonMinorVersion}-cp3${input:pythonMinorVersion}-macosx_10_12_universal2.whl",
+            "command": "${config:build_macos_single} && ${config:install_macos}",
             "problemMatcher": [],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
             "presentation": {
                 "echo": true,
                 "reveal": "always",
@@ -90,8 +108,11 @@
         {
             "label": "Compile MacOS (double)",
             "type": "shell",
-            "command": "cd ${workspaceRoot} && /usr/local/bin/python3.${input:pythonMinorVersion} setup.py bdist_wheel --use-coreaudio --use-double && /usr/local/bin/python3.${input:pythonMinorVersion} -m pip install --user --force-reinstall dist/pyo-1.0.4-cp3${input:pythonMinorVersion}-cp3${input:pythonMinorVersion}-macosx_10_12_universal2.whl",
+            "command": "${config:build_macos_double} && ${config:install_macos}",
             "problemMatcher": [],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
             "presentation": {
                 "echo": true,
                 "reveal": "always",
@@ -103,11 +124,12 @@
         },
         {
             "label": "Clean up linux",
-            "isShellCommand": true,
-            "showOutput": "always",
             "type": "shell",
-            "command": "cd ${workspaceRoot}; rm -rf build dist",
+            "command": "rm -rf build dist",
             "problemMatcher": [],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
             "presentation": {
                 "echo": true,
                 "reveal": "always",
@@ -120,8 +142,11 @@
         {
             "label": "Clean up Windows",
             "type": "shell",
-            "command": "cd ${workspaceRoot} & rd /s /q build dist",
+            "command": "rd /s /q build dist",
             "problemMatcher": [],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
             "presentation": {
                 "echo": true,
                 "reveal": "always",
@@ -133,11 +158,12 @@
         },
         {
             "label": "Clean up MacOS",
-            "isShellCommand": true,
-            "showOutput": "always",
             "type": "shell",
-            "command": "cd ${workspaceRoot}; rm -rf build dist",
+            "command": "rm -rf build dist",
             "problemMatcher": [],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
             "presentation": {
                 "echo": true,
                 "reveal": "always",
@@ -150,8 +176,11 @@
         {
             "label": "Run unit tests linux",
             "type": "shell",
-            "command": "jack_control stop; export -n PYO_SERVER_AUDIO; cd ${workspaceRoot}/tests/pytests; python3 -m pytest -vv",
+            "command": "jack_control stop; export -n PYO_SERVER_AUDIO; cd tests/pytests; python3 -m pytest -vv",
             "problemMatcher": [],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
             "presentation": {
                 "echo": true,
                 "reveal": "always",
@@ -164,8 +193,11 @@
         {
             "label": "Run unit tests Windows",
             "type": "shell",
-            "command": "cd ${workspaceRoot}/tests/pytests & py -3.${input:pythonMinorVersion} -m pytest",
+            "command": "cd tests/pytests & py -3.${input:pyMinVersion} -m pytest",
             "problemMatcher": [],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
             "presentation": {
                 "echo": true,
                 "reveal": "always",
@@ -178,8 +210,11 @@
         {
             "label": "Run unit tests MacOS",
             "type": "shell",
-            "command": "cd ${workspaceRoot}/tests/pytests; /usr/local/bin/python3.${input:pythonMinorVersion} -m pytest",
+            "command": "cd tests/pytests; /usr/local/bin/python3.${input:pyMinVersion} -m pytest",
             "problemMatcher": [],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
             "presentation": {
                 "echo": true,
                 "reveal": "always",
@@ -192,8 +227,11 @@
         {
             "label": "Run unit tests with coverage (linux)",
             "type": "shell",
-            "command": "cd ${workspaceRoot}/tests/pytests; coverage run --source=pyo --omit=*/examples/*,*/editor/* -m pytest; coverage html",
+            "command": "cd tests/pytests; coverage run --source=pyo --omit=*/examples/*,*/editor/* -m pytest; coverage html",
             "problemMatcher": [],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
             "presentation": {
                 "echo": true,
                 "reveal": "always",
@@ -221,7 +259,7 @@
     "inputs": [
         {
             "type": "pickString",
-            "id": "pythonMinorVersion",
+            "id": "pyMinVersion",
             "description": "Choose your python minor version...",
             "options": ["7", "8", "9", "10"],
             "default": "9"
