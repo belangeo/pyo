@@ -1,0 +1,12 @@
+.autoclasstoc table.docutils td>p {
+  margin-bottom: 0 !important;
+}
+
+.autoclasstoc details:last-of-type {
+  margin-bottom: 18px;
+}
+
+.autoclasstoc .wy-table-responsive {
+  margin-bottom: 12px;
+}
+
