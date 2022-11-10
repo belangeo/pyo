@@ -262,5 +262,6 @@ texinfo_domain_indices = False
 
 autodoc_member_order = "bysource"
 add_module_names = False
-html_add_permalinks = u"\u00B6"
+html_permalinks = True
+html_permalinks_icon = u"\u00B6"
 html_show_sourcelink = False

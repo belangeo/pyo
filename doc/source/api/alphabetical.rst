@@ -274,12 +274,12 @@ Alphabetical class reference
 - :py:class:`TableFill` :     Continuously fills a table with incoming samples.
 - :py:class:`TableIndex` :     Table reader by sample position without interpolation.
 - :py:class:`TableMorph` :     Morphs between multiple PyoTableObjects.
-- :py:class:`TablePut` :     Writes values, without repetitions, from an audio stream into a DataTable.
+- :py:class:`TablePut` :     Writes values, without repetitions, from an audio stream into a table.
 - :py:class:`TableRead` :     Simple waveform table reader.
-- :py:class:`TableRec` :     TableRec is for writing samples into a previously created NewTable.
+- :py:class:`TableRec` :     TableRec is for writing samples into a previously created table.
 - :py:class:`TableScale` :     Scales all the values contained in a PyoTableObject.
 - :py:class:`TableScan` :     Reads the content of a table in loop, without interpolation.
-- :py:class:`TableWrite` :     TableWrite writes samples into a previously created NewTable.
+- :py:class:`TableWrite` :     TableWrite writes samples into a previously created table.
 - :py:class:`Tan` :     Performs a tangent function on audio signal.
 - :py:class:`Tanh` :     Performs a hyperbolic tangent function on audio signal.
 - :py:class:`Thresh` :     Informs when a signal crosses a threshold.
@@ -297,7 +297,7 @@ Alphabetical class reference
 - :py:class:`TrigLinseg` :     Line segments trigger.
 - :py:class:`TrigRandInt` :     Pseudo-random integer generator.
 - :py:class:`TrigRand` :     Pseudo-random number generator.
-- :py:class:`TrigTableRec` :     TrigTableRec is for writing samples into a previously created NewTable.
+- :py:class:`TrigTableRec` :     TrigTableRec is for writing samples into a previously created table.
 - :py:class:`TrigVal` :     Outputs a previously defined value on a trigger signal.
 - :py:class:`TrigXnoiseMidi` :     Triggered X-class midi notes pseudo-random generator.
 - :py:class:`TrigXnoise` :     Triggered X-class pseudo-random generator.
