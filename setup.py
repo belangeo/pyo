@@ -53,7 +53,7 @@ def get_jack_api():
         return "JACK_NEW_API"
 
 
-pyo_version = "1.0.4-4"
+pyo_version = "1.0.4-5"
 build_with_jack_support = False
 compile_externals = False
 win_arch = platform.architecture()[0]

@@ -4,7 +4,10 @@ This is a list of features/fixes to implement for future releases
 Roadmap 1.0.5
 -------------
 
-- python 3.10
+- python 3.10 and 3.11 wheels
+
+Roadmap 1.0.6
+-------------
 
 - Safer version of realloc
 
