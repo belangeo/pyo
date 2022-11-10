@@ -255,6 +255,23 @@
                 "clear": false
             }
         },
+        {
+            "label": "Build Documentation",
+            "type": "shell",
+            "command": "python3 build.py --${input:docFormat}",
+            "problemMatcher": [],
+            "options": {
+                "cwd": "${workspaceFolder}/documentation"
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            }
+        }
     ],
     "inputs": [
         {
@@ -263,6 +280,13 @@
             "description": "Choose your python minor version...",
             "options": ["7", "8", "9", "10"],
             "default": "9"
+        },
+        {
+            "type": "pickString",
+            "id": "docFormat",
+            "description": "Choose the documentation format...",
+            "options": ["html", "latex", "man"],
+            "default": "html"
         }
     ]
 }
