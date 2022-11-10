@@ -1,0 +1,134 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>02-schroeder-reverb.py - Simple reverberator based on Schroeder’s algorithms. — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="03-fuzz-disto.html" rel="next" title="03-fuzz-disto.py - Hand-written asymmetrical tranfert function."/>
+<link href="01-flanger.html" rel="prev" title="01-flanger.py - Hand-made simple flanger."/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="03-fuzz-disto.html" title="03-fuzz-disto.py - Hand-written asymmetrical tranfert function.">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="01-flanger.html" title="01-flanger.py - Hand-made simple flanger.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a accesskey="U" href="index.html">07-effects</a> »</li>
+<li class="nav-item nav-item-this"><a href="">02-schroeder-reverb.py - Simple reverberator based on Schroeder’s algorithms.</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="schroeder-reverb-py-simple-reverberator-based-on-schroeder-s-algorithms">
+<h1>02-schroeder-reverb.py - Simple reverberator based on Schroeder’s algorithms.<a class="headerlink" href="#schroeder-reverb-py-simple-reverberator-based-on-schroeder-s-algorithms" title="Permalink to this headline">¶</a></h1>
+<p>An artificial reverberation based on the work of Manfred Schroeder.</p>
+<p>This reverberator takes a monophonic input and outputs two uncorrelated
+reverberated signals.</p>
+<p>This algorithm presents four parallel comb filters fedding two serial
+allpass filters. An additional lowpass filter is used at the end to
+control the brightness of the reverberator.</p>
+<p>The manual example for the Allpass object presents an other Schroeder’s
+reverberator.</p>
+<p>If you are interested in builtin reverberation objects, see:</p>
+<blockquote>
+<div><p>Freeverb, WGVerb, STRev, CvlVerb</p>
+</div></blockquote>
+<p>Not really reverbs, but you can build some cool resonant effects with:</p>
+<blockquote>
+<div><p>Waveguide, AllpassWG</p>
+</div></blockquote>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">(</span><span class="n">duplex</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+
+<a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.SndTable" title="pyo.lib.tables.SndTable"><span class="n">soundfile</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.SndTable" title="pyo.lib.tables.SndTable"><span class="n">SndTable</span></a><span class="p">(</span><span class="n">SNDS_PATH</span> <span class="o">+</span> <span class="s2">"/transparent.aif"</span><span class="p">)</span>
+
+<a class="sphinx-codeautolink-a" href="../../api/classes/tableprocess.html#pyo.Looper" title="pyo.lib.tableprocess.Looper"><span class="n">src</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/tableprocess.html#pyo.Looper" title="pyo.lib.tableprocess.Looper"><span class="n">Looper</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.SndTable" title="pyo.lib.tables.SndTable"><span class="n">soundfile</span></a><span class="p">,</span> <span class="n">dur</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">xfade</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+<span class="n">src2</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">mix</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+<span class="c1"># Four parallel stereo comb filters. The delay times are chosen</span>
+<span class="c1"># to be as uncorrelated as possible. Prime numbers are a good</span>
+<span class="c1"># choice for delay lengths in samples.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/effects.html#pyo.Delay" title="pyo.lib.effects.Delay"><span class="n">comb1</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/effects.html#pyo.Delay" title="pyo.lib.effects.Delay"><span class="n">Delay</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/tableprocess.html#pyo.Looper" title="pyo.lib.tableprocess.Looper"><span class="n">src</span></a><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="p">[</span><span class="mf">0.0297</span><span class="p">,</span> <span class="mf">0.0277</span><span class="p">],</span> <span class="n">feedback</span><span class="o">=</span><span class="mf">0.65</span><span class="p">)</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/effects.html#pyo.Delay" title="pyo.lib.effects.Delay"><span class="n">comb2</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/effects.html#pyo.Delay" title="pyo.lib.effects.Delay"><span class="n">Delay</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/tableprocess.html#pyo.Looper" title="pyo.lib.tableprocess.Looper"><span class="n">src</span></a><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="p">[</span><span class="mf">0.0371</span><span class="p">,</span> <span class="mf">0.0393</span><span class="p">],</span> <span class="n">feedback</span><span class="o">=</span><span class="mf">0.51</span><span class="p">)</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/effects.html#pyo.Delay" title="pyo.lib.effects.Delay"><span class="n">comb3</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/effects.html#pyo.Delay" title="pyo.lib.effects.Delay"><span class="n">Delay</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/tableprocess.html#pyo.Looper" title="pyo.lib.tableprocess.Looper"><span class="n">src</span></a><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="p">[</span><span class="mf">0.0411</span><span class="p">,</span> <span class="mf">0.0409</span><span class="p">],</span> <span class="n">feedback</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/effects.html#pyo.Delay" title="pyo.lib.effects.Delay"><span class="n">comb4</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/effects.html#pyo.Delay" title="pyo.lib.effects.Delay"><span class="n">Delay</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/tableprocess.html#pyo.Looper" title="pyo.lib.tableprocess.Looper"><span class="n">src</span></a><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="p">[</span><span class="mf">0.0137</span><span class="p">,</span> <span class="mf">0.0155</span><span class="p">],</span> <span class="n">feedback</span><span class="o">=</span><span class="mf">0.73</span><span class="p">)</span>
+
+<span class="n">combsum</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/tableprocess.html#pyo.Looper" title="pyo.lib.tableprocess.Looper"><span class="n">src</span></a> <span class="o">+</span> <a class="sphinx-codeautolink-a" href="../../api/classes/effects.html#pyo.Delay" title="pyo.lib.effects.Delay"><span class="n">comb1</span></a> <span class="o">+</span> <a class="sphinx-codeautolink-a" href="../../api/classes/effects.html#pyo.Delay" title="pyo.lib.effects.Delay"><span class="n">comb2</span></a> <span class="o">+</span> <a class="sphinx-codeautolink-a" href="../../api/classes/effects.html#pyo.Delay" title="pyo.lib.effects.Delay"><span class="n">comb3</span></a> <span class="o">+</span> <a class="sphinx-codeautolink-a" href="../../api/classes/effects.html#pyo.Delay" title="pyo.lib.effects.Delay"><span class="n">comb4</span></a>
+
+<span class="c1"># The sum of the original signal and the comb filters</span>
+<span class="c1"># feeds two serial allpass filters.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/filters.html#pyo.Allpass" title="pyo.lib.filters.Allpass"><span class="n">all1</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/filters.html#pyo.Allpass" title="pyo.lib.filters.Allpass"><span class="n">Allpass</span></a><span class="p">(</span><span class="n">combsum</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="p">[</span><span class="mf">0.005</span><span class="p">,</span> <span class="mf">0.00507</span><span class="p">],</span> <span class="n">feedback</span><span class="o">=</span><span class="mf">0.75</span><span class="p">)</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/filters.html#pyo.Allpass" title="pyo.lib.filters.Allpass"><span class="n">all2</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/filters.html#pyo.Allpass" title="pyo.lib.filters.Allpass"><span class="n">Allpass</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/filters.html#pyo.Allpass" title="pyo.lib.filters.Allpass"><span class="n">all1</span></a><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="p">[</span><span class="mf">0.0117</span><span class="p">,</span> <span class="mf">0.0123</span><span class="p">],</span> <span class="n">feedback</span><span class="o">=</span><span class="mf">0.61</span><span class="p">)</span>
+
+<span class="c1"># Brightness control.</span>
+<span class="n">lowp</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/filters.html#pyo.Tone" title="pyo.lib.filters.Tone"><span class="n">Tone</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/filters.html#pyo.Allpass" title="pyo.lib.filters.Allpass"><span class="n">all2</span></a><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="mi">3500</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.25</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h4>Previous topic</h4>
+<p class="topless"><a href="01-flanger.html" title="previous chapter">01-flanger.py - Hand-made simple flanger.</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="03-fuzz-disto.html" title="next chapter">03-fuzz-disto.py - Hand-written asymmetrical tranfert function.</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="03-fuzz-disto.html" title="03-fuzz-disto.py - Hand-written asymmetrical tranfert function.">next</a> |</li>
+<li class="right">
+<a href="01-flanger.html" title="01-flanger.py - Hand-made simple flanger.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="index.html">07-effects</a> »</li>
+<li class="nav-item nav-item-this"><a href="">02-schroeder-reverb.py - Simple reverberator based on Schroeder’s algorithms.</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

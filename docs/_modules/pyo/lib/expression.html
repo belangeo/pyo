@@ -1,0 +1,717 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyo.lib.expression &#8212; Pyo 1.0.4 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/nature.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-codeautolink.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/autoclasstoc.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../../../_static/E-PyoIcon.ico"/>
+    <link rel="author" title="About these documents" href="../../../about.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">Pyo 1.0.4 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pyo.html" accesskey="U">pyo</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pyo.lib.expression</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyo.lib.expression</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Prefix expression evaluators.</span>
+
+<span class="sd">API documentation</span>
+<span class="sd">=================</span>
+
+<span class="sd">* This API is in alpha stage and subject to future changes!</span>
+
+<span class="sd">Builtin functions</span>
+<span class="sd">-----------------</span>
+
+<span class="sd">Arithmetic operators:</span>
+
+<span class="sd">(+ x y) : returns the sum of two values.</span>
+<span class="sd">(- x y) : substracts the second value to the first and returns the result.</span>
+<span class="sd">(* x y) : returns the multiplication of two values.</span>
+<span class="sd">(/ x y) : returns the quotient of x/y.</span>
+<span class="sd">(^ x y) : returns x to the power y.</span>
+<span class="sd">(% x y) : returns the floating-point remainder of x/y.</span>
+<span class="sd">(neg x) : returns the negative of x.</span>
+
+<span class="sd">Moving phase operators:</span>
+
+<span class="sd">(++ x y) : increments its internal state by x and wrap around 0.0 and y.</span>
+<span class="sd">(-- x y) : decrements its internal state by x and wrap around 0.0 and y.</span>
+<span class="sd">(~ x y) : generates a periodic ramp from 0 to 1 with frequency x and phase y.</span>
+
+<span class="sd">Conditional operators:</span>
+
+<span class="sd">(&lt; x y) : returns 1 if x is less than y, otherwise returns 0.</span>
+<span class="sd">(&lt;= x y) : returns 1 if x is less than or equal to y, otherwise returns 0.</span>
+<span class="sd">(&gt; x y) : returns 1 if x is greater than y, otherwise returns 0.</span>
+<span class="sd">(&gt;= x y) : returns 1 if x is greater than or equal to y, otherwise returns 0.</span>
+<span class="sd">(== x y) : returns 1 if x is equal to y, otherwise returns 0.</span>
+<span class="sd">(!= x y) : returns 1 if x is not equal to y, otherwise returns 0.</span>
+<span class="sd">(if (cond) (then) (else)) : returns then for any non-zero value of cond, otherwise returns else.</span>
+<span class="sd">(and x y) : returns 1 if both x and y are not 0, otherwise returns 0.</span>
+<span class="sd">(or x y) : returns 1 if one of x or y are not 0, otherwise returns 0.</span>
+
+<span class="sd">Trigonometric functions:</span>
+
+<span class="sd">(sin x) : returns the sine of an angle of x radians.</span>
+<span class="sd">(cos x) : returns the cosine of an angle of x radians.</span>
+<span class="sd">(tan x) : returns the tangent of x radians.</span>
+<span class="sd">(tanh x) : returns the hyperbolic tangent of x radians.</span>
+<span class="sd">(atan x) : returns the principal value of the arc tangent of x, expressed in radians.</span>
+<span class="sd">(atan2 x y) : returns the principal value of the arc tangent of y/x, expressed in radians.</span>
+
+<span class="sd">Power and logarithmic functions:</span>
+
+<span class="sd">(sqrt x) : returns the square root of x.</span>
+<span class="sd">(log x) : returns the natural logarithm of x.</span>
+<span class="sd">(log2 x) : returns the binary (base-2) logarithm of x.</span>
+<span class="sd">(log10 x) : returns the common (base-10) logarithm of x.</span>
+<span class="sd">(pow x y) : returns x to the power y.</span>
+
+<span class="sd">Clipping functions:</span>
+
+<span class="sd">(abs x) : returns the absolute value of x.</span>
+<span class="sd">(floor x) : rounds x downward, returning the largest integral value that is not greater than x.</span>
+<span class="sd">(ceil x) : rounds x upward, returning the smallest integral value that is not less than x.</span>
+<span class="sd">(exp  x) : returns the constant e to the power x.</span>
+<span class="sd">(round x) : returns the integral value that is nearest to x.</span>
+<span class="sd">(min x y) : returns the smaller of its arguments: either x or y.</span>
+<span class="sd">(max x y) : returns the larger of its arguments: either x or y.</span>
+<span class="sd">(wrap x) : wraps x between 0 and 1.</span>
+
+<span class="sd">Random fuctions:</span>
+
+<span class="sd">(randf x y) : returns a pseudo-random floating-point number in the range between x and y.</span>
+<span class="sd">(randi x y) : returns a pseudo-random integral number in the range between x and y.</span>
+
+<span class="sd">Complex numbers:</span>
+
+<span class="sd">(complex x y) : returns a complex number where x is the real part and y the imaginary part.</span>
+<span class="sd">(real x) : returns the real part of the complex number x.</span>
+<span class="sd">(imag x) : returns the imaginary part of the complex number x.</span>
+
+<span class="sd">Filter functions:</span>
+
+<span class="sd">(delay x) : one sample delay.</span>
+<span class="sd">(sah x y) : samples and holds x value whenever y is smaller than its previous state.</span>
+<span class="sd">(rpole x y) : real one-pole recursive filter. returns x + last_out * y.</span>
+<span class="sd">(rzero x y) : real one-zero non-recursive filter. returns x - last_x * y.</span>
+<span class="sd">(cpole x y) : complex one-pole recursive filter. x is the complex signal to filter, y is a complex coefficient, it returns a complex signal.</span>
+<span class="sd">(czero x y) : complex one-zero non-recursive filter. x is the complex signal to filter, y is a complex coefficient, it returns a complex signal.</span>
+
+<span class="sd">Multi-output function:</span>
+
+<span class="sd">(out x y) : If using multiple outputs, creates an audio stream where x is the output channel and y the signal to write to the channel.</span>
+
+<span class="sd">Constants:</span>
+
+<span class="sd">(const x) : returns x.</span>
+<span class="sd">pi : returns an approximated value of pi.</span>
+<span class="sd">twopi : returns a constant with value pi*2.</span>
+<span class="sd">e : returns an approximated value of e.</span>
+<span class="sd">sr : returns the current sampling rate.</span>
+
+<span class="sd">Comments</span>
+<span class="sd">--------</span>
+
+<span class="sd">A comment starts with two slashs ( // ) and ends at the end of the line:</span>
+
+<span class="sd">    // This is a comment!</span>
+
+<span class="sd">Input and Output signals</span>
+<span class="sd">------------------------</span>
+
+<span class="sd">User has access to the last buffer size of input and output samples.</span>
+
+<span class="sd">To use samples from past inputs, use $x0[n] notation, where 0 is the first</span>
+<span class="sd">audio stream ($x1[0] would retrieve the second audio stream) and n is the</span>
+<span class="sd">position from the current time. $x0[0] is the current input sample, $x0[-1]</span>
+<span class="sd">is the previous one and $x0[-buffersize] is the last available input sample.</span>
+
+<span class="sd">The first input audio stream can also simply be named $x[0] ($x[0] is the</span>
+<span class="sd">same as $x0[0]).</span>
+
+<span class="sd">To use samples from past output, use $y0[n] notation, where 0 is the first</span>
+<span class="sd">output audio stream ($y1[0] would retrieve the second output audio stream)</span>
+<span class="sd">and n is the position from the current time. $y0[-1] is the previous output</span>
+<span class="sd">and $y0[-buffersize] is the last available output sample of the stream.</span>
+
+<span class="sd">The first output audio stream can also simply be named $y[-1] ($y[-1] is the</span>
+<span class="sd">same as $y0[-1]).</span>
+
+<span class="sd">If the object generates only one channel output (the default), the last</span>
+<span class="sd">expression in the script is the output signal. Otherwise, output signals must</span>
+<span class="sd">be created with the out function.</span>
+
+<span class="sd">Here an example of a first-order IIR lowpass filter expression:</span>
+
+<span class="sd">    // A first-order IIR lowpass filter</span>
+<span class="sd">    + $x[0] (* (- $y[-1] $x[0]) 0.99)</span>
+
+<span class="sd">A simple ring-modulation expression:</span>
+
+<span class="sd">    // ring-modulation between the first two input signals</span>
+<span class="sd">    * $x[0] $x1[0]</span>
+
+<span class="sd">Two output channels:</span>
+
+<span class="sd">    // First channel</span>
+<span class="sd">    (out 0 (sin (* (twopi) (~ 400))))</span>
+<span class="sd">    // Second channel</span>
+<span class="sd">    (out 1 (sin (* (twopi) (~ 500))))</span>
+
+<span class="sd">Defining custom functions</span>
+<span class="sd">-------------------------</span>
+
+<span class="sd">The define keyword starts the definition of a custom function.</span>
+
+<span class="sd">(define funcname (body))</span>
+
+<span class="sd">funcname is the name used to call the function in the expression and</span>
+<span class="sd">body is the sequence of functions to execute. Arguments of the function</span>
+<span class="sd">are extracted directly from the body. They must be named $1, $2, $3, ..., $9.</span>
+
+<span class="sd">Example of a sine wave function:</span>
+
+<span class="sd">    (define osc (</span>
+<span class="sd">        sin (* (twopi) (~ $1))</span>
+<span class="sd">        )</span>
+<span class="sd">    )</span>
+<span class="sd">    // play a sine wave</span>
+<span class="sd">    * (osc 440) 0.3</span>
+
+<span class="sd">State variables</span>
+<span class="sd">---------------</span>
+
+<span class="sd">User can create state variable with the keyword &quot;let&quot;. This is useful</span>
+<span class="sd">to set an intermediate state to be used in multiple places in the</span>
+<span class="sd">processing chain. The syntax is:</span>
+
+<span class="sd">(let #var (body))</span>
+
+<span class="sd">The variable name must begin with a &quot;#&quot;.</span>
+
+<span class="sd">    (let #sr 44100)</span>
+<span class="sd">    (let #freq 1000)</span>
+<span class="sd">    (let #coeff (</span>
+<span class="sd">        ^ (e) (/ (* (* -2 (pi)) #freq) #sr)</span>
+<span class="sd">        )</span>
+<span class="sd">    )</span>
+<span class="sd">    + $x[0] (* (- $y[-1] $x[0]) #coeff)</span>
+
+<span class="sd">The variable is private to a function if created inside a custom function.</span>
+
+<span class="sd">    (let #freq 250) // global #freq variable</span>
+<span class="sd">    (define osc (</span>
+<span class="sd">        (let #freq (* $1 $2)) // local #freq variable</span>
+<span class="sd">        sin (* (twopi) (~ #freq))</span>
+<span class="sd">        )</span>
+<span class="sd">    )</span>
+<span class="sd">    * (+ (osc 1 #freq) (osc 2 #freq)) 0.2</span>
+
+<span class="sd">State variables can be used to do 1 sample feedback if used before created.</span>
+<span class="sd">Undefined variables are initialized to 0.</span>
+
+<span class="sd">    (define oscloop (</span>
+<span class="sd">            (let #xsin</span>
+<span class="sd">                (sin (+ (* (~ $1) (twopi)) (* #xsin $2))) // #xsin used before...</span>
+<span class="sd">            ) // ... &quot;let&quot; statement finished!</span>
+<span class="sd">            #xsin // oscloop function outputs #xsin variable</span>
+<span class="sd">        )</span>
+<span class="sd">    )</span>
+<span class="sd">    * (oscloop 200 0.7) 0.3</span>
+
+<span class="sd">A state variable can also contain a complex number:</span>
+
+<span class="sd">    (let #v (complex 0.2 0.7)) // #v = (0.2 0.7)</span>
+
+<span class="sd">User variables</span>
+<span class="sd">--------------</span>
+
+<span class="sd">User variables are created with the keyword &quot;var&quot;.</span>
+
+<span class="sd">(var #var (init))</span>
+
+<span class="sd">The variable name must begin with a &quot;#&quot;.</span>
+
+<span class="sd">They are computed only at initialization, but can be changed from the python</span>
+<span class="sd">script with method calls (varname is a string and value is a float):</span>
+
+<span class="sd">obj.setVar(varname, value)</span>
+
+<span class="sd">The following example shows how to control the cutoff fequency of a lowpass</span>
+<span class="sd">filter with a user variable:</span>
+
+<span class="sd">    expression = &#39;&#39;&#39;</span>
+<span class="sd">    (var #freq 1000)</span>
+<span class="sd">    (let #coeff (</span>
+<span class="sd">        ^ e (/ (* (neg twopi) #freq) 44100)</span>
+<span class="sd">        )</span>
+<span class="sd">    )</span>
+<span class="sd">    + $x[0] (* (- $y[-1] $x[0]) #coeff)</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    ex = Expr(Noise(0.5), expression).out()</span>
+<span class="sd">    freq = Sine(0.25).range(250, 10000)</span>
+
+<span class="sd">    def update():</span>
+<span class="sd">        ex.setVar(&quot;#freq&quot;, freq.get())</span>
+
+<span class="sd">    pat = Pattern(update, 0.02).play()</span>
+
+<span class="sd">Library importation</span>
+<span class="sd">-------------------</span>
+
+<span class="sd">Custom functions can be defined in an external file and imported with the</span>
+<span class="sd">&quot;load&quot; function:</span>
+
+<span class="sd">(load path/to/the/file)</span>
+
+<span class="sd">The content of the file will be inserted where the load function is called</span>
+<span class="sd">and all functions defined inside the file will then be accessible. The path</span>
+<span class="sd">can be absolute or relative to the current working directory.</span>
+
+<span class="sd">Complex numbers</span>
+<span class="sd">---------------</span>
+
+<span class="sd">A complex number is created with the `complex` function:</span>
+
+<span class="sd">(complex x y)</span>
+
+<span class="sd">We can retrieve one part of a complex number with `real` and `imag` functions:</span>
+
+<span class="sd">    // get the real part (x) of a number</span>
+<span class="sd">    (real (complex x y))</span>
+
+<span class="sd">If a complex number is used somewhere not waiting for a complex, real value</span>
+<span class="sd">will be used.</span>
+
+<span class="sd">If a real number is used somewhere waiting for a complex, the imaginary part</span>
+<span class="sd">is set to 0.0.</span>
+
+<span class="sd">Examples</span>
+<span class="sd">--------</span>
+
+<span class="sd">A first-order IIR lowpass filter:</span>
+
+<span class="sd">    (var #sr 44100)</span>
+<span class="sd">    (var #cutoff 1000)</span>
+<span class="sd">    (let #coeff (exp (/ (* (* -2 (pi)) #cutoff) #sr)))</span>
+<span class="sd">    + $x[0] (* (- $y[-1] $x[0]) #coeff)</span>
+
+<span class="sd">A LFO&#39;ed hyperbolic tangent distortion:</span>
+
+<span class="sd">    // $1 = lfo frequency, $2 = lfo depth</span>
+<span class="sd">    (define lfo (</span>
+<span class="sd">            (+ (* (sin (* (twopi) (~ $1))) (- $2 1)) $2)</span>
+<span class="sd">        )</span>
+<span class="sd">    )</span>
+<span class="sd">    tanh (* $x[0] (lfo .25 10))</span>
+
+<span class="sd">A triangle waveform generator (use Sig(0) as input argument to bypass input):</span>
+
+<span class="sd">    (var #freq 440)</span>
+<span class="sd">    // $1 = oscillator frequency</span>
+<span class="sd">    (define triangle (</span>
+<span class="sd">            (let #ph (~ $1))</span>
+<span class="sd">            (- (* (min #ph (- 1 #ph)) 4) 1)</span>
+<span class="sd">        )</span>
+<span class="sd">    )</span>
+<span class="sd">    (triangle #freq)</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Copyright 2015-19 Olivier Belanger</span>
+
+<span class="sd">This file is part of pyo, a python module to help digital signal</span>
+<span class="sd">processing script creation.</span>
+
+<span class="sd">pyo is free software: you can redistribute it and/or modify</span>
+<span class="sd">it under the terms of the GNU Lesser General Public License as</span>
+<span class="sd">published by the Free Software Foundation, either version 3 of the</span>
+<span class="sd">License, or (at your option) any later version.</span>
+
+<span class="sd">pyo is distributed in the hope that it will be useful,</span>
+<span class="sd">but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="sd">MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="sd">GNU Lesser General Public License for more details.</span>
+
+<span class="sd">You should have received a copy of the GNU Lesser General Public</span>
+<span class="sd">License along with pyo.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">._core</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">._maps</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">._widgets</span> <span class="kn">import</span> <span class="n">createExprEditorWindow</span>
+
+<div class="viewcode-block" id="Expr"><a class="viewcode-back" href="../../../api/classes/expression.html#pyo.Expr">[docs]</a><span class="k">class</span> <span class="nc">Expr</span><span class="p">(</span><span class="n">PyoObject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Prefix audio expression evaluator.</span>
+
+<span class="sd">    Expr implements a tiny functional programming language that can be</span>
+<span class="sd">    used to write synthesis or signal processing algorithms.</span>
+
+<span class="sd">    For documentation about the language, see the module&#39;s documentation.</span>
+
+<span class="sd">    :Parent: :py:class:`PyoObject`</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        input: PyoObject or list of PyoObjects</span>
+<span class="sd">            Input signal(s) to process. If given a multi-stream PyoObject</span>
+<span class="sd">            or a list of PyoObjects, each stream ca be retrieved with the</span>
+<span class="sd">            syntax $x0[0], $x1[0], $x2[0], etc. $x[0] is the same as $x0[0].</span>
+<span class="sd">        expr: str, optional</span>
+<span class="sd">            Expression to evaluate as a string.</span>
+<span class="sd">        outs: int, optional</span>
+<span class="sd">            Number of output signals generated by the object. If 1 (the</span>
+<span class="sd">            default), the last expression in the script is the output signal.</span>
+<span class="sd">            Otherwise, output signals must be created with the `out` function.</span>
+<span class="sd">            Available at initialization time only.</span>
+<span class="sd">        initout: float, optional</span>
+<span class="sd">            Value used to initialize the output buffers. Use with caution!</span>
+<span class="sd">            Defaults to 0.0.</span>
+
+<span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
+<span class="sd">    &gt;&gt;&gt; s.start()</span>
+<span class="sd">    &gt;&gt;&gt; proc = &#39;&#39;&#39;</span>
+<span class="sd">    &gt;&gt;&gt; (var #boost 1)</span>
+<span class="sd">    &gt;&gt;&gt; (tanh (* $x[0] #boost))</span>
+<span class="sd">    &gt;&gt;&gt; &#39;&#39;&#39;</span>
+<span class="sd">    &gt;&gt;&gt; sf = SfPlayer(SNDS_PATH + &quot;/transparent.aif&quot;, loop=True)</span>
+<span class="sd">    &gt;&gt;&gt; ex = Expr(sf, proc, mul=0.4).out()</span>
+<span class="sd">    &gt;&gt;&gt; lfo = Sine(freq=1).range(1, 20)</span>
+<span class="sd">    &gt;&gt;&gt; def change():</span>
+<span class="sd">    ...     ex.setVar(&quot;#boost&quot;, lfo.get())</span>
+<span class="sd">    &gt;&gt;&gt; pat = Pattern(change, 0.02).play()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">expr</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">outs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">initout</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;osIFOO&quot;</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">expr</span><span class="p">,</span> <span class="n">outs</span><span class="p">,</span> <span class="n">initout</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_editor</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input</span> <span class="o">=</span> <span class="nb">input</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">input_objs</span> <span class="o">=</span> <span class="p">[</span><span class="n">obj</span> <span class="k">for</span> <span class="n">pyoObj</span> <span class="ow">in</span> <span class="nb">input</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">pyoObj</span><span class="o">.</span><span class="n">getBaseObjects</span><span class="p">()]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">input_objs</span> <span class="o">=</span> <span class="nb">input</span><span class="o">.</span><span class="n">getBaseObjects</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_expr</span> <span class="o">=</span> <span class="n">expr</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_outs</span> <span class="o">=</span> <span class="n">outs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initout</span> <span class="o">=</span> <span class="n">initout</span>
+        <span class="n">expr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_preproc</span><span class="p">(</span><span class="n">expr</span><span class="p">)</span>
+        <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_players</span> <span class="o">=</span> <span class="p">[</span><span class="n">Exprer_base</span><span class="p">(</span><span class="n">input_objs</span><span class="p">,</span> <span class="n">expr</span><span class="p">,</span> <span class="n">outs</span><span class="p">,</span> <span class="n">initout</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">outs</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Expr_base</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_players</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">j</span><span class="p">,</span> <span class="n">wrap</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">j</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_play</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Expr.setExpr"><a class="viewcode-back" href="../../../api/classes/expression.html#pyo.Expr.setExpr">[docs]</a>    <span class="k">def</span> <span class="nf">setExpr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `expr` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: string</span>
+<span class="sd">                New expression to process.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;s&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_expr</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_editor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_editor</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_preproc</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setExpr</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_players</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="Expr.printNodes"><a class="viewcode-back" href="../../../api/classes/expression.html#pyo.Expr.printNodes">[docs]</a>    <span class="k">def</span> <span class="nf">printNodes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Print the list of current nodes.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">printNodes</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+    <span class="k">def</span> <span class="nf">setVar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">varname</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;sn&quot;</span><span class="p">,</span> <span class="n">varname</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="n">varname</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">varname</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setVar</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">varname</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">j</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_players</span><span class="p">)</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)]</span>
+
+    <span class="k">def</span> <span class="nf">_get_matching_bracket_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">p1</span><span class="p">):</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">p2</span> <span class="o">=</span> <span class="n">p1</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="n">p2</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;(&quot;</span><span class="p">:</span>
+                <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">elif</span> <span class="n">x</span><span class="p">[</span><span class="n">p2</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;)&quot;</span><span class="p">:</span>
+                <span class="n">count</span> <span class="o">-=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="n">p2</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">p2</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+                <span class="k">break</span>
+        <span class="k">if</span> <span class="n">count</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">p2</span>
+
+    <span class="k">def</span> <span class="nf">_replace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">lst</span><span class="p">):</span>
+        <span class="n">lst</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">body</span> <span class="ow">in</span> <span class="n">lst</span><span class="p">:</span>
+            <span class="c1"># find how many args waiting in function&#39;s body</span>
+            <span class="n">numargs</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">doll</span> <span class="o">=</span> <span class="n">body</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;$&quot;</span><span class="p">)</span>
+            <span class="k">while</span> <span class="n">doll</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="n">arg</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">body</span><span class="p">[</span><span class="n">doll</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">arg</span> <span class="o">&gt;</span> <span class="n">numargs</span><span class="p">:</span>
+                    <span class="n">numargs</span> <span class="o">=</span> <span class="n">arg</span>
+                <span class="n">doll</span> <span class="o">=</span> <span class="n">body</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;$&quot;</span><span class="p">,</span> <span class="n">doll</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">occurences</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">pos</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="k">while</span> <span class="n">pos</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="n">pos</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="s2">&quot; </span><span class="se">\t\n</span><span class="s2">()&quot;</span> <span class="ow">and</span> <span class="n">x</span><span class="p">[</span><span class="n">pos</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">key</span><span class="p">)]</span> <span class="ow">in</span> <span class="s2">&quot; </span><span class="se">\t\n</span><span class="s2">()&quot;</span><span class="p">:</span>
+                    <span class="c1"># replace &quot;#vars&quot; with unique symbol</span>
+                    <span class="n">body2</span> <span class="o">=</span> <span class="n">body</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">key</span><span class="p">,</span> <span class="s2">&quot;.</span><span class="si">%s</span><span class="s2">.</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">occurences</span><span class="p">))</span>
+                    <span class="n">occurences</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="c1"># find limits</span>
+                    <span class="n">is_inside_brackets</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">start</span> <span class="o">=</span> <span class="n">pos</span> <span class="o">-</span> <span class="mi">1</span>
+                    <span class="k">while</span> <span class="n">x</span><span class="p">[</span><span class="n">start</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;(&quot;</span><span class="p">:</span>
+                        <span class="n">start</span> <span class="o">-=</span> <span class="mi">1</span>
+                        <span class="k">if</span> <span class="n">start</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                            <span class="n">start</span> <span class="o">=</span> <span class="mi">0</span>
+                            <span class="n">is_inside_brackets</span> <span class="o">=</span> <span class="kc">False</span>
+                            <span class="k">break</span>
+                    <span class="k">if</span> <span class="n">is_inside_brackets</span><span class="p">:</span>
+                        <span class="n">end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_matching_bracket_pos</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">start</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">end</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+                    <span class="c1"># retrieve args #</span>
+                    <span class="c1"># function arguments are computed only once at the beginning of the</span>
+                    <span class="c1"># function. This fixes a bug wen an argument *must* be of the same</span>
+                    <span class="c1"># value for every $x and the arg expression contains random function.</span>
+                    <span class="n">argvars</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+                    <span class="n">howmany</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="n">p1</span> <span class="o">=</span> <span class="n">pos</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+                    <span class="n">p2</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numargs</span><span class="p">):</span>
+                        <span class="k">while</span> <span class="n">x</span><span class="p">[</span><span class="n">p1</span><span class="p">]</span> <span class="ow">in</span> <span class="s2">&quot; </span><span class="se">\t\n</span><span class="s2">&quot;</span><span class="p">:</span>
+                            <span class="n">p1</span> <span class="o">+=</span> <span class="mi">1</span>
+                        <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="n">p1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;(&quot;</span><span class="p">:</span>
+                            <span class="n">p2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_matching_bracket_pos</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">p1</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="n">p2</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span> <span class="ow">or</span> <span class="n">p2</span> <span class="o">&gt;=</span> <span class="n">end</span><span class="p">:</span>
+                                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Mismatched brackets in function arguments.&quot;</span><span class="p">)</span>
+                            <span class="n">p2</span> <span class="o">+=</span> <span class="mi">1</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">p2</span> <span class="o">=</span> <span class="n">p1</span> <span class="o">+</span> <span class="mi">1</span>
+                            <span class="k">if</span> <span class="n">p2</span> <span class="o">&lt;</span> <span class="n">end</span><span class="p">:</span>
+                                <span class="k">while</span> <span class="n">x</span><span class="p">[</span><span class="n">p2</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="s2">&quot; </span><span class="se">\t\n</span><span class="s2">()&quot;</span><span class="p">:</span>
+                                    <span class="n">p2</span> <span class="o">+=</span> <span class="mi">1</span>
+                                    <span class="k">if</span> <span class="n">p2</span> <span class="o">==</span> <span class="n">end</span><span class="p">:</span>
+                                        <span class="k">break</span>
+                        <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="n">p1</span><span class="p">:</span><span class="n">p2</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;)&quot;</span><span class="p">:</span>
+                            <span class="c1"># pattern for an arg is #FUNCNAMEargARGNUMBER.</span>
+                            <span class="n">argvars</span> <span class="o">=</span> <span class="n">argvars</span> <span class="o">+</span> <span class="s2">&quot;(let #</span><span class="si">%s</span><span class="s2">arg</span><span class="si">%d</span><span class="s2"> </span><span class="si">%s</span><span class="s2">)</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">x</span><span class="p">[</span><span class="n">p1</span><span class="p">:</span><span class="n">p2</span><span class="p">])</span>
+                            <span class="n">howmany</span> <span class="o">+=</span> <span class="mi">1</span>
+                        <span class="k">if</span> <span class="n">p2</span> <span class="o">==</span> <span class="n">end</span><span class="p">:</span>
+                            <span class="k">break</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">p1</span> <span class="o">=</span> <span class="n">p2</span>
+                    <span class="k">if</span> <span class="n">howmany</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">body2</span> <span class="o">=</span> <span class="n">body2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">argvars</span> <span class="o">+</span> <span class="n">body2</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+
+                    <span class="c1"># discard extra args</span>
+                    <span class="k">if</span> <span class="n">p2</span> <span class="o">!=</span> <span class="n">end</span> <span class="ow">and</span> <span class="n">p2</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[:</span><span class="n">p2</span><span class="p">]</span> <span class="o">+</span> <span class="n">x</span><span class="p">[</span><span class="n">end</span><span class="p">:]</span>
+
+                    <span class="c1"># replace args</span>
+                    <span class="k">if</span> <span class="n">howmany</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">newbody</span> <span class="o">=</span> <span class="n">body2</span>
+                        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numargs</span><span class="p">):</span>
+                            <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">howmany</span><span class="p">:</span>
+                                <span class="n">arg</span> <span class="o">=</span> <span class="s2">&quot;#</span><span class="si">%s</span><span class="s2">arg</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="n">arg</span> <span class="o">=</span> <span class="s2">&quot;0.0&quot;</span>
+                            <span class="n">newbody</span> <span class="o">=</span> <span class="n">newbody</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;$</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="n">arg</span><span class="p">)</span>
+                        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[:</span><span class="n">pos</span><span class="p">]</span> <span class="o">+</span> <span class="n">newbody</span> <span class="o">+</span> <span class="n">x</span><span class="p">[</span><span class="n">p2</span><span class="p">:]</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[:</span><span class="n">pos</span><span class="p">]</span> <span class="o">+</span> <span class="n">body2</span> <span class="o">+</span> <span class="n">x</span><span class="p">[</span><span class="n">pos</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="p">:]</span>
+                <span class="n">pos</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">pos</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">x</span>
+
+    <span class="k">def</span> <span class="nf">_change_var_names</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">funcname</span><span class="p">,</span> <span class="n">funcbody</span><span class="p">):</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">letpos</span> <span class="o">=</span> <span class="n">funcbody</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;let &quot;</span><span class="p">)</span>
+        <span class="k">while</span> <span class="n">letpos</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">pos</span> <span class="o">=</span> <span class="n">funcbody</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">,</span> <span class="n">letpos</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">pos</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;No #var defined inside a let function.&quot;</span><span class="p">)</span>
+            <span class="n">p1</span> <span class="o">=</span> <span class="n">pos</span>
+            <span class="n">p2</span> <span class="o">=</span> <span class="n">p1</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="k">while</span> <span class="n">funcbody</span><span class="p">[</span><span class="n">p2</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="s2">&quot; </span><span class="se">\t\n</span><span class="s2">()&quot;</span><span class="p">:</span>
+                <span class="n">p2</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="n">funcbody</span><span class="p">[</span><span class="n">p1</span><span class="p">:</span><span class="n">p2</span><span class="p">]</span>
+            <span class="n">d</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="n">label</span> <span class="o">+</span> <span class="s2">&quot;-&quot;</span> <span class="o">+</span> <span class="n">funcname</span>
+            <span class="n">letpos</span> <span class="o">=</span> <span class="n">funcbody</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;let &quot;</span><span class="p">,</span> <span class="n">letpos</span> <span class="o">+</span> <span class="mi">4</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">newlabel</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">funcbody</span> <span class="o">=</span> <span class="n">funcbody</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">newlabel</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">funcbody</span>
+
+    <span class="k">def</span> <span class="nf">_preproc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="c1"># replace load functions with file body</span>
+        <span class="k">while</span> <span class="s2">&quot;(load&quot;</span> <span class="ow">in</span> <span class="n">x</span><span class="p">:</span>
+            <span class="n">p1</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;(load&quot;</span><span class="p">)</span>
+            <span class="n">p2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_matching_bracket_pos</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">p1</span><span class="p">)</span>
+            <span class="n">p2</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">p1</span><span class="p">:</span><span class="n">p2</span><span class="p">]</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;(load&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;)&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="n">text</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[:</span><span class="n">p1</span><span class="p">]</span> <span class="o">+</span> <span class="n">text</span> <span class="o">+</span> <span class="n">x</span><span class="p">[</span><span class="n">p2</span><span class="p">:]</span>
+
+        <span class="c1"># remove comments</span>
+        <span class="k">while</span> <span class="s2">&quot;//&quot;</span> <span class="ow">in</span> <span class="n">x</span><span class="p">:</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;//&quot;</span><span class="p">)</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">start</span><span class="p">)</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[:</span><span class="n">start</span><span class="p">]</span> <span class="o">+</span> <span class="n">x</span><span class="p">[</span><span class="n">end</span><span class="p">:]</span>
+
+        <span class="c1"># make sure there are braces around constant keywords</span>
+        <span class="n">constants</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;pi&quot;</span><span class="p">,</span> <span class="s2">&quot;twopi&quot;</span><span class="p">,</span> <span class="s2">&quot;e&quot;</span><span class="p">,</span> <span class="s2">&quot;sr&quot;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">constant</span> <span class="ow">in</span> <span class="n">constants</span><span class="p">:</span>
+            <span class="n">p1</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">constant</span><span class="p">)</span>
+            <span class="k">while</span> <span class="n">p1</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="n">p1</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot; &quot;</span><span class="p">:</span>
+                    <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[:</span><span class="n">p1</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;(&quot;</span> <span class="o">+</span> <span class="n">constant</span> <span class="o">+</span> <span class="s2">&quot;)&quot;</span> <span class="o">+</span> <span class="n">x</span><span class="p">[</span><span class="n">p1</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">constant</span><span class="p">)</span> <span class="p">:]</span>
+                <span class="n">p1</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">constant</span><span class="p">,</span> <span class="n">p1</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">constant</span><span class="p">)</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="c1"># expand defined functions</span>
+        <span class="n">_defined</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">while</span> <span class="s2">&quot;define&quot;</span> <span class="ow">in</span> <span class="n">x</span><span class="p">:</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;(define&quot;</span><span class="p">)</span>
+            <span class="n">p1</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="mi">7</span>
+            <span class="c1"># get function name</span>
+            <span class="k">while</span> <span class="n">x</span><span class="p">[</span><span class="n">p1</span><span class="p">]</span> <span class="ow">in</span> <span class="s2">&quot; </span><span class="se">\t\n</span><span class="s2">&quot;</span><span class="p">:</span>
+                <span class="n">p1</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">p2</span> <span class="o">=</span> <span class="n">p1</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="k">while</span> <span class="n">x</span><span class="p">[</span><span class="n">p2</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="s2">&quot; </span><span class="se">\t\n</span><span class="s2">&quot;</span><span class="p">:</span>
+                <span class="n">p2</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">funcname</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">p1</span><span class="p">:</span><span class="n">p2</span><span class="p">]</span>
+            <span class="c1"># get function body</span>
+            <span class="n">p1</span> <span class="o">=</span> <span class="n">p2</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="k">while</span> <span class="n">x</span><span class="p">[</span><span class="n">p1</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;(&quot;</span><span class="p">:</span>
+                <span class="n">p1</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">p2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_matching_bracket_pos</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">p1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">p2</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Mismatched brackets in function body.&quot;</span><span class="p">)</span>
+            <span class="n">p2</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">funcbody</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">p1</span><span class="p">:</span><span class="n">p2</span><span class="p">]</span>
+            <span class="c1"># get end of the definition</span>
+            <span class="k">while</span> <span class="n">x</span><span class="p">[</span><span class="n">p2</span><span class="p">]</span> <span class="ow">in</span> <span class="s2">&quot; </span><span class="se">\t\n</span><span class="s2">&quot;</span><span class="p">:</span>
+                <span class="n">p2</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="n">p2</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;)&quot;</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Missing ending bracket in function definition.&quot;</span><span class="p">)</span>
+            <span class="n">stop</span> <span class="o">=</span> <span class="n">p2</span>
+            <span class="c1"># save in dictionary and remove definition from the string</span>
+            <span class="n">funcbody</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_change_var_names</span><span class="p">(</span><span class="n">funcname</span><span class="p">,</span> <span class="n">funcbody</span><span class="p">)</span>
+            <span class="n">_defined</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">funcname</span><span class="p">,</span> <span class="n">funcbody</span><span class="p">])</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[:</span><span class="n">start</span><span class="p">]</span> <span class="o">+</span> <span class="n">x</span><span class="p">[</span><span class="n">stop</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:]</span>
+        <span class="c1"># replace calls to function with their function body</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_replace</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">_defined</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">x</span>
+
+<div class="viewcode-block" id="Expr.editor"><a class="viewcode-back" href="../../../api/classes/expression.html#pyo.Expr.editor">[docs]</a>    <span class="k">def</span> <span class="nf">editor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Expr Editor&quot;</span><span class="p">,</span> <span class="n">wxnoserver</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Opens the text editor for this object.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            title: string, optional</span>
+<span class="sd">                Title of the window. If none is provided, the name of the</span>
+<span class="sd">                class is used.</span>
+<span class="sd">            wxnoserver: boolean, optional</span>
+<span class="sd">                With wxPython graphical toolkit, if True, tells the</span>
+<span class="sd">                interpreter that there will be no server window.</span>
+
+<span class="sd">        If `wxnoserver` is set to True, the interpreter will not wait for</span>
+<span class="sd">        the server GUI before showing the controller window.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">createExprEditorWindow</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">wxnoserver</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">expr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;string. New expression to process.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_expr</span>
+
+    <span class="nd">@expr</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">expr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setExpr</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">Pyo 1.0.4 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pyo.html" >pyo</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pyo.lib.expression</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+  </body>
+</html>

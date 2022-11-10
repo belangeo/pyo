@@ -1,0 +1,2566 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>Open Sound Control — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="pan.html" rel="next" title="Routing"/>
+<link href="mmlmusic.html" rel="prev" title="Music Macro Language evaluator"/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="pan.html" title="Routing">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="mmlmusic.html" title="Music Macro Language evaluator">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="../index.html">API documentation</a> »</li>
+<li class="nav-item nav-item-2"><a accesskey="U" href="index.html">Classes by category</a> »</li>
+<li class="nav-item nav-item-this"><a href="">Open Sound Control</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="open-sound-control">
+<h1>Open Sound Control<a class="headerlink" href="#open-sound-control" title="Permalink to this headline">¶</a></h1>
+<p>Objects to manage values on an Open Sound Control port.</p>
+<p>OscSend takes the first value of each buffersize and send it on an
+OSC port.</p>
+<p>OscReceive creates and returns audio streams from the value in its
+input port.</p>
+<p>The audio streams of these objects are essentially intended to be
+controls and can’t be sent to the output soundcard.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>These objects are available only if pyo is built with OSC (Open Sound
+Control) support.</p>
+</div>
+<section id="oscdatareceive">
+<h2><em>OscDataReceive</em><a class="headerlink" href="#oscdatareceive" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyo.OscDataReceive">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">OscDataReceive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">port</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">address</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/opensndctrl.html#OscDataReceive"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.OscDataReceive" title="Permalink to this definition">¶</a></dt>
+<dd><p>Receives data values over a network via the Open Sound Control protocol.</p>
+<p>Uses the OSC protocol to receive data values from other softwares or
+other computers. When a message is received, the function given at the
+argument <cite>function</cite> is called with the current address destination in
+argument followed by a tuple of values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parent</dt>
+<dd class="field-odd"><p><a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></p>
+</dd>
+<dt class="field-even">Args</dt>
+<dd class="field-even"><dl class="simple">
+<dt>port: int</dt><dd><p>Port on which values are received. Sender should output on
+the same port. Unlike OscDataSend object, there can be only
+one port per OscDataReceive object. Available at initialization
+time only.</p>
+</dd>
+<dt>address: string</dt><dd><p>Address used on the port to identify values. Address is in
+the form of a Unix path (ex.: “/pitch”). There can be as many
+addresses as needed on a single port.</p>
+</dd>
+<dt>function: callable (can’t be a list)</dt><dd><p>This function will be called whenever a message with a known
+address is received. there can be only one function per
+OscDataReceive object. Available at initialization time only.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The header of the callable given at <cite>function</cite> argument must be in this form:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">my_func</span><span class="p">(</span><span class="n">address</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+<p>The out() method is bypassed. OscDataReceive has no audio signal.</p>
+<p>OscDataReceive has no <cite>mul</cite> and <cite>add</cite> attributes.</p>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">pp</span><span class="p">(</span><span class="n">address</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/opensndctrl.html#pyo.OscDataReceive" title="pyo.lib.opensndctrl.OscDataReceive"><span class="n">r</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/opensndctrl.html#pyo.OscDataReceive" title="pyo.lib.opensndctrl.OscDataReceive"><span class="n">OscDataReceive</span></a><span class="p">(</span><span class="mi">9900</span><span class="p">,</span> <span class="s2">"/data/test"</span><span class="p">,</span> <span class="n">pp</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Send various types</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/opensndctrl.html#pyo.OscDataSend" title="pyo.lib.opensndctrl.OscDataSend"><span class="n">a</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/opensndctrl.html#pyo.OscDataSend" title="pyo.lib.opensndctrl.OscDataSend"><span class="n">OscDataSend</span></a><span class="p">(</span><span class="s2">"fissif"</span><span class="p">,</span> <span class="mi">9900</span><span class="p">,</span> <span class="s2">"/data/test"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">msg</span> <span class="o">=</span> <span class="p">[</span><span class="mf">3.14159</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"Hello"</span><span class="p">,</span> <span class="s2">"world!"</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mf">6.18</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Send a blob</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/opensndctrl.html#pyo.OscDataSend" title="pyo.lib.opensndctrl.OscDataSend"><span class="n">b</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/opensndctrl.html#pyo.OscDataSend" title="pyo.lib.opensndctrl.OscDataSend"><span class="n">OscDataSend</span></a><span class="p">(</span><span class="s2">"b"</span><span class="p">,</span> <span class="mi">9900</span><span class="p">,</span> <span class="s2">"/data/test"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">msg</span> <span class="o">=</span> <span class="p">[[</span><span class="nb">chr</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Send a MIDI noteon on port 0</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/opensndctrl.html#pyo.OscDataSend" title="pyo.lib.opensndctrl.OscDataSend"><span class="n">c</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/opensndctrl.html#pyo.OscDataSend" title="pyo.lib.opensndctrl.OscDataSend"><span class="n">OscDataSend</span></a><span class="p">(</span><span class="s2">"m"</span><span class="p">,</span> <span class="mi">9900</span><span class="p">,</span> <span class="s2">"/data/test"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">msg</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">144</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">100</span><span class="p">]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Public Data Attributes:</p>
+<details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mul</span></code></p></td>
+<td><p>float or PyoObject.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add</span></code></p></td>
+<td><p>float or PyoObject.</p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Public Methods:</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>(port, address, function)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.OscDataReceive.setMul" title="pyo.OscDataReceive.setMul"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setMul</span></code></a>(x)</p></td>
+<td><p>Replace the <cite>mul</cite> attribute.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.OscDataReceive.setAdd" title="pyo.OscDataReceive.setAdd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setAdd</span></code></a>(x)</p></td>
+<td><p>Replace the <cite>add</cite> attribute.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.OscDataReceive.out" title="pyo.OscDataReceive.out"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out</span></code></a>([chnl, inc, dur, delay])</p></td>
+<td><p>Start processing and send samples to audio output beginning at <cite>chnl</cite>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.OscDataReceive.getAddresses" title="pyo.OscDataReceive.getAddresses"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getAddresses</span></code></a>()</p></td>
+<td><p>Returns the addresses managed by the object.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.OscDataReceive.addAddress" title="pyo.OscDataReceive.addAddress"><code class="xref py py-obj docutils literal notranslate"><span class="pre">addAddress</span></code></a>(path)</p></td>
+<td><p>Adds new address(es) to the object's handler.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.OscDataReceive.delAddress" title="pyo.OscDataReceive.delAddress"><code class="xref py py-obj docutils literal notranslate"><span class="pre">delAddress</span></code></a>(path)</p></td>
+<td><p>Removes address(es) from the object's handler.</p></td>
+</tr>
+</tbody>
+</table>
+<details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>(port, address, function)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__add__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__radd__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__iadd__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__sub__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__rsub__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__isub__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__mul__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__rmul__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__imul__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__truediv__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__rtruediv__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__itruediv__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__div__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__rdiv__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__idiv__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__pow__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__rpow__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__mod__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__neg__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__lt__</span></code>(x)</p></td>
+<td><p>Return self&lt;value.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__le__</span></code>(x)</p></td>
+<td><p>Return self&lt;=value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__eq__</span></code>(x)</p></td>
+<td><p>Return self==value.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__ne__</span></code>(x)</p></td>
+<td><p>Return self!=value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__gt__</span></code>(x)</p></td>
+<td><p>Return self&gt;value.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__ge__</span></code>(x)</p></td>
+<td><p>Return self&gt;=value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__do_comp__</span></code>(comp, mode[, default])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isPlaying</span></code>([all])</p></td>
+<td><p>Returns True if the object is currently playing, otherwise, returns False.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isOutputting</span></code>([all])</p></td>
+<td><p>Returns True if the object is outputting.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
+<td><p>Return the first sample of the current buffer as a float.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
+<td><p>Start processing without sending samples to output.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.OscDataReceive.out" title="pyo.OscDataReceive.out"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out</span></code></a>([chnl, inc, dur, delay])</p></td>
+<td><p>Start processing and send samples to audio output beginning at <cite>chnl</cite>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">stop</span></code>([wait])</p></td>
+<td><p>Stop processing.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mix</span></code>([voices])</p></td>
+<td><p>Mix the object's audio streams into <cite>voices</cite> streams and return a Mix object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">range</span></code>(min, max)</p></td>
+<td><p>Adjust <cite>mul</cite> and <cite>add</cite> attributes according to a given range.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.OscDataReceive.setMul" title="pyo.OscDataReceive.setMul"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setMul</span></code></a>(x)</p></td>
+<td><p>Replace the <cite>mul</cite> attribute.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.OscDataReceive.setAdd" title="pyo.OscDataReceive.setAdd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setAdd</span></code></a>(x)</p></td>
+<td><p>Replace the <cite>add</cite> attribute.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setSub</span></code>(x)</p></td>
+<td><p>Replace and inverse the <cite>add</cite> attribute.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setDiv</span></code>(x)</p></td>
+<td><p>Replace and inverse the <cite>mul</cite> attribute.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set</span></code>(attr, value[, port, callback])</p></td>
+<td><p>Replace any attribute with portamento.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ctrl</span></code>([map_list, title, wxnoserver])</p></td>
+<td><p>Opens a sliders window to control the parameters of the object.</p></td>
+</tr>
+</tbody>
+</table>
+</details><details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObjectBase" title="pyo.PyoObjectBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObjectBase</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>(port, address, function)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">dump</span></code>()</p></td>
+<td><p>Print infos about the current state of the object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getBaseObjects</span></code>()</p></td>
+<td><p>Return a list of Stream objects managed by the instance.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getServer</span></code>()</p></td>
+<td><p>Return a reference to the current Server object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getSamplingRate</span></code>()</p></td>
+<td><p>Return the current sampling rate (samples per second), as a float.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getBufferSize</span></code>()</p></td>
+<td><p>Return the current buffer size (samples per buffer), as an integer.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">allowAutoStart</span></code>([switch])</p></td>
+<td><p>When autoStartChildren is activated in the Server, call this method with False as argument to stop the propagation of play/out/stop methods to and from this object.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">useWaitTimeOnStop</span></code>()</p></td>
+<td><p>When autoStartChildren is activated in the Server, call this method to force an object given to the <cite>mul</cite> attribute of another object to use the  wait time from the stop method instead of being stopped immediately.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">addLinkedObject</span></code>(x)</p></td>
+<td><p>When autoStartChildren is activated in the Server, use this method to explicitly add an object in a dsp chain, which is generally controlled by the last object of the chain.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setStopDelay</span></code>(x)</p></td>
+<td><p>Set a specific waiting time when calling the stop method on this object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getStopDelay</span></code>()</p></td>
+<td><p>Return the waiting time applied when calling the stop method on this object.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__iter__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__next__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">next</span></code>()</p></td>
+<td><p>Alias for __next__ method.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__getitem__</span></code>(i)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__setitem__</span></code>(i, x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__len__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__repr__</span></code>()</p></td>
+<td><p>Return repr(self).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__dir__</span></code>()</p></td>
+<td><p>Default dir() implementation.</p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Private Data Attributes:</p>
+<details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_STREAM_TYPE</span></code></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</details><details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObjectBase" title="pyo.PyoObjectBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObjectBase</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_STREAM_TYPE</span></code></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Private Methods:</p>
+<details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_init_play</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_reset_from_set</span></code>([attr])</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</details><details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObjectBase" title="pyo.PyoObjectBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObjectBase</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_autoplay</span></code>([dur, delay])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_autostop</span></code>([wait])</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<hr class="docutils"/>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.OscDataReceive.setMul">
+<span class="sig-name descname"><span class="pre">setMul</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/opensndctrl.html#OscDataReceive.setMul"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.OscDataReceive.setMul" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace the <cite>mul</cite> attribute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>x: float or PyoObject</dt><dd><p>New <cite>mul</cite> attribute.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.OscDataReceive.setAdd">
+<span class="sig-name descname"><span class="pre">setAdd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/opensndctrl.html#OscDataReceive.setAdd"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.OscDataReceive.setAdd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace the <cite>add</cite> attribute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>x: float or PyoObject</dt><dd><p>New <cite>add</cite> attribute.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.OscDataReceive.out">
+<span class="sig-name descname"><span class="pre">out</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chnl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dur</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/opensndctrl.html#OscDataReceive.out"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.OscDataReceive.out" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start processing and send samples to audio output beginning at <cite>chnl</cite>.</p>
+<p>This method returns <cite>self</cite>, allowing it to be applied at the object
+creation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>chnl: int, optional</dt><dd><p>Physical output assigned to the first audio stream of the
+object. Defaults to 0.</p>
+</dd>
+<dt>inc: int, optional</dt><dd><p>Output channel increment value. Defaults to 1.</p>
+</dd>
+<dt>dur: float, optional</dt><dd><p>Duration, in seconds, of the object’s activation. The default
+is 0 and means infinite duration.</p>
+</dd>
+<dt>delay: float, optional</dt><dd><p>Delay, in seconds, before the object’s activation.
+Defaults to 0.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>If <cite>chnl</cite> &gt;= 0, successive streams increment the output number by
+<cite>inc</cite> and wrap around the global number of channels.</p>
+<p>If <cite>chnl</cite> is negative, streams begin at 0, increment
+the output number by <cite>inc</cite> and wrap around the global number of
+channels. Then, the list of streams is scrambled.</p>
+<p>If <cite>chnl</cite> is a list, successive values in the list will be
+assigned to successive streams.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.OscDataReceive.getAddresses">
+<span class="sig-name descname"><span class="pre">getAddresses</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/opensndctrl.html#OscDataReceive.getAddresses"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.OscDataReceive.getAddresses" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the addresses managed by the object.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.OscDataReceive.addAddress">
+<span class="sig-name descname"><span class="pre">addAddress</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/opensndctrl.html#OscDataReceive.addAddress"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.OscDataReceive.addAddress" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds new address(es) to the object’s handler.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>path: string or list of strings</dt><dd><p>New path(s) to receive from.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.OscDataReceive.delAddress">
+<span class="sig-name descname"><span class="pre">delAddress</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/opensndctrl.html#OscDataReceive.delAddress"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.OscDataReceive.delAddress" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes address(es) from the object’s handler.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>path: string or list of strings</dt><dd><p>Path(s) to remove.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
+</section>
+<section id="oscdatasend">
+<h2><em>OscDataSend</em><a class="headerlink" href="#oscdatasend" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyo.OscDataSend">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">OscDataSend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">types</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">address</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'127.0.0.1'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/opensndctrl.html#OscDataSend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.OscDataSend" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sends data values over a network via the Open Sound Control protocol.</p>
+<p>Uses the OSC protocol to share values to other softwares or other
+computers. Values are sent on the form of a list containing <cite>types</cite>
+elements.</p>
+<dl class="field-list">
+<dt class="field-odd">Parent</dt>
+<dd class="field-odd"><p><a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></p>
+</dd>
+<dt class="field-even">Args</dt>
+<dd class="field-even"><dl>
+<dt>types: str</dt><dd><p>String specifying the types sequence of the message to be sent.
+Possible values are:</p>
+<ul class="simple">
+<li><p>“i”: integer</p></li>
+<li><p>“h”: long integer</p></li>
+<li><p>“f”: float</p></li>
+<li><p>“d”: double</p></li>
+<li><p>“s” ; string</p></li>
+<li><p>“b”: blob (list of chars)</p></li>
+<li><p>“m”: MIDI packet (list of 4 bytes: [midi port, status, data1, data2])</p></li>
+<li><p>“c”: char</p></li>
+<li><p>“T”: True</p></li>
+<li><p>“F”: False</p></li>
+<li><p>“N”: None (nil)</p></li>
+</ul>
+<p>The string “ssfi” indicates that the value to send will be a list
+containing two strings followed by a float and an integer.</p>
+</dd>
+<dt>port: int</dt><dd><p>Port on which values are sent. Receiver should listen on the
+same port.</p>
+</dd>
+<dt>address: string</dt><dd><p>Address used on the port to identify values. Address is in
+the form of a Unix path (ex.: ‘/pitch’).</p>
+</dd>
+<dt>host: string, optional</dt><dd><p>IP address of the target computer. The default, ‘127.0.0.1’,
+is the localhost.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The out() method is bypassed. OscDataSend has no audio signal.</p>
+<p>OscDataSend has no <cite>mul</cite> and <cite>add</cite> attributes.</p>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">pp</span><span class="p">(</span><span class="n">address</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/opensndctrl.html#pyo.OscDataReceive" title="pyo.lib.opensndctrl.OscDataReceive"><span class="n">r</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/opensndctrl.html#pyo.OscDataReceive" title="pyo.lib.opensndctrl.OscDataReceive"><span class="n">OscDataReceive</span></a><span class="p">(</span><span class="mi">9900</span><span class="p">,</span> <span class="s2">"/data/test"</span><span class="p">,</span> <span class="n">pp</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Send various types</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/opensndctrl.html#pyo.OscDataSend" title="pyo.lib.opensndctrl.OscDataSend"><span class="n">a</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/opensndctrl.html#pyo.OscDataSend" title="pyo.lib.opensndctrl.OscDataSend"><span class="n">OscDataSend</span></a><span class="p">(</span><span class="s2">"fissif"</span><span class="p">,</span> <span class="mi">9900</span><span class="p">,</span> <span class="s2">"/data/test"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">msg</span> <span class="o">=</span> <span class="p">[</span><span class="mf">3.14159</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"Hello"</span><span class="p">,</span> <span class="s2">"world!"</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mf">6.18</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Send a blob</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/opensndctrl.html#pyo.OscDataSend" title="pyo.lib.opensndctrl.OscDataSend"><span class="n">b</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/opensndctrl.html#pyo.OscDataSend" title="pyo.lib.opensndctrl.OscDataSend"><span class="n">OscDataSend</span></a><span class="p">(</span><span class="s2">"b"</span><span class="p">,</span> <span class="mi">9900</span><span class="p">,</span> <span class="s2">"/data/test"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">msg</span> <span class="o">=</span> <span class="p">[[</span><span class="nb">chr</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Send a MIDI noteon on port 0</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/opensndctrl.html#pyo.OscDataSend" title="pyo.lib.opensndctrl.OscDataSend"><span class="n">c</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/opensndctrl.html#pyo.OscDataSend" title="pyo.lib.opensndctrl.OscDataSend"><span class="n">OscDataSend</span></a><span class="p">(</span><span class="s2">"m"</span><span class="p">,</span> <span class="mi">9900</span><span class="p">,</span> <span class="s2">"/data/test"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">msg</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">144</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">100</span><span class="p">]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Public Data Attributes:</p>
+<details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mul</span></code></p></td>
+<td><p>float or PyoObject.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add</span></code></p></td>
+<td><p>float or PyoObject.</p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Public Methods:</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>(types, port, address[, host])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.OscDataSend.out" title="pyo.OscDataSend.out"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out</span></code></a>([chnl, inc, dur, delay])</p></td>
+<td><p>Start processing and send samples to audio output beginning at <cite>chnl</cite>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.OscDataSend.setMul" title="pyo.OscDataSend.setMul"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setMul</span></code></a>(x)</p></td>
+<td><p>Replace the <cite>mul</cite> attribute.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.OscDataSend.setAdd" title="pyo.OscDataSend.setAdd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setAdd</span></code></a>(x)</p></td>
+<td><p>Replace the <cite>add</cite> attribute.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.OscDataSend.getAddresses" title="pyo.OscDataSend.getAddresses"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getAddresses</span></code></a>()</p></td>
+<td><p>Returns the addresses managed by the object.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.OscDataSend.addAddress" title="pyo.OscDataSend.addAddress"><code class="xref py py-obj docutils literal notranslate"><span class="pre">addAddress</span></code></a>(types, port, address[, host])</p></td>
+<td><p>Adds new address(es) to the object's handler.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.OscDataSend.delAddress" title="pyo.OscDataSend.delAddress"><code class="xref py py-obj docutils literal notranslate"><span class="pre">delAddress</span></code></a>(path)</p></td>
+<td><p>Removes address(es) from the object's handler.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.OscDataSend.send" title="pyo.OscDataSend.send"><code class="xref py py-obj docutils literal notranslate"><span class="pre">send</span></code></a>(msg[, address])</p></td>
+<td><p>Method used to send <cite>msg</cite> values as a list.</p></td>
+</tr>
+</tbody>
+</table>
+<details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>(types, port, address[, host])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__add__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__radd__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__iadd__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__sub__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__rsub__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__isub__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__mul__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__rmul__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__imul__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__truediv__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__rtruediv__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__itruediv__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__div__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__rdiv__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__idiv__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__pow__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__rpow__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__mod__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__neg__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__lt__</span></code>(x)</p></td>
+<td><p>Return self&lt;value.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__le__</span></code>(x)</p></td>
+<td><p>Return self&lt;=value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__eq__</span></code>(x)</p></td>
+<td><p>Return self==value.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__ne__</span></code>(x)</p></td>
+<td><p>Return self!=value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__gt__</span></code>(x)</p></td>
+<td><p>Return self&gt;value.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__ge__</span></code>(x)</p></td>
+<td><p>Return self&gt;=value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__do_comp__</span></code>(comp, mode[, default])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isPlaying</span></code>([all])</p></td>
+<td><p>Returns True if the object is currently playing, otherwise, returns False.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isOutputting</span></code>([all])</p></td>
+<td><p>Returns True if the object is outputting.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
+<td><p>Return the first sample of the current buffer as a float.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
+<td><p>Start processing without sending samples to output.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.OscDataSend.out" title="pyo.OscDataSend.out"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out</span></code></a>([chnl, inc, dur, delay])</p></td>
+<td><p>Start processing and send samples to audio output beginning at <cite>chnl</cite>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">stop</span></code>([wait])</p></td>
+<td><p>Stop processing.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mix</span></code>([voices])</p></td>
+<td><p>Mix the object's audio streams into <cite>voices</cite> streams and return a Mix object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">range</span></code>(min, max)</p></td>
+<td><p>Adjust <cite>mul</cite> and <cite>add</cite> attributes according to a given range.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.OscDataSend.setMul" title="pyo.OscDataSend.setMul"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setMul</span></code></a>(x)</p></td>
+<td><p>Replace the <cite>mul</cite> attribute.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.OscDataSend.setAdd" title="pyo.OscDataSend.setAdd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setAdd</span></code></a>(x)</p></td>
+<td><p>Replace the <cite>add</cite> attribute.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setSub</span></code>(x)</p></td>
+<td><p>Replace and inverse the <cite>add</cite> attribute.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setDiv</span></code>(x)</p></td>
+<td><p>Replace and inverse the <cite>mul</cite> attribute.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set</span></code>(attr, value[, port, callback])</p></td>
+<td><p>Replace any attribute with portamento.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ctrl</span></code>([map_list, title, wxnoserver])</p></td>
+<td><p>Opens a sliders window to control the parameters of the object.</p></td>
+</tr>
+</tbody>
+</table>
+</details><details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObjectBase" title="pyo.PyoObjectBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObjectBase</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>(types, port, address[, host])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">dump</span></code>()</p></td>
+<td><p>Print infos about the current state of the object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getBaseObjects</span></code>()</p></td>
+<td><p>Return a list of Stream objects managed by the instance.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getServer</span></code>()</p></td>
+<td><p>Return a reference to the current Server object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getSamplingRate</span></code>()</p></td>
+<td><p>Return the current sampling rate (samples per second), as a float.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getBufferSize</span></code>()</p></td>
+<td><p>Return the current buffer size (samples per buffer), as an integer.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">allowAutoStart</span></code>([switch])</p></td>
+<td><p>When autoStartChildren is activated in the Server, call this method with False as argument to stop the propagation of play/out/stop methods to and from this object.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">useWaitTimeOnStop</span></code>()</p></td>
+<td><p>When autoStartChildren is activated in the Server, call this method to force an object given to the <cite>mul</cite> attribute of another object to use the  wait time from the stop method instead of being stopped immediately.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">addLinkedObject</span></code>(x)</p></td>
+<td><p>When autoStartChildren is activated in the Server, use this method to explicitly add an object in a dsp chain, which is generally controlled by the last object of the chain.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setStopDelay</span></code>(x)</p></td>
+<td><p>Set a specific waiting time when calling the stop method on this object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getStopDelay</span></code>()</p></td>
+<td><p>Return the waiting time applied when calling the stop method on this object.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__iter__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__next__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">next</span></code>()</p></td>
+<td><p>Alias for __next__ method.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__getitem__</span></code>(i)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__setitem__</span></code>(i, x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__len__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__repr__</span></code>()</p></td>
+<td><p>Return repr(self).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__dir__</span></code>()</p></td>
+<td><p>Default dir() implementation.</p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Private Data Attributes:</p>
+<details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_STREAM_TYPE</span></code></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</details><details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObjectBase" title="pyo.PyoObjectBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObjectBase</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_STREAM_TYPE</span></code></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Private Methods:</p>
+<details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_init_play</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_reset_from_set</span></code>([attr])</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</details><details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObjectBase" title="pyo.PyoObjectBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObjectBase</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_autoplay</span></code>([dur, delay])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_autostop</span></code>([wait])</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<hr class="docutils"/>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.OscDataSend.out">
+<span class="sig-name descname"><span class="pre">out</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chnl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dur</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/opensndctrl.html#OscDataSend.out"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.OscDataSend.out" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start processing and send samples to audio output beginning at <cite>chnl</cite>.</p>
+<p>This method returns <cite>self</cite>, allowing it to be applied at the object
+creation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>chnl: int, optional</dt><dd><p>Physical output assigned to the first audio stream of the
+object. Defaults to 0.</p>
+</dd>
+<dt>inc: int, optional</dt><dd><p>Output channel increment value. Defaults to 1.</p>
+</dd>
+<dt>dur: float, optional</dt><dd><p>Duration, in seconds, of the object’s activation. The default
+is 0 and means infinite duration.</p>
+</dd>
+<dt>delay: float, optional</dt><dd><p>Delay, in seconds, before the object’s activation.
+Defaults to 0.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>If <cite>chnl</cite> &gt;= 0, successive streams increment the output number by
+<cite>inc</cite> and wrap around the global number of channels.</p>
+<p>If <cite>chnl</cite> is negative, streams begin at 0, increment
+the output number by <cite>inc</cite> and wrap around the global number of
+channels. Then, the list of streams is scrambled.</p>
+<p>If <cite>chnl</cite> is a list, successive values in the list will be
+assigned to successive streams.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.OscDataSend.setMul">
+<span class="sig-name descname"><span class="pre">setMul</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/opensndctrl.html#OscDataSend.setMul"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.OscDataSend.setMul" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace the <cite>mul</cite> attribute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>x: float or PyoObject</dt><dd><p>New <cite>mul</cite> attribute.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.OscDataSend.setAdd">
+<span class="sig-name descname"><span class="pre">setAdd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/opensndctrl.html#OscDataSend.setAdd"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.OscDataSend.setAdd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace the <cite>add</cite> attribute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>x: float or PyoObject</dt><dd><p>New <cite>add</cite> attribute.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.OscDataSend.getAddresses">
+<span class="sig-name descname"><span class="pre">getAddresses</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/opensndctrl.html#OscDataSend.getAddresses"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.OscDataSend.getAddresses" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the addresses managed by the object.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.OscDataSend.addAddress">
+<span class="sig-name descname"><span class="pre">addAddress</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">types</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">address</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'127.0.0.1'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/opensndctrl.html#OscDataSend.addAddress"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.OscDataSend.addAddress" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds new address(es) to the object’s handler.</p>
+<dl class="field-list">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl>
+<dt>types: str</dt><dd><p>String specifying the types sequence of the message to be sent.
+Possible values are:
+- “i”: integer
+- “h”: long integer
+- “f”: float
+- “d”: double
+- “s” ; string
+- “b”: blob (list of chars)
+- “m”: MIDI packet (list of 4 bytes: [midi port, status, data1, data2])
+- “c”: char
+- “T”: True
+- “F”: False
+- “N”: None (nil)</p>
+<p>The string “ssfi” indicates that the value to send will be a list
+containing two strings followed by a float and an integer.</p>
+</dd>
+<dt>port: int</dt><dd><p>Port on which values are sent. Receiver should listen on the
+same port.</p>
+</dd>
+<dt>address: string</dt><dd><p>Address used on the port to identify values. Address is in
+the form of a Unix path (ex.: ‘/pitch’).</p>
+</dd>
+<dt>host: string, optional</dt><dd><p>IP address of the target computer. The default, ‘127.0.0.1’,
+is the localhost.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.OscDataSend.delAddress">
+<span class="sig-name descname"><span class="pre">delAddress</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/opensndctrl.html#OscDataSend.delAddress"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.OscDataSend.delAddress" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes address(es) from the object’s handler.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>path: string or list of strings</dt><dd><p>Path(s) to remove.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.OscDataSend.send">
+<span class="sig-name descname"><span class="pre">send</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">address</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/opensndctrl.html#OscDataSend.send"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.OscDataSend.send" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method used to send <cite>msg</cite> values as a list.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>msg: list</dt><dd><p>List of values to send. Types of values in list
+must be of the kind defined of <cite>types</cite> argument
+given at the object’s initialization.</p>
+</dd>
+<dt>address: string, optional</dt><dd><p>Address destination to send values. If None, values
+will be sent to all addresses managed by the object.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
+</section>
+<section id="osclistreceive">
+<h2><em>OscListReceive</em><a class="headerlink" href="#osclistreceive" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyo.OscListReceive">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">OscListReceive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">port</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">address</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mul</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/opensndctrl.html#OscListReceive"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.OscListReceive" title="Permalink to this definition">¶</a></dt>
+<dd><p>Receives list of values over a network via the Open Sound Control protocol.</p>
+<p>Uses the OSC protocol to receive list of floating-point values from other
+softwares or other computers. The list are converted into audio streams.
+Get values at the beginning of each buffersize and fill buffers with them.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parent</dt>
+<dd class="field-odd"><p><a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></p>
+</dd>
+<dt class="field-even">Args</dt>
+<dd class="field-even"><dl class="simple">
+<dt>port: int</dt><dd><p>Port on which values are received. Sender should output on
+the same port. Unlike OscSend object, there can be only one
+port per OscListReceive object. Available at initialization time
+only.</p>
+</dd>
+<dt>address: string</dt><dd><p>Address used on the port to identify values. Address is in
+the form of a Unix path (ex.: ‘/pitch’).</p>
+</dd>
+<dt>num: int, optional</dt><dd><p>Length of the lists in input. The object will generate <cite>num</cite> audio
+streams per given address. Available at initialization time only.
+This value can’t be a list. That means all addresses managed by an
+OscListReceive object are of the same length. Defaults to 8.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Audio streams are accessed with the <cite>address</cite> string parameter.
+The user should call :</p>
+<p>OscReceive[‘/pitch’] to retreive list of streams named ‘/pitch’.</p>
+<p>The out() method is bypassed. OscReceive’s signal can not be sent
+to audio outs.</p>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># 8 oscillators</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/opensndctrl.html#pyo.OscListReceive" title="pyo.lib.opensndctrl.OscListReceive"><span class="n">a</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/opensndctrl.html#pyo.OscListReceive" title="pyo.lib.opensndctrl.OscListReceive"><span class="n">OscListReceive</span></a><span class="p">(</span><span class="n">port</span><span class="o">=</span><span class="mi">10001</span><span class="p">,</span> <span class="n">address</span><span class="o">=</span><span class="p">[</span><span class="s1">'/pitch'</span><span class="p">,</span> <span class="s1">'/amp'</span><span class="p">],</span> <span class="n">num</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/opensndctrl.html#pyo.OscListReceive" title="pyo.lib.opensndctrl.OscListReceive"><span class="n">a</span></a><span class="p">[</span><span class="s1">'/pitch'</span><span class="p">],</span> <span class="n">mul</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/opensndctrl.html#pyo.OscListReceive" title="pyo.lib.opensndctrl.OscListReceive"><span class="n">a</span></a><span class="p">[</span><span class="s1">'/amp'</span><span class="p">])</span><span class="o">.</span><span class="n">mix</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Public Data Attributes:</p>
+<details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mul</span></code></p></td>
+<td><p>float or PyoObject.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add</span></code></p></td>
+<td><p>float or PyoObject.</p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Public Methods:</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>(port, address[, num, mul, add])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__getitem__</span></code>(i)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.OscListReceive.getAddresses" title="pyo.OscListReceive.getAddresses"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getAddresses</span></code></a>()</p></td>
+<td><p>Returns the addresses managed by the object.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.OscListReceive.addAddress" title="pyo.OscListReceive.addAddress"><code class="xref py py-obj docutils literal notranslate"><span class="pre">addAddress</span></code></a>(path[, mul, add])</p></td>
+<td><p>Adds new address(es) to the object's handler.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.OscListReceive.delAddress" title="pyo.OscListReceive.delAddress"><code class="xref py py-obj docutils literal notranslate"><span class="pre">delAddress</span></code></a>(path)</p></td>
+<td><p>Removes address(es) from the object's handler.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.OscListReceive.setInterpolation" title="pyo.OscListReceive.setInterpolation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setInterpolation</span></code></a>(x)</p></td>
+<td><p>Activate/Deactivate interpolation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.OscListReceive.setValue" title="pyo.OscListReceive.setValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setValue</span></code></a>(path, value)</p></td>
+<td><p>Sets value for a given address.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.OscListReceive.get" title="pyo.OscListReceive.get"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code></a>([identifier, all])</p></td>
+<td><p>Return the first list of samples of the current buffer as floats.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.OscListReceive.play" title="pyo.OscListReceive.play"><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code></a>([dur, delay])</p></td>
+<td><p>Start processing without sending samples to output.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.OscListReceive.out" title="pyo.OscListReceive.out"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out</span></code></a>([chnl, inc, dur, delay])</p></td>
+<td><p>Start processing and send samples to audio output beginning at <cite>chnl</cite>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.OscListReceive.stop" title="pyo.OscListReceive.stop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stop</span></code></a>([wait])</p></td>
+<td><p>Stop processing.</p></td>
+</tr>
+</tbody>
+</table>
+<details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>(port, address[, num, mul, add])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__add__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__radd__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__iadd__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__sub__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__rsub__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__isub__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__mul__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__rmul__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__imul__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__truediv__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__rtruediv__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__itruediv__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__div__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__rdiv__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__idiv__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__pow__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__rpow__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__mod__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__neg__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__lt__</span></code>(x)</p></td>
+<td><p>Return self&lt;value.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__le__</span></code>(x)</p></td>
+<td><p>Return self&lt;=value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__eq__</span></code>(x)</p></td>
+<td><p>Return self==value.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__ne__</span></code>(x)</p></td>
+<td><p>Return self!=value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__gt__</span></code>(x)</p></td>
+<td><p>Return self&gt;value.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__ge__</span></code>(x)</p></td>
+<td><p>Return self&gt;=value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__do_comp__</span></code>(comp, mode[, default])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isPlaying</span></code>([all])</p></td>
+<td><p>Returns True if the object is currently playing, otherwise, returns False.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isOutputting</span></code>([all])</p></td>
+<td><p>Returns True if the object is outputting.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.OscListReceive.get" title="pyo.OscListReceive.get"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code></a>([identifier, all])</p></td>
+<td><p>Return the first list of samples of the current buffer as floats.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.OscListReceive.play" title="pyo.OscListReceive.play"><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code></a>([dur, delay])</p></td>
+<td><p>Start processing without sending samples to output.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.OscListReceive.out" title="pyo.OscListReceive.out"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out</span></code></a>([chnl, inc, dur, delay])</p></td>
+<td><p>Start processing and send samples to audio output beginning at <cite>chnl</cite>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.OscListReceive.stop" title="pyo.OscListReceive.stop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stop</span></code></a>([wait])</p></td>
+<td><p>Stop processing.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mix</span></code>([voices])</p></td>
+<td><p>Mix the object's audio streams into <cite>voices</cite> streams and return a Mix object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">range</span></code>(min, max)</p></td>
+<td><p>Adjust <cite>mul</cite> and <cite>add</cite> attributes according to a given range.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setMul</span></code>(x)</p></td>
+<td><p>Replace the <cite>mul</cite> attribute.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setAdd</span></code>(x)</p></td>
+<td><p>Replace the <cite>add</cite> attribute.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setSub</span></code>(x)</p></td>
+<td><p>Replace and inverse the <cite>add</cite> attribute.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setDiv</span></code>(x)</p></td>
+<td><p>Replace and inverse the <cite>mul</cite> attribute.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set</span></code>(attr, value[, port, callback])</p></td>
+<td><p>Replace any attribute with portamento.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ctrl</span></code>([map_list, title, wxnoserver])</p></td>
+<td><p>Opens a sliders window to control the parameters of the object.</p></td>
+</tr>
+</tbody>
+</table>
+</details><details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObjectBase" title="pyo.PyoObjectBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObjectBase</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>(port, address[, num, mul, add])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">dump</span></code>()</p></td>
+<td><p>Print infos about the current state of the object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getBaseObjects</span></code>()</p></td>
+<td><p>Return a list of Stream objects managed by the instance.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getServer</span></code>()</p></td>
+<td><p>Return a reference to the current Server object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getSamplingRate</span></code>()</p></td>
+<td><p>Return the current sampling rate (samples per second), as a float.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getBufferSize</span></code>()</p></td>
+<td><p>Return the current buffer size (samples per buffer), as an integer.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">allowAutoStart</span></code>([switch])</p></td>
+<td><p>When autoStartChildren is activated in the Server, call this method with False as argument to stop the propagation of play/out/stop methods to and from this object.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">useWaitTimeOnStop</span></code>()</p></td>
+<td><p>When autoStartChildren is activated in the Server, call this method to force an object given to the <cite>mul</cite> attribute of another object to use the  wait time from the stop method instead of being stopped immediately.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">addLinkedObject</span></code>(x)</p></td>
+<td><p>When autoStartChildren is activated in the Server, use this method to explicitly add an object in a dsp chain, which is generally controlled by the last object of the chain.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setStopDelay</span></code>(x)</p></td>
+<td><p>Set a specific waiting time when calling the stop method on this object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getStopDelay</span></code>()</p></td>
+<td><p>Return the waiting time applied when calling the stop method on this object.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__iter__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__next__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">next</span></code>()</p></td>
+<td><p>Alias for __next__ method.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__getitem__</span></code>(i)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__setitem__</span></code>(i, x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__len__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__repr__</span></code>()</p></td>
+<td><p>Return repr(self).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__dir__</span></code>()</p></td>
+<td><p>Default dir() implementation.</p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Private Data Attributes:</p>
+<details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_STREAM_TYPE</span></code></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</details><details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObjectBase" title="pyo.PyoObjectBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObjectBase</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_STREAM_TYPE</span></code></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Private Methods:</p>
+<details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_init_play</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_reset_from_set</span></code>([attr])</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</details><details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObjectBase" title="pyo.PyoObjectBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObjectBase</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_autoplay</span></code>([dur, delay])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_autostop</span></code>([wait])</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<hr class="docutils"/>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.OscListReceive.getAddresses">
+<span class="sig-name descname"><span class="pre">getAddresses</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/opensndctrl.html#OscListReceive.getAddresses"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.OscListReceive.getAddresses" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the addresses managed by the object.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.OscListReceive.addAddress">
+<span class="sig-name descname"><span class="pre">addAddress</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mul</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/opensndctrl.html#OscListReceive.addAddress"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.OscListReceive.addAddress" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds new address(es) to the object’s handler.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>path: string or list of strings</dt><dd><p>New path(s) to receive from.</p>
+</dd>
+<dt>mul: float or PyoObject</dt><dd><p>Multiplication factor. Defaults to 1.</p>
+</dd>
+<dt>add: float or PyoObject</dt><dd><p>Addition factor. Defaults to 0.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.OscListReceive.delAddress">
+<span class="sig-name descname"><span class="pre">delAddress</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/opensndctrl.html#OscListReceive.delAddress"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.OscListReceive.delAddress" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes address(es) from the object’s handler.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>path: string or list of strings</dt><dd><p>Path(s) to remove.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.OscListReceive.setInterpolation">
+<span class="sig-name descname"><span class="pre">setInterpolation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/opensndctrl.html#OscListReceive.setInterpolation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.OscListReceive.setInterpolation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Activate/Deactivate interpolation. Activated by default.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>x: boolean</dt><dd><p>True activates the interpolation, False deactivates it.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.OscListReceive.setValue">
+<span class="sig-name descname"><span class="pre">setValue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/opensndctrl.html#OscListReceive.setValue"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.OscListReceive.setValue" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets value for a given address.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>path: string</dt><dd><p>Address to which the value should be attributed.</p>
+</dd>
+<dt>value: list of floats</dt><dd><p>List of values to attribute to the given address.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.OscListReceive.get">
+<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">identifier</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/opensndctrl.html#OscListReceive.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.OscListReceive.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the first list of samples of the current buffer as floats.</p>
+<p>Can be used to convert audio stream to usable Python data.</p>
+<p>Address as string must be given to <cite>identifier</cite> to specify
+which stream to get value from.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>identifier: string</dt><dd><p>Address string parameter identifying audio stream.
+Defaults to None, useful when <cite>all</cite> is True to
+retreive all streams values.</p>
+</dd>
+<dt>all: boolean, optional</dt><dd><p>If True, the first list of values of each object’s stream
+will be returned as a list of lists. Otherwise, only the
+the list of the object’s identifier will be returned as a
+list of floats. Defaults to False.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.OscListReceive.play">
+<span class="sig-name descname"><span class="pre">play</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dur</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/opensndctrl.html#OscListReceive.play"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.OscListReceive.play" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start processing without sending samples to output.
+This method is called automatically at the object creation.</p>
+<p>This method returns <cite>self</cite>, allowing it to be applied at the object
+creation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>dur: float, optional</dt><dd><p>Duration, in seconds, of the object’s activation. The default
+is 0 and means infinite duration.</p>
+</dd>
+<dt>delay: float, optional</dt><dd><p>Delay, in seconds, before the object’s activation. Defaults to 0.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.OscListReceive.out">
+<span class="sig-name descname"><span class="pre">out</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chnl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dur</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/opensndctrl.html#OscListReceive.out"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.OscListReceive.out" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start processing and send samples to audio output beginning at <cite>chnl</cite>.</p>
+<p>This method returns <cite>self</cite>, allowing it to be applied at the object
+creation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>chnl: int, optional</dt><dd><p>Physical output assigned to the first audio stream of the
+object. Defaults to 0.</p>
+</dd>
+<dt>inc: int, optional</dt><dd><p>Output channel increment value. Defaults to 1.</p>
+</dd>
+<dt>dur: float, optional</dt><dd><p>Duration, in seconds, of the object’s activation. The default
+is 0 and means infinite duration.</p>
+</dd>
+<dt>delay: float, optional</dt><dd><p>Delay, in seconds, before the object’s activation.
+Defaults to 0.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>If <cite>chnl</cite> &gt;= 0, successive streams increment the output number by
+<cite>inc</cite> and wrap around the global number of channels.</p>
+<p>If <cite>chnl</cite> is negative, streams begin at 0, increment
+the output number by <cite>inc</cite> and wrap around the global number of
+channels. Then, the list of streams is scrambled.</p>
+<p>If <cite>chnl</cite> is a list, successive values in the list will be
+assigned to successive streams.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.OscListReceive.stop">
+<span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wait</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/opensndctrl.html#OscListReceive.stop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.OscListReceive.stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stop processing.</p>
+<p>This method returns <cite>self</cite>, allowing it to be applied at the object
+creation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>wait: float, optional</dt><dd><p>Delay, in seconds, before the process is actually stopped.
+If autoStartChildren is activated in the Server, this value
+is propagated to the children objects. Defaults to 0.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>if the method setStopDelay(x) was called before calling stop(wait)
+with a positive <cite>wait</cite> value, the <cite>wait</cite> value won’t overwrite the
+value given to setStopDelay for the current object, but will be
+the one propagated to children objects. This allow to set a waiting
+time for a specific object with setStopDelay whithout changing the
+global delay time given to the stop method.</p>
+<p>Fader and Adsr objects ignore waiting time given to the stop
+method because they already implement a delayed processing
+triggered by the stop call.</p>
+</div>
+</dd></dl>
+</dd></dl>
+</section>
+<section id="oscreceive">
+<h2><em>OscReceive</em><a class="headerlink" href="#oscreceive" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyo.OscReceive">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">OscReceive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">port</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">address</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mul</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/opensndctrl.html#OscReceive"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.OscReceive" title="Permalink to this definition">¶</a></dt>
+<dd><p>Receives values over a network via the Open Sound Control protocol.</p>
+<p>Uses the OSC protocol to receive values from other softwares or
+other computers. Get a value at the beginning of each buffersize
+and fill its buffer with it.</p>
+<dl class="field-list">
+<dt class="field-odd">Parent</dt>
+<dd class="field-odd"><p><a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></p>
+</dd>
+<dt class="field-even">Args</dt>
+<dd class="field-even"><dl>
+<dt>port: int</dt><dd><p>Port on which values are received. Sender should output on
+the same port.</p>
+<p>Unlike OscSend object, there can be only one port per OscReceive
+object.</p>
+<p>Available at initialization time only.</p>
+</dd>
+<dt>address: string</dt><dd><p>Address used on the port to identify values. Address is in
+the form of a Unix path (ex.: ‘/pitch’).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Audio streams are accessed with the <cite>address</cite> string parameter.
+The user should call :</p>
+<p>OscReceive[‘/pitch’] to retreive stream named ‘/pitch’.</p>
+<p>The out() method is bypassed. OscReceive’s signal can not be sent
+to audio outs.</p>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/opensndctrl.html#pyo.OscReceive" title="pyo.lib.opensndctrl.OscReceive"><span class="n">a</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/opensndctrl.html#pyo.OscReceive" title="pyo.lib.opensndctrl.OscReceive"><span class="n">OscReceive</span></a><span class="p">(</span><span class="n">port</span><span class="o">=</span><span class="mi">10001</span><span class="p">,</span> <span class="n">address</span><span class="o">=</span><span class="p">[</span><span class="s1">'/pitch'</span><span class="p">,</span> <span class="s1">'/amp'</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/opensndctrl.html#pyo.OscReceive" title="pyo.lib.opensndctrl.OscReceive"><span class="n">a</span></a><span class="p">[</span><span class="s1">'/pitch'</span><span class="p">],</span> <span class="n">mul</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/opensndctrl.html#pyo.OscReceive" title="pyo.lib.opensndctrl.OscReceive"><span class="n">a</span></a><span class="p">[</span><span class="s1">'/amp'</span><span class="p">])</span><span class="o">.</span><span class="n">mix</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Public Data Attributes:</p>
+<details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mul</span></code></p></td>
+<td><p>float or PyoObject.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add</span></code></p></td>
+<td><p>float or PyoObject.</p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Public Methods:</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>(port, address[, mul, add])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__getitem__</span></code>(i)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.OscReceive.getAddresses" title="pyo.OscReceive.getAddresses"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getAddresses</span></code></a>()</p></td>
+<td><p>Returns the addresses managed by the object.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.OscReceive.addAddress" title="pyo.OscReceive.addAddress"><code class="xref py py-obj docutils literal notranslate"><span class="pre">addAddress</span></code></a>(path[, mul, add])</p></td>
+<td><p>Adds new address(es) to the object's handler.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.OscReceive.delAddress" title="pyo.OscReceive.delAddress"><code class="xref py py-obj docutils literal notranslate"><span class="pre">delAddress</span></code></a>(path)</p></td>
+<td><p>Removes address(es) from the object's handler.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.OscReceive.setInterpolation" title="pyo.OscReceive.setInterpolation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setInterpolation</span></code></a>(x)</p></td>
+<td><p>Activate/Deactivate interpolation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.OscReceive.setValue" title="pyo.OscReceive.setValue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setValue</span></code></a>(path, value)</p></td>
+<td><p>Sets value for a given address.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.OscReceive.get" title="pyo.OscReceive.get"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code></a>([identifier, all])</p></td>
+<td><p>Return the first sample of the current buffer as a float.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.OscReceive.play" title="pyo.OscReceive.play"><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code></a>([dur, delay])</p></td>
+<td><p>Start processing without sending samples to output.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.OscReceive.out" title="pyo.OscReceive.out"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out</span></code></a>([chnl, inc, dur, delay])</p></td>
+<td><p>Start processing and send samples to audio output beginning at <cite>chnl</cite>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.OscReceive.stop" title="pyo.OscReceive.stop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stop</span></code></a>([wait])</p></td>
+<td><p>Stop processing.</p></td>
+</tr>
+</tbody>
+</table>
+<details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>(port, address[, mul, add])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__add__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__radd__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__iadd__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__sub__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__rsub__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__isub__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__mul__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__rmul__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__imul__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__truediv__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__rtruediv__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__itruediv__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__div__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__rdiv__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__idiv__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__pow__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__rpow__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__mod__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__neg__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__lt__</span></code>(x)</p></td>
+<td><p>Return self&lt;value.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__le__</span></code>(x)</p></td>
+<td><p>Return self&lt;=value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__eq__</span></code>(x)</p></td>
+<td><p>Return self==value.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__ne__</span></code>(x)</p></td>
+<td><p>Return self!=value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__gt__</span></code>(x)</p></td>
+<td><p>Return self&gt;value.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__ge__</span></code>(x)</p></td>
+<td><p>Return self&gt;=value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__do_comp__</span></code>(comp, mode[, default])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isPlaying</span></code>([all])</p></td>
+<td><p>Returns True if the object is currently playing, otherwise, returns False.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isOutputting</span></code>([all])</p></td>
+<td><p>Returns True if the object is outputting.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.OscReceive.get" title="pyo.OscReceive.get"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code></a>([identifier, all])</p></td>
+<td><p>Return the first sample of the current buffer as a float.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.OscReceive.play" title="pyo.OscReceive.play"><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code></a>([dur, delay])</p></td>
+<td><p>Start processing without sending samples to output.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.OscReceive.out" title="pyo.OscReceive.out"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out</span></code></a>([chnl, inc, dur, delay])</p></td>
+<td><p>Start processing and send samples to audio output beginning at <cite>chnl</cite>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.OscReceive.stop" title="pyo.OscReceive.stop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stop</span></code></a>([wait])</p></td>
+<td><p>Stop processing.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mix</span></code>([voices])</p></td>
+<td><p>Mix the object's audio streams into <cite>voices</cite> streams and return a Mix object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">range</span></code>(min, max)</p></td>
+<td><p>Adjust <cite>mul</cite> and <cite>add</cite> attributes according to a given range.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setMul</span></code>(x)</p></td>
+<td><p>Replace the <cite>mul</cite> attribute.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setAdd</span></code>(x)</p></td>
+<td><p>Replace the <cite>add</cite> attribute.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setSub</span></code>(x)</p></td>
+<td><p>Replace and inverse the <cite>add</cite> attribute.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setDiv</span></code>(x)</p></td>
+<td><p>Replace and inverse the <cite>mul</cite> attribute.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set</span></code>(attr, value[, port, callback])</p></td>
+<td><p>Replace any attribute with portamento.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ctrl</span></code>([map_list, title, wxnoserver])</p></td>
+<td><p>Opens a sliders window to control the parameters of the object.</p></td>
+</tr>
+</tbody>
+</table>
+</details><details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObjectBase" title="pyo.PyoObjectBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObjectBase</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>(port, address[, mul, add])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">dump</span></code>()</p></td>
+<td><p>Print infos about the current state of the object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getBaseObjects</span></code>()</p></td>
+<td><p>Return a list of Stream objects managed by the instance.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getServer</span></code>()</p></td>
+<td><p>Return a reference to the current Server object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getSamplingRate</span></code>()</p></td>
+<td><p>Return the current sampling rate (samples per second), as a float.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getBufferSize</span></code>()</p></td>
+<td><p>Return the current buffer size (samples per buffer), as an integer.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">allowAutoStart</span></code>([switch])</p></td>
+<td><p>When autoStartChildren is activated in the Server, call this method with False as argument to stop the propagation of play/out/stop methods to and from this object.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">useWaitTimeOnStop</span></code>()</p></td>
+<td><p>When autoStartChildren is activated in the Server, call this method to force an object given to the <cite>mul</cite> attribute of another object to use the  wait time from the stop method instead of being stopped immediately.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">addLinkedObject</span></code>(x)</p></td>
+<td><p>When autoStartChildren is activated in the Server, use this method to explicitly add an object in a dsp chain, which is generally controlled by the last object of the chain.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setStopDelay</span></code>(x)</p></td>
+<td><p>Set a specific waiting time when calling the stop method on this object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getStopDelay</span></code>()</p></td>
+<td><p>Return the waiting time applied when calling the stop method on this object.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__iter__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__next__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">next</span></code>()</p></td>
+<td><p>Alias for __next__ method.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__getitem__</span></code>(i)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__setitem__</span></code>(i, x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__len__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__repr__</span></code>()</p></td>
+<td><p>Return repr(self).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__dir__</span></code>()</p></td>
+<td><p>Default dir() implementation.</p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Private Data Attributes:</p>
+<details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_STREAM_TYPE</span></code></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</details><details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObjectBase" title="pyo.PyoObjectBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObjectBase</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_STREAM_TYPE</span></code></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Private Methods:</p>
+<details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_init_play</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_reset_from_set</span></code>([attr])</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</details><details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObjectBase" title="pyo.PyoObjectBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObjectBase</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_autoplay</span></code>([dur, delay])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_autostop</span></code>([wait])</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<hr class="docutils"/>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.OscReceive.getAddresses">
+<span class="sig-name descname"><span class="pre">getAddresses</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/opensndctrl.html#OscReceive.getAddresses"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.OscReceive.getAddresses" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the addresses managed by the object.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.OscReceive.addAddress">
+<span class="sig-name descname"><span class="pre">addAddress</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mul</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/opensndctrl.html#OscReceive.addAddress"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.OscReceive.addAddress" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds new address(es) to the object’s handler.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>path: string or list of strings</dt><dd><p>New path(s) to receive from.</p>
+</dd>
+<dt>mul: float or PyoObject</dt><dd><p>Multiplication factor. Defaults to 1.</p>
+</dd>
+<dt>add: float or PyoObject</dt><dd><p>Addition factor. Defaults to 0.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.OscReceive.delAddress">
+<span class="sig-name descname"><span class="pre">delAddress</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/opensndctrl.html#OscReceive.delAddress"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.OscReceive.delAddress" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes address(es) from the object’s handler.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>path: string or list of strings</dt><dd><p>Path(s) to remove.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.OscReceive.setInterpolation">
+<span class="sig-name descname"><span class="pre">setInterpolation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/opensndctrl.html#OscReceive.setInterpolation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.OscReceive.setInterpolation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Activate/Deactivate interpolation. Activated by default.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>x: boolean</dt><dd><p>True activates the interpolation, False deactivates it.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.OscReceive.setValue">
+<span class="sig-name descname"><span class="pre">setValue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/opensndctrl.html#OscReceive.setValue"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.OscReceive.setValue" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets value for a given address.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>path: string</dt><dd><p>Address to which the value should be attributed.</p>
+</dd>
+<dt>value: float</dt><dd><p>Value to attribute to the given address.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.OscReceive.get">
+<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">identifier</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/opensndctrl.html#OscReceive.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.OscReceive.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the first sample of the current buffer as a float.</p>
+<p>Can be used to convert audio stream to usable Python data.</p>
+<p>Address as string must be given to <cite>identifier</cite> to specify
+which stream to get value from.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>identifier: string</dt><dd><p>Address string parameter identifying audio stream.
+Defaults to None, useful when <cite>all</cite> is True to
+retreive all streams values.</p>
+</dd>
+<dt>all: boolean, optional</dt><dd><p>If True, the first value of each object’s stream
+will be returned as a list. Otherwise, only the value
+of the first object’s stream will be returned as a float.
+Defaults to False.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.OscReceive.play">
+<span class="sig-name descname"><span class="pre">play</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dur</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/opensndctrl.html#OscReceive.play"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.OscReceive.play" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start processing without sending samples to output.
+This method is called automatically at the object creation.</p>
+<p>This method returns <cite>self</cite>, allowing it to be applied at the object
+creation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>dur: float, optional</dt><dd><p>Duration, in seconds, of the object’s activation. The default
+is 0 and means infinite duration.</p>
+</dd>
+<dt>delay: float, optional</dt><dd><p>Delay, in seconds, before the object’s activation. Defaults to 0.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.OscReceive.out">
+<span class="sig-name descname"><span class="pre">out</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chnl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dur</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/opensndctrl.html#OscReceive.out"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.OscReceive.out" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start processing and send samples to audio output beginning at <cite>chnl</cite>.</p>
+<p>This method returns <cite>self</cite>, allowing it to be applied at the object
+creation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>chnl: int, optional</dt><dd><p>Physical output assigned to the first audio stream of the
+object. Defaults to 0.</p>
+</dd>
+<dt>inc: int, optional</dt><dd><p>Output channel increment value. Defaults to 1.</p>
+</dd>
+<dt>dur: float, optional</dt><dd><p>Duration, in seconds, of the object’s activation. The default
+is 0 and means infinite duration.</p>
+</dd>
+<dt>delay: float, optional</dt><dd><p>Delay, in seconds, before the object’s activation.
+Defaults to 0.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>If <cite>chnl</cite> &gt;= 0, successive streams increment the output number by
+<cite>inc</cite> and wrap around the global number of channels.</p>
+<p>If <cite>chnl</cite> is negative, streams begin at 0, increment
+the output number by <cite>inc</cite> and wrap around the global number of
+channels. Then, the list of streams is scrambled.</p>
+<p>If <cite>chnl</cite> is a list, successive values in the list will be
+assigned to successive streams.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.OscReceive.stop">
+<span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wait</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/opensndctrl.html#OscReceive.stop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.OscReceive.stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stop processing.</p>
+<p>This method returns <cite>self</cite>, allowing it to be applied at the object
+creation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>wait: float, optional</dt><dd><p>Delay, in seconds, before the process is actually stopped.
+If autoStartChildren is activated in the Server, this value
+is propagated to the children objects. Defaults to 0.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>if the method setStopDelay(x) was called before calling stop(wait)
+with a positive <cite>wait</cite> value, the <cite>wait</cite> value won’t overwrite the
+value given to setStopDelay for the current object, but will be
+the one propagated to children objects. This allow to set a waiting
+time for a specific object with setStopDelay whithout changing the
+global delay time given to the stop method.</p>
+<p>Fader and Adsr objects ignore waiting time given to the stop
+method because they already implement a delayed processing
+triggered by the stop call.</p>
+</div>
+</dd></dl>
+</dd></dl>
+</section>
+<section id="oscsend">
+<h2><em>OscSend</em><a class="headerlink" href="#oscsend" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyo.OscSend">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">OscSend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">address</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'127.0.0.1'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/opensndctrl.html#OscSend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.OscSend" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sends values over a network via the Open Sound Control protocol.</p>
+<p>Uses the OSC protocol to share values to other softwares or other
+computers. Only the first value of each input buffersize will be
+sent on the OSC port.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parent</dt>
+<dd class="field-odd"><p><a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></p>
+</dd>
+<dt class="field-even">Args</dt>
+<dd class="field-even"><dl class="simple">
+<dt>input: PyoObject</dt><dd><p>Input signal.</p>
+</dd>
+<dt>port: int</dt><dd><p>Port on which values are sent. Receiver should listen on the
+same port.</p>
+</dd>
+<dt>address: string</dt><dd><p>Address used on the port to identify values. Address is in
+the form of a Unix path (ex.: ‘/pitch’).</p>
+</dd>
+<dt>host: string, optional</dt><dd><p>IP address of the target computer. The default, ‘127.0.0.1’,
+is the localhost.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The out() method is bypassed. OscSend’s signal can not be sent
+to audio outs.</p>
+<p>OscSend has no <cite>mul</cite> and <cite>add</cite> attributes.</p>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">a</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mf">1.5</span><span class="p">],</span> <span class="n">mul</span><span class="o">=</span><span class="p">[</span><span class="mi">100</span><span class="p">,</span><span class="o">.</span><span class="mi">1</span><span class="p">],</span> <span class="n">add</span><span class="o">=</span><span class="p">[</span><span class="mi">600</span><span class="p">,</span> <span class="o">.</span><span class="mi">1</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/opensndctrl.html#pyo.OscSend" title="pyo.lib.opensndctrl.OscSend"><span class="n">b</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/opensndctrl.html#pyo.OscSend" title="pyo.lib.opensndctrl.OscSend"><span class="n">OscSend</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">a</span></a><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">10001</span><span class="p">,</span> <span class="n">address</span><span class="o">=</span><span class="p">[</span><span class="s1">'/pitch'</span><span class="p">,</span><span class="s1">'/amp'</span><span class="p">])</span>
+</pre></div>
+</div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Public Data Attributes:</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.OscSend.input" title="pyo.OscSend.input"><code class="xref py py-obj docutils literal notranslate"><span class="pre">input</span></code></a></p></td>
+<td><p>PyoObject.</p></td>
+</tr>
+</tbody>
+</table>
+<details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mul</span></code></p></td>
+<td><p>float or PyoObject.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add</span></code></p></td>
+<td><p>float or PyoObject.</p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Public Methods:</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>(input, port, address[, host])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.OscSend.setInput" title="pyo.OscSend.setInput"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setInput</span></code></a>(x[, fadetime])</p></td>
+<td><p>Replace the <cite>input</cite> attribute.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.OscSend.out" title="pyo.OscSend.out"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out</span></code></a>([chnl, inc, dur, delay])</p></td>
+<td><p>Start processing and send samples to audio output beginning at <cite>chnl</cite>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.OscSend.setMul" title="pyo.OscSend.setMul"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setMul</span></code></a>(x)</p></td>
+<td><p>Replace the <cite>mul</cite> attribute.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.OscSend.setAdd" title="pyo.OscSend.setAdd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setAdd</span></code></a>(x)</p></td>
+<td><p>Replace the <cite>add</cite> attribute.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.OscSend.setBufferRate" title="pyo.OscSend.setBufferRate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setBufferRate</span></code></a>(x)</p></td>
+<td><p>Sets how many buffers to wait before sending a new value.</p></td>
+</tr>
+</tbody>
+</table>
+<details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>(input, port, address[, host])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__add__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__radd__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__iadd__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__sub__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__rsub__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__isub__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__mul__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__rmul__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__imul__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__truediv__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__rtruediv__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__itruediv__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__div__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__rdiv__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__idiv__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__pow__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__rpow__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__mod__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__neg__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__lt__</span></code>(x)</p></td>
+<td><p>Return self&lt;value.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__le__</span></code>(x)</p></td>
+<td><p>Return self&lt;=value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__eq__</span></code>(x)</p></td>
+<td><p>Return self==value.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__ne__</span></code>(x)</p></td>
+<td><p>Return self!=value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__gt__</span></code>(x)</p></td>
+<td><p>Return self&gt;value.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__ge__</span></code>(x)</p></td>
+<td><p>Return self&gt;=value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__do_comp__</span></code>(comp, mode[, default])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isPlaying</span></code>([all])</p></td>
+<td><p>Returns True if the object is currently playing, otherwise, returns False.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isOutputting</span></code>([all])</p></td>
+<td><p>Returns True if the object is outputting.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
+<td><p>Return the first sample of the current buffer as a float.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
+<td><p>Start processing without sending samples to output.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.OscSend.out" title="pyo.OscSend.out"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out</span></code></a>([chnl, inc, dur, delay])</p></td>
+<td><p>Start processing and send samples to audio output beginning at <cite>chnl</cite>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">stop</span></code>([wait])</p></td>
+<td><p>Stop processing.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mix</span></code>([voices])</p></td>
+<td><p>Mix the object's audio streams into <cite>voices</cite> streams and return a Mix object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">range</span></code>(min, max)</p></td>
+<td><p>Adjust <cite>mul</cite> and <cite>add</cite> attributes according to a given range.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.OscSend.setMul" title="pyo.OscSend.setMul"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setMul</span></code></a>(x)</p></td>
+<td><p>Replace the <cite>mul</cite> attribute.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.OscSend.setAdd" title="pyo.OscSend.setAdd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setAdd</span></code></a>(x)</p></td>
+<td><p>Replace the <cite>add</cite> attribute.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setSub</span></code>(x)</p></td>
+<td><p>Replace and inverse the <cite>add</cite> attribute.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setDiv</span></code>(x)</p></td>
+<td><p>Replace and inverse the <cite>mul</cite> attribute.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set</span></code>(attr, value[, port, callback])</p></td>
+<td><p>Replace any attribute with portamento.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ctrl</span></code>([map_list, title, wxnoserver])</p></td>
+<td><p>Opens a sliders window to control the parameters of the object.</p></td>
+</tr>
+</tbody>
+</table>
+</details><details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObjectBase" title="pyo.PyoObjectBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObjectBase</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>(input, port, address[, host])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">dump</span></code>()</p></td>
+<td><p>Print infos about the current state of the object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getBaseObjects</span></code>()</p></td>
+<td><p>Return a list of Stream objects managed by the instance.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getServer</span></code>()</p></td>
+<td><p>Return a reference to the current Server object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getSamplingRate</span></code>()</p></td>
+<td><p>Return the current sampling rate (samples per second), as a float.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getBufferSize</span></code>()</p></td>
+<td><p>Return the current buffer size (samples per buffer), as an integer.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">allowAutoStart</span></code>([switch])</p></td>
+<td><p>When autoStartChildren is activated in the Server, call this method with False as argument to stop the propagation of play/out/stop methods to and from this object.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">useWaitTimeOnStop</span></code>()</p></td>
+<td><p>When autoStartChildren is activated in the Server, call this method to force an object given to the <cite>mul</cite> attribute of another object to use the  wait time from the stop method instead of being stopped immediately.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">addLinkedObject</span></code>(x)</p></td>
+<td><p>When autoStartChildren is activated in the Server, use this method to explicitly add an object in a dsp chain, which is generally controlled by the last object of the chain.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setStopDelay</span></code>(x)</p></td>
+<td><p>Set a specific waiting time when calling the stop method on this object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getStopDelay</span></code>()</p></td>
+<td><p>Return the waiting time applied when calling the stop method on this object.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__iter__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__next__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">next</span></code>()</p></td>
+<td><p>Alias for __next__ method.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__getitem__</span></code>(i)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__setitem__</span></code>(i, x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__len__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__repr__</span></code>()</p></td>
+<td><p>Return repr(self).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__dir__</span></code>()</p></td>
+<td><p>Default dir() implementation.</p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Private Data Attributes:</p>
+<details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_STREAM_TYPE</span></code></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</details><details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObjectBase" title="pyo.PyoObjectBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObjectBase</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_STREAM_TYPE</span></code></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Private Methods:</p>
+<details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_init_play</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_reset_from_set</span></code>([attr])</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</details><details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObjectBase" title="pyo.PyoObjectBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObjectBase</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_autoplay</span></code>([dur, delay])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_autostop</span></code>([wait])</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<hr class="docutils"/>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.OscSend.setInput">
+<span class="sig-name descname"><span class="pre">setInput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fadetime</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/opensndctrl.html#OscSend.setInput"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.OscSend.setInput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace the <cite>input</cite> attribute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>x: PyoObject</dt><dd><p>New signal to process.</p>
+</dd>
+<dt>fadetime: float, optional</dt><dd><p>Crossfade time between old and new input. Defaults to 0.05.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.OscSend.out">
+<span class="sig-name descname"><span class="pre">out</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chnl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dur</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/opensndctrl.html#OscSend.out"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.OscSend.out" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start processing and send samples to audio output beginning at <cite>chnl</cite>.</p>
+<p>This method returns <cite>self</cite>, allowing it to be applied at the object
+creation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>chnl: int, optional</dt><dd><p>Physical output assigned to the first audio stream of the
+object. Defaults to 0.</p>
+</dd>
+<dt>inc: int, optional</dt><dd><p>Output channel increment value. Defaults to 1.</p>
+</dd>
+<dt>dur: float, optional</dt><dd><p>Duration, in seconds, of the object’s activation. The default
+is 0 and means infinite duration.</p>
+</dd>
+<dt>delay: float, optional</dt><dd><p>Delay, in seconds, before the object’s activation.
+Defaults to 0.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>If <cite>chnl</cite> &gt;= 0, successive streams increment the output number by
+<cite>inc</cite> and wrap around the global number of channels.</p>
+<p>If <cite>chnl</cite> is negative, streams begin at 0, increment
+the output number by <cite>inc</cite> and wrap around the global number of
+channels. Then, the list of streams is scrambled.</p>
+<p>If <cite>chnl</cite> is a list, successive values in the list will be
+assigned to successive streams.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.OscSend.setMul">
+<span class="sig-name descname"><span class="pre">setMul</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/opensndctrl.html#OscSend.setMul"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.OscSend.setMul" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace the <cite>mul</cite> attribute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>x: float or PyoObject</dt><dd><p>New <cite>mul</cite> attribute.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.OscSend.setAdd">
+<span class="sig-name descname"><span class="pre">setAdd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/opensndctrl.html#OscSend.setAdd"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.OscSend.setAdd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace the <cite>add</cite> attribute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>x: float or PyoObject</dt><dd><p>New <cite>add</cite> attribute.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.OscSend.setBufferRate">
+<span class="sig-name descname"><span class="pre">setBufferRate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/opensndctrl.html#OscSend.setBufferRate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.OscSend.setBufferRate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets how many buffers to wait before sending a new value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>x: int</dt><dd><p>Changes the data output frequency in multiples of the buffer size.
+Should be greater or equal to 1.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="pyo.OscSend.input">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.OscSend.input" title="Permalink to this definition">¶</a></dt>
+<dd><p>PyoObject. Input signal.</p>
+</dd></dl>
+</dd></dl>
+</section>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h3><a href="../../index.html">Table of Contents</a></h3>
+<ul>
+<li><a class="reference internal" href="#">Open Sound Control</a><ul>
+<li><a class="reference internal" href="#oscdatareceive"><em>OscDataReceive</em></a></li>
+<li><a class="reference internal" href="#oscdatasend"><em>OscDataSend</em></a></li>
+<li><a class="reference internal" href="#osclistreceive"><em>OscListReceive</em></a></li>
+<li><a class="reference internal" href="#oscreceive"><em>OscReceive</em></a></li>
+<li><a class="reference internal" href="#oscsend"><em>OscSend</em></a></li>
+</ul>
+</li>
+</ul>
+<h4>Previous topic</h4>
+<p class="topless"><a href="mmlmusic.html" title="previous chapter">Music Macro Language evaluator</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="pan.html" title="next chapter">Routing</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="pan.html" title="Routing">next</a> |</li>
+<li class="right">
+<a href="mmlmusic.html" title="Music Macro Language evaluator">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="../index.html">API documentation</a> »</li>
+<li class="nav-item nav-item-2"><a href="index.html">Classes by category</a> »</li>
+<li class="nav-item nav-item-this"><a href="">Open Sound Control</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

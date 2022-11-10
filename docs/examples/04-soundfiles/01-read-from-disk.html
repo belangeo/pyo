@@ -1,0 +1,113 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>01-read-from-disk.py - Soundfile playback from disk. — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="02-read-from-disk-2.html" rel="next" title="02-read-from-disk-2.py - Catching the end-of-file signal from the SfPlayer object."/>
+<link href="index.html" rel="prev" title="04-soundfiles"/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="02-read-from-disk-2.html" title="02-read-from-disk-2.py - Catching the end-of-file signal from the SfPlayer object.">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="index.html" title="04-soundfiles">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a accesskey="U" href="index.html">04-soundfiles</a> »</li>
+<li class="nav-item nav-item-this"><a href="">01-read-from-disk.py - Soundfile playback from disk.</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="read-from-disk-py-soundfile-playback-from-disk">
+<h1>01-read-from-disk.py - Soundfile playback from disk.<a class="headerlink" href="#read-from-disk-py-soundfile-playback-from-disk" title="Permalink to this headline">¶</a></h1>
+<p>SfPlayer and friends read samples from a file on disk with control
+over playback speed and looping mode.</p>
+<dl class="simple">
+<dt>Player family:</dt><dd><ul class="simple">
+<li><p><strong>SfPlayer</strong> : Reads many soundfile formats from disk.</p></li>
+<li><p><strong>SfMarkerLooper</strong> : AIFF with markers soundfile looper.</p></li>
+<li><p><strong>SfMarkerShuffler</strong> : AIFF with markers soundfile shuffler.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Reading sound file from disk can save a lot of RAM, especially if
+the soundfile is big, but it is more CPU expensive than loading
+the sound file in memory in a first pass.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+
+<span class="n">path</span> <span class="o">=</span> <span class="n">SNDS_PATH</span> <span class="o">+</span> <span class="s2">"/transparent.aif"</span>
+
+<span class="c1"># stereo playback with a slight shift between the two channels.</span>
+<span class="n">sf</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">SfPlayer</span></a><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">speed</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.995</span><span class="p">],</span> <span class="n">loop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.4</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h4>Previous topic</h4>
+<p class="topless"><a href="index.html" title="previous chapter">04-soundfiles</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="02-read-from-disk-2.html" title="next chapter">02-read-from-disk-2.py - Catching the <cite>end-of-file</cite> signal from the SfPlayer object.</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="02-read-from-disk-2.html" title="02-read-from-disk-2.py - Catching the end-of-file signal from the SfPlayer object.">next</a> |</li>
+<li class="right">
+<a href="index.html" title="04-soundfiles">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="index.html">04-soundfiles</a> »</li>
+<li class="nav-item nav-item-this"><a href="">01-read-from-disk.py - Soundfile playback from disk.</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

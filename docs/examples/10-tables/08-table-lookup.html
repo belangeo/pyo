@@ -1,0 +1,129 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>08-table-lookup.py - Table as transfer function. — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="../16-midi/index.html" rel="next" title="16-midi"/>
+<link href="07-moving-points.html" rel="prev" title="07-moving-points.py - Periodically rewrite a break-point function table."/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="../16-midi/index.html" title="16-midi">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="07-moving-points.html" title="07-moving-points.py - Periodically rewrite a break-point function table.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a accesskey="U" href="index.html">10-tables</a> »</li>
+<li class="nav-item nav-item-this"><a href="">08-table-lookup.py - Table as transfer function.</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="table-lookup-py-table-as-transfer-function">
+<h1>08-table-lookup.py - Table as transfer function.<a class="headerlink" href="#table-lookup-py-table-as-transfer-function" title="Permalink to this headline">¶</a></h1>
+<p>In computer science, a lookup table is an array that replaces runtime computation
+with a simpler array indexing operation. The savings in terms of processing time
+can be significant, since retrieving a value from memory is often faster than
+undergoing an “expensive” computation.</p>
+<p>This technic is also used a lot in audio synthesis, where the waveform can be
+pre-computed and stored in a table, then simply readed with a ramp at the desired
+frequency.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+
+<a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">src</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">SfPlayer</span></a><span class="p">(</span><span class="s2">"../snds/flute.aif"</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Arctangent transfer function table.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.AtanTable" title="pyo.lib.tables.AtanTable"><span class="n">table</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.AtanTable" title="pyo.lib.tables.AtanTable"><span class="n">AtanTable</span></a><span class="p">(</span><span class="n">slope</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">512</span><span class="p">)</span>
+<span class="n">table</span><span class="o">.</span><span class="n">view</span><span class="p">()</span>
+
+<span class="c1"># A signal to dynamically control the drive of the transfer function.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Sig" title="pyo.lib._core.Sig"><span class="n">drive</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Sig" title="pyo.lib._core.Sig"><span class="n">Sig</span></a><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+
+<span class="c1"># We give it True to the dataonly argument when opening the sliders window,</span>
+<span class="c1"># otherwise the table would be rewrite way too often.</span>
+<span class="n">drive</span><span class="o">.</span><span class="n">ctrl</span><span class="p">([</span><a class="sphinx-codeautolink-a" href="../../api/classes/map.html#pyo.SLMap" title="pyo.lib._maps.SLMap"><span class="n">SLMap</span></a><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"lin"</span><span class="p">,</span> <span class="s2">"value"</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">dataOnly</span><span class="o">=</span><span class="kc">True</span><span class="p">)],</span> <span class="n">title</span><span class="o">=</span><span class="s2">"Transfer fonction slope"</span><span class="p">)</span>
+
+<span class="c1"># Lookup reads a table given an audio index lying between -1 and 1.</span>
+<span class="c1"># It is especially designed to scan a transfer function with an audio signal.</span>
+<span class="n">look</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/tableprocess.html#pyo.Lookup" title="pyo.lib.tableprocess.Lookup"><span class="n">Lookup</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.AtanTable" title="pyo.lib.tables.AtanTable"><span class="n">table</span></a><span class="p">,</span> <span class="n">index</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">src</span></a><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+<span class="c1"># Function called to redraw the transfer function.</span>
+<span class="k">def</span> <span class="nf">redraw</span><span class="p">():</span>
+    <span class="n">table</span><span class="o">.</span><span class="n">slope</span> <span class="o">=</span> <span class="n">drive</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+
+
+<span class="c1"># We call the "redraw" function every time the "drive" value changes.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/triggers.html#pyo.TrigFunc" title="pyo.lib.triggers.TrigFunc"><span class="n">trig</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/triggers.html#pyo.TrigFunc" title="pyo.lib.triggers.TrigFunc"><span class="n">TrigFunc</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/triggers.html#pyo.Change" title="pyo.lib.triggers.Change"><span class="n">Change</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Sig" title="pyo.lib._core.Sig"><span class="n">drive</span></a><span class="p">),</span> <span class="n">function</span><span class="o">=</span><span class="n">redraw</span><span class="p">)</span>
+
+<a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.Scope" title="pyo.lib.analysis.Scope"><span class="n">sc</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.Scope" title="pyo.lib.analysis.Scope"><span class="n">Scope</span></a><span class="p">(</span><span class="n">look</span><span class="p">)</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h4>Previous topic</h4>
+<p class="topless"><a href="07-moving-points.html" title="previous chapter">07-moving-points.py - Periodically rewrite a break-point function table.</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="../16-midi/index.html" title="next chapter">16-midi</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="../16-midi/index.html" title="16-midi">next</a> |</li>
+<li class="right">
+<a href="07-moving-points.html" title="07-moving-points.py - Periodically rewrite a break-point function table.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="index.html">10-tables</a> »</li>
+<li class="nav-item nav-item-this"><a href="">08-table-lookup.py - Table as transfer function.</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

@@ -1,0 +1,140 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>07-managing-scales.py - Using EventScale to manage list of notes. — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="08-function-calls.html" rel="next" title="08-function-calls.py - Using custom algorithms with python function calls."/>
+<link href="06-randoms.html" rel="prev" title="06-randoms.py - Exploring random generators."/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="08-function-calls.html" title="08-function-calls.py - Using custom algorithms with python function calls.">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="06-randoms.html" title="06-randoms.py - Exploring random generators.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a accesskey="U" href="index.html">22-events</a> »</li>
+<li class="nav-item nav-item-this"><a href="">07-managing-scales.py - Using EventScale to manage list of notes.</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="managing-scales-py-using-eventscale-to-manage-list-of-notes">
+<h1>07-managing-scales.py - Using EventScale to manage list of notes.<a class="headerlink" href="#managing-scales-py-using-eventscale-to-manage-list-of-notes" title="Permalink to this headline">¶</a></h1>
+<p>EventScale constructs a list of pitches according to its arguments.</p>
+<p>EventScale works similarly to list, ie. uses slicing with square
+brackets to access data, with the first element at index 0.</p>
+<p>It also accept the len() function, which returns the number of
+elements in the scale.</p>
+<p>The object can generate most common scales, namely: ‘major’,
+‘minorH’, ‘minorM’, ‘ionian’, ‘dorian’, ‘phrygian’, ‘lydian’,
+‘mixolydian’, ‘aeolian’, ‘locrian’, ‘wholeTone’, ‘majorPenta’,
+‘minorPenta’, ‘egyptian’, ‘majorBlues’, ‘minorBlues’ and
+‘minorHungarian’.</p>
+<p>The pitches of the scales can be in one of three forms, midi note,
+cycles per second or octave.degree notation, according to the ‘type’
+argument.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">from</span> <a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+
+<span class="c1"># With type=2, the scale use octave.degree notation.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/events.html#pyo.EventScale" title="pyo.lib.events.EventScale"><span class="n">scl</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/events.html#pyo.EventScale" title="pyo.lib.events.EventScale"><span class="n">EventScale</span></a><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="s2">"C"</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="s2">"major"</span><span class="p">,</span> <span class="n">first</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">octaves</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">change</span><span class="p">():</span>
+    <span class="s2">"This function asks for a new scale based on new random values."</span>
+    <span class="n">scl</span><span class="o">.</span><span class="n">root</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="s2">"C"</span><span class="p">,</span> <span class="s2">"D"</span><span class="p">,</span> <span class="s2">"F"</span><span class="p">])</span>
+    <span class="n">scl</span><span class="o">.</span><span class="n">scale</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="s2">"ionian"</span><span class="p">,</span> <span class="s2">"dorian"</span><span class="p">,</span> <span class="s2">"phrygian"</span><span class="p">])</span>
+    <span class="n">scl</span><span class="o">.</span><span class="n">first</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+
+    <span class="c1"># Show the new scale parameters.</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Root = </span><span class="si">%s</span><span class="s2">, scale = </span><span class="si">%s</span><span class="s2">, first octave = </span><span class="si">%d</span><span class="s2">"</span> <span class="o">%</span> <span class="p">(</span><span class="n">scl</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="n">scl</span><span class="o">.</span><span class="n">scale</span><span class="p">,</span> <span class="n">scl</span><span class="o">.</span><span class="n">first</span><span class="p">))</span>
+
+    <span class="c1"># Start a new sequence of events.</span>
+    <span class="n">e</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+
+
+<span class="c1"># This sequence produces 24 events and stop. We use the 'atend' argument</span>
+<span class="c1"># to set a function to call when the sequence finishes. This function</span>
+<span class="c1"># will change the scale used and start a new sequence of 24 notes.</span>
+<span class="n">e</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/events.html#pyo.Events" title="pyo.lib.events.Events"><span class="n">Events</span></a><span class="p">(</span>
+    <span class="n">degree</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/events.html#pyo.EventDrunk" title="pyo.lib.events.EventDrunk"><span class="n">EventDrunk</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/events.html#pyo.EventScale" title="pyo.lib.events.EventScale"><span class="n">scl</span></a><span class="p">,</span> <span class="n">maxStep</span><span class="o">=-</span><span class="mi">2</span><span class="p">,</span> <span class="n">occurrences</span><span class="o">=</span><span class="mi">24</span><span class="p">),</span>
+    <span class="n">beat</span><span class="o">=</span><span class="mi">1</span> <span class="o">/</span> <span class="mf">4.0</span><span class="p">,</span>
+    <span class="n">db</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">6</span><span class="p">,</span> <span class="o">-</span><span class="mi">12</span><span class="p">,</span> <span class="o">-</span><span class="mi">9</span><span class="p">,</span> <span class="o">-</span><span class="mi">12</span><span class="p">],</span>
+    <span class="n">attack</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span>
+    <span class="n">decay</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+    <span class="n">sustain</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">release</span><span class="o">=</span><span class="mf">0.005</span><span class="p">,</span>
+    <span class="n">atend</span><span class="o">=</span><span class="n">change</span><span class="p">,</span>
+<span class="p">)</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h4>Previous topic</h4>
+<p class="topless"><a href="06-randoms.html" title="previous chapter">06-randoms.py - Exploring random generators.</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="08-function-calls.html" title="next chapter">08-function-calls.py - Using custom algorithms with python function calls.</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="08-function-calls.html" title="08-function-calls.py - Using custom algorithms with python function calls.">next</a> |</li>
+<li class="right">
+<a href="06-randoms.html" title="06-randoms.py - Exploring random generators.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="index.html">22-events</a> »</li>
+<li class="nav-item nav-item-this"><a href="">07-managing-scales.py - Using EventScale to manage list of notes.</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

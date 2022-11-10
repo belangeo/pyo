@@ -1,0 +1,129 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>06-hand-made-chorus.py - Hand-written 8 delay lines stereo chorus. — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="06-hand-made-harmonizer.html" rel="next" title="07-hand-made-harmonizer.py - Hand-written harmonizer effect."/>
+<link href="04-ping-pong-delay.html" rel="prev" title="04-ping-pong-delay.py - Stereo ping-pong delay."/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="06-hand-made-harmonizer.html" title="07-hand-made-harmonizer.py - Hand-written harmonizer effect.">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="04-ping-pong-delay.html" title="04-ping-pong-delay.py - Stereo ping-pong delay.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a accesskey="U" href="index.html">07-effects</a> »</li>
+<li class="nav-item nav-item-this"><a href="">06-hand-made-chorus.py - Hand-written 8 delay lines stereo chorus.</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="hand-made-chorus-py-hand-written-8-delay-lines-stereo-chorus">
+<h1>06-hand-made-chorus.py - Hand-written 8 delay lines stereo chorus.<a class="headerlink" href="#hand-made-chorus-py-hand-written-8-delay-lines-stereo-chorus" title="Permalink to this headline">¶</a></h1>
+<p>A chorus (or ensemble) is a modulation effect used to create a richer,
+thicker sound and add subtle movement. The effect roughly simulates
+the slight variations in pitch and timing that occur when multiple
+performers sing or play the same part.</p>
+<p>A single voice chorus uses a single delay that creates a single modulated
+duplicate of the incoming audio. Basic chorus effects and inexpensive guitar
+pedals are often single-voice.</p>
+<p>A multiple voice chorus uses multiple modulated delays to create a richer
+sound with more movement than a single voice chorus.</p>
+<p>The Chorus object (from pyo) implements an 8 delay lines chorus and should
+use less CPU than the hand-written version. this example’s purpose is only
+to show how it works or to be used as a starting point to build an extended
+version.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">(</span><span class="n">duplex</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+
+<span class="c1"># Start a source sound.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">sf</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">SfPlayer</span></a><span class="p">(</span><span class="s2">"../snds/baseballmajeur_m.aif"</span><span class="p">,</span> <span class="n">speed</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+<span class="c1"># Mix the source in stereo and send the signal to the output.</span>
+<span class="n">sf2</span> <span class="o">=</span> <span class="n">sf</span><span class="o">.</span><span class="n">mix</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+<span class="c1"># Sets values for 8 LFO'ed delay lines (you can add more if you want!).</span>
+<span class="c1"># LFO frequencies.</span>
+<span class="n">freqs</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.254</span><span class="p">,</span> <span class="mf">0.465</span><span class="p">,</span> <span class="mf">0.657</span><span class="p">,</span> <span class="mf">0.879</span><span class="p">,</span> <span class="mf">1.23</span><span class="p">,</span> <span class="mf">1.342</span><span class="p">,</span> <span class="mf">1.654</span><span class="p">,</span> <span class="mf">1.879</span><span class="p">]</span>
+<span class="c1"># Center delays in seconds.</span>
+<span class="n">cdelay</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0087</span><span class="p">,</span> <span class="mf">0.0102</span><span class="p">,</span> <span class="mf">0.0111</span><span class="p">,</span> <span class="mf">0.01254</span><span class="p">,</span> <span class="mf">0.0134</span><span class="p">,</span> <span class="mf">0.01501</span><span class="p">,</span> <span class="mf">0.01707</span><span class="p">,</span> <span class="mf">0.0178</span><span class="p">]</span>
+<span class="c1"># Modulation depths in seconds.</span>
+<span class="n">adelay</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.001</span><span class="p">,</span> <span class="mf">0.0012</span><span class="p">,</span> <span class="mf">0.0013</span><span class="p">,</span> <span class="mf">0.0014</span><span class="p">,</span> <span class="mf">0.0015</span><span class="p">,</span> <span class="mf">0.0016</span><span class="p">,</span> <span class="mf">0.002</span><span class="p">,</span> <span class="mf">0.0023</span><span class="p">]</span>
+
+<span class="c1"># Create 8 sinusoidal LFOs with center delays "cdelay" and depths "adelay".</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">lfos</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="n">freqs</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="n">adelay</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="n">cdelay</span><span class="p">)</span>
+
+<span class="c1"># Create 8 modulated delay lines with a little feedback and send the signals</span>
+<span class="c1"># to the output. Streams 1, 3, 5, 7 to the left and streams 2, 4, 6, 8 to the</span>
+<span class="c1"># right (default behaviour of the out() method).</span>
+<span class="n">delays</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/effects.html#pyo.Delay" title="pyo.lib.effects.Delay"><span class="n">Delay</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">sf</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">lfos</span></a><span class="p">,</span> <span class="n">feedback</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h4>Previous topic</h4>
+<p class="topless"><a href="04-ping-pong-delay.html" title="previous chapter">04-ping-pong-delay.py - Stereo ping-pong delay.</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="06-hand-made-harmonizer.html" title="next chapter">07-hand-made-harmonizer.py - Hand-written harmonizer effect.</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="06-hand-made-harmonizer.html" title="07-hand-made-harmonizer.py - Hand-written harmonizer effect.">next</a> |</li>
+<li class="right">
+<a href="04-ping-pong-delay.html" title="04-ping-pong-delay.py - Stereo ping-pong delay.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="index.html">07-effects</a> »</li>
+<li class="nav-item nav-item-this"><a href="">06-hand-made-chorus.py - Hand-written 8 delay lines stereo chorus.</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

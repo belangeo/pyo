@@ -1,0 +1,184 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>11-filters.py - Modifying generator’s output with filters. — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="12-sharing-values.html" rel="next" title="12-sharing-values.py - Reading and using other parameter’s value."/>
+<link href="10-arithmetic-ops.html" rel="prev" title="10-arithmetic-ops.py - Using arithmetic with event generators."/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="12-sharing-values.html" title="12-sharing-values.py - Reading and using other parameter’s value.">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="10-arithmetic-ops.html" title="10-arithmetic-ops.py - Using arithmetic with event generators.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a accesskey="U" href="index.html">22-events</a> »</li>
+<li class="nav-item nav-item-this"><a href="">11-filters.py - Modifying generator’s output with filters.</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="filters-py-modifying-generator-s-output-with-filters">
+<h1>11-filters.py - Modifying generator’s output with filters.<a class="headerlink" href="#filters-py-modifying-generator-s-output-with-filters" title="Permalink to this headline">¶</a></h1>
+<p>The EventGenerator class contains many methods that can be used to filter
+the sequence of output values in order to get the desired results. These
+filters return an EventFilter object, which is also a child of EventGenerator,
+that perform the operation.</p>
+<p>Available filter methods are:</p>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="simple">
+<dt>floor:</dt><dd><p>Return an EventFilter computing the largest integer less than or
+equal to its input value.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>ceil:</dt><dd><p>Return an EventFilter computing the smallest integer greater than
+or equal to its input value.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>round:</dt><dd><p>Return an EventFilter computing the nearest integer to its input value.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>snap:</dt><dd><p>Return an EventFilter which choose the nearest value of its input
+value in a list of choices.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>deviate:</dt><dd><p>Return an EventFilter which randomly move, up or down, its input value.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>clip:</dt><dd><p>Return an EventFilter which clips its input value between predefined
+limits.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>scale:</dt><dd><p>Return an EventFilter which maps its input value, in the range 0 to 1,
+to an output range, with a scaling curve.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>rescale:</dt><dd><p>Return an EventFilter which maps its input value, given in an input
+range, to an output range with a scaling curve.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>iftrue:</dt><dd><p>Return an EventFilter which compares its input value to a comparison
+value and outputs it if the comparison is True.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">weibullvariate</span>
+<span class="kn">from</span> <a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+
+<a class="sphinx-codeautolink-a" href="../../api/classes/events.html#pyo.EventScale" title="pyo.lib.events.EventScale"><span class="n">scl</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/events.html#pyo.EventScale" title="pyo.lib.events.EventScale"><span class="n">EventScale</span></a><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="s2">"C"</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="s2">"wholeTone"</span><span class="p">,</span> <span class="n">first</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">octaves</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="c1"># Takes a Weibull distribution, scales the values between 48 and 84, rounds</span>
+<span class="c1"># them to the nearest integer, then snaps to the nearest value in the given</span>
+<span class="c1"># scale and uses the result as midi note if it's below 84.</span>
+<span class="n">e</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/events.html#pyo.Events" title="pyo.lib.events.Events"><span class="n">Events</span></a><span class="p">(</span>
+    <span class="n">midinote</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/events.html#pyo.EventCall" title="pyo.lib.events.EventCall"><span class="n">EventCall</span></a><span class="p">(</span><span class="n">weibullvariate</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="mi">48</span><span class="p">,</span> <span class="mi">84</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">()</span><span class="o">.</span><span class="n">snap</span><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/events.html#pyo.EventScale" title="pyo.lib.events.EventScale"><span class="n">scl</span></a><span class="p">)</span><span class="o">.</span><span class="n">iftrue</span><span class="p">(</span><span class="s2">"&lt;"</span><span class="p">,</span> <span class="mi">84</span><span class="p">),</span>
+    <span class="n">beat</span><span class="o">=</span><span class="mi">1</span> <span class="o">/</span> <span class="mf">4.0</span><span class="p">,</span>
+    <span class="n">db</span><span class="o">=-</span><span class="mi">6</span><span class="p">,</span>
+    <span class="n">attack</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span>
+    <span class="n">decay</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+    <span class="n">sustain</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">release</span><span class="o">=</span><span class="mf">0.005</span><span class="p">,</span>
+<span class="p">)</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+
+<span class="c1"># Rescale values from a pink noise to the range 48 to 72 and snap to the given scale.</span>
+<span class="n">e2</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/events.html#pyo.Events" title="pyo.lib.events.Events"><span class="n">Events</span></a><span class="p">(</span>
+    <span class="n">midinote</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/events.html#pyo.EventNoise" title="pyo.lib.events.EventNoise"><span class="n">EventNoise</span></a><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">rescale</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">48</span><span class="p">,</span> <span class="mi">72</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">snap</span><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/events.html#pyo.EventScale" title="pyo.lib.events.EventScale"><span class="n">scl</span></a><span class="p">),</span>
+    <span class="n">beat</span><span class="o">=</span><span class="mi">1</span> <span class="o">/</span> <span class="mf">4.0</span><span class="p">,</span>
+    <span class="n">db</span><span class="o">=-</span><span class="mi">6</span><span class="p">,</span>
+    <span class="n">transpo</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
+    <span class="n">attack</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span>
+    <span class="n">decay</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+    <span class="n">sustain</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">release</span><span class="o">=</span><span class="mf">0.005</span><span class="p">,</span>
+<span class="p">)</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h4>Previous topic</h4>
+<p class="topless"><a href="10-arithmetic-ops.html" title="previous chapter">10-arithmetic-ops.py - Using arithmetic with event generators.</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="12-sharing-values.html" title="next chapter">12-sharing-values.py - Reading and using other parameter’s value.</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="12-sharing-values.html" title="12-sharing-values.py - Reading and using other parameter’s value.">next</a> |</li>
+<li class="right">
+<a href="10-arithmetic-ops.html" title="10-arithmetic-ops.py - Using arithmetic with event generators.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="index.html">22-events</a> »</li>
+<li class="nav-item nav-item-this"><a href="">11-filters.py - Modifying generator’s output with filters.</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

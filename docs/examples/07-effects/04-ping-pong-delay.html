@@ -1,0 +1,151 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>04-ping-pong-delay.py - Stereo ping-pong delay. — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="05-hand-made-chorus.html" rel="next" title="06-hand-made-chorus.py - Hand-written 8 delay lines stereo chorus."/>
+<link href="03-fuzz-disto.html" rel="prev" title="03-fuzz-disto.py - Hand-written asymmetrical tranfert function."/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="05-hand-made-chorus.html" title="06-hand-made-chorus.py - Hand-written 8 delay lines stereo chorus.">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="03-fuzz-disto.html" title="03-fuzz-disto.py - Hand-written asymmetrical tranfert function.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a accesskey="U" href="index.html">07-effects</a> »</li>
+<li class="nav-item nav-item-this"><a href="">04-ping-pong-delay.py - Stereo ping-pong delay.</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="ping-pong-delay-py-stereo-ping-pong-delay">
+<h1>04-ping-pong-delay.py - Stereo ping-pong delay.<a class="headerlink" href="#ping-pong-delay-py-stereo-ping-pong-delay" title="Permalink to this headline">¶</a></h1>
+<p>A stereo ping-pong delay is when you use two delays, one hard left and the
+other hard right, and the delays alternate.</p>
+<p>This exemple illustrates how we can pass the signal of a first object to
+the input of a second even if the first object does not exist yet when the
+second is created.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">random</span>
+
+<span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">(</span><span class="n">duplex</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+
+<span class="c1"># Compute the duration, in seconds, of one buffer size.</span>
+<span class="n">buftime</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">getBufferSize</span><span class="p">()</span> <span class="o">/</span> <span class="n">s</span><span class="o">.</span><span class="n">getSamplingRate</span><span class="p">()</span>
+
+<span class="c1"># Delay parameters</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Sig" title="pyo.lib._core.Sig"><span class="n">delay_time_l</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Sig" title="pyo.lib._core.Sig"><span class="n">Sig</span></a><span class="p">(</span><span class="mf">0.125</span><span class="p">)</span>  <span class="c1"># Delay time for the left channel delay.</span>
+<span class="n">delay_time_l</span><span class="o">.</span><span class="n">ctrl</span><span class="p">()</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Sig" title="pyo.lib._core.Sig"><span class="n">delay_feed</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Sig" title="pyo.lib._core.Sig"><span class="n">Sig</span></a><span class="p">(</span><span class="mf">0.75</span><span class="p">)</span>  <span class="c1"># Feedback value for both delays.</span>
+<span class="n">delay_feed</span><span class="o">.</span><span class="n">ctrl</span><span class="p">()</span>
+
+<span class="c1"># Because the right delay gets its input sound from the left delay, while</span>
+<span class="c1"># it is computed before (to send its output sound to the left delay), it</span>
+<span class="c1"># will be one buffer size late. To compensate this additional delay on the</span>
+<span class="c1"># right, we substract one buffer size from the real delay time.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Sig" title="pyo.lib._core.Sig"><span class="n">delay_time_r</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Sig" title="pyo.lib._core.Sig"><span class="n">Sig</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Sig" title="pyo.lib._core.Sig"><span class="n">delay_time_l</span></a><span class="p">,</span> <span class="n">add</span><span class="o">=-</span><span class="n">buftime</span><span class="p">)</span>
+
+<span class="c1"># Setup up a soundfile player.</span>
+<span class="n">sf</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">SfPlayer</span></a><span class="p">(</span><span class="s2">"../snds/alum1.wav"</span><span class="p">)</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+
+<span class="c1"># Send the original sound to both speakers.</span>
+<span class="n">sfout</span> <span class="o">=</span> <span class="n">sf</span><span class="o">.</span><span class="n">mix</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+<span class="c1"># Initialize the right delay with zeros as input because the left delay</span>
+<span class="c1"># does not exist yet.</span>
+<span class="n">right</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/effects.html#pyo.Delay" title="pyo.lib.effects.Delay"><span class="n">Delay</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Sig" title="pyo.lib._core.Sig"><span class="n">Sig</span></a><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">delay</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Sig" title="pyo.lib._core.Sig"><span class="n">delay_time_r</span></a><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># Initialize the left delay with the original mono source and the right</span>
+<span class="c1"># delay signal (multiplied by the feedback value) as input.</span>
+<span class="n">left</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/effects.html#pyo.Delay" title="pyo.lib.effects.Delay"><span class="n">Delay</span></a><span class="p">(</span><span class="n">sf</span> <span class="o">+</span> <span class="n">right</span> <span class="o">*</span> <a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Sig" title="pyo.lib._core.Sig"><span class="n">delay_feed</span></a><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Sig" title="pyo.lib._core.Sig"><span class="n">delay_time_l</span></a><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+<span class="c1"># One issue with recursive cross-delay is if we set the feedback to</span>
+<span class="c1"># 0, the right delay never gets any signal. To resolve this, we add a</span>
+<span class="c1"># non-recursive delay, with a gain that is the inverse of the feedback,</span>
+<span class="c1"># to the right delay input.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/effects.html#pyo.Delay" title="pyo.lib.effects.Delay"><span class="n">original_delayed</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/effects.html#pyo.Delay" title="pyo.lib.effects.Delay"><span class="n">Delay</span></a><span class="p">(</span><span class="n">sf</span><span class="p">,</span> <a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Sig" title="pyo.lib._core.Sig"><span class="n">delay_time_l</span></a><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mi">1</span> <span class="o">-</span> <a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Sig" title="pyo.lib._core.Sig"><span class="n">delay_feed</span></a><span class="p">)</span>
+
+<span class="c1"># Change the right delay input (now that the left delay exists).</span>
+<span class="n">right</span><span class="o">.</span><span class="n">setInput</span><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/effects.html#pyo.Delay" title="pyo.lib.effects.Delay"><span class="n">original_delayed</span></a> <span class="o">+</span> <span class="n">left</span> <span class="o">*</span> <a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Sig" title="pyo.lib._core.Sig"><span class="n">delay_feed</span></a><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">playit</span><span class="p">():</span>
+    <span class="s2">"Assign a sound to the player and start playback."</span>
+    <span class="n">which</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="s2">"../snds/alum</span><span class="si">%d</span><span class="s2">.wav"</span> <span class="o">%</span> <span class="n">which</span>
+    <span class="n">sf</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span>
+    <span class="n">sf</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+
+
+<span class="c1"># Call the function "playit" every second.</span>
+<span class="n">pat</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/pattern.html#pyo.Pattern" title="pyo.lib.pattern.Pattern"><span class="n">Pattern</span></a><span class="p">(</span><span class="n">playit</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h4>Previous topic</h4>
+<p class="topless"><a href="03-fuzz-disto.html" title="previous chapter">03-fuzz-disto.py - Hand-written asymmetrical tranfert function.</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="05-hand-made-chorus.html" title="next chapter">06-hand-made-chorus.py - Hand-written 8 delay lines stereo chorus.</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="05-hand-made-chorus.html" title="06-hand-made-chorus.py - Hand-written 8 delay lines stereo chorus.">next</a> |</li>
+<li class="right">
+<a href="03-fuzz-disto.html" title="03-fuzz-disto.py - Hand-written asymmetrical tranfert function.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="index.html">07-effects</a> »</li>
+<li class="nav-item nav-item-this"><a href="">04-ping-pong-delay.py - Stereo ping-pong delay.</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

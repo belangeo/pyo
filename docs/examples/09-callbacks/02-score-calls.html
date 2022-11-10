@@ -1,0 +1,154 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>02-score-calls.py - Sequencing the function calls. — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="03-delayed-calls.html" rel="next" title="03-delayed-calls.py - Calling a function once, after a given delay."/>
+<link href="01-periodic-calls.html" rel="prev" title="01-periodic-calls.py - Periodic event generation."/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="03-delayed-calls.html" title="03-delayed-calls.py - Calling a function once, after a given delay.">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="01-periodic-calls.html" title="01-periodic-calls.py - Periodic event generation.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a accesskey="U" href="index.html">09-callbacks</a> »</li>
+<li class="nav-item nav-item-this"><a href="">02-score-calls.py - Sequencing the function calls.</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="score-calls-py-sequencing-the-function-calls">
+<h1>02-score-calls.py - Sequencing the function calls.<a class="headerlink" href="#score-calls-py-sequencing-the-function-calls" title="Permalink to this headline">¶</a></h1>
+<p>The Score object takes in input an audio stream containing integers
+and any time the integer changes, it calls a function with a generic
+name to which the integer is added. This allows the user to build a
+sequence of functions and to control how and when each one is called.</p>
+<p>This example uses a metronome and a counter to generate a stream of
+integers at a specific rate. The called functions change the oscillator
+frequencies to produce a chords sequence.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+
+<span class="c1"># A four-streams oscillator to produce a chord.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.SineLoop" title="pyo.lib.generators.SineLoop"><span class="n">osc</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.SineLoop" title="pyo.lib.generators.SineLoop"><span class="n">SineLoop</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">feedback</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
+<span class="n">rev</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/effects.html#pyo.WGVerb" title="pyo.lib.effects.WGVerb"><span class="n">WGVerb</span></a><span class="p">(</span><span class="n">osc</span><span class="o">.</span><span class="n">mix</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">feedback</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="mi">4000</span><span class="p">,</span> <span class="n">bal</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">set_osc_freqs</span><span class="p">(</span><span class="n">notes</span><span class="p">):</span>
+    <span class="c1"># PyoObject.set() method allow to change the value of an attribute</span>
+    <span class="c1"># with an audio ramp to smooth out the change.</span>
+    <span class="n">osc</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">attr</span><span class="o">=</span><span class="s2">"freq"</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/functions/conv.html#pyo.midiToHz" title="pyo.midiToHz"><span class="n">midiToHz</span></a><span class="p">(</span><span class="n">notes</span><span class="p">),</span> <span class="n">port</span><span class="o">=</span><span class="mf">0.005</span><span class="p">)</span>
+
+
+<span class="c1"># The sequence of functions (some call set_osc_freqs to change the notes).</span>
+<span class="k">def</span> <span class="nf">event_0</span><span class="p">():</span>
+    <span class="n">set_osc_freqs</span><span class="p">([</span><span class="mi">60</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">67</span><span class="p">,</span> <span class="mi">72</span><span class="p">])</span>
+
+
+<span class="k">def</span> <span class="nf">event_1</span><span class="p">():</span>
+    <span class="k">pass</span>
+
+
+<span class="k">def</span> <span class="nf">event_2</span><span class="p">():</span>
+    <span class="n">set_osc_freqs</span><span class="p">([</span><span class="mi">60</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">67</span><span class="p">,</span> <span class="mi">69</span><span class="p">])</span>
+
+
+<span class="k">def</span> <span class="nf">event_3</span><span class="p">():</span>
+    <span class="k">pass</span>
+
+
+<span class="k">def</span> <span class="nf">event_4</span><span class="p">():</span>
+    <span class="n">set_osc_freqs</span><span class="p">([</span><span class="mi">60</span><span class="p">,</span> <span class="mi">65</span><span class="p">,</span> <span class="mi">69</span><span class="p">,</span> <span class="mi">76</span><span class="p">])</span>
+
+
+<span class="k">def</span> <span class="nf">event_5</span><span class="p">():</span>
+    <span class="k">pass</span>
+
+
+<span class="k">def</span> <span class="nf">event_6</span><span class="p">():</span>
+    <span class="n">set_osc_freqs</span><span class="p">([</span><span class="mi">62</span><span class="p">,</span> <span class="mi">65</span><span class="p">,</span> <span class="mi">69</span><span class="p">,</span> <span class="mi">74</span><span class="p">])</span>
+
+
+<span class="k">def</span> <span class="nf">event_7</span><span class="p">():</span>
+    <span class="n">set_osc_freqs</span><span class="p">([</span><span class="mi">59</span><span class="p">,</span> <span class="mi">65</span><span class="p">,</span> <span class="mi">67</span><span class="p">,</span> <span class="mi">74</span><span class="p">])</span>
+
+
+<span class="c1"># Integer generator (more about triggers in section 12-triggers)</span>
+<span class="n">metro</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/triggers.html#pyo.Metro" title="pyo.lib.triggers.Metro"><span class="n">Metro</span></a><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/triggers.html#pyo.Counter" title="pyo.lib.triggers.Counter"><span class="n">count</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/triggers.html#pyo.Counter" title="pyo.lib.triggers.Counter"><span class="n">Counter</span></a><span class="p">(</span><span class="n">metro</span><span class="p">,</span> <span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+
+<span class="c1"># Score calls the function named "event_" + count. (if count is 3,</span>
+<span class="c1"># function named "event_3" is called without argument.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/pattern.html#pyo.Score" title="pyo.lib.pattern.Score"><span class="n">score</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/pattern.html#pyo.Score" title="pyo.lib.pattern.Score"><span class="n">Score</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/triggers.html#pyo.Counter" title="pyo.lib.triggers.Counter"><span class="n">count</span></a><span class="p">,</span> <span class="n">fname</span><span class="o">=</span><span class="s2">"event_"</span><span class="p">)</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h4>Previous topic</h4>
+<p class="topless"><a href="01-periodic-calls.html" title="previous chapter">01-periodic-calls.py - Periodic event generation.</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="03-delayed-calls.html" title="next chapter">03-delayed-calls.py - Calling a function once, after a given delay.</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="03-delayed-calls.html" title="03-delayed-calls.py - Calling a function once, after a given delay.">next</a> |</li>
+<li class="right">
+<a href="01-periodic-calls.html" title="01-periodic-calls.py - Periodic event generation.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="index.html">09-callbacks</a> »</li>
+<li class="nav-item nav-item-this"><a href="">02-score-calls.py - Sequencing the function calls.</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

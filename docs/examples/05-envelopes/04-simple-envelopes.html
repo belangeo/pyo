@@ -1,0 +1,131 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>04-simple-envelopes.py - ASR and ADSR envelopes. — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="05-breakpoints-functions.html" rel="next" title="05-breakpoints-functions.py - Multi-segments envelopes."/>
+<link href="03-exponential-ramp.html" rel="prev" title="03-exponential-ramp.py - Exponential portamento with rising and falling times."/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="05-breakpoints-functions.html" title="05-breakpoints-functions.py - Multi-segments envelopes.">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="03-exponential-ramp.html" title="03-exponential-ramp.py - Exponential portamento with rising and falling times.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a accesskey="U" href="index.html">05-envelopes</a> »</li>
+<li class="nav-item nav-item-this"><a href="">04-simple-envelopes.py - ASR and ADSR envelopes.</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="simple-envelopes-py-asr-and-adsr-envelopes">
+<h1>04-simple-envelopes.py - ASR and ADSR envelopes.<a class="headerlink" href="#simple-envelopes-py-asr-and-adsr-envelopes" title="Permalink to this headline">¶</a></h1>
+<p>The Fader object is a simple way to setup an Attack/Sustain/Release envelope.
+This envelope allows to apply fadein and fadeout on audio streams.</p>
+<p>If the <cite>dur</cite> argument of the Fader object is set to 0 (the default), the
+object waits for a stop() command before activating the release part of
+the envelope. Otherwise, the sum of <cite>fadein</cite> and <cite>fadeout</cite> must be less
+than or egal to <cite>dur</cite> and the envelope runs to the end on a play() command.</p>
+<p>The Adsr object (Attack/Decay/Sustain/Release) acts exactly like the Fader
+object, with a more flexible (and so common) kind of envelope.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">random</span>
+
+<span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+
+<span class="c1"># Infinite sustain for the global envelope.</span>
+<span class="n">globalamp</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Fader" title="pyo.lib.controls.Fader"><span class="n">Fader</span></a><span class="p">(</span><span class="n">fadein</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">fadeout</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">dur</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+
+<span class="c1"># Envelope for discrete events, sharp attack, long release.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Adsr" title="pyo.lib.controls.Adsr"><span class="n">env</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Adsr" title="pyo.lib.controls.Adsr"><span class="n">Adsr</span></a><span class="p">(</span><span class="n">attack</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">sustain</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">release</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">dur</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="c1"># setExp method can be used to create exponential or logarithmic envelope.</span>
+<span class="n">env</span><span class="o">.</span><span class="n">setExp</span><span class="p">(</span><span class="mf">0.75</span><span class="p">)</span>
+
+<span class="c1"># Initialize  a simple wave player and apply both envelopes.</span>
+<span class="n">sig</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.SuperSaw" title="pyo.lib.generators.SuperSaw"><span class="n">SuperSaw</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">101</span><span class="p">],</span> <span class="n">detune</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">bal</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="n">globalamp</span> <span class="o">*</span> <a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Adsr" title="pyo.lib.controls.Adsr"><span class="n">env</span></a><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">play_note</span><span class="p">():</span>
+    <span class="s2">"Play a new note with random frequency and jitterized envelope."</span>
+    <span class="n">freq</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/functions/conv.html#pyo.midiToHz" title="pyo.midiToHz"><span class="n">midiToHz</span></a><span class="p">([</span><span class="mi">36</span><span class="p">,</span> <span class="mi">38</span><span class="p">,</span> <span class="mi">41</span><span class="p">,</span> <span class="mi">43</span><span class="p">,</span> <span class="mi">45</span><span class="p">]))</span>
+    <span class="n">sig</span><span class="o">.</span><span class="n">freq</span> <span class="o">=</span> <span class="p">[</span><span class="n">freq</span><span class="p">,</span> <span class="n">freq</span> <span class="o">*</span> <span class="mf">1.005</span><span class="p">]</span>
+    <span class="n">env</span><span class="o">.</span><span class="n">attack</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.002</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
+    <span class="n">env</span><span class="o">.</span><span class="n">decay</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
+    <span class="n">env</span><span class="o">.</span><span class="n">sustain</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">)</span>
+    <span class="n">env</span><span class="o">.</span><span class="n">release</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">1.4</span><span class="p">)</span>
+    <span class="c1"># Start the envelope for the event.</span>
+    <span class="n">env</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+
+
+<span class="c1"># Periodically call a function.</span>
+<span class="n">pat</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/pattern.html#pyo.Pattern" title="pyo.lib.pattern.Pattern"><span class="n">Pattern</span></a><span class="p">(</span><span class="n">play_note</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h4>Previous topic</h4>
+<p class="topless"><a href="03-exponential-ramp.html" title="previous chapter">03-exponential-ramp.py - Exponential portamento with rising and falling times.</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="05-breakpoints-functions.html" title="next chapter">05-breakpoints-functions.py - Multi-segments envelopes.</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="05-breakpoints-functions.html" title="05-breakpoints-functions.py - Multi-segments envelopes.">next</a> |</li>
+<li class="right">
+<a href="03-exponential-ramp.html" title="03-exponential-ramp.py - Exponential portamento with rising and falling times.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="index.html">05-envelopes</a> »</li>
+<li class="nav-item nav-item-this"><a href="">04-simple-envelopes.py - ASR and ADSR envelopes.</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

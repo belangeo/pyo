@@ -1,0 +1,471 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyo.lib._maps &#8212; Pyo 1.0.4 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/nature.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-codeautolink.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/autoclasstoc.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../../../_static/E-PyoIcon.ico"/>
+    <link rel="author" title="About these documents" href="../../../about.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">Pyo 1.0.4 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pyo.html" accesskey="U">pyo</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pyo.lib._maps</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyo.lib._maps</h1><div class="highlight"><pre>
+<span></span><span class="c1"># encoding: utf-8</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Copyright 2009-2015 Olivier Belanger</span>
+
+<span class="sd">This file is part of pyo, a python module to help digital signal</span>
+<span class="sd">processing script creation.</span>
+
+<span class="sd">pyo is free software: you can redistribute it and/or modify</span>
+<span class="sd">it under the terms of the GNU Lesser General Public License as</span>
+<span class="sd">published by the Free Software Foundation, either version 3 of the</span>
+<span class="sd">License, or (at your option) any later version.</span>
+
+<span class="sd">pyo is distributed in the hope that it will be useful,</span>
+<span class="sd">but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="sd">MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="sd">GNU Lesser General Public License for more details.</span>
+
+<span class="sd">You should have received a copy of the GNU Lesser General Public</span>
+<span class="sd">License along with pyo.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="nb">pow</span><span class="p">,</span> <span class="n">log10</span>
+
+<span class="c1">######################################################################</span>
+<span class="c1">### Map -&gt; rescale values from sliders</span>
+<span class="c1">######################################################################</span>
+<div class="viewcode-block" id="Map"><a class="viewcode-back" href="../../../api/classes/map.html#pyo.Map">[docs]</a><span class="k">class</span> <span class="nc">Map</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Converts value between 0 and 1 on various scales.</span>
+
+<span class="sd">    Base class for Map objects.</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        min: int or float</span>
+<span class="sd">            Lowest value of the range.</span>
+<span class="sd">        max: int or float</span>
+<span class="sd">            Highest value of the range.</span>
+<span class="sd">        scale: string {&#39;lin&#39;, &#39;log&#39;}</span>
+<span class="sd">            Method used to scale the input value on the specified range.</span>
+
+<span class="sd">    &gt;&gt;&gt; m = Map(20., 20000., &#39;log&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; print(m.get(.5))</span>
+<span class="sd">    632.455532034</span>
+<span class="sd">    &gt;&gt;&gt; print(m.set(12000))</span>
+<span class="sd">    0.926050416795</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">min</span><span class="p">,</span> <span class="nb">max</span><span class="p">,</span> <span class="n">scale</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_min</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scale</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="nb">min</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="nb">max</span><span class="p">),</span> <span class="n">scale</span>
+
+<div class="viewcode-block" id="Map.get"><a class="viewcode-back" href="../../../api/classes/map.html#pyo.Map.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Takes `x` between 0 and 1 and returns scaled value.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="k">elif</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scale</span> <span class="o">==</span> <span class="s2">&quot;log&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">pow</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">x</span> <span class="o">*</span> <span class="n">log10</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_max</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_min</span><span class="p">)</span> <span class="o">+</span> <span class="n">log10</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_min</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_max</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_min</span><span class="p">)</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_min</span></div>
+
+<div class="viewcode-block" id="Map.set"><a class="viewcode-back" href="../../../api/classes/map.html#pyo.Map.set">[docs]</a>    <span class="k">def</span> <span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Takes `x` in the real range and returns value unscaled</span>
+<span class="sd">        (between 0 and 1).</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scale</span> <span class="o">==</span> <span class="s2">&quot;log&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">log10</span><span class="p">(</span><span class="n">x</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_min</span><span class="p">)</span> <span class="o">/</span> <span class="n">log10</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_max</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_min</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_min</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_max</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_min</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Map.setMin"><a class="viewcode-back" href="../../../api/classes/map.html#pyo.Map.setMin">[docs]</a>    <span class="k">def</span> <span class="nf">setMin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `min` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float</span>
+<span class="sd">                New `min` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_min</span> <span class="o">=</span> <span class="n">x</span></div>
+
+<div class="viewcode-block" id="Map.setMax"><a class="viewcode-back" href="../../../api/classes/map.html#pyo.Map.setMax">[docs]</a>    <span class="k">def</span> <span class="nf">setMax</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `max` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float</span>
+<span class="sd">                New `max` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_max</span> <span class="o">=</span> <span class="n">x</span></div>
+
+<div class="viewcode-block" id="Map.setScale"><a class="viewcode-back" href="../../../api/classes/map.html#pyo.Map.setScale">[docs]</a>    <span class="k">def</span> <span class="nf">setScale</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `scale` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: string</span>
+<span class="sd">                New `scale` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_scale</span> <span class="o">=</span> <span class="n">x</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">min</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;int or float. Lowest value of the range.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_min</span>
+
+    <span class="nd">@min</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">min</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setMin</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">max</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;int or float. Highest value of the range.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max</span>
+
+    <span class="nd">@max</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">max</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setMax</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">scale</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;string. Method used to scale the input value.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scale</span>
+
+    <span class="nd">@scale</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">scale</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setScale</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SLMap"><a class="viewcode-back" href="../../../api/classes/map.html#pyo.SLMap">[docs]</a><span class="k">class</span> <span class="nc">SLMap</span><span class="p">(</span><span class="n">Map</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base Map class used to manage control sliders.</span>
+
+<span class="sd">    Derived from Map class, a few parameters are added for sliders</span>
+<span class="sd">    initialization.</span>
+
+<span class="sd">    :Parent: :py:class:`Map`</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        min: int or float</span>
+<span class="sd">            Smallest value of the range.</span>
+<span class="sd">        max: int or float</span>
+<span class="sd">            Highest value of the range.</span>
+<span class="sd">        scale: string {&#39;lin&#39;, &#39;log&#39;}</span>
+<span class="sd">            Method used to scale the input value on the specified range.</span>
+<span class="sd">        name: string</span>
+<span class="sd">            Name of the attributes the slider is affected to.</span>
+<span class="sd">        init: int or float</span>
+<span class="sd">            Initial value. Specified in the real range, not between 0 and 1.</span>
+<span class="sd">            Use `set` method to retreive the normalized corresponding value.</span>
+<span class="sd">        res: string {&#39;int&#39;, &#39;float&#39;}, optional</span>
+<span class="sd">            Sets the resolution of the slider. Defaults to &#39;float&#39;.</span>
+<span class="sd">        ramp: float, optional</span>
+<span class="sd">            Ramp time, in seconds, used to smooth the signal sent from slider</span>
+<span class="sd">            to object&#39;s attribute. Defaults to 0.025.</span>
+<span class="sd">        dataOnly: boolean, optional</span>
+<span class="sd">            Set this argument to True if the parameter does not accept audio</span>
+<span class="sd">            signal as control but discrete values. If True, label will be</span>
+<span class="sd">            marked with a star symbol (*). Defaults to False.</span>
+
+<span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
+<span class="sd">    &gt;&gt;&gt; s.start()</span>
+<span class="sd">    &gt;&gt;&gt; ifs = [350,360,375,388]</span>
+<span class="sd">    &gt;&gt;&gt; slmapfreq = SLMap(20., 2000., &#39;log&#39;, &#39;freq&#39;, ifs)</span>
+<span class="sd">    &gt;&gt;&gt; slmapfeed = SLMap(0, 0.25, &#39;lin&#39;, &#39;feedback&#39;, 0)</span>
+<span class="sd">    &gt;&gt;&gt; maps = [slmapfreq, slmapfeed, SLMapMul(.1)]</span>
+<span class="sd">    &gt;&gt;&gt; a = SineLoop(freq=ifs, mul=.1).out()</span>
+<span class="sd">    &gt;&gt;&gt; a.ctrl(maps)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">min</span><span class="p">,</span> <span class="nb">max</span><span class="p">,</span> <span class="n">scale</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">init</span><span class="p">,</span> <span class="n">res</span><span class="o">=</span><span class="s2">&quot;float&quot;</span><span class="p">,</span> <span class="n">ramp</span><span class="o">=</span><span class="mf">0.025</span><span class="p">,</span> <span class="n">dataOnly</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">Map</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">min</span><span class="p">,</span> <span class="nb">max</span><span class="p">,</span> <span class="n">scale</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init</span> <span class="o">=</span> <span class="n">init</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_res</span> <span class="o">=</span> <span class="n">res</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ramp</span> <span class="o">=</span> <span class="n">ramp</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dataOnly</span> <span class="o">=</span> <span class="n">dataOnly</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;string. Name of the parameter to control.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float. Initial value of the slider.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_init</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">res</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;string. Slider resolution {int or float}.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_res</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ramp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float. Ramp time in seconds.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ramp</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">dataOnly</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;boolean. True if argument does not accept audio stream.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataOnly</span></div>
+
+
+<div class="viewcode-block" id="SLMapFreq"><a class="viewcode-back" href="../../../api/classes/map.html#pyo.SLMapFreq">[docs]</a><span class="k">class</span> <span class="nc">SLMapFreq</span><span class="p">(</span><span class="n">SLMap</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    SLMap with normalized values for a &#39;freq&#39; slider.</span>
+
+<span class="sd">    :Parent: :py:class:`SLMap`</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        init: int or float, optional</span>
+<span class="sd">            Initial value. Specified in the real range, not between 0 and 1.</span>
+<span class="sd">            Defaults to 1000.</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        SLMapFreq values are:</span>
+
+<span class="sd">        - min = 20.0</span>
+<span class="sd">        - max = 20000.0</span>
+<span class="sd">        - scale = &#39;log&#39;</span>
+<span class="sd">        - name = &#39;freq&#39;</span>
+<span class="sd">        - res = &#39;float&#39;</span>
+<span class="sd">        - ramp = 0.025</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="mi">1000</span><span class="p">):</span>
+        <span class="n">SLMap</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="mf">20.0</span><span class="p">,</span> <span class="mf">20000.0</span><span class="p">,</span> <span class="s2">&quot;log&quot;</span><span class="p">,</span> <span class="s2">&quot;freq&quot;</span><span class="p">,</span> <span class="n">init</span><span class="p">,</span> <span class="s2">&quot;float&quot;</span><span class="p">,</span> <span class="mf">0.025</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SLMapMul"><a class="viewcode-back" href="../../../api/classes/map.html#pyo.SLMapMul">[docs]</a><span class="k">class</span> <span class="nc">SLMapMul</span><span class="p">(</span><span class="n">SLMap</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    SLMap with normalized values for a &#39;mul&#39; slider.</span>
+
+<span class="sd">    :Parent: :py:class:`SLMap`</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        init: int or float, optional</span>
+<span class="sd">            Initial value. Specified in the real range, not between 0 and 1.</span>
+<span class="sd">            Defaults to 1.</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        SLMapMul values are:</span>
+
+<span class="sd">        - min = 0.0</span>
+<span class="sd">        - max = 2.0</span>
+<span class="sd">        - scale = &#39;lin&#39;</span>
+<span class="sd">        - name = &#39;mul&#39;</span>
+<span class="sd">        - res = &#39;float&#39;</span>
+<span class="sd">        - ramp = 0.025</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+        <span class="n">SLMap</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="s2">&quot;mul&quot;</span><span class="p">,</span> <span class="n">init</span><span class="p">,</span> <span class="s2">&quot;float&quot;</span><span class="p">,</span> <span class="mf">0.025</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SLMapPhase"><a class="viewcode-back" href="../../../api/classes/map.html#pyo.SLMapPhase">[docs]</a><span class="k">class</span> <span class="nc">SLMapPhase</span><span class="p">(</span><span class="n">SLMap</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    SLMap with normalized values for a &#39;phase&#39; slider.</span>
+
+<span class="sd">    :Parent: :py:class:`SLMap`</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        init: int or float, optional</span>
+<span class="sd">            Initial value. Specified in the real range, not between 0 and 1.</span>
+<span class="sd">            Defaults to 0.</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        SLMapPhase values are:</span>
+
+<span class="sd">        - min = 0.0</span>
+<span class="sd">        - max = 1.0</span>
+<span class="sd">        - scale = &#39;lin&#39;</span>
+<span class="sd">        - name = &#39;phase&#39;</span>
+<span class="sd">        - res = &#39;float&#39;</span>
+<span class="sd">        - ramp = 0.025</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
+        <span class="n">SLMap</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="s2">&quot;phase&quot;</span><span class="p">,</span> <span class="n">init</span><span class="p">,</span> <span class="s2">&quot;float&quot;</span><span class="p">,</span> <span class="mf">0.025</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SLMapPan"><a class="viewcode-back" href="../../../api/classes/map.html#pyo.SLMapPan">[docs]</a><span class="k">class</span> <span class="nc">SLMapPan</span><span class="p">(</span><span class="n">SLMap</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    SLMap with normalized values for a &#39;pan&#39; slider.</span>
+
+<span class="sd">    :Parent: :py:class:`SLMap`</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        init: int or float, optional</span>
+<span class="sd">            Initial value. Specified in the real range, not between 0 and 1.</span>
+<span class="sd">            Defaults to 0.</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        SLMapPhase values are:</span>
+
+<span class="sd">        - min = 0.0</span>
+<span class="sd">        - max = 1.0</span>
+<span class="sd">        - scale = &#39;lin&#39;</span>
+<span class="sd">        - name = &#39;pan&#39;</span>
+<span class="sd">        - res = &#39;float&#39;</span>
+<span class="sd">        - ramp = 0.025</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
+        <span class="n">SLMap</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="s2">&quot;pan&quot;</span><span class="p">,</span> <span class="n">init</span><span class="p">,</span> <span class="s2">&quot;float&quot;</span><span class="p">,</span> <span class="mf">0.025</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SLMapQ"><a class="viewcode-back" href="../../../api/classes/map.html#pyo.SLMapQ">[docs]</a><span class="k">class</span> <span class="nc">SLMapQ</span><span class="p">(</span><span class="n">SLMap</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    SLMap with normalized values for a &#39;q&#39; slider.</span>
+
+<span class="sd">    :Parent: :py:class:`SLMap`</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        init: int or float, optional</span>
+<span class="sd">            Initial value. Specified in the real range, not between 0 and 1.</span>
+<span class="sd">            Defaults to 1.</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        SLMapQ values are:</span>
+
+<span class="sd">        - min = 0.1</span>
+<span class="sd">        - max = 100.0</span>
+<span class="sd">        - scale = &#39;log&#39;</span>
+<span class="sd">        - name = &#39;q&#39;</span>
+<span class="sd">        - res = &#39;float&#39;</span>
+<span class="sd">        - ramp = 0.025</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+        <span class="n">SLMap</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">,</span> <span class="s2">&quot;log&quot;</span><span class="p">,</span> <span class="s2">&quot;q&quot;</span><span class="p">,</span> <span class="n">init</span><span class="p">,</span> <span class="s2">&quot;float&quot;</span><span class="p">,</span> <span class="mf">0.025</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SLMapDur"><a class="viewcode-back" href="../../../api/classes/map.html#pyo.SLMapDur">[docs]</a><span class="k">class</span> <span class="nc">SLMapDur</span><span class="p">(</span><span class="n">SLMap</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    SLMap with normalized values for a &#39;dur&#39; slider.</span>
+
+<span class="sd">    :Parent: :py:class:`SLMap`</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        init: int or float, optional</span>
+<span class="sd">            Initial value. Specified in the real range, not between 0 and 1.</span>
+<span class="sd">            Defaults to 1.</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        SLMapDur values are:</span>
+
+<span class="sd">        - min = 0.</span>
+<span class="sd">        - max = 60.0</span>
+<span class="sd">        - scale = &#39;lin&#39;</span>
+<span class="sd">        - name = &#39;dur&#39;</span>
+<span class="sd">        - res = &#39;float&#39;</span>
+<span class="sd">        - ramp = 0.025</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+        <span class="n">SLMap</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">60.0</span><span class="p">,</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="s2">&quot;dur&quot;</span><span class="p">,</span> <span class="n">init</span><span class="p">,</span> <span class="s2">&quot;float&quot;</span><span class="p">,</span> <span class="mf">0.025</span><span class="p">)</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">Pyo 1.0.4 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pyo.html" >pyo</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pyo.lib._maps</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+  </body>
+</html>

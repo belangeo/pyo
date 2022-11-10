@@ -1,0 +1,113 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>01-data-signal-conversion.py - Conversion from number to audio stream. — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="02-linear-ramp.html" rel="next" title="02-linear-ramp.py - Portamento, glissando, ramping."/>
+<link href="index.html" rel="prev" title="05-envelopes"/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="02-linear-ramp.html" title="02-linear-ramp.py - Portamento, glissando, ramping.">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="index.html" title="05-envelopes">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a accesskey="U" href="index.html">05-envelopes</a> »</li>
+<li class="nav-item nav-item-this"><a href="">01-data-signal-conversion.py - Conversion from number to audio stream.</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="data-signal-conversion-py-conversion-from-number-to-audio-stream">
+<h1>01-data-signal-conversion.py - Conversion from number to audio stream.<a class="headerlink" href="#data-signal-conversion-py-conversion-from-number-to-audio-stream" title="Permalink to this headline">¶</a></h1>
+<p>The Stream object is a new type introduced by pyo to represent an
+audio signal as a vector of floats. It is sometimes useful to be
+able to convert simple numbers (python’s floats or integers) to
+audio signal or to extract numbers from an audio stream.</p>
+<p>The Sig object converts a number to an audio stream.</p>
+<p>The PyoObject.get() method extracts a float from an audio stream.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+
+<span class="c1"># A python integer (or float).</span>
+<span class="n">anumber</span> <span class="o">=</span> <span class="mi">100</span>
+
+<span class="c1"># Conversion from number to an audio stream (vector of floats).</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Sig" title="pyo.lib._core.Sig"><span class="n">astream</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Sig" title="pyo.lib._core.Sig"><span class="n">Sig</span></a><span class="p">(</span><span class="n">anumber</span><span class="p">)</span>
+
+<span class="c1"># Use a Print (capital "P") object to print an audio stream.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/utils.html#pyo.Print" title="pyo.lib.utils.Print"><span class="n">pp</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/utils.html#pyo.Print" title="pyo.lib.utils.Print"><span class="n">Print</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Sig" title="pyo.lib._core.Sig"><span class="n">astream</span></a><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">"Audio stream value"</span><span class="p">)</span>
+
+<span class="c1"># Use the get() method to extract a float from an audio stream.</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Float from audio stream : "</span><span class="p">,</span> <span class="n">astream</span><span class="o">.</span><span class="n">get</span><span class="p">())</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h4>Previous topic</h4>
+<p class="topless"><a href="index.html" title="previous chapter">05-envelopes</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="02-linear-ramp.html" title="next chapter">02-linear-ramp.py - Portamento, glissando, ramping.</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="02-linear-ramp.html" title="02-linear-ramp.py - Portamento, glissando, ramping.">next</a> |</li>
+<li class="right">
+<a href="index.html" title="05-envelopes">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="index.html">05-envelopes</a> »</li>
+<li class="nav-item nav-item-this"><a href="">01-data-signal-conversion.py - Conversion from number to audio stream.</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

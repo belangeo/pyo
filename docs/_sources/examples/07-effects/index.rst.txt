@@ -1,0 +1,12 @@
+07-effects
+========================================
+
+.. toctree::
+   :maxdepth: 1
+
+   01-flanger
+   02-schroeder-reverb
+   03-fuzz-disto
+   04-ping-pong-delay
+   05-hand-made-chorus
+   06-hand-made-harmonizer

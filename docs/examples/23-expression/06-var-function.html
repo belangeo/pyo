@@ -1,0 +1,147 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>Controlling user variables in an expression from python — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="07-condition.html" rel="next" title="Using the conditional function"/>
+<link href="05-define-function.html" rel="prev" title="Creating our own functions"/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="07-condition.html" title="Using the conditional function">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="05-define-function.html" title="Creating our own functions">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a accesskey="U" href="index.html">23-expression</a> »</li>
+<li class="nav-item nav-item-this"><a href="">Controlling user variables in an expression from python</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="controlling-user-variables-in-an-expression-from-python">
+<h1>Controlling user variables in an expression from python<a class="headerlink" href="#controlling-user-variables-in-an-expression-from-python" title="Permalink to this headline">¶</a></h1>
+<p><strong>06-var-function.py</strong></p>
+<p>User variables are created with the keyword <cite>var</cite>:</p>
+<div class="highlight-scheme notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">var</span> <span class="o">#</span><span class="nv">var</span> <span class="p">(</span><span class="nf">init</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>The variable name must begin with a <cite>#</cite>.</p>
+<p>They are computed only at initialization, but can be changed from the
+python script with method calls (<cite>varname</cite> is a string and <cite>value</cite> is a
+float):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">obj</span><span class="o">.</span><span class="n">setVar</span><span class="p">(</span><span class="n">varname</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The following example illustrates a self-modulated oscillator of which
+the frequency and the feedback are controlled from the python side with
+method calls.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+
+<span class="n">expression</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2">(var #pitch 200)</span>
+<span class="s2">(var #feed 0.5)</span>
+<span class="s2">(define oscloop (</span>
+<span class="s2">        (let #xsin</span>
+<span class="s2">            (sin (+ (* twopi (~ $1)) (* #xsin $2))) // #xsin used before...</span>
+<span class="s2">        ) // ... "let" statement finished = one-delay feedback loop!</span>
+<span class="s2">        #xsin // oscloop function outputs #xsin variable</span>
+<span class="s2">    )</span>
+<span class="s2">)</span>
+
+<span class="s2">(oscloop #pitch #feed)</span>
+
+<span class="s2">"""</span>
+
+<a class="sphinx-codeautolink-a" href="../../api/classes/expression.html#pyo.Expr" title="pyo.lib.expression.Expr"><span class="n">expr</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/expression.html#pyo.Expr" title="pyo.lib.expression.Expr"><span class="n">Expr</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Sig" title="pyo.lib._core.Sig"><span class="n">Sig</span></a><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">expression</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">expr</span><span class="o">.</span><span class="n">editor</span><span class="p">()</span>
+
+<span class="c1"># Shows two sliders, one for the frequency and one for the feedback parameter.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Sig" title="pyo.lib._core.Sig"><span class="n">pit</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Sig" title="pyo.lib._core.Sig"><span class="n">Sig</span></a><span class="p">(</span><span class="mi">200</span><span class="p">)</span>
+<span class="n">pit</span><span class="o">.</span><span class="n">ctrl</span><span class="p">([</span><a class="sphinx-codeautolink-a" href="../../api/classes/map.html#pyo.SLMap" title="pyo.lib._maps.SLMap"><span class="n">SLMap</span></a><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="s2">"log"</span><span class="p">,</span> <span class="s2">"value"</span><span class="p">,</span> <span class="mi">200</span><span class="p">)],</span> <span class="n">title</span><span class="o">=</span><span class="s2">"Frequency"</span><span class="p">)</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Sig" title="pyo.lib._core.Sig"><span class="n">feed</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Sig" title="pyo.lib._core.Sig"><span class="n">Sig</span></a><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">feed</span><span class="o">.</span><span class="n">ctrl</span><span class="p">([</span><a class="sphinx-codeautolink-a" href="../../api/classes/map.html#pyo.SLMap" title="pyo.lib._maps.SLMap"><span class="n">SLMap</span></a><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"lin"</span><span class="p">,</span> <span class="s2">"value"</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)],</span> <span class="n">title</span><span class="o">=</span><span class="s2">"Feedback"</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">change</span><span class="p">():</span>
+    <span class="s2">"Sends new values to user variables in the expression."</span>
+    <span class="n">expr</span><span class="o">.</span><span class="n">setVar</span><span class="p">([</span><span class="s2">"#pitch"</span><span class="p">,</span> <span class="s2">"#feed"</span><span class="p">],</span> <span class="p">[</span><span class="n">pit</span><span class="o">.</span><span class="n">get</span><span class="p">(),</span> <span class="n">feed</span><span class="o">.</span><span class="n">get</span><span class="p">()])</span>
+
+
+<span class="c1"># Calls the change() function every 20 ms to update the user variables.</span>
+<span class="n">pat</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/pattern.html#pyo.Pattern" title="pyo.lib.pattern.Pattern"><span class="n">Pattern</span></a><span class="p">(</span><span class="n">change</span><span class="p">,</span> <span class="mf">0.025</span><span class="p">)</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+
+<a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.Scope" title="pyo.lib.analysis.Scope"><span class="n">sc</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.Scope" title="pyo.lib.analysis.Scope"><span class="n">Scope</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/expression.html#pyo.Expr" title="pyo.lib.expression.Expr"><span class="n">expr</span></a><span class="p">)</span>
+
+<span class="n">pan</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/pan.html#pyo.Pan" title="pyo.lib.pan.Pan"><span class="n">Pan</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/expression.html#pyo.Expr" title="pyo.lib.expression.Expr"><span class="n">expr</span></a><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h4>Previous topic</h4>
+<p class="topless"><a href="05-define-function.html" title="previous chapter">Creating our own functions</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="07-condition.html" title="next chapter">Using the conditional function</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="07-condition.html" title="Using the conditional function">next</a> |</li>
+<li class="right">
+<a href="05-define-function.html" title="Creating our own functions">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="index.html">23-expression</a> »</li>
+<li class="nav-item nav-item-this"><a href="">Controlling user variables in an expression from python</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

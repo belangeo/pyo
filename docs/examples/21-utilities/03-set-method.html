@@ -1,0 +1,143 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>Setting audio object parameter’s value with portamento — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="04-buffer-interface.html" rel="next" title="Sharing a table with a numpy array using the buffer protocol"/>
+<link href="02-get-method.html" rel="prev" title="Retrieving current value of a PyoObject as a python float"/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="04-buffer-interface.html" title="Sharing a table with a numpy array using the buffer protocol">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="02-get-method.html" title="Retrieving current value of a PyoObject as a python float">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a accesskey="U" href="index.html">21-utilities</a> »</li>
+<li class="nav-item nav-item-this"><a href="">Setting audio object parameter’s value with portamento</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="setting-audio-object-parameter-s-value-with-portamento">
+<h1>Setting audio object parameter’s value with portamento<a class="headerlink" href="#setting-audio-object-parameter-s-value-with-portamento" title="Permalink to this headline">¶</a></h1>
+<p><strong>03-set-method.py</strong></p>
+<p>The set() method of the PyoObject lets the user define a new
+value for a given parameter with a portamento time to reach
+the target. Optionally, a function to call at the end of the
+ramp can be given to the <cite>callback</cite> argument.</p>
+<p>The signature of the method is:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">PyoObject</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">attr</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mf">0.03</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Where:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><cite>attr</cite> is the name of the attribute as a string.</p></li>
+<li><p><cite>value</cite> is the target value (can be a list if object has
+multiple streams).</p></li>
+<li><p><cite>port</cite> is the portamento time in seconds.</p></li>
+<li><p><cite>callback</cite> is a function to call when the ramp is done.</p></li>
+</ul>
+</div></blockquote>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">uniform</span>
+
+<span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">(</span><span class="n">duplex</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+
+<span class="c1"># 10 frequency modulations with random parameters.</span>
+<span class="n">a</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.FM" title="pyo.lib.generators.FM"><span class="n">FM</span></a><span class="p">(</span>
+    <span class="n">carrier</span><span class="o">=</span><span class="p">[</span><span class="n">uniform</span><span class="p">(</span><span class="mi">197</span><span class="p">,</span> <span class="mi">203</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)],</span>
+    <span class="n">ratio</span><span class="o">=</span><span class="p">[</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.99</span><span class="p">,</span> <span class="mf">1.01</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)],</span>
+    <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="n">uniform</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)],</span>
+    <span class="n">mul</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+<span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">go</span><span class="p">():</span>
+    <span class="s2">"Linear ramps between the current values and the new ones in 9.5 sec."</span>
+    <span class="c1"># Choose new targets and start the ramps.</span>
+    <span class="n">a</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">"carrier"</span><span class="p">,</span> <span class="p">[</span><span class="n">uniform</span><span class="p">(</span><span class="mi">395</span><span class="p">,</span> <span class="mi">405</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)],</span> <span class="mf">9.5</span><span class="p">)</span>
+    <span class="n">a</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">"ratio"</span><span class="p">,</span> <span class="p">[</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.49</span><span class="p">,</span> <span class="mf">0.51</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)],</span> <span class="mf">9.5</span><span class="p">)</span>
+    <span class="c1"># Call the reset() function when portamentos are done.</span>
+    <span class="n">a</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">"index"</span><span class="p">,</span> <span class="p">[</span><span class="n">uniform</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">15</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)],</span> <span class="mf">9.5</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="n">reset</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">reset</span><span class="p">():</span>
+    <span class="s2">"Instantaneous jumps to new values."</span>
+    <span class="n">a</span><span class="o">.</span><span class="n">carrier</span> <span class="o">=</span> <span class="p">[</span><span class="n">uniform</span><span class="p">(</span><span class="mi">197</span><span class="p">,</span> <span class="mi">203</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)]</span>
+    <span class="n">a</span><span class="o">.</span><span class="n">ratio</span> <span class="o">=</span> <span class="p">[</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.99</span><span class="p">,</span> <span class="mf">1.01</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)]</span>
+    <span class="n">a</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="p">[</span><span class="n">uniform</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)]</span>
+
+
+<span class="c1"># Call the go() function every 10 seconds.</span>
+<span class="n">pat</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/pattern.html#pyo.Pattern" title="pyo.lib.pattern.Pattern"><span class="n">Pattern</span></a><span class="p">(</span><span class="n">go</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h4>Previous topic</h4>
+<p class="topless"><a href="02-get-method.html" title="previous chapter">Retrieving current value of a PyoObject as a python float</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="04-buffer-interface.html" title="next chapter">Sharing a table with a numpy array using the buffer protocol</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="04-buffer-interface.html" title="Sharing a table with a numpy array using the buffer protocol">next</a> |</li>
+<li class="right">
+<a href="02-get-method.html" title="Retrieving current value of a PyoObject as a python float">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="index.html">21-utilities</a> »</li>
+<li class="nav-item nav-item-this"><a href="">Setting audio object parameter’s value with portamento</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

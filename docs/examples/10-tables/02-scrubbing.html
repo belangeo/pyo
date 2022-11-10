@@ -1,0 +1,133 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>02-scrubbing.py - Navigate through a sound table. — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="03-looping.html" rel="next" title="03-looper.py - High quality crossfading multimode sound looper."/>
+<link href="01-envelopes.html" rel="prev" title="01-envelopes.py - Using break-point function to control an FM synthesis."/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="03-looping.html" title="03-looper.py - High quality crossfading multimode sound looper.">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="01-envelopes.html" title="01-envelopes.py - Using break-point function to control an FM synthesis.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a accesskey="U" href="index.html">10-tables</a> »</li>
+<li class="nav-item nav-item-this"><a href="">02-scrubbing.py - Navigate through a sound table.</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="scrubbing-py-navigate-through-a-sound-table">
+<h1>02-scrubbing.py - Navigate through a sound table.<a class="headerlink" href="#scrubbing-py-navigate-through-a-sound-table" title="Permalink to this headline">¶</a></h1>
+<p>The SndTable object allows to transfer the data from a soundfile
+into a function table for a fast access to every sample.</p>
+<p>This example illustrates how to do scrubbing with the mouse in
+a sound window. The mouse position is then used to control the
+position and the balance of a simple stereo granulator.</p>
+<p>Give the focus to the Scrubbing window then click and move the mouse…</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+
+<span class="c1"># The callback given to the SndTable.view() method.</span>
+<span class="k">def</span> <span class="nf">mouse</span><span class="p">(</span><span class="n">mpos</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"X = </span><span class="si">%.2f</span><span class="s2">, Y = </span><span class="si">%.2f</span><span class="s2">"</span> <span class="o">%</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">mpos</span><span class="p">))</span>
+    <span class="c1"># X value controls the granulator pointer position.</span>
+    <span class="n">position</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">mpos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="c1"># Y value controls the balance between left and right channels.</span>
+    <span class="n">l</span><span class="p">,</span> <span class="n">r</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">mpos</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">mpos</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">leftRightAmp</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">l</span><span class="p">,</span> <span class="n">r</span><span class="p">]</span>
+
+
+<span class="c1"># Load and normalize the sound in the table.</span>
+<span class="n">snd</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.SndTable" title="pyo.lib.tables.SndTable"><span class="n">SndTable</span></a><span class="p">(</span><span class="s2">"../snds/ounkmaster.aif"</span><span class="p">)</span><span class="o">.</span><span class="n">normalize</span><span class="p">()</span>
+<span class="c1"># Open the waveform view with a mouse position callback.</span>
+<span class="n">snd</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"Scrubbing window"</span><span class="p">,</span> <span class="n">mouse_callback</span><span class="o">=</span><span class="n">mouse</span><span class="p">)</span>
+
+<span class="c1"># Left and right channel gain values.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.SigTo" title="pyo.lib.controls.SigTo"><span class="n">leftRightAmp</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.SigTo" title="pyo.lib.controls.SigTo"><span class="n">SigTo</span></a><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">time</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+<span class="c1"># Position, in samples, in the SndTable.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.SigTo" title="pyo.lib.controls.SigTo"><span class="n">position</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.SigTo" title="pyo.lib.controls.SigTo"><span class="n">SigTo</span></a><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="n">snd</span><span class="o">.</span><span class="n">getSize</span><span class="p">(),</span> <span class="n">add</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">Noise</span></a><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
+
+<span class="c1"># Simple sound granulator.</span>
+<span class="n">gran</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/tableprocess.html#pyo.Granulator" title="pyo.lib.tableprocess.Granulator"><span class="n">Granulator</span></a><span class="p">(</span>
+    <span class="n">table</span><span class="o">=</span><span class="n">snd</span><span class="p">,</span>  <span class="c1"># the sound table.</span>
+    <span class="n">env</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.HannTable" title="pyo.lib.tables.HannTable"><span class="n">HannTable</span></a><span class="p">(),</span>  <span class="c1"># the grain envelope.</span>
+    <span class="n">pitch</span><span class="o">=</span><span class="p">[</span><span class="mf">0.999</span><span class="p">,</span> <span class="mf">1.0011</span><span class="p">],</span>  <span class="c1"># global pitch (change every grain).</span>
+    <span class="n">pos</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.SigTo" title="pyo.lib.controls.SigTo"><span class="n">position</span></a><span class="p">,</span>  <span class="c1"># position in the table where to start a new grain.</span>
+    <span class="n">dur</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">Noise</span></a><span class="p">(</span><span class="mf">0.002</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">),</span>  <span class="c1"># duration of the grain (can be used to transpose per grain).</span>
+    <span class="n">grains</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span>  <span class="c1"># the number of grains.</span>
+    <span class="n">basedur</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>  <span class="c1"># duration for which the grain is not transposed.</span>
+    <span class="n">mul</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.SigTo" title="pyo.lib.controls.SigTo"><span class="n">leftRightAmp</span></a><span class="p">,</span>  <span class="c1"># stereo gain.</span>
+<span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h4>Previous topic</h4>
+<p class="topless"><a href="01-envelopes.html" title="previous chapter">01-envelopes.py - Using break-point function to control an FM synthesis.</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="03-looping.html" title="next chapter">03-looper.py - High quality crossfading multimode sound looper.</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="03-looping.html" title="03-looper.py - High quality crossfading multimode sound looper.">next</a> |</li>
+<li class="right">
+<a href="01-envelopes.html" title="01-envelopes.py - Using break-point function to control an FM synthesis.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="index.html">10-tables</a> »</li>
+<li class="nav-item nav-item-this"><a href="">02-scrubbing.py - Navigate through a sound table.</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

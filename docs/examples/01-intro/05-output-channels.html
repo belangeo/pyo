@@ -1,0 +1,114 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>05-output-channels.py - Sending signals to different physical outputs. — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="../02-controls/index.html" rel="next" title="02-controls"/>
+<link href="04-serial-proc.html" rel="prev" title="04-serial-proc.py - Chaining processes on a single source."/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="../02-controls/index.html" title="02-controls">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="04-serial-proc.html" title="04-serial-proc.py - Chaining processes on a single source.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a accesskey="U" href="index.html">01-intro</a> »</li>
+<li class="nav-item nav-item-this"><a href="">05-output-channels.py - Sending signals to different physical outputs.</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="output-channels-py-sending-signals-to-different-physical-outputs">
+<h1>05-output-channels.py - Sending signals to different physical outputs.<a class="headerlink" href="#output-channels-py-sending-signals-to-different-physical-outputs" title="Permalink to this headline">¶</a></h1>
+<p>The simplest way to choose the output channel where to send the sound
+is to give it as the first argument of the out() method. In fact, the
+signature of the out() method reads as:</p>
+<p>.out(chnl=0, inc=1, dur=0, delay=0)</p>
+<p><cite>chnl</cite> is the output where to send the first audio channel (stream) of
+the object. <cite>inc</cite> is the output increment for other audio channels.
+<cite>dur</cite> is the living duration, in seconds, of the process and <cite>delay</cite>
+is a delay, in seconds, before activating the process. A duration of
+0 means play forever.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+<span class="n">s</span><span class="o">.</span><span class="n">amp</span> <span class="o">=</span> <span class="mf">0.1</span>
+
+<span class="c1"># Creates a source (white noise)</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">n</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">Noise</span></a><span class="p">()</span>
+
+<span class="c1"># Sends the bass frequencies (below 1000 Hz) to the left</span>
+<span class="n">lp</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/filters.html#pyo.ButLP" title="pyo.lib.filters.ButLP"><span class="n">ButLP</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">n</span></a><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+<span class="c1"># Sends the high frequencies (above 1000 Hz) to the right</span>
+<span class="n">hp</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/filters.html#pyo.ButHP" title="pyo.lib.filters.ButHP"><span class="n">ButHP</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">n</span></a><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h4>Previous topic</h4>
+<p class="topless"><a href="04-serial-proc.html" title="previous chapter">04-serial-proc.py - Chaining processes on a single source.</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="../02-controls/index.html" title="next chapter">02-controls</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="../02-controls/index.html" title="02-controls">next</a> |</li>
+<li class="right">
+<a href="04-serial-proc.html" title="04-serial-proc.py - Chaining processes on a single source.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="index.html">01-intro</a> »</li>
+<li class="nav-item nav-item-this"><a href="">05-output-channels.py - Sending signals to different physical outputs.</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

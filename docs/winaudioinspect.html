@@ -1,0 +1,242 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>Configuring the audio output (especially on Windows) — Pyo 1.0.4 documentation</title>
+<link href="_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+<script src="_static/jquery.js"></script>
+<script src="_static/underscore.js"></script>
+<script src="_static/doctools.js"></script>
+<link href="_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="about.html" rel="author" title="About these documents"/>
+<link href="genindex.html" rel="index" title="Index"/>
+<link href="search.html" rel="search" title="Search"/>
+<link href="perftips.html" rel="next" title="How to improve performance of your pyo programs"/>
+<link href="gettingstarted.html" rel="prev" title="Getting started"/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="perftips.html" title="How to improve performance of your pyo programs">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="gettingstarted.html" title="Getting started">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-this"><a href="">Configuring the audio output (especially on Windows)</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="configuring-the-audio-output-especially-on-windows">
+<h1>Configuring the audio output (especially on Windows)<a class="headerlink" href="#configuring-the-audio-output-especially-on-windows" title="Permalink to this headline">¶</a></h1>
+<p>Here is some tips to help you to configure the audio input/output on Windows.
+Some of these procedures are also valid for other systems.</p>
+<section id="how-to-choose-the-audio-host-api-on-windows">
+<h2>How to choose the audio host api on Windows<a class="headerlink" href="#how-to-choose-the-audio-host-api-on-windows" title="Permalink to this headline">¶</a></h2>
+<p>Choosing the good audio API on Windows can turn out to be a real headache.</p>
+<p>This document presents a script that will inspect your system and tell you if:</p>
+<ul class="simple">
+<li><p>Pyo can run in duplex mode. That means both audio input and output instead of output only.</p></li>
+<li><p>Pyo is able to connect to the different host APIs that are usually available on Windows.</p></li>
+</ul>
+<p>In the hope that this will help you having a good experience with pyo under Windows!</p>
+<p><a class="reference external" href="https://github.com/belangeo/pyo/tree/master/scripts/win_audio_drivers_inspector.py">https://github.com/belangeo/pyo/tree/master/scripts/win_audio_drivers_inspector.py</a></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">"""</span>
+<span class="sd">Windows audio host inspector.</span>
+
+<span class="sd">This script will check if pyo can run in duplex mode (both audio input and output)</span>
+<span class="sd">and will test every host API to help the user in making his audio device choice.</span>
+
+<span class="sd">"""</span>
+<span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">time</span>
+<span class="kn">from</span> <a class="sphinx-codeautolink-a" href="api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span> <span class="o">==</span> <span class="s2">"win32"</span><span class="p">:</span>
+    <span class="n">host_apis</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"mme"</span><span class="p">,</span> <span class="s2">"directsound"</span><span class="p">,</span> <span class="s2">"asio"</span><span class="p">,</span> <span class="s2">"wasapi"</span><span class="p">,</span> <span class="s2">"wdm-ks"</span><span class="p">]</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"This program must be used on a windows system! Ciao!"</span><span class="p">)</span>
+    <span class="n">exit</span><span class="p">()</span>
+
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"* Checking for any available audio input... *"</span><span class="p">)</span>
+
+<span class="n">input_names</span><span class="p">,</span> <span class="n">input_indexes</span>  <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/functions/audio.html#pyo.pa_get_input_devices" title="pyo.pa_get_input_devices"><span class="n">pa_get_input_devices</span></a><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"* Checking audio output hosts... *"</span><span class="p">)</span>
+
+<a class="sphinx-codeautolink-a" href="api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">s</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">(</span><span class="n">duplex</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">verbosity</span> <span class="o">=</span> <span class="mi">0</span>
+
+<span class="n">host_results</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">host</span> <span class="ow">in</span> <span class="n">host_apis</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"* Testing </span><span class="si">%s</span><span class="s2">... *"</span> <span class="o">%</span> <span class="n">host</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">reinit</span><span class="p">(</span><span class="n">buffersize</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span> <span class="n">duplex</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">winhost</span><span class="o">=</span><span class="n">host</span><span class="p">)</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="n">a</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="mi">440</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+        <span class="n">host_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">host_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">Results"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"-------</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">input_names</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Duplex mode OK!"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Initialize the Server with duplex=1 as argument.</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"No input available. Duplex mode should be turned off."</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Initialize the Server with duplex=0 as argument.</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">host</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">host_apis</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">host_results</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"Host: </span><span class="si">%s</span><span class="s2">  ==&gt;  OK!"</span> <span class="o">%</span> <span class="n">host</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"Host: </span><span class="si">%s</span><span class="s2">  ==&gt;  Failed..."</span> <span class="o">%</span> <span class="n">host</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Initialize the Server with the desired host given to winhost argument."</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">Finished!"</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="tunning-the-windows-wasapi-driver">
+<h2>Tunning the Windows WASAPI driver<a class="headerlink" href="#tunning-the-windows-wasapi-driver" title="Permalink to this headline">¶</a></h2>
+<p>The Windows Audio Session API (WASAPI) is Microsoft’s most modern method for talking with audio devices.
+It is available in Windows since Vista. Pyo’s default host is DIRECTSOUND but you can change it to WASAPI
+by changing the <cite>winhost</cite> argument of the <strong>Server</strong> object. If the script above tells you:</p>
+<blockquote>
+<div><p>Host: wasapi ==&gt; Failed…</p>
+</div></blockquote>
+<p>there is some things you can do to make it work. Open the <strong>Sound</strong> window by double-clicking on the volume
+icon and choosing <em>Playback Devices</em>. Here, select your device and click on the <em>Properties</em> button. In
+the <em>advanced</em> tab, make sure that the sampling rate is the same that the one used by pyo (pyo defaults to
+44100 Hz). You can check the exclusive mode box if you want, this will bypass the system mixer, default
+settings, and typically any effects provided by the audio driver.</p>
+<p>Perform the same in the <em>recording</em> tab if you want to run pyo in duplex mode. If you got the message:</p>
+<blockquote>
+<div><p>No input available. Duplex mode should be turned off.</p>
+</div></blockquote>
+<p>you’ll have to make sure first that there is an available input device in that tab.</p>
+<p>If you use a cheap soundcard (typically, any built in soundcard is not very good!), you may have to increase
+the buffer size of the pyo’s Server in order to avoid glitches in the audio streams.</p>
+</section>
+<section id="server-initialization-examples">
+<h2>Server initialization examples<a class="headerlink" href="#server-initialization-examples" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># sampling rate = 44100 Hz, buffer size = 256, channels = 2, full duplex, host = DIRECTSOUND</span>
+<a class="sphinx-codeautolink-a" href="api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">s</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span>
+
+<span class="c1"># sampling rate = 48000 Hz, buffer size = 1024, channels = 2, full duplex, host = DIRECTSOUND</span>
+<a class="sphinx-codeautolink-a" href="api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">s</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">(</span><span class="n">sr</span><span class="o">=</span><span class="mi">48000</span><span class="p">,</span> <span class="n">buffersize</span><span class="o">=</span><span class="mi">1024</span><span class="p">)</span>
+
+<span class="c1"># sampling rate = 48000 Hz, buffer size = 512, channels = 2, full duplex, host = WASAPI</span>
+<a class="sphinx-codeautolink-a" href="api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">s</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">(</span><span class="n">sr</span><span class="o">=</span><span class="mi">48000</span><span class="p">,</span> <span class="n">buffersize</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span> <span class="n">winhost</span><span class="o">=</span><span class="s2">"wasapi"</span><span class="p">)</span>
+
+<span class="c1"># sampling rate = 48000 Hz, buffer size = 512, channels = 2, output only, host = ASIO</span>
+<a class="sphinx-codeautolink-a" href="api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">s</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">(</span><span class="n">sr</span><span class="o">=</span><span class="mi">48000</span><span class="p">,</span> <span class="n">buffersize</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span> <span class="n">duplex</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">winhost</span><span class="o">=</span><span class="s2">"asio"</span><span class="p">)</span>
+
+<span class="c1"># sampling rate = 96000 Hz, buffer size = 128, channels = 1, full duplex, host = ASIO</span>
+<a class="sphinx-codeautolink-a" href="api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">s</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">(</span><span class="n">sr</span><span class="o">=</span><span class="mi">96000</span><span class="p">,</span> <span class="n">nchnls</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">buffersize</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">duplex</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">winhost</span><span class="o">=</span><span class="s2">"asio"</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="choosing-a-specific-device">
+<h2>Choosing a specific device<a class="headerlink" href="#choosing-a-specific-device" title="Permalink to this headline">¶</a></h2>
+<p>A single host API can target more than one available devices.</p>
+<p>There is some useful functions that can help you in the choice of the audio device:</p>
+<ul class="simple">
+<li><p><strong>pa_list_host_apis()</strong>: Prints the list of audio host APIs.</p></li>
+<li><p><strong>pa_list_devices()</strong>: Prints the list of audio devices. The first column if the index of the device.</p></li>
+<li><p><strong>pa_get_default_input()</strong>: Returns the index of the default input device.</p></li>
+<li><p><strong>pa_get_default_output()</strong>: Returns the index of the default output device.</p></li>
+<li><p><strong>pa_get_default_devices_from_host(host)</strong>: Returns the default input and output devices for a given audio host.</p></li>
+</ul>
+<p>Run this code to see the current state of your audio setup:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Audio host APIS:"</span><span class="p">)</span>
+<a class="sphinx-codeautolink-a" href="api/functions/audio.html#pyo.pa_list_host_apis" title="pyo.pa_list_host_apis"><span class="n">pa_list_host_apis</span></a><span class="p">()</span>
+<a class="sphinx-codeautolink-a" href="api/functions/audio.html#pyo.pa_list_devices" title="pyo.pa_list_devices"><span class="n">pa_list_devices</span></a><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Default input device: </span><span class="si">%i</span><span class="s2">"</span> <span class="o">%</span> <a class="sphinx-codeautolink-a" href="api/functions/audio.html#pyo.pa_get_default_input" title="pyo.pa_get_default_input"><span class="n">pa_get_default_input</span></a><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Default output device: </span><span class="si">%i</span><span class="s2">"</span> <span class="o">%</span> <a class="sphinx-codeautolink-a" href="api/functions/audio.html#pyo.pa_get_default_output" title="pyo.pa_get_default_output"><span class="n">pa_get_default_output</span></a><span class="p">())</span>
+</pre></div>
+</div>
+<p>If the default device for the desired host is not the one you want, you can tell the Server
+which device you want to use with the <em>setInputDevice(x)</em> and <em>setOutputDevice(x)</em> methods. These
+methods take the index of the desired device and must be called before booting the Server. Ex:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+
+<a class="sphinx-codeautolink-a" href="api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">s</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">(</span><span class="n">duplex</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">setOutputDevice</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h3><a href="index.html">Table of Contents</a></h3>
+<ul>
+<li><a class="reference internal" href="#">Configuring the audio output (especially on Windows)</a><ul>
+<li><a class="reference internal" href="#how-to-choose-the-audio-host-api-on-windows">How to choose the audio host api on Windows</a></li>
+<li><a class="reference internal" href="#tunning-the-windows-wasapi-driver">Tunning the Windows WASAPI driver</a></li>
+<li><a class="reference internal" href="#server-initialization-examples">Server initialization examples</a></li>
+<li><a class="reference internal" href="#choosing-a-specific-device">Choosing a specific device</a></li>
+</ul>
+</li>
+</ul>
+<h4>Previous topic</h4>
+<p class="topless"><a href="gettingstarted.html" title="previous chapter">Getting started</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="perftips.html" title="next chapter">How to improve performance of your pyo programs</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="perftips.html" title="How to improve performance of your pyo programs">next</a> |</li>
+<li class="right">
+<a href="gettingstarted.html" title="Getting started">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-this"><a href="">Configuring the audio output (especially on Windows)</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

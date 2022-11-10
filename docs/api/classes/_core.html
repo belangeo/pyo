@@ -1,0 +1,2332 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>Base Classes — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="analysis.html" rel="next" title="Audio Signal Analysis"/>
+<link href="listener.html" rel="prev" title="Controller listeners"/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="analysis.html" title="Audio Signal Analysis">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="listener.html" title="Controller listeners">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="../index.html">API documentation</a> »</li>
+<li class="nav-item nav-item-2"><a accesskey="U" href="index.html">Classes by category</a> »</li>
+<li class="nav-item nav-item-this"><a href="">Base Classes</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="base-classes">
+<h1>Base Classes<a class="headerlink" href="#base-classes" title="Permalink to this headline">¶</a></h1>
+<p>Here are defined the base classes implementing common behaviors for
+the different kinds of objects in the library.</p>
+<section id="pyoobjectbase">
+<h2><em>PyoObjectBase</em><a class="headerlink" href="#pyoobjectbase" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyo.PyoObjectBase">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">PyoObjectBase</span></span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoObjectBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoObjectBase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for all pyo objects.</p>
+<p>This object encapsulates some common behaviors for all pyo objects.</p>
+<p>One typically inherits from a more specific subclass of this class
+instead of using it directly.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><strong>Operations allowed on all PyoObjectBase</strong></p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>      <span class="c1"># Return the number of streams managed by the object.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span><span class="p">[</span><span class="n">x</span><span class="p">]</span>        <span class="c1"># Return stream `x` of the object.</span>
+<span class="gp">&gt;&gt;&gt; </span>              <span class="c1"># `x` is a number from 0 to len(obj)-1.</span>
+<span class="gp">&gt;&gt;&gt; </span>              <span class="c1"># Illegal indexing returns None.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">dir</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>      <span class="c1"># Return the list of attributes of the object.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">obj</span><span class="p">:</span> <span class="c1"># Can be used as an iterator (iterates over</span>
+<span class="gp">... </span>    <span class="k">pass</span>      <span class="c1"># object's audio streams).</span>
+</pre></div>
+</div>
+</div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Public Methods:</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.PyoObjectBase.dump" title="pyo.PyoObjectBase.dump"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dump</span></code></a>()</p></td>
+<td><p>Print infos about the current state of the object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.PyoObjectBase.getBaseObjects" title="pyo.PyoObjectBase.getBaseObjects"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getBaseObjects</span></code></a>()</p></td>
+<td><p>Return a list of Stream objects managed by the instance.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.PyoObjectBase.getServer" title="pyo.PyoObjectBase.getServer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getServer</span></code></a>()</p></td>
+<td><p>Return a reference to the current Server object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.PyoObjectBase.getSamplingRate" title="pyo.PyoObjectBase.getSamplingRate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getSamplingRate</span></code></a>()</p></td>
+<td><p>Return the current sampling rate (samples per second), as a float.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.PyoObjectBase.getBufferSize" title="pyo.PyoObjectBase.getBufferSize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getBufferSize</span></code></a>()</p></td>
+<td><p>Return the current buffer size (samples per buffer), as an integer.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.PyoObjectBase.allowAutoStart" title="pyo.PyoObjectBase.allowAutoStart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">allowAutoStart</span></code></a>([switch])</p></td>
+<td><p>When autoStartChildren is activated in the Server, call this method with False as argument to stop the propagation of play/out/stop methods to and from this object.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.PyoObjectBase.useWaitTimeOnStop" title="pyo.PyoObjectBase.useWaitTimeOnStop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">useWaitTimeOnStop</span></code></a>()</p></td>
+<td><p>When autoStartChildren is activated in the Server, call this method to force an object given to the <cite>mul</cite> attribute of another object to use the  wait time from the stop method instead of being stopped immediately.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.PyoObjectBase.addLinkedObject" title="pyo.PyoObjectBase.addLinkedObject"><code class="xref py py-obj docutils literal notranslate"><span class="pre">addLinkedObject</span></code></a>(x)</p></td>
+<td><p>When autoStartChildren is activated in the Server, use this method to explicitly add an object in a dsp chain, which is generally controlled by the last object of the chain.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.PyoObjectBase.setStopDelay" title="pyo.PyoObjectBase.setStopDelay"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setStopDelay</span></code></a>(x)</p></td>
+<td><p>Set a specific waiting time when calling the stop method on this object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.PyoObjectBase.getStopDelay" title="pyo.PyoObjectBase.getStopDelay"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getStopDelay</span></code></a>()</p></td>
+<td><p>Return the waiting time applied when calling the stop method on this object.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__iter__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__next__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.PyoObjectBase.next" title="pyo.PyoObjectBase.next"><code class="xref py py-obj docutils literal notranslate"><span class="pre">next</span></code></a>()</p></td>
+<td><p>Alias for __next__ method.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__getitem__</span></code>(i)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__setitem__</span></code>(i, x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__len__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__repr__</span></code>()</p></td>
+<td><p>Return repr(self).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__dir__</span></code>()</p></td>
+<td><p>Default dir() implementation.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Private Data Attributes:</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_STREAM_TYPE</span></code></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Private Methods:</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_autoplay</span></code>([dur, delay])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_autostop</span></code>([wait])</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr class="docutils"/>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoObjectBase.dump">
+<span class="sig-name descname"><span class="pre">dump</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoObjectBase.dump"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoObjectBase.dump" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print infos about the current state of the object.</p>
+<p>Print the number of Stream objects managed by the instance
+and the current status of the object’s attributes.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoObjectBase.getBaseObjects">
+<span class="sig-name descname"><span class="pre">getBaseObjects</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoObjectBase.getBaseObjects"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoObjectBase.getBaseObjects" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list of Stream objects managed by the instance.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoObjectBase.getServer">
+<span class="sig-name descname"><span class="pre">getServer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoObjectBase.getServer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoObjectBase.getServer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a reference to the current Server object.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoObjectBase.getSamplingRate">
+<span class="sig-name descname"><span class="pre">getSamplingRate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoObjectBase.getSamplingRate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoObjectBase.getSamplingRate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the current sampling rate (samples per second), as a float.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoObjectBase.getBufferSize">
+<span class="sig-name descname"><span class="pre">getBufferSize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoObjectBase.getBufferSize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoObjectBase.getBufferSize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the current buffer size (samples per buffer), as an integer.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoObjectBase.allowAutoStart">
+<span class="sig-name descname"><span class="pre">allowAutoStart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">switch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoObjectBase.allowAutoStart"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoObjectBase.allowAutoStart" title="Permalink to this definition">¶</a></dt>
+<dd><p>When autoStartChildren is activated in the Server, call this method
+with False as argument to stop the propagation of play/out/stop methods
+to and from this object. This is useful when an object is used at multiple
+places and you don’t want to loose it when you stop one dsp block.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This flag is ignored if you pass a _base object instead of a PyoObject.
+In the following code, a[0] will still be stopped by a b.stop(wait) call:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/randoms.html#pyo.Randi" title="pyo.lib.randoms.Randi"><span class="n">a</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/randoms.html#pyo.Randi" title="pyo.lib.randoms.Randi"><span class="n">Randi</span></a><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">allowAutoStart</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="n">mul</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/randoms.html#pyo.Randi" title="pyo.lib.randoms.Randi"><span class="n">a</span></a><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoObjectBase.useWaitTimeOnStop">
+<span class="sig-name descname"><span class="pre">useWaitTimeOnStop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoObjectBase.useWaitTimeOnStop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoObjectBase.useWaitTimeOnStop" title="Permalink to this definition">¶</a></dt>
+<dd><p>When autoStartChildren is activated in the Server, call this method
+to force an object given to the <cite>mul</cite> attribute of another object to
+use the  wait time from the stop method instead of being stopped
+immediately.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Use wait time on stop is always “on” for _base objects. In the following
+code, a[0] will use the wait time given to b.stop(wait) even if it is
+used as a <cite>mul</cite> attribute:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/randoms.html#pyo.Randi" title="pyo.lib.randoms.Randi"><span class="n">a</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/randoms.html#pyo.Randi" title="pyo.lib.randoms.Randi"><span class="n">Randi</span></a><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="n">mul</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/randoms.html#pyo.Randi" title="pyo.lib.randoms.Randi"><span class="n">a</span></a><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoObjectBase.addLinkedObject">
+<span class="sig-name descname"><span class="pre">addLinkedObject</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoObjectBase.addLinkedObject"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoObjectBase.addLinkedObject" title="Permalink to this definition">¶</a></dt>
+<dd><p>When autoStartChildren is activated in the Server, use this method
+to explicitly add an object in a dsp chain, which is generally
+controlled by the last object of the chain. Here is an example
+where we want an object to be linked to the chain but it can’t be
+automatically detected:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.NewTable" title="pyo.lib.tables.NewTable"><span class="n">tab</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.NewTable" title="pyo.lib.tables.NewTable"><span class="n">NewTable</span></a><span class="p">(</span><span class="n">length</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">chnls</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/tableprocess.html#pyo.TableRec" title="pyo.lib.tableprocess.TableRec"><span class="n">rec</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/tableprocess.html#pyo.TableRec" title="pyo.lib.tableprocess.TableRec"><span class="n">TableRec</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="mi">500</span><span class="p">),</span> <a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.NewTable" title="pyo.lib.tables.NewTable"><span class="n">tab</span></a><span class="p">,</span> <span class="o">.</span><span class="mi">01</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/triggers.html#pyo.TrigVal" title="pyo.lib.triggers.TrigVal"><span class="n">amp</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/triggers.html#pyo.TrigVal" title="pyo.lib.triggers.TrigVal"><span class="n">TrigVal</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/tableprocess.html#pyo.TableRec" title="pyo.lib.tableprocess.TableRec"><span class="n">rec</span></a><span class="p">[</span><span class="s2">"trig"</span><span class="p">],</span> <span class="mf">0.5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/tableprocess.html#pyo.Osc" title="pyo.lib.tableprocess.Osc"><span class="n">osc</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/tableprocess.html#pyo.Osc" title="pyo.lib.tableprocess.Osc"><span class="n">Osc</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.NewTable" title="pyo.lib.tables.NewTable"><span class="n">tab</span></a><span class="p">,</span> <span class="n">tab</span><span class="o">.</span><span class="n">getRate</span><span class="p">(),</span> <span class="n">mul</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Fader" title="pyo.lib.controls.Fader"><span class="n">Fader</span></a><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">mul</span><span class="o">=.</span><span class="mi">2</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># "osc" can't know for sure that "rec" should be linked</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># to this dsp chain, so we add it manually.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">osc</span><span class="o">.</span><span class="n">addLinkedObject</span><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/tableprocess.html#pyo.TableRec" title="pyo.lib.tableprocess.TableRec"><span class="n">rec</span></a><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">osc</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoObjectBase.setStopDelay">
+<span class="sig-name descname"><span class="pre">setStopDelay</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoObjectBase.setStopDelay"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoObjectBase.setStopDelay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set a specific waiting time when calling the stop method on this object.</p>
+<p>This method returns <cite>self</cite>, allowing it to be applied at the object
+creation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>x: float</dt><dd><p>New waiting time in seconds.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>if the method setStopDelay(x) was called before calling stop(wait)
+with a positive <cite>wait</cite> value, the <cite>wait</cite> value won’t overwrite the
+value given to setStopDelay for the current object, but will be
+the one propagated to children objects. This allow to set a waiting
+time for a specific object with setStopDelay whithout changing the
+global delay time given to the stop method.</p>
+<p>Stop delay value is ignored if you pass a _base object instead of a
+PyoObject. In the following code, a[0] ignores the a.setStopDelay(1)
+call:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/randoms.html#pyo.Randi" title="pyo.lib.randoms.Randi"><span class="n">a</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/randoms.html#pyo.Randi" title="pyo.lib.randoms.Randi"><span class="n">Randi</span></a><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">setStopDelay</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="n">mul</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/randoms.html#pyo.Randi" title="pyo.lib.randoms.Randi"><span class="n">a</span></a><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoObjectBase.getStopDelay">
+<span class="sig-name descname"><span class="pre">getStopDelay</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoObjectBase.getStopDelay"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoObjectBase.getStopDelay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the waiting time applied when calling the stop method on this object.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoObjectBase.next">
+<span class="sig-name descname"><span class="pre">next</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoObjectBase.next"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoObjectBase.next" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for __next__ method.</p>
+</dd></dl>
+</dd></dl>
+</section>
+<section id="pyoobject">
+<h2><em>PyoObject</em><a class="headerlink" href="#pyoobject" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyo.PyoObject">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">PyoObject</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mul</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoObject"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoObject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for all pyo objects that manipulate vectors of samples.</p>
+<p>The user should never instantiate an object of this class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parent</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pyo.PyoObjectBase" title="pyo.PyoObjectBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObjectBase</span></code></a></p>
+</dd>
+<dt class="field-even">Args</dt>
+<dd class="field-even"><dl class="simple">
+<dt>mul: float or PyoObject, optional</dt><dd><p>Multiplication factor. Defaults to 1.</p>
+</dd>
+<dt>add: float or PyoObject, optional</dt><dd><p>Addition factor. Defaults to 0.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><strong>Arithmetics</strong></p>
+<p>Multiplication, addition, division and substraction can be applied
+between pyo objects or between pyo objects and numbers. Doing so
+returns a Dummy object with the result of the operation.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Creates a Dummy object `b` with `mul` set to 0.5.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Leaves `a` unchanged.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <span class="n">a</span> <span class="o">*</span> <span class="mf">0.5</span>
+</pre></div>
+</div>
+<p>Inplace multiplication, addition, division and substraction can be
+applied between pyo objects or between pyo objects and numbers.
+These operations will replace the <cite>mul</cite> or <cite>add</cite> factor of the object.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">*=</span> <span class="mf">0.5</span> <span class="c1"># replaces the `mul` attribute of `a`.</span>
+</pre></div>
+</div>
+<p>The next operators can only be used with PyoObject, not with
+XXX_base objects.</p>
+<p><strong>Exponent</strong> and <strong>modulo</strong></p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">**</span> <span class="mi">10</span> <span class="c1"># returns a Pow object created as: Pow(a, 10)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="mi">10</span> <span class="o">**</span> <span class="n">a</span> <span class="c1"># returns a Pow object created as: Pow(10, a)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">%</span> <span class="mi">4</span> <span class="c1"># returns a Wrap object created as: Wrap(a, 0, 4)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">%</span> <span class="n">b</span> <span class="c1"># returns a Wrap object created as: Wrap(a, 0, b)</span>
+</pre></div>
+</div>
+<p><strong>Unary negative</strong> (<strong>-</strong>)</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="o">-</span><span class="n">a</span> <span class="c1"># returns a Dummy object with negative values of streams in `a`.</span>
+</pre></div>
+</div>
+<p><strong>Comparison operators</strong></p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Comparison operators return a Compare object.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">a</span> <span class="o">&lt;</span> <span class="n">b</span> <span class="c1"># same as: x = Compare(a, comp=b, mode="&lt;")</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">a</span> <span class="o">&lt;=</span> <span class="n">b</span> <span class="c1"># same as: Compare(a, comp=b, mode="&lt;=")</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">a</span> <span class="o">==</span> <span class="n">b</span> <span class="c1"># same as: Compare(a, comp=b, mode="==")</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">a</span> <span class="o">!=</span> <span class="n">b</span> <span class="c1"># same as: Compare(a, comp=b, mode="!=")</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">a</span> <span class="o">&gt;</span> <span class="n">b</span> <span class="c1"># same as: Compare(a, comp=b, mode="&gt;")</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">a</span> <span class="o">&gt;=</span> <span class="n">b</span> <span class="c1"># same as: Compare(a, comp=b, mode="&gt;=")</span>
+</pre></div>
+</div>
+<p>A special case concerns the comparison of a PyoObject with None.
+All operators return False except <cite>a != None</cite>, which returns True.</p>
+</div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Public Data Attributes:</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.PyoObject.mul" title="pyo.PyoObject.mul"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mul</span></code></a></p></td>
+<td><p>float or PyoObject.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.PyoObject.add" title="pyo.PyoObject.add"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add</span></code></a></p></td>
+<td><p>float or PyoObject.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Public Methods:</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>([mul, add])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__add__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__radd__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__iadd__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__sub__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__rsub__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__isub__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__mul__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__rmul__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__imul__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__truediv__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__rtruediv__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__itruediv__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__div__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__rdiv__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__idiv__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__pow__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__rpow__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__mod__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__neg__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__lt__</span></code>(x)</p></td>
+<td><p>Return self&lt;value.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__le__</span></code>(x)</p></td>
+<td><p>Return self&lt;=value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__eq__</span></code>(x)</p></td>
+<td><p>Return self==value.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__ne__</span></code>(x)</p></td>
+<td><p>Return self!=value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__gt__</span></code>(x)</p></td>
+<td><p>Return self&gt;value.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__ge__</span></code>(x)</p></td>
+<td><p>Return self&gt;=value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__do_comp__</span></code>(comp, mode[, default])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.PyoObject.isPlaying" title="pyo.PyoObject.isPlaying"><code class="xref py py-obj docutils literal notranslate"><span class="pre">isPlaying</span></code></a>([all])</p></td>
+<td><p>Returns True if the object is currently playing, otherwise, returns False.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.PyoObject.isOutputting" title="pyo.PyoObject.isOutputting"><code class="xref py py-obj docutils literal notranslate"><span class="pre">isOutputting</span></code></a>([all])</p></td>
+<td><p>Returns True if the object is outputting.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.PyoObject.get" title="pyo.PyoObject.get"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code></a>([all])</p></td>
+<td><p>Return the first sample of the current buffer as a float.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.PyoObject.play" title="pyo.PyoObject.play"><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code></a>([dur, delay])</p></td>
+<td><p>Start processing without sending samples to output.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.PyoObject.out" title="pyo.PyoObject.out"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out</span></code></a>([chnl, inc, dur, delay])</p></td>
+<td><p>Start processing and send samples to audio output beginning at <cite>chnl</cite>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.PyoObject.stop" title="pyo.PyoObject.stop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stop</span></code></a>([wait])</p></td>
+<td><p>Stop processing.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.PyoObject.mix" title="pyo.PyoObject.mix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mix</span></code></a>([voices])</p></td>
+<td><p>Mix the object's audio streams into <cite>voices</cite> streams and return a Mix object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.PyoObject.range" title="pyo.PyoObject.range"><code class="xref py py-obj docutils literal notranslate"><span class="pre">range</span></code></a>(min, max)</p></td>
+<td><p>Adjust <cite>mul</cite> and <cite>add</cite> attributes according to a given range.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.PyoObject.setMul" title="pyo.PyoObject.setMul"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setMul</span></code></a>(x)</p></td>
+<td><p>Replace the <cite>mul</cite> attribute.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.PyoObject.setAdd" title="pyo.PyoObject.setAdd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setAdd</span></code></a>(x)</p></td>
+<td><p>Replace the <cite>add</cite> attribute.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.PyoObject.setSub" title="pyo.PyoObject.setSub"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setSub</span></code></a>(x)</p></td>
+<td><p>Replace and inverse the <cite>add</cite> attribute.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.PyoObject.setDiv" title="pyo.PyoObject.setDiv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setDiv</span></code></a>(x)</p></td>
+<td><p>Replace and inverse the <cite>mul</cite> attribute.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.PyoObject.set" title="pyo.PyoObject.set"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set</span></code></a>(attr, value[, port, callback])</p></td>
+<td><p>Replace any attribute with portamento.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.PyoObject.ctrl" title="pyo.PyoObject.ctrl"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ctrl</span></code></a>([map_list, title, wxnoserver])</p></td>
+<td><p>Opens a sliders window to control the parameters of the object.</p></td>
+</tr>
+</tbody>
+</table>
+<details><summary>Inherited from <a class="reference internal" href="#pyo.PyoObjectBase" title="pyo.PyoObjectBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObjectBase</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>([mul, add])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">dump</span></code>()</p></td>
+<td><p>Print infos about the current state of the object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getBaseObjects</span></code>()</p></td>
+<td><p>Return a list of Stream objects managed by the instance.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getServer</span></code>()</p></td>
+<td><p>Return a reference to the current Server object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getSamplingRate</span></code>()</p></td>
+<td><p>Return the current sampling rate (samples per second), as a float.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getBufferSize</span></code>()</p></td>
+<td><p>Return the current buffer size (samples per buffer), as an integer.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">allowAutoStart</span></code>([switch])</p></td>
+<td><p>When autoStartChildren is activated in the Server, call this method with False as argument to stop the propagation of play/out/stop methods to and from this object.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">useWaitTimeOnStop</span></code>()</p></td>
+<td><p>When autoStartChildren is activated in the Server, call this method to force an object given to the <cite>mul</cite> attribute of another object to use the  wait time from the stop method instead of being stopped immediately.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">addLinkedObject</span></code>(x)</p></td>
+<td><p>When autoStartChildren is activated in the Server, use this method to explicitly add an object in a dsp chain, which is generally controlled by the last object of the chain.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setStopDelay</span></code>(x)</p></td>
+<td><p>Set a specific waiting time when calling the stop method on this object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getStopDelay</span></code>()</p></td>
+<td><p>Return the waiting time applied when calling the stop method on this object.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__iter__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__next__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">next</span></code>()</p></td>
+<td><p>Alias for __next__ method.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__getitem__</span></code>(i)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__setitem__</span></code>(i, x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__len__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__repr__</span></code>()</p></td>
+<td><p>Return repr(self).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__dir__</span></code>()</p></td>
+<td><p>Default dir() implementation.</p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Private Data Attributes:</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_STREAM_TYPE</span></code></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<details><summary>Inherited from <a class="reference internal" href="#pyo.PyoObjectBase" title="pyo.PyoObjectBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObjectBase</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_STREAM_TYPE</span></code></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Private Methods:</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_init_play</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_reset_from_set</span></code>([attr])</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<details><summary>Inherited from <a class="reference internal" href="#pyo.PyoObjectBase" title="pyo.PyoObjectBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObjectBase</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_autoplay</span></code>([dur, delay])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_autostop</span></code>([wait])</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<hr class="docutils"/>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoObject.isPlaying">
+<span class="sig-name descname"><span class="pre">isPlaying</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">all</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoObject.isPlaying"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoObject.isPlaying" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns True if the object is currently playing, otherwise, returns False.</p>
+<dl class="field-list">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl>
+<dt>all: boolean, optional</dt><dd><p>If True, the object returns a list with the state of all
+streams managed by the object.</p>
+<p>If False, it return a boolean corresponding to the state
+of the first stream.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoObject.isOutputting">
+<span class="sig-name descname"><span class="pre">isOutputting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">all</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoObject.isOutputting"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoObject.isOutputting" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns True if the object is outputting.</p>
+<p>Returns True if the object is sending samples to dac,
+otherwise, returns False.</p>
+<dl class="field-list">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl>
+<dt>all: boolean, optional</dt><dd><p>If True, the object returns a list with the state of all
+streams managed by the object.</p>
+<p>If False, it return a boolean corresponding to the state
+of the first stream.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoObject.get">
+<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">all</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoObject.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoObject.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the first sample of the current buffer as a float.</p>
+<p>Can be used to convert audio stream to usable Python data.</p>
+<p>Object that implements string identifier for specific audio
+streams must use the corresponding string to specify the stream
+from which to get the value. See get() method definition in these
+object’s man pages.</p>
+<dl class="field-list">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl>
+<dt>all: boolean, optional</dt><dd><p>If True, the first value of each object’s stream
+will be returned as a list.</p>
+<p>If False, only the value of the first object’s stream
+will be returned as a float.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoObject.play">
+<span class="sig-name descname"><span class="pre">play</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dur</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoObject.play"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoObject.play" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start processing without sending samples to output.
+This method is called automatically at the object creation.</p>
+<p>This method returns <cite>self</cite>, allowing it to be applied at the object
+creation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>dur: float, optional</dt><dd><p>Duration, in seconds, of the object’s activation. The default
+is 0 and means infinite duration.</p>
+</dd>
+<dt>delay: float, optional</dt><dd><p>Delay, in seconds, before the object’s activation. Defaults to 0.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoObject.out">
+<span class="sig-name descname"><span class="pre">out</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chnl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dur</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoObject.out"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoObject.out" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start processing and send samples to audio output beginning at <cite>chnl</cite>.</p>
+<p>This method returns <cite>self</cite>, allowing it to be applied at the object
+creation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>chnl: int, optional</dt><dd><p>Physical output assigned to the first audio stream of the
+object. Defaults to 0.</p>
+</dd>
+<dt>inc: int, optional</dt><dd><p>Output channel increment value. Defaults to 1.</p>
+</dd>
+<dt>dur: float, optional</dt><dd><p>Duration, in seconds, of the object’s activation. The default
+is 0 and means infinite duration.</p>
+</dd>
+<dt>delay: float, optional</dt><dd><p>Delay, in seconds, before the object’s activation.
+Defaults to 0.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>If <cite>chnl</cite> &gt;= 0, successive streams increment the output number by
+<cite>inc</cite> and wrap around the global number of channels.</p>
+<p>If <cite>chnl</cite> is negative, streams begin at 0, increment
+the output number by <cite>inc</cite> and wrap around the global number of
+channels. Then, the list of streams is scrambled.</p>
+<p>If <cite>chnl</cite> is a list, successive values in the list will be
+assigned to successive streams.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoObject.stop">
+<span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wait</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoObject.stop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoObject.stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stop processing.</p>
+<p>This method returns <cite>self</cite>, allowing it to be applied at the object
+creation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>wait: float, optional</dt><dd><p>Delay, in seconds, before the process is actually stopped.
+If autoStartChildren is activated in the Server, this value
+is propagated to the children objects. Defaults to 0.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>if the method setStopDelay(x) was called before calling stop(wait)
+with a positive <cite>wait</cite> value, the <cite>wait</cite> value won’t overwrite the
+value given to setStopDelay for the current object, but will be
+the one propagated to children objects. This allow to set a waiting
+time for a specific object with setStopDelay whithout changing the
+global delay time given to the stop method.</p>
+<p>Fader and Adsr objects ignore waiting time given to the stop
+method because they already implement a delayed processing
+triggered by the stop call.</p>
+</div>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoObject.mix">
+<span class="sig-name descname"><span class="pre">mix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">voices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoObject.mix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoObject.mix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mix the object’s audio streams into <cite>voices</cite> streams and return
+a Mix object.</p>
+<dl class="field-list">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl>
+<dt>voices: int, optional</dt><dd><p>Number of audio streams of the Mix object created by this
+method. Defaults to 1.</p>
+<p>If more than 1, object’s streams are alternated and added into
+Mix object’s streams.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoObject.range">
+<span class="sig-name descname"><span class="pre">range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoObject.range"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoObject.range" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adjust <cite>mul</cite> and <cite>add</cite> attributes according to a given range.</p>
+<p>This function assumes a signal between -1 and 1. Arguments may be
+list of floats for multi-streams objects.</p>
+<p>This method returns <cite>self</cite>, allowing it to be applied at the object
+creation:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">lfo</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="mi">500</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>min: float</dt><dd><p>Minimum value of the output signal.</p>
+</dd>
+<dt>max: float</dt><dd><p>Maximum value of the output signal.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoObject.setMul">
+<span class="sig-name descname"><span class="pre">setMul</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoObject.setMul"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoObject.setMul" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace the <cite>mul</cite> attribute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>x: float or PyoObject</dt><dd><p>New <cite>mul</cite> attribute.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoObject.setAdd">
+<span class="sig-name descname"><span class="pre">setAdd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoObject.setAdd"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoObject.setAdd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace the <cite>add</cite> attribute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>x: float or PyoObject</dt><dd><p>New <cite>add</cite> attribute.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoObject.setSub">
+<span class="sig-name descname"><span class="pre">setSub</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoObject.setSub"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoObject.setSub" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace and inverse the <cite>add</cite> attribute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>x: float or PyoObject</dt><dd><p>New inversed <cite>add</cite> attribute.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoObject.setDiv">
+<span class="sig-name descname"><span class="pre">setDiv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoObject.setDiv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoObject.setDiv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace and inverse the <cite>mul</cite> attribute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>x: float or PyoObject</dt><dd><p>New inversed <cite>mul</cite> attribute.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoObject.set">
+<span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.025</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">callback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoObject.set"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoObject.set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace any attribute with portamento.</p>
+<p>This method is intended to be applied on attributes that are not
+already assigned to PyoObjects. It will work only with floats or
+list of floats.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>attr: string</dt><dd><p>Name of the attribute as a string.</p>
+</dd>
+<dt>value: float</dt><dd><p>New value.</p>
+</dd>
+<dt>port: float, optional</dt><dd><p>Time, in seconds, to reach the new value.</p>
+</dd>
+<dt>callback: callable, optional</dt><dd><p>A python function to be called at the end of the ramp. If the
+end of the ramp is not reached (ex.: called again before the
+end of the portamento), the callback will not be called.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoObject.ctrl">
+<span class="sig-name descname"><span class="pre">ctrl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">map_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wxnoserver</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoObject.ctrl"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoObject.ctrl" title="Permalink to this definition">¶</a></dt>
+<dd><p>Opens a sliders window to control the parameters of the object.
+SLMap has a <cite>dataOnly</cite> attribute to identify parameters that don’t
+audio signal as control but only discrete values.</p>
+<p>If a list of values are given to a parameter, a multisliders
+will be used to control each stream independently.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>map_list: list of SLMap objects, optional</dt><dd><p>Users defined set of parameters scaling. There is default
+scaling for each object that accept <cite>ctrl</cite> method.</p>
+</dd>
+<dt>title: string, optional</dt><dd><p>Title of the window. If none is provided, the name of the
+class is used.</p>
+</dd>
+<dt>wxnoserver: boolean, optional</dt><dd><p>With wxPython graphical toolkit, if True, tells the
+interpreter that there will be no server window.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>If <cite>wxnoserver</cite> is set to True, the interpreter will not wait for
+the server GUI before showing the controller window.</p>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="pyo.PyoObject.mul">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">mul</span></span><a class="headerlink" href="#pyo.PyoObject.mul" title="Permalink to this definition">¶</a></dt>
+<dd><p>float or PyoObject. Multiplication factor.</p>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="pyo.PyoObject.add">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">add</span></span><a class="headerlink" href="#pyo.PyoObject.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>float or PyoObject. Addition factor.</p>
+</dd></dl>
+</dd></dl>
+</section>
+<section id="pyotableobject">
+<h2><em>PyoTableObject</em><a class="headerlink" href="#pyotableobject" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyo.PyoTableObject">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">PyoTableObject</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoTableObject"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoTableObject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for all pyo table objects.</p>
+<p>A table object is a buffer memory to store precomputed samples.</p>
+<p>The user should never instantiate an object of this class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parent</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pyo.PyoObjectBase" title="pyo.PyoObjectBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObjectBase</span></code></a></p>
+</dd>
+<dt class="field-even">Args</dt>
+<dd class="field-even"><dl class="simple">
+<dt>size: int</dt><dd><p>Length of the table in samples. Usually provided by the
+child object.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Public Data Attributes:</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.PyoTableObject.size" title="pyo.PyoTableObject.size"><code class="xref py py-obj docutils literal notranslate"><span class="pre">size</span></code></a></p></td>
+<td><p>int.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Public Methods:</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>([size])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.PyoTableObject.save" title="pyo.PyoTableObject.save"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save</span></code></a>(path[, format, sampletype, quality])</p></td>
+<td><p>Writes the content of the table in an audio file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.PyoTableObject.write" title="pyo.PyoTableObject.write"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write</span></code></a>(path[, oneline])</p></td>
+<td><p>Writes the content of the table in a text file.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.PyoTableObject.read" title="pyo.PyoTableObject.read"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read</span></code></a>(path)</p></td>
+<td><p>Reads the content of a text file and replaces the table data with the values stored in the file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.PyoTableObject.getBuffer" title="pyo.PyoTableObject.getBuffer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getBuffer</span></code></a>([chnl])</p></td>
+<td><p>Return a reference to the underlying object implementing the buffer protocol.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.PyoTableObject.setSize" title="pyo.PyoTableObject.setSize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setSize</span></code></a>(size)</p></td>
+<td><p>Change the size of the table.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.PyoTableObject.getSize" title="pyo.PyoTableObject.getSize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getSize</span></code></a>([all])</p></td>
+<td><p>Return table size in samples.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.PyoTableObject.getRate" title="pyo.PyoTableObject.getRate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getRate</span></code></a>([all])</p></td>
+<td><p>Return the frequency in cps at which the table will be read at its original pitch.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.PyoTableObject.getDur" title="pyo.PyoTableObject.getDur"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getDur</span></code></a>([all])</p></td>
+<td><p>Return the duration of the table in seconds.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.PyoTableObject.put" title="pyo.PyoTableObject.put"><code class="xref py py-obj docutils literal notranslate"><span class="pre">put</span></code></a>(value[, pos])</p></td>
+<td><p>Puts a value at specified sample position in the table.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.PyoTableObject.get" title="pyo.PyoTableObject.get"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code></a>(pos)</p></td>
+<td><p>Returns the value, as float, stored at a specific position in the table.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.PyoTableObject.getTable" title="pyo.PyoTableObject.getTable"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getTable</span></code></a>([all])</p></td>
+<td><p>Returns the content of the table as list of floats.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.PyoTableObject.normalize" title="pyo.PyoTableObject.normalize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normalize</span></code></a>([level])</p></td>
+<td><p>Normalizes table samples to a given level.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.PyoTableObject.reset" title="pyo.PyoTableObject.reset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reset</span></code></a>()</p></td>
+<td><p>Resets table samples to 0.0.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.PyoTableObject.removeDC" title="pyo.PyoTableObject.removeDC"><code class="xref py py-obj docutils literal notranslate"><span class="pre">removeDC</span></code></a>()</p></td>
+<td><p>Filter out DC offset from the table's data.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.PyoTableObject.reverse" title="pyo.PyoTableObject.reverse"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reverse</span></code></a>()</p></td>
+<td><p>Reverse the table's data in time.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.PyoTableObject.invert" title="pyo.PyoTableObject.invert"><code class="xref py py-obj docutils literal notranslate"><span class="pre">invert</span></code></a>()</p></td>
+<td><p>Reverse the table's data in amplitude.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.PyoTableObject.rectify" title="pyo.PyoTableObject.rectify"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rectify</span></code></a>()</p></td>
+<td><p>Positive rectification of the table's data.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.PyoTableObject.pow" title="pyo.PyoTableObject.pow"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pow</span></code></a>([exp])</p></td>
+<td><p>Apply a power function on each sample in the table.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.PyoTableObject.bipolarGain" title="pyo.PyoTableObject.bipolarGain"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bipolarGain</span></code></a>([gpos, gneg])</p></td>
+<td><p>Apply different gain factor for positive and negative samples.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.PyoTableObject.lowpass" title="pyo.PyoTableObject.lowpass"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lowpass</span></code></a>([freq])</p></td>
+<td><p>Apply a one-pole lowpass filter on table's samples.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.PyoTableObject.fadein" title="pyo.PyoTableObject.fadein"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fadein</span></code></a>([dur, shape])</p></td>
+<td><p>Apply a gradual increase in the level of the table's samples.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.PyoTableObject.fadeout" title="pyo.PyoTableObject.fadeout"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fadeout</span></code></a>([dur, shape])</p></td>
+<td><p>Apply a gradual decrease in the level of the table's samples.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.PyoTableObject.add" title="pyo.PyoTableObject.add"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add</span></code></a>(x)</p></td>
+<td><p>Performs addition on the table values.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.PyoTableObject.sub" title="pyo.PyoTableObject.sub"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sub</span></code></a>(x)</p></td>
+<td><p>Performs substraction on the table values.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.PyoTableObject.mul" title="pyo.PyoTableObject.mul"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mul</span></code></a>(x)</p></td>
+<td><p>Performs multiplication on the table values.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.PyoTableObject.div" title="pyo.PyoTableObject.div"><code class="xref py py-obj docutils literal notranslate"><span class="pre">div</span></code></a>(x)</p></td>
+<td><p>Performs division on the table values.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.PyoTableObject.copyData" title="pyo.PyoTableObject.copyData"><code class="xref py py-obj docutils literal notranslate"><span class="pre">copyData</span></code></a>(table[, srcpos, destpos, length])</p></td>
+<td><p>Copy samples from a source table.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.PyoTableObject.rotate" title="pyo.PyoTableObject.rotate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rotate</span></code></a>(pos)</p></td>
+<td><p>Rotate the table content to the left around the position given as argument.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.PyoTableObject.copy" title="pyo.PyoTableObject.copy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code></a>()</p></td>
+<td><p>Returns a deep copy of the object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.PyoTableObject.view" title="pyo.PyoTableObject.view"><code class="xref py py-obj docutils literal notranslate"><span class="pre">view</span></code></a>([title, wxnoserver])</p></td>
+<td><p>Opens a window showing the contents of the table.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.PyoTableObject.refreshView" title="pyo.PyoTableObject.refreshView"><code class="xref py py-obj docutils literal notranslate"><span class="pre">refreshView</span></code></a>()</p></td>
+<td><p>Updates the graphical display of the table, if applicable.</p></td>
+</tr>
+</tbody>
+</table>
+<details><summary>Inherited from <a class="reference internal" href="#pyo.PyoObjectBase" title="pyo.PyoObjectBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObjectBase</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>([size])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">dump</span></code>()</p></td>
+<td><p>Print infos about the current state of the object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getBaseObjects</span></code>()</p></td>
+<td><p>Return a list of Stream objects managed by the instance.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getServer</span></code>()</p></td>
+<td><p>Return a reference to the current Server object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getSamplingRate</span></code>()</p></td>
+<td><p>Return the current sampling rate (samples per second), as a float.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getBufferSize</span></code>()</p></td>
+<td><p>Return the current buffer size (samples per buffer), as an integer.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">allowAutoStart</span></code>([switch])</p></td>
+<td><p>When autoStartChildren is activated in the Server, call this method with False as argument to stop the propagation of play/out/stop methods to and from this object.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">useWaitTimeOnStop</span></code>()</p></td>
+<td><p>When autoStartChildren is activated in the Server, call this method to force an object given to the <cite>mul</cite> attribute of another object to use the  wait time from the stop method instead of being stopped immediately.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">addLinkedObject</span></code>(x)</p></td>
+<td><p>When autoStartChildren is activated in the Server, use this method to explicitly add an object in a dsp chain, which is generally controlled by the last object of the chain.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setStopDelay</span></code>(x)</p></td>
+<td><p>Set a specific waiting time when calling the stop method on this object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getStopDelay</span></code>()</p></td>
+<td><p>Return the waiting time applied when calling the stop method on this object.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__iter__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__next__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">next</span></code>()</p></td>
+<td><p>Alias for __next__ method.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__getitem__</span></code>(i)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__setitem__</span></code>(i, x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__len__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__repr__</span></code>()</p></td>
+<td><p>Return repr(self).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__dir__</span></code>()</p></td>
+<td><p>Default dir() implementation.</p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Private Data Attributes:</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_STREAM_TYPE</span></code></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<details><summary>Inherited from <a class="reference internal" href="#pyo.PyoObjectBase" title="pyo.PyoObjectBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObjectBase</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_STREAM_TYPE</span></code></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Private Methods:</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_setViewFrame</span></code>(frame)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_setGraphFrame</span></code>(frame)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_get_current_data</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<details><summary>Inherited from <a class="reference internal" href="#pyo.PyoObjectBase" title="pyo.PyoObjectBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObjectBase</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_autoplay</span></code>([dur, delay])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_autostop</span></code>([wait])</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<hr class="docutils"/>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoTableObject.save">
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampletype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quality</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.4</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoTableObject.save"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoTableObject.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes the content of the table in an audio file.</p>
+<p>The sampling rate of the file is the sampling rate of the server
+and the number of channels is the number of table streams of the
+object.</p>
+<dl class="field-list">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl>
+<dt>path: string</dt><dd><p>Full path (including extension) of the new file.</p>
+</dd>
+<dt>format: int, optional</dt><dd><dl class="simple">
+<dt>Format type of the new file. Supported formats are:</dt><dd><ol class="arabic simple" start="0">
+<li><p>WAVE - Microsoft WAV format (little endian) {.wav, .wave}</p></li>
+<li><p>AIFF - Apple/SGI AIFF format (big endian) {.aif, .aiff}</p></li>
+<li><p>AU - Sun/NeXT AU format (big endian) {.au}</p></li>
+<li><p>RAW - RAW PCM data {no extension}</p></li>
+<li><p>SD2 - Sound Designer 2 {.sd2}</p></li>
+<li><p>FLAC - FLAC lossless file format {.flac}</p></li>
+<li><p>CAF - Core Audio File format {.caf}</p></li>
+<li><p>OGG - Xiph OGG container {.ogg}</p></li>
+</ol>
+</dd>
+</dl>
+</dd>
+<dt>sampletype: int, optional</dt><dd><p>Bit depth encoding of the audio file.</p>
+<dl class="simple">
+<dt>SD2 and FLAC only support 16 or 24 bit int. Supported types are:</dt><dd><ol class="arabic simple" start="0">
+<li><p>16 bit int (default)</p></li>
+<li><p>24 bit int</p></li>
+<li><p>32 bit int</p></li>
+<li><p>32 bit float</p></li>
+<li><p>64 bit float</p></li>
+<li><p>U-Law encoded</p></li>
+<li><p>A-Law encoded</p></li>
+</ol>
+</dd>
+</dl>
+</dd>
+<dt>quality: float, optional</dt><dd><p>The encoding quality value, between 0.0 (lowest quality) and
+1.0 (highest quality). This argument has an effect only with
+FLAC and OGG compressed formats. Defaults to 0.4.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoTableObject.write">
+<span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oneline</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoTableObject.write"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoTableObject.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes the content of the table in a text file.</p>
+<p>This function can be used to store the table data as a
+list of floats into a text file.</p>
+<dl class="field-list">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl>
+<dt>path: string</dt><dd><p>Full path of the generated file.</p>
+</dd>
+<dt>oneline: boolean, optional</dt><dd><p>If True, list of samples will inserted on one line.</p>
+<p>If False, list of samples will be truncated to 8 floats
+per line.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoTableObject.read">
+<span class="sig-name descname"><span class="pre">read</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoTableObject.read"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoTableObject.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads the content of a text file and replaces the table data
+with the values stored in the file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>path: string</dt><dd><p>Full path of the file to read.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>The format is a list of lists of floats. For example, A two
+tablestreams object must be given a content like this:</p>
+<p>[ [ 0.0, 1.0, 0.5, … ], [ 1.0, 0.99, 0.98, 0.97, … ] ]</p>
+<p>Each object’s tablestream will be resized according to the
+length of the lists.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoTableObject.getBuffer">
+<span class="sig-name descname"><span class="pre">getBuffer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chnl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoTableObject.getBuffer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoTableObject.getBuffer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a reference to the underlying object implementing the buffer protocol.</p>
+<p>With the buffer protocol, a table can be referenced and modified,
+without copying the data, with numpy functions. To create an array
+using the same memory as the table:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.SndTable" title="pyo.lib.tables.SndTable"><span class="n">t</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.SndTable" title="pyo.lib.tables.SndTable"><span class="n">SndTable</span></a><span class="p">(</span><span class="n">SNDS_PATH</span><span class="o">+</span><span class="s2">"/transparent.aif"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">arr</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">getBuffer</span><span class="p">())</span>
+</pre></div>
+</div>
+<p>Now, every changes applied to the array will be reflected in
+the SndTable. This method works for a single channel only.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>chnl: int, optional</dt><dd><p>The channel in the table for which to obtain the underlying buffer.
+Defaults to 0.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>For more details about the buffer protocol, see PEP 3118 and the
+python documentation.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoTableObject.setSize">
+<span class="sig-name descname"><span class="pre">setSize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoTableObject.setSize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoTableObject.setSize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Change the size of the table.</p>
+<p>This will usually regenerate the table content.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>size: int</dt><dd><p>New table size in samples.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoTableObject.getSize">
+<span class="sig-name descname"><span class="pre">getSize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">all</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoTableObject.getSize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoTableObject.getSize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return table size in samples.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>all: boolean</dt><dd><p>If the table contains more than one stream and <cite>all</cite> is True,
+returns a list of all sizes. Otherwise, returns only the
+first size as an int. Defaults to False.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoTableObject.getRate">
+<span class="sig-name descname"><span class="pre">getRate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">all</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoTableObject.getRate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoTableObject.getRate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the frequency in cps at which the table will be read at its
+original pitch.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>all: boolean</dt><dd><p>If the table contains more than one stream and <cite>all</cite> is True,
+returns a list of all frequencies. Otherwise, returns only the
+first frequency as a float. Defaults to False.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoTableObject.getDur">
+<span class="sig-name descname"><span class="pre">getDur</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">all</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoTableObject.getDur"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoTableObject.getDur" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the duration of the table in seconds.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>all: boolean</dt><dd><p>If the table contains more than one stream and <cite>all</cite> is True,
+returns a list of all durations. Otherwise, returns only the
+first duration as a float. Defaults to False.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoTableObject.put">
+<span class="sig-name descname"><span class="pre">put</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoTableObject.put"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoTableObject.put" title="Permalink to this definition">¶</a></dt>
+<dd><p>Puts a value at specified sample position in the table.</p>
+<p>If the object has more than 1 tablestream, the default is to
+record the value in each table. User can call obj[x].put()
+to record into a specific table.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>value: float</dt><dd><p>Value, as floating-point, to record in the table.</p>
+</dd>
+<dt>pos: int, optional</dt><dd><p>Position, in samples, where to record value.
+Can write backward with negative position. Defaults to 0.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoTableObject.get">
+<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pos</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoTableObject.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoTableObject.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the value, as float, stored at a specific position in the table.</p>
+<p>If the object has more than 1 tablestream, the default is to
+return a list with the value of each tablestream. User can call
+obj[x].get() to get the value of a specific table.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>pos: int, optional</dt><dd><p>Position, in samples, where to read the value.
+Can read backward with negative position. Defaults to 0.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoTableObject.getTable">
+<span class="sig-name descname"><span class="pre">getTable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">all</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoTableObject.getTable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoTableObject.getTable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the content of the table as list of floats.</p>
+<dl class="field-list">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl>
+<dt>all: boolean, optional</dt><dd><p>If True, all sub tables are retrieved and returned as a list
+of list of floats.</p>
+<p>If False, a single list containing the content of the first
+subtable (or the only one) is returned.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoTableObject.normalize">
+<span class="sig-name descname"><span class="pre">normalize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.99</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoTableObject.normalize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoTableObject.normalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalizes table samples to a given level.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>level: float, optional</dt><dd><p>Samples will be normalized between -level and +level.
+Defaults to 0.99.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoTableObject.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoTableObject.reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoTableObject.reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resets table samples to 0.0.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoTableObject.removeDC">
+<span class="sig-name descname"><span class="pre">removeDC</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoTableObject.removeDC"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoTableObject.removeDC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter out DC offset from the table’s data.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoTableObject.reverse">
+<span class="sig-name descname"><span class="pre">reverse</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoTableObject.reverse"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoTableObject.reverse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reverse the table’s data in time.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoTableObject.invert">
+<span class="sig-name descname"><span class="pre">invert</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoTableObject.invert"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoTableObject.invert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reverse the table’s data in amplitude.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoTableObject.rectify">
+<span class="sig-name descname"><span class="pre">rectify</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoTableObject.rectify"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoTableObject.rectify" title="Permalink to this definition">¶</a></dt>
+<dd><p>Positive rectification of the table’s data.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoTableObject.pow">
+<span class="sig-name descname"><span class="pre">pow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoTableObject.pow"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoTableObject.pow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply a power function on each sample in the table.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>exp: float, optional</dt><dd><p>Exponent factor. Defaults to 10.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoTableObject.bipolarGain">
+<span class="sig-name descname"><span class="pre">bipolarGain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gpos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gneg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoTableObject.bipolarGain"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoTableObject.bipolarGain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply different gain factor for positive and negative samples.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>gpos: float, optional</dt><dd><p>Gain factor for positive samples. Defaults to 1.</p>
+</dd>
+<dt>gneg: float, optional</dt><dd><p>Gain factor for negative samples. Defaults to 1.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoTableObject.lowpass">
+<span class="sig-name descname"><span class="pre">lowpass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">freq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoTableObject.lowpass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoTableObject.lowpass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply a one-pole lowpass filter on table’s samples.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>freq: float, optional</dt><dd><p>Filter’s cutoff, in Hertz. Defaults to 1000.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoTableObject.fadein">
+<span class="sig-name descname"><span class="pre">fadein</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dur</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoTableObject.fadein"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoTableObject.fadein" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply a gradual increase in the level of the table’s samples.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>dur: float, optional</dt><dd><p>Fade in duration, in seconds. Defaults to 0.1.</p>
+</dd>
+<dt>shape: int, optional</dt><dd><dl class="simple">
+<dt>Curve type used to shape the fadein. Available curves:</dt><dd><p>0: linear (default)
+1: sqrt
+2: sin
+3: squared</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoTableObject.fadeout">
+<span class="sig-name descname"><span class="pre">fadeout</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dur</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoTableObject.fadeout"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoTableObject.fadeout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply a gradual decrease in the level of the table’s samples.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>dur: float, optional</dt><dd><p>Fade out duration, in seconds. Defaults to 0.1.</p>
+</dd>
+<dt>shape: int, optional</dt><dd><dl class="simple">
+<dt>Curve type used to shape the fadein. Available curves:</dt><dd><p>0: linear (default)
+1: sqrt
+2: sin
+3: squared</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoTableObject.add">
+<span class="sig-name descname"><span class="pre">add</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoTableObject.add"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoTableObject.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs addition on the table values.</p>
+<p>Adds the argument to each table values, position by position
+if the argument is a list or another PyoTableObject.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>x: float, list or PyoTableObject</dt><dd><p>value(s) to add.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoTableObject.sub">
+<span class="sig-name descname"><span class="pre">sub</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoTableObject.sub"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoTableObject.sub" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs substraction on the table values.</p>
+<p>Substracts the argument to each table values, position by position
+if the argument is a list or another PyoTableObject.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>x: float, list or PyoTableObject</dt><dd><p>value(s) to substract.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoTableObject.mul">
+<span class="sig-name descname"><span class="pre">mul</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoTableObject.mul"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoTableObject.mul" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs multiplication on the table values.</p>
+<p>Multiply each table values by the argument, position by position
+if the argument is a list or another PyoTableObject.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>x: float, list or PyoTableObject</dt><dd><p>value(s) to multiply.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoTableObject.div">
+<span class="sig-name descname"><span class="pre">div</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoTableObject.div"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoTableObject.div" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs division on the table values.</p>
+<p>Divide each table values by the argument, position by position
+if the argument is a list or another PyoTableObject.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>x: float, list or PyoTableObject</dt><dd><p>value(s) used to divide.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoTableObject.copyData">
+<span class="sig-name descname"><span class="pre">copyData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">srcpos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">destpos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoTableObject.copyData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoTableObject.copyData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Copy samples from a source table.</p>
+<p>Copy <cite>length</cite> samples from a source table to this table.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>table: PyoTableObject</dt><dd><p>The source table.</p>
+</dd>
+<dt>srcpos: int, optional</dt><dd><p>The start position, in samples, in the source table.
+Can read backward with negative position. Defaults to 0.</p>
+</dd>
+<dt>destpos ; int, optional</dt><dd><p>The start position, in samples, in the destination (self) table.
+Can read backward with negative position. Defaults to 0.</p>
+</dd>
+<dt>length: int, optional</dt><dd><p>The number of samples to copy from source to destination. if
+length is negative, the length of the smallest table is used.
+Defaults to -1.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoTableObject.rotate">
+<span class="sig-name descname"><span class="pre">rotate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pos</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoTableObject.rotate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoTableObject.rotate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rotate the table content to the left around the position given as argument.</p>
+<p>Samples between the given position and the end of the table will
+be relocated in front of the samples from the beginning to the
+given position.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>pos: int</dt><dd><p>The rotation position in samples. A negative position means
+a rotation to the right.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoTableObject.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoTableObject.copy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoTableObject.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a deep copy of the object.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoTableObject.view">
+<span class="sig-name descname"><span class="pre">view</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Table</span> <span class="pre">waveform'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wxnoserver</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoTableObject.view"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoTableObject.view" title="Permalink to this definition">¶</a></dt>
+<dd><p>Opens a window showing the contents of the table.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>title: string, optional</dt><dd><p>Window title. Defaults to “Table waveform”.</p>
+</dd>
+<dt>wxnoserver: boolean, optional</dt><dd><p>With wxPython graphical toolkit, if True, tells the
+interpreter that there will be no server window.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>If <cite>wxnoserver</cite> is set to True, the interpreter will not wait for
+the server GUI before showing the controller window.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoTableObject.refreshView">
+<span class="sig-name descname"><span class="pre">refreshView</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoTableObject.refreshView"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoTableObject.refreshView" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the graphical display of the table, if applicable.</p>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="pyo.PyoTableObject.size">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">size</span></span><a class="headerlink" href="#pyo.PyoTableObject.size" title="Permalink to this definition">¶</a></dt>
+<dd><p>int. Table size in samples.</p>
+</dd></dl>
+</dd></dl>
+</section>
+<section id="pyomatrixobject">
+<h2><em>PyoMatrixObject</em><a class="headerlink" href="#pyomatrixobject" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyo.PyoMatrixObject">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">PyoMatrixObject</span></span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoMatrixObject"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoMatrixObject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for all pyo matrix objects.</p>
+<p>A matrix object is a 2 dimensions buffer memory to store
+precomputed samples.</p>
+<p>The user should never instantiate an object of this class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parent</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pyo.PyoObjectBase" title="pyo.PyoObjectBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObjectBase</span></code></a></p>
+</dd>
+</dl>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Public Methods:</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.PyoMatrixObject.write" title="pyo.PyoMatrixObject.write"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write</span></code></a>(path)</p></td>
+<td><p>Writes the content of the matrix into a text file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.PyoMatrixObject.read" title="pyo.PyoMatrixObject.read"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read</span></code></a>(path)</p></td>
+<td><p>Reads the content of a text file and replaces the matrix data with the values in the file.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.PyoMatrixObject.getSize" title="pyo.PyoMatrixObject.getSize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getSize</span></code></a>()</p></td>
+<td><p>Returns matrix size in samples.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.PyoMatrixObject.normalize" title="pyo.PyoMatrixObject.normalize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normalize</span></code></a>([level])</p></td>
+<td><p>Normalize matrix samples to a given level.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.PyoMatrixObject.blur" title="pyo.PyoMatrixObject.blur"><code class="xref py py-obj docutils literal notranslate"><span class="pre">blur</span></code></a>()</p></td>
+<td><p>Apply a simple gaussian blur on the matrix.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.PyoMatrixObject.boost" title="pyo.PyoMatrixObject.boost"><code class="xref py py-obj docutils literal notranslate"><span class="pre">boost</span></code></a>([min, max, boost])</p></td>
+<td><p>Boost the constrast of values in the matrix.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.PyoMatrixObject.put" title="pyo.PyoMatrixObject.put"><code class="xref py py-obj docutils literal notranslate"><span class="pre">put</span></code></a>(value[, x, y])</p></td>
+<td><p>Puts a value at specified position in the matrix.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.PyoMatrixObject.get" title="pyo.PyoMatrixObject.get"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code></a>([x, y])</p></td>
+<td><p>Returns the value, as float, at specified position in the matrix.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.PyoMatrixObject.getInterpolated" title="pyo.PyoMatrixObject.getInterpolated"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getInterpolated</span></code></a>([x, y])</p></td>
+<td><p>Returns the value, as float, at a normalized position in the matrix.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.PyoMatrixObject.view" title="pyo.PyoMatrixObject.view"><code class="xref py py-obj docutils literal notranslate"><span class="pre">view</span></code></a>([title, wxnoserver])</p></td>
+<td><p>Opens a window showing the contents of the matrix.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.PyoMatrixObject.refreshView" title="pyo.PyoMatrixObject.refreshView"><code class="xref py py-obj docutils literal notranslate"><span class="pre">refreshView</span></code></a>()</p></td>
+<td><p>Updates the graphical display of the matrix, if applicable.</p></td>
+</tr>
+</tbody>
+</table>
+<details><summary>Inherited from <a class="reference internal" href="#pyo.PyoObjectBase" title="pyo.PyoObjectBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObjectBase</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">dump</span></code>()</p></td>
+<td><p>Print infos about the current state of the object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getBaseObjects</span></code>()</p></td>
+<td><p>Return a list of Stream objects managed by the instance.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getServer</span></code>()</p></td>
+<td><p>Return a reference to the current Server object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getSamplingRate</span></code>()</p></td>
+<td><p>Return the current sampling rate (samples per second), as a float.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getBufferSize</span></code>()</p></td>
+<td><p>Return the current buffer size (samples per buffer), as an integer.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">allowAutoStart</span></code>([switch])</p></td>
+<td><p>When autoStartChildren is activated in the Server, call this method with False as argument to stop the propagation of play/out/stop methods to and from this object.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">useWaitTimeOnStop</span></code>()</p></td>
+<td><p>When autoStartChildren is activated in the Server, call this method to force an object given to the <cite>mul</cite> attribute of another object to use the  wait time from the stop method instead of being stopped immediately.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">addLinkedObject</span></code>(x)</p></td>
+<td><p>When autoStartChildren is activated in the Server, use this method to explicitly add an object in a dsp chain, which is generally controlled by the last object of the chain.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setStopDelay</span></code>(x)</p></td>
+<td><p>Set a specific waiting time when calling the stop method on this object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getStopDelay</span></code>()</p></td>
+<td><p>Return the waiting time applied when calling the stop method on this object.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__iter__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__next__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">next</span></code>()</p></td>
+<td><p>Alias for __next__ method.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__getitem__</span></code>(i)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__setitem__</span></code>(i, x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__len__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__repr__</span></code>()</p></td>
+<td><p>Return repr(self).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__dir__</span></code>()</p></td>
+<td><p>Default dir() implementation.</p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Private Data Attributes:</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_STREAM_TYPE</span></code></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<details><summary>Inherited from <a class="reference internal" href="#pyo.PyoObjectBase" title="pyo.PyoObjectBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObjectBase</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_STREAM_TYPE</span></code></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Private Methods:</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_setViewFrame</span></code>(frame)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<details><summary>Inherited from <a class="reference internal" href="#pyo.PyoObjectBase" title="pyo.PyoObjectBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObjectBase</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_autoplay</span></code>([dur, delay])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_autostop</span></code>([wait])</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<hr class="docutils"/>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoMatrixObject.write">
+<span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoMatrixObject.write"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoMatrixObject.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes the content of the matrix into a text file.</p>
+<p>This function can be used to store the matrix data as a
+list of list of floats into a text file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>path: string</dt><dd><p>Full path of the generated file.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoMatrixObject.read">
+<span class="sig-name descname"><span class="pre">read</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoMatrixObject.read"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoMatrixObject.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads the content of a text file and replaces the matrix data
+with the values in the file.</p>
+<p>Format is a list of lists of list of floats. For example, A two
+matrixstreams object must be given a content like this:</p>
+<p>[ [ [0.0 ,1.0, 0.5, … ], [1.0, 0.99, 0.98, 0.97, … ] ],
+[ [0.0, 1.0, 0.5, … ], [1.0, 0.99, 0.98, 0.97, … ] ] ]</p>
+<p>Each object’s matrixstream will be resized according to the
+length of the lists, but the number of matrixstreams must be
+the same.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>path: string</dt><dd><p>Full path of the file to read.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoMatrixObject.getSize">
+<span class="sig-name descname"><span class="pre">getSize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoMatrixObject.getSize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoMatrixObject.getSize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns matrix size in samples. Size is a tuple (x, y).</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoMatrixObject.normalize">
+<span class="sig-name descname"><span class="pre">normalize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.99</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoMatrixObject.normalize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoMatrixObject.normalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalize matrix samples to a given level.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>level: float, optional</dt><dd><p>Samples will be normalized between -level and +level.
+Defaults to 0.99.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoMatrixObject.blur">
+<span class="sig-name descname"><span class="pre">blur</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoMatrixObject.blur"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoMatrixObject.blur" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply a simple gaussian blur on the matrix.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoMatrixObject.boost">
+<span class="sig-name descname"><span class="pre">boost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boost</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoMatrixObject.boost"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoMatrixObject.boost" title="Permalink to this definition">¶</a></dt>
+<dd><p>Boost the constrast of values in the matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>min: float, optional</dt><dd><p>Minimum value. Defaults to -1.0.</p>
+</dd>
+<dt>max: float, optional</dt><dd><p>Maximum value. Defaults to 1.0.</p>
+</dd>
+<dt>boost: float, optional</dt><dd><p>Amount of boost applied on each value. Defaults to 0.01.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoMatrixObject.put">
+<span class="sig-name descname"><span class="pre">put</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoMatrixObject.put"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoMatrixObject.put" title="Permalink to this definition">¶</a></dt>
+<dd><p>Puts a value at specified position in the matrix.</p>
+<p>If the object has more than 1 matrixstream, the default is to
+record the value in each matrix. User can call obj[x].put()
+to record in a specific matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>value: float</dt><dd><p>Value, as floating-point, to record in the matrix.</p>
+</dd>
+<dt>x: int, optional</dt><dd><p>X position where to record value. Defaults to 0.</p>
+</dd>
+<dt>y: int, optional</dt><dd><p>Y position where to record value. Defaults to 0.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoMatrixObject.get">
+<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoMatrixObject.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoMatrixObject.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the value, as float, at specified position in the matrix.</p>
+<p>If the object has more than 1 matrixstream, the default is to
+return a list with the value of each matrixstream. User can call
+obj[x].get() to get the value of a specific matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>x: int, optional</dt><dd><p>X position where to get value. Defaults to 0.</p>
+</dd>
+<dt>y: int, optional</dt><dd><p>Y position where to get value. Defaults to 0.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoMatrixObject.getInterpolated">
+<span class="sig-name descname"><span class="pre">getInterpolated</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoMatrixObject.getInterpolated"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoMatrixObject.getInterpolated" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the value, as float, at a normalized position in the matrix.</p>
+<p>If the object has more than 1 matrixstream, the default is to
+return a list with the value of each matrixstream. User can call
+obj[x].getInterpolated() to get the value of a specific matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>x: float {0 -&gt; 1}</dt><dd><p>X normalized position where to get value. Defaults to 0.0.</p>
+</dd>
+<dt>y: int {0 -&gt; 1}</dt><dd><p>Y normalized position where to get value. Defaults to 0.0.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoMatrixObject.view">
+<span class="sig-name descname"><span class="pre">view</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Matrix</span> <span class="pre">viewer'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wxnoserver</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoMatrixObject.view"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoMatrixObject.view" title="Permalink to this definition">¶</a></dt>
+<dd><p>Opens a window showing the contents of the matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>title: string, optional</dt><dd><p>Window title. Defaults to “Matrix viewer”.</p>
+</dd>
+<dt>wxnoserver: boolean, optional</dt><dd><p>With wxPython graphical toolkit, if True, tells the
+interpreter that there will be no server window.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>If <cite>wxnoserver</cite> is set to True, the interpreter will not wait for
+the server GUI before showing the controller window.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoMatrixObject.refreshView">
+<span class="sig-name descname"><span class="pre">refreshView</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoMatrixObject.refreshView"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoMatrixObject.refreshView" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the graphical display of the matrix, if applicable.</p>
+</dd></dl>
+</dd></dl>
+</section>
+<section id="pyopvobject">
+<h2><em>PyoPVObject</em><a class="headerlink" href="#pyopvobject" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyo.PyoPVObject">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">PyoPVObject</span></span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoPVObject"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoPVObject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for objects working with phase vocoder’s magnitude and frequency streams.</p>
+<p>The user should never instantiate an object of this class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parent</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pyo.PyoObjectBase" title="pyo.PyoObjectBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObjectBase</span></code></a></p>
+</dd>
+</dl>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Public Methods:</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.PyoPVObject.isPlaying" title="pyo.PyoPVObject.isPlaying"><code class="xref py py-obj docutils literal notranslate"><span class="pre">isPlaying</span></code></a>([all])</p></td>
+<td><p>Returns True if the object is playing, otherwise, returns False.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.PyoPVObject.play" title="pyo.PyoPVObject.play"><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code></a>([dur, delay])</p></td>
+<td><p>Start processing without sending samples to output.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.PyoPVObject.stop" title="pyo.PyoPVObject.stop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stop</span></code></a>([wait])</p></td>
+<td><p>Stop processing.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.PyoPVObject.set" title="pyo.PyoPVObject.set"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set</span></code></a>(attr, value[, port])</p></td>
+<td><p>Replace any attribute with portamento.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.PyoPVObject.ctrl" title="pyo.PyoPVObject.ctrl"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ctrl</span></code></a>([map_list, title, wxnoserver])</p></td>
+<td><p>Opens a sliders window to control the parameters of the object.</p></td>
+</tr>
+</tbody>
+</table>
+<details><summary>Inherited from <a class="reference internal" href="#pyo.PyoObjectBase" title="pyo.PyoObjectBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObjectBase</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">dump</span></code>()</p></td>
+<td><p>Print infos about the current state of the object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getBaseObjects</span></code>()</p></td>
+<td><p>Return a list of Stream objects managed by the instance.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getServer</span></code>()</p></td>
+<td><p>Return a reference to the current Server object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getSamplingRate</span></code>()</p></td>
+<td><p>Return the current sampling rate (samples per second), as a float.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getBufferSize</span></code>()</p></td>
+<td><p>Return the current buffer size (samples per buffer), as an integer.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">allowAutoStart</span></code>([switch])</p></td>
+<td><p>When autoStartChildren is activated in the Server, call this method with False as argument to stop the propagation of play/out/stop methods to and from this object.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">useWaitTimeOnStop</span></code>()</p></td>
+<td><p>When autoStartChildren is activated in the Server, call this method to force an object given to the <cite>mul</cite> attribute of another object to use the  wait time from the stop method instead of being stopped immediately.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">addLinkedObject</span></code>(x)</p></td>
+<td><p>When autoStartChildren is activated in the Server, use this method to explicitly add an object in a dsp chain, which is generally controlled by the last object of the chain.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setStopDelay</span></code>(x)</p></td>
+<td><p>Set a specific waiting time when calling the stop method on this object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getStopDelay</span></code>()</p></td>
+<td><p>Return the waiting time applied when calling the stop method on this object.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__iter__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__next__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">next</span></code>()</p></td>
+<td><p>Alias for __next__ method.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__getitem__</span></code>(i)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__setitem__</span></code>(i, x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__len__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__repr__</span></code>()</p></td>
+<td><p>Return repr(self).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__dir__</span></code>()</p></td>
+<td><p>Default dir() implementation.</p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Private Data Attributes:</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_STREAM_TYPE</span></code></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<details><summary>Inherited from <a class="reference internal" href="#pyo.PyoObjectBase" title="pyo.PyoObjectBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObjectBase</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_STREAM_TYPE</span></code></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Private Methods:</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_init_play</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_reset_from_set</span></code>([attr])</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<details><summary>Inherited from <a class="reference internal" href="#pyo.PyoObjectBase" title="pyo.PyoObjectBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObjectBase</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_autoplay</span></code>([dur, delay])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_autostop</span></code>([wait])</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<hr class="docutils"/>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoPVObject.isPlaying">
+<span class="sig-name descname"><span class="pre">isPlaying</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">all</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoPVObject.isPlaying"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoPVObject.isPlaying" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns True if the object is playing, otherwise, returns False.</p>
+<dl class="field-list">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl>
+<dt>all: boolean, optional</dt><dd><p>If True, the object returns a list with the state of all
+streams managed by the object.</p>
+<p>If False, it return a boolean corresponding to the state
+of the first stream.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoPVObject.play">
+<span class="sig-name descname"><span class="pre">play</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dur</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoPVObject.play"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoPVObject.play" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start processing without sending samples to output.
+This method is called automatically at the object creation.</p>
+<p>This method returns <cite>self</cite>, allowing it to be applied at the object
+creation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>dur: float, optional</dt><dd><p>Duration, in seconds, of the object’s activation.
+The default is 0 and means infinite duration.</p>
+</dd>
+<dt>delay: float, optional</dt><dd><p>Delay, in seconds, before the object’s activation.
+Defaults to 0.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoPVObject.stop">
+<span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wait</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoPVObject.stop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoPVObject.stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stop processing.</p>
+<p>This method returns <cite>self</cite>, allowing it to be applied at the object
+creation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>wait: float, optional</dt><dd><p>Delay, in seconds, before the process is actually stopped.
+If autoStartChildren is activated in the Server, this value
+is propagated to the children objects. Defaults to 0.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>if the method setStopDelay(x) was called before calling stop(wait)
+with a positive <cite>wait</cite> value, the <cite>wait</cite> value won’t overwrite the
+value given to setStopDelay for the current object, but will be
+the one propagated to children objects. This allow to set a waiting
+time for a specific object with setStopDelay whithout changing the
+global delay time given to the stop method.</p>
+</div>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoPVObject.set">
+<span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.025</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoPVObject.set"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoPVObject.set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace any attribute with portamento.</p>
+<p>This method is intended to be applied on attributes that are not
+already assigned to PyoObjects. It will work only with floats or
+list of floats.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>attr: string</dt><dd><p>Name of the attribute as a string.</p>
+</dd>
+<dt>value: float</dt><dd><p>New value.</p>
+</dd>
+<dt>port: float, optional</dt><dd><p>Time, in seconds, to reach the new value.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.PyoPVObject.ctrl">
+<span class="sig-name descname"><span class="pre">ctrl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">map_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wxnoserver</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoPVObject.ctrl"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoPVObject.ctrl" title="Permalink to this definition">¶</a></dt>
+<dd><p>Opens a sliders window to control the parameters of the object.
+Only parameters that can be set to a PyoObject are allowed
+to be mapped on a slider.</p>
+<p>If a list of values are given to a parameter, a multisliders
+will be used to control each stream independently.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>map_list: list of SLMap objects, optional</dt><dd><p>Users defined set of parameters scaling. There is default
+scaling for each object that accept <cite>ctrl</cite> method.</p>
+</dd>
+<dt>title: string, optional</dt><dd><p>Title of the window. If none is provided, the name of the
+class is used.</p>
+</dd>
+<dt>wxnoserver: boolean, optional</dt><dd><p>With wxPython graphical toolkit, if True, tells the
+interpreter that there will be no server window.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>If <cite>wxnoserver</cite> is set to True, the interpreter will not wait for
+the server GUI before showing the controller window.</p>
+</dd></dl>
+</dd></dl>
+</section>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h3><a href="../../index.html">Table of Contents</a></h3>
+<ul>
+<li><a class="reference internal" href="#">Base Classes</a><ul>
+<li><a class="reference internal" href="#pyoobjectbase"><em>PyoObjectBase</em></a></li>
+<li><a class="reference internal" href="#pyoobject"><em>PyoObject</em></a></li>
+<li><a class="reference internal" href="#pyotableobject"><em>PyoTableObject</em></a></li>
+<li><a class="reference internal" href="#pyomatrixobject"><em>PyoMatrixObject</em></a></li>
+<li><a class="reference internal" href="#pyopvobject"><em>PyoPVObject</em></a></li>
+</ul>
+</li>
+</ul>
+<h4>Previous topic</h4>
+<p class="topless"><a href="listener.html" title="previous chapter">Controller listeners</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="analysis.html" title="next chapter">Audio Signal Analysis</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="analysis.html" title="Audio Signal Analysis">next</a> |</li>
+<li class="right">
+<a href="listener.html" title="Controller listeners">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="../index.html">API documentation</a> »</li>
+<li class="nav-item nav-item-2"><a href="index.html">Classes by category</a> »</li>
+<li class="nav-item nav-item-this"><a href="">Base Classes</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

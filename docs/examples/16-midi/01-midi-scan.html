@@ -1,0 +1,151 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>01-midi-scan.py - Scan for MIDI channels and controller numbers. — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="02-notein-object.html" rel="next" title="02-notein-object.py - How to use the Notein object."/>
+<link href="index.html" rel="prev" title="16-midi"/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="02-notein-object.html" title="02-notein-object.py - How to use the Notein object.">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="index.html" title="16-midi">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a accesskey="U" href="index.html">16-midi</a> »</li>
+<li class="nav-item nav-item-this"><a href="">01-midi-scan.py - Scan for MIDI channels and controller numbers.</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="midi-scan-py-scan-for-midi-channels-and-controller-numbers">
+<h1>01-midi-scan.py - Scan for MIDI channels and controller numbers.<a class="headerlink" href="#midi-scan-py-scan-for-midi-channels-and-controller-numbers" title="Permalink to this headline">¶</a></h1>
+<p>CtlScan and CtlScan2 objects are useful to find controller numbers used
+by your MIDI devices.</p>
+<p>List of MIDI-related functions:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>pm_count_devices:</dt><dd><p>Returns the number of devices found by Portmidi.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>pm_get_default_input:</dt><dd><p>Returns the index number of Portmidi’s default input device.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>pm_get_default_output:</dt><dd><p>Returns the index number of Portmidi’s default output device.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>pm_get_input_devices:</dt><dd><p>Returns midi input devices (device names, device indexes) found by Portmidi.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>pm_get_output_devices:</dt><dd><p>Returns midi output devices (device names, device indexes) found by Portmidi.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>pm_list_devices:</dt><dd><p>Prints a list of all devices found by Portmidi.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="c1"># Print the list of available MIDI devices to the console.</span>
+<a class="sphinx-codeautolink-a" href="../../api/functions/midi.html#pyo.pm_list_devices" title="pyo.pm_list_devices"><span class="n">pm_list_devices</span></a><span class="p">()</span>
+
+<a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">s</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">(</span><span class="n">duplex</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># Give the ID of the desired device (as listed by pm_list_devices()) to the</span>
+<span class="c1"># setMidiInputDevice() of the Server. A bigger number than the higher device</span>
+<span class="c1"># ID will open all connected MIDI devices.</span>
+<span class="n">s</span><span class="o">.</span><span class="n">setMidiInputDevice</span><span class="p">(</span><span class="mi">99</span><span class="p">)</span>
+
+<span class="c1"># The MIDI device must be set before booting the server.</span>
+<span class="n">s</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Play with your Midi controllers..."</span><span class="p">)</span>
+
+<span class="c1"># Function called by CtlScan2 object.</span>
+<span class="k">def</span> <span class="nf">scanner</span><span class="p">(</span><span class="n">ctlnum</span><span class="p">,</span> <span class="n">midichnl</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"MIDI channel: </span><span class="si">%d</span><span class="s2">, controller number: </span><span class="si">%d</span><span class="s2">"</span> <span class="o">%</span> <span class="p">(</span><span class="n">midichnl</span><span class="p">,</span> <span class="n">ctlnum</span><span class="p">))</span>
+
+
+<span class="c1"># Listen to controller input.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/midi.html#pyo.CtlScan2" title="pyo.lib.midi.CtlScan2"><span class="n">scan</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/midi.html#pyo.CtlScan2" title="pyo.lib.midi.CtlScan2"><span class="n">CtlScan2</span></a><span class="p">(</span><span class="n">scanner</span><span class="p">,</span> <span class="n">toprint</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h4>Previous topic</h4>
+<p class="topless"><a href="index.html" title="previous chapter">16-midi</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="02-notein-object.html" title="next chapter">02-notein-object.py - How to use the Notein object.</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="02-notein-object.html" title="02-notein-object.py - How to use the Notein object.">next</a> |</li>
+<li class="right">
+<a href="index.html" title="16-midi">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="index.html">16-midi</a> »</li>
+<li class="nav-item nav-item-this"><a href="">01-midi-scan.py - Scan for MIDI channels and controller numbers.</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

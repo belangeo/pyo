@@ -1,0 +1,121 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>03-fm-generators.py - Frequency modulation synthesis. — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="04-noise-generators.html" rel="next" title="04-noise-generators.py - Different pseudo-random noise generators."/>
+<link href="02-band-limited-oscs.html" rel="prev" title="02-band-limited-oscs.py - Oscillators whose spectrum is kept under the Nyquist frequency."/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="04-noise-generators.html" title="04-noise-generators.py - Different pseudo-random noise generators.">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="02-band-limited-oscs.html" title="02-band-limited-oscs.py - Oscillators whose spectrum is kept under the Nyquist frequency.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a accesskey="U" href="index.html">03-generators</a> »</li>
+<li class="nav-item nav-item-this"><a href="">03-fm-generators.py - Frequency modulation synthesis.</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="fm-generators-py-frequency-modulation-synthesis">
+<h1>03-fm-generators.py - Frequency modulation synthesis.<a class="headerlink" href="#fm-generators-py-frequency-modulation-synthesis" title="Permalink to this headline">¶</a></h1>
+<p>There two objects in the library that implement frequency
+modulation algorithms. These objects are very simple, although
+powerful. It is also relatively simple to build a custom FM
+algorithm, this will be covered in the tutorials on custom
+synthesis algorithms.</p>
+<p>Use the “voice” slider of the window “Input interpolator” to
+interpolate between the two sources. Use the controller windows
+to change the parameters of the FM algorithms.</p>
+<p>Note what happened in the controller window when we give a
+list of floats to an object’s argument.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+
+<span class="c1"># FM implements the basic Chowning algorithm</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.FM" title="pyo.lib.generators.FM"><span class="n">fm1</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.FM" title="pyo.lib.generators.FM"><span class="n">FM</span></a><span class="p">(</span><span class="n">carrier</span><span class="o">=</span><span class="mi">250</span><span class="p">,</span> <span class="n">ratio</span><span class="o">=</span><span class="p">[</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.49</span><span class="p">],</span> <span class="n">index</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+<span class="n">fm1</span><span class="o">.</span><span class="n">ctrl</span><span class="p">()</span>
+
+<span class="c1"># CrossFM implements a frequency modulation synthesis where the</span>
+<span class="c1"># output of both oscillators modulates the frequency of the other one.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.CrossFM" title="pyo.lib.generators.CrossFM"><span class="n">fm2</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.CrossFM" title="pyo.lib.generators.CrossFM"><span class="n">CrossFM</span></a><span class="p">(</span><span class="n">carrier</span><span class="o">=</span><span class="mi">250</span><span class="p">,</span> <span class="n">ratio</span><span class="o">=</span><span class="p">[</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.49</span><span class="p">],</span> <span class="n">ind1</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">ind2</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+<span class="n">fm2</span><span class="o">.</span><span class="n">ctrl</span><span class="p">()</span>
+
+<span class="c1"># Interpolates between input objects to produce a single output</span>
+<span class="n">sel</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/pan.html#pyo.Selector" title="pyo.lib.pan.Selector"><span class="n">Selector</span></a><span class="p">([</span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.FM" title="pyo.lib.generators.FM"><span class="n">fm1</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.CrossFM" title="pyo.lib.generators.CrossFM"><span class="n">fm2</span></a><span class="p">])</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+<span class="n">sel</span><span class="o">.</span><span class="n">ctrl</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"Input interpolator (0=FM, 1=CrossFM)"</span><span class="p">)</span>
+
+<span class="c1"># Displays the spectrum contents of the chosen source</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.Spectrum" title="pyo.lib.analysis.Spectrum"><span class="n">sp</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.Spectrum" title="pyo.lib.analysis.Spectrum"><span class="n">Spectrum</span></a><span class="p">(</span><span class="n">sel</span><span class="p">)</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h4>Previous topic</h4>
+<p class="topless"><a href="02-band-limited-oscs.html" title="previous chapter">02-band-limited-oscs.py - Oscillators whose spectrum is kept under the Nyquist frequency.</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="04-noise-generators.html" title="next chapter">04-noise-generators.py - Different pseudo-random noise generators.</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="04-noise-generators.html" title="04-noise-generators.py - Different pseudo-random noise generators.">next</a> |</li>
+<li class="right">
+<a href="02-band-limited-oscs.html" title="02-band-limited-oscs.py - Oscillators whose spectrum is kept under the Nyquist frequency.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="index.html">03-generators</a> »</li>
+<li class="nav-item nav-item-this"><a href="">03-fm-generators.py - Frequency modulation synthesis.</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

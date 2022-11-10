@@ -1,0 +1,152 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>Offline processing of multiple audio files in batch — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="06-batch-synthesis.html" rel="next" title="Offline batch generation of synthesis sounds"/>
+<link href="04-buffer-interface.html" rel="prev" title="Sharing a table with a numpy array using the buffer protocol"/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="06-batch-synthesis.html" title="Offline batch generation of synthesis sounds">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="04-buffer-interface.html" title="Sharing a table with a numpy array using the buffer protocol">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a accesskey="U" href="index.html">21-utilities</a> »</li>
+<li class="nav-item nav-item-this"><a href="">Offline processing of multiple audio files in batch</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="offline-processing-of-multiple-audio-files-in-batch">
+<h1>Offline processing of multiple audio files in batch<a class="headerlink" href="#offline-processing-of-multiple-audio-files-in-batch" title="Permalink to this headline">¶</a></h1>
+<p><strong>05-batch-processing.py</strong></p>
+<p>This program demonstrates how to use pyo to do offline batch processing
+given a folder of sounds.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="c1"># Initialize the Server in offline mode.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">s</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">(</span><span class="n">audio</span><span class="o">=</span><span class="s2">"offline"</span><span class="p">)</span>
+
+<span class="c1"># Path to your sound folder (SNDS_PATH is a folder containing a few sounds installed with pyo,</span>
+<span class="c1"># you can change this path to try with your own sounds).</span>
+<span class="n">folder_path</span> <span class="o">=</span> <span class="n">SNDS_PATH</span>
+
+<span class="c1"># Path to the processed sounds folder (user's home directory/pyo_batch_fx/).</span>
+<span class="n">output_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s2">"~"</span><span class="p">),</span> <span class="s2">"pyo_batch_fx"</span><span class="p">)</span>
+
+<span class="c1"># create the folder if it does not exist.</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">output_folder</span><span class="p">):</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">output_folder</span><span class="p">)</span>
+
+<span class="c1"># Get the list of audio files to process.</span>
+<span class="n">sounds</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">folder_path</span><span class="p">)</span> <span class="k">if</span> <a class="sphinx-codeautolink-a" href="../../api/functions/sndfile.html#pyo.sndinfo" title="pyo.sndinfo"><span class="n">sndinfo</span></a><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">folder_path</span><span class="p">,</span> <span class="n">f</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
+
+<span class="c1"># Enter the batch processing loop.</span>
+<span class="k">for</span> <span class="n">sound</span> <span class="ow">in</span> <span class="n">sounds</span><span class="p">:</span>
+    <span class="c1"># Retrieve info about the sound from its header.</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">folder_path</span><span class="p">,</span> <span class="n">sound</span><span class="p">)</span>
+    <span class="n">info</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/functions/sndfile.html#pyo.sndinfo" title="pyo.sndinfo"><span class="n">sndinfo</span></a><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="n">dur</span><span class="p">,</span> <span class="n">sr</span><span class="p">,</span> <span class="n">chnls</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">info</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">info</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+    <span class="n">fformat</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"WAVE"</span><span class="p">,</span> <span class="s2">"AIFF"</span><span class="p">,</span> <span class="s2">"AU"</span><span class="p">,</span> <span class="s2">"RAW"</span><span class="p">,</span> <span class="s2">"SD2"</span><span class="p">,</span> <span class="s2">"FLAC"</span><span class="p">,</span> <span class="s2">"CAF"</span><span class="p">,</span> <span class="s2">"OGG"</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">info</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
+    <span class="n">samptype</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">"16 bit int"</span><span class="p">,</span>
+        <span class="s2">"24 bit int"</span><span class="p">,</span>
+        <span class="s2">"32 bit int"</span><span class="p">,</span>
+        <span class="s2">"32 bit float"</span><span class="p">,</span>
+        <span class="s2">"64 bits float"</span><span class="p">,</span>
+        <span class="s2">"U-Law encoded"</span><span class="p">,</span>
+        <span class="s2">"A-Law encoded"</span><span class="p">,</span>
+    <span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">info</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span>
+
+    <span class="c1"># Set server parameters according to the current sound info.</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">setSamplingRate</span><span class="p">(</span><span class="n">sr</span><span class="p">)</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">setNchnls</span><span class="p">(</span><span class="n">chnls</span><span class="p">)</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">recordOptions</span><span class="p">(</span>
+        <span class="n">dur</span><span class="o">=</span><span class="n">dur</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>  <span class="c1"># give some room for the reverb trail!</span>
+        <span class="n">filename</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_folder</span><span class="p">,</span> <span class="n">sound</span><span class="p">),</span>
+        <span class="n">fileformat</span><span class="o">=</span><span class="n">fformat</span><span class="p">,</span>
+        <span class="n">sampletype</span><span class="o">=</span><span class="n">samptype</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Simple processing applied to the sound.</span>
+    <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">source</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">SfPlayer</span></a><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <a class="sphinx-codeautolink-a" href="../../api/classes/filters.html#pyo.ButBP" title="pyo.lib.filters.ButBP"><span class="n">bandpass</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/filters.html#pyo.ButBP" title="pyo.lib.filters.ButBP"><span class="n">ButBP</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">source</span></a><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+    <a class="sphinx-codeautolink-a" href="../../api/classes/effects.html#pyo.Disto" title="pyo.lib.effects.Disto"><span class="n">disto</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/effects.html#pyo.Disto" title="pyo.lib.effects.Disto"><span class="n">Disto</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/filters.html#pyo.ButBP" title="pyo.lib.filters.ButBP"><span class="n">bandpass</span></a><span class="p">,</span> <span class="n">drive</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span> <span class="n">slope</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+    <span class="n">output</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/effects.html#pyo.WGVerb" title="pyo.lib.effects.WGVerb"><span class="n">WGVerb</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">source</span></a> <span class="o">+</span> <a class="sphinx-codeautolink-a" href="../../api/classes/effects.html#pyo.Disto" title="pyo.lib.effects.Disto"><span class="n">disto</span></a><span class="p">,</span> <span class="n">feedback</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="mi">5000</span><span class="p">,</span> <span class="n">bal</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+    <span class="c1"># Start the rendering.</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+    <span class="c1"># Cleanup for the next pass.</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h4>Previous topic</h4>
+<p class="topless"><a href="04-buffer-interface.html" title="previous chapter">Sharing a table with a numpy array using the buffer protocol</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="06-batch-synthesis.html" title="next chapter">Offline batch generation of synthesis sounds</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="06-batch-synthesis.html" title="Offline batch generation of synthesis sounds">next</a> |</li>
+<li class="right">
+<a href="04-buffer-interface.html" title="Sharing a table with a numpy array using the buffer protocol">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="index.html">21-utilities</a> »</li>
+<li class="nav-item nav-item-this"><a href="">Offline processing of multiple audio files in batch</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

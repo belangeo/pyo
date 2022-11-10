@@ -1,0 +1,108 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>10-handling-channels-3.py - Random multichannel outputs. — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="11-handling-channels-4.html" rel="next" title="11-handling-channels-4.py - Explicit control of the physical outputs."/>
+<link href="09-handling-channels-2.html" rel="prev" title="09-handling-channels-2.py - The out method and the physical outputs."/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="11-handling-channels-4.html" title="11-handling-channels-4.py - Explicit control of the physical outputs.">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="09-handling-channels-2.html" title="09-handling-channels-2.py - The out method and the physical outputs.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a accesskey="U" href="index.html">02-controls</a> »</li>
+<li class="nav-item nav-item-this"><a href="">10-handling-channels-3.py - Random multichannel outputs.</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="handling-channels-3-py-random-multichannel-outputs">
+<h1>10-handling-channels-3.py - Random multichannel outputs.<a class="headerlink" href="#handling-channels-3-py-random-multichannel-outputs" title="Permalink to this headline">¶</a></h1>
+<p>If <cite>chnl</cite> is negative, streams begin at 0, increment the output
+number by inc and wrap around the global number of channels.
+Then, the list of streams is scrambled.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="c1"># Creates a Server with 8 channels</span>
+<span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">(</span><span class="n">nchnls</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+
+<span class="n">amps</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.35</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">]</span>
+
+<span class="c1"># Generates 8 sine waves with</span>
+<span class="c1"># increasing amplitudes</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">a</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="n">amps</span><span class="p">)</span>
+
+<span class="c1"># Shuffles physical output channels</span>
+<span class="n">a</span><span class="o">.</span><span class="n">out</span><span class="p">(</span><span class="n">chnl</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h4>Previous topic</h4>
+<p class="topless"><a href="09-handling-channels-2.html" title="previous chapter">09-handling-channels-2.py - The <cite>out</cite> method and the physical outputs.</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="11-handling-channels-4.html" title="next chapter">11-handling-channels-4.py - Explicit control of the physical outputs.</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="11-handling-channels-4.html" title="11-handling-channels-4.py - Explicit control of the physical outputs.">next</a> |</li>
+<li class="right">
+<a href="09-handling-channels-2.html" title="09-handling-channels-2.py - The out method and the physical outputs.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="index.html">02-controls</a> »</li>
+<li class="nav-item nav-item-this"><a href="">10-handling-channels-3.py - Random multichannel outputs.</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

@@ -1,0 +1,148 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>API documentation &#8212; Pyo 1.0.4 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/nature.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-codeautolink.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/autoclasstoc.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/E-PyoIcon.ico"/>
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Constants" href="constants.html" />
+    <link rel="prev" title="How to improve performance of your pyo programs" href="../perftips.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="constants.html" title="Constants"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../perftips.html" title="How to improve performance of your pyo programs"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Pyo 1.0.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">API documentation</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="api-documentation">
+<h1>API documentation<a class="headerlink" href="#api-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="constants.html">Constants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="functions/index.html">Functions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="functions/audio.html">Audio Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="functions/midi.html">Midi Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="functions/sndfile.html">Soundfile</a></li>
+<li class="toctree-l2"><a class="reference internal" href="functions/sampling.html">Resampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="functions/conv.html">Conversions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="functions/server.html">Server Queries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="functions/util.html">Utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="alphabetical.html">Alphabetical class reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="classes/index.html">Classes by category</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="classes/server.html">Audio Server</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classes/listener.html">Controller listeners</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classes/_core.html">Base Classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classes/analysis.html">Audio Signal Analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classes/arithmetic.html">Arithmetic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classes/controls.html">Control Signals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classes/dynamics.html">Dynamic management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classes/effects.html">Special Effects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classes/events.html">Events framework</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classes/expression.html">Prefix expression evaluators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classes/filters.html">Filters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classes/fourier.html">Fast Fourier Transform</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classes/pvoc.html">Phase Vocoder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classes/generators.html">Signal Generators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classes/internals.html">Internal objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classes/matrixprocess.html">Matrix Processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classes/midi.html">Midi Handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classes/mmlmusic.html">Music Macro Language evaluator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classes/opensndctrl.html">Open Sound Control</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classes/pan.html">Routing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classes/pattern.html">Event Sequencing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classes/players.html">Soundfile Players</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classes/randoms.html">Random generators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classes/tableprocess.html">Table Processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classes/triggers.html">Sample Accurate Timing (Triggers)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classes/utils.html">Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classes/tables.html">Tables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classes/matrices.html">Matrices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classes/map.html">Value Converters (SLMap)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classes/wxgui.html">Additional WxPython widgets</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../perftips.html"
+                        title="previous chapter">How to improve performance of your pyo programs</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="constants.html"
+                        title="next chapter">Constants</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="constants.html" title="Constants"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../perftips.html" title="How to improve performance of your pyo programs"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Pyo 1.0.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">API documentation</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+  </body>
+</html>

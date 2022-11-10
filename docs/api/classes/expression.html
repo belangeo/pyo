@@ -1,0 +1,823 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>Prefix expression evaluators — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="filters.html" rel="next" title="Filters"/>
+<link href="events.html" rel="prev" title="Events framework"/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="filters.html" title="Filters">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="events.html" title="Events framework">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="../index.html">API documentation</a> »</li>
+<li class="nav-item nav-item-2"><a accesskey="U" href="index.html">Classes by category</a> »</li>
+<li class="nav-item nav-item-this"><a href="">Prefix expression evaluators</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="prefix-expression-evaluators">
+<h1>Prefix expression evaluators<a class="headerlink" href="#prefix-expression-evaluators" title="Permalink to this headline">¶</a></h1>
+<p>Prefix audio expression evaluator.</p>
+<p>This family implements a tiny functional programming language that
+can be used to write synthesis or signal processing algorithms.</p>
+<section id="api-documentation">
+<h2><strong>API documentation</strong><a class="headerlink" href="#api-documentation" title="Permalink to this headline">¶</a></h2>
+<p>This API is in alpha stage and subject to future changes!</p>
+</section>
+<section id="builtin-functions">
+<h2>Builtin functions<a class="headerlink" href="#builtin-functions" title="Permalink to this headline">¶</a></h2>
+<p><strong>Arithmetic operators</strong></p>
+<ul class="simple">
+<li><p>(+ x y) : returns the sum of two values.</p></li>
+<li><p>(- x y) : substracts the second value to the first and returns the result.</p></li>
+<li><p>(* x y) : returns the multiplication of two values.</p></li>
+<li><p>(/ x y) : returns the quotient of x/y.</p></li>
+<li><p>(^ x y) : returns x to the power y.</p></li>
+<li><p>(% x y) : returns the floating-point remainder of x/y.</p></li>
+<li><p>(neg x) : returns the negative of x.</p></li>
+</ul>
+<p><strong>Moving phase operators</strong></p>
+<ul class="simple">
+<li><p>(++ x y) : increments its internal state by x and wrap around 0.0 and y.</p></li>
+<li><p>(– x y) : decrements its internal state by x and wrap around 0.0 and y.</p></li>
+<li><p>(~ x y) : generates a periodic ramp from 0 to 1 with frequency x and phase y.</p></li>
+</ul>
+<p><strong>Conditional operators</strong></p>
+<ul class="simple">
+<li><p>(&lt; x y) : returns 1 if x is less than y, otherwise returns 0.</p></li>
+<li><p>(&lt;= x y) : returns 1 if x is less than or equal to y, otherwise returns 0.</p></li>
+<li><p>(&gt; x y) : returns 1 if x is greater than y, otherwise returns 0.</p></li>
+<li><p>(&gt;= x y) : returns 1 if x is greater than or equal to y, otherwise returns 0.</p></li>
+<li><p>(== x y) : returns 1 if x is equal to y, otherwise returns 0.</p></li>
+<li><p>(!= x y) : returns 1 if x is not equal to y, otherwise returns 0.</p></li>
+<li><p>(if (cond) (then) (else)) : returns then for any non-zero value of cond, otherwise returns else.</p></li>
+<li><p>(and x y) : returns 1 if both x and y are not 0, otherwise returns 0.</p></li>
+<li><p>(or x y) : returns 1 if one of x or y are not 0, otherwise returns 0.</p></li>
+</ul>
+<p><strong>Trigonometric functions</strong></p>
+<ul class="simple">
+<li><p>(sin x) : returns the sine of an angle of x radians.</p></li>
+<li><p>(cos x) : returns the cosine of an angle of x radians.</p></li>
+<li><p>(tan x) : returns the tangent of x radians.</p></li>
+<li><p>(tanh x) : returns the hyperbolic tangent of x radians.</p></li>
+<li><p>(atan x) : returns the principal value of the arc tangent of x, expressed in radians.</p></li>
+<li><p>(atan2 x y) : returns the principal value of the arc tangent of y/x, expressed in radians.</p></li>
+</ul>
+<p><strong>Power and logarithmic functions</strong></p>
+<ul class="simple">
+<li><p>(sqrt x) : returns the square root of x.</p></li>
+<li><p>(log x) : returns the natural logarithm of x.</p></li>
+<li><p>(log2 x) : returns the binary (base-2) logarithm of x.</p></li>
+<li><p>(log10 x) : returns the common (base-10) logarithm of x.</p></li>
+<li><p>(pow x y) : returns x to the power y.</p></li>
+</ul>
+<p><strong>Clipping functions</strong></p>
+<ul class="simple">
+<li><p>(abs x) : returns the absolute value of x.</p></li>
+<li><p>(floor x) : rounds x downward, returning the largest integral value that is not greater than x.</p></li>
+<li><p>(ceil x) : rounds x upward, returning the smallest integral value that is not less than x.</p></li>
+<li><p>(exp  x) : returns the constant e to the power x.</p></li>
+<li><p>(round x) : returns the integral value that is nearest to x.</p></li>
+<li><p>(min x y) : returns the smaller of its arguments: either x or y.</p></li>
+<li><p>(max x y) : returns the larger of its arguments: either x or y.</p></li>
+<li><p>(wrap x) : wraps x between 0 and 1.</p></li>
+</ul>
+<p><strong>Random fuctions</strong></p>
+<ul class="simple">
+<li><p>(randf x y) : returns a pseudo-random floating-point number in the range between x and y.</p></li>
+<li><p>(randi x y) : returns a pseudo-random integral number in the range between x and y.</p></li>
+</ul>
+<p><strong>Complex numbers</strong></p>
+<ul class="simple">
+<li><p>(complex x y) : returns a complex number where x is the real part and y the imaginary part.</p></li>
+<li><p>(real x) : returns the real part of the complex number x.</p></li>
+<li><p>(imag x) : returns the imaginary part of the complex number x.</p></li>
+</ul>
+<p><strong>Filter functions</strong></p>
+<ul class="simple">
+<li><p>(delay x) : one sample delay.</p></li>
+<li><p>(sah x y) : samples and holds x value whenever y is smaller than its previous state.</p></li>
+<li><p>(rpole x y) : real one-pole recursive filter. returns x + last_out * y.</p></li>
+<li><p>(rzero x y) : real one-zero non-recursive filter. returns x - last_x * y.</p></li>
+<li><p>(cpole x y) : complex one-pole recursive filter. x is the complex signal to filter, y is a complex coefficient, it returns a complex signal.</p></li>
+<li><p>(czero x y) : complex one-zero non-recursive filter. x is the complex signal to filter, y is a complex coefficient, it returns a complex signal.</p></li>
+</ul>
+<p><strong>Multi-output function</strong></p>
+<ul class="simple">
+<li><p>(out x y) : If using multiple outputs, creates an audio stream where x is the output channel and y the signal to write to the channel.</p></li>
+</ul>
+<p><strong>Constants</strong></p>
+<ul class="simple">
+<li><p>(const x) : returns x.</p></li>
+<li><p>pi : returns an approximated value of pi.</p></li>
+<li><p>twopi : returns a constant with value pi*2.</p></li>
+<li><p>e : returns an approximated value of e.</p></li>
+<li><p>sr : returns the current sampling rate.</p></li>
+</ul>
+</section>
+<section id="comments">
+<h2>Comments<a class="headerlink" href="#comments" title="Permalink to this headline">¶</a></h2>
+<p>A comment starts with two slashs ( // ) and ends at the end of the line:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>// This is a comment!
+</pre></div>
+</div>
+</section>
+<section id="input-and-output-signals">
+<h2>Input and Output signals<a class="headerlink" href="#input-and-output-signals" title="Permalink to this headline">¶</a></h2>
+<p>User has access to the last buffer size of input and output samples.</p>
+<p>To use samples from past inputs, use $x0[n] notation, where 0 is the first
+audio stream ($x1[0] would retrieve the second audio stream) and n is the
+position from the current time. $x0[0] is the current input sample, $x0[-1]
+is the previous one and $x0[-buffersize] is the last available input sample.</p>
+<p>The first audio stream can also simply be named $x[0] ($x[0] is the same as
+$x0[0]).</p>
+<p>To use samples from past output, use $y0[n] notation, where 0 is the first
+output audio stream ($y1[0] would retrieve the second output audio stream)
+and n is the position from the current time. $y0[-1] is the previous output
+and $y0[-buffersize] is the last available output sample of the stream.</p>
+<p>The first output audio stream can also simply be named $y[-1] ($y[-1] is the
+same as $y0[-1]).</p>
+<p>If the object generates only one channel output (the default), the last
+expression in the script is the output signal. Otherwise, output signals must
+be created with the out function.</p>
+<p>Here an example of a first-order IIR lowpass filter expression:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>// A first-order IIR lowpass filter
++ $x[0] (* (- $y[-1] $x[0]) 0.99)
+</pre></div>
+</div>
+<p>A simple ring-modulation expression:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>// ring-modulation between the first two input signals
+* $x[0] $x1[0]
+</pre></div>
+</div>
+<p>Two output channels:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>// First channel
+(out 0 (sin (* (twopi) (~ 400))))
+// Second channel
+(out 1 (sin (* (twopi) (~ 500))))
+</pre></div>
+</div>
+</section>
+<section id="defining-custom-functions">
+<h2>Defining custom functions<a class="headerlink" href="#defining-custom-functions" title="Permalink to this headline">¶</a></h2>
+<p>The <cite>define</cite> keyword starts the definition of a custom function:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>(define funcname (body))
+</pre></div>
+</div>
+<p>funcname is the name used to call the function in the expression and body
+is the sequence of functions to execute. Arguments of the function are
+extracted directly from the body. They must be named $1, $2, $3, …, $9.</p>
+<p>Example of a sine wave function:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>(define osc (
+    sin (* (twopi) (~ $1))
+    )
+)
+// play a sine wave
+* (osc 440) 0.3
+</pre></div>
+</div>
+</section>
+<section id="state-variables">
+<h2>State variables<a class="headerlink" href="#state-variables" title="Permalink to this headline">¶</a></h2>
+<p>User can create state variable with the keyword <cite>let</cite>. This is useful
+to set an intermediate state to be used in multiple places in the
+processing chain. The syntax is:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>(let #var (body))
+</pre></div>
+</div>
+<p>The variable name must begin with a <cite>#</cite>:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>(let #sr 44100)
+(let #freq 1000)
+(let #coeff (
+    ^ (e) (/ (* (* -2 (pi)) #freq) #sr)
+    )
+)
++ $x[0] (* (- $y[-1] $x[0]) #coeff)
+</pre></div>
+</div>
+<p>The variable is private to a function if created inside a custom function:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>(let #freq 250) // global #freq variable
+(define osc (
+    (let #freq (* $1 $2)) // local #freq variable
+    sin (* (twopi) (~ #freq))
+    )
+)
+* (+ (osc 1 #freq) (osc 2 #freq)) 0.2
+</pre></div>
+</div>
+<p>State variables can be used to do 1 sample feedback if used before created.
+Undefined variables are initialized to 0:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>(define oscloop (
+        (let #xsin
+            (sin (+ (* (~ $1) (twopi)) (* #xsin $2))) // #xsin used before...
+        ) // ... "let" statement finished!
+        #xsin // oscloop function outputs #xsin variable
+    )
+)
+* (oscloop 200 0.7) 0.3
+</pre></div>
+</div>
+<p>A state variable can also contain a complex number:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>(let #v (complex 0.2 0.7)) // #v = (0.2 0.7)
+</pre></div>
+</div>
+</section>
+<section id="user-variables">
+<h2>User variables<a class="headerlink" href="#user-variables" title="Permalink to this headline">¶</a></h2>
+<p>User variables are created with the keyword <cite>var</cite>:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>(var #var (init))
+</pre></div>
+</div>
+<p>The variable name must begin with a <cite>#</cite>.</p>
+<p>They are computed only at initialization, but can be changed from the python
+script with method calls (varname is a string and value is a float):</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>obj.setVar(varname, value)
+</pre></div>
+</div>
+<p>The following example shows how to control the cutoff fequency of a lowpass
+filter with a user variable:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>expression = '''
+(var #freq 1000)
+(let #coeff (
+    ^ e (/ (* (neg twopi) #freq) 44100)
+    )
+)
++ $x[0] (* (- $y[-1] $x[0]) #coeff)
+'''
+ex = Expr(Noise(0.5), expression).out()
+freq = Sine(0.25).range(250, 10000)
+
+def update():
+    ex.setVar("#freq", freq.get())
+
+pat = Pattern(update, 0.02).play()
+</pre></div>
+</div>
+</section>
+<section id="library-importation">
+<h2>Library importation<a class="headerlink" href="#library-importation" title="Permalink to this headline">¶</a></h2>
+<p>Custom functions can be defined in an external file and imported with the
+<cite>load</cite> function:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>(load path/to/the/file)
+</pre></div>
+</div>
+<p>The content of the file will be inserted where the load function is called
+and all functions defined inside the file will then be accessible. The path
+can be absolute or relative to the current working directory.</p>
+</section>
+<section id="complex-numbers">
+<h2>Complex numbers<a class="headerlink" href="#complex-numbers" title="Permalink to this headline">¶</a></h2>
+<p>A complex number is created with the <cite>complex</cite> function:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>(complex x y)
+</pre></div>
+</div>
+<p>We can retrieve one part of a complex number with <cite>real</cite> and <cite>imag</cite> functions:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>// get the real part (x) of a number
+(real (complex x y))
+</pre></div>
+</div>
+<p>If a complex number is used somewhere not waiting for a complex, real value
+will be used.</p>
+<p>If a real number is used somewhere waiting for a complex, the imaginary part
+is set to 0.0.</p>
+</section>
+<section id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p>Here is some expression examples.</p>
+<p>A first-order IIR lowpass filter:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>(var #sr 44100)
+(var #cutoff 1000)
+(let #coeff (exp (/ (* (* -2 (pi)) #cutoff) #sr)))
++ $x[0] (* (- $y[-1] $x[0]) #coeff)
+</pre></div>
+</div>
+<p>A LFO’ed hyperbolic tangent distortion:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>// $1 = lfo frequency, $2 = lfo depth
+(define lfo (
+        (+ (* (sin (* (twopi) (~ $1))) (- $2 1)) $2)
+    )
+)
+tanh (* $x[0] (lfo .25 10))
+</pre></div>
+</div>
+<p>A triangle waveform generator (use Sig(0) as input argument to bypass input):</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>(var #freq 440)
+// $1 = oscillator frequency
+(define triangle (
+        (let #ph (~ $1))
+        (- (* (min #ph (- 1 #ph)) 4) 1)
+    )
+)
+triangle #freq
+</pre></div>
+</div>
+</section>
+<section id="objects">
+<h2><strong>Objects</strong><a class="headerlink" href="#objects" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="expr">
+<h2><em>Expr</em><a class="headerlink" href="#expr" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyo.Expr">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">Expr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mul</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/expression.html#Expr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.Expr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prefix audio expression evaluator.</p>
+<p>Expr implements a tiny functional programming language that can be
+used to write synthesis or signal processing algorithms.</p>
+<p>For documentation about the language, see the module’s documentation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parent</dt>
+<dd class="field-odd"><p><a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></p>
+</dd>
+<dt class="field-even">Args</dt>
+<dd class="field-even"><dl class="simple">
+<dt>input: PyoObject or list of PyoObjects</dt><dd><p>Input signal(s) to process. If given a multi-stream PyoObject
+or a list of PyoObjects, each stream ca be retrieved with the
+syntax $x0[0], $x1[0], $x2[0], etc. $x[0] is the same as $x0[0].</p>
+</dd>
+<dt>expr: str, optional</dt><dd><p>Expression to evaluate as a string.</p>
+</dd>
+<dt>outs: int, optional</dt><dd><p>Number of output signals generated by the object. If 1 (the
+default), the last expression in the script is the output signal.
+Otherwise, output signals must be created with the <cite>out</cite> function.
+Available at initialization time only.</p>
+</dd>
+<dt>initout: float, optional</dt><dd><p>Value used to initialize the output buffers. Use with caution!
+Defaults to 0.0.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">proc</span> <span class="o">=</span> <span class="s1">'''</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s1">(var #boost 1)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s1">(tanh (* $x[0] #boost))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s1">'''</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">sf</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">SfPlayer</span></a><span class="p">(</span><span class="n">SNDS_PATH</span> <span class="o">+</span> <span class="s2">"/transparent.aif"</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ex</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/expression.html#pyo.Expr" title="pyo.lib.expression.Expr"><span class="n">Expr</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">sf</span></a><span class="p">,</span> <span class="n">proc</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.4</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lfo</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">change</span><span class="p">():</span>
+<span class="gp">... </span>    <span class="n">ex</span><span class="o">.</span><span class="n">setVar</span><span class="p">(</span><span class="s2">"#boost"</span><span class="p">,</span> <span class="n">lfo</span><span class="o">.</span><span class="n">get</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pat</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/pattern.html#pyo.Pattern" title="pyo.lib.pattern.Pattern"><span class="n">Pattern</span></a><span class="p">(</span><span class="n">change</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">)</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Public Data Attributes:</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.Expr.expr" title="pyo.Expr.expr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">expr</span></code></a></p></td>
+<td><p>string.</p></td>
+</tr>
+</tbody>
+</table>
+<details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mul</span></code></p></td>
+<td><p>float or PyoObject.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add</span></code></p></td>
+<td><p>float or PyoObject.</p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Public Methods:</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>(input[, expr, outs, initout, mul, add])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.Expr.setExpr" title="pyo.Expr.setExpr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setExpr</span></code></a>(x)</p></td>
+<td><p>Replace the <cite>expr</cite> attribute.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.Expr.printNodes" title="pyo.Expr.printNodes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">printNodes</span></code></a>()</p></td>
+<td><p>Print the list of current nodes.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setVar</span></code>(varname, value)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.Expr.editor" title="pyo.Expr.editor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">editor</span></code></a>([title, wxnoserver])</p></td>
+<td><p>Opens the text editor for this object.</p></td>
+</tr>
+</tbody>
+</table>
+<details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>(input[, expr, outs, initout, mul, add])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__add__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__radd__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__iadd__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__sub__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__rsub__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__isub__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__mul__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__rmul__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__imul__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__truediv__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__rtruediv__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__itruediv__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__div__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__rdiv__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__idiv__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__pow__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__rpow__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__mod__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__neg__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__lt__</span></code>(x)</p></td>
+<td><p>Return self&lt;value.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__le__</span></code>(x)</p></td>
+<td><p>Return self&lt;=value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__eq__</span></code>(x)</p></td>
+<td><p>Return self==value.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__ne__</span></code>(x)</p></td>
+<td><p>Return self!=value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__gt__</span></code>(x)</p></td>
+<td><p>Return self&gt;value.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__ge__</span></code>(x)</p></td>
+<td><p>Return self&gt;=value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__do_comp__</span></code>(comp, mode[, default])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isPlaying</span></code>([all])</p></td>
+<td><p>Returns True if the object is currently playing, otherwise, returns False.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isOutputting</span></code>([all])</p></td>
+<td><p>Returns True if the object is outputting.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
+<td><p>Return the first sample of the current buffer as a float.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
+<td><p>Start processing without sending samples to output.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">out</span></code>([chnl, inc, dur, delay])</p></td>
+<td><p>Start processing and send samples to audio output beginning at <cite>chnl</cite>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">stop</span></code>([wait])</p></td>
+<td><p>Stop processing.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mix</span></code>([voices])</p></td>
+<td><p>Mix the object's audio streams into <cite>voices</cite> streams and return a Mix object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">range</span></code>(min, max)</p></td>
+<td><p>Adjust <cite>mul</cite> and <cite>add</cite> attributes according to a given range.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setMul</span></code>(x)</p></td>
+<td><p>Replace the <cite>mul</cite> attribute.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setAdd</span></code>(x)</p></td>
+<td><p>Replace the <cite>add</cite> attribute.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setSub</span></code>(x)</p></td>
+<td><p>Replace and inverse the <cite>add</cite> attribute.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setDiv</span></code>(x)</p></td>
+<td><p>Replace and inverse the <cite>mul</cite> attribute.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set</span></code>(attr, value[, port, callback])</p></td>
+<td><p>Replace any attribute with portamento.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ctrl</span></code>([map_list, title, wxnoserver])</p></td>
+<td><p>Opens a sliders window to control the parameters of the object.</p></td>
+</tr>
+</tbody>
+</table>
+</details><details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObjectBase" title="pyo.PyoObjectBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObjectBase</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>(input[, expr, outs, initout, mul, add])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">dump</span></code>()</p></td>
+<td><p>Print infos about the current state of the object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getBaseObjects</span></code>()</p></td>
+<td><p>Return a list of Stream objects managed by the instance.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getServer</span></code>()</p></td>
+<td><p>Return a reference to the current Server object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getSamplingRate</span></code>()</p></td>
+<td><p>Return the current sampling rate (samples per second), as a float.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getBufferSize</span></code>()</p></td>
+<td><p>Return the current buffer size (samples per buffer), as an integer.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">allowAutoStart</span></code>([switch])</p></td>
+<td><p>When autoStartChildren is activated in the Server, call this method with False as argument to stop the propagation of play/out/stop methods to and from this object.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">useWaitTimeOnStop</span></code>()</p></td>
+<td><p>When autoStartChildren is activated in the Server, call this method to force an object given to the <cite>mul</cite> attribute of another object to use the  wait time from the stop method instead of being stopped immediately.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">addLinkedObject</span></code>(x)</p></td>
+<td><p>When autoStartChildren is activated in the Server, use this method to explicitly add an object in a dsp chain, which is generally controlled by the last object of the chain.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setStopDelay</span></code>(x)</p></td>
+<td><p>Set a specific waiting time when calling the stop method on this object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getStopDelay</span></code>()</p></td>
+<td><p>Return the waiting time applied when calling the stop method on this object.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__iter__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__next__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">next</span></code>()</p></td>
+<td><p>Alias for __next__ method.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__getitem__</span></code>(i)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__setitem__</span></code>(i, x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__len__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__repr__</span></code>()</p></td>
+<td><p>Return repr(self).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__dir__</span></code>()</p></td>
+<td><p>Default dir() implementation.</p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Private Data Attributes:</p>
+<details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_STREAM_TYPE</span></code></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</details><details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObjectBase" title="pyo.PyoObjectBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObjectBase</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_STREAM_TYPE</span></code></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Private Methods:</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_get_matching_bracket_pos</span></code>(x, p1)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_replace</span></code>(x, lst)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_change_var_names</span></code>(funcname, funcbody)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_preproc</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_init_play</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_reset_from_set</span></code>([attr])</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</details><details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObjectBase" title="pyo.PyoObjectBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObjectBase</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_autoplay</span></code>([dur, delay])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_autostop</span></code>([wait])</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<hr class="docutils"/>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.Expr.setExpr">
+<span class="sig-name descname"><span class="pre">setExpr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/expression.html#Expr.setExpr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.Expr.setExpr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace the <cite>expr</cite> attribute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>x: string</dt><dd><p>New expression to process.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.Expr.printNodes">
+<span class="sig-name descname"><span class="pre">printNodes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/expression.html#Expr.printNodes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.Expr.printNodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print the list of current nodes.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.Expr.editor">
+<span class="sig-name descname"><span class="pre">editor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Expr</span> <span class="pre">Editor'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wxnoserver</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/expression.html#Expr.editor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.Expr.editor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Opens the text editor for this object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>title: string, optional</dt><dd><p>Title of the window. If none is provided, the name of the
+class is used.</p>
+</dd>
+<dt>wxnoserver: boolean, optional</dt><dd><p>With wxPython graphical toolkit, if True, tells the
+interpreter that there will be no server window.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>If <cite>wxnoserver</cite> is set to True, the interpreter will not wait for
+the server GUI before showing the controller window.</p>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="pyo.Expr.expr">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">expr</span></span><a class="headerlink" href="#pyo.Expr.expr" title="Permalink to this definition">¶</a></dt>
+<dd><p>string. New expression to process.</p>
+</dd></dl>
+</dd></dl>
+</section>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h3><a href="../../index.html">Table of Contents</a></h3>
+<ul>
+<li><a class="reference internal" href="#">Prefix expression evaluators</a><ul>
+<li><a class="reference internal" href="#api-documentation"><strong>API documentation</strong></a></li>
+<li><a class="reference internal" href="#builtin-functions">Builtin functions</a></li>
+<li><a class="reference internal" href="#comments">Comments</a></li>
+<li><a class="reference internal" href="#input-and-output-signals">Input and Output signals</a></li>
+<li><a class="reference internal" href="#defining-custom-functions">Defining custom functions</a></li>
+<li><a class="reference internal" href="#state-variables">State variables</a></li>
+<li><a class="reference internal" href="#user-variables">User variables</a></li>
+<li><a class="reference internal" href="#library-importation">Library importation</a></li>
+<li><a class="reference internal" href="#complex-numbers">Complex numbers</a></li>
+<li><a class="reference internal" href="#examples">Examples</a></li>
+<li><a class="reference internal" href="#objects"><strong>Objects</strong></a></li>
+<li><a class="reference internal" href="#expr"><em>Expr</em></a></li>
+</ul>
+</li>
+</ul>
+<h4>Previous topic</h4>
+<p class="topless"><a href="events.html" title="previous chapter">Events framework</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="filters.html" title="next chapter">Filters</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="filters.html" title="Filters">next</a> |</li>
+<li class="right">
+<a href="events.html" title="Events framework">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="../index.html">API documentation</a> »</li>
+<li class="nav-item nav-item-2"><a href="index.html">Classes by category</a> »</li>
+<li class="nav-item nav-item-this"><a href="">Prefix expression evaluators</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

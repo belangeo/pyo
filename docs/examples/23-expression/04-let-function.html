@@ -1,0 +1,139 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>State variable inside an expression — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="05-define-function.html" rel="next" title="Creating our own functions"/>
+<link href="03-multiple-inputs.html" rel="prev" title="Using more than one input signal in a single expression"/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="05-define-function.html" title="Creating our own functions">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="03-multiple-inputs.html" title="Using more than one input signal in a single expression">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a accesskey="U" href="index.html">23-expression</a> »</li>
+<li class="nav-item nav-item-this"><a href="">State variable inside an expression</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="state-variable-inside-an-expression">
+<h1>State variable inside an expression<a class="headerlink" href="#state-variable-inside-an-expression" title="Permalink to this headline">¶</a></h1>
+<p><strong>04-let-function.py</strong></p>
+<p>User can create state variable with the keyword <cite>let</cite>. This is
+useful to set an intermediate state to be used in multiple places
+in the processing chain. The syntax is:</p>
+<div class="highlight-scheme notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="k">let </span><span class="o">#</span><span class="nv">var</span> <span class="p">(</span><span class="nf">body</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>The variable name must begin with a <cite>#</cite>.</p>
+<p>The prefix expression <a class="reference external" href="http://ajaxsoundstudio.com/pyodoc/api/classes/expression.html">documentation</a> gives common use cases where we
+may want to use state variables.</p>
+<p>The following example implements a phase-aligned formant (PAF) generator, as
+described by Miller Puckette in “The Theory and Technique of Electronic
+Music”, p158.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+
+<span class="n">expression</span> <span class="o">=</span> <span class="s2">"""// PAF generator (single formant) //</span>
+<span class="s2">// User variables</span>
+<span class="s2">(let #fund 100) // fundamental frequency</span>
+<span class="s2">(let #band 600) // formant bandwidth</span>
+<span class="s2">(let #form 600) // formant center frequency</span>
+<span class="s2">// Intermediate variables</span>
+<span class="s2">(let #bw (/ #band #fund))</span>
+<span class="s2">(let #cf (/ #form #fund))</span>
+<span class="s2">(let #ph (* (- (~ #fund) 0.5) twopi))</span>
+<span class="s2">(let #car ( // Carrier</span>
+<span class="s2">    (cos (max (min (* #ph #bw) pi) (- 0 pi)))</span>
+<span class="s2">    )</span>
+<span class="s2">)</span>
+<span class="s2">(let #mod ( // Modulator</span>
+<span class="s2">    (let #oct (floor #cf))</span>
+<span class="s2">    (let #frac (</span><span class="si">% #c</span><span class="s2">f 1))</span>
+<span class="s2">    (+ (* (cos (* #ph #oct)) (- 1 #frac))</span>
+<span class="s2">       (* (cos (* #ph (+ #oct 1))) #frac)</span>
+<span class="s2">       )</span>
+<span class="s2">    )</span>
+<span class="s2">)</span>
+<span class="s2">* (* #car #mod) 0.5</span>
+<span class="s2">"""</span>
+
+<a class="sphinx-codeautolink-a" href="../../api/classes/expression.html#pyo.Expr" title="pyo.lib.expression.Expr"><span class="n">expr</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/expression.html#pyo.Expr" title="pyo.lib.expression.Expr"><span class="n">Expr</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Sig" title="pyo.lib._core.Sig"><span class="n">Sig</span></a><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">expression</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">expr</span><span class="o">.</span><span class="n">editor</span><span class="p">()</span>
+
+<a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.Spectrum" title="pyo.lib.analysis.Spectrum"><span class="n">sp</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.Spectrum" title="pyo.lib.analysis.Spectrum"><span class="n">Spectrum</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/expression.html#pyo.Expr" title="pyo.lib.expression.Expr"><span class="n">expr</span></a><span class="p">)</span>
+
+<span class="n">pan</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/pan.html#pyo.Pan" title="pyo.lib.pan.Pan"><span class="n">Pan</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/expression.html#pyo.Expr" title="pyo.lib.expression.Expr"><span class="n">expr</span></a><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h4>Previous topic</h4>
+<p class="topless"><a href="03-multiple-inputs.html" title="previous chapter">Using more than one input signal in a single expression</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="05-define-function.html" title="next chapter">Creating our own functions</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="05-define-function.html" title="Creating our own functions">next</a> |</li>
+<li class="right">
+<a href="03-multiple-inputs.html" title="Using more than one input signal in a single expression">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="index.html">23-expression</a> »</li>
+<li class="nav-item nav-item-this"><a href="">State variable inside an expression</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

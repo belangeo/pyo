@@ -1,0 +1,137 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>06-multichannel-expansion.py - What is a Stream? Polyphonic objects. — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="07-multichannel-expansion-2.html" rel="next" title="07-multichannel-expansion-2.py - Extended multichannel expansion."/>
+<link href="05-math-ops.html" rel="prev" title="05-math-ops.py - Audio objects and arithmetic expresssions."/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="07-multichannel-expansion-2.html" title="07-multichannel-expansion-2.py - Extended multichannel expansion.">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="05-math-ops.html" title="05-math-ops.py - Audio objects and arithmetic expresssions.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a accesskey="U" href="index.html">02-controls</a> »</li>
+<li class="nav-item nav-item-this"><a href="">06-multichannel-expansion.py - What is a <cite>Stream</cite>? Polyphonic objects.</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="multichannel-expansion-py-what-is-a-stream-polyphonic-objects">
+<h1>06-multichannel-expansion.py - What is a <cite>Stream</cite>? Polyphonic objects.<a class="headerlink" href="#multichannel-expansion-py-what-is-a-stream-polyphonic-objects" title="Permalink to this headline">¶</a></h1>
+<p>List expansion is a powerful technique for generating many audio
+streams at once.</p>
+<p>What is a “stream”? A “stream” is a monophonic channel of samples.
+It is the basic structure over which all the library is built. Any
+PyoObject can handle as many streams as necessary to represent the
+defined process. When a polyphonic (ie more than one stream) object
+is asked to send its signals to the output, the server will use the
+arguments (<cite>chnl</cite> and <cite>inc</cite>) of the out() method to distribute the
+streams over the available output channels.</p>
+<p>Almost all attributes of all objects of the library accept list of
+values instead of a single value. The object will create internally
+the same number of streams than the length of the largest list
+given to an attribute at the initialization time. Each value of the
+list is used to generate one stream. Shorter lists will wrap around
+when reaching the end of the list.</p>
+<p>A PyoObject is considered by other object as a list. The function
+<cite>len(obj)</cite> returns the number of streams managed by the object. This
+feature is useful to create a polyphonic dsp chain.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+
+<span class="c1">### Using multichannel-expansion to create a square wave ###</span>
+
+<span class="c1"># Sets fundamental frequency.</span>
+<span class="n">freq</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="c1"># Sets the highest harmonic.</span>
+<span class="n">high</span> <span class="o">=</span> <span class="mi">20</span>
+
+<span class="c1"># Generates the list of harmonic frequencies (odd only).</span>
+<span class="n">harms</span> <span class="o">=</span> <span class="p">[</span><span class="n">freq</span> <span class="o">*</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">high</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span>
+<span class="c1"># Generates the list of harmonic amplitudes (1 / n).</span>
+<span class="n">amps</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.33</span> <span class="o">/</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">high</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span>
+
+<span class="c1"># Creates all sine waves at once.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">a</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="n">harms</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="n">amps</span><span class="p">)</span>
+<span class="c1"># Prints the number of streams managed by "a".</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">a</span></a><span class="p">))</span>
+
+<span class="c1"># The mix(voices) method (defined in PyoObject) mixes</span>
+<span class="c1"># the object streams into `voices` streams.</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">mix</span><span class="p">(</span><span class="n">voices</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+<span class="c1"># Displays the waveform.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.Scope" title="pyo.lib.analysis.Scope"><span class="n">sc</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.Scope" title="pyo.lib.analysis.Scope"><span class="n">Scope</span></a><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h4>Previous topic</h4>
+<p class="topless"><a href="05-math-ops.html" title="previous chapter">05-math-ops.py - Audio objects and arithmetic expresssions.</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="07-multichannel-expansion-2.html" title="next chapter">07-multichannel-expansion-2.py - Extended multichannel expansion.</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="07-multichannel-expansion-2.html" title="07-multichannel-expansion-2.py - Extended multichannel expansion.">next</a> |</li>
+<li class="right">
+<a href="05-math-ops.html" title="05-math-ops.py - Audio objects and arithmetic expresssions.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="index.html">02-controls</a> »</li>
+<li class="nav-item nav-item-this"><a href="">06-multichannel-expansion.py - What is a <cite>Stream</cite>? Polyphonic objects.</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

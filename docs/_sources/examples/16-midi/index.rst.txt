@@ -1,0 +1,13 @@
+16-midi
+========================================
+
+.. toctree::
+   :maxdepth: 1
+
+   01-midi-scan
+   02-notein-object
+   03-midi-envelope
+   04-simple-midi-synth
+   05-control-change
+   06-midi-out
+   07-midifile-with-mido

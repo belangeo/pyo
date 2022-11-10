@@ -1,0 +1,247 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>Soundfile — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="sampling.html" rel="next" title="Resampling"/>
+<link href="midi.html" rel="prev" title="Midi Setup"/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="sampling.html" title="Resampling">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="midi.html" title="Midi Setup">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="../index.html">API documentation</a> »</li>
+<li class="nav-item nav-item-2"><a accesskey="U" href="index.html">Functions</a> »</li>
+<li class="nav-item nav-item-this"><a href="">Soundfile</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="soundfile">
+<h1>Soundfile<a class="headerlink" href="#soundfile" title="Permalink to this headline">¶</a></h1>
+<section id="sndinfo">
+<h2><em>sndinfo</em><a class="headerlink" href="#sndinfo" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyo.sndinfo">
+<span class="sig-name descname"><span class="pre">sndinfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">print</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#sndinfo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.sndinfo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve informations about a soundfile.</p>
+<p>Prints the infos of the given soundfile to the console and returns a
+tuple containing:</p>
+<dl class="simple">
+<dt>(number of frames, duration in seconds, sampling rate,</dt><dd><p>number of channels, file format, sample type)</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>path: string</dt><dd><p>Path of a valid soundfile.</p>
+</dd>
+<dt>print: boolean, optional</dt><dd><p>If True, sndinfo will print sound infos to the console.
+Defaults to False.</p>
+</dd>
+<dt>raise_on_failure: boolean, optional</dt><dd><p>If True, sndinfo will raise an exception when failing to get file info.
+Defaults to False.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">path</span> <span class="o">=</span> <span class="n">SNDS_PATH</span> <span class="o">+</span> <span class="s1">'/transparent.aif'</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+<span class="go">/home/olivier/.local/lib/python3.9/site-packages/pyo/lib/snds/transparent.aif</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">info</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/functions/sndfile.html#pyo.sndinfo" title="pyo.sndinfo"><span class="n">sndinfo</span></a><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
+<span class="go">(29877, 0.6774829931972789, 44100.0, 1, 'AIFF', '16 bit int')</span>
+</pre></div>
+</div>
+</dd></dl>
+</section>
+<section id="savefile">
+<h2><em>savefile</em><a class="headerlink" href="#savefile" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyo.savefile">
+<span class="sig-name descname"><span class="pre">savefile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">samples</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">44100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fileformat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampletype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quality</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.4</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#savefile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.savefile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates an audio file from a list of floats.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>samples: list of floats</dt><dd><p>List of samples data, or list of list of samples data if more than 1 channels.</p>
+</dd>
+<dt>path: string</dt><dd><p>Full path (including extension) of the new file.</p>
+</dd>
+<dt>sr: int, optional</dt><dd><p>Sampling rate of the new file. Defaults to 44100.</p>
+</dd>
+<dt>channels: int, optional</dt><dd><p>Number of channels of the new file. Defaults to 1.</p>
+</dd>
+<dt>fileformat: int, optional</dt><dd><p>Format type of the new file. Defaults to 0. Supported formats are:</p>
+<ol class="arabic simple" start="0">
+<li><p>WAVE - Microsoft WAV format (little endian) {.wav, .wave}</p></li>
+<li><p>AIFF - Apple/SGI AIFF format (big endian) {.aif, .aiff}</p></li>
+<li><p>AU - Sun/NeXT AU format (big endian) {.au}</p></li>
+<li><p>RAW - RAW PCM data {no extension}</p></li>
+<li><p>SD2 - Sound Designer 2 {.sd2}</p></li>
+<li><p>FLAC - FLAC lossless file format {.flac}</p></li>
+<li><p>CAF - Core Audio File format {.caf}</p></li>
+<li><p>OGG - Xiph OGG container {.ogg}</p></li>
+</ol>
+</dd>
+<dt>sampletype ; int, optional</dt><dd><p>Bit depth encoding of the audio file. Defaults to 0.
+SD2 and FLAC only support 16 or 24 bit int. Supported types are:</p>
+<ol class="arabic simple" start="0">
+<li><p>16 bit int</p></li>
+<li><p>24 bit int</p></li>
+<li><p>32 bit int</p></li>
+<li><p>32 bit float</p></li>
+<li><p>64 bit float</p></li>
+<li><p>U-Law encoded</p></li>
+<li><p>A-Law encoded</p></li>
+</ol>
+</dd>
+<dt>quality: float, optional</dt><dd><p>The encoding quality value, between 0.0 (lowest quality) and
+1.0 (highest quality). This argument has an effect only with
+FLAC and OGG compressed formats. Defaults to 0.4.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">uniform</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">os</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">home</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s1">'~'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sr</span><span class="p">,</span> <span class="n">dur</span><span class="p">,</span> <span class="n">chnls</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="mi">44100</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">home</span><span class="p">,</span> <span class="s1">'noise.aif'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">samples</span> <span class="o">=</span> <span class="p">[[</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span><span class="mf">0.5</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sr</span><span class="o">*</span><span class="n">dur</span><span class="p">)]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">chnls</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/functions/sndfile.html#pyo.savefile" title="pyo.savefile"><span class="n">savefile</span></a><span class="p">(</span><span class="n">samples</span><span class="o">=</span><span class="n">samples</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">sr</span><span class="o">=</span><span class="n">sr</span><span class="p">,</span> <span class="n">channels</span><span class="o">=</span><span class="n">chnls</span><span class="p">,</span> <span class="n">fileformat</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sampletype</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+</section>
+<section id="savefilefromtable">
+<h2><em>savefileFromTable</em><a class="headerlink" href="#savefilefromtable" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyo.savefileFromTable">
+<span class="sig-name descname"><span class="pre">savefileFromTable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fileformat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampletype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quality</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.4</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#savefileFromTable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.savefileFromTable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates an audio file from the content of a table.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>table: PyoTableObject</dt><dd><p>Table from which to retrieve the samples to write.</p>
+</dd>
+<dt>path: string</dt><dd><p>Full path (including extension) of the new file.</p>
+</dd>
+<dt>fileformat: int, optional</dt><dd><p>Format type of the new file. Defaults to 0. Supported formats are:</p>
+<ol class="arabic simple" start="0">
+<li><p>WAVE - Microsoft WAV format (little endian) {.wav, .wave}</p></li>
+<li><p>AIFF - Apple/SGI AIFF format (big endian) {.aif, .aiff}</p></li>
+<li><p>AU - Sun/NeXT AU format (big endian) {.au}</p></li>
+<li><p>RAW - RAW PCM data {no extension}</p></li>
+<li><p>SD2 - Sound Designer 2 {.sd2}</p></li>
+<li><p>FLAC - FLAC lossless file format {.flac}</p></li>
+<li><p>CAF - Core Audio File format {.caf}</p></li>
+<li><p>OGG - Xiph OGG container {.ogg}</p></li>
+</ol>
+</dd>
+<dt>sampletype ; int, optional</dt><dd><p>Bit depth encoding of the audio file. Defaults to 0.
+SD2 and FLAC only support 16 or 24 bit int. Supported types are:</p>
+<ol class="arabic simple" start="0">
+<li><p>16 bit int</p></li>
+<li><p>24 bit int</p></li>
+<li><p>32 bit int</p></li>
+<li><p>32 bit float</p></li>
+<li><p>64 bit float</p></li>
+<li><p>U-Law encoded</p></li>
+<li><p>A-Law encoded</p></li>
+</ol>
+</dd>
+<dt>quality: float, optional</dt><dd><p>The encoding quality value, between 0.0 (lowest quality) and
+1.0 (highest quality). This argument has an effect only with
+FLAC and OGG compressed formats. Defaults to 0.4.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">os</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">home</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s1">'~'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">path1</span> <span class="o">=</span> <span class="n">SNDS_PATH</span> <span class="o">+</span> <span class="s1">'/transparent.aif'</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">path2</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">home</span><span class="p">,</span> <span class="s1">'/transparent2.aif'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.SndTable" title="pyo.lib.tables.SndTable"><span class="n">t</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.SndTable" title="pyo.lib.tables.SndTable"><span class="n">SndTable</span></a><span class="p">(</span><span class="n">path1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/functions/sndfile.html#pyo.savefileFromTable" title="pyo.savefileFromTable"><span class="n">savefileFromTable</span></a><span class="p">(</span><span class="n">table</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.SndTable" title="pyo.lib.tables.SndTable"><span class="n">t</span></a><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">fileformat</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sampletype</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+</section>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h3><a href="../../index.html">Table of Contents</a></h3>
+<ul>
+<li><a class="reference internal" href="#">Soundfile</a><ul>
+<li><a class="reference internal" href="#sndinfo"><em>sndinfo</em></a></li>
+<li><a class="reference internal" href="#savefile"><em>savefile</em></a></li>
+<li><a class="reference internal" href="#savefilefromtable"><em>savefileFromTable</em></a></li>
+</ul>
+</li>
+</ul>
+<h4>Previous topic</h4>
+<p class="topless"><a href="midi.html" title="previous chapter">Midi Setup</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="sampling.html" title="next chapter">Resampling</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="sampling.html" title="Resampling">next</a> |</li>
+<li class="right">
+<a href="midi.html" title="Midi Setup">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="../index.html">API documentation</a> »</li>
+<li class="nav-item nav-item-2"><a href="index.html">Functions</a> »</li>
+<li class="nav-item nav-item-this"><a href="">Soundfile</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

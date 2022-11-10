@@ -1,0 +1,138 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>Receiving Open Sound Control messages as audio streams — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="03-send-streams.html" rel="next" title="Sending audio streams as Open Sound Control messages"/>
+<link href="01-osc-scan.html" rel="prev" title="Scan Open Sound Control inputs on a specific port"/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="03-send-streams.html" title="Sending audio streams as Open Sound Control messages">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="01-osc-scan.html" title="Scan Open Sound Control inputs on a specific port">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a accesskey="U" href="index.html">17-osc</a> »</li>
+<li class="nav-item nav-item-this"><a href="">Receiving Open Sound Control messages as audio streams</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="receiving-open-sound-control-messages-as-audio-streams">
+<h1>Receiving Open Sound Control messages as audio streams<a class="headerlink" href="#receiving-open-sound-control-messages-as-audio-streams" title="Permalink to this headline">¶</a></h1>
+<p><strong>02-receive-streams.py</strong></p>
+<p>This script shows a granulation process controlled by OSC messages
+coming from another program (run the next example, <em>03-send-streams.py</em>,
+to get values coming in).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+
+<span class="c1"># The sound table to granulate.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.SndTable" title="pyo.lib.tables.SndTable"><span class="n">table</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.SndTable" title="pyo.lib.tables.SndTable"><span class="n">SndTable</span></a><span class="p">(</span><span class="s2">"../snds/flute.aif"</span><span class="p">)</span>
+
+<span class="c1"># Listen addresses '/density', '/position', '/pitch_rand' and '/duration' on port 9000.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/opensndctrl.html#pyo.OscReceive" title="pyo.lib.opensndctrl.OscReceive"><span class="n">rec</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/opensndctrl.html#pyo.OscReceive" title="pyo.lib.opensndctrl.OscReceive"><span class="n">OscReceive</span></a><span class="p">(</span><span class="n">port</span><span class="o">=</span><span class="mi">9000</span><span class="p">,</span> <span class="n">address</span><span class="o">=</span><span class="p">[</span><span class="s2">"/density"</span><span class="p">,</span> <span class="s2">"/position"</span><span class="p">,</span> <span class="s2">"/pitch_rand"</span><span class="p">,</span> <span class="s2">"/duration"</span><span class="p">])</span>
+
+<span class="c1"># Sets initial values for the OSC streams. This allow the program to run with</span>
+<span class="c1"># minimal behaviour even if no message have been sent on these addresses.</span>
+<span class="n">rec</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s2">"/density"</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
+<span class="n">rec</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s2">"/position"</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
+<span class="n">rec</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s2">"/pitch_rand"</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+<span class="n">rec</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s2">"/duration"</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
+
+<span class="c1"># Density of grains, between 1 and 250 grains per second.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.SigTo" title="pyo.lib.controls.SigTo"><span class="n">dens</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.SigTo" title="pyo.lib.controls.SigTo"><span class="n">SigTo</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/opensndctrl.html#pyo.OscReceive" title="pyo.lib.opensndctrl.OscReceive"><span class="n">rec</span></a><span class="p">[</span><span class="s2">"/density"</span><span class="p">],</span> <span class="n">time</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mi">249</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># Reading position, in samples, in the table + little jitter noise.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.SigTo" title="pyo.lib.controls.SigTo"><span class="n">pos</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.SigTo" title="pyo.lib.controls.SigTo"><span class="n">SigTo</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/opensndctrl.html#pyo.OscReceive" title="pyo.lib.opensndctrl.OscReceive"><span class="n">rec</span></a><span class="p">[</span><span class="s2">"/position"</span><span class="p">],</span> <span class="n">time</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="n">table</span><span class="o">.</span><span class="n">getSize</span><span class="p">(),</span> <span class="n">add</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">Noise</span></a><span class="p">(</span><span class="mi">100</span><span class="p">))</span>
+
+<span class="c1"># Amplitude of a jitter noise around 1.0 to control the pitch of individual grains.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.SigTo" title="pyo.lib.controls.SigTo"><span class="n">rpit</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.SigTo" title="pyo.lib.controls.SigTo"><span class="n">SigTo</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/opensndctrl.html#pyo.OscReceive" title="pyo.lib.opensndctrl.OscReceive"><span class="n">rec</span></a><span class="p">[</span><span class="s2">"/pitch_rand"</span><span class="p">],</span> <span class="n">time</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="mf">0.001</span><span class="p">)</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">pit</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">Noise</span></a><span class="p">(</span><span class="n">mul</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.SigTo" title="pyo.lib.controls.SigTo"><span class="n">rpit</span></a><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># Grain duration, between 0.025 and 0.5 second.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.SigTo" title="pyo.lib.controls.SigTo"><span class="n">dur</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.SigTo" title="pyo.lib.controls.SigTo"><span class="n">SigTo</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/opensndctrl.html#pyo.OscReceive" title="pyo.lib.opensndctrl.OscReceive"><span class="n">rec</span></a><span class="p">[</span><span class="s2">"/duration"</span><span class="p">],</span> <span class="n">time</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.475</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="mf">0.025</span><span class="p">)</span>
+
+<span class="n">grain</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/tableprocess.html#pyo.Particle" title="pyo.lib.tableprocess.Particle"><span class="n">Particle</span></a><span class="p">(</span>
+    <span class="n">table</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.SndTable" title="pyo.lib.tables.SndTable"><span class="n">table</span></a><span class="p">,</span>  <span class="c1"># table to read samples from.</span>
+    <span class="n">env</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.HannTable" title="pyo.lib.tables.HannTable"><span class="n">HannTable</span></a><span class="p">(),</span>  <span class="c1"># grain envelope.</span>
+    <span class="n">dens</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.SigTo" title="pyo.lib.controls.SigTo"><span class="n">dens</span></a><span class="p">,</span>  <span class="c1"># density of grains per second.</span>
+    <span class="n">pitch</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">pit</span></a><span class="p">,</span>  <span class="c1"># pitch of grains.</span>
+    <span class="n">pos</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.SigTo" title="pyo.lib.controls.SigTo"><span class="n">pos</span></a><span class="p">,</span>  <span class="c1"># position in the table where to start the grain.</span>
+    <span class="n">dur</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.SigTo" title="pyo.lib.controls.SigTo"><span class="n">dur</span></a><span class="p">,</span>  <span class="c1"># grain duration.</span>
+    <span class="n">dev</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>  <span class="c1"># Maximum deviation of the starting time of the grain.</span>
+    <span class="n">pan</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">Noise</span></a><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span>  <span class="c1"># Panning factor of the grain.</span>
+    <span class="n">chnls</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>  <span class="c1"># Number of channels to output.</span>
+    <span class="n">mul</span><span class="o">=</span><span class="mf">0.15</span><span class="p">,</span>
+<span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h4>Previous topic</h4>
+<p class="topless"><a href="01-osc-scan.html" title="previous chapter">Scan Open Sound Control inputs on a specific port</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="03-send-streams.html" title="next chapter">Sending audio streams as Open Sound Control messages</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="03-send-streams.html" title="Sending audio streams as Open Sound Control messages">next</a> |</li>
+<li class="right">
+<a href="01-osc-scan.html" title="Scan Open Sound Control inputs on a specific port">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="index.html">17-osc</a> »</li>
+<li class="nav-item nav-item-this"><a href="">Receiving Open Sound Control messages as audio streams</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

@@ -1,0 +1,1576 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyo.lib.dynamics &#8212; Pyo 1.0.4 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/nature.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-codeautolink.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/autoclasstoc.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../../../_static/E-PyoIcon.ico"/>
+    <link rel="author" title="About these documents" href="../../../about.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">Pyo 1.0.4 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pyo.html" accesskey="U">pyo</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pyo.lib.dynamics</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyo.lib.dynamics</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Objects to modify the dynamic range and sample quality of audio signals.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Copyright 2009-2015 Olivier Belanger</span>
+
+<span class="sd">This file is part of pyo, a python module to help digital signal</span>
+<span class="sd">processing script creation.</span>
+
+<span class="sd">pyo is free software: you can redistribute it and/or modify</span>
+<span class="sd">it under the terms of the GNU Lesser General Public License as</span>
+<span class="sd">published by the Free Software Foundation, either version 3 of the</span>
+<span class="sd">License, or (at your option) any later version.</span>
+
+<span class="sd">pyo is distributed in the hope that it will be useful,</span>
+<span class="sd">but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="sd">MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="sd">GNU Lesser General Public License for more details.</span>
+
+<span class="sd">You should have received a copy of the GNU Lesser General Public</span>
+<span class="sd">License along with pyo.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">._core</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">._maps</span> <span class="kn">import</span> <span class="o">*</span>
+
+
+<div class="viewcode-block" id="Clip"><a class="viewcode-back" href="../../../api/classes/dynamics.html#pyo.Clip">[docs]</a><span class="k">class</span> <span class="nc">Clip</span><span class="p">(</span><span class="n">PyoObject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Clips a signal to a predefined limit.</span>
+
+<span class="sd">    :Parent: :py:class:`PyoObject`</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        input: PyoObject</span>
+<span class="sd">            Input signal to process.</span>
+<span class="sd">        min: float or PyoObject, optional</span>
+<span class="sd">            Minimum possible value. Defaults to -1.</span>
+<span class="sd">        max: float or PyoObject, optional</span>
+<span class="sd">            Maximum possible value. Defaults to 1.</span>
+
+<span class="sd">    .. seealso::</span>
+
+<span class="sd">        :py:class:`Mirror`, :py:class:`Wrap`</span>
+
+<span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
+<span class="sd">    &gt;&gt;&gt; s.start()</span>
+<span class="sd">    &gt;&gt;&gt; a = SfPlayer(SNDS_PATH + &quot;/transparent.aif&quot;, loop=True)</span>
+<span class="sd">    &gt;&gt;&gt; lfoup = Sine(freq=.25, mul=.48, add=.5)</span>
+<span class="sd">    &gt;&gt;&gt; lfodown = 0 - lfoup</span>
+<span class="sd">    &gt;&gt;&gt; c = Clip(a, min=lfodown, max=lfoup, mul=.4).mix(2).out()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="nb">min</span><span class="o">=-</span><span class="mf">1.0</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;oOOOO&quot;</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="nb">min</span><span class="p">,</span> <span class="nb">max</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input</span> <span class="o">=</span> <span class="nb">input</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_min</span> <span class="o">=</span> <span class="nb">min</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_max</span> <span class="o">=</span> <span class="nb">max</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span> <span class="o">=</span> <span class="n">InputFader</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+        <span class="n">in_fader</span><span class="p">,</span> <span class="nb">min</span><span class="p">,</span> <span class="nb">max</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="p">,</span> <span class="nb">min</span><span class="p">,</span> <span class="nb">max</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">Clip_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">in_fader</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="nb">min</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="nb">max</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_play</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Clip.setInput"><a class="viewcode-back" href="../../../api/classes/dynamics.html#pyo.Clip.setInput">[docs]</a>    <span class="k">def</span> <span class="nf">setInput</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="o">=</span><span class="mf">0.05</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `input` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: PyoObject</span>
+<span class="sd">                New signal to process.</span>
+<span class="sd">            fadetime: float, optional</span>
+<span class="sd">                Crossfade time between old and new input. Defaults to 0.05.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;oN&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="o">.</span><span class="n">setInput</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Clip.setMin"><a class="viewcode-back" href="../../../api/classes/dynamics.html#pyo.Clip.setMin">[docs]</a>    <span class="k">def</span> <span class="nf">setMin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `min` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float or PyoObject</span>
+<span class="sd">                New `min` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_min</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setMin</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="Clip.setMax"><a class="viewcode-back" href="../../../api/classes/dynamics.html#pyo.Clip.setMax">[docs]</a>    <span class="k">def</span> <span class="nf">setMax</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `max` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float or PyoObject</span>
+<span class="sd">                New `max` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_max</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setMax</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="Clip.ctrl"><a class="viewcode-back" href="../../../api/classes/dynamics.html#pyo.Clip.ctrl">[docs]</a>    <span class="k">def</span> <span class="nf">ctrl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">map_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wxnoserver</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_map_list</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">SLMap</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="s2">&quot;min&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_min</span><span class="p">),</span>
+            <span class="n">SLMap</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max</span><span class="p">),</span>
+            <span class="n">SLMapMul</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mul</span><span class="p">),</span>
+        <span class="p">]</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="n">ctrl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">map_list</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">wxnoserver</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;PyoObject. Input signal to process.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input</span>
+
+    <span class="nd">@input</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setInput</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">min</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float or PyoObject. Minimum possible value.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_min</span>
+
+    <span class="nd">@min</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">min</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setMin</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">max</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float or PyoObject. Maximum possible value.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max</span>
+
+    <span class="nd">@max</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">max</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setMax</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Mirror"><a class="viewcode-back" href="../../../api/classes/dynamics.html#pyo.Mirror">[docs]</a><span class="k">class</span> <span class="nc">Mirror</span><span class="p">(</span><span class="n">PyoObject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Reflects the signal that exceeds the `min` and `max` thresholds.</span>
+
+<span class="sd">    This object is useful for table indexing or for clipping and</span>
+<span class="sd">    modeling an audio signal.</span>
+
+<span class="sd">    :Parent: :py:class:`PyoObject`</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        input: PyoObject</span>
+<span class="sd">            Input signal to process.</span>
+<span class="sd">        min: float or PyoObject, optional</span>
+<span class="sd">            Minimum possible value. Defaults to 0.</span>
+<span class="sd">        max: float or PyoObject, optional</span>
+<span class="sd">            Maximum possible value. Defaults to 1.</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        If `min` is higher than `max`, then the output will be the average of the two.</span>
+
+<span class="sd">    .. seealso::</span>
+
+<span class="sd">        :py:class:`Clip`, :py:class:`Wrap`</span>
+
+<span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
+<span class="sd">    &gt;&gt;&gt; s.start()</span>
+<span class="sd">    &gt;&gt;&gt; a = Sine(freq=[300,301])</span>
+<span class="sd">    &gt;&gt;&gt; lfmin = Sine(freq=1.5, mul=.25, add=-0.75)</span>
+<span class="sd">    &gt;&gt;&gt; lfmax = Sine(freq=2, mul=.25, add=0.75)</span>
+<span class="sd">    &gt;&gt;&gt; b = Mirror(a, min=lfmin, max=lfmax)</span>
+<span class="sd">    &gt;&gt;&gt; c = Tone(b, freq=2500, mul=.15).out()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="nb">min</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;oOOOO&quot;</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="nb">min</span><span class="p">,</span> <span class="nb">max</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input</span> <span class="o">=</span> <span class="nb">input</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_min</span> <span class="o">=</span> <span class="nb">min</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_max</span> <span class="o">=</span> <span class="nb">max</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span> <span class="o">=</span> <span class="n">InputFader</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+        <span class="n">in_fader</span><span class="p">,</span> <span class="nb">min</span><span class="p">,</span> <span class="nb">max</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="p">,</span> <span class="nb">min</span><span class="p">,</span> <span class="nb">max</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">Mirror_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">in_fader</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="nb">min</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="nb">max</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_play</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Mirror.setInput"><a class="viewcode-back" href="../../../api/classes/dynamics.html#pyo.Mirror.setInput">[docs]</a>    <span class="k">def</span> <span class="nf">setInput</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="o">=</span><span class="mf">0.05</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `input` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: PyoObject</span>
+<span class="sd">                New signal to process.</span>
+<span class="sd">            fadetime: float, optional</span>
+<span class="sd">                Crossfade time between old and new input. Defaults to 0.05.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;oN&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="o">.</span><span class="n">setInput</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Mirror.setMin"><a class="viewcode-back" href="../../../api/classes/dynamics.html#pyo.Mirror.setMin">[docs]</a>    <span class="k">def</span> <span class="nf">setMin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `min` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float or PyoObject</span>
+<span class="sd">                New `min` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_min</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setMin</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="Mirror.setMax"><a class="viewcode-back" href="../../../api/classes/dynamics.html#pyo.Mirror.setMax">[docs]</a>    <span class="k">def</span> <span class="nf">setMax</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `max` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float or PyoObject</span>
+<span class="sd">                New `max` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_max</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setMax</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="Mirror.ctrl"><a class="viewcode-back" href="../../../api/classes/dynamics.html#pyo.Mirror.ctrl">[docs]</a>    <span class="k">def</span> <span class="nf">ctrl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">map_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wxnoserver</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_map_list</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">SLMap</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="s2">&quot;min&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_min</span><span class="p">),</span>
+            <span class="n">SLMap</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max</span><span class="p">),</span>
+            <span class="n">SLMapMul</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mul</span><span class="p">),</span>
+        <span class="p">]</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="n">ctrl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">map_list</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">wxnoserver</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;PyoObject. Input signal to process.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input</span>
+
+    <span class="nd">@input</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setInput</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">min</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float or PyoObject. Minimum possible value.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_min</span>
+
+    <span class="nd">@min</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">min</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setMin</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">max</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float or PyoObject. Maximum possible value.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max</span>
+
+    <span class="nd">@max</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">max</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setMax</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Degrade"><a class="viewcode-back" href="../../../api/classes/dynamics.html#pyo.Degrade">[docs]</a><span class="k">class</span> <span class="nc">Degrade</span><span class="p">(</span><span class="n">PyoObject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Signal quality reducer.</span>
+
+<span class="sd">    Degrade takes an audio signal and reduces the sampling rate and/or</span>
+<span class="sd">    bit-depth as specified.</span>
+
+<span class="sd">    :Parent: :py:class:`PyoObject`</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        input: PyoObject</span>
+<span class="sd">            Input signal to process.</span>
+<span class="sd">        bitdepth: float or PyoObject, optional</span>
+<span class="sd">            Signal quantization in bits. Must be in range 1 -&gt; 32.</span>
+<span class="sd">            Defaults to 16.</span>
+<span class="sd">        srscale: float or PyoObject, optional</span>
+<span class="sd">            Sampling rate multiplier. Must be in range 0.0009765625 -&gt; 1.</span>
+<span class="sd">            Defaults to 1.</span>
+
+<span class="sd">    .. seealso::</span>
+
+<span class="sd">        :py:class:`Disto`, :py:class:`Clip`</span>
+
+<span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
+<span class="sd">    &gt;&gt;&gt; s.start()</span>
+<span class="sd">    &gt;&gt;&gt; t = SquareTable()</span>
+<span class="sd">    &gt;&gt;&gt; a = Osc(table=t, freq=[100,101], mul=.5)</span>
+<span class="sd">    &gt;&gt;&gt; lfo = Sine(freq=.2, mul=6, add=8)</span>
+<span class="sd">    &gt;&gt;&gt; lfo2 = Sine(freq=.25, mul=.45, add=.55)</span>
+<span class="sd">    &gt;&gt;&gt; b = Degrade(a, bitdepth=lfo, srscale=lfo2, mul=.3).out()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">bitdepth</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">srscale</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;oOOOO&quot;</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">bitdepth</span><span class="p">,</span> <span class="n">srscale</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input</span> <span class="o">=</span> <span class="nb">input</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bitdepth</span> <span class="o">=</span> <span class="n">bitdepth</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_srscale</span> <span class="o">=</span> <span class="n">srscale</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span> <span class="o">=</span> <span class="n">InputFader</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+        <span class="n">in_fader</span><span class="p">,</span> <span class="n">bitdepth</span><span class="p">,</span> <span class="n">srscale</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="p">,</span> <span class="n">bitdepth</span><span class="p">,</span> <span class="n">srscale</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">Degrade_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">in_fader</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">bitdepth</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">srscale</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_play</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Degrade.setInput"><a class="viewcode-back" href="../../../api/classes/dynamics.html#pyo.Degrade.setInput">[docs]</a>    <span class="k">def</span> <span class="nf">setInput</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="o">=</span><span class="mf">0.05</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `input` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: PyoObject</span>
+<span class="sd">                New signal to process.</span>
+<span class="sd">            fadetime: float, optional</span>
+<span class="sd">                Crossfade time between old and new input. Defaults to 0.05.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;oN&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="o">.</span><span class="n">setInput</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Degrade.setBitdepth"><a class="viewcode-back" href="../../../api/classes/dynamics.html#pyo.Degrade.setBitdepth">[docs]</a>    <span class="k">def</span> <span class="nf">setBitdepth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `bitdepth` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float or PyoObject</span>
+<span class="sd">                New `bitdepth` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_bitdepth</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setBitdepth</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="Degrade.setSrscale"><a class="viewcode-back" href="../../../api/classes/dynamics.html#pyo.Degrade.setSrscale">[docs]</a>    <span class="k">def</span> <span class="nf">setSrscale</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `srscale` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float or PyoObject</span>
+<span class="sd">                New `srscale` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_srscale</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setSrscale</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="Degrade.ctrl"><a class="viewcode-back" href="../../../api/classes/dynamics.html#pyo.Degrade.ctrl">[docs]</a>    <span class="k">def</span> <span class="nf">ctrl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">map_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wxnoserver</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_map_list</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">SLMap</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">32.0</span><span class="p">,</span> <span class="s2">&quot;log&quot;</span><span class="p">,</span> <span class="s2">&quot;bitdepth&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bitdepth</span><span class="p">),</span>
+            <span class="n">SLMap</span><span class="p">(</span><span class="mf">0.0009765625</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;log&quot;</span><span class="p">,</span> <span class="s2">&quot;srscale&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_srscale</span><span class="p">),</span>
+            <span class="n">SLMapMul</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mul</span><span class="p">),</span>
+        <span class="p">]</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="n">ctrl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">map_list</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">wxnoserver</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;PyoObject. Input signal to process.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input</span>
+
+    <span class="nd">@input</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setInput</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">bitdepth</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float or PyoObject. Signal quantization in bits.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bitdepth</span>
+
+    <span class="nd">@bitdepth</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">bitdepth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setBitdepth</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">srscale</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float or PyoObject. Sampling rate multiplier.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_srscale</span>
+
+    <span class="nd">@srscale</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">srscale</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setSrscale</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Compress"><a class="viewcode-back" href="../../../api/classes/dynamics.html#pyo.Compress">[docs]</a><span class="k">class</span> <span class="nc">Compress</span><span class="p">(</span><span class="n">PyoObject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Reduces the dynamic range of an audio signal.</span>
+
+<span class="sd">    Compress reduces the volume of loud sounds or amplifies quiet sounds by</span>
+<span class="sd">    narrowing or compressing an audio signal&#39;s dynamic range.</span>
+
+<span class="sd">    :Parent: :py:class:`PyoObject`</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        input: PyoObject</span>
+<span class="sd">            Input signal to process.</span>
+<span class="sd">        thresh: float or PyoObject, optional</span>
+<span class="sd">            Level, expressed in dB, above which the signal is reduced.</span>
+<span class="sd">            Reference level is 0dB. Defaults to -20.</span>
+<span class="sd">        ratio: float or PyoObject, optional</span>
+<span class="sd">            Determines the input/output ratio for signals above the</span>
+<span class="sd">            threshold. Defaults to 2.</span>
+<span class="sd">        risetime: float or PyoObject, optional</span>
+<span class="sd">            Used in amplitude follower, time to reach upward value in</span>
+<span class="sd">            seconds. Defaults to 0.01.</span>
+<span class="sd">        falltime: float or PyoObject, optional</span>
+<span class="sd">            Used in amplitude follower, time to reach downward value in</span>
+<span class="sd">            seconds. Defaults to 0.1.</span>
+<span class="sd">        lookahead: float, optional</span>
+<span class="sd">            Delay length, in ms, for the &quot;look-ahead&quot; buffer. Range is</span>
+<span class="sd">            0 -&gt; 25 ms. Defaults to 5.0.</span>
+<span class="sd">        knee: float optional</span>
+<span class="sd">            Shape of the transfert function around the threshold, specified</span>
+<span class="sd">            in the range 0 -&gt; 1.</span>
+
+<span class="sd">            A value of 0 means a hard knee and a value of 1.0 means a softer</span>
+<span class="sd">            knee. Defaults to 0.</span>
+<span class="sd">        outputAmp: boolean, optional</span>
+<span class="sd">            If True, the object&#39;s output signal will be the compression level</span>
+<span class="sd">            alone, not the compressed signal.</span>
+
+<span class="sd">            It can be useful if 2 or more channels need to be linked on the</span>
+<span class="sd">            same compression slope. Defaults to False.</span>
+
+<span class="sd">            Available at initialization only.</span>
+
+<span class="sd">    .. seealso::</span>
+
+<span class="sd">        :py:class:`Gate`, :py:class:`Expand`</span>
+
+<span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
+<span class="sd">    &gt;&gt;&gt; s.start()</span>
+<span class="sd">    &gt;&gt;&gt; a = SfPlayer(SNDS_PATH + &#39;/transparent.aif&#39;, loop=True)</span>
+<span class="sd">    &gt;&gt;&gt; b = Compress(a, thresh=-24, ratio=6, risetime=.01, falltime=.2, knee=0.5).mix(2).out()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="nb">input</span><span class="p">,</span>
+        <span class="n">thresh</span><span class="o">=-</span><span class="mi">20</span><span class="p">,</span>
+        <span class="n">ratio</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">risetime</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
+        <span class="n">falltime</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+        <span class="n">lookahead</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
+        <span class="n">knee</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">outputAmp</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">mul</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">add</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;oOOOOnnbOO&quot;</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">thresh</span><span class="p">,</span> <span class="n">ratio</span><span class="p">,</span> <span class="n">risetime</span><span class="p">,</span> <span class="n">falltime</span><span class="p">,</span> <span class="n">lookahead</span><span class="p">,</span> <span class="n">knee</span><span class="p">,</span> <span class="n">outputAmp</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span>
+        <span class="p">)</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input</span> <span class="o">=</span> <span class="nb">input</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_thresh</span> <span class="o">=</span> <span class="n">thresh</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ratio</span> <span class="o">=</span> <span class="n">ratio</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_risetime</span> <span class="o">=</span> <span class="n">risetime</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_falltime</span> <span class="o">=</span> <span class="n">falltime</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lookahead</span> <span class="o">=</span> <span class="n">lookahead</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_knee</span> <span class="o">=</span> <span class="n">knee</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span> <span class="o">=</span> <span class="n">InputFader</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+        <span class="n">in_fader</span><span class="p">,</span> <span class="n">thresh</span><span class="p">,</span> <span class="n">ratio</span><span class="p">,</span> <span class="n">risetime</span><span class="p">,</span> <span class="n">falltime</span><span class="p">,</span> <span class="n">lookahead</span><span class="p">,</span> <span class="n">knee</span><span class="p">,</span> <span class="n">outputAmp</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="p">,</span> <span class="n">thresh</span><span class="p">,</span> <span class="n">ratio</span><span class="p">,</span> <span class="n">risetime</span><span class="p">,</span> <span class="n">falltime</span><span class="p">,</span> <span class="n">lookahead</span><span class="p">,</span> <span class="n">knee</span><span class="p">,</span> <span class="n">outputAmp</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">Compress_base</span><span class="p">(</span>
+                <span class="n">wrap</span><span class="p">(</span><span class="n">in_fader</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span>
+                <span class="n">wrap</span><span class="p">(</span><span class="n">thresh</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span>
+                <span class="n">wrap</span><span class="p">(</span><span class="n">ratio</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span>
+                <span class="n">wrap</span><span class="p">(</span><span class="n">risetime</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span>
+                <span class="n">wrap</span><span class="p">(</span><span class="n">falltime</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span>
+                <span class="n">wrap</span><span class="p">(</span><span class="n">lookahead</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span>
+                <span class="n">wrap</span><span class="p">(</span><span class="n">knee</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span>
+                <span class="n">wrap</span><span class="p">(</span><span class="n">outputAmp</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span>
+                <span class="n">wrap</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span>
+                <span class="n">wrap</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_play</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Compress.setInput"><a class="viewcode-back" href="../../../api/classes/dynamics.html#pyo.Compress.setInput">[docs]</a>    <span class="k">def</span> <span class="nf">setInput</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="o">=</span><span class="mf">0.05</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `input` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: PyoObject</span>
+<span class="sd">                New signal to process.</span>
+<span class="sd">            fadetime: float, optional</span>
+<span class="sd">                Crossfade time between old and new input. Defaults to 0.05.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;oN&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="o">.</span><span class="n">setInput</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Compress.setThresh"><a class="viewcode-back" href="../../../api/classes/dynamics.html#pyo.Compress.setThresh">[docs]</a>    <span class="k">def</span> <span class="nf">setThresh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `thresh` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float or PyoObject</span>
+<span class="sd">                New `thresh` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_thresh</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setThresh</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="Compress.setRatio"><a class="viewcode-back" href="../../../api/classes/dynamics.html#pyo.Compress.setRatio">[docs]</a>    <span class="k">def</span> <span class="nf">setRatio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `ratio` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float or PyoObject</span>
+<span class="sd">                New `ratio` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ratio</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setRatio</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="Compress.setRiseTime"><a class="viewcode-back" href="../../../api/classes/dynamics.html#pyo.Compress.setRiseTime">[docs]</a>    <span class="k">def</span> <span class="nf">setRiseTime</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `risetime` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float or PyoObject</span>
+<span class="sd">                New `risetime` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_risetime</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setRiseTime</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="Compress.setFallTime"><a class="viewcode-back" href="../../../api/classes/dynamics.html#pyo.Compress.setFallTime">[docs]</a>    <span class="k">def</span> <span class="nf">setFallTime</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `falltime` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float or PyoObject</span>
+<span class="sd">                New `falltime` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_falltime</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setFallTime</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="Compress.setLookAhead"><a class="viewcode-back" href="../../../api/classes/dynamics.html#pyo.Compress.setLookAhead">[docs]</a>    <span class="k">def</span> <span class="nf">setLookAhead</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `lookahead` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float</span>
+<span class="sd">                New `lookahead` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lookahead</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setLookAhead</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="Compress.setKnee"><a class="viewcode-back" href="../../../api/classes/dynamics.html#pyo.Compress.setKnee">[docs]</a>    <span class="k">def</span> <span class="nf">setKnee</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `knee` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float</span>
+<span class="sd">                New `knee` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_knee</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setKnee</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="Compress.ctrl"><a class="viewcode-back" href="../../../api/classes/dynamics.html#pyo.Compress.ctrl">[docs]</a>    <span class="k">def</span> <span class="nf">ctrl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">map_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wxnoserver</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_map_list</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">SLMap</span><span class="p">(</span><span class="o">-</span><span class="mf">60.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="s2">&quot;thresh&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_thresh</span><span class="p">),</span>
+            <span class="n">SLMap</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="s2">&quot;ratio&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ratio</span><span class="p">),</span>
+            <span class="n">SLMap</span><span class="p">(</span><span class="mf">0.001</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="s2">&quot;risetime&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_risetime</span><span class="p">),</span>
+            <span class="n">SLMap</span><span class="p">(</span><span class="mf">0.001</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="s2">&quot;falltime&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_falltime</span><span class="p">),</span>
+            <span class="n">SLMap</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="s2">&quot;lookahead&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lookahead</span><span class="p">,</span> <span class="n">dataOnly</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+            <span class="n">SLMap</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="s2">&quot;knee&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_knee</span><span class="p">,</span> <span class="n">dataOnly</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+            <span class="n">SLMapMul</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mul</span><span class="p">),</span>
+        <span class="p">]</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="n">ctrl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">map_list</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">wxnoserver</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;PyoObject. Input signal to process.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input</span>
+
+    <span class="nd">@input</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setInput</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">thresh</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float or PyoObject. Level above which the signal is reduced.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_thresh</span>
+
+    <span class="nd">@thresh</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">thresh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setThresh</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ratio</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float or PyoObject. in/out ratio for signals above the threshold.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ratio</span>
+
+    <span class="nd">@ratio</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">ratio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setRatio</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">risetime</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float or PyoObject. Time to reach upward value in seconds.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_risetime</span>
+
+    <span class="nd">@risetime</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">risetime</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setRiseTime</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">falltime</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float or PyoObject. Time to reach downward value in seconds.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_falltime</span>
+
+    <span class="nd">@falltime</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">falltime</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setFallTime</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">lookahead</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float. Delay length, in ms, of the &quot;look-ahead&quot; buffer.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lookahead</span>
+
+    <span class="nd">@lookahead</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">lookahead</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setLookAhead</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">knee</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float. Shape of the transfert function around the threshold.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_knee</span>
+
+    <span class="nd">@knee</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">knee</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setKnee</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Gate"><a class="viewcode-back" href="../../../api/classes/dynamics.html#pyo.Gate">[docs]</a><span class="k">class</span> <span class="nc">Gate</span><span class="p">(</span><span class="n">PyoObject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Allows a signal to pass only when its amplitude is above a set threshold.</span>
+
+<span class="sd">    A noise gate is used when the level of the signal is below the level of</span>
+<span class="sd">    the noise floor. The threshold is set above the level of the noise and so when</span>
+<span class="sd">    there is no signal the gate is closed. A noise gate does not remove noise</span>
+<span class="sd">    from the signal. When the gate is open both the signal and the noise will</span>
+<span class="sd">    pass through.</span>
+
+<span class="sd">    :Parent: :py:class:`PyoObject`</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        input: PyoObject</span>
+<span class="sd">            Input signal to process.</span>
+<span class="sd">        thresh: float or PyoObject, optional</span>
+<span class="sd">            Level, expressed in dB, below which the gate is closed.</span>
+<span class="sd">            Reference level is 0dB. Defaults to -70.</span>
+<span class="sd">        risetime: float or PyoObject, optional</span>
+<span class="sd">            Time to open the gate in seconds. Defaults to 0.01.</span>
+<span class="sd">        falltime: float or PyoObject, optional</span>
+<span class="sd">            Time to close the gate in seconds. Defaults to 0.05.</span>
+<span class="sd">        lookahead: float, optional</span>
+<span class="sd">            Delay length, in ms, for the &quot;look-ahead&quot; buffer. Range is</span>
+<span class="sd">            0 -&gt; 25 ms. Defaults to 5.0.</span>
+<span class="sd">        outputAmp: boolean, optional</span>
+<span class="sd">            If True, the object&#39;s output signal will be the gating level</span>
+<span class="sd">            alone, not the gated signal.</span>
+
+<span class="sd">            It can be useful if 2 or more channels need to linked on the</span>
+<span class="sd">            same gating slope. Defaults to False.</span>
+
+<span class="sd">            Available at initialization only.</span>
+
+<span class="sd">    .. seealso::</span>
+
+<span class="sd">        :py:class:`Compress`, :py:class:`Expand`</span>
+
+<span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
+<span class="sd">    &gt;&gt;&gt; s.start()</span>
+<span class="sd">    &gt;&gt;&gt; sf = SfPlayer(SNDS_PATH + &#39;/transparent.aif&#39;, speed=[1,.5], loop=True)</span>
+<span class="sd">    &gt;&gt;&gt; gt = Gate(sf, thresh=-24, risetime=0.005, falltime=0.01, lookahead=5, mul=.4).out()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">thresh</span><span class="o">=-</span><span class="mi">70</span><span class="p">,</span> <span class="n">risetime</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">falltime</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">lookahead</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span> <span class="n">outputAmp</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;oOOOnbOO&quot;</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">thresh</span><span class="p">,</span> <span class="n">risetime</span><span class="p">,</span> <span class="n">falltime</span><span class="p">,</span> <span class="n">lookahead</span><span class="p">,</span> <span class="n">outputAmp</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input</span> <span class="o">=</span> <span class="nb">input</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_thresh</span> <span class="o">=</span> <span class="n">thresh</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_risetime</span> <span class="o">=</span> <span class="n">risetime</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_falltime</span> <span class="o">=</span> <span class="n">falltime</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lookahead</span> <span class="o">=</span> <span class="n">lookahead</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span> <span class="o">=</span> <span class="n">InputFader</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+        <span class="n">in_fader</span><span class="p">,</span> <span class="n">thresh</span><span class="p">,</span> <span class="n">risetime</span><span class="p">,</span> <span class="n">falltime</span><span class="p">,</span> <span class="n">lookahead</span><span class="p">,</span> <span class="n">outputAmp</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="p">,</span> <span class="n">thresh</span><span class="p">,</span> <span class="n">risetime</span><span class="p">,</span> <span class="n">falltime</span><span class="p">,</span> <span class="n">lookahead</span><span class="p">,</span> <span class="n">outputAmp</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">Gate_base</span><span class="p">(</span>
+                <span class="n">wrap</span><span class="p">(</span><span class="n">in_fader</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span>
+                <span class="n">wrap</span><span class="p">(</span><span class="n">thresh</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span>
+                <span class="n">wrap</span><span class="p">(</span><span class="n">risetime</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span>
+                <span class="n">wrap</span><span class="p">(</span><span class="n">falltime</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span>
+                <span class="n">wrap</span><span class="p">(</span><span class="n">lookahead</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span>
+                <span class="n">wrap</span><span class="p">(</span><span class="n">outputAmp</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span>
+                <span class="n">wrap</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span>
+                <span class="n">wrap</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_play</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Gate.setInput"><a class="viewcode-back" href="../../../api/classes/dynamics.html#pyo.Gate.setInput">[docs]</a>    <span class="k">def</span> <span class="nf">setInput</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="o">=</span><span class="mf">0.05</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `input` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: PyoObject</span>
+<span class="sd">                New signal to process.</span>
+<span class="sd">            fadetime: float, optional</span>
+<span class="sd">                Crossfade time between old and new input. Defaults to 0.05.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;oN&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="o">.</span><span class="n">setInput</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Gate.setThresh"><a class="viewcode-back" href="../../../api/classes/dynamics.html#pyo.Gate.setThresh">[docs]</a>    <span class="k">def</span> <span class="nf">setThresh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `thresh` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float or PyoObject</span>
+<span class="sd">                New `thresh` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_thresh</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setThresh</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="Gate.setRiseTime"><a class="viewcode-back" href="../../../api/classes/dynamics.html#pyo.Gate.setRiseTime">[docs]</a>    <span class="k">def</span> <span class="nf">setRiseTime</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `risetime` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float or PyoObject</span>
+<span class="sd">                New `risetime` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_risetime</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setRiseTime</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="Gate.setFallTime"><a class="viewcode-back" href="../../../api/classes/dynamics.html#pyo.Gate.setFallTime">[docs]</a>    <span class="k">def</span> <span class="nf">setFallTime</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `falltime` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float or PyoObject</span>
+<span class="sd">                New `falltime` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_falltime</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setFallTime</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="Gate.setLookAhead"><a class="viewcode-back" href="../../../api/classes/dynamics.html#pyo.Gate.setLookAhead">[docs]</a>    <span class="k">def</span> <span class="nf">setLookAhead</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `lookahead` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float</span>
+<span class="sd">                New `lookahead` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lookahead</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setLookAhead</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="Gate.ctrl"><a class="viewcode-back" href="../../../api/classes/dynamics.html#pyo.Gate.ctrl">[docs]</a>    <span class="k">def</span> <span class="nf">ctrl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">map_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wxnoserver</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_map_list</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">SLMap</span><span class="p">(</span><span class="o">-</span><span class="mf">100.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="s2">&quot;thresh&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_thresh</span><span class="p">),</span>
+            <span class="n">SLMap</span><span class="p">(</span><span class="mf">0.0001</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="s2">&quot;risetime&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_risetime</span><span class="p">),</span>
+            <span class="n">SLMap</span><span class="p">(</span><span class="mf">0.0001</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="s2">&quot;falltime&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_falltime</span><span class="p">),</span>
+            <span class="n">SLMap</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="s2">&quot;lookahead&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lookahead</span><span class="p">,</span> <span class="n">dataOnly</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+            <span class="n">SLMapMul</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mul</span><span class="p">),</span>
+        <span class="p">]</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="n">ctrl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">map_list</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">wxnoserver</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;PyoObject. Input signal to process.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input</span>
+
+    <span class="nd">@input</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setInput</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">thresh</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float or PyoObject. Level below which the gate is closed.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_thresh</span>
+
+    <span class="nd">@thresh</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">thresh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setThresh</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">risetime</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float or PyoObject. Time to open the gate in seconds.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_risetime</span>
+
+    <span class="nd">@risetime</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">risetime</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setRiseTime</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">falltime</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float or PyoObject. Time to close the gate in seconds.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_falltime</span>
+
+    <span class="nd">@falltime</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">falltime</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setFallTime</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">lookahead</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float. Delay length, in ms, of the &quot;look-ahead&quot; buffer.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lookahead</span>
+
+    <span class="nd">@lookahead</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">lookahead</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setLookAhead</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Balance"><a class="viewcode-back" href="../../../api/classes/dynamics.html#pyo.Balance">[docs]</a><span class="k">class</span> <span class="nc">Balance</span><span class="p">(</span><span class="n">PyoObject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Adjust rms power of an audio signal according to the rms power of another.</span>
+
+<span class="sd">    The rms power of a signal is adjusted to match that of a comparator signal.</span>
+
+<span class="sd">    :Parent: :py:class:`PyoObject`</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        input: PyoObject</span>
+<span class="sd">            Input signal to process.</span>
+<span class="sd">        input2: PyoObject</span>
+<span class="sd">            Comparator signal.</span>
+<span class="sd">        freq: float or PyoObject, optional</span>
+<span class="sd">            Cutoff frequency of the lowpass filter in hertz. Default to 10.</span>
+
+<span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
+<span class="sd">    &gt;&gt;&gt; s.start()</span>
+<span class="sd">    &gt;&gt;&gt; sf = SfPlayer(SNDS_PATH + &#39;/accord.aif&#39;, speed=[.99,1], loop=True, mul=.3)</span>
+<span class="sd">    &gt;&gt;&gt; comp = SfPlayer(SNDS_PATH + &#39;/transparent.aif&#39;, speed=[.99,1], loop=True, mul=.3)</span>
+<span class="sd">    &gt;&gt;&gt; out = Balance(sf, comp, freq=10).out()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">input2</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;ooOOO&quot;</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">input2</span><span class="p">,</span> <span class="n">freq</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input</span> <span class="o">=</span> <span class="nb">input</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input2</span> <span class="o">=</span> <span class="n">input2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_freq</span> <span class="o">=</span> <span class="n">freq</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span> <span class="o">=</span> <span class="n">InputFader</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader2</span> <span class="o">=</span> <span class="n">InputFader</span><span class="p">(</span><span class="n">input2</span><span class="p">)</span>
+        <span class="n">in_fader</span><span class="p">,</span> <span class="n">in_fader2</span><span class="p">,</span> <span class="n">freq</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader2</span><span class="p">,</span> <span class="n">freq</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">Balance_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">in_fader</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">in_fader2</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_play</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Balance.setInput"><a class="viewcode-back" href="../../../api/classes/dynamics.html#pyo.Balance.setInput">[docs]</a>    <span class="k">def</span> <span class="nf">setInput</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="o">=</span><span class="mf">0.05</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `input` attribute.</span>
+
+<span class="sd">        Input signal to process.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: PyoObject</span>
+<span class="sd">                New signal to process.</span>
+<span class="sd">            fadetime: float, optional</span>
+<span class="sd">                Crossfade time between old and new input. Default to 0.05.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;oN&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="o">.</span><span class="n">setInput</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Balance.setInput2"><a class="viewcode-back" href="../../../api/classes/dynamics.html#pyo.Balance.setInput2">[docs]</a>    <span class="k">def</span> <span class="nf">setInput2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="o">=</span><span class="mf">0.05</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `input2` attribute.</span>
+
+<span class="sd">        Comparator signal.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: PyoObject</span>
+<span class="sd">                New signal to process.</span>
+<span class="sd">            fadetime: float, optional</span>
+<span class="sd">                Crossfade time between old and new input. Default to 0.05.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;oN&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input2</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader2</span><span class="o">.</span><span class="n">setInput</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Balance.setFreq"><a class="viewcode-back" href="../../../api/classes/dynamics.html#pyo.Balance.setFreq">[docs]</a>    <span class="k">def</span> <span class="nf">setFreq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `freq` attribute.</span>
+
+<span class="sd">        Cutoff frequency of the lowpass filter, in Hertz.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float or PyoObject</span>
+<span class="sd">                New `freq` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_freq</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setFreq</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="Balance.ctrl"><a class="viewcode-back" href="../../../api/classes/dynamics.html#pyo.Balance.ctrl">[docs]</a>    <span class="k">def</span> <span class="nf">ctrl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">map_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wxnoserver</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_map_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">SLMap</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">,</span> <span class="s2">&quot;log&quot;</span><span class="p">,</span> <span class="s2">&quot;freq&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_freq</span><span class="p">),</span> <span class="n">SLMapMul</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mul</span><span class="p">)]</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="n">ctrl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">map_list</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">wxnoserver</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;PyoObject. Input signal to process.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input</span>
+
+    <span class="nd">@input</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setInput</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">input2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;PyoObject. Comparator signal.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input2</span>
+
+    <span class="nd">@input2</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">input2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setInput2</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">freq</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float or PyoObject. Cutoff frequency of the lowpass filter.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_freq</span>
+
+    <span class="nd">@freq</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">freq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setFreq</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Min"><a class="viewcode-back" href="../../../api/classes/dynamics.html#pyo.Min">[docs]</a><span class="k">class</span> <span class="nc">Min</span><span class="p">(</span><span class="n">PyoObject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Outputs the minimum of two values.</span>
+
+<span class="sd">    :Parent: :py:class:`PyoObject`</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        input: PyoObject</span>
+<span class="sd">            Input signal to process.</span>
+<span class="sd">        comp: float or PyoObject, optional</span>
+<span class="sd">            Comparison value. If `input` is lower than this value,</span>
+<span class="sd">            `input` is send to the output, otherwise, `comp` is outputted.</span>
+
+<span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
+<span class="sd">    &gt;&gt;&gt; s.start()</span>
+<span class="sd">    &gt;&gt;&gt; # Triangle wave</span>
+<span class="sd">    &gt;&gt;&gt; a = Phasor([249,250])</span>
+<span class="sd">    &gt;&gt;&gt; b = Min(a, comp=a*-1+1, mul=4, add=-1)</span>
+<span class="sd">    &gt;&gt;&gt; c = Tone(b, freq=1500, mul=.5).out()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">comp</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;oOOO&quot;</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">comp</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input</span> <span class="o">=</span> <span class="nb">input</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_comp</span> <span class="o">=</span> <span class="n">comp</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span> <span class="o">=</span> <span class="n">InputFader</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+        <span class="n">in_fader</span><span class="p">,</span> <span class="n">comp</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="p">,</span> <span class="n">comp</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span><span class="n">Min_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">in_fader</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">comp</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_play</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Min.setInput"><a class="viewcode-back" href="../../../api/classes/dynamics.html#pyo.Min.setInput">[docs]</a>    <span class="k">def</span> <span class="nf">setInput</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="o">=</span><span class="mf">0.05</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `input` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: PyoObject</span>
+<span class="sd">                New signal to process.</span>
+<span class="sd">            fadetime: float, optional</span>
+<span class="sd">                Crossfade time between old and new input. Default to 0.05.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;oN&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="o">.</span><span class="n">setInput</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Min.setComp"><a class="viewcode-back" href="../../../api/classes/dynamics.html#pyo.Min.setComp">[docs]</a>    <span class="k">def</span> <span class="nf">setComp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `comp` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float or PyoObject</span>
+<span class="sd">                New `comp` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_comp</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setComp</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="Min.ctrl"><a class="viewcode-back" href="../../../api/classes/dynamics.html#pyo.Min.ctrl">[docs]</a>    <span class="k">def</span> <span class="nf">ctrl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">map_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wxnoserver</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_map_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">SLMap</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="s2">&quot;comp&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_comp</span><span class="p">),</span> <span class="n">SLMapMul</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mul</span><span class="p">)]</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="n">ctrl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">map_list</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">wxnoserver</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;PyoObject. Input signal to process.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input</span>
+
+    <span class="nd">@input</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setInput</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">comp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float or PyoObject. Comparison value.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_comp</span>
+
+    <span class="nd">@comp</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">comp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setComp</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Max"><a class="viewcode-back" href="../../../api/classes/dynamics.html#pyo.Max">[docs]</a><span class="k">class</span> <span class="nc">Max</span><span class="p">(</span><span class="n">PyoObject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Outputs the maximum of two values.</span>
+
+<span class="sd">    :Parent: :py:class:`PyoObject`</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        input: PyoObject</span>
+<span class="sd">            Input signal to process.</span>
+<span class="sd">        comp: float or PyoObject, optional</span>
+<span class="sd">            Comparison value. If `input` is higher than this value,</span>
+<span class="sd">            `input` is send to the output, otherwise, `comp` is outputted.</span>
+
+<span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
+<span class="sd">    &gt;&gt;&gt; s.start()</span>
+<span class="sd">    &gt;&gt;&gt; # Assimetrical clipping</span>
+<span class="sd">    &gt;&gt;&gt; a = Phasor(500, mul=2, add=-1)</span>
+<span class="sd">    &gt;&gt;&gt; b = Max(a, comp=-0.3)</span>
+<span class="sd">    &gt;&gt;&gt; c = Tone(b, freq=1500, mul=.5).out()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">comp</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;oOOO&quot;</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">comp</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input</span> <span class="o">=</span> <span class="nb">input</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_comp</span> <span class="o">=</span> <span class="n">comp</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span> <span class="o">=</span> <span class="n">InputFader</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+        <span class="n">in_fader</span><span class="p">,</span> <span class="n">comp</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="p">,</span> <span class="n">comp</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span><span class="n">Max_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">in_fader</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">comp</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_play</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Max.setInput"><a class="viewcode-back" href="../../../api/classes/dynamics.html#pyo.Max.setInput">[docs]</a>    <span class="k">def</span> <span class="nf">setInput</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="o">=</span><span class="mf">0.05</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `input` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: PyoObject</span>
+<span class="sd">                New signal to process.</span>
+<span class="sd">            fadetime: float, optional</span>
+<span class="sd">                Crossfade time between old and new input. Default to 0.05.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;oN&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="o">.</span><span class="n">setInput</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Max.setComp"><a class="viewcode-back" href="../../../api/classes/dynamics.html#pyo.Max.setComp">[docs]</a>    <span class="k">def</span> <span class="nf">setComp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `comp` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float or PyoObject</span>
+<span class="sd">                New `comp` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_comp</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setComp</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="Max.ctrl"><a class="viewcode-back" href="../../../api/classes/dynamics.html#pyo.Max.ctrl">[docs]</a>    <span class="k">def</span> <span class="nf">ctrl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">map_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wxnoserver</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_map_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">SLMap</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="s2">&quot;comp&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_comp</span><span class="p">),</span> <span class="n">SLMapMul</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mul</span><span class="p">)]</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="n">ctrl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">map_list</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">wxnoserver</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;PyoObject. Input signal to process.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input</span>
+
+    <span class="nd">@input</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setInput</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">comp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float or PyoObject. Comparison value.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_comp</span>
+
+    <span class="nd">@comp</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">comp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setComp</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Expand"><a class="viewcode-back" href="../../../api/classes/dynamics.html#pyo.Expand">[docs]</a><span class="k">class</span> <span class="nc">Expand</span><span class="p">(</span><span class="n">PyoObject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Expand the dynamic range of an audio signal.</span>
+
+<span class="sd">    The Expand object will boost the volume of the input sound if it rises</span>
+<span class="sd">    above the upper threshold. It will also reduce the volume of the input</span>
+<span class="sd">    sound if it falls below the lower threshold. This process will &quot;expand&quot;</span>
+<span class="sd">    the audio signal&#39;s dynamic range.</span>
+
+<span class="sd">    :Parent: :py:class:`PyoObject`</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        input: PyoObject</span>
+<span class="sd">            Input signal to process.</span>
+<span class="sd">        downthresh: float or PyoObject, optional</span>
+<span class="sd">            Level, expressed in dB, below which the signal is getting</span>
+<span class="sd">            softer, according to the `ratio`. Reference level is 0dB.</span>
+<span class="sd">            Defaults to -20.</span>
+<span class="sd">        upthresh: float or PyoObject, optional</span>
+<span class="sd">            Level, expressed in dB, above which the signal is getting</span>
+<span class="sd">            louder, according to the same `ratio` as the lower threshold.</span>
+<span class="sd">            Reference level is 0dB. Defaults to -20.</span>
+<span class="sd">        ratio: float or PyoObject, optional</span>
+<span class="sd">            The `ratio` argument controls is the amount of expansion (with</span>
+<span class="sd">            a ratio of 4, if there is a rise of 2 dB above the upper</span>
+<span class="sd">            threshold, the output signal will rises by 8 dB), and contrary</span>
+<span class="sd">            for the lower threshold. Defaults to 2.</span>
+<span class="sd">        risetime: float or PyoObject, optional</span>
+<span class="sd">            Used in amplitude follower, time to reach upward value in</span>
+<span class="sd">            seconds. Defaults to 0.01.</span>
+<span class="sd">        falltime: float or PyoObject, optional</span>
+<span class="sd">            Used in amplitude follower, time to reach downward value in</span>
+<span class="sd">            seconds. Defaults to 0.1.</span>
+<span class="sd">        lookahead: float, optional</span>
+<span class="sd">            Delay length, in ms, for the &quot;look-ahead&quot; buffer. Range is</span>
+<span class="sd">            0 -&gt; 25 ms. Defaults to 5.0.</span>
+<span class="sd">        outputAmp: boolean, optional</span>
+<span class="sd">            If True, the object&#39;s output signal will be the expansion level</span>
+<span class="sd">            alone, not the expanded signal.</span>
+
+<span class="sd">            It can be useful if 2 or more channels need to be linked on the</span>
+<span class="sd">            same expansion slope. Defaults to False.</span>
+
+<span class="sd">            Available at initialization only.</span>
+
+<span class="sd">    .. seealso::</span>
+
+<span class="sd">        :py:class:`Compress`, :py:class:`Gate`</span>
+
+<span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
+<span class="sd">    &gt;&gt;&gt; s.start()</span>
+<span class="sd">    &gt;&gt;&gt; # original to the left channel</span>
+<span class="sd">    &gt;&gt;&gt; sf = SfPlayer(SNDS_PATH + &quot;/transparent.aif&quot;, loop=True, mul=0.7)</span>
+<span class="sd">    &gt;&gt;&gt; ori = Delay(sf, 0.005).out()</span>
+<span class="sd">    &gt;&gt;&gt; # expanded to the right channel</span>
+<span class="sd">    &gt;&gt;&gt; ex = Expand(sf, downthresh=-20, upthresh=-20, ratio=4, mul=0.5).out(1)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="nb">input</span><span class="p">,</span>
+        <span class="n">downthresh</span><span class="o">=-</span><span class="mi">40</span><span class="p">,</span>
+        <span class="n">upthresh</span><span class="o">=-</span><span class="mi">10</span><span class="p">,</span>
+        <span class="n">ratio</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">risetime</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
+        <span class="n">falltime</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+        <span class="n">lookahead</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
+        <span class="n">outputAmp</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">mul</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">add</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;oOOOOOnbOO&quot;</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">downthresh</span><span class="p">,</span> <span class="n">upthresh</span><span class="p">,</span> <span class="n">ratio</span><span class="p">,</span> <span class="n">risetime</span><span class="p">,</span> <span class="n">falltime</span><span class="p">,</span> <span class="n">lookahead</span><span class="p">,</span> <span class="n">outputAmp</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span>
+        <span class="p">)</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input</span> <span class="o">=</span> <span class="nb">input</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_downthresh</span> <span class="o">=</span> <span class="n">downthresh</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_upthresh</span> <span class="o">=</span> <span class="n">upthresh</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ratio</span> <span class="o">=</span> <span class="n">ratio</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_risetime</span> <span class="o">=</span> <span class="n">risetime</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_falltime</span> <span class="o">=</span> <span class="n">falltime</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lookahead</span> <span class="o">=</span> <span class="n">lookahead</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span> <span class="o">=</span> <span class="n">InputFader</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+        <span class="p">(</span>
+            <span class="n">in_fader</span><span class="p">,</span>
+            <span class="n">downthresh</span><span class="p">,</span>
+            <span class="n">upthresh</span><span class="p">,</span>
+            <span class="n">ratio</span><span class="p">,</span>
+            <span class="n">risetime</span><span class="p">,</span>
+            <span class="n">falltime</span><span class="p">,</span>
+            <span class="n">lookahead</span><span class="p">,</span>
+            <span class="n">outputAmp</span><span class="p">,</span>
+            <span class="n">mul</span><span class="p">,</span>
+            <span class="n">add</span><span class="p">,</span>
+            <span class="n">lmax</span><span class="p">,</span>
+        <span class="p">)</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="p">,</span> <span class="n">downthresh</span><span class="p">,</span> <span class="n">upthresh</span><span class="p">,</span> <span class="n">ratio</span><span class="p">,</span> <span class="n">risetime</span><span class="p">,</span> <span class="n">falltime</span><span class="p">,</span> <span class="n">lookahead</span><span class="p">,</span> <span class="n">outputAmp</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">Expand_base</span><span class="p">(</span>
+                <span class="n">wrap</span><span class="p">(</span><span class="n">in_fader</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span>
+                <span class="n">wrap</span><span class="p">(</span><span class="n">downthresh</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span>
+                <span class="n">wrap</span><span class="p">(</span><span class="n">upthresh</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span>
+                <span class="n">wrap</span><span class="p">(</span><span class="n">ratio</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span>
+                <span class="n">wrap</span><span class="p">(</span><span class="n">risetime</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span>
+                <span class="n">wrap</span><span class="p">(</span><span class="n">falltime</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span>
+                <span class="n">wrap</span><span class="p">(</span><span class="n">lookahead</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span>
+                <span class="n">wrap</span><span class="p">(</span><span class="n">outputAmp</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span>
+                <span class="n">wrap</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span>
+                <span class="n">wrap</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_play</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Expand.setInput"><a class="viewcode-back" href="../../../api/classes/dynamics.html#pyo.Expand.setInput">[docs]</a>    <span class="k">def</span> <span class="nf">setInput</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="o">=</span><span class="mf">0.05</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `input` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: PyoObject</span>
+<span class="sd">                New signal to process.</span>
+<span class="sd">            fadetime: float, optional</span>
+<span class="sd">                Crossfade time between old and new input. Defaults to 0.05.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;oN&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="o">.</span><span class="n">setInput</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Expand.setDownThresh"><a class="viewcode-back" href="../../../api/classes/dynamics.html#pyo.Expand.setDownThresh">[docs]</a>    <span class="k">def</span> <span class="nf">setDownThresh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `downthresh` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float or PyoObject</span>
+<span class="sd">                New `downthresh` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_downthresh</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setDownThresh</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="Expand.setUpThresh"><a class="viewcode-back" href="../../../api/classes/dynamics.html#pyo.Expand.setUpThresh">[docs]</a>    <span class="k">def</span> <span class="nf">setUpThresh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `upthresh` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float or PyoObject</span>
+<span class="sd">                New `upthresh` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_upthresh</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setUpThresh</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="Expand.setRatio"><a class="viewcode-back" href="../../../api/classes/dynamics.html#pyo.Expand.setRatio">[docs]</a>    <span class="k">def</span> <span class="nf">setRatio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `ratio` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float or PyoObject</span>
+<span class="sd">                New `ratio` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ratio</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setRatio</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="Expand.setRiseTime"><a class="viewcode-back" href="../../../api/classes/dynamics.html#pyo.Expand.setRiseTime">[docs]</a>    <span class="k">def</span> <span class="nf">setRiseTime</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `risetime` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float or PyoObject</span>
+<span class="sd">                New `risetime` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_risetime</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setRiseTime</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="Expand.setFallTime"><a class="viewcode-back" href="../../../api/classes/dynamics.html#pyo.Expand.setFallTime">[docs]</a>    <span class="k">def</span> <span class="nf">setFallTime</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `falltime` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float or PyoObject</span>
+<span class="sd">                New `falltime` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_falltime</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setFallTime</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="Expand.setLookAhead"><a class="viewcode-back" href="../../../api/classes/dynamics.html#pyo.Expand.setLookAhead">[docs]</a>    <span class="k">def</span> <span class="nf">setLookAhead</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `lookahead` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float</span>
+<span class="sd">                New `lookahead` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lookahead</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setLookAhead</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="Expand.ctrl"><a class="viewcode-back" href="../../../api/classes/dynamics.html#pyo.Expand.ctrl">[docs]</a>    <span class="k">def</span> <span class="nf">ctrl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">map_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wxnoserver</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_map_list</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">SLMap</span><span class="p">(</span><span class="o">-</span><span class="mf">90.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="s2">&quot;downthresh&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_downthresh</span><span class="p">),</span>
+            <span class="n">SLMap</span><span class="p">(</span><span class="o">-</span><span class="mf">60.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="s2">&quot;upthresh&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_upthresh</span><span class="p">),</span>
+            <span class="n">SLMap</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="s2">&quot;ratio&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ratio</span><span class="p">),</span>
+            <span class="n">SLMap</span><span class="p">(</span><span class="mf">0.001</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="s2">&quot;risetime&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_risetime</span><span class="p">),</span>
+            <span class="n">SLMap</span><span class="p">(</span><span class="mf">0.001</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="s2">&quot;falltime&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_falltime</span><span class="p">),</span>
+            <span class="n">SLMap</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="s2">&quot;lookahead&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lookahead</span><span class="p">,</span> <span class="n">dataOnly</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+            <span class="n">SLMapMul</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mul</span><span class="p">),</span>
+        <span class="p">]</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="n">ctrl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">map_list</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">wxnoserver</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;PyoObject. Input signal to process.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input</span>
+
+    <span class="nd">@input</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setInput</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">downthresh</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float or PyoObject. Level below which the signal is reduced.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_downthresh</span>
+
+    <span class="nd">@downthresh</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">downthresh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setDownThresh</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">upthresh</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float or PyoObject. Level above which the signal is boosted.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_upthresh</span>
+
+    <span class="nd">@upthresh</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">upthresh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setUpThresh</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ratio</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float or PyoObject. in/out ratio for signals outside thresholds.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ratio</span>
+
+    <span class="nd">@ratio</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">ratio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setRatio</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">risetime</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float or PyoObject. Time to reach upward value in seconds.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_risetime</span>
+
+    <span class="nd">@risetime</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">risetime</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setRiseTime</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">falltime</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float or PyoObject. Time to reach downward value in seconds.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_falltime</span>
+
+    <span class="nd">@falltime</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">falltime</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setFallTime</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">lookahead</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float. Delay length, in ms, of the &quot;look-ahead&quot; buffer.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lookahead</span>
+
+    <span class="nd">@lookahead</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">lookahead</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setLookAhead</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">Pyo 1.0.4 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pyo.html" >pyo</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pyo.lib.dynamics</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+  </body>
+</html>

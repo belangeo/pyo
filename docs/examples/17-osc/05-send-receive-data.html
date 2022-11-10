@@ -1,0 +1,165 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>Sending and receiving data with OSC protocol — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="../19-multirate/index.html" rel="next" title="19-multirate"/>
+<link href="04-receive-list.html" rel="prev" title="Receiving OSC messages as list of audio streams"/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="../19-multirate/index.html" title="19-multirate">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="04-receive-list.html" title="Receiving OSC messages as list of audio streams">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a accesskey="U" href="index.html">17-osc</a> »</li>
+<li class="nav-item nav-item-this"><a href="">Sending and receiving data with OSC protocol</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="sending-and-receiving-data-with-osc-protocol">
+<h1>Sending and receiving data with OSC protocol<a class="headerlink" href="#sending-and-receiving-data-with-osc-protocol" title="Permalink to this headline">¶</a></h1>
+<p><strong>05-send-receive-data.py</strong></p>
+<p>OscDataSend and OscDataReceive are objects that should be used to
+send and receive Open Sound Control messages when message type is
+not simple float or when the user want to process values before
+sending using them to control an audio process.</p>
+<p><strong>OscDataSend</strong> sends messages in the form of a list containing elements
+according to its <cite>types</cite> argument. See the documentation of the object
+for the various available types.</p>
+<p><strong>OscDataReceive</strong> calls a function with the address as the first argument,
+followed by a tuple containing every values of the data message.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">from</span> <a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+
+<span class="c1"># Little audio process to control with OSC messages.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">source</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">SfPlayer</span></a><span class="p">(</span><span class="s2">"../snds/snd_1.aif"</span><span class="p">)</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.SigTo" title="pyo.lib.controls.SigTo"><span class="n">freqs</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.SigTo" title="pyo.lib.controls.SigTo"><span class="n">SigTo</span></a><span class="p">([</span><span class="mi">100</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="mi">400</span><span class="p">],</span> <span class="n">time</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">rezon</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/filters.html#pyo.Resonx" title="pyo.lib.filters.Resonx"><span class="n">Resonx</span></a><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">mix</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">freq</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.SigTo" title="pyo.lib.controls.SigTo"><span class="n">freqs</span></a><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">stages</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+<span class="c1"># ----- Receiver -----</span>
+
+<span class="c1"># Handle all messages coming from addresses starting with "/data/"</span>
+<span class="k">def</span> <span class="nf">getDataMessage</span><span class="p">(</span><span class="n">address</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">address</span> <span class="o">==</span> <span class="s2">"/data/play"</span><span class="p">:</span>
+        <span class="c1"># Arguments are the sound to play as a string,</span>
+        <span class="c1"># speed and gain as floats.</span>
+        <span class="n">source</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">source</span><span class="o">.</span><span class="n">speed</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">source</span><span class="o">.</span><span class="n">mul</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">source</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">address</span> <span class="o">==</span> <span class="s2">"/data/rezo"</span><span class="p">:</span>
+        <span class="c1"># Arguments are 4 frequencies as floats.</span>
+        <span class="n">freqs</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+
+
+<span class="c1"># OSC data receiver.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/opensndctrl.html#pyo.OscDataReceive" title="pyo.lib.opensndctrl.OscDataReceive"><span class="n">rec</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/opensndctrl.html#pyo.OscDataReceive" title="pyo.lib.opensndctrl.OscDataReceive"><span class="n">OscDataReceive</span></a><span class="p">(</span><span class="n">port</span><span class="o">=</span><span class="mi">9900</span><span class="p">,</span> <span class="n">address</span><span class="o">=</span><span class="s2">"/data/*"</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">getDataMessage</span><span class="p">)</span>
+
+<span class="c1"># ----- Sender 1 -----</span>
+
+<span class="c1"># Builds and sends messages to load an play a new sound.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/opensndctrl.html#pyo.OscDataSend" title="pyo.lib.opensndctrl.OscDataSend"><span class="n">sender1</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/opensndctrl.html#pyo.OscDataSend" title="pyo.lib.opensndctrl.OscDataSend"><span class="n">OscDataSend</span></a><span class="p">(</span><span class="n">types</span><span class="o">=</span><span class="s2">"sff"</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">9900</span><span class="p">,</span> <span class="n">address</span><span class="o">=</span><span class="s2">"/data/play"</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="s2">"127.0.0.1"</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">choose</span><span class="p">():</span>
+    <span class="s2">"Chooses new soundfile values and starts playback."</span>
+    <span class="n">soundfile</span> <span class="o">=</span> <span class="s2">"../snds/snd_</span><span class="si">%i</span><span class="s2">.aif"</span> <span class="o">%</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+    <span class="n">speed</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.25</span><span class="p">])</span>
+    <span class="n">gain</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">)</span>
+    <span class="c1"># Sends the message (message must be a list of values whose</span>
+    <span class="c1"># types respect the `types` argument of the OscDataSend object.</span>
+    <span class="n">sender1</span><span class="o">.</span><span class="n">send</span><span class="p">([</span><span class="n">soundfile</span><span class="p">,</span> <span class="n">speed</span><span class="p">,</span> <span class="n">gain</span><span class="p">])</span>
+    <span class="c1"># Adjusts the timing of the Pattern according to the playback duration.</span>
+    <span class="n">pat</span><span class="o">.</span><span class="n">time</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/functions/sndfile.html#pyo.sndinfo" title="pyo.sndinfo"><span class="n">sndinfo</span></a><span class="p">(</span><span class="n">soundfile</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">speed</span>
+
+
+<span class="c1"># Call the choose() function to set a new sound playback.</span>
+<span class="n">pat</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/pattern.html#pyo.Pattern" title="pyo.lib.pattern.Pattern"><span class="n">Pattern</span></a><span class="p">(</span><span class="n">choose</span><span class="p">)</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+
+<span class="c1"># ----- Sender 2 -----</span>
+
+<span class="c1"># Sends new frequencies to the resonator filters.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/opensndctrl.html#pyo.OscDataSend" title="pyo.lib.opensndctrl.OscDataSend"><span class="n">sender2</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/opensndctrl.html#pyo.OscDataSend" title="pyo.lib.opensndctrl.OscDataSend"><span class="n">OscDataSend</span></a><span class="p">(</span><span class="n">types</span><span class="o">=</span><span class="s2">"ffff"</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">9900</span><span class="p">,</span> <span class="n">address</span><span class="o">=</span><span class="s2">"/data/rezo"</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="s2">"127.0.0.1"</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">change</span><span class="p">():</span>
+    <span class="s2">"Randomly chooses new frequencies and sends them to the filters."</span>
+    <span class="n">sender2</span><span class="o">.</span><span class="n">send</span><span class="p">([</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">250</span><span class="p">,</span> <span class="mi">4000</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">)])</span>
+
+
+<span class="c1"># Call the change() function every 2 seconds.</span>
+<span class="n">pat2</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/pattern.html#pyo.Pattern" title="pyo.lib.pattern.Pattern"><span class="n">Pattern</span></a><span class="p">(</span><span class="n">change</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h4>Previous topic</h4>
+<p class="topless"><a href="04-receive-list.html" title="previous chapter">Receiving OSC messages as list of audio streams</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="../19-multirate/index.html" title="next chapter">19-multirate</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="../19-multirate/index.html" title="19-multirate">next</a> |</li>
+<li class="right">
+<a href="04-receive-list.html" title="Receiving OSC messages as list of audio streams">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="index.html">17-osc</a> »</li>
+<li class="nav-item nav-item-this"><a href="">Sending and receiving data with OSC protocol</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

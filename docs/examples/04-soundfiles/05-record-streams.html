@@ -1,0 +1,139 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>05-record-streams.py - Recording individual audio streams on disk. — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="06-record-table.html" rel="next" title="06-record-table.py - Recording live sound in RAM."/>
+<link href="04-record-perf.html" rel="prev" title="04-record-perf.py - Recording the performance on disk."/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="06-record-table.html" title="06-record-table.py - Recording live sound in RAM.">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="04-record-perf.html" title="04-record-perf.py - Recording the performance on disk.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a accesskey="U" href="index.html">04-soundfiles</a> »</li>
+<li class="nav-item nav-item-this"><a href="">05-record-streams.py - Recording individual audio streams on disk.</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="record-streams-py-recording-individual-audio-streams-on-disk">
+<h1>05-record-streams.py - Recording individual audio streams on disk.<a class="headerlink" href="#record-streams-py-recording-individual-audio-streams-on-disk" title="Permalink to this headline">¶</a></h1>
+<p>The Record object can be used to record specific audio streams
+from a performance. It can be useful to record a sound in mutiple
+tracks to make post-processing on individual part easier. This
+example record the bass, the mid and the higher part in three
+separated files on the user’s desktop.</p>
+<p>The <cite>fileformat</cite> and <cite>sampletype</cite> arguments are the same as in
+the Server’s <cite>recordOptions</cite> method.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+
+<span class="c1"># Defines sound file paths.</span>
+<span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s2">"~"</span><span class="p">),</span> <span class="s2">"Desktop"</span><span class="p">)</span>
+<span class="n">bname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">"bass.wav"</span><span class="p">)</span>
+<span class="n">mname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">"mid.wav"</span><span class="p">)</span>
+<span class="n">hname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">"high.wav"</span><span class="p">)</span>
+
+<span class="c1"># Creates an amplitude envelope</span>
+<span class="n">amp</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Fader" title="pyo.lib.controls.Fader"><span class="n">Fader</span></a><span class="p">(</span><span class="n">fadein</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">fadeout</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">dur</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+
+<span class="c1"># Bass voice</span>
+<span class="n">blfo</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="p">[</span><span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.16</span><span class="p">])</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="mi">78</span><span class="p">,</span> <span class="mi">82</span><span class="p">)</span>
+<span class="n">bass</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.RCOsc" title="pyo.lib.generators.RCOsc"><span class="n">RCOsc</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="n">blfo</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="n">amp</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+<span class="c1"># Mid voice</span>
+<span class="n">mlfo</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="p">[</span><span class="mf">0.18</span><span class="p">,</span> <span class="mf">0.19</span><span class="p">])</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="mf">0.24</span><span class="p">,</span> <span class="mf">0.26</span><span class="p">)</span>
+<span class="n">mid</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.FM" title="pyo.lib.generators.FM"><span class="n">FM</span></a><span class="p">(</span><span class="n">carrier</span><span class="o">=</span><span class="mi">1600</span><span class="p">,</span> <span class="n">ratio</span><span class="o">=</span><span class="n">mlfo</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="n">amp</span> <span class="o">*</span> <span class="mf">0.3</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+<span class="c1"># High voice</span>
+<span class="n">hlfo</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.11</span><span class="p">,</span> <span class="mf">0.12</span><span class="p">,</span> <span class="mf">0.13</span><span class="p">])</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="mi">7000</span><span class="p">,</span> <span class="mi">8000</span><span class="p">)</span>
+<span class="n">high</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="n">hlfo</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="n">amp</span> <span class="o">*</span> <span class="mf">0.1</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+<span class="c1"># Creates the recorders</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/utils.html#pyo.Record" title="pyo.lib.utils.Record"><span class="n">brec</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/utils.html#pyo.Record" title="pyo.lib.utils.Record"><span class="n">Record</span></a><span class="p">(</span><span class="n">bass</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">bname</span><span class="p">,</span> <span class="n">chnls</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">fileformat</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sampletype</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/utils.html#pyo.Record" title="pyo.lib.utils.Record"><span class="n">mrec</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/utils.html#pyo.Record" title="pyo.lib.utils.Record"><span class="n">Record</span></a><span class="p">(</span><span class="n">mid</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">mname</span><span class="p">,</span> <span class="n">chnls</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">fileformat</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sampletype</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/utils.html#pyo.Record" title="pyo.lib.utils.Record"><span class="n">hrec</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/utils.html#pyo.Record" title="pyo.lib.utils.Record"><span class="n">Record</span></a><span class="p">(</span><span class="n">high</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">hname</span><span class="p">,</span> <span class="n">chnls</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">fileformat</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sampletype</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># After 10.1 seconds, recorder objects will be automatically deleted.</span>
+<span class="c1"># This will trigger their stop method and properly close the sound files.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/utils.html#pyo.Clean_objects" title="pyo.lib.utils.Clean_objects"><span class="n">clean</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/utils.html#pyo.Clean_objects" title="pyo.lib.utils.Clean_objects"><span class="n">Clean_objects</span></a><span class="p">(</span><span class="mf">10.1</span><span class="p">,</span> <a class="sphinx-codeautolink-a" href="../../api/classes/utils.html#pyo.Record" title="pyo.lib.utils.Record"><span class="n">brec</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="../../api/classes/utils.html#pyo.Record" title="pyo.lib.utils.Record"><span class="n">mrec</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="../../api/classes/utils.html#pyo.Record" title="pyo.lib.utils.Record"><span class="n">hrec</span></a><span class="p">)</span>
+
+<span class="c1"># Starts the internal timer of Clean_objects. Use its own thread.</span>
+<span class="n">clean</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+<span class="c1"># Starts the Server, in order to be sync with the cleanup process.</span>
+<span class="n">s</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h4>Previous topic</h4>
+<p class="topless"><a href="04-record-perf.html" title="previous chapter">04-record-perf.py - Recording the performance on disk.</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="06-record-table.html" title="next chapter">06-record-table.py - Recording live sound in RAM.</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="06-record-table.html" title="06-record-table.py - Recording live sound in RAM.">next</a> |</li>
+<li class="right">
+<a href="04-record-perf.html" title="04-record-perf.py - Recording the performance on disk.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="index.html">04-soundfiles</a> »</li>
+<li class="nav-item nav-item-this"><a href="">05-record-streams.py - Recording individual audio streams on disk.</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

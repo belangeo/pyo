@@ -1,0 +1,157 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>Launching the audio processing in a separated thread — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="09-audio-mixer.html" rel="next" title="Mixing multiple inputs to multiple outputs with fading time"/>
+<link href="07-upsamp-processing.html" rel="prev" title="Applying digital signal processing at a higher sampling rate"/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="09-audio-mixer.html" title="Mixing multiple inputs to multiple outputs with fading time">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="07-upsamp-processing.html" title="Applying digital signal processing at a higher sampling rate">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a accesskey="U" href="index.html">21-utilities</a> »</li>
+<li class="nav-item nav-item-this"><a href="">Launching the audio processing in a separated thread</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="launching-the-audio-processing-in-a-separated-thread">
+<h1>Launching the audio processing in a separated thread<a class="headerlink" href="#launching-the-audio-processing-in-a-separated-thread" title="Permalink to this headline">¶</a></h1>
+<p><strong>08-multiple-threads.py</strong></p>
+<p>This program launches an audio process in a separated thread with the
+subprocess module and sends parameters to its standard input to control
+the sound playback.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+
+<span class="c1"># Get the python command according to the current operating system.</span>
+<span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"win"</span><span class="p">):</span>
+    <span class="n">PYTHON_EXE</span> <span class="o">=</span> <span class="s2">"py -</span><span class="si">%d</span><span class="s2">.</span><span class="si">%d</span><span class="s2">"</span> <span class="o">%</span> <span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">PYTHON_EXE</span> <span class="o">=</span> <span class="s2">"python</span><span class="si">%d</span><span class="s2">.</span><span class="si">%d</span><span class="s2">"</span> <span class="o">%</span> <span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+<span class="c1"># Path of the python file to run in the subprocess.</span>
+<span class="n">script_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s2">"~"</span><span class="p">),</span> <span class="s2">"08_multiple_threads_process.py"</span><span class="p">)</span>
+
+<span class="c1"># Thread's processing... Soundfile player + delay + reverb.</span>
+<span class="n">script</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2">from pyo import *</span>
+
+<span class="s2">s = Server(duplex=0).boot()</span>
+
+<span class="s2">sf = SfPlayer('../snds/snd_1.aif', mul=0.7)</span>
+<span class="s2">dd = SmoothDelay(sf, delay=0.25, feedback=0.5)</span>
+<span class="s2">rv = STRev(sf+dd, inpos=0.50, revtime=1.5, cutoff=5000, bal=0.25).out()</span>
+
+<span class="s2">s.start()</span>
+<span class="s2">"""</span>
+
+<span class="c1"># Create the python file to run in the subprocess.</span>
+<span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">script_path</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">)</span>
+<span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">script</span><span class="p">)</span>
+<span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+<span class="c1"># Launch an interactive python (-i flag) in a subprocess and store a</span>
+<span class="c1"># reference to the standard input to pass message to the running process.</span>
+<span class="n">pipe</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span>
+    <span class="p">[</span><span class="s2">"</span><span class="si">%s</span><span class="s2"> -i </span><span class="si">%s</span><span class="s2">"</span> <span class="o">%</span> <span class="p">(</span><span class="n">PYTHON_EXE</span><span class="p">,</span> <span class="n">script_path</span><span class="p">)],</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">universal_newlines</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">stdin</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
+<span class="p">)</span><span class="o">.</span><span class="n">stdin</span>
+
+<span class="c1"># Wait for the audio server to be ready.</span>
+<span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="c1"># Send events to the subprocess.</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">20</span><span class="p">):</span>
+    <span class="c1"># Randomly choose a sound (snd_1.aif to snd_6.aif).</span>
+    <span class="n">snd</span> <span class="o">=</span> <span class="s2">"../snds/snd_</span><span class="si">%d</span><span class="s2">.aif"</span> <span class="o">%</span> <span class="n">random</span><span class="o">.</span><span class="n">randrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">7</span><span class="p">)</span>
+
+    <span class="c1"># Replace the sound and start the playback.</span>
+    <span class="n">pipe</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"sf.path = '</span><span class="si">%s</span><span class="s2">'</span><span class="se">\n</span><span class="s2">dump = sf.play()</span><span class="se">\n</span><span class="s2">"</span> <span class="o">%</span> <span class="n">snd</span><span class="p">)</span>
+    <span class="n">pipe</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"dd.delay = </span><span class="si">%f</span><span class="se">\n</span><span class="s2">"</span> <span class="o">%</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">))</span>
+    <span class="n">pipe</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+
+    <span class="c1"># Wait some time before the next event.</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
+<span class="c1"># Stop the audio Server before exiting.</span>
+<span class="n">pipe</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"s.stop()</span><span class="se">\n</span><span class="s2">time.sleep(0.25)</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+
+<span class="c1"># Close the subprocess.</span>
+<span class="n">pipe</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+<span class="c1"># Delete the python file.</span>
+<span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">script_path</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h4>Previous topic</h4>
+<p class="topless"><a href="07-upsamp-processing.html" title="previous chapter">Applying digital signal processing at a higher sampling rate</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="09-audio-mixer.html" title="next chapter">Mixing multiple inputs to multiple outputs with fading time</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="09-audio-mixer.html" title="Mixing multiple inputs to multiple outputs with fading time">next</a> |</li>
+<li class="right">
+<a href="07-upsamp-processing.html" title="Applying digital signal processing at a higher sampling rate">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="index.html">21-utilities</a> »</li>
+<li class="nav-item nav-item-this"><a href="">Launching the audio processing in a separated thread</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

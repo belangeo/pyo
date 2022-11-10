@@ -1,0 +1,137 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>01-processes-spawning.py - Simple processes spawning, no synchronization. — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="02-sharing-audio.html" rel="next" title="02-sharing-audio.py - Sharing audio signals between processes."/>
+<link href="index.html" rel="prev" title="20-multicore"/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="02-sharing-audio.html" title="02-sharing-audio.py - Sharing audio signals between processes.">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="index.html" title="20-multicore">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a accesskey="U" href="index.html">20-multicore</a> »</li>
+<li class="nav-item nav-item-this"><a href="">01-processes-spawning.py - Simple processes spawning, no synchronization.</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="processes-spawning-py-simple-processes-spawning-no-synchronization">
+<h1>01-processes-spawning.py - Simple processes spawning, no synchronization.<a class="headerlink" href="#processes-spawning-py-simple-processes-spawning-no-synchronization" title="Permalink to this headline">¶</a></h1>
+<p>Need at least 4 cores to be really effective.</p>
+<dl class="simple">
+<dt>Usage:</dt><dd><p>python3 -i 01-processes-spawning.py</p>
+</dd>
+</dl>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">time</span><span class="o">,</span> <span class="nn">random</span><span class="o">,</span> <span class="nn">multiprocessing</span>
+<span class="kn">from</span> <a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"linux"</span><span class="p">):</span>
+    <span class="n">audio</span> <span class="o">=</span> <span class="s2">"jack"</span>
+<span class="k">elif</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"darwin"</span><span class="p">):</span>
+    <span class="n">audio</span> <span class="o">=</span> <span class="s2">"portaudio"</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Multicore examples don't run under Windows... Sorry!"</span><span class="p">)</span>
+    <span class="n">exit</span><span class="p">()</span>
+
+
+<span class="k">class</span> <span class="nc">Proc</span><span class="p">(</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">Process</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pitch</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Proc</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">daemon</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pitch</span> <span class="o">=</span> <span class="n">pitch</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">server</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">(</span><span class="n">audio</span><span class="o">=</span><span class="n">audio</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">server</span><span class="o">.</span><span class="n">deactivateMidi</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">server</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+        <span class="c1"># 200 randomized band-limited square wave oscillators.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">amp</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Fader" title="pyo.lib.controls.Fader"><span class="n">Fader</span></a><span class="p">(</span><span class="n">fadein</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+        <span class="n">lo</span><span class="p">,</span> <span class="n">hi</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/functions/conv.html#pyo.midiToHz" title="pyo.midiToHz"><span class="n">midiToHz</span></a><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">pitch</span> <span class="o">-</span> <span class="mf">0.1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pitch</span> <span class="o">+</span> <span class="mf">0.1</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fr</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/randoms.html#pyo.Randi" title="pyo.lib.randoms.Randi"><span class="n">Randi</span></a><span class="p">(</span><span class="n">lo</span><span class="p">,</span> <span class="n">hi</span><span class="p">,</span> <span class="p">[</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">50</span><span class="p">)])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sh</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/randoms.html#pyo.Randi" title="pyo.lib.randoms.Randi"><span class="n">Randi</span></a><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">,</span> <span class="p">[</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">50</span><span class="p">)])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">osc</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.LFO" title="pyo.lib.generators.LFO"><span class="n">LFO</span></a><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fr</span><span class="p">,</span> <span class="n">sharp</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sh</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">amp</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">30</span><span class="p">)</span>  <span class="c1"># Play for 30 seconds.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">server</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
+    <span class="c1"># C major chord (one note per process).</span>
+    <span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">,</span> <span class="n">p3</span><span class="p">,</span> <span class="n">p4</span> <span class="o">=</span> <span class="n">Proc</span><span class="p">(</span><span class="mi">48</span><span class="p">),</span> <span class="n">Proc</span><span class="p">(</span><span class="mi">52</span><span class="p">),</span> <span class="n">Proc</span><span class="p">(</span><span class="mi">55</span><span class="p">),</span> <span class="n">Proc</span><span class="p">(</span><span class="mi">60</span><span class="p">)</span>
+    <span class="n">p1</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+    <span class="n">p2</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+    <span class="n">p3</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+    <span class="n">p4</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">35</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h4>Previous topic</h4>
+<p class="topless"><a href="index.html" title="previous chapter">20-multicore</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="02-sharing-audio.html" title="next chapter">02-sharing-audio.py - Sharing audio signals between processes.</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="02-sharing-audio.html" title="02-sharing-audio.py - Sharing audio signals between processes.">next</a> |</li>
+<li class="right">
+<a href="index.html" title="20-multicore">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="index.html">20-multicore</a> »</li>
+<li class="nav-item nav-item-this"><a href="">01-processes-spawning.py - Simple processes spawning, no synchronization.</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

@@ -1,0 +1,111 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>Saving list of floats to audio file on disk — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="02-get-method.html" rel="next" title="Retrieving current value of a PyoObject as a python float"/>
+<link href="index.html" rel="prev" title="21-utilities"/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="02-get-method.html" title="Retrieving current value of a PyoObject as a python float">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="index.html" title="21-utilities">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a accesskey="U" href="index.html">21-utilities</a> »</li>
+<li class="nav-item nav-item-this"><a href="">Saving list of floats to audio file on disk</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="saving-list-of-floats-to-audio-file-on-disk">
+<h1>Saving list of floats to audio file on disk<a class="headerlink" href="#saving-list-of-floats-to-audio-file-on-disk" title="Permalink to this headline">¶</a></h1>
+<p><strong>01-list-to-audio-file.py</strong></p>
+<p>This program generates 5 seconds of white noise with pure python function
+and saves the samples in a file called noise.aif on the Desktop.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <a class="sphinx-codeautolink-a" href="../../api/functions/sndfile.html#pyo.savefile" title="pyo.savefile"><span class="n">savefile</span></a>
+<span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">uniform</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="c1"># Create the path for the audio file.</span>
+<span class="n">home</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s2">"~"</span><span class="p">)</span>
+<span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">home</span><span class="p">,</span> <span class="s2">"Desktop"</span><span class="p">,</span> <span class="s2">"noise.aif"</span><span class="p">)</span>
+
+<span class="c1"># Audio file properties (sampling rate, duration and number of channels).</span>
+<span class="n">sr</span> <span class="o">=</span> <span class="mi">44100</span>
+<span class="n">dur</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">chnls</span> <span class="o">=</span> <span class="mi">2</span>
+
+<span class="c1"># Generate a list of `chnls` sub-lists with `sr * dur` floats in each of them.</span>
+<span class="n">samples</span> <span class="o">=</span> <span class="p">[[</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sr</span> <span class="o">*</span> <span class="n">dur</span><span class="p">)]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">chnls</span><span class="p">)]</span>
+
+<span class="c1"># Save the list of floats in an audio file on disk.</span>
+<a class="sphinx-codeautolink-a" href="../../api/functions/sndfile.html#pyo.savefile" title="pyo.savefile"><span class="n">savefile</span></a><span class="p">(</span><span class="n">samples</span><span class="o">=</span><span class="n">samples</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">sr</span><span class="o">=</span><span class="n">sr</span><span class="p">,</span> <span class="n">channels</span><span class="o">=</span><span class="n">chnls</span><span class="p">,</span> <span class="n">fileformat</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sampletype</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h4>Previous topic</h4>
+<p class="topless"><a href="index.html" title="previous chapter">21-utilities</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="02-get-method.html" title="next chapter">Retrieving current value of a PyoObject as a python float</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="02-get-method.html" title="Retrieving current value of a PyoObject as a python float">next</a> |</li>
+<li class="right">
+<a href="index.html" title="21-utilities">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="index.html">21-utilities</a> »</li>
+<li class="nav-item nav-item-this"><a href="">Saving list of floats to audio file on disk</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

@@ -1,0 +1,12 @@
+04-soundfiles
+========================================
+
+.. toctree::
+   :maxdepth: 1
+
+   01-read-from-disk
+   02-read-from-disk-2
+   03-read-from-ram
+   04-record-perf
+   05-record-streams
+   06-record-table

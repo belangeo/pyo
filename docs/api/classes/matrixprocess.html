@@ -1,0 +1,1942 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>Matrix Processing — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="midi.html" rel="next" title="Midi Handling"/>
+<link href="internals.html" rel="prev" title="Internal objects"/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="midi.html" title="Midi Handling">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="internals.html" title="Internal objects">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="../index.html">API documentation</a> »</li>
+<li class="nav-item nav-item-2"><a accesskey="U" href="index.html">Classes by category</a> »</li>
+<li class="nav-item nav-item-this"><a href="">Matrix Processing</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="matrix-processing">
+<h1>Matrix Processing<a class="headerlink" href="#matrix-processing" title="Permalink to this headline">¶</a></h1>
+<p>PyoObjects to perform operations on PyoMatrixObjects.</p>
+<p>PyoMatrixObjects are 2 dimensions table containers. They can be used
+to store audio samples or algorithmic sequences. Writing and reading
+are done by giving row and column positions.</p>
+<section id="matrixmorph">
+<h2><em>MatrixMorph</em><a class="headerlink" href="#matrixmorph" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyo.MatrixMorph">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">MatrixMorph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sources</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/matrixprocess.html#MatrixMorph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.MatrixMorph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Morphs between multiple PyoMatrixObjects.</p>
+<p>Uses an index into a list of PyoMatrixObjects to morph between adjacent
+matrices in the list. The resulting morphed function is written into the
+<cite>matrix</cite> object at the beginning of each buffer size. The matrices in the
+list and the resulting matrix must be equal in size.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parent</dt>
+<dd class="field-odd"><p><a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></p>
+</dd>
+<dt class="field-even">Args</dt>
+<dd class="field-even"><dl class="simple">
+<dt>input: PyoObject</dt><dd><p>Morphing index between 0 and 1. 0 is the first matrix in the list
+and 1 is the last.</p>
+</dd>
+<dt>matrix: NewMatrix</dt><dd><p>The matrix where to write morphed function.</p>
+</dd>
+<dt>sources: list of PyoMatrixObject</dt><dd><p>List of matrices to interpolate from.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The out() method is bypassed. MatrixMorph returns no signal.</p>
+<p>MatrixMorph has no <cite>mul</cite> and <cite>add</cite> attributes.</p>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/matrices.html#pyo.NewMatrix" title="pyo.lib.matrix.NewMatrix"><span class="n">m1</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/matrices.html#pyo.NewMatrix" title="pyo.lib.matrix.NewMatrix"><span class="n">NewMatrix</span></a><span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="mi">256</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m1</span><span class="o">.</span><span class="n">genSineTerrain</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/matrices.html#pyo.NewMatrix" title="pyo.lib.matrix.NewMatrix"><span class="n">m2</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/matrices.html#pyo.NewMatrix" title="pyo.lib.matrix.NewMatrix"><span class="n">NewMatrix</span></a><span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="mi">256</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m2</span><span class="o">.</span><span class="n">genSineTerrain</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/matrices.html#pyo.NewMatrix" title="pyo.lib.matrix.NewMatrix"><span class="n">mm</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/matrices.html#pyo.NewMatrix" title="pyo.lib.matrix.NewMatrix"><span class="n">NewMatrix</span></a><span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="mi">256</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">inter</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="o">.</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">.</span><span class="mi">5</span><span class="p">,</span> <span class="o">.</span><span class="mi">5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/matrixprocess.html#pyo.MatrixMorph" title="pyo.lib.matrixprocess.MatrixMorph"><span class="n">morph</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/matrixprocess.html#pyo.MatrixMorph" title="pyo.lib.matrixprocess.MatrixMorph"><span class="n">MatrixMorph</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">inter</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="../../api/classes/matrices.html#pyo.NewMatrix" title="pyo.lib.matrix.NewMatrix"><span class="n">mm</span></a><span class="p">,</span> <span class="p">[</span><a class="sphinx-codeautolink-a" href="../../api/classes/matrices.html#pyo.NewMatrix" title="pyo.lib.matrix.NewMatrix"><span class="n">m1</span></a><span class="p">,</span><a class="sphinx-codeautolink-a" href="../../api/classes/matrices.html#pyo.NewMatrix" title="pyo.lib.matrix.NewMatrix"><span class="n">m2</span></a><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">x</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">([</span><span class="mi">49</span><span class="p">,</span><span class="mi">50</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="o">.</span><span class="mi">45</span><span class="p">,</span> <span class="o">.</span><span class="mi">5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">y</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">([</span><span class="mf">49.49</span><span class="p">,</span><span class="mf">50.5</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="o">.</span><span class="mi">45</span><span class="p">,</span> <span class="o">.</span><span class="mi">5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/matrixprocess.html#pyo.MatrixPointer" title="pyo.lib.matrixprocess.MatrixPointer"><span class="n">MatrixPointer</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/matrices.html#pyo.NewMatrix" title="pyo.lib.matrix.NewMatrix"><span class="n">mm</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">x</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">y</span></a><span class="p">,</span> <span class="o">.</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Public Data Attributes:</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.MatrixMorph.input" title="pyo.MatrixMorph.input"><code class="xref py py-obj docutils literal notranslate"><span class="pre">input</span></code></a></p></td>
+<td><p>PyoObject.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.MatrixMorph.matrix" title="pyo.MatrixMorph.matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">matrix</span></code></a></p></td>
+<td><p>NewMatrix.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.MatrixMorph.sources" title="pyo.MatrixMorph.sources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sources</span></code></a></p></td>
+<td><p>list of PyoMatrixObject.</p></td>
+</tr>
+</tbody>
+</table>
+<details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mul</span></code></p></td>
+<td><p>float or PyoObject.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add</span></code></p></td>
+<td><p>float or PyoObject.</p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Public Methods:</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>(input, matrix, sources)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.MatrixMorph.out" title="pyo.MatrixMorph.out"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out</span></code></a>([chnl, inc, dur, delay])</p></td>
+<td><p>Start processing and send samples to audio output beginning at <cite>chnl</cite>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.MatrixMorph.setMul" title="pyo.MatrixMorph.setMul"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setMul</span></code></a>(x)</p></td>
+<td><p>Replace the <cite>mul</cite> attribute.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.MatrixMorph.setAdd" title="pyo.MatrixMorph.setAdd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setAdd</span></code></a>(x)</p></td>
+<td><p>Replace the <cite>add</cite> attribute.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.MatrixMorph.setInput" title="pyo.MatrixMorph.setInput"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setInput</span></code></a>(x[, fadetime])</p></td>
+<td><p>Replace the <cite>input</cite> attribute.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.MatrixMorph.setMatrix" title="pyo.MatrixMorph.setMatrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setMatrix</span></code></a>(x)</p></td>
+<td><p>Replace the <cite>matrix</cite> attribute.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.MatrixMorph.setSources" title="pyo.MatrixMorph.setSources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setSources</span></code></a>(x)</p></td>
+<td><p>Replace the <cite>sources</cite> attribute.</p></td>
+</tr>
+</tbody>
+</table>
+<details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>(input, matrix, sources)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__add__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__radd__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__iadd__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__sub__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__rsub__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__isub__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__mul__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__rmul__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__imul__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__truediv__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__rtruediv__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__itruediv__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__div__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__rdiv__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__idiv__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__pow__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__rpow__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__mod__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__neg__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__lt__</span></code>(x)</p></td>
+<td><p>Return self&lt;value.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__le__</span></code>(x)</p></td>
+<td><p>Return self&lt;=value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__eq__</span></code>(x)</p></td>
+<td><p>Return self==value.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__ne__</span></code>(x)</p></td>
+<td><p>Return self!=value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__gt__</span></code>(x)</p></td>
+<td><p>Return self&gt;value.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__ge__</span></code>(x)</p></td>
+<td><p>Return self&gt;=value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__do_comp__</span></code>(comp, mode[, default])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isPlaying</span></code>([all])</p></td>
+<td><p>Returns True if the object is currently playing, otherwise, returns False.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isOutputting</span></code>([all])</p></td>
+<td><p>Returns True if the object is outputting.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
+<td><p>Return the first sample of the current buffer as a float.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
+<td><p>Start processing without sending samples to output.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.MatrixMorph.out" title="pyo.MatrixMorph.out"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out</span></code></a>([chnl, inc, dur, delay])</p></td>
+<td><p>Start processing and send samples to audio output beginning at <cite>chnl</cite>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">stop</span></code>([wait])</p></td>
+<td><p>Stop processing.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mix</span></code>([voices])</p></td>
+<td><p>Mix the object's audio streams into <cite>voices</cite> streams and return a Mix object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">range</span></code>(min, max)</p></td>
+<td><p>Adjust <cite>mul</cite> and <cite>add</cite> attributes according to a given range.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.MatrixMorph.setMul" title="pyo.MatrixMorph.setMul"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setMul</span></code></a>(x)</p></td>
+<td><p>Replace the <cite>mul</cite> attribute.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.MatrixMorph.setAdd" title="pyo.MatrixMorph.setAdd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setAdd</span></code></a>(x)</p></td>
+<td><p>Replace the <cite>add</cite> attribute.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setSub</span></code>(x)</p></td>
+<td><p>Replace and inverse the <cite>add</cite> attribute.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setDiv</span></code>(x)</p></td>
+<td><p>Replace and inverse the <cite>mul</cite> attribute.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set</span></code>(attr, value[, port, callback])</p></td>
+<td><p>Replace any attribute with portamento.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ctrl</span></code>([map_list, title, wxnoserver])</p></td>
+<td><p>Opens a sliders window to control the parameters of the object.</p></td>
+</tr>
+</tbody>
+</table>
+</details><details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObjectBase" title="pyo.PyoObjectBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObjectBase</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>(input, matrix, sources)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">dump</span></code>()</p></td>
+<td><p>Print infos about the current state of the object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getBaseObjects</span></code>()</p></td>
+<td><p>Return a list of Stream objects managed by the instance.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getServer</span></code>()</p></td>
+<td><p>Return a reference to the current Server object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getSamplingRate</span></code>()</p></td>
+<td><p>Return the current sampling rate (samples per second), as a float.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getBufferSize</span></code>()</p></td>
+<td><p>Return the current buffer size (samples per buffer), as an integer.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">allowAutoStart</span></code>([switch])</p></td>
+<td><p>When autoStartChildren is activated in the Server, call this method with False as argument to stop the propagation of play/out/stop methods to and from this object.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">useWaitTimeOnStop</span></code>()</p></td>
+<td><p>When autoStartChildren is activated in the Server, call this method to force an object given to the <cite>mul</cite> attribute of another object to use the  wait time from the stop method instead of being stopped immediately.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">addLinkedObject</span></code>(x)</p></td>
+<td><p>When autoStartChildren is activated in the Server, use this method to explicitly add an object in a dsp chain, which is generally controlled by the last object of the chain.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setStopDelay</span></code>(x)</p></td>
+<td><p>Set a specific waiting time when calling the stop method on this object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getStopDelay</span></code>()</p></td>
+<td><p>Return the waiting time applied when calling the stop method on this object.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__iter__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__next__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">next</span></code>()</p></td>
+<td><p>Alias for __next__ method.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__getitem__</span></code>(i)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__setitem__</span></code>(i, x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__len__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__repr__</span></code>()</p></td>
+<td><p>Return repr(self).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__dir__</span></code>()</p></td>
+<td><p>Default dir() implementation.</p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Private Data Attributes:</p>
+<details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_STREAM_TYPE</span></code></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</details><details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObjectBase" title="pyo.PyoObjectBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObjectBase</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_STREAM_TYPE</span></code></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Private Methods:</p>
+<details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_init_play</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_reset_from_set</span></code>([attr])</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</details><details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObjectBase" title="pyo.PyoObjectBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObjectBase</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_autoplay</span></code>([dur, delay])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_autostop</span></code>([wait])</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<hr class="docutils"/>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.MatrixMorph.out">
+<span class="sig-name descname"><span class="pre">out</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chnl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dur</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/matrixprocess.html#MatrixMorph.out"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.MatrixMorph.out" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start processing and send samples to audio output beginning at <cite>chnl</cite>.</p>
+<p>This method returns <cite>self</cite>, allowing it to be applied at the object
+creation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>chnl: int, optional</dt><dd><p>Physical output assigned to the first audio stream of the
+object. Defaults to 0.</p>
+</dd>
+<dt>inc: int, optional</dt><dd><p>Output channel increment value. Defaults to 1.</p>
+</dd>
+<dt>dur: float, optional</dt><dd><p>Duration, in seconds, of the object’s activation. The default
+is 0 and means infinite duration.</p>
+</dd>
+<dt>delay: float, optional</dt><dd><p>Delay, in seconds, before the object’s activation.
+Defaults to 0.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>If <cite>chnl</cite> &gt;= 0, successive streams increment the output number by
+<cite>inc</cite> and wrap around the global number of channels.</p>
+<p>If <cite>chnl</cite> is negative, streams begin at 0, increment
+the output number by <cite>inc</cite> and wrap around the global number of
+channels. Then, the list of streams is scrambled.</p>
+<p>If <cite>chnl</cite> is a list, successive values in the list will be
+assigned to successive streams.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.MatrixMorph.setMul">
+<span class="sig-name descname"><span class="pre">setMul</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/matrixprocess.html#MatrixMorph.setMul"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.MatrixMorph.setMul" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace the <cite>mul</cite> attribute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>x: float or PyoObject</dt><dd><p>New <cite>mul</cite> attribute.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.MatrixMorph.setAdd">
+<span class="sig-name descname"><span class="pre">setAdd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/matrixprocess.html#MatrixMorph.setAdd"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.MatrixMorph.setAdd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace the <cite>add</cite> attribute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>x: float or PyoObject</dt><dd><p>New <cite>add</cite> attribute.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.MatrixMorph.setInput">
+<span class="sig-name descname"><span class="pre">setInput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fadetime</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/matrixprocess.html#MatrixMorph.setInput"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.MatrixMorph.setInput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace the <cite>input</cite> attribute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>x: PyoObject</dt><dd><p>New signal to process.</p>
+</dd>
+<dt>fadetime: float, optional</dt><dd><p>Crossfade time between old and new input. Defaults to 0.05.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.MatrixMorph.setMatrix">
+<span class="sig-name descname"><span class="pre">setMatrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/matrixprocess.html#MatrixMorph.setMatrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.MatrixMorph.setMatrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace the <cite>matrix</cite> attribute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>x: NewMatrix</dt><dd><p>new <cite>matrix</cite> attribute.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.MatrixMorph.setSources">
+<span class="sig-name descname"><span class="pre">setSources</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/matrixprocess.html#MatrixMorph.setSources"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.MatrixMorph.setSources" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>Replace the <cite>sources</cite> attribute.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>x: list of PyoMatrixObject</dt><dd><p>new <cite>sources</cite> attribute.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="pyo.MatrixMorph.input">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.MatrixMorph.input" title="Permalink to this definition">¶</a></dt>
+<dd><p>PyoObject. Morphing index between 0 and 1.</p>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="pyo.MatrixMorph.matrix">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">matrix</span></span><a class="headerlink" href="#pyo.MatrixMorph.matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>NewMatrix. The matrix where to write samples.</p>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="pyo.MatrixMorph.sources">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">sources</span></span><a class="headerlink" href="#pyo.MatrixMorph.sources" title="Permalink to this definition">¶</a></dt>
+<dd><p>list of PyoMatrixObject. List of matrices to interpolate from.</p>
+</dd></dl>
+</dd></dl>
+</section>
+<section id="matrixpointer">
+<h2><em>MatrixPointer</em><a class="headerlink" href="#matrixpointer" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyo.MatrixPointer">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">MatrixPointer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mul</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/matrixprocess.html#MatrixPointer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.MatrixPointer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Matrix reader with control on the 2D pointer position.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parent</dt>
+<dd class="field-odd"><p><a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></p>
+</dd>
+<dt class="field-even">Args</dt>
+<dd class="field-even"><dl class="simple">
+<dt>matrix: PyoMatrixObject</dt><dd><p>Matrix containing the waveform samples.</p>
+</dd>
+<dt>x: PyoObject</dt><dd><p>Normalized X position in the matrix between 0 and 1.</p>
+</dd>
+<dt>y: PyoObject</dt><dd><p>Normalized Y position in the matrix between 0 and 1.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">SIZE</span> <span class="o">=</span> <span class="mi">256</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/matrices.html#pyo.NewMatrix" title="pyo.lib.matrix.NewMatrix"><span class="n">mm</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/matrices.html#pyo.NewMatrix" title="pyo.lib.matrix.NewMatrix"><span class="n">NewMatrix</span></a><span class="p">(</span><span class="n">SIZE</span><span class="p">,</span> <span class="n">SIZE</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">fmind</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="o">.</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">fmrat</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="o">.</span><span class="mi">33</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">.</span><span class="mi">05</span><span class="p">,</span> <span class="o">.</span><span class="mi">5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.FM" title="pyo.lib.generators.FM"><span class="n">aa</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.FM" title="pyo.lib.generators.FM"><span class="n">FM</span></a><span class="p">(</span><span class="n">carrier</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">ratio</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">fmrat</span></a><span class="p">,</span> <span class="n">index</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">fmind</span></a><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rec</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/matrixprocess.html#pyo.MatrixRec" title="pyo.lib.matrixprocess.MatrixRec"><span class="n">MatrixRec</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.FM" title="pyo.lib.generators.FM"><span class="n">aa</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="../../api/classes/matrices.html#pyo.NewMatrix" title="pyo.lib.matrix.NewMatrix"><span class="n">mm</span></a><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">lfx</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="o">.</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">.</span><span class="mi">24</span><span class="p">,</span> <span class="o">.</span><span class="mi">25</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">lfy</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="o">.</span><span class="mi">15</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">.</span><span class="mi">124</span><span class="p">,</span> <span class="o">.</span><span class="mi">25</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">x</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">([</span><span class="mi">500</span><span class="p">,</span><span class="mi">501</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">lfx</span></a><span class="p">,</span> <span class="o">.</span><span class="mi">5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">y</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">([</span><span class="mf">10.5</span><span class="p">,</span><span class="mi">10</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">lfy</span></a><span class="p">,</span> <span class="o">.</span><span class="mi">5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/matrixprocess.html#pyo.MatrixPointer" title="pyo.lib.matrixprocess.MatrixPointer"><span class="n">MatrixPointer</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/matrices.html#pyo.NewMatrix" title="pyo.lib.matrix.NewMatrix"><span class="n">mm</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">x</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">y</span></a><span class="p">,</span> <span class="o">.</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Public Data Attributes:</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.MatrixPointer.matrix" title="pyo.MatrixPointer.matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">matrix</span></code></a></p></td>
+<td><p>PyoMatrixObject.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.MatrixPointer.x" title="pyo.MatrixPointer.x"><code class="xref py py-obj docutils literal notranslate"><span class="pre">x</span></code></a></p></td>
+<td><p>PyoObject.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.MatrixPointer.y" title="pyo.MatrixPointer.y"><code class="xref py py-obj docutils literal notranslate"><span class="pre">y</span></code></a></p></td>
+<td><p>PyoObject.</p></td>
+</tr>
+</tbody>
+</table>
+<details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mul</span></code></p></td>
+<td><p>float or PyoObject.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add</span></code></p></td>
+<td><p>float or PyoObject.</p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Public Methods:</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>(matrix, x, y[, mul, add])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.MatrixPointer.setMatrix" title="pyo.MatrixPointer.setMatrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setMatrix</span></code></a>(x)</p></td>
+<td><p>Replace the <cite>matrix</cite> attribute.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.MatrixPointer.setX" title="pyo.MatrixPointer.setX"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setX</span></code></a>(x)</p></td>
+<td><p>Replace the <cite>x</cite> attribute.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.MatrixPointer.setY" title="pyo.MatrixPointer.setY"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setY</span></code></a>(x)</p></td>
+<td><p>Replace the <cite>y</cite> attribute.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.MatrixPointer.ctrl" title="pyo.MatrixPointer.ctrl"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ctrl</span></code></a>([map_list, title, wxnoserver])</p></td>
+<td><p>Opens a sliders window to control the parameters of the object.</p></td>
+</tr>
+</tbody>
+</table>
+<details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>(matrix, x, y[, mul, add])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__add__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__radd__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__iadd__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__sub__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__rsub__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__isub__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__mul__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__rmul__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__imul__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__truediv__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__rtruediv__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__itruediv__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__div__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__rdiv__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__idiv__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__pow__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__rpow__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__mod__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__neg__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__lt__</span></code>(x)</p></td>
+<td><p>Return self&lt;value.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__le__</span></code>(x)</p></td>
+<td><p>Return self&lt;=value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__eq__</span></code>(x)</p></td>
+<td><p>Return self==value.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__ne__</span></code>(x)</p></td>
+<td><p>Return self!=value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__gt__</span></code>(x)</p></td>
+<td><p>Return self&gt;value.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__ge__</span></code>(x)</p></td>
+<td><p>Return self&gt;=value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__do_comp__</span></code>(comp, mode[, default])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isPlaying</span></code>([all])</p></td>
+<td><p>Returns True if the object is currently playing, otherwise, returns False.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isOutputting</span></code>([all])</p></td>
+<td><p>Returns True if the object is outputting.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
+<td><p>Return the first sample of the current buffer as a float.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
+<td><p>Start processing without sending samples to output.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">out</span></code>([chnl, inc, dur, delay])</p></td>
+<td><p>Start processing and send samples to audio output beginning at <cite>chnl</cite>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">stop</span></code>([wait])</p></td>
+<td><p>Stop processing.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mix</span></code>([voices])</p></td>
+<td><p>Mix the object's audio streams into <cite>voices</cite> streams and return a Mix object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">range</span></code>(min, max)</p></td>
+<td><p>Adjust <cite>mul</cite> and <cite>add</cite> attributes according to a given range.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setMul</span></code>(x)</p></td>
+<td><p>Replace the <cite>mul</cite> attribute.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setAdd</span></code>(x)</p></td>
+<td><p>Replace the <cite>add</cite> attribute.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setSub</span></code>(x)</p></td>
+<td><p>Replace and inverse the <cite>add</cite> attribute.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setDiv</span></code>(x)</p></td>
+<td><p>Replace and inverse the <cite>mul</cite> attribute.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set</span></code>(attr, value[, port, callback])</p></td>
+<td><p>Replace any attribute with portamento.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.MatrixPointer.ctrl" title="pyo.MatrixPointer.ctrl"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ctrl</span></code></a>([map_list, title, wxnoserver])</p></td>
+<td><p>Opens a sliders window to control the parameters of the object.</p></td>
+</tr>
+</tbody>
+</table>
+</details><details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObjectBase" title="pyo.PyoObjectBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObjectBase</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>(matrix, x, y[, mul, add])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">dump</span></code>()</p></td>
+<td><p>Print infos about the current state of the object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getBaseObjects</span></code>()</p></td>
+<td><p>Return a list of Stream objects managed by the instance.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getServer</span></code>()</p></td>
+<td><p>Return a reference to the current Server object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getSamplingRate</span></code>()</p></td>
+<td><p>Return the current sampling rate (samples per second), as a float.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getBufferSize</span></code>()</p></td>
+<td><p>Return the current buffer size (samples per buffer), as an integer.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">allowAutoStart</span></code>([switch])</p></td>
+<td><p>When autoStartChildren is activated in the Server, call this method with False as argument to stop the propagation of play/out/stop methods to and from this object.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">useWaitTimeOnStop</span></code>()</p></td>
+<td><p>When autoStartChildren is activated in the Server, call this method to force an object given to the <cite>mul</cite> attribute of another object to use the  wait time from the stop method instead of being stopped immediately.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">addLinkedObject</span></code>(x)</p></td>
+<td><p>When autoStartChildren is activated in the Server, use this method to explicitly add an object in a dsp chain, which is generally controlled by the last object of the chain.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setStopDelay</span></code>(x)</p></td>
+<td><p>Set a specific waiting time when calling the stop method on this object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getStopDelay</span></code>()</p></td>
+<td><p>Return the waiting time applied when calling the stop method on this object.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__iter__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__next__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">next</span></code>()</p></td>
+<td><p>Alias for __next__ method.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__getitem__</span></code>(i)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__setitem__</span></code>(i, x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__len__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__repr__</span></code>()</p></td>
+<td><p>Return repr(self).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__dir__</span></code>()</p></td>
+<td><p>Default dir() implementation.</p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Private Data Attributes:</p>
+<details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_STREAM_TYPE</span></code></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</details><details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObjectBase" title="pyo.PyoObjectBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObjectBase</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_STREAM_TYPE</span></code></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Private Methods:</p>
+<details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_init_play</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_reset_from_set</span></code>([attr])</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</details><details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObjectBase" title="pyo.PyoObjectBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObjectBase</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_autoplay</span></code>([dur, delay])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_autostop</span></code>([wait])</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<hr class="docutils"/>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.MatrixPointer.setMatrix">
+<span class="sig-name descname"><span class="pre">setMatrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/matrixprocess.html#MatrixPointer.setMatrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.MatrixPointer.setMatrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace the <cite>matrix</cite> attribute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>x: PyoTableObject</dt><dd><p>new <cite>matrix</cite> attribute.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.MatrixPointer.setX">
+<span class="sig-name descname"><span class="pre">setX</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/matrixprocess.html#MatrixPointer.setX"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.MatrixPointer.setX" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace the <cite>x</cite> attribute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>x: PyoObject</dt><dd><p>new <cite>x</cite> attribute.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.MatrixPointer.setY">
+<span class="sig-name descname"><span class="pre">setY</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/matrixprocess.html#MatrixPointer.setY"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.MatrixPointer.setY" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace the <cite>y</cite> attribute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>y: PyoObject</dt><dd><p>new <cite>y</cite> attribute.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.MatrixPointer.ctrl">
+<span class="sig-name descname"><span class="pre">ctrl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">map_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wxnoserver</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/matrixprocess.html#MatrixPointer.ctrl"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.MatrixPointer.ctrl" title="Permalink to this definition">¶</a></dt>
+<dd><p>Opens a sliders window to control the parameters of the object.
+SLMap has a <cite>dataOnly</cite> attribute to identify parameters that don’t
+audio signal as control but only discrete values.</p>
+<p>If a list of values are given to a parameter, a multisliders
+will be used to control each stream independently.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>map_list: list of SLMap objects, optional</dt><dd><p>Users defined set of parameters scaling. There is default
+scaling for each object that accept <cite>ctrl</cite> method.</p>
+</dd>
+<dt>title: string, optional</dt><dd><p>Title of the window. If none is provided, the name of the
+class is used.</p>
+</dd>
+<dt>wxnoserver: boolean, optional</dt><dd><p>With wxPython graphical toolkit, if True, tells the
+interpreter that there will be no server window.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>If <cite>wxnoserver</cite> is set to True, the interpreter will not wait for
+the server GUI before showing the controller window.</p>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="pyo.MatrixPointer.matrix">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">matrix</span></span><a class="headerlink" href="#pyo.MatrixPointer.matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>PyoMatrixObject. Matrix containing the samples.</p>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="pyo.MatrixPointer.x">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">x</span></span><a class="headerlink" href="#pyo.MatrixPointer.x" title="Permalink to this definition">¶</a></dt>
+<dd><p>PyoObject. Normalized X position in the matrix.</p>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="pyo.MatrixPointer.y">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">y</span></span><a class="headerlink" href="#pyo.MatrixPointer.y" title="Permalink to this definition">¶</a></dt>
+<dd><p>PyoObject. Normalized Y position in the matrix.</p>
+</dd></dl>
+</dd></dl>
+</section>
+<section id="matrixrec">
+<h2><em>MatrixRec</em><a class="headerlink" href="#matrixrec" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyo.MatrixRec">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">MatrixRec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fadetime</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/matrixprocess.html#MatrixRec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.MatrixRec" title="Permalink to this definition">¶</a></dt>
+<dd><p>MatrixRec records samples into a previously created NewMatrix.</p>
+<p>See <a class="reference internal" href="matrices.html#pyo.NewMatrix" title="pyo.NewMatrix"><code class="xref py py-class docutils literal notranslate"><span class="pre">NewMatrix</span></code></a> to create an empty matrix.</p>
+<p>The play method is not called at the object creation time. It starts
+the recording into the matrix, row after row, until the matrix is full.
+Calling the play method again restarts the recording and overwrites
+previously recorded samples. The stop method stops the recording.
+Otherwise, the default behaviour is to record through the end of the matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parent</dt>
+<dd class="field-odd"><p><a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></p>
+</dd>
+<dt class="field-even">Args</dt>
+<dd class="field-even"><dl class="simple">
+<dt>input: PyoObject</dt><dd><p>Audio signal to write in the matrix.</p>
+</dd>
+<dt>matrix: PyoMatrixObject</dt><dd><p>The matrix where to write samples.</p>
+</dd>
+<dt>fadetime: float, optional</dt><dd><p>Fade time at the beginning and the end of the recording
+in seconds. Defaults to 0.</p>
+</dd>
+<dt>delay: int, optional</dt><dd><p>Delay time, in samples, before the recording begins.
+Available at initialization time only. Defaults to 0.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The out() method is bypassed. MatrixRec returns no signal.</p>
+<p>MatrixRec has no <cite>mul</cite> and <cite>add</cite> attributes.</p>
+<p>MatrixRec will send a trigger signal at the end of the recording.
+User can retreive the trigger streams by calling obj[‘trig’]. See
+<cite>TableRec</cite> documentation for an example.</p>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="matrices.html#pyo.NewMatrix" title="pyo.NewMatrix"><code class="xref py py-class docutils literal notranslate"><span class="pre">NewMatrix</span></code></a></p>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">SIZE</span> <span class="o">=</span> <span class="mi">256</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/matrices.html#pyo.NewMatrix" title="pyo.lib.matrix.NewMatrix"><span class="n">mm</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/matrices.html#pyo.NewMatrix" title="pyo.lib.matrix.NewMatrix"><span class="n">NewMatrix</span></a><span class="p">(</span><span class="n">SIZE</span><span class="p">,</span> <span class="n">SIZE</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">fmind</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="o">.</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">fmrat</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="o">.</span><span class="mi">33</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">.</span><span class="mi">05</span><span class="p">,</span> <span class="o">.</span><span class="mi">5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.FM" title="pyo.lib.generators.FM"><span class="n">aa</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.FM" title="pyo.lib.generators.FM"><span class="n">FM</span></a><span class="p">(</span><span class="n">carrier</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">ratio</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">fmrat</span></a><span class="p">,</span> <span class="n">index</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">fmind</span></a><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rec</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/matrixprocess.html#pyo.MatrixRec" title="pyo.lib.matrixprocess.MatrixRec"><span class="n">MatrixRec</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.FM" title="pyo.lib.generators.FM"><span class="n">aa</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="../../api/classes/matrices.html#pyo.NewMatrix" title="pyo.lib.matrix.NewMatrix"><span class="n">mm</span></a><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">lfx</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="o">.</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">.</span><span class="mi">24</span><span class="p">,</span> <span class="o">.</span><span class="mi">25</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">lfy</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="o">.</span><span class="mi">15</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">.</span><span class="mi">124</span><span class="p">,</span> <span class="o">.</span><span class="mi">25</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">x</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">([</span><span class="mi">500</span><span class="p">,</span><span class="mi">501</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">lfx</span></a><span class="p">,</span> <span class="o">.</span><span class="mi">5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">y</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">([</span><span class="mf">10.5</span><span class="p">,</span><span class="mi">10</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">lfy</span></a><span class="p">,</span> <span class="o">.</span><span class="mi">5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/matrixprocess.html#pyo.MatrixPointer" title="pyo.lib.matrixprocess.MatrixPointer"><span class="n">MatrixPointer</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/matrices.html#pyo.NewMatrix" title="pyo.lib.matrix.NewMatrix"><span class="n">mm</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">x</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">y</span></a><span class="p">,</span> <span class="o">.</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Public Data Attributes:</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.MatrixRec.input" title="pyo.MatrixRec.input"><code class="xref py py-obj docutils literal notranslate"><span class="pre">input</span></code></a></p></td>
+<td><p>PyoObject.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.MatrixRec.matrix" title="pyo.MatrixRec.matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">matrix</span></code></a></p></td>
+<td><p>PyoMatrixObject.</p></td>
+</tr>
+</tbody>
+</table>
+<details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mul</span></code></p></td>
+<td><p>float or PyoObject.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add</span></code></p></td>
+<td><p>float or PyoObject.</p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Public Methods:</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>(input, matrix[, fadetime, delay])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.MatrixRec.out" title="pyo.MatrixRec.out"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out</span></code></a>([chnl, inc, dur, delay])</p></td>
+<td><p>Start processing and send samples to audio output beginning at <cite>chnl</cite>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.MatrixRec.setMul" title="pyo.MatrixRec.setMul"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setMul</span></code></a>(x)</p></td>
+<td><p>Replace the <cite>mul</cite> attribute.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.MatrixRec.setAdd" title="pyo.MatrixRec.setAdd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setAdd</span></code></a>(x)</p></td>
+<td><p>Replace the <cite>add</cite> attribute.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.MatrixRec.setInput" title="pyo.MatrixRec.setInput"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setInput</span></code></a>(x[, fadetime])</p></td>
+<td><p>Replace the <cite>input</cite> attribute.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.MatrixRec.setMatrix" title="pyo.MatrixRec.setMatrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setMatrix</span></code></a>(x)</p></td>
+<td><p>Replace the <cite>matrix</cite> attribute.</p></td>
+</tr>
+</tbody>
+</table>
+<details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>(input, matrix[, fadetime, delay])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__add__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__radd__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__iadd__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__sub__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__rsub__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__isub__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__mul__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__rmul__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__imul__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__truediv__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__rtruediv__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__itruediv__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__div__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__rdiv__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__idiv__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__pow__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__rpow__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__mod__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__neg__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__lt__</span></code>(x)</p></td>
+<td><p>Return self&lt;value.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__le__</span></code>(x)</p></td>
+<td><p>Return self&lt;=value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__eq__</span></code>(x)</p></td>
+<td><p>Return self==value.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__ne__</span></code>(x)</p></td>
+<td><p>Return self!=value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__gt__</span></code>(x)</p></td>
+<td><p>Return self&gt;value.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__ge__</span></code>(x)</p></td>
+<td><p>Return self&gt;=value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__do_comp__</span></code>(comp, mode[, default])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isPlaying</span></code>([all])</p></td>
+<td><p>Returns True if the object is currently playing, otherwise, returns False.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isOutputting</span></code>([all])</p></td>
+<td><p>Returns True if the object is outputting.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
+<td><p>Return the first sample of the current buffer as a float.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
+<td><p>Start processing without sending samples to output.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.MatrixRec.out" title="pyo.MatrixRec.out"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out</span></code></a>([chnl, inc, dur, delay])</p></td>
+<td><p>Start processing and send samples to audio output beginning at <cite>chnl</cite>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">stop</span></code>([wait])</p></td>
+<td><p>Stop processing.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mix</span></code>([voices])</p></td>
+<td><p>Mix the object's audio streams into <cite>voices</cite> streams and return a Mix object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">range</span></code>(min, max)</p></td>
+<td><p>Adjust <cite>mul</cite> and <cite>add</cite> attributes according to a given range.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.MatrixRec.setMul" title="pyo.MatrixRec.setMul"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setMul</span></code></a>(x)</p></td>
+<td><p>Replace the <cite>mul</cite> attribute.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.MatrixRec.setAdd" title="pyo.MatrixRec.setAdd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setAdd</span></code></a>(x)</p></td>
+<td><p>Replace the <cite>add</cite> attribute.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setSub</span></code>(x)</p></td>
+<td><p>Replace and inverse the <cite>add</cite> attribute.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setDiv</span></code>(x)</p></td>
+<td><p>Replace and inverse the <cite>mul</cite> attribute.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set</span></code>(attr, value[, port, callback])</p></td>
+<td><p>Replace any attribute with portamento.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ctrl</span></code>([map_list, title, wxnoserver])</p></td>
+<td><p>Opens a sliders window to control the parameters of the object.</p></td>
+</tr>
+</tbody>
+</table>
+</details><details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObjectBase" title="pyo.PyoObjectBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObjectBase</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>(input, matrix[, fadetime, delay])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">dump</span></code>()</p></td>
+<td><p>Print infos about the current state of the object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getBaseObjects</span></code>()</p></td>
+<td><p>Return a list of Stream objects managed by the instance.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getServer</span></code>()</p></td>
+<td><p>Return a reference to the current Server object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getSamplingRate</span></code>()</p></td>
+<td><p>Return the current sampling rate (samples per second), as a float.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getBufferSize</span></code>()</p></td>
+<td><p>Return the current buffer size (samples per buffer), as an integer.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">allowAutoStart</span></code>([switch])</p></td>
+<td><p>When autoStartChildren is activated in the Server, call this method with False as argument to stop the propagation of play/out/stop methods to and from this object.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">useWaitTimeOnStop</span></code>()</p></td>
+<td><p>When autoStartChildren is activated in the Server, call this method to force an object given to the <cite>mul</cite> attribute of another object to use the  wait time from the stop method instead of being stopped immediately.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">addLinkedObject</span></code>(x)</p></td>
+<td><p>When autoStartChildren is activated in the Server, use this method to explicitly add an object in a dsp chain, which is generally controlled by the last object of the chain.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setStopDelay</span></code>(x)</p></td>
+<td><p>Set a specific waiting time when calling the stop method on this object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getStopDelay</span></code>()</p></td>
+<td><p>Return the waiting time applied when calling the stop method on this object.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__iter__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__next__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">next</span></code>()</p></td>
+<td><p>Alias for __next__ method.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__getitem__</span></code>(i)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__setitem__</span></code>(i, x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__len__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__repr__</span></code>()</p></td>
+<td><p>Return repr(self).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__dir__</span></code>()</p></td>
+<td><p>Default dir() implementation.</p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Private Data Attributes:</p>
+<details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_STREAM_TYPE</span></code></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</details><details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObjectBase" title="pyo.PyoObjectBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObjectBase</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_STREAM_TYPE</span></code></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Private Methods:</p>
+<details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_init_play</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_reset_from_set</span></code>([attr])</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</details><details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObjectBase" title="pyo.PyoObjectBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObjectBase</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_autoplay</span></code>([dur, delay])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_autostop</span></code>([wait])</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<hr class="docutils"/>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.MatrixRec.out">
+<span class="sig-name descname"><span class="pre">out</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chnl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dur</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/matrixprocess.html#MatrixRec.out"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.MatrixRec.out" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start processing and send samples to audio output beginning at <cite>chnl</cite>.</p>
+<p>This method returns <cite>self</cite>, allowing it to be applied at the object
+creation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>chnl: int, optional</dt><dd><p>Physical output assigned to the first audio stream of the
+object. Defaults to 0.</p>
+</dd>
+<dt>inc: int, optional</dt><dd><p>Output channel increment value. Defaults to 1.</p>
+</dd>
+<dt>dur: float, optional</dt><dd><p>Duration, in seconds, of the object’s activation. The default
+is 0 and means infinite duration.</p>
+</dd>
+<dt>delay: float, optional</dt><dd><p>Delay, in seconds, before the object’s activation.
+Defaults to 0.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>If <cite>chnl</cite> &gt;= 0, successive streams increment the output number by
+<cite>inc</cite> and wrap around the global number of channels.</p>
+<p>If <cite>chnl</cite> is negative, streams begin at 0, increment
+the output number by <cite>inc</cite> and wrap around the global number of
+channels. Then, the list of streams is scrambled.</p>
+<p>If <cite>chnl</cite> is a list, successive values in the list will be
+assigned to successive streams.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.MatrixRec.setMul">
+<span class="sig-name descname"><span class="pre">setMul</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/matrixprocess.html#MatrixRec.setMul"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.MatrixRec.setMul" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace the <cite>mul</cite> attribute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>x: float or PyoObject</dt><dd><p>New <cite>mul</cite> attribute.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.MatrixRec.setAdd">
+<span class="sig-name descname"><span class="pre">setAdd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/matrixprocess.html#MatrixRec.setAdd"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.MatrixRec.setAdd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace the <cite>add</cite> attribute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>x: float or PyoObject</dt><dd><p>New <cite>add</cite> attribute.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.MatrixRec.setInput">
+<span class="sig-name descname"><span class="pre">setInput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fadetime</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/matrixprocess.html#MatrixRec.setInput"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.MatrixRec.setInput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace the <cite>input</cite> attribute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>x: PyoObject</dt><dd><p>New signal to process.</p>
+</dd>
+<dt>fadetime: float, optional</dt><dd><p>Crossfade time between old and new input. Defaults to 0.05.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.MatrixRec.setMatrix">
+<span class="sig-name descname"><span class="pre">setMatrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/matrixprocess.html#MatrixRec.setMatrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.MatrixRec.setMatrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace the <cite>matrix</cite> attribute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>x: NewMatrix</dt><dd><p>new <cite>matrix</cite> attribute.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="pyo.MatrixRec.input">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.MatrixRec.input" title="Permalink to this definition">¶</a></dt>
+<dd><p>PyoObject. Audio signal to record in the matrix.</p>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="pyo.MatrixRec.matrix">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">matrix</span></span><a class="headerlink" href="#pyo.MatrixRec.matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>PyoMatrixObject. The matrix where to write samples.</p>
+</dd></dl>
+</dd></dl>
+</section>
+<section id="matrixrecloop">
+<h2><em>MatrixRecLoop</em><a class="headerlink" href="#matrixrecloop" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyo.MatrixRecLoop">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">MatrixRecLoop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/matrixprocess.html#MatrixRecLoop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.MatrixRecLoop" title="Permalink to this definition">¶</a></dt>
+<dd><p>MatrixRecLoop records samples in loop into a previously created NewMatrix.</p>
+<p>See <a class="reference internal" href="matrices.html#pyo.NewMatrix" title="pyo.NewMatrix"><code class="xref py py-class docutils literal notranslate"><span class="pre">NewMatrix</span></code></a> to create an empty matrix.</p>
+<p>MatrixRecLoop records samples into the matrix, row after row, until
+the matrix is full and then loop back to the beginning.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parent</dt>
+<dd class="field-odd"><p><a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></p>
+</dd>
+<dt class="field-even">Args</dt>
+<dd class="field-even"><dl class="simple">
+<dt>input: PyoObject</dt><dd><p>Audio signal to write in the matrix.</p>
+</dd>
+<dt>matrix: PyoMatrixObject</dt><dd><p>The matrix where to write samples.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The out() method is bypassed. MatrixRecLoop returns no signal.</p>
+<p>MatrixRecLoop has no <cite>mul</cite> and <cite>add</cite> attributes.</p>
+<p>MatrixRecLoop will send a trigger signal when reaching the end
+of the matrix. User can retreive the trigger streams by calling
+obj[‘trig’]. See <cite>TableRec</cite> documentation for an example.</p>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="matrices.html#pyo.NewMatrix" title="pyo.NewMatrix"><code class="xref py py-class docutils literal notranslate"><span class="pre">NewMatrix</span></code></a></p>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.CosTable" title="pyo.lib.tables.CosTable"><span class="n">env</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.CosTable" title="pyo.lib.tables.CosTable"><span class="n">CosTable</span></a><span class="p">([(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">300</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">1000</span><span class="p">,</span><span class="o">.</span><span class="mi">4</span><span class="p">),</span> <span class="p">(</span><span class="mi">8191</span><span class="p">,</span><span class="mi">0</span><span class="p">)])</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/matrices.html#pyo.NewMatrix" title="pyo.lib.matrix.NewMatrix"><span class="n">matrix</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/matrices.html#pyo.NewMatrix" title="pyo.lib.matrix.NewMatrix"><span class="n">NewMatrix</span></a><span class="p">(</span><span class="mi">8192</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">src</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">SfPlayer</span></a><span class="p">(</span><span class="n">SNDS_PATH</span><span class="o">+</span><span class="s1">'/transparent.aif'</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mul</span><span class="o">=.</span><span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/matrixprocess.html#pyo.MatrixRecLoop" title="pyo.lib.matrixprocess.MatrixRecLoop"><span class="n">m_rec</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/matrixprocess.html#pyo.MatrixRecLoop" title="pyo.lib.matrixprocess.MatrixRecLoop"><span class="n">MatrixRecLoop</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">src</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="../../api/classes/matrices.html#pyo.NewMatrix" title="pyo.lib.matrix.NewMatrix"><span class="n">matrix</span></a><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">period</span> <span class="o">=</span> <span class="mi">8192</span> <span class="o">/</span> <span class="n">s</span><span class="o">.</span><span class="n">getSamplingRate</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">metro</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/triggers.html#pyo.Metro" title="pyo.lib.triggers.Metro"><span class="n">Metro</span></a><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">period</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">poly</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/triggers.html#pyo.TrigLinseg" title="pyo.lib.triggers.TrigLinseg"><span class="n">x</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/triggers.html#pyo.TrigLinseg" title="pyo.lib.triggers.TrigLinseg"><span class="n">TrigLinseg</span></a><span class="p">(</span><span class="n">metro</span><span class="p">,</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="n">period</span><span class="p">,</span><span class="mi">1</span><span class="p">)])</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/triggers.html#pyo.TrigRandInt" title="pyo.lib.triggers.TrigRandInt"><span class="n">y</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/triggers.html#pyo.TrigRandInt" title="pyo.lib.triggers.TrigRandInt"><span class="n">TrigRandInt</span></a><span class="p">(</span><span class="n">metro</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.125</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/triggers.html#pyo.TrigEnv" title="pyo.lib.triggers.TrigEnv"><span class="n">amp</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/triggers.html#pyo.TrigEnv" title="pyo.lib.triggers.TrigEnv"><span class="n">TrigEnv</span></a><span class="p">(</span><span class="n">metro</span><span class="p">,</span> <span class="n">table</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.CosTable" title="pyo.lib.tables.CosTable"><span class="n">env</span></a><span class="p">,</span> <span class="n">dur</span><span class="o">=</span><span class="n">period</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/matrixprocess.html#pyo.MatrixPointer" title="pyo.lib.matrixprocess.MatrixPointer"><span class="n">MatrixPointer</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/matrices.html#pyo.NewMatrix" title="pyo.lib.matrix.NewMatrix"><span class="n">matrix</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="../../api/classes/triggers.html#pyo.TrigLinseg" title="pyo.lib.triggers.TrigLinseg"><span class="n">x</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="../../api/classes/triggers.html#pyo.TrigRandInt" title="pyo.lib.triggers.TrigRandInt"><span class="n">y</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="../../api/classes/triggers.html#pyo.TrigEnv" title="pyo.lib.triggers.TrigEnv"><span class="n">amp</span></a><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Public Data Attributes:</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.MatrixRecLoop.input" title="pyo.MatrixRecLoop.input"><code class="xref py py-obj docutils literal notranslate"><span class="pre">input</span></code></a></p></td>
+<td><p>PyoObject.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.MatrixRecLoop.matrix" title="pyo.MatrixRecLoop.matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">matrix</span></code></a></p></td>
+<td><p>PyoMatrixObject.</p></td>
+</tr>
+</tbody>
+</table>
+<details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mul</span></code></p></td>
+<td><p>float or PyoObject.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add</span></code></p></td>
+<td><p>float or PyoObject.</p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Public Methods:</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>(input, matrix)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.MatrixRecLoop.out" title="pyo.MatrixRecLoop.out"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out</span></code></a>([chnl, inc, dur, delay])</p></td>
+<td><p>Start processing and send samples to audio output beginning at <cite>chnl</cite>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.MatrixRecLoop.setMul" title="pyo.MatrixRecLoop.setMul"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setMul</span></code></a>(x)</p></td>
+<td><p>Replace the <cite>mul</cite> attribute.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.MatrixRecLoop.setAdd" title="pyo.MatrixRecLoop.setAdd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setAdd</span></code></a>(x)</p></td>
+<td><p>Replace the <cite>add</cite> attribute.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.MatrixRecLoop.setInput" title="pyo.MatrixRecLoop.setInput"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setInput</span></code></a>(x[, fadetime])</p></td>
+<td><p>Replace the <cite>input</cite> attribute.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.MatrixRecLoop.setMatrix" title="pyo.MatrixRecLoop.setMatrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setMatrix</span></code></a>(x)</p></td>
+<td><p>Replace the <cite>matrix</cite> attribute.</p></td>
+</tr>
+</tbody>
+</table>
+<details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>(input, matrix)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__add__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__radd__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__iadd__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__sub__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__rsub__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__isub__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__mul__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__rmul__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__imul__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__truediv__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__rtruediv__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__itruediv__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__div__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__rdiv__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__idiv__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__pow__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__rpow__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__mod__</span></code>(x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__neg__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__lt__</span></code>(x)</p></td>
+<td><p>Return self&lt;value.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__le__</span></code>(x)</p></td>
+<td><p>Return self&lt;=value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__eq__</span></code>(x)</p></td>
+<td><p>Return self==value.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__ne__</span></code>(x)</p></td>
+<td><p>Return self!=value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__gt__</span></code>(x)</p></td>
+<td><p>Return self&gt;value.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__ge__</span></code>(x)</p></td>
+<td><p>Return self&gt;=value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__do_comp__</span></code>(comp, mode[, default])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isPlaying</span></code>([all])</p></td>
+<td><p>Returns True if the object is currently playing, otherwise, returns False.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isOutputting</span></code>([all])</p></td>
+<td><p>Returns True if the object is outputting.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
+<td><p>Return the first sample of the current buffer as a float.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
+<td><p>Start processing without sending samples to output.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.MatrixRecLoop.out" title="pyo.MatrixRecLoop.out"><code class="xref py py-obj docutils literal notranslate"><span class="pre">out</span></code></a>([chnl, inc, dur, delay])</p></td>
+<td><p>Start processing and send samples to audio output beginning at <cite>chnl</cite>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">stop</span></code>([wait])</p></td>
+<td><p>Stop processing.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mix</span></code>([voices])</p></td>
+<td><p>Mix the object's audio streams into <cite>voices</cite> streams and return a Mix object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">range</span></code>(min, max)</p></td>
+<td><p>Adjust <cite>mul</cite> and <cite>add</cite> attributes according to a given range.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.MatrixRecLoop.setMul" title="pyo.MatrixRecLoop.setMul"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setMul</span></code></a>(x)</p></td>
+<td><p>Replace the <cite>mul</cite> attribute.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.MatrixRecLoop.setAdd" title="pyo.MatrixRecLoop.setAdd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setAdd</span></code></a>(x)</p></td>
+<td><p>Replace the <cite>add</cite> attribute.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setSub</span></code>(x)</p></td>
+<td><p>Replace and inverse the <cite>add</cite> attribute.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setDiv</span></code>(x)</p></td>
+<td><p>Replace and inverse the <cite>mul</cite> attribute.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set</span></code>(attr, value[, port, callback])</p></td>
+<td><p>Replace any attribute with portamento.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ctrl</span></code>([map_list, title, wxnoserver])</p></td>
+<td><p>Opens a sliders window to control the parameters of the object.</p></td>
+</tr>
+</tbody>
+</table>
+</details><details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObjectBase" title="pyo.PyoObjectBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObjectBase</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>(input, matrix)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">dump</span></code>()</p></td>
+<td><p>Print infos about the current state of the object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getBaseObjects</span></code>()</p></td>
+<td><p>Return a list of Stream objects managed by the instance.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getServer</span></code>()</p></td>
+<td><p>Return a reference to the current Server object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getSamplingRate</span></code>()</p></td>
+<td><p>Return the current sampling rate (samples per second), as a float.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getBufferSize</span></code>()</p></td>
+<td><p>Return the current buffer size (samples per buffer), as an integer.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">allowAutoStart</span></code>([switch])</p></td>
+<td><p>When autoStartChildren is activated in the Server, call this method with False as argument to stop the propagation of play/out/stop methods to and from this object.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">useWaitTimeOnStop</span></code>()</p></td>
+<td><p>When autoStartChildren is activated in the Server, call this method to force an object given to the <cite>mul</cite> attribute of another object to use the  wait time from the stop method instead of being stopped immediately.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">addLinkedObject</span></code>(x)</p></td>
+<td><p>When autoStartChildren is activated in the Server, use this method to explicitly add an object in a dsp chain, which is generally controlled by the last object of the chain.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setStopDelay</span></code>(x)</p></td>
+<td><p>Set a specific waiting time when calling the stop method on this object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getStopDelay</span></code>()</p></td>
+<td><p>Return the waiting time applied when calling the stop method on this object.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__iter__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__next__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">next</span></code>()</p></td>
+<td><p>Alias for __next__ method.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__getitem__</span></code>(i)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__setitem__</span></code>(i, x)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__len__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__repr__</span></code>()</p></td>
+<td><p>Return repr(self).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__dir__</span></code>()</p></td>
+<td><p>Default dir() implementation.</p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Private Data Attributes:</p>
+<details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_STREAM_TYPE</span></code></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</details><details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObjectBase" title="pyo.PyoObjectBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObjectBase</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_STREAM_TYPE</span></code></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Private Methods:</p>
+<details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_init_play</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_reset_from_set</span></code>([attr])</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</details><details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObjectBase" title="pyo.PyoObjectBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObjectBase</span></code></a></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_autoplay</span></code>([dur, delay])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_autostop</span></code>([wait])</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<hr class="docutils"/>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.MatrixRecLoop.out">
+<span class="sig-name descname"><span class="pre">out</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chnl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dur</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/matrixprocess.html#MatrixRecLoop.out"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.MatrixRecLoop.out" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start processing and send samples to audio output beginning at <cite>chnl</cite>.</p>
+<p>This method returns <cite>self</cite>, allowing it to be applied at the object
+creation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>chnl: int, optional</dt><dd><p>Physical output assigned to the first audio stream of the
+object. Defaults to 0.</p>
+</dd>
+<dt>inc: int, optional</dt><dd><p>Output channel increment value. Defaults to 1.</p>
+</dd>
+<dt>dur: float, optional</dt><dd><p>Duration, in seconds, of the object’s activation. The default
+is 0 and means infinite duration.</p>
+</dd>
+<dt>delay: float, optional</dt><dd><p>Delay, in seconds, before the object’s activation.
+Defaults to 0.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>If <cite>chnl</cite> &gt;= 0, successive streams increment the output number by
+<cite>inc</cite> and wrap around the global number of channels.</p>
+<p>If <cite>chnl</cite> is negative, streams begin at 0, increment
+the output number by <cite>inc</cite> and wrap around the global number of
+channels. Then, the list of streams is scrambled.</p>
+<p>If <cite>chnl</cite> is a list, successive values in the list will be
+assigned to successive streams.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.MatrixRecLoop.setMul">
+<span class="sig-name descname"><span class="pre">setMul</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/matrixprocess.html#MatrixRecLoop.setMul"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.MatrixRecLoop.setMul" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace the <cite>mul</cite> attribute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>x: float or PyoObject</dt><dd><p>New <cite>mul</cite> attribute.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.MatrixRecLoop.setAdd">
+<span class="sig-name descname"><span class="pre">setAdd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/matrixprocess.html#MatrixRecLoop.setAdd"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.MatrixRecLoop.setAdd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace the <cite>add</cite> attribute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>x: float or PyoObject</dt><dd><p>New <cite>add</cite> attribute.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.MatrixRecLoop.setInput">
+<span class="sig-name descname"><span class="pre">setInput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fadetime</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/matrixprocess.html#MatrixRecLoop.setInput"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.MatrixRecLoop.setInput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace the <cite>input</cite> attribute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>x: PyoObject</dt><dd><p>New signal to process.</p>
+</dd>
+<dt>fadetime: float, optional</dt><dd><p>Crossfade time between old and new input. Defaults to 0.05.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.MatrixRecLoop.setMatrix">
+<span class="sig-name descname"><span class="pre">setMatrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/matrixprocess.html#MatrixRecLoop.setMatrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.MatrixRecLoop.setMatrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace the <cite>matrix</cite> attribute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>x: NewMatrix</dt><dd><p>new <cite>matrix</cite> attribute.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="pyo.MatrixRecLoop.input">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#pyo.MatrixRecLoop.input" title="Permalink to this definition">¶</a></dt>
+<dd><p>PyoObject. Audio signal to record in the matrix.</p>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="pyo.MatrixRecLoop.matrix">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">matrix</span></span><a class="headerlink" href="#pyo.MatrixRecLoop.matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>PyoMatrixObject. The matrix where to write samples.</p>
+</dd></dl>
+</dd></dl>
+</section>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h3><a href="../../index.html">Table of Contents</a></h3>
+<ul>
+<li><a class="reference internal" href="#">Matrix Processing</a><ul>
+<li><a class="reference internal" href="#matrixmorph"><em>MatrixMorph</em></a></li>
+<li><a class="reference internal" href="#matrixpointer"><em>MatrixPointer</em></a></li>
+<li><a class="reference internal" href="#matrixrec"><em>MatrixRec</em></a></li>
+<li><a class="reference internal" href="#matrixrecloop"><em>MatrixRecLoop</em></a></li>
+</ul>
+</li>
+</ul>
+<h4>Previous topic</h4>
+<p class="topless"><a href="internals.html" title="previous chapter">Internal objects</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="midi.html" title="next chapter">Midi Handling</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="midi.html" title="Midi Handling">next</a> |</li>
+<li class="right">
+<a href="internals.html" title="Internal objects">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="../index.html">API documentation</a> »</li>
+<li class="nav-item nav-item-2"><a href="index.html">Classes by category</a> »</li>
+<li class="nav-item nav-item-this"><a href="">Matrix Processing</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

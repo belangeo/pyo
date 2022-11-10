@@ -1,0 +1,166 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>Resampling — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="conv.html" rel="next" title="Conversions"/>
+<link href="sndfile.html" rel="prev" title="Soundfile"/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="conv.html" title="Conversions">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="sndfile.html" title="Soundfile">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="../index.html">API documentation</a> »</li>
+<li class="nav-item nav-item-2"><a accesskey="U" href="index.html">Functions</a> »</li>
+<li class="nav-item nav-item-this"><a href="">Resampling</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="resampling">
+<h1>Resampling<a class="headerlink" href="#resampling" title="Permalink to this headline">¶</a></h1>
+<section id="upsamp">
+<h2><em>upsamp</em><a class="headerlink" href="#upsamp" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyo.upsamp">
+<span class="sig-name descname"><span class="pre">upsamp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outfile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">128</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#upsamp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.upsamp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Increases the sampling rate of an audio file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>path: string</dt><dd><p>Full path (including extension) of the audio file to convert.</p>
+</dd>
+<dt>outfile: string</dt><dd><p>Full path (including extension) of the new file.</p>
+</dd>
+<dt>up: int, optional</dt><dd><p>Upsampling factor. Defaults to 4.</p>
+</dd>
+<dt>order: int, optional</dt><dd><p>Length, in samples, of the anti-aliasing lowpass filter.
+Defaults to 128.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">os</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">home</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s1">'~'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">SNDS_PATH</span><span class="o">+</span><span class="s1">'/transparent.aif'</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># upsample a signal 2 times</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">upfile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">home</span><span class="p">,</span> <span class="s1">'trans_upsamp_2.aif'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/functions/sampling.html#pyo.upsamp" title="pyo.upsamp"><span class="n">upsamp</span></a><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">upfile</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">256</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># downsample the upsampled signal 3 times</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">downfile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">home</span><span class="p">,</span> <span class="s1">'trans_downsamp_3.aif'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/functions/sampling.html#pyo.downsamp" title="pyo.downsamp"><span class="n">downsamp</span></a><span class="p">(</span><span class="n">upfile</span><span class="p">,</span> <span class="n">downfile</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">256</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+</section>
+<section id="downsamp">
+<h2><em>downsamp</em><a class="headerlink" href="#downsamp" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyo.downsamp">
+<span class="sig-name descname"><span class="pre">downsamp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outfile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">down</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">128</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#downsamp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.downsamp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decreases the sampling rate of an audio file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>path: string</dt><dd><p>Full path (including extension) of the audio file to convert.</p>
+</dd>
+<dt>outfile: string</dt><dd><p>Full path (including extension) of the new file.</p>
+</dd>
+<dt>down: int, optional</dt><dd><p>Downsampling factor. Defaults to 4.</p>
+</dd>
+<dt>order: int, optional</dt><dd><p>Length, in samples, of the anti-aliasing lowpass filter.
+Defaults to 128.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">os</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">home</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s1">'~'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">SNDS_PATH</span><span class="o">+</span><span class="s1">'/transparent.aif'</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># upsample a signal 2 times</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">upfile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">home</span><span class="p">,</span> <span class="s1">'trans_upsamp_2.aif'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/functions/sampling.html#pyo.upsamp" title="pyo.upsamp"><span class="n">upsamp</span></a><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">upfile</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">256</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># downsample the upsampled signal 3 times</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">downfile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">home</span><span class="p">,</span> <span class="s1">'trans_downsamp_3.aif'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/functions/sampling.html#pyo.downsamp" title="pyo.downsamp"><span class="n">downsamp</span></a><span class="p">(</span><span class="n">upfile</span><span class="p">,</span> <span class="n">downfile</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">256</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+</section>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h3><a href="../../index.html">Table of Contents</a></h3>
+<ul>
+<li><a class="reference internal" href="#">Resampling</a><ul>
+<li><a class="reference internal" href="#upsamp"><em>upsamp</em></a></li>
+<li><a class="reference internal" href="#downsamp"><em>downsamp</em></a></li>
+</ul>
+</li>
+</ul>
+<h4>Previous topic</h4>
+<p class="topless"><a href="sndfile.html" title="previous chapter">Soundfile</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="conv.html" title="next chapter">Conversions</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="conv.html" title="Conversions">next</a> |</li>
+<li class="right">
+<a href="sndfile.html" title="Soundfile">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="../index.html">API documentation</a> »</li>
+<li class="nav-item nav-item-2"><a href="index.html">Functions</a> »</li>
+<li class="nav-item nav-item-this"><a href="">Resampling</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

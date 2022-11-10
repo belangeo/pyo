@@ -1,0 +1,143 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>How to send multiple outputs from a single expression — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="../../tutorials/pyoobject1.html" rel="next" title="Tutorial about creating a custom PyoObject (RingMod)"/>
+<link href="08-load-function.html" rel="prev" title="Loading functions from an external file"/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="../../tutorials/pyoobject1.html" title="Tutorial about creating a custom PyoObject (RingMod)">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="08-load-function.html" title="Loading functions from an external file">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a accesskey="U" href="index.html">23-expression</a> »</li>
+<li class="nav-item nav-item-this"><a href="">How to send multiple outputs from a single expression</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="how-to-send-multiple-outputs-from-a-single-expression">
+<h1>How to send multiple outputs from a single expression<a class="headerlink" href="#how-to-send-multiple-outputs-from-a-single-expression" title="Permalink to this headline">¶</a></h1>
+<p><strong>09-multiple-outputs.py</strong></p>
+<p>If the object generates only one channel output (the default), the last
+expression in the script is the output signal. Otherwise, output signals
+must be created with the <cite>out</cite> function.</p>
+<p>Here is an example of a script that output four sine waves to four
+different output channels.</p>
+<div class="highlight-scheme notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="k">define </span><span class="nv">osc</span> <span class="p">(</span><span class="nb">sin </span><span class="p">(</span><span class="nb">* </span><span class="nv">twopi</span> <span class="p">(</span><span class="nf">~</span> <span class="nv">$1</span><span class="p">))))</span>
+<span class="p">(</span><span class="nf">out</span> <span class="mi">0</span> <span class="p">(</span><span class="nb">* </span><span class="p">(</span><span class="nf">osc</span> <span class="mi">250</span><span class="p">)</span> <span class="mf">0.2</span><span class="p">))</span>
+<span class="p">(</span><span class="nf">out</span> <span class="mi">1</span> <span class="p">(</span><span class="nb">* </span><span class="p">(</span><span class="nf">osc</span> <span class="mi">500</span><span class="p">)</span> <span class="mf">0.2</span><span class="p">))</span>
+<span class="p">(</span><span class="nf">out</span> <span class="mi">2</span> <span class="p">(</span><span class="nb">* </span><span class="p">(</span><span class="nf">osc</span> <span class="mi">750</span><span class="p">)</span> <span class="mf">0.2</span><span class="p">))</span>
+<span class="p">(</span><span class="nf">out</span> <span class="mi">3</span> <span class="p">(</span><span class="nb">* </span><span class="p">(</span><span class="nf">osc</span> <span class="mi">1000</span><span class="p">)</span> <span class="mf">0.2</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>We retrieve the different channels from the Expr object with the
+bracket syntax (obj[0] is the first channel, obj[1] the second,
+and so on…).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+
+<span class="n">expression</span> <span class="o">=</span> <span class="s2">"""// Lorenz strange attractor.</span>
+<span class="s2">// Control variables</span>
+<span class="s2">(let #pit 500)      // 1.0 -&gt; 750.0</span>
+<span class="s2">(let #chaos 2.0)    // 0.5 -&gt; 3.0</span>
+<span class="s2">// Initial constants</span>
+<span class="s2">(let #A 10.0)</span>
+<span class="s2">(let #B 28.0)</span>
+
+<span class="s2">// Computes the differential variables</span>
+<span class="s2">(let #delta (* (/ 1.0 sr) #pit))</span>
+<span class="s2">(let #vDX (* (- $y1[-1] $y0[-1]) #A))</span>
+<span class="s2">(let #vDY (- (* $y0[-1] (- #B $y2[-1])) $y1[-1]))</span>
+<span class="s2">(let #vDZ (- (* $y0[-1] $y1[-1]) (* #chaos $y2[-1])))</span>
+
+<span class="s2">// Three differential equations (the first two are the</span>
+<span class="s2">// desired audio signals).</span>
+<span class="s2">(out 0 (+ $y0[-1] (* #vDX #delta)))</span>
+<span class="s2">(out 1 (+ $y1[-1] (* #vDY #delta)))</span>
+<span class="s2">(out 2 (+ $y2[-1] (* #vDZ #delta)))</span>
+
+<span class="s2">"""</span>
+
+<span class="c1"># We must tell the Expr object how many signals to output with the `outs` argument.</span>
+<span class="c1"># The `initout` argument sets the initial value og output signals (defaults to 0).</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/expression.html#pyo.Expr" title="pyo.lib.expression.Expr"><span class="n">expr</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/expression.html#pyo.Expr" title="pyo.lib.expression.Expr"><span class="n">Expr</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Sig" title="pyo.lib._core.Sig"><span class="n">Sig</span></a><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">expression</span><span class="p">,</span> <span class="n">outs</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">initout</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="p">[</span><span class="mf">0.044</span><span class="p">,</span> <span class="mf">0.0328</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span>
+<span class="n">expr</span><span class="o">.</span><span class="n">editor</span><span class="p">()</span>
+
+<a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.Scope" title="pyo.lib.analysis.Scope"><span class="n">sc</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.Scope" title="pyo.lib.analysis.Scope"><span class="n">Scope</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/expression.html#pyo.Expr" title="pyo.lib.expression.Expr"><span class="n">expr</span></a><span class="p">)</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.Spectrum" title="pyo.lib.analysis.Spectrum"><span class="n">sp</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.Spectrum" title="pyo.lib.analysis.Spectrum"><span class="n">Spectrum</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/expression.html#pyo.Expr" title="pyo.lib.expression.Expr"><span class="n">expr</span></a><span class="p">)</span>
+
+<span class="n">pan</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/pan.html#pyo.Pan" title="pyo.lib.pan.Pan"><span class="n">Pan</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/expression.html#pyo.Expr" title="pyo.lib.expression.Expr"><span class="n">expr</span></a><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h4>Previous topic</h4>
+<p class="topless"><a href="08-load-function.html" title="previous chapter">Loading functions from an external file</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="../../tutorials/pyoobject1.html" title="next chapter">Tutorial about creating a custom PyoObject (RingMod)</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="../../tutorials/pyoobject1.html" title="Tutorial about creating a custom PyoObject (RingMod)">next</a> |</li>
+<li class="right">
+<a href="08-load-function.html" title="Loading functions from an external file">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="index.html">23-expression</a> »</li>
+<li class="nav-item nav-item-this"><a href="">How to send multiple outputs from a single expression</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

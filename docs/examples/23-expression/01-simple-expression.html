@@ -1,0 +1,149 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>Introduction to prefix expression evaluator — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="02-audio-in.html" rel="next" title="Manipulating audio signal in input"/>
+<link href="index.html" rel="prev" title="23-expression"/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="02-audio-in.html" title="Manipulating audio signal in input">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="index.html" title="23-expression">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a accesskey="U" href="index.html">23-expression</a> »</li>
+<li class="nav-item nav-item-this"><a href="">Introduction to prefix expression evaluator</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="introduction-to-prefix-expression-evaluator">
+<h1>Introduction to prefix expression evaluator<a class="headerlink" href="#introduction-to-prefix-expression-evaluator" title="Permalink to this headline">¶</a></h1>
+<p><strong>01-simple-expression.py</strong></p>
+<p>The Expr object implements a tiny functional programming language
+that can be used to write synthesis or signal processing algorithms.</p>
+<p>The language uses prefix notation (also known as “Polish notation”)
+to express audio algorithms. In prefix notation, Operators are written
+before their operands, between braces. To add two number together, we
+will write:</p>
+<div class="highlight-scheme notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="nb">+ </span><span class="mi">2</span> <span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If we want to multiply by 10 the result of this addition, then:</p>
+<div class="highlight-scheme notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="nb">* </span><span class="p">(</span><span class="nb">+ </span><span class="mi">2</span> <span class="mi">2</span><span class="p">)</span> <span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>And so on, it’s how we build our algorithm. To generate a sine wave, we do:</p>
+<div class="highlight-scheme notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="nb">sin </span><span class="p">(</span><span class="nb">* </span><span class="nv">twopi</span> <span class="p">(</span><span class="nf">~</span> <span class="mi">440</span><span class="p">)))</span>
+</pre></div>
+</div>
+<p>The <cite>~</cite> operator generates a ramp from 0 to 1 at a frequency given to its first
+argument.</p>
+<p>If the object generates only one channel output (the default), the last expression
+in the script is the output signal. Otherwise, output signals must be created with
+the <cite>out</cite> function (we will cover this topic in a later example).</p>
+<p>For the detail of all available functions, see the prefix expression
+<a class="reference external" href="http://ajaxsoundstudio.com/pyodoc/api/classes/expression.html">documentation</a>.</p>
+<p>Here is a program that use the Expr object, with its own editor, to generate two
+sine waves with frequency and gain control.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+
+<span class="c1"># The expression to evaluate. It produces two sine waves, of</span>
+<span class="c1"># frequency 500 and 600 Hz, with an amplitude of -12 dB.</span>
+<span class="c1"># The ~ operator generates a ramp from 0 to 1 at a frequency</span>
+<span class="c1"># given to its first argument.</span>
+<span class="n">expression</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2">// sum of two sine waves with controlled gain.</span>
+<span class="s2">* (+ (sin (* twopi (~ 500)))</span>
+<span class="s2">     (sin (* twopi (~ 600))))</span>
+<span class="s2">  0.25</span>
+<span class="s2">"""</span>
+
+<span class="c1"># We dont use any input with this expression (synthesis only),</span>
+<span class="c1"># so we pass a signal filled with zeros.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Sig" title="pyo.lib._core.Sig"><span class="nb">input</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Sig" title="pyo.lib._core.Sig"><span class="n">Sig</span></a><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># Create the Expr object and show its expression editor. To</span>
+<span class="c1"># re-evaluate the expression hit Ctrl+Enter when the editor</span>
+<span class="c1"># has the focus.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/expression.html#pyo.Expr" title="pyo.lib.expression.Expr"><span class="n">expr</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/expression.html#pyo.Expr" title="pyo.lib.expression.Expr"><span class="n">Expr</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Sig" title="pyo.lib._core.Sig"><span class="nb">input</span></a><span class="p">,</span> <span class="n">expression</span><span class="p">)</span>
+<span class="n">expr</span><span class="o">.</span><span class="n">editor</span><span class="p">()</span>
+
+<span class="c1"># Shows the generated signal.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.Scope" title="pyo.lib.analysis.Scope"><span class="n">sc</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.Scope" title="pyo.lib.analysis.Scope"><span class="n">Scope</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/expression.html#pyo.Expr" title="pyo.lib.expression.Expr"><span class="n">expr</span></a><span class="p">)</span>
+
+<span class="c1"># Converts the mono signal to stereo and sends it to the soundcard.</span>
+<span class="n">pan</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/pan.html#pyo.Pan" title="pyo.lib.pan.Pan"><span class="n">Pan</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/expression.html#pyo.Expr" title="pyo.lib.expression.Expr"><span class="n">expr</span></a><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h4>Previous topic</h4>
+<p class="topless"><a href="index.html" title="previous chapter">23-expression</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="02-audio-in.html" title="next chapter">Manipulating audio signal in input</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="02-audio-in.html" title="Manipulating audio signal in input">next</a> |</li>
+<li class="right">
+<a href="index.html" title="23-expression">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="index.html">23-expression</a> »</li>
+<li class="nav-item nav-item-this"><a href="">Introduction to prefix expression evaluator</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

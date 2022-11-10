@@ -1,0 +1,143 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>Mixing multiple inputs to multiple outputs with fading time — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="../22-events/index.html" rel="next" title="22-events"/>
+<link href="08-multiple-threads.html" rel="prev" title="Launching the audio processing in a separated thread"/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="../22-events/index.html" title="22-events">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="08-multiple-threads.html" title="Launching the audio processing in a separated thread">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a accesskey="U" href="index.html">21-utilities</a> »</li>
+<li class="nav-item nav-item-this"><a href="">Mixing multiple inputs to multiple outputs with fading time</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="mixing-multiple-inputs-to-multiple-outputs-with-fading-time">
+<h1>Mixing multiple inputs to multiple outputs with fading time<a class="headerlink" href="#mixing-multiple-inputs-to-multiple-outputs-with-fading-time" title="Permalink to this headline">¶</a></h1>
+<p><strong>09-audio-mixer.py</strong></p>
+<p>The Mixer object allows to route multiple inputs to multiple outputs
+with individual amplitude. A portamento time, defined with the <cite>time</cite>
+argument, is applied to amplitude changes to make smooth mixing
+variations.</p>
+<p>The initialization argument <cite>outs</cite> lets defined the number of available
+outputs and the argument <cite>chnls</cite> specifies how many channels per output.
+If <cite>chnls</cite> is 2 and a single audio stream is given to an input, the signal
+will be dupplicated to fill the two channels of the voice.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">random</span>
+
+<span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">(</span><span class="n">duplex</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+
+<span class="c1"># Define some input signals for the mixer.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">low</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">SfPlayer</span></a><span class="p">(</span><span class="s2">"../snds/flute.aif"</span><span class="p">,</span> <span class="n">speed</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">mid</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">SfPlayer</span></a><span class="p">(</span><span class="s2">"../snds/flute.aif"</span><span class="p">,</span> <span class="n">speed</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">hig</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">SfPlayer</span></a><span class="p">(</span><span class="s2">"../snds/flute.aif"</span><span class="p">,</span> <span class="n">speed</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+
+<span class="c1"># Mixer with 3 outputs, 2 channels per voice and 0.5 second of amplitude fading time.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/pan.html#pyo.Mixer" title="pyo.lib.pan.Mixer"><span class="n">mm</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/pan.html#pyo.Mixer" title="pyo.lib.pan.Mixer"><span class="n">Mixer</span></a><span class="p">(</span><span class="n">outs</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">chnls</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+
+<span class="c1"># Route the mixer's outputs to some effects.</span>
+<span class="n">octaveBelow</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/effects.html#pyo.Harmonizer" title="pyo.lib.effects.Harmonizer"><span class="n">Harmonizer</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/pan.html#pyo.Mixer" title="pyo.lib.pan.Mixer"><span class="n">mm</span></a><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">transpo</span><span class="o">=-</span><span class="mi">12</span><span class="p">,</span> <span class="n">feedback</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/pan.html#pyo.Mixer" title="pyo.lib.pan.Mixer"><span class="n">mm</span></a><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+<span class="n">fifthBelow</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/effects.html#pyo.Harmonizer" title="pyo.lib.effects.Harmonizer"><span class="n">Harmonizer</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/pan.html#pyo.Mixer" title="pyo.lib.pan.Mixer"><span class="n">mm</span></a><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">transpo</span><span class="o">=-</span><span class="mi">7</span><span class="p">,</span> <span class="n">feedback</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/pan.html#pyo.Mixer" title="pyo.lib.pan.Mixer"><span class="n">mm</span></a><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+<span class="n">secondAbove</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/effects.html#pyo.Harmonizer" title="pyo.lib.effects.Harmonizer"><span class="n">Harmonizer</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/pan.html#pyo.Mixer" title="pyo.lib.pan.Mixer"><span class="n">mm</span></a><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">transpo</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">feedback</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/pan.html#pyo.Mixer" title="pyo.lib.pan.Mixer"><span class="n">mm</span></a><span class="p">[</span><span class="mi">2</span><span class="p">])</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+<span class="c1"># Add signals as inputs to the mixer.</span>
+<span class="n">mm</span><span class="o">.</span><span class="n">addInput</span><span class="p">(</span><span class="n">voice</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nb">input</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">low</span></a><span class="p">)</span>
+<span class="n">mm</span><span class="o">.</span><span class="n">addInput</span><span class="p">(</span><span class="n">voice</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="nb">input</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">mid</span></a><span class="p">)</span>
+<span class="n">mm</span><span class="o">.</span><span class="n">addInput</span><span class="p">(</span><span class="n">voice</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="nb">input</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">hig</span></a><span class="p">)</span>
+
+<span class="c1"># Initial assignment of inputs to outputs with amplitude balance.</span>
+<span class="n">mm</span><span class="o">.</span><span class="n">setAmp</span><span class="p">(</span><span class="n">vin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">vout</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">amp</span><span class="o">=</span><span class="mf">0.25</span><span class="p">)</span>
+<span class="n">mm</span><span class="o">.</span><span class="n">setAmp</span><span class="p">(</span><span class="n">vin</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">vout</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">amp</span><span class="o">=</span><span class="mf">0.25</span><span class="p">)</span>
+
+<span class="c1"># Dictionaries used to print assigment messages.</span>
+<span class="n">inputs</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="s2">"low"</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="s2">"mid"</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="s2">"hig"</span><span class="p">}</span>
+<span class="n">outputs</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="s2">"Octave below"</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="s2">"Fifth below"</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="s2">"Second above"</span><span class="p">}</span>
+
+<span class="c1"># Dynamic assignation of inputs to outputs with random amplitude.</span>
+<span class="k">def</span> <span class="nf">assign</span><span class="p">():</span>
+    <span class="n">vin</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">vout</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">amp</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.33</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">])</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="si">%s</span><span class="s2"> -&gt; </span><span class="si">%s</span><span class="s2">, amp = </span><span class="si">%f</span><span class="s2">"</span> <span class="o">%</span> <span class="p">(</span><span class="n">inputs</span><span class="p">[</span><span class="n">vin</span><span class="p">],</span> <span class="n">outputs</span><span class="p">[</span><span class="n">vout</span><span class="p">],</span> <span class="n">amp</span><span class="p">))</span>
+    <span class="n">mm</span><span class="o">.</span><span class="n">setAmp</span><span class="p">(</span><span class="n">vin</span><span class="o">=</span><span class="n">vin</span><span class="p">,</span> <span class="n">vout</span><span class="o">=</span><span class="n">vout</span><span class="p">,</span> <span class="n">amp</span><span class="o">=</span><span class="n">amp</span><span class="p">)</span>
+
+
+<span class="c1"># Call a new assignment every 3 seconds.</span>
+<span class="n">pat</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/pattern.html#pyo.Pattern" title="pyo.lib.pattern.Pattern"><span class="n">Pattern</span></a><span class="p">(</span><span class="n">function</span><span class="o">=</span><span class="n">assign</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h4>Previous topic</h4>
+<p class="topless"><a href="08-multiple-threads.html" title="previous chapter">Launching the audio processing in a separated thread</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="../22-events/index.html" title="next chapter">22-events</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="../22-events/index.html" title="22-events">next</a> |</li>
+<li class="right">
+<a href="08-multiple-threads.html" title="Launching the audio processing in a separated thread">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="index.html">21-utilities</a> »</li>
+<li class="nav-item nav-item-this"><a href="">Mixing multiple inputs to multiple outputs with fading time</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

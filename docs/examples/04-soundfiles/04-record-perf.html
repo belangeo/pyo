@@ -1,0 +1,140 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>04-record-perf.py - Recording the performance on disk. — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="05-record-streams.html" rel="next" title="05-record-streams.py - Recording individual audio streams on disk."/>
+<link href="03-read-from-ram.html" rel="prev" title="03-read-from-ram.py - Soundfile playback from RAM."/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="05-record-streams.html" title="05-record-streams.py - Recording individual audio streams on disk.">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="03-read-from-ram.html" title="03-read-from-ram.py - Soundfile playback from RAM.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a accesskey="U" href="index.html">04-soundfiles</a> »</li>
+<li class="nav-item nav-item-this"><a href="">04-record-perf.py - Recording the performance on disk.</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="record-perf-py-recording-the-performance-on-disk">
+<h1>04-record-perf.py - Recording the performance on disk.<a class="headerlink" href="#record-perf-py-recording-the-performance-on-disk" title="Permalink to this headline">¶</a></h1>
+<p>The Server object allow the recording of the overall playback
+(that is exactly what your hear). The “Rec Start” button of the
+Server’s window is doing that with default parameters. It’ll
+record a file called “pyo_rec.wav” (16-bit, 44100 Hz) on the
+user’s desktop.</p>
+<p>You can control the recording with the Server’s method called
+<cite>recordOptions</cite>, the arguments are:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>dur<span class="classifier">The duration of the recording, a value of -1 means</span></dt><dd><p>record forever (recstop() must be called by the user).</p>
+</dd>
+</dl>
+</li>
+<li><p>filename : Indicates the location of the recorded file.</p></li>
+<li><dl class="simple">
+<dt>fileformat<span class="classifier">The format of the audio file (see documentation</span></dt><dd><p>for available formats).</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>sampletype<span class="classifier">The sample type of the audio file (see documentation</span></dt><dd><p>for available types).</p>
+</dd>
+</dl>
+</li>
+</ul>
+<p>The recording can be triggered programmatically with the Server’s
+methods <cite>recstart()</cite> and <cite>recstop()</cite>. In order to record multiple files
+from a unique performance, it is possible to set the filename
+with an argument to <cite>recstart()</cite>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+
+<span class="c1"># Path of the recorded sound file.</span>
+<span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s2">"~"</span><span class="p">),</span> <span class="s2">"Desktop"</span><span class="p">,</span> <span class="s2">"synth.wav"</span><span class="p">)</span>
+<span class="c1"># Record for 10 seconds a 24-bit wav file.</span>
+<span class="n">s</span><span class="o">.</span><span class="n">recordOptions</span><span class="p">(</span><span class="n">dur</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">fileformat</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sampletype</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># Creates an amplitude envelope</span>
+<span class="n">amp</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Fader" title="pyo.lib.controls.Fader"><span class="n">Fader</span></a><span class="p">(</span><span class="n">fadein</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">fadeout</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">dur</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+
+<span class="c1"># A Simple synth</span>
+<span class="n">lfo</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="p">[</span><span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.16</span><span class="p">])</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="mf">1.25</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">)</span>
+<span class="n">fm2</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.CrossFM" title="pyo.lib.generators.CrossFM"><span class="n">CrossFM</span></a><span class="p">(</span><span class="n">carrier</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">ratio</span><span class="o">=</span><span class="n">lfo</span><span class="p">,</span> <span class="n">ind1</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">ind2</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="n">amp</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+<span class="c1"># Starts the recording for 10 seconds...</span>
+<span class="n">s</span><span class="o">.</span><span class="n">recstart</span><span class="p">()</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h4>Previous topic</h4>
+<p class="topless"><a href="03-read-from-ram.html" title="previous chapter">03-read-from-ram.py - Soundfile playback from RAM.</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="05-record-streams.html" title="next chapter">05-record-streams.py - Recording individual audio streams on disk.</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="05-record-streams.html" title="05-record-streams.py - Recording individual audio streams on disk.">next</a> |</li>
+<li class="right">
+<a href="03-read-from-ram.html" title="03-read-from-ram.py - Soundfile playback from RAM.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="index.html">04-soundfiles</a> »</li>
+<li class="nav-item nav-item-this"><a href="">04-record-perf.py - Recording the performance on disk.</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

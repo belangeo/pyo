@@ -1,0 +1,580 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>How to improve performance of your pyo programs — Pyo 1.0.4 documentation</title>
+<link href="_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+<script src="_static/jquery.js"></script>
+<script src="_static/underscore.js"></script>
+<script src="_static/doctools.js"></script>
+<link href="_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="about.html" rel="author" title="About these documents"/>
+<link href="genindex.html" rel="index" title="Index"/>
+<link href="search.html" rel="search" title="Search"/>
+<link href="api/index.html" rel="next" title="API documentation"/>
+<link href="winaudioinspect.html" rel="prev" title="Configuring the audio output (especially on Windows)"/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="api/index.html" title="API documentation">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="winaudioinspect.html" title="Configuring the audio output (especially on Windows)">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-this"><a href="">How to improve performance of your pyo programs</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="how-to-improve-performance-of-your-pyo-programs">
+<h1>How to improve performance of your pyo programs<a class="headerlink" href="#how-to-improve-performance-of-your-pyo-programs" title="Permalink to this headline">¶</a></h1>
+<p>This document lists various tips that help to improve the performance of your
+pyo programs.</p>
+<section id="python-tips">
+<h2>Python tips<a class="headerlink" href="#python-tips" title="Permalink to this headline">¶</a></h2>
+<p>There is not much you can do at the Python level because once the script has
+finished its execution run, almost all computations are done in the C level
+of pyo. Nevertheless, there is these two tricks to consider:</p>
+<section id="adjust-the-interpreter-s-check-interval">
+<h3>Adjust the interpreter’s “check interval”<a class="headerlink" href="#adjust-the-interpreter-s-check-interval" title="Permalink to this headline">¶</a></h3>
+<p>You can change how often the interpreter checks for periodic things with
+<cite>sys.setcheckinterval(interval)</cite>. The defaults is 100, which means the check
+is performed every 100 Python virtual instructions. Setting it to a larger
+value may increase performance for programs using threads.</p>
+</section>
+<section id="use-the-subprocess-or-multiprocessing-modules">
+<h3>Use the subprocess or multiprocessing modules<a class="headerlink" href="#use-the-subprocess-or-multiprocessing-modules" title="Permalink to this headline">¶</a></h3>
+<p>You can use the subprocess or multiprocessing modules to spawn your processes
+on multiple processors. From the python docs:</p>
+<blockquote>
+<div><p>The multiprocessing package offers both local and remote concurrency,
+effectively side-stepping the Global Interpreter Lock by using subprocesses
+instead of threads. Due to this, the multiprocessing module allows the
+programmer to fully leverage multiple processors on a given machine.
+It runs on both Unix and Windows.</p>
+</div></blockquote>
+<p>Here is a little example of using the multiprocessing module to spawn a lot of
+sine wave computations to multiple processors.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># encoding: utf-8</span>
+<span class="sd">"""</span>
+<span class="sd">Spawning lot of sine waves to multiple processes.</span>
+<span class="sd">From the command line, run the script with -i flag.</span>
+
+<span class="sd">Call quit() to stop the workers and quit the program.</span>
+
+<span class="sd">"""</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">multiprocessing</span>
+<span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">uniform</span>
+<span class="kn">from</span> <a class="sphinx-codeautolink-a" href="api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <a class="sphinx-codeautolink-a" href="api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.SineLoop" title="pyo.lib.generators.SineLoop"><span class="n">SineLoop</span></a>
+
+<span class="k">class</span> <span class="nc">Group</span><span class="p">(</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">Process</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_of_sines</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Group</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">daemon</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_terminated</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_of_sines</span> <span class="o">=</span> <span class="n">num_of_sines</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># All code that should run on a separated</span>
+        <span class="c1"># core must be created in the run() method.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">server</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">server</span><span class="o">.</span><span class="n">deactivateMidi</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">server</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+        <span class="n">freqs</span> <span class="o">=</span> <span class="p">[</span><span class="n">uniform</span><span class="p">(</span><span class="mi">400</span><span class="p">,</span><span class="mi">800</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_of_sines</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">oscs</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.SineLoop" title="pyo.lib.generators.SineLoop"><span class="n">SineLoop</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="n">freqs</span><span class="p">,</span> <span class="n">feedback</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">mul</span><span class="o">=.</span><span class="mi">005</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+        <span class="c1"># Keeps the process alive...</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_terminated</span><span class="p">:</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.001</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">server</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_terminated</span> <span class="o">=</span> <span class="kc">True</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">'__main__'</span><span class="p">:</span>
+    <span class="c1"># Starts four processes playing 500 oscillators each.</span>
+    <span class="n">jobs</span> <span class="o">=</span> <span class="p">[</span><span class="n">Group</span><span class="p">(</span><span class="mi">500</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">)]</span>
+    <span class="p">[</span><span class="n">job</span><span class="o">.</span><span class="n">start</span><span class="p">()</span> <span class="k">for</span> <span class="n">job</span> <span class="ow">in</span> <span class="n">jobs</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">quit</span><span class="p">():</span>
+        <span class="s2">"Stops the workers and quit the program."</span>
+        <span class="p">[</span><span class="n">job</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span> <span class="k">for</span> <span class="n">job</span> <span class="ow">in</span> <span class="n">jobs</span><span class="p">]</span>
+        <span class="n">exit</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="avoid-memory-allocation-after-initialization">
+<h3>Avoid memory allocation after initialization<a class="headerlink" href="#avoid-memory-allocation-after-initialization" title="Permalink to this headline">¶</a></h3>
+<p>Dynamic memory allocation (malloc/calloc/realloc) tends to be
+nondeterministic; the time taken to allocate memory may not be predictable,
+making it inappropriate for real time systems. To be sure that the audio
+callback will run smoothly all the time, it is better to create all audio
+objects at the program’s initialization and call their <cite>stop()</cite>, <cite>play()</cite>,
+<cite>out()</cite> methods when needed.</p>
+<p>Be aware that a simple arithmetic operation involving an audio object will
+create a <cite>Dummy</cite> object (to hold the modified signal), thus will allocate
+memory for its audio stream AND add a processing task on the CPU. Run this
+simple example and watch the process’s CPU growing:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">random</span>
+
+<span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+
+<a class="sphinx-codeautolink-a" href="api/classes/controls.html#pyo.Fader" title="pyo.lib.controls.Fader"><span class="n">env</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/controls.html#pyo.Fader" title="pyo.lib.controls.Fader"><span class="n">Fader</span></a><span class="p">(</span><span class="mf">0.005</span><span class="p">,</span> <span class="mf">0.09</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
+<a class="sphinx-codeautolink-a" href="api/classes/randoms.html#pyo.Randi" title="pyo.lib.randoms.Randi"><span class="n">jit</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/randoms.html#pyo.Randi" title="pyo.lib.randoms.Randi"><span class="n">Randi</span></a><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mf">1.02</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">sig</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.RCOsc" title="pyo.lib.generators.RCOsc"><span class="n">RCOsc</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="p">[</span><span class="mi">100</span><span class="p">,</span><span class="mi">100</span><span class="p">],</span> <span class="n">mul</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="api/classes/controls.html#pyo.Fader" title="pyo.lib.controls.Fader"><span class="n">env</span></a><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">change</span><span class="p">():</span>
+    <span class="n">freq</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/functions/conv.html#pyo.midiToHz" title="pyo.midiToHz"><span class="n">midiToHz</span></a><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">randrange</span><span class="p">(</span><span class="mi">60</span><span class="p">,</span> <span class="mi">72</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="c1"># Because `jit` is a PyoObject, both `freq+jit` and `freq-jit` will</span>
+    <span class="c1"># create a `Dummy` object, for which a reference will be created and</span>
+    <span class="c1"># saved in the `sig` object. The result is both memory and CPU</span>
+    <span class="c1"># increase until something bad happens!</span>
+    <span class="n">sig</span><span class="o">.</span><span class="n">freq</span> <span class="o">=</span> <span class="p">[</span><span class="n">freq</span><span class="o">+</span><a class="sphinx-codeautolink-a" href="api/classes/randoms.html#pyo.Randi" title="pyo.lib.randoms.Randi"><span class="n">jit</span></a><span class="p">,</span> <span class="n">freq</span><span class="o">-</span><a class="sphinx-codeautolink-a" href="api/classes/randoms.html#pyo.Randi" title="pyo.lib.randoms.Randi"><span class="n">jit</span></a><span class="p">]</span>
+    <span class="n">env</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+
+<span class="n">pat</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/pattern.html#pyo.Pattern" title="pyo.lib.pattern.Pattern"><span class="n">Pattern</span></a><span class="p">(</span><span class="n">change</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="mf">0.125</span><span class="p">)</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+</pre></div>
+</div>
+<p>An efficient version of this program should look like this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">random</span>
+
+<span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+
+<a class="sphinx-codeautolink-a" href="api/classes/controls.html#pyo.Fader" title="pyo.lib.controls.Fader"><span class="n">env</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/controls.html#pyo.Fader" title="pyo.lib.controls.Fader"><span class="n">Fader</span></a><span class="p">(</span><span class="mf">0.005</span><span class="p">,</span> <span class="mf">0.09</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
+<a class="sphinx-codeautolink-a" href="api/classes/randoms.html#pyo.Randi" title="pyo.lib.randoms.Randi"><span class="n">jit</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/randoms.html#pyo.Randi" title="pyo.lib.randoms.Randi"><span class="n">Randi</span></a><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mf">1.02</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="c1"># Create a `Sig` object to hold the frequency value.</span>
+<a class="sphinx-codeautolink-a" href="api/classes/controls.html#pyo.Sig" title="pyo.lib._core.Sig"><span class="n">frq</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/controls.html#pyo.Sig" title="pyo.lib._core.Sig"><span class="n">Sig</span></a><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+<span class="c1"># Create the `Dummy` objects only once at initialization.</span>
+<span class="n">sig</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.RCOsc" title="pyo.lib.generators.RCOsc"><span class="n">RCOsc</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="p">[</span><a class="sphinx-codeautolink-a" href="api/classes/controls.html#pyo.Sig" title="pyo.lib._core.Sig"><span class="n">frq</span></a><span class="o">+</span><a class="sphinx-codeautolink-a" href="api/classes/randoms.html#pyo.Randi" title="pyo.lib.randoms.Randi"><span class="n">jit</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="api/classes/controls.html#pyo.Sig" title="pyo.lib._core.Sig"><span class="n">frq</span></a><span class="o">-</span><a class="sphinx-codeautolink-a" href="api/classes/randoms.html#pyo.Randi" title="pyo.lib.randoms.Randi"><span class="n">jit</span></a><span class="p">],</span> <span class="n">mul</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="api/classes/controls.html#pyo.Fader" title="pyo.lib.controls.Fader"><span class="n">env</span></a><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">change</span><span class="p">():</span>
+    <span class="n">freq</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/functions/conv.html#pyo.midiToHz" title="pyo.midiToHz"><span class="n">midiToHz</span></a><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">randrange</span><span class="p">(</span><span class="mi">60</span><span class="p">,</span> <span class="mi">72</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="c1"># Only change the `value` attribute of the Sig object.</span>
+    <span class="n">frq</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">freq</span>
+    <span class="n">env</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+
+<span class="n">pat</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/pattern.html#pyo.Pattern" title="pyo.lib.pattern.Pattern"><span class="n">Pattern</span></a><span class="p">(</span><span class="n">change</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="mf">0.125</span><span class="p">)</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<section id="don-t-do-anything-that-can-trigger-the-garbage-collector">
+<h3>Don’t do anything that can trigger the garbage collector<a class="headerlink" href="#don-t-do-anything-that-can-trigger-the-garbage-collector" title="Permalink to this headline">¶</a></h3>
+<p>The garbage collector of python is another nondeterministic process. You
+should avoid doing anything that can trigger it. So, instead of deleting
+an audio object, which can turn out to delete many stream objects, you
+should just call its <cite>stop()</cite> method to remove it from the server’s
+processing loop.</p>
+</section>
+</section>
+<section id="pyo-tips">
+<h2>Pyo tips<a class="headerlink" href="#pyo-tips" title="Permalink to this headline">¶</a></h2>
+<p>Here is a list of tips specific to pyo that you should consider when trying to
+reduce the CPU consumption of your audio program.</p>
+<section id="mix-down-before-applying-effects">
+<h3>Mix down before applying effects<a class="headerlink" href="#mix-down-before-applying-effects" title="Permalink to this headline">¶</a></h3>
+<p>It is very easy to over-saturate the CPU with pyo, especially if you use the
+multi-channel expansion feature. If your final output uses less channels than
+the number of audio streams in an object, don’t forget to mix it down (call
+its <cite>mix()</cite> method) before applying effects on the sum of the signals.</p>
+<p>Consider the following snippet, which create a chorus of 50 oscillators and
+apply a phasing effect on the resulting sound:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.SineLoop" title="pyo.lib.generators.SineLoop"><span class="n">src</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.SineLoop" title="pyo.lib.generators.SineLoop"><span class="n">SineLoop</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="p">[</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">190</span><span class="p">,</span><span class="mi">210</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">50</span><span class="p">)],</span>
+               <span class="n">feedback</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
+<span class="n">lfo</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="o">.</span><span class="mi">25</span><span class="p">)</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">400</span><span class="p">)</span>
+<span class="n">phs</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/filters.html#pyo.Phaser" title="pyo.lib.filters.Phaser"><span class="n">Phaser</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.SineLoop" title="pyo.lib.generators.SineLoop"><span class="n">src</span></a><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="n">lfo</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">feedback</span><span class="o">=</span><span class="mf">0.95</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This version uses around 47% of the CPU on my Thinkpad T430, i5 3320M @ 2.6GHz.
+The problem is that the 50 oscillators given in input of the Phaser object
+creates 50 identical Phaser objects, one for each oscillator. That is a big
+waste of CPU. The next version mixes the oscillators into a stereo stream
+before applying the effect and the CPU consumption drops to ~7% !</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.SineLoop" title="pyo.lib.generators.SineLoop"><span class="n">src</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.SineLoop" title="pyo.lib.generators.SineLoop"><span class="n">SineLoop</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="p">[</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">190</span><span class="p">,</span><span class="mi">210</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">50</span><span class="p">)],</span>
+               <span class="n">feedback</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
+<span class="n">lfo</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="o">.</span><span class="mi">25</span><span class="p">)</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">400</span><span class="p">)</span>
+<span class="n">phs</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/filters.html#pyo.Phaser" title="pyo.lib.filters.Phaser"><span class="n">Phaser</span></a><span class="p">(</span><span class="n">src</span><span class="o">.</span><span class="n">mix</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">freq</span><span class="o">=</span><span class="n">lfo</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">feedback</span><span class="o">=</span><span class="mf">0.95</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>When costly effects are involved, this can have a very drastic impact on the
+CPU usage.</p>
+</section>
+<section id="stop-your-unused-audio-objects">
+<h3>Stop your unused audio objects<a class="headerlink" href="#stop-your-unused-audio-objects" title="Permalink to this headline">¶</a></h3>
+<p>Whenever you don’t use an audio object (but you want to keep it for future
+uses), call its <cite>stop()</cite> method. This will inform the server to remove it from
+the computation loop. Setting the volume to 0 does not save CPU (everything is
+computed then multiplied by 0), the <cite>stop()</cite> method does. My own synth classes
+often looks like something like this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Glitchy</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">feed</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Lorenz" title="pyo.lib.generators.Lorenz"><span class="n">Lorenz</span></a><span class="p">(</span><span class="mf">0.002</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="mf">0.49</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">amp</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="mf">0.2</span><span class="p">)</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">src</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.SineLoop" title="pyo.lib.generators.SineLoop"><span class="n">SineLoop</span></a><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">feed</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">amp</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filt</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/filters.html#pyo.ButLP" title="pyo.lib.filters.ButLP"><span class="n">ButLP</span></a><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">src</span><span class="p">,</span> <span class="mi">10000</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">play</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chnl</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">feed</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">amp</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">src</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filt</span><span class="o">.</span><span class="n">out</span><span class="p">(</span><span class="n">chnl</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">feed</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">amp</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">src</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filt</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span>
+</pre></div>
+</div>
+</section>
+<section id="control-attribute-with-numbers-instead-of-pyoobjects">
+<h3>Control attribute with numbers instead of PyoObjects<a class="headerlink" href="#control-attribute-with-numbers-instead-of-pyoobjects" title="Permalink to this headline">¶</a></h3>
+<p>Objects internal processing functions are optimized when plain numbers are
+given to their attributes. Unless you really need audio control over some
+parameters, don’t waste CPU cycles and give fixed numbers to every attribute
+that don’t need to change over time. See this comparison:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">n</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">Noise</span></a><span class="p">(</span><span class="o">.</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="c1"># ~5% CPU</span>
+<span class="n">p1</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/filters.html#pyo.Phaser" title="pyo.lib.filters.Phaser"><span class="n">Phaser</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">n</span></a><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="p">[</span><span class="mi">100</span><span class="p">,</span><span class="mi">105</span><span class="p">],</span> <span class="n">spread</span><span class="o">=</span><span class="mf">1.2</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+            <span class="n">feedback</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">48</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+<span class="c1"># ~14% CPU</span>
+<span class="n">p2</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/filters.html#pyo.Phaser" title="pyo.lib.filters.Phaser"><span class="n">Phaser</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">n</span></a><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="p">[</span><span class="mi">100</span><span class="p">,</span><span class="mi">105</span><span class="p">],</span> <span class="n">spread</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="api/classes/controls.html#pyo.Sig" title="pyo.lib._core.Sig"><span class="n">Sig</span></a><span class="p">(</span><span class="mf">1.2</span><span class="p">),</span> <span class="n">q</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+            <span class="n">feedback</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">48</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Making the <cite>spread</cite> attribute of <cite>p2</cite> an audio signal causes the frequency of
+the 48 notches to be recalculated every sample, which can be a very costly
+process.</p>
+</section>
+<section id="check-for-denormal-numbers">
+<h3>Check for denormal numbers<a class="headerlink" href="#check-for-denormal-numbers" title="Permalink to this headline">¶</a></h3>
+<p>From wikipedia:</p>
+<blockquote>
+<div><p>In computer science, denormal numbers or denormalized numbers (now
+often called subnormal numbers) fill the underflow gap around zero in
+floating-point arithmetic. Any non-zero number with magnitude smaller
+than the smallest normal number is ‘subnormal’.</p>
+</div></blockquote>
+<p>The problem is that some processors compute denormal numbers very
+slowly, which makes grow the CPU consumption very quickly. The solution is to
+wrap the objects that are subject to denormals (any object with an internal
+recursive delay line, ie. filters, delays, reverbs, harmonizers, etc.) in a
+<cite>Denorm</cite> object. <cite>Denorm</cite> adds a little amount of noise, with a magnitude
+just above the smallest normal number, to its input. Of course, you can use
+the same noise for multiple denormalizations:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">n</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">Noise</span></a><span class="p">(</span><span class="mf">1e-24</span><span class="p">)</span> <span class="c1"># low-level noise for denormals</span>
+
+<a class="sphinx-codeautolink-a" href="api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">src</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">SfPlayer</span></a><span class="p">(</span><span class="n">SNDS_PATH</span><span class="o">+</span><span class="s2">"/transparent.aif"</span><span class="p">)</span>
+<span class="n">dly</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/effects.html#pyo.Delay" title="pyo.lib.effects.Delay"><span class="n">Delay</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">src</span></a><span class="o">+</span><a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">n</span></a><span class="p">,</span> <span class="n">delay</span><span class="o">=.</span><span class="mi">1</span><span class="p">,</span> <span class="n">feedback</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+<span class="n">rev</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/effects.html#pyo.WGVerb" title="pyo.lib.effects.WGVerb"><span class="n">WGVerb</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">src</span></a><span class="o">+</span><a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">n</span></a><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="use-a-pyoobject-when-available">
+<h3>Use a PyoObject when available<a class="headerlink" href="#use-a-pyoobject-when-available" title="Permalink to this headline">¶</a></h3>
+<p>Always look first if a PyoObject does what you want, it will always be more
+efficient than the same process written from scratch.</p>
+<p>This construct, although pedagogically valid, will never be more efficient, in
+term of CPU and memory usage, than a native PyoObject (Phaser) written in C.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">a</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.BrownNoise" title="pyo.lib.generators.BrownNoise"><span class="n">BrownNoise</span></a><span class="p">(</span><span class="o">.</span><span class="mi">02</span><span class="p">)</span><span class="o">.</span><span class="n">mix</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+<span class="n">lfo</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="o">.</span><span class="mi">25</span><span class="p">)</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="o">.</span><span class="mi">75</span><span class="p">,</span> <span class="mf">1.25</span><span class="p">)</span>
+<span class="n">filters</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">24</span><span class="p">):</span>
+    <span class="n">freq</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/functions/conv.html#pyo.rescale" title="pyo.rescale"><span class="n">rescale</span></a><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">xmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">xmax</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span> <span class="n">ymin</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">ymax</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+    <span class="nb">filter</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/filters.html#pyo.Allpass2" title="pyo.lib.filters.Allpass2"><span class="n">Allpass2</span></a><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="n">lfo</span><span class="o">*</span><span class="n">freq</span><span class="p">,</span> <span class="n">bw</span><span class="o">=</span><span class="n">freq</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+    <span class="n">filters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">filter</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>It is also more efficient to use <cite>Biquadx(stages=4)</cite> than a cascade of four
+<cite>Biquad</cite> objects with identical arguments.</p>
+</section>
+<section id="avoid-trigonometric-computation">
+<h3>Avoid trigonometric computation<a class="headerlink" href="#avoid-trigonometric-computation" title="Permalink to this headline">¶</a></h3>
+<p>Avoid trigonometric functions computed at audio rate (<cite>Sin</cite>, <cite>Cos</cite>, <cite>Tan</cite>,
+<cite>Atan2</cite>, etc.), use simple approximations instead. For example, you can
+replace a clean <cite>Sin/Cos</cite> panning function with a cheaper one based on <cite>Sqrt</cite>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Heavier</span>
+<span class="n">pan</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/controls.html#pyo.Linseg" title="pyo.lib.controls.Linseg"><span class="n">Linseg</span></a><span class="p">([(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)])</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+<a class="sphinx-codeautolink-a" href="api/classes/arithmetic.html#pyo.Cos" title="pyo.lib.arithmetic.Cos"><span class="n">left</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/arithmetic.html#pyo.Cos" title="pyo.lib.arithmetic.Cos"><span class="n">Cos</span></a><span class="p">(</span><span class="n">pan</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<a class="sphinx-codeautolink-a" href="api/classes/arithmetic.html#pyo.Sin" title="pyo.lib.arithmetic.Sin"><span class="n">right</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/arithmetic.html#pyo.Sin" title="pyo.lib.arithmetic.Sin"><span class="n">Sin</span></a><span class="p">(</span><span class="n">pan</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">a</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">Noise</span></a><span class="p">([</span><a class="sphinx-codeautolink-a" href="api/classes/arithmetic.html#pyo.Cos" title="pyo.lib.arithmetic.Cos"><span class="n">left</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="api/classes/arithmetic.html#pyo.Sin" title="pyo.lib.arithmetic.Sin"><span class="n">right</span></a><span class="p">])</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+<span class="c1"># Cheaper</span>
+<span class="n">pan2</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/controls.html#pyo.Linseg" title="pyo.lib.controls.Linseg"><span class="n">Linseg</span></a><span class="p">([(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)])</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+<a class="sphinx-codeautolink-a" href="api/classes/arithmetic.html#pyo.Sqrt" title="pyo.lib.arithmetic.Sqrt"><span class="n">left2</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/arithmetic.html#pyo.Sqrt" title="pyo.lib.arithmetic.Sqrt"><span class="n">Sqrt</span></a><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">pan2</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<a class="sphinx-codeautolink-a" href="api/classes/arithmetic.html#pyo.Sqrt" title="pyo.lib.arithmetic.Sqrt"><span class="n">right2</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/arithmetic.html#pyo.Sqrt" title="pyo.lib.arithmetic.Sqrt"><span class="n">Sqrt</span></a><span class="p">(</span><span class="n">pan2</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">a2</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">Noise</span></a><span class="p">([</span><a class="sphinx-codeautolink-a" href="api/classes/arithmetic.html#pyo.Sqrt" title="pyo.lib.arithmetic.Sqrt"><span class="n">left2</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="api/classes/arithmetic.html#pyo.Sqrt" title="pyo.lib.arithmetic.Sqrt"><span class="n">right2</span></a><span class="p">])</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="use-approximations-if-absolute-precision-is-not-needed">
+<h3>Use approximations if absolute precision is not needed<a class="headerlink" href="#use-approximations-if-absolute-precision-is-not-needed" title="Permalink to this headline">¶</a></h3>
+<p>When absolute precision is not really important, you can save precious CPU
+cycles by using approximations instead of the real function. <cite>FastSine</cite> is an
+approximation of the <cite>sin</cite> function that can be almost twice cheaper than a
+lookup table (Sine). I plan to add more approximations like this one in the
+future.</p>
+</section>
+<section id="re-use-your-generators">
+<h3>Re-use your generators<a class="headerlink" href="#re-use-your-generators" title="Permalink to this headline">¶</a></h3>
+<p>Some times it possible to use the same signal for parallel purposes. Let’s
+study the next process:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># single white noise</span>
+<a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">noise</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">Noise</span></a><span class="p">()</span>
+
+<span class="c1"># denormal signal</span>
+<span class="n">denorm</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">noise</span></a> <span class="o">*</span> <span class="mf">1e-24</span>
+<span class="c1"># little jitter around 1 used to modulate frequency</span>
+<span class="n">jitter</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">noise</span></a> <span class="o">*</span> <span class="mf">0.0007</span> <span class="o">+</span> <span class="mf">1.0</span>
+<span class="c1"># excitation signal of the waveguide</span>
+<span class="n">source</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">noise</span></a> <span class="o">*</span> <span class="mf">0.7</span>
+
+<span class="n">env</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/controls.html#pyo.Fader" title="pyo.lib.controls.Fader"><span class="n">Fader</span></a><span class="p">(</span><span class="n">fadein</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">fadeout</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">dur</span><span class="o">=</span><span class="mf">0.015</span><span class="p">)</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+<a class="sphinx-codeautolink-a" href="api/classes/filters.html#pyo.ButLP" title="pyo.lib.filters.ButLP"><span class="n">src</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/filters.html#pyo.ButLP" title="pyo.lib.filters.ButLP"><span class="n">ButLP</span></a><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="n">env</span><span class="p">)</span>
+<span class="n">wg</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/effects.html#pyo.Waveguide" title="pyo.lib.effects.Waveguide"><span class="n">Waveguide</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="api/classes/filters.html#pyo.ButLP" title="pyo.lib.filters.ButLP"><span class="n">src</span></a><span class="o">+</span><span class="n">denorm</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="mi">100</span><span class="o">*</span><span class="n">jitter</span><span class="p">,</span> <span class="n">dur</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Here the same white noise is used for three purposes at the same time. First,
+it is used to generate a denormal signal. Then, it is used to generate a
+little jitter applied to the frequency of the waveguide (that adds a little
+buzz to the string sound) and finally, we use it as the excitation of the
+waveguide. This is surely cheaper than generating three different white noises
+without noticeable difference in the sound.</p>
+</section>
+<section id="leave-mul-and-add-attributes-to-their-defaults-when-possible">
+<h3>Leave ‘mul’ and ‘add’ attributes to their defaults when possible<a class="headerlink" href="#leave-mul-and-add-attributes-to-their-defaults-when-possible" title="Permalink to this headline">¶</a></h3>
+<p>There is an internal condition that bypass the object “post-processing”
+function when <cite>mul=1</cite> and <cite>add=0</cite>. It is a good practice to apply amplitude
+control in one place instead of messing with the <cite>mul</cite> attribute of each
+objects.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># wrong</span>
+<a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">n</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">Noise</span></a><span class="p">(</span><span class="n">mul</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+<a class="sphinx-codeautolink-a" href="api/classes/filters.html#pyo.ButBP" title="pyo.lib.filters.ButBP"><span class="n">bp1</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/filters.html#pyo.ButBP" title="pyo.lib.filters.ButBP"><span class="n">ButBP</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">n</span></a><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<a class="sphinx-codeautolink-a" href="api/classes/filters.html#pyo.ButBP" title="pyo.lib.filters.ButBP"><span class="n">bp2</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/filters.html#pyo.ButBP" title="pyo.lib.filters.ButBP"><span class="n">ButBP</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">n</span></a><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="mi">1500</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<a class="sphinx-codeautolink-a" href="api/classes/filters.html#pyo.ButBP" title="pyo.lib.filters.ButBP"><span class="n">bp3</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/filters.html#pyo.ButBP" title="pyo.lib.filters.ButBP"><span class="n">ButBP</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">n</span></a><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="mi">2500</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">rev</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/effects.html#pyo.Freeverb" title="pyo.lib.effects.Freeverb"><span class="n">Freeverb</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="api/classes/filters.html#pyo.ButBP" title="pyo.lib.filters.ButBP"><span class="n">bp1</span></a><span class="o">+</span><a class="sphinx-codeautolink-a" href="api/classes/filters.html#pyo.ButBP" title="pyo.lib.filters.ButBP"><span class="n">bp2</span></a><span class="o">+</span><a class="sphinx-codeautolink-a" href="api/classes/filters.html#pyo.ButBP" title="pyo.lib.filters.ButBP"><span class="n">bp3</span></a><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span> <span class="n">bal</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+<span class="c1"># good</span>
+<a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">n</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">Noise</span></a><span class="p">(</span><span class="n">mul</span><span class="o">=</span><span class="mf">0.25</span><span class="p">)</span>
+<a class="sphinx-codeautolink-a" href="api/classes/filters.html#pyo.ButBP" title="pyo.lib.filters.ButBP"><span class="n">bp1</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/filters.html#pyo.ButBP" title="pyo.lib.filters.ButBP"><span class="n">ButBP</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">n</span></a><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<a class="sphinx-codeautolink-a" href="api/classes/filters.html#pyo.ButBP" title="pyo.lib.filters.ButBP"><span class="n">bp2</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/filters.html#pyo.ButBP" title="pyo.lib.filters.ButBP"><span class="n">ButBP</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">n</span></a><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="mi">1500</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<a class="sphinx-codeautolink-a" href="api/classes/filters.html#pyo.ButBP" title="pyo.lib.filters.ButBP"><span class="n">bp3</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/filters.html#pyo.ButBP" title="pyo.lib.filters.ButBP"><span class="n">ButBP</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">n</span></a><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="mi">2500</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">rev</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/effects.html#pyo.Freeverb" title="pyo.lib.effects.Freeverb"><span class="n">Freeverb</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="api/classes/filters.html#pyo.ButBP" title="pyo.lib.filters.ButBP"><span class="n">bp1</span></a><span class="o">+</span><a class="sphinx-codeautolink-a" href="api/classes/filters.html#pyo.ButBP" title="pyo.lib.filters.ButBP"><span class="n">bp2</span></a><span class="o">+</span><a class="sphinx-codeautolink-a" href="api/classes/filters.html#pyo.ButBP" title="pyo.lib.filters.ButBP"><span class="n">bp3</span></a><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span> <span class="n">bal</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="avoid-graphical-updates">
+<h3>Avoid graphical updates<a class="headerlink" href="#avoid-graphical-updates" title="Permalink to this headline">¶</a></h3>
+<p>Even if they run in different threads, with different priorities, the audio
+callback and the graphical interface of a python program are parts of a unique
+process, sharing the same CPU. Don’t use the Server’s GUI if you don’t need to
+see the meters or use the volume slider. Instead, you could start the script
+from command line with <cite>-i</cite> flag to leave the interpreter alive.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ python -i myscript.py
+</pre></div>
+</div>
+</section>
+<section id="list-of-cpu-intensive-objects">
+<h3>List of CPU intensive objects<a class="headerlink" href="#list-of-cpu-intensive-objects" title="Permalink to this headline">¶</a></h3>
+<p>Here is a non-exhaustive list of the most CPU intensive objects of the library.</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>Analysis</dt><dd><ul>
+<li><p>Yin</p></li>
+<li><p>Centroid</p></li>
+<li><p>Spectrum</p></li>
+<li><p>Scope</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Arithmetic</dt><dd><ul>
+<li><p>Sin</p></li>
+<li><p>Cos</p></li>
+<li><p>Tan</p></li>
+<li><p>Tanh</p></li>
+<li><p>Atan2</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Dynamic</dt><dd><ul>
+<li><p>Compress</p></li>
+<li><p>Gate</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Special Effects</dt><dd><ul>
+<li><p>Convolve</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Prefix Expression Evaluator</dt><dd><ul>
+<li><p>Expr</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Filters</dt><dd><ul>
+<li><p>Phaser</p></li>
+<li><p>Vocoder</p></li>
+<li><p>IRWinSinc</p></li>
+<li><p>IRAverage</p></li>
+<li><p>IRPulse</p></li>
+<li><p>IRFM</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Fast Fourier Transform</dt><dd><ul>
+<li><p>CvlVerb</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Phase Vocoder</dt><dd><ul>
+<li><p>Almost every objects!</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Signal Generators</dt><dd><ul>
+<li><p>LFO</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Matrix Processing</dt><dd><ul>
+<li><p>MatrixMorph</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Table Processing</dt><dd><ul>
+<li><p>Granulator</p></li>
+<li><p>Granule</p></li>
+<li><p>Particule</p></li>
+<li><p>OscBank</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Utilities</dt><dd><ul>
+<li><p>Resample</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</section>
+</section>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h3><a href="index.html">Table of Contents</a></h3>
+<ul>
+<li><a class="reference internal" href="#">How to improve performance of your pyo programs</a><ul>
+<li><a class="reference internal" href="#python-tips">Python tips</a><ul>
+<li><a class="reference internal" href="#adjust-the-interpreter-s-check-interval">Adjust the interpreter’s “check interval”</a></li>
+<li><a class="reference internal" href="#use-the-subprocess-or-multiprocessing-modules">Use the subprocess or multiprocessing modules</a></li>
+<li><a class="reference internal" href="#avoid-memory-allocation-after-initialization">Avoid memory allocation after initialization</a></li>
+<li><a class="reference internal" href="#don-t-do-anything-that-can-trigger-the-garbage-collector">Don’t do anything that can trigger the garbage collector</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pyo-tips">Pyo tips</a><ul>
+<li><a class="reference internal" href="#mix-down-before-applying-effects">Mix down before applying effects</a></li>
+<li><a class="reference internal" href="#stop-your-unused-audio-objects">Stop your unused audio objects</a></li>
+<li><a class="reference internal" href="#control-attribute-with-numbers-instead-of-pyoobjects">Control attribute with numbers instead of PyoObjects</a></li>
+<li><a class="reference internal" href="#check-for-denormal-numbers">Check for denormal numbers</a></li>
+<li><a class="reference internal" href="#use-a-pyoobject-when-available">Use a PyoObject when available</a></li>
+<li><a class="reference internal" href="#avoid-trigonometric-computation">Avoid trigonometric computation</a></li>
+<li><a class="reference internal" href="#use-approximations-if-absolute-precision-is-not-needed">Use approximations if absolute precision is not needed</a></li>
+<li><a class="reference internal" href="#re-use-your-generators">Re-use your generators</a></li>
+<li><a class="reference internal" href="#leave-mul-and-add-attributes-to-their-defaults-when-possible">Leave ‘mul’ and ‘add’ attributes to their defaults when possible</a></li>
+<li><a class="reference internal" href="#avoid-graphical-updates">Avoid graphical updates</a></li>
+<li><a class="reference internal" href="#list-of-cpu-intensive-objects">List of CPU intensive objects</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h4>Previous topic</h4>
+<p class="topless"><a href="winaudioinspect.html" title="previous chapter">Configuring the audio output (especially on Windows)</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="api/index.html" title="next chapter">API documentation</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="api/index.html" title="API documentation">next</a> |</li>
+<li class="right">
+<a href="winaudioinspect.html" title="Configuring the audio output (especially on Windows)">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-this"><a href="">How to improve performance of your pyo programs</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

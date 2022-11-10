@@ -1,0 +1,1109 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyo.lib.arithmetic &#8212; Pyo 1.0.4 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/nature.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-codeautolink.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/autoclasstoc.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../../../_static/E-PyoIcon.ico"/>
+    <link rel="author" title="About these documents" href="../../../about.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">Pyo 1.0.4 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pyo.html" accesskey="U">pyo</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pyo.lib.arithmetic</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyo.lib.arithmetic</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Tools to perform arithmetic operations on audio signals.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Copyright 2009-2015 Olivier Belanger</span>
+
+<span class="sd">This file is part of pyo, a python module to help digital signal</span>
+<span class="sd">processing script creation.</span>
+
+<span class="sd">pyo is free software: you can redistribute it and/or modify</span>
+<span class="sd">it under the terms of the GNU Lesser General Public License as</span>
+<span class="sd">published by the Free Software Foundation, either version 3 of the</span>
+<span class="sd">License, or (at your option) any later version.</span>
+
+<span class="sd">pyo is distributed in the hope that it will be useful,</span>
+<span class="sd">but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="sd">MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="sd">GNU Lesser General Public License for more details.</span>
+
+<span class="sd">You should have received a copy of the GNU Lesser General Public</span>
+<span class="sd">License along with pyo.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">._core</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">._maps</span> <span class="kn">import</span> <span class="o">*</span>
+
+
+<div class="viewcode-block" id="Sin"><a class="viewcode-back" href="../../../api/classes/arithmetic.html#pyo.Sin">[docs]</a><span class="k">class</span> <span class="nc">Sin</span><span class="p">(</span><span class="n">PyoObject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Performs a sine function on audio signal.</span>
+
+<span class="sd">    Returns the sine of audio signal as input.</span>
+
+<span class="sd">    :Parent: :py:class:`PyoObject`</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        input: PyoObject</span>
+<span class="sd">            Input signal, angle in radians.</span>
+
+<span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
+<span class="sd">    &gt;&gt;&gt; s.start()</span>
+<span class="sd">    &gt;&gt;&gt; import math</span>
+<span class="sd">    &gt;&gt;&gt; a = Phasor(500, mul=math.pi*2)</span>
+<span class="sd">    &gt;&gt;&gt; b = Sin(a, mul=.3).mix(2).out()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;oOO&quot;</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input</span> <span class="o">=</span> <span class="nb">input</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span> <span class="o">=</span> <span class="n">InputFader</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+        <span class="n">in_fader</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span><span class="n">M_Sin_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">in_fader</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_play</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Sin.setInput"><a class="viewcode-back" href="../../../api/classes/arithmetic.html#pyo.Sin.setInput">[docs]</a>    <span class="k">def</span> <span class="nf">setInput</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="o">=</span><span class="mf">0.05</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `input` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: PyoObject</span>
+<span class="sd">                New signal to process.</span>
+<span class="sd">            fadetime: float, optional</span>
+<span class="sd">                Crossfade time between old and new input. Default to 0.05.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;oN&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="o">.</span><span class="n">setInput</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;PyoObject. Input signal to process.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input</span>
+
+    <span class="nd">@input</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setInput</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Cos"><a class="viewcode-back" href="../../../api/classes/arithmetic.html#pyo.Cos">[docs]</a><span class="k">class</span> <span class="nc">Cos</span><span class="p">(</span><span class="n">PyoObject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Performs a cosine function on audio signal.</span>
+
+<span class="sd">    Returns the cosine of audio signal as input.</span>
+
+<span class="sd">    :Parent: :py:class:`PyoObject`</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        input: PyoObject</span>
+<span class="sd">            Input signal, angle in radians.</span>
+
+<span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
+<span class="sd">    &gt;&gt;&gt; s.start()</span>
+<span class="sd">    &gt;&gt;&gt; import math</span>
+<span class="sd">    &gt;&gt;&gt; a = Phasor(500, mul=math.pi*2)</span>
+<span class="sd">    &gt;&gt;&gt; b = Cos(a, mul=.3).mix(2).out()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;oOO&quot;</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input</span> <span class="o">=</span> <span class="nb">input</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span> <span class="o">=</span> <span class="n">InputFader</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+        <span class="n">in_fader</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span><span class="n">M_Cos_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">in_fader</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_play</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Cos.setInput"><a class="viewcode-back" href="../../../api/classes/arithmetic.html#pyo.Cos.setInput">[docs]</a>    <span class="k">def</span> <span class="nf">setInput</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="o">=</span><span class="mf">0.05</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `input` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: PyoObject</span>
+<span class="sd">                New signal to process.</span>
+<span class="sd">            fadetime: float, optional</span>
+<span class="sd">                Crossfade time between old and new input. Default to 0.05.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;oN&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="o">.</span><span class="n">setInput</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;PyoObject. Input signal to process.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input</span>
+
+    <span class="nd">@input</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setInput</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Tan"><a class="viewcode-back" href="../../../api/classes/arithmetic.html#pyo.Tan">[docs]</a><span class="k">class</span> <span class="nc">Tan</span><span class="p">(</span><span class="n">PyoObject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Performs a tangent function on audio signal.</span>
+
+<span class="sd">    Returns the tangent of audio signal as input.</span>
+
+<span class="sd">    :Parent: :py:class:`PyoObject`</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        input: PyoObject</span>
+<span class="sd">            Input signal, angle in radians.</span>
+
+<span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
+<span class="sd">    &gt;&gt;&gt; s.start()</span>
+<span class="sd">    &gt;&gt;&gt; # Tangent panning function</span>
+<span class="sd">    &gt;&gt;&gt; import math</span>
+<span class="sd">    &gt;&gt;&gt; src = Sine(mul=.3)</span>
+<span class="sd">    &gt;&gt;&gt; a = Phasor(freq=1, mul=90, add=-45)</span>
+<span class="sd">    &gt;&gt;&gt; b = Tan(Abs(a*math.pi/180))</span>
+<span class="sd">    &gt;&gt;&gt; b1 = 1.0 - b</span>
+<span class="sd">    &gt;&gt;&gt; oL = src * b</span>
+<span class="sd">    &gt;&gt;&gt; oR = src * b1</span>
+<span class="sd">    &gt;&gt;&gt; oL.out()</span>
+<span class="sd">    &gt;&gt;&gt; oR.out(1)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;oOO&quot;</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input</span> <span class="o">=</span> <span class="nb">input</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span> <span class="o">=</span> <span class="n">InputFader</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+        <span class="n">in_fader</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span><span class="n">M_Tan_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">in_fader</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_play</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Tan.setInput"><a class="viewcode-back" href="../../../api/classes/arithmetic.html#pyo.Tan.setInput">[docs]</a>    <span class="k">def</span> <span class="nf">setInput</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="o">=</span><span class="mf">0.05</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `input` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: PyoObject</span>
+<span class="sd">                New signal to process.</span>
+<span class="sd">            fadetime: float, optional</span>
+<span class="sd">                Crossfade time between old and new input. Default to 0.05.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;oN&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="o">.</span><span class="n">setInput</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;PyoObject. Input signal to process.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input</span>
+
+    <span class="nd">@input</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setInput</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Abs"><a class="viewcode-back" href="../../../api/classes/arithmetic.html#pyo.Abs">[docs]</a><span class="k">class</span> <span class="nc">Abs</span><span class="p">(</span><span class="n">PyoObject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Performs an absolute function on audio signal.</span>
+
+<span class="sd">    Returns the absolute value of audio signal as input.</span>
+
+<span class="sd">    :Parent: :py:class:`PyoObject`</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        input: PyoObject</span>
+<span class="sd">            Input signal to process.</span>
+
+<span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
+<span class="sd">    &gt;&gt;&gt; s.start()</span>
+<span class="sd">    &gt;&gt;&gt; # Back-and-Forth playback</span>
+<span class="sd">    &gt;&gt;&gt; t = SndTable(SNDS_PATH + &quot;/transparent.aif&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; a = Phasor(freq=t.getRate()*0.5, mul=2, add=-1)</span>
+<span class="sd">    &gt;&gt;&gt; b = Pointer(table=t, index=Abs(a), mul=0.5).mix(2).out()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;oOO&quot;</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input</span> <span class="o">=</span> <span class="nb">input</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span> <span class="o">=</span> <span class="n">InputFader</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+        <span class="n">in_fader</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span><span class="n">M_Abs_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">in_fader</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_play</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Abs.setInput"><a class="viewcode-back" href="../../../api/classes/arithmetic.html#pyo.Abs.setInput">[docs]</a>    <span class="k">def</span> <span class="nf">setInput</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="o">=</span><span class="mf">0.05</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `input` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: PyoObject</span>
+<span class="sd">                New signal to process.</span>
+<span class="sd">            fadetime: float, optional</span>
+<span class="sd">                Crossfade time between old and new input. Default to 0.05.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;oN&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="o">.</span><span class="n">setInput</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;PyoObject. Input signal to process.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input</span>
+
+    <span class="nd">@input</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setInput</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Sqrt"><a class="viewcode-back" href="../../../api/classes/arithmetic.html#pyo.Sqrt">[docs]</a><span class="k">class</span> <span class="nc">Sqrt</span><span class="p">(</span><span class="n">PyoObject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Performs a square-root function on audio signal.</span>
+
+<span class="sd">    Returns the square-root value of audio signal as input.</span>
+
+<span class="sd">    :Parent: :py:class:`PyoObject`</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        input: PyoObject</span>
+<span class="sd">            Input signal to process.</span>
+
+<span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
+<span class="sd">    &gt;&gt;&gt; s.start()</span>
+<span class="sd">    &gt;&gt;&gt; # Equal-power panning function</span>
+<span class="sd">    &gt;&gt;&gt; src = Sine(mul=.3)</span>
+<span class="sd">    &gt;&gt;&gt; a = Abs(Phasor(freq=1, mul=2, add=-1))</span>
+<span class="sd">    &gt;&gt;&gt; left = Sqrt(1.0 - a)</span>
+<span class="sd">    &gt;&gt;&gt; right = Sqrt(a)</span>
+<span class="sd">    &gt;&gt;&gt; oL = src * left</span>
+<span class="sd">    &gt;&gt;&gt; oR = src * right</span>
+<span class="sd">    &gt;&gt;&gt; oL.out()</span>
+<span class="sd">    &gt;&gt;&gt; oR.out(1)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;oOO&quot;</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input</span> <span class="o">=</span> <span class="nb">input</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span> <span class="o">=</span> <span class="n">InputFader</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+        <span class="n">in_fader</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span><span class="n">M_Sqrt_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">in_fader</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_play</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Sqrt.setInput"><a class="viewcode-back" href="../../../api/classes/arithmetic.html#pyo.Sqrt.setInput">[docs]</a>    <span class="k">def</span> <span class="nf">setInput</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="o">=</span><span class="mf">0.05</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `input` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: PyoObject</span>
+<span class="sd">                New signal to process.</span>
+<span class="sd">            fadetime: float, optional</span>
+<span class="sd">                Crossfade time between old and new input. Default to 0.05.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;oN&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="o">.</span><span class="n">setInput</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;PyoObject. Input signal to process.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input</span>
+
+    <span class="nd">@input</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setInput</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Log"><a class="viewcode-back" href="../../../api/classes/arithmetic.html#pyo.Log">[docs]</a><span class="k">class</span> <span class="nc">Log</span><span class="p">(</span><span class="n">PyoObject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Performs a natural log function on audio signal.</span>
+
+<span class="sd">    Returns the natural log value of of audio signal as input.</span>
+<span class="sd">    Values less than 0.0 return 0.0.</span>
+
+<span class="sd">    :Parent: :py:class:`PyoObject`</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        input: PyoObject</span>
+<span class="sd">            Input signal to process.</span>
+
+<span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
+<span class="sd">    &gt;&gt;&gt; s.start()</span>
+<span class="sd">    # Logarithmic amplitude envelope</span>
+<span class="sd">    &gt;&gt;&gt; a = LFO(freq=1, type=3, mul=0.2, add=1.2) # triangle</span>
+<span class="sd">    &gt;&gt;&gt; b = Log(a)</span>
+<span class="sd">    &gt;&gt;&gt; c = SineLoop(freq=[300,301], feedback=0.05, mul=b).out()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;oOO&quot;</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input</span> <span class="o">=</span> <span class="nb">input</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span> <span class="o">=</span> <span class="n">InputFader</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+        <span class="n">in_fader</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span><span class="n">M_Log_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">in_fader</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_play</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Log.setInput"><a class="viewcode-back" href="../../../api/classes/arithmetic.html#pyo.Log.setInput">[docs]</a>    <span class="k">def</span> <span class="nf">setInput</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="o">=</span><span class="mf">0.05</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `input` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: PyoObject</span>
+<span class="sd">                New signal to process.</span>
+<span class="sd">            fadetime: float, optional</span>
+<span class="sd">                Crossfade time between old and new input. Default to 0.05.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;oN&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="o">.</span><span class="n">setInput</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;PyoObject. Input signal to process.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input</span>
+
+    <span class="nd">@input</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setInput</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Log2"><a class="viewcode-back" href="../../../api/classes/arithmetic.html#pyo.Log2">[docs]</a><span class="k">class</span> <span class="nc">Log2</span><span class="p">(</span><span class="n">PyoObject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Performs a base 2 log function on audio signal.</span>
+
+<span class="sd">    Returns the base 2 log value of audio signal as input.</span>
+<span class="sd">    Values less than 0.0 return 0.0.</span>
+
+<span class="sd">    :Parent: :py:class:`PyoObject`</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        input: PyoObject</span>
+<span class="sd">            Input signal to process.</span>
+
+<span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
+<span class="sd">    &gt;&gt;&gt; s.start()</span>
+<span class="sd">    # Logarithmic amplitude envelope</span>
+<span class="sd">    &gt;&gt;&gt; a = LFO(freq=1, type=3, mul=0.1, add=1.1) # triangle</span>
+<span class="sd">    &gt;&gt;&gt; b = Log2(a)</span>
+<span class="sd">    &gt;&gt;&gt; c = SineLoop(freq=[300,301], feedback=0.05, mul=b).out()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;oOO&quot;</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input</span> <span class="o">=</span> <span class="nb">input</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span> <span class="o">=</span> <span class="n">InputFader</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+        <span class="n">in_fader</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span><span class="n">M_Log2_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">in_fader</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_play</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Log2.setInput"><a class="viewcode-back" href="../../../api/classes/arithmetic.html#pyo.Log2.setInput">[docs]</a>    <span class="k">def</span> <span class="nf">setInput</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="o">=</span><span class="mf">0.05</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `input` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: PyoObject</span>
+<span class="sd">                New signal to process.</span>
+<span class="sd">            fadetime: float, optional</span>
+<span class="sd">                Crossfade time between old and new input. Default to 0.05.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;oN&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="o">.</span><span class="n">setInput</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;PyoObject. Input signal to process.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input</span>
+
+    <span class="nd">@input</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setInput</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Log10"><a class="viewcode-back" href="../../../api/classes/arithmetic.html#pyo.Log10">[docs]</a><span class="k">class</span> <span class="nc">Log10</span><span class="p">(</span><span class="n">PyoObject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Performs a base 10 log function on audio signal.</span>
+
+<span class="sd">    Returns the base 10 log value of audio signal as input.</span>
+<span class="sd">    Values less than 0.0 return 0.0.</span>
+
+<span class="sd">    :Parent: :py:class:`PyoObject`</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        input: PyoObject</span>
+<span class="sd">            Input signal to process.</span>
+
+<span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
+<span class="sd">    &gt;&gt;&gt; s.start()</span>
+<span class="sd">    # Logarithmic amplitude envelope</span>
+<span class="sd">    &gt;&gt;&gt; a = LFO(freq=1, type=3, mul=0.4, add=1.4) # triangle</span>
+<span class="sd">    &gt;&gt;&gt; b = Log10(a)</span>
+<span class="sd">    &gt;&gt;&gt; c = SineLoop(freq=[300,301], feedback=0.05, mul=b).out()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;oOO&quot;</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input</span> <span class="o">=</span> <span class="nb">input</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span> <span class="o">=</span> <span class="n">InputFader</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+        <span class="n">in_fader</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span><span class="n">M_Log10_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">in_fader</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_play</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Log10.setInput"><a class="viewcode-back" href="../../../api/classes/arithmetic.html#pyo.Log10.setInput">[docs]</a>    <span class="k">def</span> <span class="nf">setInput</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="o">=</span><span class="mf">0.05</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `input` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: PyoObject</span>
+<span class="sd">                New signal to process.</span>
+<span class="sd">            fadetime: float, optional</span>
+<span class="sd">                Crossfade time between old and new input. Default to 0.05.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;oN&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="o">.</span><span class="n">setInput</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;PyoObject. Input signal to process.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input</span>
+
+    <span class="nd">@input</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setInput</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Atan2"><a class="viewcode-back" href="../../../api/classes/arithmetic.html#pyo.Atan2">[docs]</a><span class="k">class</span> <span class="nc">Atan2</span><span class="p">(</span><span class="n">PyoObject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the principal value of the arc tangent of b/a.</span>
+
+<span class="sd">    Computes the principal value of the arc tangent of b/a,</span>
+<span class="sd">    using the signs of both arguments to determine the quadrant</span>
+<span class="sd">    of the return value.</span>
+
+<span class="sd">    :Parent: :py:class:`PyoObject`</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        b: float or PyoObject, optional</span>
+<span class="sd">            Numerator. Defaults to 1.</span>
+<span class="sd">        a: float or PyoObject, optional</span>
+<span class="sd">            Denominator. Defaults to 1.</span>
+
+<span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
+<span class="sd">    &gt;&gt;&gt; s.start()</span>
+<span class="sd">    &gt;&gt;&gt; # Simple distortion</span>
+<span class="sd">    &gt;&gt;&gt; a = Sine(freq=[200,200.3])</span>
+<span class="sd">    &gt;&gt;&gt; lf = Sine(freq=1, mul=.2, add=.2)</span>
+<span class="sd">    &gt;&gt;&gt; dist = Atan2(a, lf)</span>
+<span class="sd">    &gt;&gt;&gt; lp = Tone(dist, freq=2000, mul=.1).out()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;OOOO&quot;</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_b</span> <span class="o">=</span> <span class="n">b</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_a</span> <span class="o">=</span> <span class="n">a</span>
+        <span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span><span class="n">M_Atan2_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_play</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Atan2.setB"><a class="viewcode-back" href="../../../api/classes/arithmetic.html#pyo.Atan2.setB">[docs]</a>    <span class="k">def</span> <span class="nf">setB</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `b` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float or PyoObject</span>
+<span class="sd">                new `b` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_b</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setB</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="Atan2.setA"><a class="viewcode-back" href="../../../api/classes/arithmetic.html#pyo.Atan2.setA">[docs]</a>    <span class="k">def</span> <span class="nf">setA</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `a` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float or PyoObject</span>
+<span class="sd">                new `a` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_a</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setA</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">b</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float or PyoObject. Numerator.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_b</span>
+
+    <span class="nd">@b</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">b</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setB</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">a</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float or PyoObject. Denominator.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_a</span>
+
+    <span class="nd">@a</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">a</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setA</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Floor"><a class="viewcode-back" href="../../../api/classes/arithmetic.html#pyo.Floor">[docs]</a><span class="k">class</span> <span class="nc">Floor</span><span class="p">(</span><span class="n">PyoObject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Rounds to largest integral value not greater than audio signal.</span>
+
+<span class="sd">    For each samples in the input signal, rounds to the largest integral</span>
+<span class="sd">    value not greater than the sample value.</span>
+
+<span class="sd">    :Parent: :py:class:`PyoObject`</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        input: PyoObject</span>
+<span class="sd">            Input signal to process.</span>
+
+<span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
+<span class="sd">    &gt;&gt;&gt; s.start()</span>
+<span class="sd">    &gt;&gt;&gt; # Clipping frequencies</span>
+<span class="sd">    &gt;&gt;&gt; sweep = Phasor(freq=[1,.67], mul=4)</span>
+<span class="sd">    &gt;&gt;&gt; flo = Floor(sweep, mul=50, add=200)</span>
+<span class="sd">    &gt;&gt;&gt; a = SineLoop(freq=flo, feedback=.1, mul=.3).out()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;oOO&quot;</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input</span> <span class="o">=</span> <span class="nb">input</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span> <span class="o">=</span> <span class="n">InputFader</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+        <span class="n">in_fader</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span><span class="n">M_Floor_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">in_fader</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_play</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Floor.setInput"><a class="viewcode-back" href="../../../api/classes/arithmetic.html#pyo.Floor.setInput">[docs]</a>    <span class="k">def</span> <span class="nf">setInput</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="o">=</span><span class="mf">0.05</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `input` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: PyoObject</span>
+<span class="sd">                New signal to process.</span>
+<span class="sd">            fadetime: float, optional</span>
+<span class="sd">                Crossfade time between old and new input. Default to 0.05.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;oN&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="o">.</span><span class="n">setInput</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;PyoObject. Input signal to process.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input</span>
+
+    <span class="nd">@input</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setInput</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Ceil"><a class="viewcode-back" href="../../../api/classes/arithmetic.html#pyo.Ceil">[docs]</a><span class="k">class</span> <span class="nc">Ceil</span><span class="p">(</span><span class="n">PyoObject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Rounds to smallest integral value greater than or equal to the input signal.</span>
+
+<span class="sd">    For each samples in the input signal, rounds to the smallest integral</span>
+<span class="sd">    value greater than or equal to the sample value.</span>
+
+<span class="sd">    :Parent: :py:class:`PyoObject`</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        input: PyoObject</span>
+<span class="sd">            Input signal to process.</span>
+
+<span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
+<span class="sd">    &gt;&gt;&gt; s.start()</span>
+<span class="sd">    &gt;&gt;&gt; # Clipping frequencies</span>
+<span class="sd">    &gt;&gt;&gt; sweep = Phasor(freq=[1,.67], mul=4)</span>
+<span class="sd">    &gt;&gt;&gt; flo = Ceil(sweep, mul=50, add=200)</span>
+<span class="sd">    &gt;&gt;&gt; a = SineLoop(freq=flo, feedback=.1, mul=.3).out()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;oOO&quot;</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input</span> <span class="o">=</span> <span class="nb">input</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span> <span class="o">=</span> <span class="n">InputFader</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+        <span class="n">in_fader</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span><span class="n">M_Ceil_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">in_fader</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_play</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Ceil.setInput"><a class="viewcode-back" href="../../../api/classes/arithmetic.html#pyo.Ceil.setInput">[docs]</a>    <span class="k">def</span> <span class="nf">setInput</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="o">=</span><span class="mf">0.05</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `input` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: PyoObject</span>
+<span class="sd">                New signal to process.</span>
+<span class="sd">            fadetime: float, optional</span>
+<span class="sd">                Crossfade time between old and new input. Default to 0.05.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;oN&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="o">.</span><span class="n">setInput</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;PyoObject. Input signal to process.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input</span>
+
+    <span class="nd">@input</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setInput</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Round"><a class="viewcode-back" href="../../../api/classes/arithmetic.html#pyo.Round">[docs]</a><span class="k">class</span> <span class="nc">Round</span><span class="p">(</span><span class="n">PyoObject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Rounds to the nearest integer value in a floating-point format.</span>
+
+<span class="sd">    For each samples in the input signal, rounds to the nearest integer</span>
+<span class="sd">    value of the sample value.</span>
+
+<span class="sd">    :Parent: :py:class:`PyoObject`</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        input: PyoObject</span>
+<span class="sd">            Input signal to process.</span>
+
+<span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
+<span class="sd">    &gt;&gt;&gt; s.start()</span>
+<span class="sd">    &gt;&gt;&gt; # Clipping frequencies</span>
+<span class="sd">    &gt;&gt;&gt; sweep = Phasor(freq=[1,.67], mul=4)</span>
+<span class="sd">    &gt;&gt;&gt; flo = Round(sweep, mul=50, add=200)</span>
+<span class="sd">    &gt;&gt;&gt; a = SineLoop(freq=flo, feedback=.1, mul=.3).out()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;oOO&quot;</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input</span> <span class="o">=</span> <span class="nb">input</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span> <span class="o">=</span> <span class="n">InputFader</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+        <span class="n">in_fader</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span><span class="n">M_Round_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">in_fader</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_play</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Round.setInput"><a class="viewcode-back" href="../../../api/classes/arithmetic.html#pyo.Round.setInput">[docs]</a>    <span class="k">def</span> <span class="nf">setInput</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="o">=</span><span class="mf">0.05</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `input` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: PyoObject</span>
+<span class="sd">                New signal to process.</span>
+<span class="sd">            fadetime: float, optional</span>
+<span class="sd">                Crossfade time between old and new input. Default to 0.05.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;oN&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="o">.</span><span class="n">setInput</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;PyoObject. Input signal to process.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input</span>
+
+    <span class="nd">@input</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setInput</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Tanh"><a class="viewcode-back" href="../../../api/classes/arithmetic.html#pyo.Tanh">[docs]</a><span class="k">class</span> <span class="nc">Tanh</span><span class="p">(</span><span class="n">PyoObject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Performs a hyperbolic tangent function on audio signal.</span>
+
+<span class="sd">    Returns the hyperbolic tangent of audio signal as input.</span>
+
+<span class="sd">    :Parent: :py:class:`PyoObject`</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        input: PyoObject</span>
+<span class="sd">            Input signal, angle in radians.</span>
+
+<span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
+<span class="sd">    &gt;&gt;&gt; s.start()</span>
+<span class="sd">    &gt;&gt;&gt; import math</span>
+<span class="sd">    &gt;&gt;&gt; a = Phasor(250, mul=math.pi*2)</span>
+<span class="sd">    &gt;&gt;&gt; b = Tanh(Sin(a, mul=10), mul=0.3).mix(2).out()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;oOO&quot;</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input</span> <span class="o">=</span> <span class="nb">input</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span> <span class="o">=</span> <span class="n">InputFader</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+        <span class="n">in_fader</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span><span class="n">M_Tanh_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">in_fader</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_play</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Tanh.setInput"><a class="viewcode-back" href="../../../api/classes/arithmetic.html#pyo.Tanh.setInput">[docs]</a>    <span class="k">def</span> <span class="nf">setInput</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="o">=</span><span class="mf">0.05</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `input` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: PyoObject</span>
+<span class="sd">                New signal to process.</span>
+<span class="sd">            fadetime: float, optional</span>
+<span class="sd">                Crossfade time between old and new input. Default to 0.05.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;oN&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="o">.</span><span class="n">setInput</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;PyoObject. Input signal to process.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input</span>
+
+    <span class="nd">@input</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setInput</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Exp"><a class="viewcode-back" href="../../../api/classes/arithmetic.html#pyo.Exp">[docs]</a><span class="k">class</span> <span class="nc">Exp</span><span class="p">(</span><span class="n">PyoObject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates the value of e to the power of x.</span>
+
+<span class="sd">    Returns the value of e to the power of x, where e is the base of the</span>
+<span class="sd">    natural logarithm, 2.718281828...</span>
+
+<span class="sd">    :Parent: :py:class:`PyoObject`</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        input: PyoObject</span>
+<span class="sd">            Input signal, the exponent.</span>
+
+<span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
+<span class="sd">    &gt;&gt;&gt; s.start()</span>
+<span class="sd">    &gt;&gt;&gt; a = Sine(freq=200)</span>
+<span class="sd">    &gt;&gt;&gt; lf = Sine(freq=.5, mul=5, add=6)</span>
+<span class="sd">    &gt;&gt;&gt; # Tanh style distortion</span>
+<span class="sd">    &gt;&gt;&gt; t = Exp(2 * a * lf)</span>
+<span class="sd">    &gt;&gt;&gt; th = (t - 1) / (t + 1)</span>
+<span class="sd">    &gt;&gt;&gt; out = (th * 0.3).out()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;oOO&quot;</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input</span> <span class="o">=</span> <span class="nb">input</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span> <span class="o">=</span> <span class="n">InputFader</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+        <span class="n">in_fader</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span><span class="n">M_Exp_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">in_fader</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_play</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Exp.setInput"><a class="viewcode-back" href="../../../api/classes/arithmetic.html#pyo.Exp.setInput">[docs]</a>    <span class="k">def</span> <span class="nf">setInput</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="o">=</span><span class="mf">0.05</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `input` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: PyoObject</span>
+<span class="sd">                New signal to process.</span>
+<span class="sd">            fadetime: float, optional</span>
+<span class="sd">                Crossfade time between old and new input. Default to 0.05.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;oN&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="o">.</span><span class="n">setInput</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;PyoObject. Input signal to process.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input</span>
+
+    <span class="nd">@input</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setInput</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Div"><a class="viewcode-back" href="../../../api/classes/arithmetic.html#pyo.Div">[docs]</a><span class="k">class</span> <span class="nc">Div</span><span class="p">(</span><span class="n">PyoObject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Divides a by b.</span>
+
+<span class="sd">    :Parent: :py:class:`PyoObject`</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        a: float or PyoObject, optional</span>
+<span class="sd">            Numerator. Defaults to 1.</span>
+<span class="sd">        b: float or PyoObject, optional</span>
+<span class="sd">            Denominator. Defaults to 1.</span>
+
+<span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
+<span class="sd">    &gt;&gt;&gt; s.start()</span>
+<span class="sd">    &gt;&gt;&gt; a = Sine(freq=[400, 500])</span>
+<span class="sd">    &gt;&gt;&gt; b = Randi(min=1, max=10, freq=5.00)</span>
+<span class="sd">    &gt;&gt;&gt; c = Div(a, b, mul=0.3).out()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;OOOO&quot;</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_a</span> <span class="o">=</span> <span class="n">a</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_b</span> <span class="o">=</span> <span class="n">b</span>
+        <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span><span class="n">M_Div_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_play</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Div.setA"><a class="viewcode-back" href="../../../api/classes/arithmetic.html#pyo.Div.setA">[docs]</a>    <span class="k">def</span> <span class="nf">setA</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `a` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float or PyoObject</span>
+<span class="sd">                new `a` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_a</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setA</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="Div.setB"><a class="viewcode-back" href="../../../api/classes/arithmetic.html#pyo.Div.setB">[docs]</a>    <span class="k">def</span> <span class="nf">setB</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `b` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float or PyoObject</span>
+<span class="sd">                new `b` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_b</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setB</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">a</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float or PyoObject. Numerator.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_a</span>
+
+    <span class="nd">@a</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">a</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setA</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">b</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float or PyoObject. Denominator.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_b</span>
+
+    <span class="nd">@b</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">b</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setB</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Sub"><a class="viewcode-back" href="../../../api/classes/arithmetic.html#pyo.Sub">[docs]</a><span class="k">class</span> <span class="nc">Sub</span><span class="p">(</span><span class="n">PyoObject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Substracts b from a.</span>
+
+<span class="sd">    :Parent: :py:class:`PyoObject`</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        a: float or PyoObject, optional</span>
+<span class="sd">            Left operand. Defaults to 1.</span>
+<span class="sd">        b: float or PyoObject, optional</span>
+<span class="sd">            Right operand. Defaults to 1.</span>
+
+<span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
+<span class="sd">    &gt;&gt;&gt; s.start()</span>
+<span class="sd">    &gt;&gt;&gt; a = Sig([400, 500])</span>
+<span class="sd">    &gt;&gt;&gt; b = Randi(min=50, max=100, freq=5.00)</span>
+<span class="sd">    &gt;&gt;&gt; c = Sub(a, b)</span>
+<span class="sd">    &gt;&gt;&gt; d = SineLoop(freq=c, feedback=0.08, mul=0.3).out()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;OOOO&quot;</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_a</span> <span class="o">=</span> <span class="n">a</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_b</span> <span class="o">=</span> <span class="n">b</span>
+        <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span><span class="n">M_Sub_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_play</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Sub.setA"><a class="viewcode-back" href="../../../api/classes/arithmetic.html#pyo.Sub.setA">[docs]</a>    <span class="k">def</span> <span class="nf">setA</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `a` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float or PyoObject</span>
+<span class="sd">                new `a` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_a</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setA</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="Sub.setB"><a class="viewcode-back" href="../../../api/classes/arithmetic.html#pyo.Sub.setB">[docs]</a>    <span class="k">def</span> <span class="nf">setB</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `b` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float or PyoObject</span>
+<span class="sd">                new `b` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_b</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setB</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">a</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float or PyoObject. Left operand.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_a</span>
+
+    <span class="nd">@a</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">a</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setA</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">b</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float or PyoObject. Right operand.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_b</span>
+
+    <span class="nd">@b</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">b</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setB</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">Pyo 1.0.4 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pyo.html" >pyo</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pyo.lib.arithmetic</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+  </body>
+</html>

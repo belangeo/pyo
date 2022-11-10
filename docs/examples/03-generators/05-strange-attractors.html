@@ -1,0 +1,148 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>05-strange-attractors.py - Non-linear ordinary differential equations. — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="06-random-generators.html" rel="next" title="06-random-generators.py - Overview of some random generators of pyo."/>
+<link href="04-noise-generators.html" rel="prev" title="04-noise-generators.py - Different pseudo-random noise generators."/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="06-random-generators.html" title="06-random-generators.py - Overview of some random generators of pyo.">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="04-noise-generators.html" title="04-noise-generators.py - Different pseudo-random noise generators.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a accesskey="U" href="index.html">03-generators</a> »</li>
+<li class="nav-item nav-item-this"><a href="">05-strange-attractors.py - Non-linear ordinary differential equations.</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="strange-attractors-py-non-linear-ordinary-differential-equations">
+<h1>05-strange-attractors.py - Non-linear ordinary differential equations.<a class="headerlink" href="#strange-attractors-py-non-linear-ordinary-differential-equations" title="Permalink to this headline">¶</a></h1>
+<section id="oscilloscope-part-of-the-tutorial">
+<h2>Oscilloscope part of the tutorial<a class="headerlink" href="#oscilloscope-part-of-the-tutorial" title="Permalink to this headline">¶</a></h2>
+<p>A strange attractor is a system of three non-linear ordinary
+differential equations. These differential equations define a
+continuous-time dynamical system that exhibits chaotic dynamics
+associated with the fractal properties of the attractor.</p>
+<p>There is three strange attractors in the library, the Rossler,
+the Lorenz and the ChenLee objects. Each one can output stereo
+signal if the <cite>stereo</cite> argument is set to True.</p>
+<p>Use the “voice” slider of the window “Input interpolator” to
+interpolate between the three sources.</p>
+</section>
+<section id="audio-part-of-the-tutorial">
+<h2>Audio part of the tutorial<a class="headerlink" href="#audio-part-of-the-tutorial" title="Permalink to this headline">¶</a></h2>
+<p>It’s possible to create very interesting LFO with strange
+attractors. The last part of this tutorial shows the use of
+Lorenz’s output to drive the frequency of two sine wave oscillators.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+
+<span class="c1">### Oscilloscope ###</span>
+
+<span class="c1"># LFO applied to the `chaos` attribute</span>
+<span class="n">lfo</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="mf">0.2</span><span class="p">)</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># Rossler attractor</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Rossler" title="pyo.lib.generators.Rossler"><span class="n">n1</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Rossler" title="pyo.lib.generators.Rossler"><span class="n">Rossler</span></a><span class="p">(</span><span class="n">pitch</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">chaos</span><span class="o">=</span><span class="n">lfo</span><span class="p">,</span> <span class="n">stereo</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Lorenz attractor</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Lorenz" title="pyo.lib.generators.Lorenz"><span class="n">n2</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Lorenz" title="pyo.lib.generators.Lorenz"><span class="n">Lorenz</span></a><span class="p">(</span><span class="n">pitch</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">chaos</span><span class="o">=</span><span class="n">lfo</span><span class="p">,</span> <span class="n">stereo</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># ChenLee attractor</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.ChenLee" title="pyo.lib.generators.ChenLee"><span class="n">n3</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.ChenLee" title="pyo.lib.generators.ChenLee"><span class="n">ChenLee</span></a><span class="p">(</span><span class="n">pitch</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">chaos</span><span class="o">=</span><span class="n">lfo</span><span class="p">,</span> <span class="n">stereo</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Interpolates between input objects to produce a single output</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/pan.html#pyo.Selector" title="pyo.lib.pan.Selector"><span class="n">sel</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/pan.html#pyo.Selector" title="pyo.lib.pan.Selector"><span class="n">Selector</span></a><span class="p">([</span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Rossler" title="pyo.lib.generators.Rossler"><span class="n">n1</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Lorenz" title="pyo.lib.generators.Lorenz"><span class="n">n2</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.ChenLee" title="pyo.lib.generators.ChenLee"><span class="n">n3</span></a><span class="p">])</span>
+<span class="n">sel</span><span class="o">.</span><span class="n">ctrl</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"Input interpolator (0=Rossler, 1=Lorenz, 2=ChenLee)"</span><span class="p">)</span>
+
+<span class="c1"># Displays the waveform of the chosen attractor</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.Scope" title="pyo.lib.analysis.Scope"><span class="n">sc</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.Scope" title="pyo.lib.analysis.Scope"><span class="n">Scope</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/pan.html#pyo.Selector" title="pyo.lib.pan.Selector"><span class="n">sel</span></a><span class="p">)</span>
+
+<span class="c1">### Audio ###</span>
+
+<span class="c1"># Lorenz with very low pitch value that acts as a LFO</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Lorenz" title="pyo.lib.generators.Lorenz"><span class="n">freq</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Lorenz" title="pyo.lib.generators.Lorenz"><span class="n">Lorenz</span></a><span class="p">(</span><span class="mf">0.005</span><span class="p">,</span> <span class="n">chaos</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">stereo</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mi">250</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
+<span class="n">a</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Lorenz" title="pyo.lib.generators.Lorenz"><span class="n">freq</span></a><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h3><a href="../../index.html">Table of Contents</a></h3>
+<ul>
+<li><a class="reference internal" href="#">05-strange-attractors.py - Non-linear ordinary differential equations.</a><ul>
+<li><a class="reference internal" href="#oscilloscope-part-of-the-tutorial">Oscilloscope part of the tutorial</a></li>
+<li><a class="reference internal" href="#audio-part-of-the-tutorial">Audio part of the tutorial</a></li>
+</ul>
+</li>
+</ul>
+<h4>Previous topic</h4>
+<p class="topless"><a href="04-noise-generators.html" title="previous chapter">04-noise-generators.py - Different pseudo-random noise generators.</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="06-random-generators.html" title="next chapter">06-random-generators.py - Overview of some random generators of pyo.</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="06-random-generators.html" title="06-random-generators.py - Overview of some random generators of pyo.">next</a> |</li>
+<li class="right">
+<a href="04-noise-generators.html" title="04-noise-generators.py - Different pseudo-random noise generators.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="index.html">03-generators</a> »</li>
+<li class="nav-item nav-item-this"><a href="">05-strange-attractors.py - Non-linear ordinary differential equations.</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

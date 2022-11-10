@@ -1,0 +1,160 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>Applying digital signal processing at a higher sampling rate — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="08-multiple-threads.html" rel="next" title="Launching the audio processing in a separated thread"/>
+<link href="06-batch-synthesis.html" rel="prev" title="Offline batch generation of synthesis sounds"/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="08-multiple-threads.html" title="Launching the audio processing in a separated thread">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="06-batch-synthesis.html" title="Offline batch generation of synthesis sounds">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a accesskey="U" href="index.html">21-utilities</a> »</li>
+<li class="nav-item nav-item-this"><a href="">Applying digital signal processing at a higher sampling rate</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="applying-digital-signal-processing-at-a-higher-sampling-rate">
+<h1>Applying digital signal processing at a higher sampling rate<a class="headerlink" href="#applying-digital-signal-processing-at-a-higher-sampling-rate" title="Permalink to this headline">¶</a></h1>
+<p><strong>07-upsamp-processing.py</strong></p>
+<p>This script demonstrates how to use pyo to apply processing on a sound
+at a very high sampling rate.</p>
+<p>Pyo offers two functions to upsample and downsample an audio file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">upsamp</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">outfile</span><span class="p">,</span> <span class="n">up</span><span class="p">,</span> <span class="n">order</span><span class="p">)</span>
+<span class="n">downsamp</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">outfile</span><span class="p">,</span> <span class="n">down</span><span class="p">,</span> <span class="n">order</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Where:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><cite>path</cite> is the path to the file to process.</p></li>
+<li><p><cite>outfile</cite> is the path where to save the resampled file.</p></li>
+<li><p><cite>up</cite>, <cite>down</cite> is the resampling factor (new sampling rate will be
+this value times the current sampling rate).</p></li>
+<li><p><cite>order</cite> is the length, in samples, of the anti-aliasing lowpass filter.</p></li>
+</ul>
+</div></blockquote>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="c1"># Upsampling factor.</span>
+<span class="n">SR_FACTOR</span> <span class="o">=</span> <span class="mi">8</span>
+
+<span class="c1"># Size, in samples, of the anti-aliasing lowpass filters.</span>
+<span class="n">SIZE</span> <span class="o">=</span> <span class="mi">512</span>
+
+<span class="c1"># Sound to process.</span>
+<span class="n">IN_SND</span> <span class="o">=</span> <span class="s2">"../snds/baseballmajeur_m.aif"</span>
+
+<span class="c1"># Temporary audio files.</span>
+<span class="n">UP_SND</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s2">"~"</span><span class="p">),</span> <span class="s2">"Desktop"</span><span class="p">,</span> <span class="s2">"temp_sound_up_</span><span class="si">%i</span><span class="s2">.aif"</span> <span class="o">%</span> <span class="n">SR_FACTOR</span><span class="p">)</span>
+<span class="n">PROC_SND</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s2">"~"</span><span class="p">),</span> <span class="s2">"Desktop"</span><span class="p">,</span> <span class="s2">"temp_sound_disto.aif"</span><span class="p">)</span>
+
+<span class="c1"># Output sound file.</span>
+<span class="n">DOWN_SND</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s2">"~"</span><span class="p">),</span> <span class="s2">"Desktop"</span><span class="p">,</span> <span class="s2">"output_disto_down.aif"</span><span class="p">)</span>
+
+<span class="c1"># Retrieve info about the source file.</span>
+<span class="n">DUR</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/functions/sndfile.html#pyo.sndinfo" title="pyo.sndinfo"><span class="n">sndinfo</span></a><span class="p">(</span><span class="n">IN_SND</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">SR</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/functions/sndfile.html#pyo.sndinfo" title="pyo.sndinfo"><span class="n">sndinfo</span></a><span class="p">(</span><span class="n">IN_SND</span><span class="p">)[</span><span class="mi">2</span><span class="p">]</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Up sampling the source file </span><span class="si">%i</span><span class="s2"> times..."</span> <span class="o">%</span> <span class="n">SR_FACTOR</span><span class="p">)</span>
+<a class="sphinx-codeautolink-a" href="../../api/functions/sampling.html#pyo.upsamp" title="pyo.upsamp"><span class="n">upsamp</span></a><span class="p">(</span><span class="n">IN_SND</span><span class="p">,</span> <span class="n">UP_SND</span><span class="p">,</span> <span class="n">SR_FACTOR</span><span class="p">,</span> <span class="n">SIZE</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Apply distortion at a sampling rate of </span><span class="si">%i</span><span class="s2"> Hz."</span> <span class="o">%</span> <span class="p">(</span><span class="n">SR</span> <span class="o">*</span> <span class="n">SR_FACTOR</span><span class="p">))</span>
+
+<span class="c1"># Initialize the Server in offline mode, at the desired sampling rate.</span>
+<span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">(</span><span class="n">sr</span><span class="o">=</span><span class="n">SR</span> <span class="o">*</span> <span class="n">SR_FACTOR</span><span class="p">,</span> <span class="n">nchnls</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">duplex</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">audio</span><span class="o">=</span><span class="s2">"offline"</span><span class="p">)</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+
+<span class="c1"># Set the recording parameters.</span>
+<span class="n">s</span><span class="o">.</span><span class="n">recordOptions</span><span class="p">(</span><span class="n">dur</span><span class="o">=</span><span class="n">DUR</span> <span class="o">+</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">PROC_SND</span><span class="p">,</span> <span class="n">fileformat</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sampletype</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># Read the upsampled version of the source file.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">sf</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">SfPlayer</span></a><span class="p">(</span><span class="n">UP_SND</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">interp</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+<span class="c1"># Apply distortion on it.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/effects.html#pyo.Disto" title="pyo.lib.effects.Disto"><span class="n">dist</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/effects.html#pyo.Disto" title="pyo.lib.effects.Disto"><span class="n">Disto</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">sf</span></a><span class="p">,</span> <span class="n">drive</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span> <span class="n">slope</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+<span class="c1"># Lowpass filtering.</span>
+<span class="n">filt</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/filters.html#pyo.Biquad" title="pyo.lib.filters.Biquad"><span class="n">Biquad</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/effects.html#pyo.Disto" title="pyo.lib.effects.Disto"><span class="n">dist</span></a><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="mi">8000</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+<span class="c1"># Start the offline processing.</span>
+<span class="n">s</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Down sampling the processed sound </span><span class="si">%i</span><span class="s2"> times..."</span> <span class="o">%</span> <span class="n">SR_FACTOR</span><span class="p">)</span>
+<a class="sphinx-codeautolink-a" href="../../api/functions/sampling.html#pyo.downsamp" title="pyo.downsamp"><span class="n">downsamp</span></a><span class="p">(</span><span class="n">PROC_SND</span><span class="p">,</span> <span class="n">DOWN_SND</span><span class="p">,</span> <span class="n">SR_FACTOR</span><span class="p">,</span> <span class="n">SIZE</span><span class="p">)</span>
+
+<span class="c1"># Cleanup the temporary files.</span>
+<span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">UP_SND</span><span class="p">)</span>
+<span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">PROC_SND</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Done"</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h4>Previous topic</h4>
+<p class="topless"><a href="06-batch-synthesis.html" title="previous chapter">Offline batch generation of synthesis sounds</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="08-multiple-threads.html" title="next chapter">Launching the audio processing in a separated thread</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="08-multiple-threads.html" title="Launching the audio processing in a separated thread">next</a> |</li>
+<li class="right">
+<a href="06-batch-synthesis.html" title="Offline batch generation of synthesis sounds">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="index.html">21-utilities</a> »</li>
+<li class="nav-item nav-item-this"><a href="">Applying digital signal processing at a higher sampling rate</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

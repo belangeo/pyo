@@ -1,0 +1,389 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyo.lib.listener &#8212; Pyo 1.0.4 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/nature.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-codeautolink.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/autoclasstoc.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../../../_static/E-PyoIcon.ico"/>
+    <link rel="author" title="About these documents" href="../../../about.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">Pyo 1.0.4 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pyo.html" accesskey="U">pyo</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pyo.lib.listener</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyo.lib.listener</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">._core</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">threading</span>
+
+
+<div class="viewcode-block" id="MidiListener"><a class="viewcode-back" href="../../../api/classes/listener.html#pyo.MidiListener">[docs]</a><span class="k">class</span> <span class="nc">MidiListener</span><span class="p">(</span><span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Self-contained midi listener thread.</span>
+
+<span class="sd">    This object allows to setup a Midi server that is independent</span>
+<span class="sd">    of the audio server (mainly to be able to receive Midi data even</span>
+<span class="sd">    when the audio server is stopped). Although it runs in a separated</span>
+<span class="sd">    thread, the same device can&#39;t be used by this object and the audio</span>
+<span class="sd">    server at the same time. It is adviced to call the deactivateMidi()</span>
+<span class="sd">    method on the audio server to avoid conflicts.</span>
+
+<span class="sd">    :Parent: threading.Thread</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        function: Python function (can&#39;t be a list)</span>
+<span class="sd">            Function that will be called when a new midi event is available.</span>
+<span class="sd">            This function is called with the incoming midi data as</span>
+<span class="sd">            arguments. The signature of the function must be:</span>
+
+<span class="sd">            def myfunc(status, data1, data2)</span>
+
+<span class="sd">        mididev: int or list of ints, optional</span>
+<span class="sd">            Sets the midi input device (see `pm_list_devices()` for the</span>
+<span class="sd">            available devices). The default, -1, means the system default</span>
+<span class="sd">            device. A number greater than the highest portmidi device index</span>
+<span class="sd">            will open all available input devices. Specific devices can be</span>
+<span class="sd">            set with a list of integers.</span>
+
+<span class="sd">        reportdevice: boolean, optional</span>
+<span class="sd">            If True, the device ID will be reported as a fourth argument to</span>
+<span class="sd">            the callback. The signature will then be:</span>
+
+<span class="sd">            def myfunc(status, data1, data2, id)</span>
+
+<span class="sd">            Available at initialization only. Defaults to False.</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        This object is available only if pyo is built with portmidi support</span>
+<span class="sd">        (see withPortmidi function).</span>
+
+<span class="sd">    &gt;&gt;&gt; s = Server()</span>
+<span class="sd">    &gt;&gt;&gt; s.deactivateMidi()</span>
+<span class="sd">    &gt;&gt;&gt; s.boot()</span>
+<span class="sd">    &gt;&gt;&gt; def midicall(status, data1, data2):</span>
+<span class="sd">    ...     print(status, data1, data2)</span>
+<span class="sd">    &gt;&gt;&gt; listen = MidiListener(midicall, 5)</span>
+<span class="sd">    &gt;&gt;&gt; listen.start()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">mididev</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">reportdevice</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">daemon</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_function</span> <span class="o">=</span> <span class="n">WeakMethod</span><span class="p">(</span><span class="n">function</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mididev</span> <span class="o">=</span> <span class="n">mididev</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">mididev</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">list</span><span class="p">:</span>
+            <span class="n">mididev</span> <span class="o">=</span> <span class="p">[</span><span class="n">mididev</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reportdevice</span> <span class="o">=</span> <span class="n">reportdevice</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_listener</span> <span class="o">=</span> <span class="n">MidiListener_base</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_function</span><span class="p">,</span> <span class="n">mididev</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reportdevice</span><span class="p">)</span>
+
+<div class="viewcode-block" id="MidiListener.run"><a class="viewcode-back" href="../../../api/classes/listener.html#pyo.MidiListener.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Starts the process. The thread runs as daemon, so no need to stop it.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_listener</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.001</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="MidiListener.stop"><a class="viewcode-back" href="../../../api/classes/listener.html#pyo.MidiListener.stop">[docs]</a>    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Stops the listener and properly close the midi ports.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_listener</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="MidiListener.getDeviceInfos"><a class="viewcode-back" href="../../../api/classes/listener.html#pyo.MidiListener.getDeviceInfos">[docs]</a>    <span class="k">def</span> <span class="nf">getDeviceInfos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns infos about connected midi devices.</span>
+
+<span class="sd">        This method returns a list of dictionaries, one per device.</span>
+
+<span class="sd">        Dictionary format is:</span>
+
+<span class="sd">        {&quot;id&quot;: device_id (int), &quot;name&quot;: device_name (str), &quot;interface&quot;: interface (str)}</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">infos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listener</span><span class="o">.</span><span class="n">getDeviceInfos</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">infos</span><span class="p">:</span>
+            <span class="n">lst</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">infos</span><span class="p">:</span>
+                <span class="n">dct</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="n">items</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+                    <span class="n">isplit</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;: &quot;</span><span class="p">)</span>
+                    <span class="n">dct</span><span class="p">[</span><span class="n">isplit</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">isplit</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">dct</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">dct</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+                <span class="n">lst</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dct</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">lst</span>
+        <span class="k">return</span> <span class="p">[]</span></div></div>
+
+
+<div class="viewcode-block" id="MidiDispatcher"><a class="viewcode-back" href="../../../api/classes/listener.html#pyo.MidiDispatcher">[docs]</a><span class="k">class</span> <span class="nc">MidiDispatcher</span><span class="p">(</span><span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Self-contained midi dispatcher thread.</span>
+
+<span class="sd">    This object allows to setup a Midi server that is independent</span>
+<span class="sd">    of the audio server (mainly to be able to send Midi data even</span>
+<span class="sd">    when the audio server is stopped). Although it runs in a separated</span>
+<span class="sd">    thread, the same device can&#39;t be used by this object and the audio</span>
+<span class="sd">    server at the same time. It is adviced to call the deactivateMidi()</span>
+<span class="sd">    method on the audio server to avoid conflicts.</span>
+
+<span class="sd">    Use the `send` method to send midi event to connected devices.</span>
+
+<span class="sd">    Use the `sendx` method to send sysex event to connected devices.</span>
+
+<span class="sd">    :Parent: threading.Thread</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        mididev: int or list of ints, optional</span>
+<span class="sd">            Sets the midi output device (see `pm_list_devices()` for the</span>
+<span class="sd">            available devices). The default, -1, means the system default</span>
+<span class="sd">            device. A number greater than the highest portmidi device index</span>
+<span class="sd">            will open all available input devices. Specific devices can be</span>
+<span class="sd">            set with a list of integers.</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        This object is available only if pyo is built with portmidi support</span>
+<span class="sd">        (see withPortmidi function).</span>
+
+<span class="sd">    &gt;&gt;&gt; s = Server()</span>
+<span class="sd">    &gt;&gt;&gt; s.deactivateMidi()</span>
+<span class="sd">    &gt;&gt;&gt; s.boot()</span>
+<span class="sd">    &gt;&gt;&gt; dispatch = MidiDispatcher(5)</span>
+<span class="sd">    &gt;&gt;&gt; dispatch.start()</span>
+<span class="sd">    &gt;&gt;&gt; dispatch.send(144, 60, 127)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mididev</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">daemon</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mididev</span> <span class="o">=</span> <span class="n">mididev</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">mididev</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">list</span><span class="p">:</span>
+            <span class="n">mididev</span> <span class="o">=</span> <span class="p">[</span><span class="n">mididev</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dispatcher</span> <span class="o">=</span> <span class="n">MidiDispatcher_base</span><span class="p">(</span><span class="n">mididev</span><span class="p">)</span>
+
+<div class="viewcode-block" id="MidiDispatcher.run"><a class="viewcode-back" href="../../../api/classes/listener.html#pyo.MidiDispatcher.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Starts the process. The thread runs as daemon, so no need to stop it.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dispatcher</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.001</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="MidiDispatcher.send"><a class="viewcode-back" href="../../../api/classes/listener.html#pyo.MidiDispatcher.send">[docs]</a>    <span class="k">def</span> <span class="nf">send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">data1</span><span class="p">,</span> <span class="n">data2</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">timestamp</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">device</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Send a MIDI message to the selected midi output device.</span>
+
+<span class="sd">        Arguments can be list of values to generate multiple events</span>
+<span class="sd">        in one call.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            status: int</span>
+<span class="sd">                Status byte.</span>
+<span class="sd">            data1: int</span>
+<span class="sd">                First data byte.</span>
+<span class="sd">            data2: int, optional</span>
+<span class="sd">                Second data byte. Defaults to 0.</span>
+<span class="sd">            timestamp: int, optional</span>
+<span class="sd">                The delay time, in milliseconds, before the note</span>
+<span class="sd">                is sent on the portmidi stream. A value of 0 means</span>
+<span class="sd">                to play the note now. Defaults to 0.</span>
+<span class="sd">            device: int, optional</span>
+<span class="sd">                The index of the device to which the message will</span>
+<span class="sd">                be sent. The default (-1) means all devices. See</span>
+<span class="sd">                `getDeviceInfos()` to retrieve device indexes.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">status</span><span class="p">,</span> <span class="n">data1</span><span class="p">,</span> <span class="n">data2</span><span class="p">,</span> <span class="n">timestamp</span><span class="p">,</span> <span class="n">device</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">data1</span><span class="p">,</span> <span class="n">data2</span><span class="p">,</span> <span class="n">timestamp</span><span class="p">,</span> <span class="n">device</span><span class="p">)</span>
+        <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dispatcher</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">data1</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">data2</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">device</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)</span>
+        <span class="p">]</span></div>
+
+<div class="viewcode-block" id="MidiDispatcher.sendx"><a class="viewcode-back" href="../../../api/classes/listener.html#pyo.MidiDispatcher.sendx">[docs]</a>    <span class="k">def</span> <span class="nf">sendx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="n">timestamp</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">device</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Send a MIDI system exclusive message to the selected midi output device.</span>
+
+<span class="sd">        Arguments can be list of values to generate multiple events</span>
+<span class="sd">        in one call.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            msg: str</span>
+<span class="sd">                A valid system exclusive message as a string. The first byte</span>
+<span class="sd">                must be 0xf0 and the last one must be 0xf7.</span>
+<span class="sd">            timestamp: int, optional</span>
+<span class="sd">                The delay time, in milliseconds, before the note</span>
+<span class="sd">                is sent on the portmidi stream. A value of 0 means</span>
+<span class="sd">                to play the note now. Defaults to 0.</span>
+<span class="sd">            device: int, optional</span>
+<span class="sd">                The index of the device to which the message will</span>
+<span class="sd">                be sent. The default (-1) means all devices. See</span>
+<span class="sd">                `getDeviceInfos()` to retrieve device indexes.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">msg</span><span class="p">,</span> <span class="n">timestamp</span><span class="p">,</span> <span class="n">device</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">timestamp</span><span class="p">,</span> <span class="n">device</span><span class="p">)</span>
+        <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_dispatcher</span><span class="o">.</span><span class="n">sendx</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">device</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="MidiDispatcher.getDeviceInfos"><a class="viewcode-back" href="../../../api/classes/listener.html#pyo.MidiDispatcher.getDeviceInfos">[docs]</a>    <span class="k">def</span> <span class="nf">getDeviceInfos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns infos about connected midi devices.</span>
+
+<span class="sd">        This method returns a list of dictionaries, one per device.</span>
+
+<span class="sd">        Dictionary format is:</span>
+
+<span class="sd">        {&quot;id&quot;: device_id (int), &quot;name&quot;: device_name (str), &quot;interface&quot;: interface (str)}</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">infos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dispatcher</span><span class="o">.</span><span class="n">getDeviceInfos</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">infos</span><span class="p">:</span>
+            <span class="n">lst</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">infos</span><span class="p">:</span>
+                <span class="n">dct</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="n">items</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+                    <span class="n">isplit</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;: &quot;</span><span class="p">)</span>
+                    <span class="n">dct</span><span class="p">[</span><span class="n">isplit</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">isplit</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">dct</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">dct</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+                <span class="n">lst</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dct</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">lst</span>
+        <span class="k">return</span> <span class="p">[]</span></div></div>
+
+
+<span class="n">OscListenerLock</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="OscListener"><a class="viewcode-back" href="../../../api/classes/listener.html#pyo.OscListener">[docs]</a><span class="k">class</span> <span class="nc">OscListener</span><span class="p">(</span><span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Self-contained OSC listener thread.</span>
+
+<span class="sd">    This object allows to setup an OSC server that is independent</span>
+<span class="sd">    of the audio server (mainly to be able to receive OSC data even</span>
+<span class="sd">    when the audio server is stopped).</span>
+
+<span class="sd">    :Parent: threadind.Thread</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        function: Python function (can&#39;t be a list)</span>
+<span class="sd">            Function that will be called when a new OSC event is available.</span>
+<span class="sd">            This function is called with the incoming address and values as</span>
+<span class="sd">            arguments. The signature of the function must be::</span>
+
+<span class="sd">                def myfunc(address, *args)</span>
+
+<span class="sd">        port: int, optional</span>
+<span class="sd">            The OSC port on which the values are received. Defaults to 9000.</span>
+
+<span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
+<span class="sd">    &gt;&gt;&gt; def call(address, *args):</span>
+<span class="sd">    ...     print(address, args)</span>
+<span class="sd">    &gt;&gt;&gt; listen = OscListener(call, 9901)</span>
+<span class="sd">    &gt;&gt;&gt; listen.start()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">9000</span><span class="p">):</span>
+        <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">daemon</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_function</span> <span class="o">=</span> <span class="n">WeakMethod</span><span class="p">(</span><span class="n">function</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_port</span> <span class="o">=</span> <span class="n">port</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_listener</span> <span class="o">=</span> <span class="n">OscListener_base</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_oscrecv</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_port</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_oscrecv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">OscListenerLock</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_function</span><span class="p">(</span><span class="n">address</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
+
+<div class="viewcode-block" id="OscListener.run"><a class="viewcode-back" href="../../../api/classes/listener.html#pyo.OscListener.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Starts the process. The thread runs as daemon, so no need to stop it.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_listener</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.001</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">pass</span></div></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">Pyo 1.0.4 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pyo.html" >pyo</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pyo.lib.listener</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+  </body>
+</html>

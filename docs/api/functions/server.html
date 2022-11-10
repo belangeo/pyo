@@ -1,0 +1,129 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>Server Queries — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="util.html" rel="next" title="Utilities"/>
+<link href="conv.html" rel="prev" title="Conversions"/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="util.html" title="Utilities">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="conv.html" title="Conversions">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="../index.html">API documentation</a> »</li>
+<li class="nav-item nav-item-2"><a accesskey="U" href="index.html">Functions</a> »</li>
+<li class="nav-item nav-item-this"><a href="">Server Queries</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="server-queries">
+<h1>Server Queries<a class="headerlink" href="#server-queries" title="Permalink to this headline">¶</a></h1>
+<section id="servercreated">
+<h2><em>serverCreated</em><a class="headerlink" href="#servercreated" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyo.serverCreated">
+<span class="sig-name descname"><span class="pre">serverCreated</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyo.serverCreated" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns True if a Server object is already created, otherwise, returns False.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/functions/server.html#pyo.serverCreated" title="pyo.serverCreated"><span class="n">serverCreated</span></a><span class="p">())</span>
+<span class="go">False</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">s</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/functions/server.html#pyo.serverCreated" title="pyo.serverCreated"><span class="n">serverCreated</span></a><span class="p">())</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+</section>
+<section id="serverbooted">
+<h2><em>serverBooted</em><a class="headerlink" href="#serverbooted" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyo.serverBooted">
+<span class="sig-name descname"><span class="pre">serverBooted</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyo.serverBooted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns True if an already created Server is booted, otherwise, returns False.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">s</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/functions/server.html#pyo.serverBooted" title="pyo.serverBooted"><span class="n">serverBooted</span></a><span class="p">())</span>
+<span class="go">False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/functions/server.html#pyo.serverBooted" title="pyo.serverBooted"><span class="n">serverBooted</span></a><span class="p">())</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+</section>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h3><a href="../../index.html">Table of Contents</a></h3>
+<ul>
+<li><a class="reference internal" href="#">Server Queries</a><ul>
+<li><a class="reference internal" href="#servercreated"><em>serverCreated</em></a></li>
+<li><a class="reference internal" href="#serverbooted"><em>serverBooted</em></a></li>
+</ul>
+</li>
+</ul>
+<h4>Previous topic</h4>
+<p class="topless"><a href="conv.html" title="previous chapter">Conversions</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="util.html" title="next chapter">Utilities</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="util.html" title="Utilities">next</a> |</li>
+<li class="right">
+<a href="conv.html" title="Conversions">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="../index.html">API documentation</a> »</li>
+<li class="nav-item nav-item-2"><a href="index.html">Functions</a> »</li>
+<li class="nav-item nav-item-this"><a href="">Server Queries</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

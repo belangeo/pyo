@@ -1,0 +1,149 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>Retrieving current value of a PyoObject as a python float — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="03-set-method.html" rel="next" title="Setting audio object parameter’s value with portamento"/>
+<link href="01-list-to-audio-file.html" rel="prev" title="Saving list of floats to audio file on disk"/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="03-set-method.html" title="Setting audio object parameter’s value with portamento">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="01-list-to-audio-file.html" title="Saving list of floats to audio file on disk">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a accesskey="U" href="index.html">21-utilities</a> »</li>
+<li class="nav-item nav-item-this"><a href="">Retrieving current value of a PyoObject as a python float</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="retrieving-current-value-of-a-pyoobject-as-a-python-float">
+<h1>Retrieving current value of a PyoObject as a python float<a class="headerlink" href="#retrieving-current-value-of-a-pyoobject-as-a-python-float" title="Permalink to this headline">¶</a></h1>
+<p><strong>02-get-method.py</strong></p>
+<p>The get() method of the PyoObject allow the user to retrieve the current
+value of an audio signal as a python float. This can useful if one wants
+to use an audio signal to drive an algorithm written in pure python.</p>
+<p>If the <cite>all</cite> argument of the get() method is True, it will return a list
+with the current value of all streams managed by the object. If False (the
+default), te value of the first audio stream will be returned as a float:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">lfos</span> <span class="o">=</span> <span class="n">Sine</span><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="p">[</span><span class="o">.</span><span class="mi">1</span><span class="p">,</span><span class="o">.</span><span class="mi">2</span><span class="p">,</span><span class="o">.</span><span class="mi">4</span><span class="p">,</span><span class="o">.</span><span class="mi">3</span><span class="p">],</span> <span class="n">mul</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
+<span class="n">synth</span> <span class="o">=</span> <span class="n">SineLoop</span><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="n">lfos</span><span class="p">,</span> <span class="n">feedback</span><span class="o">=.</span><span class="mi">07</span><span class="p">,</span> <span class="n">mul</span><span class="o">=.</span><span class="mi">05</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">print_val</span><span class="p">():</span>
+    <span class="c1"># Print all four frequencies assigned to SineLoop's freq argument</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">lfos</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">all</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+
+<span class="n">pat</span> <span class="o">=</span> <span class="n">Pattern</span><span class="p">(</span><span class="n">print_val</span><span class="p">,</span> <span class="o">.</span><span class="mi">25</span><span class="p">)</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+</pre></div>
+</div>
+<section id="complete-example">
+<h2>Complete example<a class="headerlink" href="#complete-example" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">(</span><span class="n">duplex</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+
+<span class="n">t</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.CurveTable" title="pyo.lib.tables.CurveTable"><span class="n">CurveTable</span></a><span class="p">([(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">2048</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span> <span class="p">(</span><span class="mi">4096</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">),</span> <span class="p">(</span><span class="mi">6144</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span> <span class="p">(</span><span class="mi">8192</span><span class="p">,</span> <span class="mi">0</span><span class="p">)],</span> <span class="n">tension</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span><span class="o">.</span><span class="n">normalize</span><span class="p">()</span>
+<span class="n">t</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"LFO Waveform"</span><span class="p">)</span>
+
+<span class="c1"># LFO applied on amplitude value of the synths.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/tableprocess.html#pyo.Osc" title="pyo.lib.tableprocess.Osc"><span class="n">a</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/tableprocess.html#pyo.Osc" title="pyo.lib.tableprocess.Osc"><span class="n">Osc</span></a><span class="p">(</span><span class="n">table</span><span class="o">=</span><span class="n">t</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+
+<span class="c1"># Make some modulated noise...</span>
+<span class="n">synth1</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.BrownNoise" title="pyo.lib.generators.BrownNoise"><span class="n">BrownNoise</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/tableprocess.html#pyo.Osc" title="pyo.lib.tableprocess.Osc"><span class="n">a</span></a><span class="p">)</span><span class="o">.</span><span class="n">mix</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+<span class="n">synth2</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.FM" title="pyo.lib.generators.FM"><span class="n">FM</span></a><span class="p">(</span><span class="n">carrier</span><span class="o">=</span><span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">50</span><span class="p">],</span> <span class="n">ratio</span><span class="o">=</span><span class="p">[</span><span class="mf">0.495</span><span class="p">,</span> <span class="mf">1.01</span><span class="p">],</span> <span class="n">index</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/tableprocess.html#pyo.Osc" title="pyo.lib.tableprocess.Osc"><span class="n">a</span></a><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+<span class="c1"># Oscillator from which to get values to modify the shape of the LFO waveform.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">c</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">change</span><span class="p">():</span>
+    <span class="c1"># Get the current value of the oscillator.</span>
+    <span class="n">val</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+    <span class="c1"># Print the value to the console.</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Current oscillator value:"</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+    <span class="c1"># Change the bias of the curve and normalize the table.</span>
+    <span class="n">t</span><span class="o">.</span><span class="n">setBias</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+    <span class="n">t</span><span class="o">.</span><span class="n">normalize</span><span class="p">()</span>
+
+
+<span class="c1"># Call change() function 10 times per second.</span>
+<span class="n">p</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/pattern.html#pyo.Pattern" title="pyo.lib.pattern.Pattern"><span class="n">Pattern</span></a><span class="p">(</span><span class="n">change</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h3><a href="../../index.html">Table of Contents</a></h3>
+<ul>
+<li><a class="reference internal" href="#">Retrieving current value of a PyoObject as a python float</a><ul>
+<li><a class="reference internal" href="#complete-example">Complete example</a></li>
+</ul>
+</li>
+</ul>
+<h4>Previous topic</h4>
+<p class="topless"><a href="01-list-to-audio-file.html" title="previous chapter">Saving list of floats to audio file on disk</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="03-set-method.html" title="next chapter">Setting audio object parameter’s value with portamento</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="03-set-method.html" title="Setting audio object parameter’s value with portamento">next</a> |</li>
+<li class="right">
+<a href="01-list-to-audio-file.html" title="Saving list of floats to audio file on disk">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="index.html">21-utilities</a> »</li>
+<li class="nav-item nav-item-this"><a href="">Retrieving current value of a PyoObject as a python float</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

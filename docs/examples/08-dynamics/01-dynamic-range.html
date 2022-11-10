@@ -1,0 +1,155 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>01-dynamic-range.py - Adjust the dynamic range of the signal. — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="02-ducking.html" rel="next" title="02-ducking.py - Adjust the gain of a signal based on the presence of another one."/>
+<link href="index.html" rel="prev" title="08-dynamics"/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="02-ducking.html" title="02-ducking.py - Adjust the gain of a signal based on the presence of another one.">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="index.html" title="08-dynamics">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a accesskey="U" href="index.html">08-dynamics</a> »</li>
+<li class="nav-item nav-item-this"><a href="">01-dynamic-range.py - Adjust the dynamic range of the signal.</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="dynamic-range-py-adjust-the-dynamic-range-of-the-signal">
+<h1>01-dynamic-range.py - Adjust the dynamic range of the signal.<a class="headerlink" href="#dynamic-range-py-adjust-the-dynamic-range-of-the-signal" title="Permalink to this headline">¶</a></h1>
+<p>Comparison of three objects used to adjust the dynamic range of the signal.</p>
+<ul class="simple">
+<li><p>Compress : Reduces the dynamic range of an audio signal.</p></li>
+<li><p>Expand : Increases the dynamic range of an audio signal.</p></li>
+<li><p>Gate : Allows a signal to pass only when its amplitude is above a threshold.</p></li>
+</ul>
+<p>These three objects, by default, process independently each audio stream
+relatively to its own RMS value. This can be a problem if they are passed
+a stereo signal (or any multiphonic signals) where both channels should be
+processed in the same way.</p>
+<p>An alternative usage to the one illustrated below is to mix a multi-channel
+signal prior to the dynamic processor and to tell the object to output the
+amplitude value that should be applied to all streams at once. Something
+like this:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">sf</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">SfPlayer</span></a><span class="p">(</span><span class="s2">"your/stereo.sound.wav"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/dynamics.html#pyo.Compress" title="pyo.lib.dynamics.Compress"><span class="n">cmp</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/dynamics.html#pyo.Compress" title="pyo.lib.dynamics.Compress"><span class="n">Compress</span></a><span class="p">(</span><span class="n">sf</span><span class="o">.</span><span class="n">mix</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">thresh</span><span class="o">=-</span><span class="mi">18</span><span class="p">,</span> <span class="n">ratio</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">outputAmp</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Compress both signal with the common amplitude curve.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">compressed</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">sf</span></a> <span class="o">*</span> <a class="sphinx-codeautolink-a" href="../../api/classes/dynamics.html#pyo.Compress" title="pyo.lib.dynamics.Compress"><span class="n">cmp</span></a>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+
+<span class="c1"># The original source.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">src</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">SfPlayer</span></a><span class="p">(</span><span class="s2">"../snds/drumloop.wav"</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># The three dynamic processing.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/dynamics.html#pyo.Compress" title="pyo.lib.dynamics.Compress"><span class="n">cmp</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/dynamics.html#pyo.Compress" title="pyo.lib.dynamics.Compress"><span class="n">Compress</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">src</span></a><span class="p">,</span> <span class="n">thresh</span><span class="o">=-</span><span class="mi">18</span><span class="p">,</span> <span class="n">ratio</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">risetime</span><span class="o">=</span><span class="mf">0.005</span><span class="p">,</span> <span class="n">falltime</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">knee</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/dynamics.html#pyo.Expand" title="pyo.lib.dynamics.Expand"><span class="n">exp</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/dynamics.html#pyo.Expand" title="pyo.lib.dynamics.Expand"><span class="n">Expand</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">src</span></a><span class="p">,</span> <span class="n">downthresh</span><span class="o">=-</span><span class="mi">32</span><span class="p">,</span> <span class="n">upthresh</span><span class="o">=-</span><span class="mi">12</span><span class="p">,</span> <span class="n">ratio</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">risetime</span><span class="o">=</span><span class="mf">0.005</span><span class="p">,</span> <span class="n">falltime</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/dynamics.html#pyo.Gate" title="pyo.lib.dynamics.Gate"><span class="n">gat</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/dynamics.html#pyo.Gate" title="pyo.lib.dynamics.Gate"><span class="n">Gate</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">src</span></a><span class="p">,</span> <span class="n">thresh</span><span class="o">=-</span><span class="mi">40</span><span class="p">,</span> <span class="n">risetime</span><span class="o">=</span><span class="mf">0.005</span><span class="p">,</span> <span class="n">falltime</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span>
+
+<span class="c1"># These are labels that are shown as the scope window title.</span>
+<span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"Original"</span><span class="p">,</span> <span class="s2">"Compressed"</span><span class="p">,</span> <span class="s2">"Expanded"</span><span class="p">,</span> <span class="s2">"Gated"</span><span class="p">]</span>
+
+<span class="c1"># List of signals to choose from.</span>
+<span class="n">signals</span> <span class="o">=</span> <span class="p">[</span><a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">src</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="../../api/classes/dynamics.html#pyo.Compress" title="pyo.lib.dynamics.Compress"><span class="n">cmp</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="../../api/classes/dynamics.html#pyo.Expand" title="pyo.lib.dynamics.Expand"><span class="n">exp</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="../../api/classes/dynamics.html#pyo.Gate" title="pyo.lib.dynamics.Gate"><span class="n">gat</span></a><span class="p">]</span>
+
+<span class="c1"># Selector is used here to choose which signal to listen to.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/pan.html#pyo.Selector" title="pyo.lib.pan.Selector"><span class="n">output</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/pan.html#pyo.Selector" title="pyo.lib.pan.Selector"><span class="n">Selector</span></a><span class="p">(</span><span class="n">signals</span><span class="p">)</span>
+
+<span class="c1"># Converts the signal from mono to stereo.</span>
+<span class="n">stout</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">mix</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+<span class="c1"># Live oscilloscope of the alternated signals.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.Scope" title="pyo.lib.analysis.Scope"><span class="n">sc</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.Scope" title="pyo.lib.analysis.Scope"><span class="n">Scope</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/pan.html#pyo.Selector" title="pyo.lib.pan.Selector"><span class="n">output</span></a><span class="p">,</span> <span class="n">wintitle</span><span class="o">=</span><span class="s2">"=== Original ==="</span><span class="p">)</span>
+
+<span class="c1"># The endOfLoop function cycles through the different signals</span>
+<span class="c1"># and change the selection of the Selector object.</span>
+<span class="n">num_of_sigs</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">signals</span><span class="p">)</span>
+<span class="n">c</span> <span class="o">=</span> <span class="mi">1</span>
+
+
+<span class="k">def</span> <span class="nf">endOfLoop</span><span class="p">():</span>
+    <span class="k">global</span> <span class="n">c</span>
+    <span class="n">output</span><span class="o">.</span><span class="n">voice</span> <span class="o">=</span> <span class="n">c</span>
+    <span class="k">if</span> <span class="n">sc</span><span class="o">.</span><span class="n">viewFrame</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">sc</span><span class="o">.</span><span class="n">viewFrame</span><span class="o">.</span><span class="n">SetTitle</span><span class="p">(</span><span class="s2">"=== </span><span class="si">%s</span><span class="s2"> ==="</span> <span class="o">%</span> <span class="n">labels</span><span class="p">[</span><span class="n">c</span><span class="p">])</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="p">(</span><span class="n">c</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">num_of_sigs</span>
+
+
+<span class="c1"># endOfLoop is called every time the SfPlayer reaches the end of the sound.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/triggers.html#pyo.TrigFunc" title="pyo.lib.triggers.TrigFunc"><span class="n">tf</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/triggers.html#pyo.TrigFunc" title="pyo.lib.triggers.TrigFunc"><span class="n">TrigFunc</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">src</span></a><span class="p">[</span><span class="s2">"trig"</span><span class="p">],</span> <span class="n">endOfLoop</span><span class="p">)</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h4>Previous topic</h4>
+<p class="topless"><a href="index.html" title="previous chapter">08-dynamics</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="02-ducking.html" title="next chapter">02-ducking.py - Adjust the gain of a signal based on the presence of another one.</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="02-ducking.html" title="02-ducking.py - Adjust the gain of a signal based on the presence of another one.">next</a> |</li>
+<li class="right">
+<a href="index.html" title="08-dynamics">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="index.html">08-dynamics</a> »</li>
+<li class="nav-item nav-item-this"><a href="">01-dynamic-range.py - Adjust the dynamic range of the signal.</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

@@ -1,0 +1,143 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>10-arithmetic-ops.py - Using arithmetic with event generators. — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="11-filters.html" rel="next" title="11-filters.py - Modifying generator’s output with filters."/>
+<link href="09-embedding-generators.html" rel="prev" title="09-embedding-generators.py - From words to musical phrases."/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="11-filters.html" title="11-filters.py - Modifying generator’s output with filters.">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="09-embedding-generators.html" title="09-embedding-generators.py - From words to musical phrases.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a accesskey="U" href="index.html">22-events</a> »</li>
+<li class="nav-item nav-item-this"><a href="">10-arithmetic-ops.py - Using arithmetic with event generators.</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="arithmetic-ops-py-using-arithmetic-with-event-generators">
+<h1>10-arithmetic-ops.py - Using arithmetic with event generators.<a class="headerlink" href="#arithmetic-ops-py-using-arithmetic-with-event-generators" title="Permalink to this headline">¶</a></h1>
+<p>Arithmetic operators can be used with EventGenerator objects to control
+their behaviour (and change the pattern of the sequence of values).</p>
+<p>Available operators are:</p>
+<p><cite>+</cite> : addition</p>
+<p><cite>-</cite> : substraction</p>
+<p><cite>*</cite> : multiplication</p>
+<p><cite>/</cite> : division</p>
+<p><cite>**</cite>: exponent</p>
+<p><cite>%</cite> : modulo (remaining of the division)</p>
+<p><cite>//</cite>: quantizer (returns te nearest multiple of its argument)</p>
+<p>Arithmetic can be done with event generators as both operand and operator.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+
+<span class="c1"># Half-semitone scale (the octave is divided in 24 equally-spaced steps).</span>
+<span class="c1"># The integer (a semitone in midi note) is divided by 2, which mean that</span>
+<span class="c1"># there are two values inside a single integer.</span>
+<span class="n">e</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/events.html#pyo.Events" title="pyo.lib.events.Events"><span class="n">Events</span></a><span class="p">(</span>
+    <span class="n">midinote</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/events.html#pyo.EventDrunk" title="pyo.lib.events.EventDrunk"><span class="n">EventDrunk</span></a><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">48</span><span class="p">)),</span> <span class="n">maxStep</span><span class="o">=-</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span> <span class="o">+</span> <span class="mi">72</span><span class="p">,</span>
+    <span class="n">beat</span><span class="o">=</span><span class="mi">1</span> <span class="o">/</span> <span class="mf">4.0</span><span class="p">,</span>
+    <span class="n">db</span><span class="o">=-</span><span class="mi">12</span><span class="p">,</span>
+    <span class="n">attack</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span>
+    <span class="n">decay</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+    <span class="n">sustain</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">release</span><span class="o">=</span><span class="mf">0.005</span><span class="p">,</span>
+<span class="p">)</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+
+<span class="c1"># Quantize to multiples of a minor third.</span>
+<span class="n">e2</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/events.html#pyo.Events" title="pyo.lib.events.Events"><span class="n">Events</span></a><span class="p">(</span>
+    <span class="n">midinote</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/events.html#pyo.EventCall" title="pyo.lib.events.EventCall"><span class="n">EventCall</span></a><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">72</span><span class="p">)</span> <span class="o">//</span> <span class="mi">3</span><span class="p">,</span>
+    <span class="n">beat</span><span class="o">=</span><span class="mi">1</span> <span class="o">/</span> <span class="mf">4.0</span><span class="p">,</span>
+    <span class="n">db</span><span class="o">=-</span><span class="mi">12</span><span class="p">,</span>
+    <span class="n">durmul</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">attack</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span>
+    <span class="n">decay</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+    <span class="n">sustain</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">release</span><span class="o">=</span><span class="mf">0.005</span><span class="p">,</span>
+<span class="p">)</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+
+<span class="c1"># EventGenerator as arithmetic operator. Kind of ostinato.</span>
+<span class="n">e3</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/events.html#pyo.Events" title="pyo.lib.events.Events"><span class="n">Events</span></a><span class="p">(</span>
+    <span class="n">midinote</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/events.html#pyo.EventSeq" title="pyo.lib.events.EventSeq"><span class="n">EventSeq</span></a><span class="p">([</span><span class="mi">48</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">52</span><span class="p">])</span> <span class="o">-</span> <a class="sphinx-codeautolink-a" href="../../api/classes/events.html#pyo.EventSeq" title="pyo.lib.events.EventSeq"><span class="n">EventSeq</span></a><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">]),</span>
+    <span class="n">beat</span><span class="o">=</span><span class="mi">1</span> <span class="o">/</span> <span class="mf">4.0</span><span class="p">,</span>
+    <span class="n">db</span><span class="o">=-</span><span class="mi">12</span><span class="p">,</span>
+    <span class="n">durmul</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">attack</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span>
+    <span class="n">decay</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+    <span class="n">sustain</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">release</span><span class="o">=</span><span class="mf">0.005</span><span class="p">,</span>
+<span class="p">)</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h4>Previous topic</h4>
+<p class="topless"><a href="09-embedding-generators.html" title="previous chapter">09-embedding-generators.py - From words to musical phrases.</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="11-filters.html" title="next chapter">11-filters.py - Modifying generator’s output with filters.</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="11-filters.html" title="11-filters.py - Modifying generator’s output with filters.">next</a> |</li>
+<li class="right">
+<a href="09-embedding-generators.html" title="09-embedding-generators.py - From words to musical phrases.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="index.html">22-events</a> »</li>
+<li class="nav-item nav-item-this"><a href="">10-arithmetic-ops.py - Using arithmetic with event generators.</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

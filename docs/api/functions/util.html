@@ -1,0 +1,293 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>Utilities — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="../alphabetical.html" rel="next" title="Alphabetical class reference"/>
+<link href="server.html" rel="prev" title="Server Queries"/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="../alphabetical.html" title="Alphabetical class reference">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="server.html" title="Server Queries">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="../index.html">API documentation</a> »</li>
+<li class="nav-item nav-item-2"><a accesskey="U" href="index.html">Functions</a> »</li>
+<li class="nav-item nav-item-this"><a href="">Utilities</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="utilities">
+<h1>Utilities<a class="headerlink" href="#utilities" title="Permalink to this headline">¶</a></h1>
+<section id="example">
+<h2><em>example</em><a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyo.example">
+<span class="sig-name descname"><span class="pre">example</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dur</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">toprint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">double</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#example"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.example" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute the documentation example of the object given as an argument.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>cls: PyoObject class or string</dt><dd><p>Class reference of the desired object example. If this argument
+is the string of the full path of an example (as returned by the
+getPyoExamples() function), it will be executed.</p>
+</dd>
+<dt>dur: float, optional</dt><dd><p>Duration of the example.</p>
+</dd>
+<dt>toprint: boolean, optional</dt><dd><p>If True, the example script will be printed to the console.
+Defaults to True.</p>
+</dd>
+<dt>double: boolean, optional</dt><dd><p>If True, force the example to run in double precision (64-bit)
+Defaults to False.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/functions/util.html#pyo.example" title="pyo.example"><span class="n">example</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+</section>
+<section id="class-args">
+<h2><em>class_args</em><a class="headerlink" href="#class-args" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyo.class_args">
+<span class="sig-name descname"><span class="pre">class_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#class_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.class_args" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the signature of a pyo class or function.</p>
+<p>This function takes a class or a function reference as input and returns 
+its signature with the default values.</p>
+<p>If the operation can’t succeed, the function silently fails and returns
+an empty string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>cls: callable (class or function from pyo lib)</dt><dd><p>Reference of the class or function for which the signature is retrieved.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/functions/util.html#pyo.class_args" title="pyo.class_args"><span class="n">class_args</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s1">'Sine(freq=1000, phase=0, mul=1, add=0)'</span>
+</pre></div>
+</div>
+</dd></dl>
+</section>
+<section id="getversion">
+<h2><em>getVersion</em><a class="headerlink" href="#getversion" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyo.getVersion">
+<span class="sig-name descname"><span class="pre">getVersion</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#getVersion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.getVersion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the version number of the current pyo installation.</p>
+<p>This function returns the version number of the current pyo
+installation as a 3-ints tuple (major, minor, rev).</p>
+<p>The returned tuple for version ‘0.4.1’ will look like: (0, 4, 1)</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/functions/util.html#pyo.getVersion" title="pyo.getVersion"><span class="n">getVersion</span></a><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+</section>
+<section id="getprecision">
+<h2><em>getPrecision</em><a class="headerlink" href="#getprecision" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyo.getPrecision">
+<span class="sig-name descname"><span class="pre">getPrecision</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#getPrecision"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.getPrecision" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the current sample precision as an integer.</p>
+<p>This function returns the current sample precision as an integer,
+either 32 for 32-bit (single) or 64 for 64-bit (double).</p>
+</dd></dl>
+</section>
+<section id="getpyokeywords">
+<h2><em>getPyoKeywords</em><a class="headerlink" href="#getpyokeywords" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyo.getPyoKeywords">
+<span class="sig-name descname"><span class="pre">getPyoKeywords</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo.html#getPyoKeywords"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.getPyoKeywords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of every keywords (classes and functions) of pyo.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">keywords</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/functions/util.html#pyo.getPyoKeywords" title="pyo.getPyoKeywords"><span class="n">getPyoKeywords</span></a><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+</section>
+<section id="getpyoexamples">
+<h2><em>getPyoExamples</em><a class="headerlink" href="#getpyoexamples" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyo.getPyoExamples">
+<span class="sig-name descname"><span class="pre">getPyoExamples</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fullpath</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo.html#getPyoExamples"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.getPyoExamples" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a listing of the examples, as a dictionary, installed with pyo.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>fullpath: boolean</dt><dd><p>If True, the full path of each file is returned. Otherwise, only the
+filenames are listed.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">examples</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/functions/util.html#pyo.getPyoExamples" title="pyo.getPyoExamples"><span class="n">getPyoExamples</span></a><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+</section>
+<section id="withportaudio">
+<h2><em>withPortaudio</em><a class="headerlink" href="#withportaudio" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyo.withPortaudio">
+<span class="sig-name descname"><span class="pre">withPortaudio</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyo.withPortaudio" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns True if pyo is built with portaudio support.</p>
+</dd></dl>
+</section>
+<section id="withportmidi">
+<h2><em>withPortmidi</em><a class="headerlink" href="#withportmidi" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyo.withPortmidi">
+<span class="sig-name descname"><span class="pre">withPortmidi</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyo.withPortmidi" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns True if pyo is built with portmidi support.</p>
+</dd></dl>
+</section>
+<section id="withjack">
+<h2><em>withJack</em><a class="headerlink" href="#withjack" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyo.withJack">
+<span class="sig-name descname"><span class="pre">withJack</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyo.withJack" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns True if pyo is built with jack support.</p>
+</dd></dl>
+</section>
+<section id="withcoreaudio">
+<h2><em>withCoreaudio</em><a class="headerlink" href="#withcoreaudio" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyo.withCoreaudio">
+<span class="sig-name descname"><span class="pre">withCoreaudio</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyo.withCoreaudio" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns True if pyo is built with coreaudio support.</p>
+</dd></dl>
+</section>
+<section id="withosc">
+<h2><em>withOSC</em><a class="headerlink" href="#withosc" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyo.withOSC">
+<span class="sig-name descname"><span class="pre">withOSC</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyo.withOSC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns True if pyo is built with OSC (Open Sound Control) support.</p>
+</dd></dl>
+</section>
+<section id="convertstringtosysencoding">
+<h2><em>convertStringToSysEncoding</em><a class="headerlink" href="#convertstringtosysencoding" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyo.convertStringToSysEncoding">
+<span class="sig-name descname"><span class="pre">convertStringToSysEncoding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strng</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#convertStringToSysEncoding"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.convertStringToSysEncoding" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a string to the current platform file system encoding.</p>
+<p>Returns the new encoded string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>strng: string</dt><dd><p>String to convert.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+</section>
+<section id="convertargstolists">
+<h2><em>convertArgsToLists</em><a class="headerlink" href="#convertargstolists" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyo.convertArgsToLists">
+<span class="sig-name descname"><span class="pre">convertArgsToLists</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#convertArgsToLists"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.convertArgsToLists" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert all arguments to list if not already a list or a PyoObjectBase.
+Return new args and maximum list length.</p>
+</dd></dl>
+</section>
+<section id="wrap">
+<h2><em>wrap</em><a class="headerlink" href="#wrap" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyo.wrap">
+<span class="sig-name descname"><span class="pre">wrap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#wrap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.wrap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return value at position <cite>i</cite> from <cite>arg</cite> with wrap around <cite>arg</cite> length.</p>
+</dd></dl>
+</section>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h3><a href="../../index.html">Table of Contents</a></h3>
+<ul>
+<li><a class="reference internal" href="#">Utilities</a><ul>
+<li><a class="reference internal" href="#example"><em>example</em></a></li>
+<li><a class="reference internal" href="#class-args"><em>class_args</em></a></li>
+<li><a class="reference internal" href="#getversion"><em>getVersion</em></a></li>
+<li><a class="reference internal" href="#getprecision"><em>getPrecision</em></a></li>
+<li><a class="reference internal" href="#getpyokeywords"><em>getPyoKeywords</em></a></li>
+<li><a class="reference internal" href="#getpyoexamples"><em>getPyoExamples</em></a></li>
+<li><a class="reference internal" href="#withportaudio"><em>withPortaudio</em></a></li>
+<li><a class="reference internal" href="#withportmidi"><em>withPortmidi</em></a></li>
+<li><a class="reference internal" href="#withjack"><em>withJack</em></a></li>
+<li><a class="reference internal" href="#withcoreaudio"><em>withCoreaudio</em></a></li>
+<li><a class="reference internal" href="#withosc"><em>withOSC</em></a></li>
+<li><a class="reference internal" href="#convertstringtosysencoding"><em>convertStringToSysEncoding</em></a></li>
+<li><a class="reference internal" href="#convertargstolists"><em>convertArgsToLists</em></a></li>
+<li><a class="reference internal" href="#wrap"><em>wrap</em></a></li>
+</ul>
+</li>
+</ul>
+<h4>Previous topic</h4>
+<p class="topless"><a href="server.html" title="previous chapter">Server Queries</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="../alphabetical.html" title="next chapter">Alphabetical class reference</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="../alphabetical.html" title="Alphabetical class reference">next</a> |</li>
+<li class="right">
+<a href="server.html" title="Server Queries">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="../index.html">API documentation</a> »</li>
+<li class="nav-item nav-item-2"><a href="index.html">Functions</a> »</li>
+<li class="nav-item nav-item-this"><a href="">Utilities</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

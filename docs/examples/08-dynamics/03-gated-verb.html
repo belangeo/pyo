@@ -1,0 +1,113 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>03-gated-verb.py - Gated reverb applied to a drum loop. — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="04-rms-tracing.html" rel="next" title="04-rms-tracing.py - Auto-wah effect."/>
+<link href="02-ducking.html" rel="prev" title="02-ducking.py - Adjust the gain of a signal based on the presence of another one."/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="04-rms-tracing.html" title="04-rms-tracing.py - Auto-wah effect.">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="02-ducking.html" title="02-ducking.py - Adjust the gain of a signal based on the presence of another one.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a accesskey="U" href="index.html">08-dynamics</a> »</li>
+<li class="nav-item nav-item-this"><a href="">03-gated-verb.py - Gated reverb applied to a drum loop.</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="gated-verb-py-gated-reverb-applied-to-a-drum-loop">
+<h1>03-gated-verb.py - Gated reverb applied to a drum loop.<a class="headerlink" href="#gated-verb-py-gated-reverb-applied-to-a-drum-loop" title="Permalink to this headline">¶</a></h1>
+<p>The gated reverb effect, which was most popular in the 1980s, is made using a
+combination of strong reverb and a noise gate. The drum sound passes through
+a strong reverb, which is rapidly cut off with a gate driven by the dry signal.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+
+<span class="c1"># Play the drum lopp..</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">sf</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">SfPlayer</span></a><span class="p">(</span><span class="s2">"../snds/drumloop.wav"</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Use a gate to generate the gain curve that will be applied to the reverb.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/dynamics.html#pyo.Gate" title="pyo.lib.dynamics.Gate"><span class="n">gate</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/dynamics.html#pyo.Gate" title="pyo.lib.dynamics.Gate"><span class="n">Gate</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">sf</span></a><span class="p">,</span> <span class="n">thresh</span><span class="o">=-</span><span class="mi">50</span><span class="p">,</span> <span class="n">risetime</span><span class="o">=</span><span class="mf">0.005</span><span class="p">,</span> <span class="n">falltime</span><span class="o">=</span><span class="mf">0.04</span><span class="p">,</span> <span class="n">lookahead</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">outputAmp</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Strong reverb.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/effects.html#pyo.Freeverb" title="pyo.lib.effects.Freeverb"><span class="n">rev</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/effects.html#pyo.Freeverb" title="pyo.lib.effects.Freeverb"><span class="n">Freeverb</span></a><span class="p">(</span><span class="n">sf</span><span class="o">.</span><span class="n">mix</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">size</span><span class="o">=</span><span class="mf">0.95</span><span class="p">,</span> <span class="n">damp</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">bal</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+
+<span class="c1"># Compress the reverb signal and control its amplitude with the gating signal.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/dynamics.html#pyo.Compress" title="pyo.lib.dynamics.Compress"><span class="n">cmp</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/dynamics.html#pyo.Compress" title="pyo.lib.dynamics.Compress"><span class="n">Compress</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/effects.html#pyo.Freeverb" title="pyo.lib.effects.Freeverb"><span class="n">rev</span></a><span class="p">,</span> <span class="n">thresh</span><span class="o">=-</span><span class="mi">12</span><span class="p">,</span> <span class="n">ratio</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">risetime</span><span class="o">=</span><span class="mf">0.005</span><span class="p">,</span> <span class="n">falltime</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">lookahead</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">knee</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/dynamics.html#pyo.Gate" title="pyo.lib.dynamics.Gate"><span class="n">gate</span></a><span class="p">,)</span>
+
+<span class="c1"># Balance between the dry and wet (gated-reverb) signals.</span>
+<span class="n">output</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/utils.html#pyo.Interp" title="pyo.lib.utils.Interp"><span class="n">Interp</span></a><span class="p">(</span><span class="n">sf</span><span class="o">.</span><span class="n">mix</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <a class="sphinx-codeautolink-a" href="../../api/classes/dynamics.html#pyo.Compress" title="pyo.lib.dynamics.Compress"><span class="n">cmp</span></a><span class="p">,</span> <span class="n">interp</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h4>Previous topic</h4>
+<p class="topless"><a href="02-ducking.html" title="previous chapter">02-ducking.py - Adjust the gain of a signal based on the presence of another one.</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="04-rms-tracing.html" title="next chapter">04-rms-tracing.py - Auto-wah effect.</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="04-rms-tracing.html" title="04-rms-tracing.py - Auto-wah effect.">next</a> |</li>
+<li class="right">
+<a href="02-ducking.html" title="02-ducking.py - Adjust the gain of a signal based on the presence of another one.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="index.html">08-dynamics</a> »</li>
+<li class="nav-item nav-item-this"><a href="">03-gated-verb.py - Gated reverb applied to a drum loop.</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

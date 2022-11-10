@@ -1,0 +1,152 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>Manipulating audio signal in input — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="03-multiple-inputs.html" rel="next" title="Using more than one input signal in a single expression"/>
+<link href="01-simple-expression.html" rel="prev" title="Introduction to prefix expression evaluator"/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="03-multiple-inputs.html" title="Using more than one input signal in a single expression">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="01-simple-expression.html" title="Introduction to prefix expression evaluator">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a accesskey="U" href="index.html">23-expression</a> »</li>
+<li class="nav-item nav-item-this"><a href="">Manipulating audio signal in input</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="manipulating-audio-signal-in-input">
+<h1>Manipulating audio signal in input<a class="headerlink" href="#manipulating-audio-signal-in-input" title="Permalink to this headline">¶</a></h1>
+<p><strong>02-audio-in.py</strong></p>
+<p>The expression illustrated in this example use a phasor signal
+in input as the running phase of a self-modulated sine wave.</p>
+<p>Here is the complete expression:</p>
+<div class="highlight-scheme notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="nb">sin </span><span class="p">(</span><span class="nb">+ </span><span class="p">(</span><span class="nb">* </span><span class="nv">twopi</span> <span class="nv">$x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="p">(</span><span class="nb">* </span><span class="nv">$y</span><span class="p">[</span><span class="mi">-1</span><span class="p">]</span> <span class="mf">0.8</span><span class="p">)))</span>
+</pre></div>
+</div>
+<p>From inner to outer expression, we have:</p>
+<div class="highlight-scheme notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="nb">* </span><span class="nv">$y</span><span class="p">[</span><span class="mi">-1</span><span class="p">]</span> <span class="mf">0.8</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Where <cite>$y[-1]</cite> is the last output sample multiplied by a feedback
+factor (0.8). Then we have the running phase, <cite>$x[0]</cite> is the current
+input sample, rescaled to the range 0 -&gt; 2pi for the <cite>sin</cite> function:</p>
+<div class="highlight-scheme notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="nb">* </span><span class="nv">twopi</span> <span class="nv">$x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>We add the output delay to the running phase:</p>
+<div class="highlight-scheme notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="nb">+ </span><span class="p">(</span><span class="nb">* </span><span class="nv">twopi</span> <span class="nv">$x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="p">(</span><span class="nb">* </span><span class="nv">$y</span><span class="p">[</span><span class="mi">-1</span><span class="p">]</span> <span class="mf">0.8</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>This gives the modulated running phase driving the <cite>sin</cite> function:</p>
+<div class="highlight-scheme notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="nb">sin </span><span class="p">(</span><span class="nb">+ </span><span class="p">(</span><span class="nb">* </span><span class="nv">twopi</span> <span class="nv">$x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="p">(</span><span class="nb">* </span><span class="nv">$y</span><span class="p">[</span><span class="mi">-1</span><span class="p">]</span> <span class="mf">0.8</span><span class="p">)))</span>
+</pre></div>
+</div>
+<section id="complete-example">
+<h2>Complete example<a class="headerlink" href="#complete-example" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+
+<span class="n">expression</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2">// Self-modulated sine wave with running phase given in input.</span>
+<span class="s2">// Try different feedback factors between 0 and 1.</span>
+<span class="s2">(sin (+ (* twopi $x[0]) (* $y[-1] 0.8)))</span>
+<span class="s2">"""</span>
+
+<span class="c1"># External signal used as the running phase.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Phasor" title="pyo.lib.generators.Phasor"><span class="nb">input</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Phasor" title="pyo.lib.generators.Phasor"><span class="n">Phasor</span></a><span class="p">(</span><span class="mi">86</span><span class="p">)</span>
+<span class="nb">input</span><span class="o">.</span><span class="n">ctrl</span><span class="p">()</span>
+
+<span class="c1"># Create the Expr object and show its expression editor. To</span>
+<span class="c1"># re-evaluate the expression hit Ctrl+Enter when the editor</span>
+<span class="c1"># has the focus.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/expression.html#pyo.Expr" title="pyo.lib.expression.Expr"><span class="n">expr</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/expression.html#pyo.Expr" title="pyo.lib.expression.Expr"><span class="n">Expr</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Phasor" title="pyo.lib.generators.Phasor"><span class="nb">input</span></a><span class="p">,</span> <span class="n">expression</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">expr</span><span class="o">.</span><span class="n">editor</span><span class="p">()</span>
+
+<span class="c1"># Shows the generated signal.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.Scope" title="pyo.lib.analysis.Scope"><span class="n">sc</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.Scope" title="pyo.lib.analysis.Scope"><span class="n">Scope</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/expression.html#pyo.Expr" title="pyo.lib.expression.Expr"><span class="n">expr</span></a><span class="p">)</span>
+
+<span class="c1"># Converts the mono signal to stereo and sends it to the soundcard.</span>
+<span class="n">pan</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/pan.html#pyo.Pan" title="pyo.lib.pan.Pan"><span class="n">Pan</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/expression.html#pyo.Expr" title="pyo.lib.expression.Expr"><span class="n">expr</span></a><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h3><a href="../../index.html">Table of Contents</a></h3>
+<ul>
+<li><a class="reference internal" href="#">Manipulating audio signal in input</a><ul>
+<li><a class="reference internal" href="#complete-example">Complete example</a></li>
+</ul>
+</li>
+</ul>
+<h4>Previous topic</h4>
+<p class="topless"><a href="01-simple-expression.html" title="previous chapter">Introduction to prefix expression evaluator</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="03-multiple-inputs.html" title="next chapter">Using more than one input signal in a single expression</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="03-multiple-inputs.html" title="Using more than one input signal in a single expression">next</a> |</li>
+<li class="right">
+<a href="01-simple-expression.html" title="Introduction to prefix expression evaluator">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="index.html">23-expression</a> »</li>
+<li class="nav-item nav-item-this"><a href="">Manipulating audio signal in input</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

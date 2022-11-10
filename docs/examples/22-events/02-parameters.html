@@ -1,0 +1,216 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>02-parameters.py - Built-in arguments and conversions. — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="03-instruments.html" rel="next" title="03-instruments.py - Using custom instrument with events."/>
+<link href="01-simple-sequences.html" rel="prev" title="01-simple-sequences.py - Looping over a list of values."/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="03-instruments.html" title="03-instruments.py - Using custom instrument with events.">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="01-simple-sequences.html" title="01-simple-sequences.py - Looping over a list of values.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a accesskey="U" href="index.html">22-events</a> »</li>
+<li class="nav-item nav-item-this"><a href="">02-parameters.py - Built-in arguments and conversions.</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="parameters-py-built-in-arguments-and-conversions">
+<h1>02-parameters.py - Built-in arguments and conversions.<a class="headerlink" href="#parameters-py-built-in-arguments-and-conversions" title="Permalink to this headline">¶</a></h1>
+<p>An Events object is build on top of the python’s dictionary. Any argument
+passed at the creation of the object becomes a key inside the built-in
+structure. A lot of argument are pre-defined automatically processed to
+facilitate the construction of event’s frequency, duration, amplitude,
+and envelope.</p>
+<section id="duration">
+<h2>Duration<a class="headerlink" href="#duration" title="Permalink to this headline">¶</a></h2>
+<p>The duration of an event can be defined with ‘dur’ argument, which is a
+duration in seconds, or with ‘beat’ argument. A value given to ‘beat’ is
+converted in seconds (and registered at the key ‘dur’), according to the
+value given to the ‘bpm’ argument (which defaults to 120). A beat value
+of 1 is the duration of the quarter note, 2 is a half note, 1/2 is an
+eighth note, and so on…</p>
+<p>The first argument that reaches the end of its sequence triggers the end
+of the Events’s playback:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">e</span> <span class="o">=</span> <span class="n">Events</span><span class="p">(</span><span class="n">freq</span> <span class="o">=</span> <span class="n">EventSeq</span><span class="p">([</span><span class="mi">250</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="mi">350</span><span class="p">,</span> <span class="mi">400</span><span class="p">]),</span>
+           <span class="n">beat</span> <span class="o">=</span> <span class="n">EventSeq</span><span class="p">([</span><span class="mi">1</span><span class="o">/</span><span class="mf">2.</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="mf">4.</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="mf">4.</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">occurrences</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The ‘durmul’ argument allow to change the note duration without changing
+the time gap between successive events:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Staccato</span>
+<span class="n">e1</span> <span class="o">=</span> <span class="n">Events</span><span class="p">(</span><span class="n">freq</span> <span class="o">=</span> <span class="n">EventSeq</span><span class="p">([</span><span class="mi">250</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="mi">350</span><span class="p">,</span> <span class="mi">400</span><span class="p">]),</span>
+            <span class="n">beat</span> <span class="o">=</span> <span class="n">EventSeq</span><span class="p">([</span><span class="mi">1</span><span class="o">/</span><span class="mf">2.</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="mf">4.</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="mf">4.</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">occurrences</span><span class="o">=</span><span class="mi">4</span><span class="p">),</span>
+            <span class="n">durmul</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">)</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+
+<span class="c1"># Overlapping</span>
+<span class="n">e2</span> <span class="o">=</span> <span class="n">Events</span><span class="p">(</span><span class="n">freq</span> <span class="o">=</span> <span class="n">EventSeq</span><span class="p">([</span><span class="mi">250</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="mi">350</span><span class="p">,</span> <span class="mi">400</span><span class="p">]),</span>
+            <span class="n">beat</span> <span class="o">=</span> <span class="n">EventSeq</span><span class="p">([</span><span class="mi">1</span><span class="o">/</span><span class="mf">2.</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="mf">4.</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="mf">4.</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">occurrences</span><span class="o">=</span><span class="mi">4</span><span class="p">),</span>
+            <span class="n">durmul</span> <span class="o">=</span> <span class="mf">1.5</span><span class="p">)</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="frequency">
+<h2>Frequency<a class="headerlink" href="#frequency" title="Permalink to this headline">¶</a></h2>
+<p>The ‘freq’ argument can be used directly to specify the root note. But
+it is sometimes easier to create a melody with ‘midinote’ or ‘degree’,
+and let the engine do the conversion to frequency for you. The ‘midinote’
+argument is a MIDI note number between 0 and 127, fractionnal numbers
+are allowed to do micro-tonal scaling. The ‘degree’ argument needs a
+value in octave.degree format where octave is the number of the desired
+octave and degree is a 2-digits degree number between 00 and 11. For
+an example, the MIDI note 48 is 4.00 in octave.degree notation.</p>
+<p>The midinote and degree arguments will automatically convert and store
+the frequency, in Hz, as the ‘freq’ argument:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">e3</span> <span class="o">=</span> <span class="n">Events</span><span class="p">(</span><span class="n">midinote</span> <span class="o">=</span> <span class="n">EventSeq</span><span class="p">([</span><span class="mi">60</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">67</span><span class="p">,</span> <span class="mi">72</span><span class="p">]),</span>
+            <span class="n">beat</span> <span class="o">=</span> <span class="n">EventSeq</span><span class="p">([</span><span class="mi">1</span><span class="o">/</span><span class="mf">2.</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="mf">4.</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="mf">4.</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">occurrences</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The ‘degree’ argument uses an octave.degree notation. Ex.: 6.07 means
+the perfect fifth (07) of the sixth octave:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">e4</span> <span class="o">=</span> <span class="n">Events</span><span class="p">(</span><span class="n">degree</span> <span class="o">=</span> <span class="n">EventSeq</span><span class="p">([</span><span class="mf">5.00</span><span class="p">,</span> <span class="mf">5.04</span><span class="p">,</span> <span class="mf">5.07</span><span class="p">,</span> <span class="mf">6.00</span><span class="p">]),</span>
+            <span class="n">beat</span> <span class="o">=</span> <span class="n">EventSeq</span><span class="p">([</span><span class="mi">1</span><span class="o">/</span><span class="mf">2.</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="mf">4.</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="mf">4.</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">occurrences</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>One can transpose an entire sequence (or sequence the transposition
+values) with the ‘transpo’ argument. Transposition values are relative
+midi note (0 means no transposition, -12 is the lower octave):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">e5</span> <span class="o">=</span> <span class="n">Events</span><span class="p">(</span><span class="n">degree</span> <span class="o">=</span> <span class="n">EventSeq</span><span class="p">([</span><span class="mf">5.00</span><span class="p">,</span> <span class="mf">5.04</span><span class="p">,</span> <span class="mf">5.07</span><span class="p">,</span> <span class="mf">6.00</span><span class="p">]),</span>
+            <span class="n">beat</span> <span class="o">=</span> <span class="n">EventSeq</span><span class="p">([</span><span class="mi">1</span><span class="o">/</span><span class="mf">2.</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="mf">4.</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="mf">4.</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">occurrences</span><span class="o">=</span><span class="mi">4</span><span class="p">),</span>
+            <span class="n">transpo</span> <span class="o">=</span> <span class="o">-</span><span class="mi">12</span><span class="p">)</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="amplitude">
+<h2>Amplitude<a class="headerlink" href="#amplitude" title="Permalink to this headline">¶</a></h2>
+<p>Amplitude values are given either with ‘amp’ (linear amplitude), ‘db’
+(decibel values) or ‘midivel’ (MIDI velocity between 0 and 127). Decibel
+values and MIDI velocity are internally converted to linear gain and stored
+as the ‘amp’ argument:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Sequence with accented notes.</span>
+<span class="n">e6</span> <span class="o">=</span> <span class="n">Events</span><span class="p">(</span><span class="n">degree</span> <span class="o">=</span> <span class="n">EventSeq</span><span class="p">([</span><span class="mf">5.00</span><span class="p">,</span> <span class="mf">5.04</span><span class="p">,</span> <span class="mf">5.07</span><span class="p">,</span> <span class="mf">6.00</span><span class="p">]),</span>
+            <span class="n">beat</span> <span class="o">=</span> <span class="n">EventSeq</span><span class="p">([</span><span class="mi">1</span><span class="o">/</span><span class="mf">2.</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="mf">4.</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="mf">4.</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">occurrences</span><span class="o">=</span><span class="mi">4</span><span class="p">),</span>
+            <span class="n">db</span> <span class="o">=</span> <span class="n">EventSeq</span><span class="p">([</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">6</span><span class="p">,</span> <span class="o">-</span><span class="mi">12</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">]))</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="envelope">
+<h2>Envelope<a class="headerlink" href="#envelope" title="Permalink to this headline">¶</a></h2>
+<p>Different shapes for the amplitude envelope are defined according to the
+presence of certain parameters. The amplitude envelope is automatically
+created in the EventGenerator __init__ method.</p>
+<p>If ‘envelope’ receives a PyoTableObject, it will be used as the amplitude
+envelope of the events. If ‘envelope’ is None and ‘decay’ gets a value,
+the envelope will be an ADSR built with ‘attack’, ‘decay’, ‘sustain’ and
+‘release’ argument. If both ‘envelope’ and ‘decay’ are None, the envelope
+will be an ASR, defined with ‘attack’, ‘sustain’ and ‘release’ arguments.</p>
+<p>The following defines an Adsr envelope:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">e7</span> <span class="o">=</span> <span class="n">Events</span><span class="p">(</span><span class="n">degree</span> <span class="o">=</span> <span class="n">EventSeq</span><span class="p">([</span><span class="mf">5.00</span><span class="p">,</span> <span class="mf">5.04</span><span class="p">,</span> <span class="mf">5.07</span><span class="p">,</span> <span class="mf">6.00</span><span class="p">]),</span>
+            <span class="n">beat</span> <span class="o">=</span> <span class="n">EventSeq</span><span class="p">([</span><span class="mi">1</span><span class="o">/</span><span class="mf">2.</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="mf">4.</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="mf">4.</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">occurrences</span><span class="o">=</span><span class="mi">4</span><span class="p">),</span>
+            <span class="n">attack</span> <span class="o">=</span> <span class="mf">0.001</span><span class="p">,</span> <span class="n">decay</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span> <span class="n">sustain</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">release</span> <span class="o">=</span> <span class="mf">0.005</span><span class="p">,</span>
+            <span class="n">db</span> <span class="o">=</span> <span class="n">EventSeq</span><span class="p">([</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">6</span><span class="p">,</span> <span class="o">-</span><span class="mi">12</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">]))</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="complete-example">
+<h2>Complete Example<a class="headerlink" href="#complete-example" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+
+<span class="c1">### Envelope</span>
+
+<span class="c1"># Using a PyoTableObject to define the envelope.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.CosTable" title="pyo.lib.tables.CosTable"><span class="n">env</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.CosTable" title="pyo.lib.tables.CosTable"><span class="n">CosTable</span></a><span class="p">([(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1024</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">),</span> <span class="p">(</span><span class="mi">4096</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">),</span> <span class="p">(</span><span class="mi">8192</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)])</span>
+
+<span class="n">e8</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/events.html#pyo.Events" title="pyo.lib.events.Events"><span class="n">Events</span></a><span class="p">(</span>
+    <span class="n">degree</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/events.html#pyo.EventSeq" title="pyo.lib.events.EventSeq"><span class="n">EventSeq</span></a><span class="p">([</span><span class="mf">5.00</span><span class="p">,</span> <span class="mf">5.04</span><span class="p">,</span> <span class="mf">5.07</span><span class="p">,</span> <span class="mf">6.00</span><span class="p">]),</span>
+    <span class="n">beat</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/events.html#pyo.EventSeq" title="pyo.lib.events.EventSeq"><span class="n">EventSeq</span></a><span class="p">([</span><span class="mi">1</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">occurrences</span><span class="o">=</span><span class="mi">4</span><span class="p">),</span>
+    <span class="n">db</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/events.html#pyo.EventSeq" title="pyo.lib.events.EventSeq"><span class="n">EventSeq</span></a><span class="p">([</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">6</span><span class="p">,</span> <span class="o">-</span><span class="mi">12</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">]),</span>
+    <span class="n">envelope</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.CosTable" title="pyo.lib.tables.CosTable"><span class="n">env</span></a><span class="p">,</span>
+<span class="p">)</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h3><a href="../../index.html">Table of Contents</a></h3>
+<ul>
+<li><a class="reference internal" href="#">02-parameters.py - Built-in arguments and conversions.</a><ul>
+<li><a class="reference internal" href="#duration">Duration</a></li>
+<li><a class="reference internal" href="#frequency">Frequency</a></li>
+<li><a class="reference internal" href="#amplitude">Amplitude</a></li>
+<li><a class="reference internal" href="#envelope">Envelope</a></li>
+<li><a class="reference internal" href="#complete-example">Complete Example</a></li>
+</ul>
+</li>
+</ul>
+<h4>Previous topic</h4>
+<p class="topless"><a href="01-simple-sequences.html" title="previous chapter">01-simple-sequences.py - Looping over a list of values.</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="03-instruments.html" title="next chapter">03-instruments.py - Using custom instrument with events.</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="03-instruments.html" title="03-instruments.py - Using custom instrument with events.">next</a> |</li>
+<li class="right">
+<a href="01-simple-sequences.html" title="01-simple-sequences.py - Looping over a list of values.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="index.html">22-events</a> »</li>
+<li class="nav-item nav-item-this"><a href="">02-parameters.py - Built-in arguments and conversions.</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

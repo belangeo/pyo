@@ -1,0 +1,117 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>04-rms-tracing.py - Auto-wah effect. — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="../09-callbacks/index.html" rel="next" title="09-callbacks"/>
+<link href="03-gated-verb.html" rel="prev" title="03-gated-verb.py - Gated reverb applied to a drum loop."/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="../09-callbacks/index.html" title="09-callbacks">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="03-gated-verb.html" title="03-gated-verb.py - Gated reverb applied to a drum loop.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a accesskey="U" href="index.html">08-dynamics</a> »</li>
+<li class="nav-item nav-item-this"><a href="">04-rms-tracing.py - Auto-wah effect.</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="rms-tracing-py-auto-wah-effect">
+<h1>04-rms-tracing.py - Auto-wah effect.<a class="headerlink" href="#rms-tracing-py-auto-wah-effect" title="Permalink to this headline">¶</a></h1>
+<p>The auto-wah effect (also know as “envelope following filter”) is like a
+wah-wah effect, but instead of being controlled by a pedal, it is the RMS
+amplitude of the input sound which control it. The envelope follower (RMS)
+is rescaled and used to change the frequency of a bandpass filter applied
+to the source.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+
+<span class="n">MINFREQ</span> <span class="o">=</span> <span class="mi">250</span>
+<span class="n">MAXFREQ</span> <span class="o">=</span> <span class="mi">5000</span>
+
+<span class="c1"># Play the drum lopp.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">sf</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">SfPlayer</span></a><span class="p">(</span><span class="s2">"../snds/drumloop.wav"</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Follow the amplitude envelope of the input sound.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.Follower" title="pyo.lib.analysis.Follower"><span class="n">follow</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.Follower" title="pyo.lib.analysis.Follower"><span class="n">Follower</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">sf</span></a><span class="p">)</span>
+
+<span class="c1"># Scale the amplitude envelope (0 -&gt; 1) to the desired frequency</span>
+<span class="c1"># range (MINFREQ -&gt; MAXFREQ).</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/utils.html#pyo.Scale" title="pyo.lib.utils.Scale"><span class="n">freq</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/utils.html#pyo.Scale" title="pyo.lib.utils.Scale"><span class="n">Scale</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.Follower" title="pyo.lib.analysis.Follower"><span class="n">follow</span></a><span class="p">,</span> <span class="n">outmin</span><span class="o">=</span><span class="n">MINFREQ</span><span class="p">,</span> <span class="n">outmax</span><span class="o">=</span><span class="n">MAXFREQ</span><span class="p">)</span>
+
+<span class="c1"># Filter the signal with a band pass. Play with the Q to make the</span>
+<span class="c1"># effect more or less present.</span>
+<span class="nb">filter</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/filters.html#pyo.ButBP" title="pyo.lib.filters.ButBP"><span class="n">ButBP</span></a><span class="p">(</span><span class="n">sf</span><span class="o">.</span><span class="n">mix</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">freq</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/utils.html#pyo.Scale" title="pyo.lib.utils.Scale"><span class="n">freq</span></a><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h4>Previous topic</h4>
+<p class="topless"><a href="03-gated-verb.html" title="previous chapter">03-gated-verb.py - Gated reverb applied to a drum loop.</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="../09-callbacks/index.html" title="next chapter">09-callbacks</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="../09-callbacks/index.html" title="09-callbacks">next</a> |</li>
+<li class="right">
+<a href="03-gated-verb.html" title="03-gated-verb.py - Gated reverb applied to a drum loop.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="index.html">08-dynamics</a> »</li>
+<li class="nav-item nav-item-this"><a href="">04-rms-tracing.py - Auto-wah effect.</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

@@ -1,0 +1,114 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>03-read-from-ram.py - Soundfile playback from RAM. — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="04-record-perf.html" rel="next" title="04-record-perf.py - Recording the performance on disk."/>
+<link href="02-read-from-disk-2.html" rel="prev" title="02-read-from-disk-2.py - Catching the end-of-file signal from the SfPlayer object."/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="04-record-perf.html" title="04-record-perf.py - Recording the performance on disk.">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="02-read-from-disk-2.html" title="02-read-from-disk-2.py - Catching the end-of-file signal from the SfPlayer object.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a accesskey="U" href="index.html">04-soundfiles</a> »</li>
+<li class="nav-item nav-item-this"><a href="">03-read-from-ram.py - Soundfile playback from RAM.</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="read-from-ram-py-soundfile-playback-from-ram">
+<h1>03-read-from-ram.py - Soundfile playback from RAM.<a class="headerlink" href="#read-from-ram-py-soundfile-playback-from-ram" title="Permalink to this headline">¶</a></h1>
+<p>Reading a sound file from the RAM gives the advantage of a very
+fast access to every loaded samples. This is very useful for a
+lot of processes, such as granulation, looping, creating envelopes
+and waveforms and many others.</p>
+<p>The simplest way of loading a sound in RAM is to use the SndTable
+object. This example loads a sound file and reads it in loop.
+We will see some more evolved processes later…</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+
+<span class="n">path</span> <span class="o">=</span> <span class="n">SNDS_PATH</span> <span class="o">+</span> <span class="s2">"/transparent.aif"</span>
+
+<span class="c1"># Loads the sound file in RAM. Beginning and ending points</span>
+<span class="c1"># can be controlled with "start" and "stop" arguments.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.SndTable" title="pyo.lib.tables.SndTable"><span class="n">t</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.SndTable" title="pyo.lib.tables.SndTable"><span class="n">SndTable</span></a><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+<span class="c1"># Gets the frequency relative to the table length.</span>
+<span class="n">freq</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">getRate</span><span class="p">()</span>
+
+<span class="c1"># Simple stereo looping playback (right channel is 180 degrees out-of-phase).</span>
+<span class="n">osc</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/tableprocess.html#pyo.Osc" title="pyo.lib.tableprocess.Osc"><span class="n">Osc</span></a><span class="p">(</span><span class="n">table</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.SndTable" title="pyo.lib.tables.SndTable"><span class="n">t</span></a><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="n">freq</span><span class="p">,</span> <span class="n">phase</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.4</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h4>Previous topic</h4>
+<p class="topless"><a href="02-read-from-disk-2.html" title="previous chapter">02-read-from-disk-2.py - Catching the <cite>end-of-file</cite> signal from the SfPlayer object.</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="04-record-perf.html" title="next chapter">04-record-perf.py - Recording the performance on disk.</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="04-record-perf.html" title="04-record-perf.py - Recording the performance on disk.">next</a> |</li>
+<li class="right">
+<a href="02-read-from-disk-2.html" title="02-read-from-disk-2.py - Catching the end-of-file signal from the SfPlayer object.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="index.html">04-soundfiles</a> »</li>
+<li class="nav-item nav-item-this"><a href="">03-read-from-ram.py - Soundfile playback from RAM.</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

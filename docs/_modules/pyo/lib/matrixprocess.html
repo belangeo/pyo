@@ -1,0 +1,615 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyo.lib.matrixprocess &#8212; Pyo 1.0.4 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/nature.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-codeautolink.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/autoclasstoc.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../../../_static/E-PyoIcon.ico"/>
+    <link rel="author" title="About these documents" href="../../../about.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">Pyo 1.0.4 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pyo.html" accesskey="U">pyo</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pyo.lib.matrixprocess</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyo.lib.matrixprocess</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">PyoObjects to perform operations on PyoMatrixObjects.</span>
+
+<span class="sd">PyoMatrixObjects are 2 dimensions table containers. They can be used</span>
+<span class="sd">to store audio samples or algorithmic sequences. Writing and reading</span>
+<span class="sd">are done by giving row and column positions.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Copyright 2009-2015 Olivier Belanger</span>
+
+<span class="sd">This file is part of pyo, a python module to help digital signal</span>
+<span class="sd">processing script creation.</span>
+
+<span class="sd">pyo is free software: you can redistribute it and/or modify</span>
+<span class="sd">it under the terms of the GNU Lesser General Public License as</span>
+<span class="sd">published by the Free Software Foundation, either version 3 of the</span>
+<span class="sd">License, or (at your option) any later version.</span>
+
+<span class="sd">pyo is distributed in the hope that it will be useful,</span>
+<span class="sd">but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="sd">MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="sd">GNU Lesser General Public License for more details.</span>
+
+<span class="sd">You should have received a copy of the GNU Lesser General Public</span>
+<span class="sd">License along with pyo.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">._core</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">._maps</span> <span class="kn">import</span> <span class="o">*</span>
+
+
+<div class="viewcode-block" id="MatrixRec"><a class="viewcode-back" href="../../../api/classes/matrixprocess.html#pyo.MatrixRec">[docs]</a><span class="k">class</span> <span class="nc">MatrixRec</span><span class="p">(</span><span class="n">PyoObject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    MatrixRec records samples into a previously created NewMatrix.</span>
+
+<span class="sd">    See :py:class:`NewMatrix` to create an empty matrix.</span>
+
+<span class="sd">    The play method is not called at the object creation time. It starts</span>
+<span class="sd">    the recording into the matrix, row after row, until the matrix is full.</span>
+<span class="sd">    Calling the play method again restarts the recording and overwrites</span>
+<span class="sd">    previously recorded samples. The stop method stops the recording.</span>
+<span class="sd">    Otherwise, the default behaviour is to record through the end of the matrix.</span>
+
+<span class="sd">    :Parent: :py:class:`PyoObject`</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        input: PyoObject</span>
+<span class="sd">            Audio signal to write in the matrix.</span>
+<span class="sd">        matrix: PyoMatrixObject</span>
+<span class="sd">            The matrix where to write samples.</span>
+<span class="sd">        fadetime: float, optional</span>
+<span class="sd">            Fade time at the beginning and the end of the recording</span>
+<span class="sd">            in seconds. Defaults to 0.</span>
+<span class="sd">        delay: int, optional</span>
+<span class="sd">            Delay time, in samples, before the recording begins.</span>
+<span class="sd">            Available at initialization time only. Defaults to 0.</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        The out() method is bypassed. MatrixRec returns no signal.</span>
+
+<span class="sd">        MatrixRec has no `mul` and `add` attributes.</span>
+
+<span class="sd">        MatrixRec will send a trigger signal at the end of the recording.</span>
+<span class="sd">        User can retreive the trigger streams by calling obj[&#39;trig&#39;]. See</span>
+<span class="sd">        `TableRec` documentation for an example.</span>
+
+<span class="sd">    .. seealso::</span>
+
+<span class="sd">        :py:class:`NewMatrix`</span>
+
+<span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
+<span class="sd">    &gt;&gt;&gt; s.start()</span>
+<span class="sd">    &gt;&gt;&gt; SIZE = 256</span>
+<span class="sd">    &gt;&gt;&gt; mm = NewMatrix(SIZE, SIZE)</span>
+<span class="sd">    &gt;&gt;&gt; fmind = Sine(.2, 0, 2, 2.5)</span>
+<span class="sd">    &gt;&gt;&gt; fmrat = Sine(.33, 0, .05, .5)</span>
+<span class="sd">    &gt;&gt;&gt; aa = FM(carrier=10, ratio=fmrat, index=fmind)</span>
+<span class="sd">    &gt;&gt;&gt; rec = MatrixRec(aa, mm, 0).play()</span>
+<span class="sd">    &gt;&gt;&gt; lfx = Sine(.1, 0, .24, .25)</span>
+<span class="sd">    &gt;&gt;&gt; lfy = Sine(.15, 0, .124, .25)</span>
+<span class="sd">    &gt;&gt;&gt; x = Sine([500,501], 0, lfx, .5)</span>
+<span class="sd">    &gt;&gt;&gt; y = Sine([10.5,10], 0, lfy, .5)</span>
+<span class="sd">    &gt;&gt;&gt; c = MatrixPointer(mm, x, y, .2).out()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">matrix</span><span class="p">,</span> <span class="n">fadetime</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;omni&quot;</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">matrix</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">,</span> <span class="n">delay</span><span class="p">)</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input</span> <span class="o">=</span> <span class="nb">input</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_matrix</span> <span class="o">=</span> <span class="n">matrix</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span> <span class="o">=</span> <span class="n">InputFader</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+        <span class="n">in_fader</span><span class="p">,</span> <span class="n">matrix</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">,</span> <span class="n">delay</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="p">,</span> <span class="n">matrix</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">,</span> <span class="n">delay</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">MatrixRec_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">in_fader</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">fadetime</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">delay</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">matrix</span><span class="p">))</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_trig_objs</span> <span class="o">=</span> <span class="n">Dummy</span><span class="p">([</span><span class="n">TriggerDummy_base</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">])</span>
+
+<div class="viewcode-block" id="MatrixRec.out"><a class="viewcode-back" href="../../../api/classes/matrixprocess.html#pyo.MatrixRec.out">[docs]</a>    <span class="k">def</span> <span class="nf">out</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chnl</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">inc</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">dur</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">play</span><span class="p">(</span><span class="n">dur</span><span class="p">,</span> <span class="n">delay</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MatrixRec.setMul"><a class="viewcode-back" href="../../../api/classes/matrixprocess.html#pyo.MatrixRec.setMul">[docs]</a>    <span class="k">def</span> <span class="nf">setMul</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="MatrixRec.setAdd"><a class="viewcode-back" href="../../../api/classes/matrixprocess.html#pyo.MatrixRec.setAdd">[docs]</a>    <span class="k">def</span> <span class="nf">setAdd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="MatrixRec.setInput"><a class="viewcode-back" href="../../../api/classes/matrixprocess.html#pyo.MatrixRec.setInput">[docs]</a>    <span class="k">def</span> <span class="nf">setInput</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="o">=</span><span class="mf">0.05</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `input` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: PyoObject</span>
+<span class="sd">                New signal to process.</span>
+<span class="sd">            fadetime: float, optional</span>
+<span class="sd">                Crossfade time between old and new input. Defaults to 0.05.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;oN&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="o">.</span><span class="n">setInput</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MatrixRec.setMatrix"><a class="viewcode-back" href="../../../api/classes/matrixprocess.html#pyo.MatrixRec.setMatrix">[docs]</a>    <span class="k">def</span> <span class="nf">setMatrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `matrix` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: NewMatrix</span>
+<span class="sd">                new `matrix` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;m&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_matrix</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setMatrix</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;PyoObject. Audio signal to record in the matrix.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input</span>
+
+    <span class="nd">@input</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setInput</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;PyoMatrixObject. The matrix where to write samples.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_matrix</span>
+
+    <span class="nd">@matrix</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setMatrix</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MatrixRecLoop"><a class="viewcode-back" href="../../../api/classes/matrixprocess.html#pyo.MatrixRecLoop">[docs]</a><span class="k">class</span> <span class="nc">MatrixRecLoop</span><span class="p">(</span><span class="n">PyoObject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    MatrixRecLoop records samples in loop into a previously created NewMatrix.</span>
+
+<span class="sd">    See :py:class:`NewMatrix` to create an empty matrix.</span>
+
+<span class="sd">    MatrixRecLoop records samples into the matrix, row after row, until</span>
+<span class="sd">    the matrix is full and then loop back to the beginning.</span>
+
+<span class="sd">    :Parent: :py:class:`PyoObject`</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        input: PyoObject</span>
+<span class="sd">            Audio signal to write in the matrix.</span>
+<span class="sd">        matrix: PyoMatrixObject</span>
+<span class="sd">            The matrix where to write samples.</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        The out() method is bypassed. MatrixRecLoop returns no signal.</span>
+
+<span class="sd">        MatrixRecLoop has no `mul` and `add` attributes.</span>
+
+<span class="sd">        MatrixRecLoop will send a trigger signal when reaching the end</span>
+<span class="sd">        of the matrix. User can retreive the trigger streams by calling</span>
+<span class="sd">        obj[&#39;trig&#39;]. See `TableRec` documentation for an example.</span>
+
+<span class="sd">    .. seealso::</span>
+
+<span class="sd">        :py:class:`NewMatrix`</span>
+
+<span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
+<span class="sd">    &gt;&gt;&gt; s.start()</span>
+<span class="sd">    &gt;&gt;&gt; env = CosTable([(0,0), (300,1), (1000,.4), (8191,0)])</span>
+<span class="sd">    &gt;&gt;&gt; matrix = NewMatrix(8192, 8)</span>
+<span class="sd">    &gt;&gt;&gt; src = SfPlayer(SNDS_PATH+&#39;/transparent.aif&#39;, loop=True, mul=.3)</span>
+<span class="sd">    &gt;&gt;&gt; m_rec = MatrixRecLoop(src, matrix)</span>
+<span class="sd">    &gt;&gt;&gt; period = 8192 / s.getSamplingRate()</span>
+<span class="sd">    &gt;&gt;&gt; metro = Metro(time=period/2, poly=2).play()</span>
+<span class="sd">    &gt;&gt;&gt; x = TrigLinseg(metro, [(0,0), (period,1)])</span>
+<span class="sd">    &gt;&gt;&gt; y = TrigRandInt(metro, max=2, mul=0.125)</span>
+<span class="sd">    &gt;&gt;&gt; amp = TrigEnv(metro, table=env, dur=period)</span>
+<span class="sd">    &gt;&gt;&gt; out = MatrixPointer(matrix, x, y, amp).out()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">matrix</span><span class="p">):</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;om&quot;</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">matrix</span><span class="p">)</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input</span> <span class="o">=</span> <span class="nb">input</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_matrix</span> <span class="o">=</span> <span class="n">matrix</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span> <span class="o">=</span> <span class="n">InputFader</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+        <span class="n">in_fader</span><span class="p">,</span> <span class="n">matrix</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="p">,</span> <span class="n">matrix</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span><span class="n">MatrixRecLoop_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">in_fader</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">matrix</span><span class="p">))]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_trig_objs</span> <span class="o">=</span> <span class="n">Dummy</span><span class="p">([</span><span class="n">TriggerDummy_base</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_play</span><span class="p">()</span>
+
+<div class="viewcode-block" id="MatrixRecLoop.out"><a class="viewcode-back" href="../../../api/classes/matrixprocess.html#pyo.MatrixRecLoop.out">[docs]</a>    <span class="k">def</span> <span class="nf">out</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chnl</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">inc</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">dur</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">play</span><span class="p">(</span><span class="n">dur</span><span class="p">,</span> <span class="n">delay</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MatrixRecLoop.setMul"><a class="viewcode-back" href="../../../api/classes/matrixprocess.html#pyo.MatrixRecLoop.setMul">[docs]</a>    <span class="k">def</span> <span class="nf">setMul</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="MatrixRecLoop.setAdd"><a class="viewcode-back" href="../../../api/classes/matrixprocess.html#pyo.MatrixRecLoop.setAdd">[docs]</a>    <span class="k">def</span> <span class="nf">setAdd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="MatrixRecLoop.setInput"><a class="viewcode-back" href="../../../api/classes/matrixprocess.html#pyo.MatrixRecLoop.setInput">[docs]</a>    <span class="k">def</span> <span class="nf">setInput</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="o">=</span><span class="mf">0.05</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `input` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: PyoObject</span>
+<span class="sd">                New signal to process.</span>
+<span class="sd">            fadetime: float, optional</span>
+<span class="sd">                Crossfade time between old and new input. Defaults to 0.05.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;oN&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="o">.</span><span class="n">setInput</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MatrixRecLoop.setMatrix"><a class="viewcode-back" href="../../../api/classes/matrixprocess.html#pyo.MatrixRecLoop.setMatrix">[docs]</a>    <span class="k">def</span> <span class="nf">setMatrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `matrix` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: NewMatrix</span>
+<span class="sd">                new `matrix` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;m&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_matrix</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setMatrix</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;PyoObject. Audio signal to record in the matrix.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input</span>
+
+    <span class="nd">@input</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setInput</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;PyoMatrixObject. The matrix where to write samples.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_matrix</span>
+
+    <span class="nd">@matrix</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setMatrix</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MatrixPointer"><a class="viewcode-back" href="../../../api/classes/matrixprocess.html#pyo.MatrixPointer">[docs]</a><span class="k">class</span> <span class="nc">MatrixPointer</span><span class="p">(</span><span class="n">PyoObject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Matrix reader with control on the 2D pointer position.</span>
+
+<span class="sd">    :Parent: :py:class:`PyoObject`</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        matrix: PyoMatrixObject</span>
+<span class="sd">            Matrix containing the waveform samples.</span>
+<span class="sd">        x: PyoObject</span>
+<span class="sd">            Normalized X position in the matrix between 0 and 1.</span>
+<span class="sd">        y: PyoObject</span>
+<span class="sd">            Normalized Y position in the matrix between 0 and 1.</span>
+
+<span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
+<span class="sd">    &gt;&gt;&gt; s.start()</span>
+<span class="sd">    &gt;&gt;&gt; SIZE = 256</span>
+<span class="sd">    &gt;&gt;&gt; mm = NewMatrix(SIZE, SIZE)</span>
+<span class="sd">    &gt;&gt;&gt; fmind = Sine(.2, 0, 2, 2.5)</span>
+<span class="sd">    &gt;&gt;&gt; fmrat = Sine(.33, 0, .05, .5)</span>
+<span class="sd">    &gt;&gt;&gt; aa = FM(carrier=10, ratio=fmrat, index=fmind)</span>
+<span class="sd">    &gt;&gt;&gt; rec = MatrixRec(aa, mm, 0).play()</span>
+<span class="sd">    &gt;&gt;&gt; lfx = Sine(.1, 0, .24, .25)</span>
+<span class="sd">    &gt;&gt;&gt; lfy = Sine(.15, 0, .124, .25)</span>
+<span class="sd">    &gt;&gt;&gt; x = Sine([500,501], 0, lfx, .5)</span>
+<span class="sd">    &gt;&gt;&gt; y = Sine([10.5,10], 0, lfy, .5)</span>
+<span class="sd">    &gt;&gt;&gt; c = MatrixPointer(mm, x, y, .2).out()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">matrix</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;mooOO&quot;</span><span class="p">,</span> <span class="n">matrix</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_matrix</span> <span class="o">=</span> <span class="n">matrix</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_x</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_y</span> <span class="o">=</span> <span class="n">y</span>
+        <span class="n">matrix</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">MatrixPointer_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_play</span><span class="p">()</span>
+
+<div class="viewcode-block" id="MatrixPointer.setMatrix"><a class="viewcode-back" href="../../../api/classes/matrixprocess.html#pyo.MatrixPointer.setMatrix">[docs]</a>    <span class="k">def</span> <span class="nf">setMatrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `matrix` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: PyoTableObject</span>
+<span class="sd">                new `matrix` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;m&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_matrix</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setMatrix</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="MatrixPointer.setX"><a class="viewcode-back" href="../../../api/classes/matrixprocess.html#pyo.MatrixPointer.setX">[docs]</a>    <span class="k">def</span> <span class="nf">setX</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `x` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: PyoObject</span>
+<span class="sd">                new `x` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;o&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_x</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setX</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="MatrixPointer.setY"><a class="viewcode-back" href="../../../api/classes/matrixprocess.html#pyo.MatrixPointer.setY">[docs]</a>    <span class="k">def</span> <span class="nf">setY</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `y` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            y: PyoObject</span>
+<span class="sd">                new `y` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;o&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_y</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setY</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="MatrixPointer.ctrl"><a class="viewcode-back" href="../../../api/classes/matrixprocess.html#pyo.MatrixPointer.ctrl">[docs]</a>    <span class="k">def</span> <span class="nf">ctrl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">map_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wxnoserver</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_map_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">SLMapMul</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mul</span><span class="p">)]</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="n">ctrl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">map_list</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">wxnoserver</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;PyoMatrixObject. Matrix containing the samples.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_matrix</span>
+
+    <span class="nd">@matrix</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setMatrix</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">x</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;PyoObject. Normalized X position in the matrix.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_x</span>
+
+    <span class="nd">@x</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setX</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">y</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;PyoObject. Normalized Y position in the matrix.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_y</span>
+
+    <span class="nd">@y</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">y</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setY</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MatrixMorph"><a class="viewcode-back" href="../../../api/classes/matrixprocess.html#pyo.MatrixMorph">[docs]</a><span class="k">class</span> <span class="nc">MatrixMorph</span><span class="p">(</span><span class="n">PyoObject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Morphs between multiple PyoMatrixObjects.</span>
+
+<span class="sd">    Uses an index into a list of PyoMatrixObjects to morph between adjacent</span>
+<span class="sd">    matrices in the list. The resulting morphed function is written into the</span>
+<span class="sd">    `matrix` object at the beginning of each buffer size. The matrices in the</span>
+<span class="sd">    list and the resulting matrix must be equal in size.</span>
+
+<span class="sd">    :Parent: :py:class:`PyoObject`</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        input: PyoObject</span>
+<span class="sd">            Morphing index between 0 and 1. 0 is the first matrix in the list</span>
+<span class="sd">            and 1 is the last.</span>
+<span class="sd">        matrix: NewMatrix</span>
+<span class="sd">            The matrix where to write morphed function.</span>
+<span class="sd">        sources: list of PyoMatrixObject</span>
+<span class="sd">            List of matrices to interpolate from.</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        The out() method is bypassed. MatrixMorph returns no signal.</span>
+
+<span class="sd">        MatrixMorph has no `mul` and `add` attributes.</span>
+
+<span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
+<span class="sd">    &gt;&gt;&gt; s.start()</span>
+<span class="sd">    &gt;&gt;&gt; m1 = NewMatrix(256, 256)</span>
+<span class="sd">    &gt;&gt;&gt; m1.genSineTerrain(1, 4)</span>
+<span class="sd">    &gt;&gt;&gt; m2 = NewMatrix(256, 256)</span>
+<span class="sd">    &gt;&gt;&gt; m2.genSineTerrain(2, 8)</span>
+<span class="sd">    &gt;&gt;&gt; mm = NewMatrix(256, 256)</span>
+<span class="sd">    &gt;&gt;&gt; inter = Sine(.2, 0, .5, .5)</span>
+<span class="sd">    &gt;&gt;&gt; morph = MatrixMorph(inter, mm, [m1,m2])</span>
+<span class="sd">    &gt;&gt;&gt; x = Sine([49,50], 0, .45, .5)</span>
+<span class="sd">    &gt;&gt;&gt; y = Sine([49.49,50.5], 0, .45, .5)</span>
+<span class="sd">    &gt;&gt;&gt; c = MatrixPointer(mm, x, y, .2).out()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">matrix</span><span class="p">,</span> <span class="n">sources</span><span class="p">):</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;oml&quot;</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">matrix</span><span class="p">,</span> <span class="n">sources</span><span class="p">)</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input</span> <span class="o">=</span> <span class="nb">input</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_matrix</span> <span class="o">=</span> <span class="n">matrix</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sources</span> <span class="o">=</span> <span class="n">sources</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span> <span class="o">=</span> <span class="n">InputFader</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+        <span class="n">in_fader</span><span class="p">,</span> <span class="n">matrix</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="p">,</span> <span class="n">matrix</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_sources</span> <span class="o">=</span> <span class="p">[</span><span class="n">source</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="n">sources</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">MatrixMorph_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">in_fader</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base_sources</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">matrix</span><span class="p">))</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_play</span><span class="p">()</span>
+
+<div class="viewcode-block" id="MatrixMorph.out"><a class="viewcode-back" href="../../../api/classes/matrixprocess.html#pyo.MatrixMorph.out">[docs]</a>    <span class="k">def</span> <span class="nf">out</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chnl</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">inc</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">dur</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">play</span><span class="p">(</span><span class="n">dur</span><span class="p">,</span> <span class="n">delay</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MatrixMorph.setMul"><a class="viewcode-back" href="../../../api/classes/matrixprocess.html#pyo.MatrixMorph.setMul">[docs]</a>    <span class="k">def</span> <span class="nf">setMul</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="MatrixMorph.setAdd"><a class="viewcode-back" href="../../../api/classes/matrixprocess.html#pyo.MatrixMorph.setAdd">[docs]</a>    <span class="k">def</span> <span class="nf">setAdd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="MatrixMorph.setInput"><a class="viewcode-back" href="../../../api/classes/matrixprocess.html#pyo.MatrixMorph.setInput">[docs]</a>    <span class="k">def</span> <span class="nf">setInput</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="o">=</span><span class="mf">0.05</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `input` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: PyoObject</span>
+<span class="sd">                New signal to process.</span>
+<span class="sd">            fadetime: float, optional</span>
+<span class="sd">                Crossfade time between old and new input. Defaults to 0.05.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;oN&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="o">.</span><span class="n">setInput</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MatrixMorph.setMatrix"><a class="viewcode-back" href="../../../api/classes/matrixprocess.html#pyo.MatrixMorph.setMatrix">[docs]</a>    <span class="k">def</span> <span class="nf">setMatrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `matrix` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: NewMatrix</span>
+<span class="sd">                new `matrix` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;m&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_matrix</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setMatrix</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="MatrixMorph.setSources"><a class="viewcode-back" href="../../../api/classes/matrixprocess.html#pyo.MatrixMorph.setSources">[docs]</a>    <span class="k">def</span> <span class="nf">setSources</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">         Replace the `sources` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: list of PyoMatrixObject</span>
+<span class="sd">                new `sources` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;l&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sources</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_sources</span> <span class="o">=</span> <span class="p">[</span><span class="n">source</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="n">x</span><span class="p">]</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setSources</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_sources</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;PyoObject. Morphing index between 0 and 1.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input</span>
+
+    <span class="nd">@input</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setInput</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;NewMatrix. The matrix where to write samples.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_matrix</span>
+
+    <span class="nd">@matrix</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setMatrix</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">sources</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;list of PyoMatrixObject. List of matrices to interpolate from.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sources</span>
+
+    <span class="nd">@sources</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">sources</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setSources</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">Pyo 1.0.4 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pyo.html" >pyo</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pyo.lib.matrixprocess</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+  </body>
+</html>

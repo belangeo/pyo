@@ -1,0 +1,153 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>Tutorial about recreating a custom PyoTableObject (TriangleTable) — Pyo 1.0.4 documentation</title>
+<link href="../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+<script src="../_static/jquery.js"></script>
+<script src="../_static/underscore.js"></script>
+<script src="../_static/doctools.js"></script>
+<link href="../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../about.html" rel="author" title="About these documents"/>
+<link href="../genindex.html" rel="index" title="Index"/>
+<link href="../search.html" rel="search" title="Search"/>
+<link href="pyoobject2.html" rel="prev" title="Another tutorial about creating a custom PyoObject (Flanger)"/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="P" href="pyoobject2.html" title="Another tutorial about creating a custom PyoObject (Flanger)">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-this"><a href="">Tutorial about recreating a custom PyoTableObject (TriangleTable)</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="tutorial-about-recreating-a-custom-pyotableobject-triangletable">
+<h1>Tutorial about recreating a custom PyoTableObject (TriangleTable)<a class="headerlink" href="#tutorial-about-recreating-a-custom-pyotableobject-triangletable" title="Permalink to this headline">¶</a></h1>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="k">class</span> <span class="nc">TriTable</span><span class="p">(</span><a class="sphinx-codeautolink-a" href="../api/classes/_core.html#pyo.PyoTableObject" title="pyo.lib._core.PyoTableObject"><span class="n">PyoTableObject</span></a><span class="p">):</span>
+    <span class="sd">"""</span>
+<span class="sd">    Triangle waveform generator.</span>
+
+<span class="sd">    Generates triangle waveforms made up of fixed number of harmonics.</span>
+
+<span class="sd">    :Parent: :py:class:`PyoTableObject`</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        order : int, optional</span>
+<span class="sd">            Number of harmonics triangle waveform is made of. The waveform will</span>
+<span class="sd">            contains `order` odd harmonics. Defaults to 10.</span>
+<span class="sd">        size : int, optional</span>
+<span class="sd">            Table size in samples. Defaults to 8192.</span>
+
+<span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
+<span class="sd">    &gt;&gt;&gt; s.start()</span>
+<span class="sd">    &gt;&gt;&gt; t = TriTable(order=15).normalize()</span>
+<span class="sd">    &gt;&gt;&gt; a = Osc(table=t, freq=[199,200], mul=.2).out()</span>
+
+<span class="sd">    """</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">8192</span><span class="p">):</span>
+        <span class="n">PyoTableObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_order</span> <span class="o">=</span> <span class="n">order</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tri_table</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../api/classes/tables.html#pyo.HarmTable" title="pyo.lib.tables.HarmTable"><span class="n">HarmTable</span></a><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_create_list</span><span class="p">(</span><span class="n">order</span><span class="p">),</span> <span class="n">size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tri_table</span><span class="o">.</span><span class="n">getBaseObjects</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_create_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">order</span><span class="p">):</span>
+        <span class="c1"># internal method used to compute the harmonics's weight</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">ph</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">order</span><span class="o">*</span><span class="mi">2</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">l</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">l</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ph</span> <span class="o">/</span> <span class="p">(</span><span class="n">i</span><span class="o">*</span><span class="n">i</span><span class="p">))</span>
+                <span class="n">ph</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">return</span> <span class="n">l</span>
+
+    <span class="k">def</span> <span class="nf">setOrder</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">"""</span>
+<span class="sd">        Change the `order` attribute and redraw the waveform.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x : int</span>
+<span class="sd">                New number of harmonics</span>
+
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_order</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tri_table</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_create_list</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">normalize</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">refreshView</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">order</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">"""int. Number of harmonics triangular waveform is made of."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_order</span>
+    <span class="nd">@order</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">order</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span> <span class="bp">self</span><span class="o">.</span><span class="n">setOrder</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+<span class="c1"># Run the script to test the TriTable object.</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
+    <span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">TriTable</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">8192</span><span class="p">)</span>
+    <span class="n">t</span><span class="o">.</span><span class="n">normalize</span><span class="p">()</span>
+    <span class="n">t</span><span class="o">.</span><span class="n">view</span><span class="p">()</span>
+    <span class="n">a</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../api/classes/tableprocess.html#pyo.Osc" title="pyo.lib.tableprocess.Osc"><span class="n">Osc</span></a><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="mi">500</span><span class="p">,</span> <span class="n">mul</span><span class="o">=.</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h4>Previous topic</h4>
+<p class="topless"><a href="pyoobject2.html" title="previous chapter">Another tutorial about creating a custom PyoObject (Flanger)</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="pyoobject2.html" title="Another tutorial about creating a custom PyoObject (Flanger)">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-this"><a href="">Tutorial about recreating a custom PyoTableObject (TriangleTable)</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

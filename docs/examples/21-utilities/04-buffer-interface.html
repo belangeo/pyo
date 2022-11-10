@@ -1,0 +1,130 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>Sharing a table with a numpy array using the buffer protocol — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="05-batch-processing.html" rel="next" title="Offline processing of multiple audio files in batch"/>
+<link href="03-set-method.html" rel="prev" title="Setting audio object parameter’s value with portamento"/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="05-batch-processing.html" title="Offline processing of multiple audio files in batch">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="03-set-method.html" title="Setting audio object parameter’s value with portamento">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a accesskey="U" href="index.html">21-utilities</a> »</li>
+<li class="nav-item nav-item-this"><a href="">Sharing a table with a numpy array using the buffer protocol</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="sharing-a-table-with-a-numpy-array-using-the-buffer-protocol">
+<h1>Sharing a table with a numpy array using the buffer protocol<a class="headerlink" href="#sharing-a-table-with-a-numpy-array-using-the-buffer-protocol" title="Permalink to this headline">¶</a></h1>
+<p><strong>04-buffer-interface.py</strong></p>
+<p>This example shows two things:</p>
+<ol class="arabic simple">
+<li><p>How to share memory from a PyoTableObject to a numpy array with the
+<cite>getBuffer()</cite> method of the PyoTableObject. Numpy functions can then
+be used to modify the table’s content without copying every samples.</p></li>
+<li><p>How to register a <cite>callback</cite> function, with the <cite>setCallback()</cite> method
+of the Server object, that the server will call at the beginning of
+every processing loop (each <cite>buffersize</cite> samples).</p></li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The numpy module <strong>must</strong> be installed for this example to work.</p>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+
+<span class="c1"># Get the length of an audio block.</span>
+<span class="n">bs</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">getBufferSize</span><span class="p">()</span>
+
+<span class="c1"># Create a table of length `buffer size` and read it in loop.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.DataTable" title="pyo.lib.tables.DataTable"><span class="n">t</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.DataTable" title="pyo.lib.tables.DataTable"><span class="n">DataTable</span></a><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">bs</span><span class="p">)</span>
+<span class="n">osc</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/tableprocess.html#pyo.TableRead" title="pyo.lib.tableprocess.TableRead"><span class="n">TableRead</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.DataTable" title="pyo.lib.tables.DataTable"><span class="n">t</span></a><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="n">t</span><span class="o">.</span><span class="n">getRate</span><span class="p">(),</span> <span class="n">loop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+<span class="c1"># Share the table's memory with a numpy array.</span>
+<span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">getBuffer</span><span class="p">())</span>
+
+
+<span class="k">def</span> <span class="nf">process</span><span class="p">():</span>
+    <span class="s2">"Fill the array (so the table) with white noise."</span>
+    <span class="n">arr</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">bs</span><span class="p">)</span>
+
+
+<span class="c1"># Register the `process` function to be called at the beginning</span>
+<span class="c1"># of every processing loop.</span>
+<span class="n">s</span><span class="o">.</span><span class="n">setCallback</span><span class="p">(</span><span class="n">process</span><span class="p">)</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h4>Previous topic</h4>
+<p class="topless"><a href="03-set-method.html" title="previous chapter">Setting audio object parameter’s value with portamento</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="05-batch-processing.html" title="next chapter">Offline processing of multiple audio files in batch</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="05-batch-processing.html" title="Offline processing of multiple audio files in batch">next</a> |</li>
+<li class="right">
+<a href="03-set-method.html" title="Setting audio object parameter’s value with portamento">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="index.html">21-utilities</a> »</li>
+<li class="nav-item nav-item-this"><a href="">Sharing a table with a numpy array using the buffer protocol</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

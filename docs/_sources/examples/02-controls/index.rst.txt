@@ -1,0 +1,17 @@
+02-controls
+========================================
+
+.. toctree::
+   :maxdepth: 1
+
+   01-fixed-control
+   02-dynamic-control
+   03-output-range
+   04-building-lfo
+   05-math-ops
+   06-multichannel-expansion
+   07-multichannel-expansion-2
+   08-handling-channels
+   09-handling-channels-2
+   10-handling-channels-3
+   11-handling-channels-4

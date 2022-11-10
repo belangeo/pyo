@@ -1,0 +1,130 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>02-ducking.py - Adjust the gain of a signal based on the presence of another one. — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="03-gated-verb.html" rel="next" title="03-gated-verb.py - Gated reverb applied to a drum loop."/>
+<link href="01-dynamic-range.html" rel="prev" title="01-dynamic-range.py - Adjust the dynamic range of the signal."/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="03-gated-verb.html" title="03-gated-verb.py - Gated reverb applied to a drum loop.">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="01-dynamic-range.html" title="01-dynamic-range.py - Adjust the dynamic range of the signal.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a accesskey="U" href="index.html">08-dynamics</a> »</li>
+<li class="nav-item nav-item-this"><a href="">02-ducking.py - Adjust the gain of a signal based on the presence of another one.</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="ducking-py-adjust-the-gain-of-a-signal-based-on-the-presence-of-another-one">
+<h1>02-ducking.py - Adjust the gain of a signal based on the presence of another one.<a class="headerlink" href="#ducking-py-adjust-the-gain-of-a-signal-based-on-the-presence-of-another-one" title="Permalink to this headline">¶</a></h1>
+<p>Ducking is an audio effect commonly used in radio. In ducking, the
+level of one audio signal is reduced by the presence of another signal.</p>
+<p>Here we use a Follower object to track the RMS envelope of the voice signal. Then
+we use an audio conditional to create a switch, whose value is 1 when the voice is
+talking and 0 when it is silent. This signal is finally used to change the amplitude
+of the music whenever the voice is talking.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+
+<span class="c1"># Alternate voice and silence.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.SndTable" title="pyo.lib.tables.SndTable"><span class="n">table</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.SndTable" title="pyo.lib.tables.SndTable"><span class="n">SndTable</span></a><span class="p">(</span><span class="n">SNDS_PATH</span> <span class="o">+</span> <span class="s2">"/transparent.aif"</span><span class="p">)</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/effects.html#pyo.SDelay" title="pyo.lib.effects.SDelay"><span class="n">metro</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/effects.html#pyo.SDelay" title="pyo.lib.effects.SDelay"><span class="n">SDelay</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/triggers.html#pyo.Metro" title="pyo.lib.triggers.Metro"><span class="n">Metro</span></a><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">play</span><span class="p">(),</span> <span class="mi">1</span><span class="p">)</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/triggers.html#pyo.TrigEnv" title="pyo.lib.triggers.TrigEnv"><span class="n">voice</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/triggers.html#pyo.TrigEnv" title="pyo.lib.triggers.TrigEnv"><span class="n">TrigEnv</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/effects.html#pyo.SDelay" title="pyo.lib.effects.SDelay"><span class="n">metro</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.SndTable" title="pyo.lib.tables.SndTable"><span class="n">table</span></a><span class="p">,</span> <span class="n">dur</span><span class="o">=</span><span class="n">table</span><span class="o">.</span><span class="n">getDur</span><span class="p">(),</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+<span class="n">stvoice</span> <span class="o">=</span> <span class="n">voice</span><span class="o">.</span><span class="n">mix</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+<span class="c1"># Play some music-box style tune!</span>
+<span class="n">freqs</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/functions/conv.html#pyo.midiToHz" title="pyo.midiToHz"><span class="n">midiToHz</span></a><span class="p">([</span><span class="mi">60</span><span class="p">,</span> <span class="mi">62</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">65</span><span class="p">,</span> <span class="mi">67</span><span class="p">,</span> <span class="mi">69</span><span class="p">,</span> <span class="mi">71</span><span class="p">,</span> <span class="mi">72</span><span class="p">])</span>
+<span class="n">choice</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/randoms.html#pyo.Choice" title="pyo.lib.randoms.Choice"><span class="n">Choice</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/randoms.html#pyo.Choice" title="pyo.lib.randoms.Choice"><span class="n">choice</span></a><span class="o">=</span><span class="n">freqs</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">])</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/filters.html#pyo.Port" title="pyo.lib.filters.Port"><span class="n">port</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/filters.html#pyo.Port" title="pyo.lib.filters.Port"><span class="n">Port</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/randoms.html#pyo.Choice" title="pyo.lib.randoms.Choice"><span class="n">choice</span></a><span class="p">,</span> <span class="n">risetime</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">falltime</span><span class="o">=</span><span class="mf">0.001</span><span class="p">)</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.SineLoop" title="pyo.lib.generators.SineLoop"><span class="n">sines</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.SineLoop" title="pyo.lib.generators.SineLoop"><span class="n">SineLoop</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/filters.html#pyo.Port" title="pyo.lib.filters.Port"><span class="n">port</span></a><span class="p">,</span> <span class="n">feedback</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span>
+<span class="n">music</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/pan.html#pyo.SPan" title="pyo.lib.pan.SPan"><span class="n">SPan</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.SineLoop" title="pyo.lib.generators.SineLoop"><span class="n">sines</span></a><span class="p">,</span> <span class="n">pan</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span><span class="o">.</span><span class="n">mix</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="c1"># Follow voice RMS amplitude.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.Follower" title="pyo.lib.analysis.Follower"><span class="n">follow</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.Follower" title="pyo.lib.analysis.Follower"><span class="n">Follower</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/triggers.html#pyo.TrigEnv" title="pyo.lib.triggers.TrigEnv"><span class="n">voice</span></a><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="c1"># talk = 1 if voice is playing and 0 if not.</span>
+<span class="n">talk</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.Follower" title="pyo.lib.analysis.Follower"><span class="n">follow</span></a> <span class="o">&gt;</span> <span class="mf">0.005</span>
+
+<span class="c1"># Smooth the on/off signal (rising is faster than falling)...</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/filters.html#pyo.Port" title="pyo.lib.filters.Port"><span class="n">amp</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/filters.html#pyo.Port" title="pyo.lib.filters.Port"><span class="n">Port</span></a><span class="p">(</span><span class="n">talk</span><span class="p">,</span> <span class="n">risetime</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">falltime</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+<span class="c1"># ... then rescale it (1 when no voice and 0.1 when voice is playing).</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/utils.html#pyo.Scale" title="pyo.lib.utils.Scale"><span class="n">ampscl</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/utils.html#pyo.Scale" title="pyo.lib.utils.Scale"><span class="n">Scale</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/filters.html#pyo.Port" title="pyo.lib.filters.Port"><span class="n">amp</span></a><span class="p">,</span> <span class="n">outmin</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">outmax</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+
+<span class="c1"># Display the gain factor.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.Scope" title="pyo.lib.analysis.Scope"><span class="n">sc</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.Scope" title="pyo.lib.analysis.Scope"><span class="n">Scope</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/utils.html#pyo.Scale" title="pyo.lib.utils.Scale"><span class="n">ampscl</span></a><span class="p">)</span>
+
+<span class="c1"># Apply gain factor and output music.</span>
+<span class="n">outsynth</span> <span class="o">=</span> <span class="p">(</span><span class="n">music</span> <span class="o">*</span> <a class="sphinx-codeautolink-a" href="../../api/classes/utils.html#pyo.Scale" title="pyo.lib.utils.Scale"><span class="n">ampscl</span></a><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h4>Previous topic</h4>
+<p class="topless"><a href="01-dynamic-range.html" title="previous chapter">01-dynamic-range.py - Adjust the dynamic range of the signal.</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="03-gated-verb.html" title="next chapter">03-gated-verb.py - Gated reverb applied to a drum loop.</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="03-gated-verb.html" title="03-gated-verb.py - Gated reverb applied to a drum loop.">next</a> |</li>
+<li class="right">
+<a href="01-dynamic-range.html" title="01-dynamic-range.py - Adjust the dynamic range of the signal.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="index.html">08-dynamics</a> »</li>
+<li class="nav-item nav-item-this"><a href="">02-ducking.py - Adjust the gain of a signal based on the presence of another one.</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

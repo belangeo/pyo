@@ -1,0 +1,127 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>06-random-generators.py - Overview of some random generators of pyo. — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="../04-soundfiles/index.html" rel="next" title="04-soundfiles"/>
+<link href="05-strange-attractors.html" rel="prev" title="05-strange-attractors.py - Non-linear ordinary differential equations."/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="../04-soundfiles/index.html" title="04-soundfiles">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="05-strange-attractors.html" title="05-strange-attractors.py - Non-linear ordinary differential equations.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a accesskey="U" href="index.html">03-generators</a> »</li>
+<li class="nav-item nav-item-this"><a href="">06-random-generators.py - Overview of some random generators of pyo.</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="random-generators-py-overview-of-some-random-generators-of-pyo">
+<h1>06-random-generators.py - Overview of some random generators of pyo.<a class="headerlink" href="#random-generators-py-overview-of-some-random-generators-of-pyo" title="Permalink to this headline">¶</a></h1>
+<p>The pyo’s random category contains many objects that can be used
+for different purposes. This category really deserves to be studied.</p>
+<p>In this tutorial, we use three random objects (Choice, Randi, RandInt)
+to control the pitches, the amplitude and the tone of a simple synth.</p>
+<p>We will come back to random generators when we will talk about musical
+algorithms.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+
+<span class="c1"># Two streams of midi pitches chosen randomly in a predefined list.</span>
+<span class="c1"># The argument `choice` of Choice object can be a list of lists to</span>
+<span class="c1"># list-expansion.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/randoms.html#pyo.Choice" title="pyo.lib.randoms.Choice"><span class="n">mid</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/randoms.html#pyo.Choice" title="pyo.lib.randoms.Choice"><span class="n">Choice</span></a><span class="p">(</span><span class="n">choice</span><span class="o">=</span><span class="p">[</span><span class="mi">60</span><span class="p">,</span> <span class="mi">62</span><span class="p">,</span> <span class="mi">63</span><span class="p">,</span> <span class="mi">65</span><span class="p">,</span> <span class="mi">67</span><span class="p">,</span> <span class="mi">69</span><span class="p">,</span> <span class="mi">71</span><span class="p">,</span> <span class="mi">72</span><span class="p">],</span> <span class="n">freq</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+
+<span class="c1"># Two small jitters applied on frequency streams.</span>
+<span class="c1"># Randi interpolates between old and new values.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/randoms.html#pyo.Randi" title="pyo.lib.randoms.Randi"><span class="n">jit</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/randoms.html#pyo.Randi" title="pyo.lib.randoms.Randi"><span class="n">Randi</span></a><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mf">0.993</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mf">1.007</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="p">[</span><span class="mf">4.3</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">])</span>
+
+<span class="c1"># Converts midi pitches to frequencies and applies the jitters.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/utils.html#pyo.MToF" title="pyo.lib.utils.MToF"><span class="n">fr</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/utils.html#pyo.MToF" title="pyo.lib.utils.MToF"><span class="n">MToF</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/randoms.html#pyo.Choice" title="pyo.lib.randoms.Choice"><span class="n">mid</span></a><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/randoms.html#pyo.Randi" title="pyo.lib.randoms.Randi"><span class="n">jit</span></a><span class="p">)</span>
+
+<span class="c1"># Chooses a new feedback value, between 0 and 0.15, every 4 seconds.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/randoms.html#pyo.Randi" title="pyo.lib.randoms.Randi"><span class="n">fd</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/randoms.html#pyo.Randi" title="pyo.lib.randoms.Randi"><span class="n">Randi</span></a><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mf">0.15</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="mf">0.25</span><span class="p">)</span>
+
+<span class="c1"># RandInt generates a pseudo-random integer number between 0 and `max`</span>
+<span class="c1"># values at a frequency specified by `freq` parameter. It holds the</span>
+<span class="c1"># value until the next generation.</span>
+<span class="c1"># Generates an new LFO frequency once per second.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/randoms.html#pyo.RandInt" title="pyo.lib.randoms.RandInt"><span class="n">sp</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/randoms.html#pyo.RandInt" title="pyo.lib.randoms.RandInt"><span class="n">RandInt</span></a><span class="p">(</span><span class="nb">max</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="c1"># Creates an LFO oscillating between 0 and 0.4.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">amp</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/randoms.html#pyo.RandInt" title="pyo.lib.randoms.RandInt"><span class="n">sp</span></a><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
+
+<span class="c1"># A simple synth...</span>
+<span class="n">a</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.SineLoop" title="pyo.lib.generators.SineLoop"><span class="n">SineLoop</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/utils.html#pyo.MToF" title="pyo.lib.utils.MToF"><span class="n">fr</span></a><span class="p">,</span> <span class="n">feedback</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/randoms.html#pyo.Randi" title="pyo.lib.randoms.Randi"><span class="n">fd</span></a><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">amp</span></a><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h4>Previous topic</h4>
+<p class="topless"><a href="05-strange-attractors.html" title="previous chapter">05-strange-attractors.py - Non-linear ordinary differential equations.</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="../04-soundfiles/index.html" title="next chapter">04-soundfiles</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="../04-soundfiles/index.html" title="04-soundfiles">next</a> |</li>
+<li class="right">
+<a href="05-strange-attractors.html" title="05-strange-attractors.py - Non-linear ordinary differential equations.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="index.html">03-generators</a> »</li>
+<li class="nav-item nav-item-this"><a href="">06-random-generators.py - Overview of some random generators of pyo.</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

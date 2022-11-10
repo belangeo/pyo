@@ -1,0 +1,157 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>02-notein-object.py - How to use the Notein object. — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="03-midi-envelope.html" rel="next" title="03-midi-envelope.py - Shaping the sound of a MIDI synth."/>
+<link href="01-midi-scan.html" rel="prev" title="01-midi-scan.py - Scan for MIDI channels and controller numbers."/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="03-midi-envelope.html" title="03-midi-envelope.py - Shaping the sound of a MIDI synth.">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="01-midi-scan.html" title="01-midi-scan.py - Scan for MIDI channels and controller numbers.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a accesskey="U" href="index.html">16-midi</a> »</li>
+<li class="nav-item nav-item-this"><a href="">02-notein-object.py - How to use the Notein object.</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="notein-object-py-how-to-use-the-notein-object">
+<h1>02-notein-object.py - How to use the Notein object.<a class="headerlink" href="#notein-object-py-how-to-use-the-notein-object" title="Permalink to this headline">¶</a></h1>
+<p>This example shows how to use the Notein object to control audio
+processes with events received from a MIDI keyboard (virtual or not).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+
+<a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">s</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span>
+<span class="n">s</span><span class="o">.</span><span class="n">setMidiInputDevice</span><span class="p">(</span><span class="mi">99</span><span class="p">)</span>  <span class="c1"># Open all input devices.</span>
+<span class="n">s</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+
+<span class="c1"># Default arguments of the Notein object.</span>
+<span class="c1"># - 10 voices of polyphony, which means that this object will manage</span>
+<span class="c1">#   10 pitch/velocity streams simultaneously.</span>
+<span class="c1"># - scale=0 means that the pitch information will be MIDI numbers.</span>
+<span class="c1">#   Use 1 for Hertz and 2 for transposition factors.</span>
+<span class="c1"># - first and last arguments are the lowest and highest MIDI notes</span>
+<span class="c1">#   that this object will handle. This is useful to split the complete</span>
+<span class="c1">#   range over multiple processes.</span>
+<span class="c1"># - channel is the MIDI channel this object will listen to. 0 means all</span>
+<span class="c1">#   channels.</span>
+<span class="c1"># - The mul argument affects velocities, which are already normalized</span>
+<span class="c1">#   between 0 and 1.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/midi.html#pyo.Notein" title="pyo.lib.midi.Notein"><span class="n">notes</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/midi.html#pyo.Notein" title="pyo.lib.midi.Notein"><span class="n">Notein</span></a><span class="p">(</span><span class="n">poly</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">first</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">last</span><span class="o">=</span><span class="mi">127</span><span class="p">,</span> <span class="n">channel</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># User can show a keyboard widget to supply MIDI events.</span>
+<span class="n">notes</span><span class="o">.</span><span class="n">keyboard</span><span class="p">()</span>
+
+<span class="c1"># Notein["pitch"] retrieves pitch streams.</span>
+<span class="c1"># Converts MIDI pitch to frequency in Hertz.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/utils.html#pyo.MToF" title="pyo.lib.utils.MToF"><span class="n">freqs</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/utils.html#pyo.MToF" title="pyo.lib.utils.MToF"><span class="n">MToF</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/midi.html#pyo.Notein" title="pyo.lib.midi.Notein"><span class="n">notes</span></a><span class="p">[</span><span class="s2">"pitch"</span><span class="p">])</span>
+
+<span class="c1"># Notein["velocity"] retrieves normalized velocity streams.</span>
+<span class="c1"># Applies a portamento on the velocity changes.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/filters.html#pyo.Port" title="pyo.lib.filters.Port"><span class="n">amps</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/filters.html#pyo.Port" title="pyo.lib.filters.Port"><span class="n">Port</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/midi.html#pyo.Notein" title="pyo.lib.midi.Notein"><span class="n">notes</span></a><span class="p">[</span><span class="s2">"velocity"</span><span class="p">],</span> <span class="n">risetime</span><span class="o">=</span><span class="mf">0.005</span><span class="p">,</span> <span class="n">falltime</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+
+<span class="c1"># Creates two groups of oscillators (10 per channel), slightly detuned.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.RCOsc" title="pyo.lib.generators.RCOsc"><span class="n">sigL</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.RCOsc" title="pyo.lib.generators.RCOsc"><span class="n">RCOsc</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/utils.html#pyo.MToF" title="pyo.lib.utils.MToF"><span class="n">freqs</span></a><span class="p">,</span> <span class="n">sharp</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/filters.html#pyo.Port" title="pyo.lib.filters.Port"><span class="n">amps</span></a><span class="p">)</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.RCOsc" title="pyo.lib.generators.RCOsc"><span class="n">sigR</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.RCOsc" title="pyo.lib.generators.RCOsc"><span class="n">RCOsc</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/utils.html#pyo.MToF" title="pyo.lib.utils.MToF"><span class="n">freqs</span></a> <span class="o">*</span> <span class="mf">1.003</span><span class="p">,</span> <span class="n">sharp</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/filters.html#pyo.Port" title="pyo.lib.filters.Port"><span class="n">amps</span></a><span class="p">)</span>
+
+<span class="c1"># Mixes the 10 voices per channel to a single stream and send the</span>
+<span class="c1"># signals to the audio output.</span>
+<span class="n">outL</span> <span class="o">=</span> <span class="n">sigL</span><span class="o">.</span><span class="n">mix</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+<span class="n">outR</span> <span class="o">=</span> <span class="n">sigR</span><span class="o">.</span><span class="n">mix</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># Notein["trigon"] sends a trigger when a voice receive a noteon.</span>
+<span class="c1"># Notein["trigoff"] sends a trigger when a voice receive a noteoff.</span>
+
+<span class="c1"># These functions are called when Notein receives a MIDI note event.</span>
+<span class="k">def</span> <span class="nf">noteon</span><span class="p">(</span><span class="n">voice</span><span class="p">):</span>
+    <span class="s2">"Print pitch and velocity for noteon event."</span>
+    <span class="n">pit</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/midi.html#pyo.Notein" title="pyo.lib.midi.Notein"><span class="n">notes</span></a><span class="p">[</span><span class="s2">"pitch"</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">all</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="n">voice</span><span class="p">])</span>
+    <span class="n">vel</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/midi.html#pyo.Notein" title="pyo.lib.midi.Notein"><span class="n">notes</span></a><span class="p">[</span><span class="s2">"velocity"</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">all</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="n">voice</span><span class="p">]</span> <span class="o">*</span> <span class="mi">127</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Noteon: voice = </span><span class="si">%d</span><span class="s2">, pitch = </span><span class="si">%d</span><span class="s2">, velocity = </span><span class="si">%d</span><span class="s2">"</span> <span class="o">%</span> <span class="p">(</span><span class="n">voice</span><span class="p">,</span> <span class="n">pit</span><span class="p">,</span> <span class="n">vel</span><span class="p">))</span>
+
+
+<span class="k">def</span> <span class="nf">noteoff</span><span class="p">(</span><span class="n">voice</span><span class="p">):</span>
+    <span class="s2">"Print pitch and velocity for noteoff event."</span>
+    <span class="n">pit</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/midi.html#pyo.Notein" title="pyo.lib.midi.Notein"><span class="n">notes</span></a><span class="p">[</span><span class="s2">"pitch"</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">all</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="n">voice</span><span class="p">])</span>
+    <span class="n">vel</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/midi.html#pyo.Notein" title="pyo.lib.midi.Notein"><span class="n">notes</span></a><span class="p">[</span><span class="s2">"velocity"</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">all</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="n">voice</span><span class="p">]</span> <span class="o">*</span> <span class="mi">127</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Noteoff: voice = </span><span class="si">%d</span><span class="s2">, pitch = </span><span class="si">%d</span><span class="s2">, velocity = </span><span class="si">%d</span><span class="s2">"</span> <span class="o">%</span> <span class="p">(</span><span class="n">voice</span><span class="p">,</span> <span class="n">pit</span><span class="p">,</span> <span class="n">vel</span><span class="p">))</span>
+
+
+<span class="c1"># TrigFunc calls a function when it receives a trigger. Because notes["trigon"]</span>
+<span class="c1"># contains 10 streams, there will be 10 caller, each one with its own argument,</span>
+<span class="c1"># taken from the list of integers given at `arg` argument.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/triggers.html#pyo.TrigFunc" title="pyo.lib.triggers.TrigFunc"><span class="n">tfon</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/triggers.html#pyo.TrigFunc" title="pyo.lib.triggers.TrigFunc"><span class="n">TrigFunc</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/midi.html#pyo.Notein" title="pyo.lib.midi.Notein"><span class="n">notes</span></a><span class="p">[</span><span class="s2">"trigon"</span><span class="p">],</span> <span class="n">noteon</span><span class="p">,</span> <span class="n">arg</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)))</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/triggers.html#pyo.TrigFunc" title="pyo.lib.triggers.TrigFunc"><span class="n">tfoff</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/triggers.html#pyo.TrigFunc" title="pyo.lib.triggers.TrigFunc"><span class="n">TrigFunc</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/midi.html#pyo.Notein" title="pyo.lib.midi.Notein"><span class="n">notes</span></a><span class="p">[</span><span class="s2">"trigoff"</span><span class="p">],</span> <span class="n">noteoff</span><span class="p">,</span> <span class="n">arg</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)))</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h4>Previous topic</h4>
+<p class="topless"><a href="01-midi-scan.html" title="previous chapter">01-midi-scan.py - Scan for MIDI channels and controller numbers.</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="03-midi-envelope.html" title="next chapter">03-midi-envelope.py - Shaping the sound of a MIDI synth.</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="03-midi-envelope.html" title="03-midi-envelope.py - Shaping the sound of a MIDI synth.">next</a> |</li>
+<li class="right">
+<a href="01-midi-scan.html" title="01-midi-scan.py - Scan for MIDI channels and controller numbers.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="index.html">16-midi</a> »</li>
+<li class="nav-item nav-item-this"><a href="">02-notein-object.py - How to use the Notein object.</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

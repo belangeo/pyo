@@ -1,0 +1,165 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>04-granulation.py - Full control granular synthesis. — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="05-micro-montage.html" rel="next" title="05-micro-montage.py - Create table from random chunks of a soundfile."/>
+<link href="03-looping.html" rel="prev" title="03-looper.py - High quality crossfading multimode sound looper."/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="05-micro-montage.html" title="05-micro-montage.py - Create table from random chunks of a soundfile.">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="03-looping.html" title="03-looper.py - High quality crossfading multimode sound looper.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a accesskey="U" href="index.html">10-tables</a> »</li>
+<li class="nav-item nav-item-this"><a href="">04-granulation.py - Full control granular synthesis.</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="granulation-py-full-control-granular-synthesis">
+<h1>04-granulation.py - Full control granular synthesis.<a class="headerlink" href="#granulation-py-full-control-granular-synthesis" title="Permalink to this headline">¶</a></h1>
+<p>The output of a Granular Synthesis is composed of many individual
+grains of sound. A grain is a short chunk of sound, typically between
+10 and 100 ms (but can also vary outside this range), with an amplitude
+envelope in the shape of a bell curve. The sonic quality of a granular
+texture is a result of the distribution of grains in time and of the
+parameters selected for the synthesis of each grain.</p>
+<p>This example shows the usage of the most featured granulation object
+of the library!</p>
+<p>Available granulation objects, in order of complexity, are:</p>
+<ul class="simple">
+<li><p>Granulator</p></li>
+<li><p>Granule</p></li>
+<li><p>Particle</p></li>
+<li><p>Particle2</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+
+<a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.SndTable" title="pyo.lib.tables.SndTable"><span class="n">snd</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.SndTable" title="pyo.lib.tables.SndTable"><span class="n">SndTable</span></a><span class="p">(</span><span class="s2">"../snds/baseballmajeur_m.aif"</span><span class="p">)</span>
+<span class="n">snd</span><span class="o">.</span><span class="n">view</span><span class="p">()</span>
+
+<span class="c1"># Remove sr/4 samples to the size of the table, just to be sure</span>
+<span class="c1"># that the reading pointer never exceeds the end of the table.</span>
+<span class="n">end</span> <span class="o">=</span> <span class="n">snd</span><span class="o">.</span><span class="n">getSize</span><span class="p">()</span> <span class="o">-</span> <span class="n">s</span><span class="o">.</span><span class="n">getSamplingRate</span><span class="p">()</span> <span class="o">*</span> <span class="mf">0.25</span>
+
+<span class="c1"># A Tuckey envelope for the grains (also known as flat-top envelope).</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.WinTable" title="pyo.lib.tables.WinTable"><span class="n">env</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.WinTable" title="pyo.lib.tables.WinTable"><span class="n">WinTable</span></a><span class="p">(</span><span class="mi">7</span><span class="p">)</span>
+<span class="n">env</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"Grain envelope"</span><span class="p">)</span>
+
+<span class="c1"># The grain pitch has a default value of 1, to which we can add a</span>
+<span class="c1"># randomness factor by raising the "mul" value of the Noise.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">pit</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">Noise</span></a><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">pit</span><span class="o">.</span><span class="n">ctrl</span><span class="p">([</span><a class="sphinx-codeautolink-a" href="../../api/classes/map.html#pyo.SLMap" title="pyo.lib._maps.SLMap"><span class="n">SLMap</span></a><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"lin"</span><span class="p">,</span> <span class="s2">"mul"</span><span class="p">,</span> <span class="mi">0</span><span class="p">)],</span> <span class="n">title</span><span class="o">=</span><span class="s2">"Pitch Randomness"</span><span class="p">)</span>
+
+<span class="c1"># The grain position oscillates slowly between the beginning and</span>
+<span class="c1"># the end of the table. We add a little jitter to the position to</span>
+<span class="c1"># attenuate phasing artifacts when overlapping the grains.</span>
+<span class="n">pososc</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="mf">0.05</span><span class="p">)</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">posrnd</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">Noise</span></a><span class="p">(</span><span class="n">mul</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">pos</span> <span class="o">=</span> <span class="n">pososc</span> <span class="o">*</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">posrnd</span></a>
+
+<span class="c1"># The grain panoramisation is completely random.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">pan</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">Noise</span></a><span class="p">(</span><span class="n">mul</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+
+<span class="c1"># The grain filter center frequency choices are the first 40</span>
+<span class="c1"># harmonics of a base frequency oscillating between 75 and 125 Hz.</span>
+<span class="n">cf</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="mf">0.07</span><span class="p">)</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="mi">75</span><span class="p">,</span> <span class="mi">125</span><span class="p">)</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/randoms.html#pyo.Choice" title="pyo.lib.randoms.Choice"><span class="n">fcf</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/randoms.html#pyo.Choice" title="pyo.lib.randoms.Choice"><span class="n">Choice</span></a><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">40</span><span class="p">)),</span> <span class="n">freq</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="n">cf</span><span class="p">)</span>
+
+<a class="sphinx-codeautolink-a" href="../../api/classes/tableprocess.html#pyo.Particle2" title="pyo.lib.tableprocess.Particle2"><span class="n">grn</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/tableprocess.html#pyo.Particle2" title="pyo.lib.tableprocess.Particle2"><span class="n">Particle2</span></a><span class="p">(</span>
+    <span class="n">table</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.SndTable" title="pyo.lib.tables.SndTable"><span class="n">snd</span></a><span class="p">,</span>  <span class="c1"># The table to read.</span>
+    <span class="n">env</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.WinTable" title="pyo.lib.tables.WinTable"><span class="n">env</span></a><span class="p">,</span>  <span class="c1"># The grain envelope.</span>
+    <span class="n">dens</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span>  <span class="c1"># The density of grains per second.</span>
+    <span class="c1"># The next arguments are sampled at the beginning of the grain</span>
+    <span class="c1"># and hold their until the end of the grain.</span>
+    <span class="n">pitch</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">pit</span></a><span class="p">,</span>  <span class="c1"># The pitch of the grain.</span>
+    <span class="n">pos</span><span class="o">=</span><span class="n">pos</span><span class="p">,</span>  <span class="c1"># The position of the grain in the table.</span>
+    <span class="n">dur</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>  <span class="c1"># The duration of the grain in seconds.</span>
+    <span class="n">dev</span><span class="o">=</span><span class="mf">0.005</span><span class="p">,</span>  <span class="c1"># The maximum deviation of the start time,</span>
+    <span class="c1"># synchronous versus asynchronous granulation.</span>
+    <span class="n">pan</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">pan</span></a><span class="p">,</span>  <span class="c1"># The pan value of the grain.</span>
+    <span class="n">filterfreq</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/randoms.html#pyo.Choice" title="pyo.lib.randoms.Choice"><span class="n">fcf</span></a><span class="p">,</span>  <span class="c1"># The filter frequency of the grain.</span>
+    <span class="n">filterq</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>  <span class="c1"># The filter Q of the grain.</span>
+    <span class="n">filtertype</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>  <span class="c1"># The filter type of the grain.</span>
+    <span class="c1"># End of sampled arguments.</span>
+    <span class="n">chnls</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>  <span class="c1"># The output number of streams of the granulator.</span>
+    <span class="n">mul</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">grn</span><span class="o">.</span><span class="n">ctrl</span><span class="p">()</span>
+
+<span class="c1"># Some grains can be surprisingly loud so we compress the output of the granulator.</span>
+<span class="n">comp</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/dynamics.html#pyo.Compress" title="pyo.lib.dynamics.Compress"><span class="n">Compress</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/tableprocess.html#pyo.Particle2" title="pyo.lib.tableprocess.Particle2"><span class="n">grn</span></a><span class="p">,</span> <span class="n">thresh</span><span class="o">=-</span><span class="mi">20</span><span class="p">,</span> <span class="n">ratio</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">risetime</span><span class="o">=</span><span class="mf">0.005</span><span class="p">,</span> <span class="n">falltime</span><span class="o">=</span><span class="mf">0.10</span><span class="p">,</span> <span class="n">knee</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h4>Previous topic</h4>
+<p class="topless"><a href="03-looping.html" title="previous chapter">03-looper.py - High quality crossfading multimode sound looper.</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="05-micro-montage.html" title="next chapter">05-micro-montage.py - Create table from random chunks of a soundfile.</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="05-micro-montage.html" title="05-micro-montage.py - Create table from random chunks of a soundfile.">next</a> |</li>
+<li class="right">
+<a href="03-looping.html" title="03-looper.py - High quality crossfading multimode sound looper.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="index.html">10-tables</a> »</li>
+<li class="nav-item nav-item-this"><a href="">04-granulation.py - Full control granular synthesis.</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

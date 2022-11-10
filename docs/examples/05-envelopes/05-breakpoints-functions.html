@@ -1,0 +1,137 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>05-breakpoints-functions.py - Multi-segments envelopes. — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="../06-filters/index.html" rel="next" title="06-filters"/>
+<link href="04-simple-envelopes.html" rel="prev" title="04-simple-envelopes.py - ASR and ADSR envelopes."/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="../06-filters/index.html" title="06-filters">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="04-simple-envelopes.html" title="04-simple-envelopes.py - ASR and ADSR envelopes.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a accesskey="U" href="index.html">05-envelopes</a> »</li>
+<li class="nav-item nav-item-this"><a href="">05-breakpoints-functions.py - Multi-segments envelopes.</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="breakpoints-functions-py-multi-segments-envelopes">
+<h1>05-breakpoints-functions.py - Multi-segments envelopes.<a class="headerlink" href="#breakpoints-functions-py-multi-segments-envelopes" title="Permalink to this headline">¶</a></h1>
+<p>Linseg and Expseg objects draw a series of line segments between
+specified break-points, either linear or exponential.</p>
+<p>These objects wait for play() call to start reading the envelope.</p>
+<p>They have methods to set loop mode, call pause/play without reset,
+and replace the breakpoints.</p>
+<p>One can use the graph() method to open a graphical display of the current
+envelope, edit it, and copy the points (in the list format) to the
+clipboard (Menu “File” of the graph display =&gt; “Copy all Points …”).
+This makes it easier to explore and paste the result into the python
+script when happy with the envelope!</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">random</span>
+
+<span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+
+<span class="c1"># Randomly built 10-points amplitude envelope.</span>
+<span class="n">t</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">points</span> <span class="o">=</span> <span class="p">[(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)]</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">8</span><span class="p">):</span>
+    <span class="n">t</span> <span class="o">+=</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">)</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">)</span>
+    <span class="n">points</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span>
+
+<a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Expseg" title="pyo.lib.controls.Expseg"><span class="n">amp</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Expseg" title="pyo.lib.controls.Expseg"><span class="n">Expseg</span></a><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">exp</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+<span class="n">amp</span><span class="o">.</span><span class="n">graph</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"Amplitude envelope"</span><span class="p">)</span>
+
+<a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.RCOsc" title="pyo.lib.generators.RCOsc"><span class="n">sig</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.RCOsc" title="pyo.lib.generators.RCOsc"><span class="n">RCOsc</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="p">[</span><span class="mi">150</span><span class="p">,</span> <span class="mi">151</span><span class="p">],</span> <span class="n">sharp</span><span class="o">=</span><span class="mf">0.85</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Expseg" title="pyo.lib.controls.Expseg"><span class="n">amp</span></a><span class="p">)</span>
+
+<span class="c1"># A simple linear function to vary the amount of frequency shifting.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Linseg" title="pyo.lib.controls.Linseg"><span class="n">sft</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Linseg" title="pyo.lib.controls.Linseg"><span class="n">Linseg</span></a><span class="p">([(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">20.0</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)])</span>
+<span class="n">sft</span><span class="o">.</span><span class="n">graph</span><span class="p">(</span><span class="n">yrange</span><span class="o">=</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">20.0</span><span class="p">),</span> <span class="n">title</span><span class="o">=</span><span class="s2">"Frequency shift"</span><span class="p">)</span>
+
+<span class="n">fsg</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/effects.html#pyo.FreqShift" title="pyo.lib.effects.FreqShift"><span class="n">FreqShift</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.RCOsc" title="pyo.lib.generators.RCOsc"><span class="n">sig</span></a><span class="p">,</span> <span class="n">shift</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Linseg" title="pyo.lib.controls.Linseg"><span class="n">sft</span></a><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+<span class="n">rev</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/effects.html#pyo.WGVerb" title="pyo.lib.effects.WGVerb"><span class="n">WGVerb</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.RCOsc" title="pyo.lib.generators.RCOsc"><span class="n">sig</span></a> <span class="o">+</span> <span class="n">fsg</span><span class="p">,</span> <span class="n">feedback</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="mi">3500</span><span class="p">,</span> <span class="n">bal</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">playnote</span><span class="p">():</span>
+    <span class="s2">"Start the envelopes to play an event."</span>
+    <span class="n">amp</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+    <span class="n">sft</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+
+
+<span class="c1"># Periodically call a function.</span>
+<span class="n">pat</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/pattern.html#pyo.Pattern" title="pyo.lib.pattern.Pattern"><span class="n">Pattern</span></a><span class="p">(</span><span class="n">playnote</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h4>Previous topic</h4>
+<p class="topless"><a href="04-simple-envelopes.html" title="previous chapter">04-simple-envelopes.py - ASR and ADSR envelopes.</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="../06-filters/index.html" title="next chapter">06-filters</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="../06-filters/index.html" title="06-filters">next</a> |</li>
+<li class="right">
+<a href="04-simple-envelopes.html" title="04-simple-envelopes.py - ASR and ADSR envelopes.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="index.html">05-envelopes</a> »</li>
+<li class="nav-item nav-item-this"><a href="">05-breakpoints-functions.py - Multi-segments envelopes.</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

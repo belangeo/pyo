@@ -1,0 +1,740 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>Controller listeners — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="_core.html" rel="next" title="Base Classes"/>
+<link href="server.html" rel="prev" title="Audio Server"/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="_core.html" title="Base Classes">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="server.html" title="Audio Server">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="../index.html">API documentation</a> »</li>
+<li class="nav-item nav-item-2"><a accesskey="U" href="index.html">Classes by category</a> »</li>
+<li class="nav-item nav-item-this"><a href="">Controller listeners</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="controller-listeners">
+<h1>Controller listeners<a class="headerlink" href="#controller-listeners" title="Permalink to this headline">¶</a></h1>
+<p>These objects can be used to create MIDI and/or OSC listeners without the
+need to boot ands start an audio server before receiving messages.</p>
+<section id="midilistener">
+<h2><em>MidiListener</em><a class="headerlink" href="#midilistener" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyo.MidiListener">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">MidiListener</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mididev</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reportdevice</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/listener.html#MidiListener"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.MidiListener" title="Permalink to this definition">¶</a></dt>
+<dd><p>Self-contained midi listener thread.</p>
+<p>This object allows to setup a Midi server that is independent
+of the audio server (mainly to be able to receive Midi data even
+when the audio server is stopped). Although it runs in a separated
+thread, the same device can’t be used by this object and the audio
+server at the same time. It is adviced to call the deactivateMidi()
+method on the audio server to avoid conflicts.</p>
+<dl class="field-list">
+<dt class="field-odd">Parent</dt>
+<dd class="field-odd"><p>threading.Thread</p>
+</dd>
+<dt class="field-even">Args</dt>
+<dd class="field-even"><dl>
+<dt>function: Python function (can’t be a list)</dt><dd><p>Function that will be called when a new midi event is available.
+This function is called with the incoming midi data as
+arguments. The signature of the function must be:</p>
+<p>def myfunc(status, data1, data2)</p>
+</dd>
+<dt>mididev: int or list of ints, optional</dt><dd><p>Sets the midi input device (see <cite>pm_list_devices()</cite> for the
+available devices). The default, -1, means the system default
+device. A number greater than the highest portmidi device index
+will open all available input devices. Specific devices can be
+set with a list of integers.</p>
+</dd>
+<dt>reportdevice: boolean, optional</dt><dd><p>If True, the device ID will be reported as a fourth argument to
+the callback. The signature will then be:</p>
+<p>def myfunc(status, data1, data2, id)</p>
+<p>Available at initialization only. Defaults to False.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This object is available only if pyo is built with portmidi support
+(see withPortmidi function).</p>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">s</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="o">.</span><span class="n">deactivateMidi</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">midicall</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">data1</span><span class="p">,</span> <span class="n">data2</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">data1</span><span class="p">,</span> <span class="n">data2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/listener.html#pyo.MidiListener" title="pyo.lib.listener.MidiListener"><span class="n">listen</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/listener.html#pyo.MidiListener" title="pyo.lib.listener.MidiListener"><span class="n">MidiListener</span></a><span class="p">(</span><span class="n">midicall</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">listen</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Public Data Attributes:</p>
+<details><summary>Inherited from <code class="xref py py-class docutils literal notranslate"><span class="pre">Thread</span></code></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">name</span></code></p></td>
+<td><p>A string used for identification purposes only.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ident</span></code></p></td>
+<td><p>Thread identifier of this thread or None if it has not been started.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">native_id</span></code></p></td>
+<td><p>Native integral thread ID of this thread, or None if it has not been started.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">daemon</span></code></p></td>
+<td><p>A boolean value indicating whether this thread is a daemon thread.</p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Public Methods:</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>(function[, mididev, reportdevice])</p></td>
+<td><p>This constructor should always be called with keyword arguments.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.MidiListener.run" title="pyo.MidiListener.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>()</p></td>
+<td><p>Starts the process.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.MidiListener.stop" title="pyo.MidiListener.stop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stop</span></code></a>()</p></td>
+<td><p>Stops the listener and properly close the midi ports.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.MidiListener.getDeviceInfos" title="pyo.MidiListener.getDeviceInfos"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getDeviceInfos</span></code></a>()</p></td>
+<td><p>Returns infos about connected midi devices.</p></td>
+</tr>
+</tbody>
+</table>
+<details><summary>Inherited from <code class="xref py py-class docutils literal notranslate"><span class="pre">Thread</span></code></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>(function[, mididev, reportdevice])</p></td>
+<td><p>This constructor should always be called with keyword arguments.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__repr__</span></code>()</p></td>
+<td><p>Return repr(self).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">start</span></code>()</p></td>
+<td><p>Start the thread's activity.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.MidiListener.run" title="pyo.MidiListener.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>()</p></td>
+<td><p>Starts the process.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">join</span></code>([timeout])</p></td>
+<td><p>Wait until the thread terminates.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_alive</span></code>()</p></td>
+<td><p>Return whether the thread is alive.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isDaemon</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setDaemon</span></code>(daemonic)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getName</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setName</span></code>(name)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Private Data Attributes:</p>
+<details><summary>Inherited from <code class="xref py py-class docutils literal notranslate"><span class="pre">Thread</span></code></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_initialized</span></code></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Private Methods:</p>
+<details><summary>Inherited from <code class="xref py py-class docutils literal notranslate"><span class="pre">Thread</span></code></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_reset_internal_locks</span></code>(is_alive)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_bootstrap</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_set_ident</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_set_native_id</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_set_tstate_lock</span></code>()</p></td>
+<td><p>Set a lock object which will be released by the interpreter when the underlying thread state (see pystate.h) gets deleted.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_bootstrap_inner</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_stop</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_delete</span></code>()</p></td>
+<td><p>Remove current thread from the dict of currently running threads.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_wait_for_tstate_lock</span></code>([block, timeout])</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<hr class="docutils"/>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.MidiListener.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/listener.html#MidiListener.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.MidiListener.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Starts the process. The thread runs as daemon, so no need to stop it.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.MidiListener.stop">
+<span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/listener.html#MidiListener.stop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.MidiListener.stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stops the listener and properly close the midi ports.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.MidiListener.getDeviceInfos">
+<span class="sig-name descname"><span class="pre">getDeviceInfos</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/listener.html#MidiListener.getDeviceInfos"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.MidiListener.getDeviceInfos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns infos about connected midi devices.</p>
+<p>This method returns a list of dictionaries, one per device.</p>
+<p>Dictionary format is:</p>
+<p>{“id”: device_id (int), “name”: device_name (str), “interface”: interface (str)}</p>
+</dd></dl>
+</dd></dl>
+</section>
+<section id="mididispatcher">
+<h2><em>MidiDispatcher</em><a class="headerlink" href="#mididispatcher" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyo.MidiDispatcher">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">MidiDispatcher</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mididev</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/listener.html#MidiDispatcher"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.MidiDispatcher" title="Permalink to this definition">¶</a></dt>
+<dd><p>Self-contained midi dispatcher thread.</p>
+<p>This object allows to setup a Midi server that is independent
+of the audio server (mainly to be able to send Midi data even
+when the audio server is stopped). Although it runs in a separated
+thread, the same device can’t be used by this object and the audio
+server at the same time. It is adviced to call the deactivateMidi()
+method on the audio server to avoid conflicts.</p>
+<p>Use the <cite>send</cite> method to send midi event to connected devices.</p>
+<p>Use the <cite>sendx</cite> method to send sysex event to connected devices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parent</dt>
+<dd class="field-odd"><p>threading.Thread</p>
+</dd>
+<dt class="field-even">Args</dt>
+<dd class="field-even"><dl class="simple">
+<dt>mididev: int or list of ints, optional</dt><dd><p>Sets the midi output device (see <cite>pm_list_devices()</cite> for the
+available devices). The default, -1, means the system default
+device. A number greater than the highest portmidi device index
+will open all available input devices. Specific devices can be
+set with a list of integers.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This object is available only if pyo is built with portmidi support
+(see withPortmidi function).</p>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">s</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="o">.</span><span class="n">deactivateMidi</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/listener.html#pyo.MidiDispatcher" title="pyo.lib.listener.MidiDispatcher"><span class="n">dispatch</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/listener.html#pyo.MidiDispatcher" title="pyo.lib.listener.MidiDispatcher"><span class="n">MidiDispatcher</span></a><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dispatch</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dispatch</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="mi">144</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">127</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Public Data Attributes:</p>
+<details><summary>Inherited from <code class="xref py py-class docutils literal notranslate"><span class="pre">Thread</span></code></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">name</span></code></p></td>
+<td><p>A string used for identification purposes only.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ident</span></code></p></td>
+<td><p>Thread identifier of this thread or None if it has not been started.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">native_id</span></code></p></td>
+<td><p>Native integral thread ID of this thread, or None if it has not been started.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">daemon</span></code></p></td>
+<td><p>A boolean value indicating whether this thread is a daemon thread.</p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Public Methods:</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>([mididev])</p></td>
+<td><p>This constructor should always be called with keyword arguments.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.MidiDispatcher.run" title="pyo.MidiDispatcher.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>()</p></td>
+<td><p>Starts the process.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.MidiDispatcher.send" title="pyo.MidiDispatcher.send"><code class="xref py py-obj docutils literal notranslate"><span class="pre">send</span></code></a>(status, data1[, data2, timestamp, device])</p></td>
+<td><p>Send a MIDI message to the selected midi output device.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.MidiDispatcher.sendx" title="pyo.MidiDispatcher.sendx"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sendx</span></code></a>(msg[, timestamp, device])</p></td>
+<td><p>Send a MIDI system exclusive message to the selected midi output device.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.MidiDispatcher.getDeviceInfos" title="pyo.MidiDispatcher.getDeviceInfos"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getDeviceInfos</span></code></a>()</p></td>
+<td><p>Returns infos about connected midi devices.</p></td>
+</tr>
+</tbody>
+</table>
+<details><summary>Inherited from <code class="xref py py-class docutils literal notranslate"><span class="pre">Thread</span></code></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>([mididev])</p></td>
+<td><p>This constructor should always be called with keyword arguments.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__repr__</span></code>()</p></td>
+<td><p>Return repr(self).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">start</span></code>()</p></td>
+<td><p>Start the thread's activity.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.MidiDispatcher.run" title="pyo.MidiDispatcher.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>()</p></td>
+<td><p>Starts the process.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">join</span></code>([timeout])</p></td>
+<td><p>Wait until the thread terminates.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_alive</span></code>()</p></td>
+<td><p>Return whether the thread is alive.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isDaemon</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setDaemon</span></code>(daemonic)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getName</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setName</span></code>(name)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Private Data Attributes:</p>
+<details><summary>Inherited from <code class="xref py py-class docutils literal notranslate"><span class="pre">Thread</span></code></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_initialized</span></code></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Private Methods:</p>
+<details><summary>Inherited from <code class="xref py py-class docutils literal notranslate"><span class="pre">Thread</span></code></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_reset_internal_locks</span></code>(is_alive)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_bootstrap</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_set_ident</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_set_native_id</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_set_tstate_lock</span></code>()</p></td>
+<td><p>Set a lock object which will be released by the interpreter when the underlying thread state (see pystate.h) gets deleted.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_bootstrap_inner</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_stop</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_delete</span></code>()</p></td>
+<td><p>Remove current thread from the dict of currently running threads.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_wait_for_tstate_lock</span></code>([block, timeout])</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<hr class="docutils"/>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.MidiDispatcher.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/listener.html#MidiDispatcher.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.MidiDispatcher.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Starts the process. The thread runs as daemon, so no need to stop it.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.MidiDispatcher.send">
+<span class="sig-name descname"><span class="pre">send</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">status</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/listener.html#MidiDispatcher.send"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.MidiDispatcher.send" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send a MIDI message to the selected midi output device.</p>
+<p>Arguments can be list of values to generate multiple events
+in one call.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>status: int</dt><dd><p>Status byte.</p>
+</dd>
+<dt>data1: int</dt><dd><p>First data byte.</p>
+</dd>
+<dt>data2: int, optional</dt><dd><p>Second data byte. Defaults to 0.</p>
+</dd>
+<dt>timestamp: int, optional</dt><dd><p>The delay time, in milliseconds, before the note
+is sent on the portmidi stream. A value of 0 means
+to play the note now. Defaults to 0.</p>
+</dd>
+<dt>device: int, optional</dt><dd><p>The index of the device to which the message will
+be sent. The default (-1) means all devices. See
+<cite>getDeviceInfos()</cite> to retrieve device indexes.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.MidiDispatcher.sendx">
+<span class="sig-name descname"><span class="pre">sendx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/listener.html#MidiDispatcher.sendx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.MidiDispatcher.sendx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send a MIDI system exclusive message to the selected midi output device.</p>
+<p>Arguments can be list of values to generate multiple events
+in one call.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>msg: str</dt><dd><p>A valid system exclusive message as a string. The first byte
+must be 0xf0 and the last one must be 0xf7.</p>
+</dd>
+<dt>timestamp: int, optional</dt><dd><p>The delay time, in milliseconds, before the note
+is sent on the portmidi stream. A value of 0 means
+to play the note now. Defaults to 0.</p>
+</dd>
+<dt>device: int, optional</dt><dd><p>The index of the device to which the message will
+be sent. The default (-1) means all devices. See
+<cite>getDeviceInfos()</cite> to retrieve device indexes.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.MidiDispatcher.getDeviceInfos">
+<span class="sig-name descname"><span class="pre">getDeviceInfos</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/listener.html#MidiDispatcher.getDeviceInfos"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.MidiDispatcher.getDeviceInfos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns infos about connected midi devices.</p>
+<p>This method returns a list of dictionaries, one per device.</p>
+<p>Dictionary format is:</p>
+<p>{“id”: device_id (int), “name”: device_name (str), “interface”: interface (str)}</p>
+</dd></dl>
+</dd></dl>
+</section>
+<section id="osclistener">
+<h2><em>OscListener</em><a class="headerlink" href="#osclistener" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyo.OscListener">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">OscListener</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">9000</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/listener.html#OscListener"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.OscListener" title="Permalink to this definition">¶</a></dt>
+<dd><p>Self-contained OSC listener thread.</p>
+<p>This object allows to setup an OSC server that is independent
+of the audio server (mainly to be able to receive OSC data even
+when the audio server is stopped).</p>
+<dl class="field-list">
+<dt class="field-odd">Parent</dt>
+<dd class="field-odd"><p>threadind.Thread</p>
+</dd>
+<dt class="field-even">Args</dt>
+<dd class="field-even"><dl>
+<dt>function: Python function (can’t be a list)</dt><dd><p>Function that will be called when a new OSC event is available.
+This function is called with the incoming address and values as
+arguments. The signature of the function must be:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">myfunc</span><span class="p">(</span><span class="n">address</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+<dt>port: int, optional</dt><dd><p>The OSC port on which the values are received. Defaults to 9000.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="n">address</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="n">address</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/listener.html#pyo.OscListener" title="pyo.lib.listener.OscListener"><span class="n">listen</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/listener.html#pyo.OscListener" title="pyo.lib.listener.OscListener"><span class="n">OscListener</span></a><span class="p">(</span><span class="n">call</span><span class="p">,</span> <span class="mi">9901</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">listen</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Public Data Attributes:</p>
+<details><summary>Inherited from <code class="xref py py-class docutils literal notranslate"><span class="pre">Thread</span></code></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">name</span></code></p></td>
+<td><p>A string used for identification purposes only.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ident</span></code></p></td>
+<td><p>Thread identifier of this thread or None if it has not been started.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">native_id</span></code></p></td>
+<td><p>Native integral thread ID of this thread, or None if it has not been started.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">daemon</span></code></p></td>
+<td><p>A boolean value indicating whether this thread is a daemon thread.</p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Public Methods:</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>(function[, port])</p></td>
+<td><p>This constructor should always be called with keyword arguments.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.OscListener.run" title="pyo.OscListener.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>()</p></td>
+<td><p>Starts the process.</p></td>
+</tr>
+</tbody>
+</table>
+<details><summary>Inherited from <code class="xref py py-class docutils literal notranslate"><span class="pre">Thread</span></code></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>(function[, port])</p></td>
+<td><p>This constructor should always be called with keyword arguments.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__repr__</span></code>()</p></td>
+<td><p>Return repr(self).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">start</span></code>()</p></td>
+<td><p>Start the thread's activity.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.OscListener.run" title="pyo.OscListener.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>()</p></td>
+<td><p>Starts the process.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">join</span></code>([timeout])</p></td>
+<td><p>Wait until the thread terminates.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_alive</span></code>()</p></td>
+<td><p>Return whether the thread is alive.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isDaemon</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setDaemon</span></code>(daemonic)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getName</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setName</span></code>(name)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Private Data Attributes:</p>
+<details><summary>Inherited from <code class="xref py py-class docutils literal notranslate"><span class="pre">Thread</span></code></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_initialized</span></code></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<div class="autoclasstoc docutils container">
+<p class="rubric">Private Methods:</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_oscrecv</span></code>(address, *args)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<details><summary>Inherited from <code class="xref py py-class docutils literal notranslate"><span class="pre">Thread</span></code></summary><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_reset_internal_locks</span></code>(is_alive)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_bootstrap</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_set_ident</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_set_native_id</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_set_tstate_lock</span></code>()</p></td>
+<td><p>Set a lock object which will be released by the interpreter when the underlying thread state (see pystate.h) gets deleted.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_bootstrap_inner</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_stop</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_delete</span></code>()</p></td>
+<td><p>Remove current thread from the dict of currently running threads.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">_wait_for_tstate_lock</span></code>([block, timeout])</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</details></div>
+<hr class="docutils"/>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.OscListener.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/listener.html#OscListener.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.OscListener.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Starts the process. The thread runs as daemon, so no need to stop it.</p>
+</dd></dl>
+</dd></dl>
+</section>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h3><a href="../../index.html">Table of Contents</a></h3>
+<ul>
+<li><a class="reference internal" href="#">Controller listeners</a><ul>
+<li><a class="reference internal" href="#midilistener"><em>MidiListener</em></a></li>
+<li><a class="reference internal" href="#mididispatcher"><em>MidiDispatcher</em></a></li>
+<li><a class="reference internal" href="#osclistener"><em>OscListener</em></a></li>
+</ul>
+</li>
+</ul>
+<h4>Previous topic</h4>
+<p class="topless"><a href="server.html" title="previous chapter">Audio Server</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="_core.html" title="next chapter">Base Classes</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="_core.html" title="Base Classes">next</a> |</li>
+<li class="right">
+<a href="server.html" title="Audio Server">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="../index.html">API documentation</a> »</li>
+<li class="nav-item nav-item-2"><a href="index.html">Classes by category</a> »</li>
+<li class="nav-item nav-item-this"><a href="">Controller listeners</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

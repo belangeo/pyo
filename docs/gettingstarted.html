@@ -1,0 +1,218 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>Getting started — Pyo 1.0.4 documentation</title>
+<link href="_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+<script src="_static/jquery.js"></script>
+<script src="_static/underscore.js"></script>
+<script src="_static/doctools.js"></script>
+<link href="_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="about.html" rel="author" title="About these documents"/>
+<link href="genindex.html" rel="index" title="Index"/>
+<link href="search.html" rel="search" title="Search"/>
+<link href="winaudioinspect.html" rel="next" title="Configuring the audio output (especially on Windows)"/>
+<link href="structure.html" rel="prev" title="Structure of the library"/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="winaudioinspect.html" title="Configuring the audio output (especially on Windows)">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="structure.html" title="Structure of the library">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-this"><a href="">Getting started</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="getting-started">
+<h1>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
+<p>Here is quick introduction to Pyo. It assumes you already know Python and
+basics about OOP (Object-Oriented Programming).</p>
+<section id="the-pyo-server-and-gui">
+<h2>The Pyo Server and GUI<a class="headerlink" href="#the-pyo-server-and-gui" title="Permalink to this headline">¶</a></h2>
+<p>The first thing you need to do to use Pyo is import the pyo python module and
+boot the server. This audio server will open audio and midi interfaces and
+will be ready to send to them the audio and MIDI produced by other pyo objects.
+You then need to make some sound:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="n">mul</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The <cite>s</cite> variable holds the Server instance, which has been booted, using the
+boot function. Booting the server includes opening audio and MIDI interfaces,
+and setting up the sample rate and number of channels, but the server will
+not be processing audio until its start() method is called. Then we create a
+Sine object, and store it in variable a, after calling its out method. The
+Sine class defines a Sine wave oscillator. The out method from this class
+connects the output of the oscillator to the server audio outputs. I have
+set the mul attribute of the Sine object to make sure you don’t blow your
+ears when you play this, as the default amplitude multiplier is 1, i.e. a
+sine wave at the maximum amplitude before clipping! (But I’ll talk about
+attributes later…) You can stop the server with:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">s</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="to-interact-or-not-to-interact">
+<h2>To interact or not to interact<a class="headerlink" href="#to-interact-or-not-to-interact" title="Permalink to this headline">¶</a></h2>
+<p>If you tried the above script from an interactive python shell you would have
+heard a sine tone, but if you ran it from a python script non-interactively,
+you are probably asking yourself why you haven’t heard anything. The reason
+is that the script has finished before the server has sent any audio to the
+outputs! So if you are using python non-interactively, the way to hear this
+example is:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+<span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+<span class="n">s</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<span class="n">a</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="n">mul</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+<span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+</pre></div>
+</div>
+<p>In the last line, you can see a very handy method from the Server class,
+which creates a small control GUI for the current instance. The gui method
+for the Server object, keeps a script running and allows you to start and
+stop the server, control the output volume and record to an audio file the
+sound generated in the server. A handy feature of the server GUI is the
+interpreter text box in the bottom. From it you can send commands
+interactively to the interpreter, to start and stop objects, create or
+destroy them, etc.</p>
+</section>
+<section id="changing-object-characteristics">
+<h2>Changing Object Characteristics<a class="headerlink" href="#changing-object-characteristics" title="Permalink to this headline">¶</a></h2>
+<p>The Sine class constructor is defined as:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">phase</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>So you can give it a frequency, starting phase, multiplier and DC offset
+value when you create it. Also, if you want to do without the server gui,
+you can use the server method start() from your script, but you might need
+to use the sleep function from the time module to have your script run the
+server for a while if you are running Python non-interactively:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+<span class="n">a</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="mi">440</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+<span class="n">s</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Notice that you can set the parameters for Sine in the order in which they
+are defined, but you can also give the parameters a name if you want to leave
+the rest at their default:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">a</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="n">mul</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Once the object has been created, you can modify its attributes using the
+access methods. For example, to modify the frequency of the a oscillator
+object after it has been created you can use:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">a</span><span class="o">.</span><span class="n">setFreq</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>But you can also set the attributes directly:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">a</span><span class="o">.</span><span class="n">freq</span> <span class="o">=</span> <span class="mi">1000</span>
+</pre></div>
+</div>
+</section>
+<section id="chaining-objects">
+<h2>Chaining objects<a class="headerlink" href="#chaining-objects" title="Permalink to this headline">¶</a></h2>
+<p>Oscillators like the Sine class can be used as inputs to other classes, for
+example for frequency modulation:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+<span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+<a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">mod</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+<span class="n">a</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">mod</span></a> <span class="o">+</span> <span class="mi">440</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+<span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+</pre></div>
+</div>
+<p>You can create an envelope for a sine wave like this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+<span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+<a class="sphinx-codeautolink-a" href="api/classes/controls.html#pyo.Adsr" title="pyo.lib.controls.Adsr"><span class="n">f</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/controls.html#pyo.Adsr" title="pyo.lib.controls.Adsr"><span class="n">Adsr</span></a><span class="p">(</span><span class="n">attack</span><span class="o">=.</span><span class="mi">01</span><span class="p">,</span> <span class="n">decay</span><span class="o">=.</span><span class="mi">2</span><span class="p">,</span> <span class="n">sustain</span><span class="o">=.</span><span class="mi">5</span><span class="p">,</span> <span class="n">release</span><span class="o">=.</span><span class="mi">1</span><span class="p">,</span> <span class="n">dur</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">mul</span><span class="o">=.</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">a</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="n">mul</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="api/classes/controls.html#pyo.Adsr" title="pyo.lib.controls.Adsr"><span class="n">f</span></a><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+<span class="n">f</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+<span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<section id="class-examples">
+<h2>Class examples<a class="headerlink" href="#class-examples" title="Permalink to this headline">¶</a></h2>
+<p>All Classes in Pyo come with an example which shows how it can be used. To
+execute the example you can do:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="api/functions/util.html#pyo.example" title="pyo.example"><span class="n">example</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="api/classes/effects.html#pyo.Harmonizer" title="pyo.lib.effects.Harmonizer"><span class="n">Harmonizer</span></a><span class="p">)</span>
+</pre></div>
+</div>
+<p>This will show and execute the example for the Harmonizer class.</p>
+</section>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h3><a href="index.html">Table of Contents</a></h3>
+<ul>
+<li><a class="reference internal" href="#">Getting started</a><ul>
+<li><a class="reference internal" href="#the-pyo-server-and-gui">The Pyo Server and GUI</a></li>
+<li><a class="reference internal" href="#to-interact-or-not-to-interact">To interact or not to interact</a></li>
+<li><a class="reference internal" href="#changing-object-characteristics">Changing Object Characteristics</a></li>
+<li><a class="reference internal" href="#chaining-objects">Chaining objects</a></li>
+<li><a class="reference internal" href="#class-examples">Class examples</a></li>
+</ul>
+</li>
+</ul>
+<h4>Previous topic</h4>
+<p class="topless"><a href="structure.html" title="previous chapter">Structure of the library</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="winaudioinspect.html" title="next chapter">Configuring the audio output (especially on Windows)</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="winaudioinspect.html" title="Configuring the audio output (especially on Windows)">next</a> |</li>
+<li class="right">
+<a href="structure.html" title="Structure of the library">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-this"><a href="">Getting started</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

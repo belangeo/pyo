@@ -1,0 +1,155 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>05-convolution-filters.py - Circular convolution. — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="06-vocoder.html" rel="next" title="06-vocoder.py - Analysis/resynthesis vocoder effect."/>
+<link href="04-phasing.html" rel="prev" title="04-phasing.py - The phasing effect."/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="06-vocoder.html" title="06-vocoder.py - Analysis/resynthesis vocoder effect.">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="04-phasing.html" title="04-phasing.py - The phasing effect.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a accesskey="U" href="index.html">06-filters</a> »</li>
+<li class="nav-item nav-item-this"><a href="">05-convolution-filters.py - Circular convolution.</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="convolution-filters-py-circular-convolution">
+<h1>05-convolution-filters.py - Circular convolution.<a class="headerlink" href="#convolution-filters-py-circular-convolution" title="Permalink to this headline">¶</a></h1>
+<p>A circular convolution is defined as the integral of the
+product of two functions after one is reversed and shifted.</p>
+<p>Circular convolution allows to implement very complex FIR
+filters, at a CPU cost that is related to the filter impulse
+response (kernel) length.</p>
+<p>Within pyo, there is a family of IR* filter objects using
+circular convolution with predefined kernel:</p>
+<ul class="simple">
+<li><p>IRAverage : moving average filter</p></li>
+<li><p>IRFM : FM-like filter</p></li>
+<li><p>IRPulse : comb-like filter</p></li>
+<li><p>RWinSinc : break wall filters (lp, hp, hp, br)</p></li>
+</ul>
+<p>For general circular convolution, use the Convolve object
+with a PyoTableObject as the kernel, as in this example:</p>
+<p>A white noise is filtered by four impulses taken from the input mic.</p>
+<p>Call r1.play(), r2.play(), r3.play() or r4.play() in the Interpreter
+field while making some noise in the mic to fill the impulse response
+tables. The slider handles the morphing between the four kernels.</p>
+<p>Call t1.view(), t2.view(), t3.view() or t4.view() to view impulse
+response tables.</p>
+<p>Because circular convolution is very expensive, TLEN (in samples)
+should be keep small.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="c1"># duplex=1 to tell the Server we need both input and output sounds.</span>
+<span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">(</span><span class="n">duplex</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+
+<span class="c1"># Length of the impulse response in samples.</span>
+<span class="n">TLEN</span> <span class="o">=</span> <span class="mi">512</span>
+
+<span class="c1"># Conversion to seconds for NewTable objects.</span>
+<span class="n">DUR</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/functions/conv.html#pyo.sampsToSec" title="pyo.sampsToSec"><span class="n">sampsToSec</span></a><span class="p">(</span><span class="n">TLEN</span><span class="p">)</span>
+
+<span class="c1"># Excitation signal for the filters.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">sf</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">Noise</span></a><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+
+<span class="c1"># Signal from the mic to record the kernels.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Input" title="pyo.lib.generators.Input"><span class="n">inmic</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Input" title="pyo.lib.generators.Input"><span class="n">Input</span></a><span class="p">()</span>
+
+<span class="c1"># Four tables and recorders.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.NewTable" title="pyo.lib.tables.NewTable"><span class="n">t1</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.NewTable" title="pyo.lib.tables.NewTable"><span class="n">NewTable</span></a><span class="p">(</span><span class="n">length</span><span class="o">=</span><span class="n">DUR</span><span class="p">,</span> <span class="n">chnls</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/tableprocess.html#pyo.TableRec" title="pyo.lib.tableprocess.TableRec"><span class="n">r1</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/tableprocess.html#pyo.TableRec" title="pyo.lib.tableprocess.TableRec"><span class="n">TableRec</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Input" title="pyo.lib.generators.Input"><span class="n">inmic</span></a><span class="p">,</span> <span class="n">table</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.NewTable" title="pyo.lib.tables.NewTable"><span class="n">t1</span></a><span class="p">,</span> <span class="n">fadetime</span><span class="o">=</span><span class="mf">0.001</span><span class="p">)</span>
+
+<a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.NewTable" title="pyo.lib.tables.NewTable"><span class="n">t2</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.NewTable" title="pyo.lib.tables.NewTable"><span class="n">NewTable</span></a><span class="p">(</span><span class="n">length</span><span class="o">=</span><span class="n">DUR</span><span class="p">,</span> <span class="n">chnls</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/tableprocess.html#pyo.TableRec" title="pyo.lib.tableprocess.TableRec"><span class="n">r2</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/tableprocess.html#pyo.TableRec" title="pyo.lib.tableprocess.TableRec"><span class="n">TableRec</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Input" title="pyo.lib.generators.Input"><span class="n">inmic</span></a><span class="p">,</span> <span class="n">table</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.NewTable" title="pyo.lib.tables.NewTable"><span class="n">t2</span></a><span class="p">,</span> <span class="n">fadetime</span><span class="o">=</span><span class="mf">0.001</span><span class="p">)</span>
+
+<a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.NewTable" title="pyo.lib.tables.NewTable"><span class="n">t3</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.NewTable" title="pyo.lib.tables.NewTable"><span class="n">NewTable</span></a><span class="p">(</span><span class="n">length</span><span class="o">=</span><span class="n">DUR</span><span class="p">,</span> <span class="n">chnls</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/tableprocess.html#pyo.TableRec" title="pyo.lib.tableprocess.TableRec"><span class="n">r3</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/tableprocess.html#pyo.TableRec" title="pyo.lib.tableprocess.TableRec"><span class="n">TableRec</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Input" title="pyo.lib.generators.Input"><span class="n">inmic</span></a><span class="p">,</span> <span class="n">table</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.NewTable" title="pyo.lib.tables.NewTable"><span class="n">t3</span></a><span class="p">,</span> <span class="n">fadetime</span><span class="o">=</span><span class="mf">0.001</span><span class="p">)</span>
+
+<a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.NewTable" title="pyo.lib.tables.NewTable"><span class="n">t4</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.NewTable" title="pyo.lib.tables.NewTable"><span class="n">NewTable</span></a><span class="p">(</span><span class="n">length</span><span class="o">=</span><span class="n">DUR</span><span class="p">,</span> <span class="n">chnls</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/tableprocess.html#pyo.TableRec" title="pyo.lib.tableprocess.TableRec"><span class="n">r4</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/tableprocess.html#pyo.TableRec" title="pyo.lib.tableprocess.TableRec"><span class="n">TableRec</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Input" title="pyo.lib.generators.Input"><span class="n">inmic</span></a><span class="p">,</span> <span class="n">table</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.NewTable" title="pyo.lib.tables.NewTable"><span class="n">t4</span></a><span class="p">,</span> <span class="n">fadetime</span><span class="o">=</span><span class="mf">0.001</span><span class="p">)</span>
+
+<span class="c1"># Interpolation control between the tables.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Sig" title="pyo.lib._core.Sig"><span class="n">pha</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Sig" title="pyo.lib._core.Sig"><span class="n">Sig</span></a><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">pha</span><span class="o">.</span><span class="n">ctrl</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"Impulse responses morphing"</span><span class="p">)</span>
+
+<span class="c1"># Morphing between the four impulse responses.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.NewTable" title="pyo.lib.tables.NewTable"><span class="n">res</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.NewTable" title="pyo.lib.tables.NewTable"><span class="n">NewTable</span></a><span class="p">(</span><span class="n">length</span><span class="o">=</span><span class="n">DUR</span><span class="p">,</span> <span class="n">chnls</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/tableprocess.html#pyo.TableMorph" title="pyo.lib.tableprocess.TableMorph"><span class="n">morp</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/tableprocess.html#pyo.TableMorph" title="pyo.lib.tableprocess.TableMorph"><span class="n">TableMorph</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Sig" title="pyo.lib._core.Sig"><span class="n">pha</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.NewTable" title="pyo.lib.tables.NewTable"><span class="n">res</span></a><span class="p">,</span> <span class="p">[</span><a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.NewTable" title="pyo.lib.tables.NewTable"><span class="n">t1</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.NewTable" title="pyo.lib.tables.NewTable"><span class="n">t2</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.NewTable" title="pyo.lib.tables.NewTable"><span class="n">t3</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.NewTable" title="pyo.lib.tables.NewTable"><span class="n">t4</span></a><span class="p">])</span>
+
+<span class="c1"># Circular convolution between the excitation and the morphed kernel.</span>
+<span class="n">a</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/effects.html#pyo.Convolve" title="pyo.lib.effects.Convolve"><span class="n">Convolve</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">sf</span></a><span class="p">,</span> <span class="n">table</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.NewTable" title="pyo.lib.tables.NewTable"><span class="n">res</span></a><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">res</span><span class="o">.</span><span class="n">getSize</span><span class="p">(),</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span><span class="o">.</span><span class="n">mix</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h4>Previous topic</h4>
+<p class="topless"><a href="04-phasing.html" title="previous chapter">04-phasing.py - The phasing effect.</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="06-vocoder.html" title="next chapter">06-vocoder.py - Analysis/resynthesis vocoder effect.</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="06-vocoder.html" title="06-vocoder.py - Analysis/resynthesis vocoder effect.">next</a> |</li>
+<li class="right">
+<a href="04-phasing.html" title="04-phasing.py - The phasing effect.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="index.html">06-filters</a> »</li>
+<li class="nav-item nav-item-this"><a href="">05-convolution-filters.py - Circular convolution.</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

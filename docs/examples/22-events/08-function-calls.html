@@ -1,0 +1,132 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>08-function-calls.py - Using custom algorithms with python function calls. — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="09-embedding-generators.html" rel="next" title="09-embedding-generators.py - From words to musical phrases."/>
+<link href="07-managing-scales.html" rel="prev" title="07-managing-scales.py - Using EventScale to manage list of notes."/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="09-embedding-generators.html" title="09-embedding-generators.py - From words to musical phrases.">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="07-managing-scales.html" title="07-managing-scales.py - Using EventScale to manage list of notes.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a accesskey="U" href="index.html">22-events</a> »</li>
+<li class="nav-item nav-item-this"><a href="">08-function-calls.py - Using custom algorithms with python function calls.</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="function-calls-py-using-custom-algorithms-with-python-function-calls">
+<h1>08-function-calls.py - Using custom algorithms with python function calls.<a class="headerlink" href="#function-calls-py-using-custom-algorithms-with-python-function-calls" title="Permalink to this headline">¶</a></h1>
+<p><strong>EventCall</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">EventCall</span><span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">occurrences</span><span class="o">=</span><span class="n">inf</span><span class="p">,</span> <span class="n">stopEventsWhenDone</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>EventCall calls a function, with any number of arguments (*args) and uses
+its return value for the given parameter. The example below use a function
+from the random module, <em>randrange</em>, with arguments and a user-defined
+function, without argument, to create a rising, then falling, amplitude curve.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">from</span> <a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+
+<span class="n">db</span> <span class="o">=</span> <span class="o">-</span><span class="mi">30</span>
+<span class="nb">dir</span> <span class="o">=</span> <span class="mi">1</span>
+
+
+<span class="k">def</span> <span class="nf">riseFallAmp</span><span class="p">():</span>
+    <span class="s2">"Rises and falls amplitude between -30 and -3 dB, 1 db at the time."</span>
+    <span class="k">global</span> <span class="n">db</span><span class="p">,</span> <span class="nb">dir</span>
+    <span class="n">db</span> <span class="o">+=</span> <span class="nb">dir</span>
+    <span class="k">if</span> <span class="n">db</span> <span class="o">&gt;=</span> <span class="o">-</span><span class="mi">3</span><span class="p">:</span>
+        <span class="nb">dir</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="k">elif</span> <span class="n">db</span> <span class="o">&lt;</span> <span class="o">-</span><span class="mi">30</span><span class="p">:</span>
+        <span class="nb">dir</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">db</span>
+
+
+<span class="c1"># Midi notes are chosen randomly with a function from the random module,</span>
+<span class="c1"># while the amplitude change according to the riseFallAmp function's output.</span>
+<span class="n">e</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/events.html#pyo.Events" title="pyo.lib.events.Events"><span class="n">Events</span></a><span class="p">(</span>
+    <span class="n">midinote</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/events.html#pyo.EventCall" title="pyo.lib.events.EventCall"><span class="n">EventCall</span></a><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">randrange</span><span class="p">,</span> <span class="mi">48</span><span class="p">,</span> <span class="mi">72</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+    <span class="n">beat</span><span class="o">=</span><span class="mi">1</span> <span class="o">/</span> <span class="mf">4.0</span><span class="p">,</span>
+    <span class="n">db</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/events.html#pyo.EventCall" title="pyo.lib.events.EventCall"><span class="n">EventCall</span></a><span class="p">(</span><span class="n">riseFallAmp</span><span class="p">),</span>
+    <span class="n">attack</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span>
+    <span class="n">decay</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+    <span class="n">sustain</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">release</span><span class="o">=</span><span class="mf">0.005</span><span class="p">,</span>
+<span class="p">)</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+
+
+<span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h4>Previous topic</h4>
+<p class="topless"><a href="07-managing-scales.html" title="previous chapter">07-managing-scales.py - Using EventScale to manage list of notes.</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="09-embedding-generators.html" title="next chapter">09-embedding-generators.py - From words to musical phrases.</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="09-embedding-generators.html" title="09-embedding-generators.py - From words to musical phrases.">next</a> |</li>
+<li class="right">
+<a href="07-managing-scales.html" title="07-managing-scales.py - Using EventScale to manage list of notes.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="index.html">22-events</a> »</li>
+<li class="nav-item nav-item-this"><a href="">08-function-calls.py - Using custom algorithms with python function calls.</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

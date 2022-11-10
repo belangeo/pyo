@@ -1,0 +1,113 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>01-fixed-control.py - Number as argument. — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="02-dynamic-control.html" rel="next" title="02-dynamic-control.py - Graphical control for parameters."/>
+<link href="index.html" rel="prev" title="02-controls"/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="02-dynamic-control.html" title="02-dynamic-control.py - Graphical control for parameters.">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="index.html" title="02-controls">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a accesskey="U" href="index.html">02-controls</a> »</li>
+<li class="nav-item nav-item-this"><a href="">01-fixed-control.py - Number as argument.</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="fixed-control-py-number-as-argument">
+<h1>01-fixed-control.py - Number as argument.<a class="headerlink" href="#fixed-control-py-number-as-argument" title="Permalink to this headline">¶</a></h1>
+<p>Audio objects behaviour can be controlled by passing
+value to their arguments at initialization time.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+<span class="n">s</span><span class="o">.</span><span class="n">amp</span> <span class="o">=</span> <span class="mf">0.1</span>
+
+<span class="c1"># Sets fundamental frequency</span>
+<span class="n">freq</span> <span class="o">=</span> <span class="mi">200</span>
+
+<span class="c1"># Approximates a triangle waveform by adding odd harmonics with</span>
+<span class="c1"># amplitude proportional to the inverse square of the harmonic number.</span>
+<span class="n">h1</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="n">freq</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+<span class="n">h2</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="n">freq</span> <span class="o">*</span> <span class="mi">3</span><span class="p">,</span> <span class="n">phase</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">1.0</span> <span class="o">/</span> <span class="nb">pow</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+<span class="n">h3</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="n">freq</span> <span class="o">*</span> <span class="mi">5</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">1.0</span> <span class="o">/</span> <span class="nb">pow</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+<span class="n">h4</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="n">freq</span> <span class="o">*</span> <span class="mi">7</span><span class="p">,</span> <span class="n">phase</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">1.0</span> <span class="o">/</span> <span class="nb">pow</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+<span class="n">h5</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="n">freq</span> <span class="o">*</span> <span class="mi">9</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">1.0</span> <span class="o">/</span> <span class="nb">pow</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+<span class="n">h6</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="n">freq</span> <span class="o">*</span> <span class="mi">11</span><span class="p">,</span> <span class="n">phase</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">1.0</span> <span class="o">/</span> <span class="nb">pow</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+<span class="c1"># Displays the final waveform</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.Scope" title="pyo.lib.analysis.Scope"><span class="n">sp</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.Scope" title="pyo.lib.analysis.Scope"><span class="n">Scope</span></a><span class="p">(</span><span class="n">h1</span> <span class="o">+</span> <span class="n">h2</span> <span class="o">+</span> <span class="n">h3</span> <span class="o">+</span> <span class="n">h4</span> <span class="o">+</span> <span class="n">h5</span> <span class="o">+</span> <span class="n">h6</span><span class="p">)</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h4>Previous topic</h4>
+<p class="topless"><a href="index.html" title="previous chapter">02-controls</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="02-dynamic-control.html" title="next chapter">02-dynamic-control.py - Graphical control for parameters.</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="02-dynamic-control.html" title="02-dynamic-control.py - Graphical control for parameters.">next</a> |</li>
+<li class="right">
+<a href="index.html" title="02-controls">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="index.html">02-controls</a> »</li>
+<li class="nav-item nav-item-this"><a href="">01-fixed-control.py - Number as argument.</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

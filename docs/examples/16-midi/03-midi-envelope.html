@@ -1,0 +1,130 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>03-midi-envelope.py - Shaping the sound of a MIDI synth. — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="04-simple-midi-synth.html" rel="next" title="04-simple-midi-synth.py - Create a MIDI synthesizer as a custom class."/>
+<link href="02-notein-object.html" rel="prev" title="02-notein-object.py - How to use the Notein object."/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="04-simple-midi-synth.html" title="04-simple-midi-synth.py - Create a MIDI synthesizer as a custom class.">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="02-notein-object.html" title="02-notein-object.py - How to use the Notein object.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a accesskey="U" href="index.html">16-midi</a> »</li>
+<li class="nav-item nav-item-this"><a href="">03-midi-envelope.py - Shaping the sound of a MIDI synth.</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="midi-envelope-py-shaping-the-sound-of-a-midi-synth">
+<h1>03-midi-envelope.py - Shaping the sound of a MIDI synth.<a class="headerlink" href="#midi-envelope-py-shaping-the-sound-of-a-midi-synth" title="Permalink to this headline">¶</a></h1>
+<p>This program illustrates a classic way of shaping the dynamic of the
+sound of a MIDI synthesizer with two MIDI-triggered envelope objects:</p>
+<ul class="simple">
+<li><p>MidiAdsr: a classic Attack - Decay - Sustain - Release envelope.</p></li>
+<li><p>MidiDelAdsr: a classic ADSR envelope with a delay added prior the attack.</p></li>
+</ul>
+<p>We will use these envelopes to control the gain of two parts of the sound.
+The first part is an oscillator at the root frequency with a sharp attack.
+The second part is a pair of oscillators slightly detuned raising smoothly
+after a half-second delay. This gradually introduces beating into the sound.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+
+<a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">s</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span>
+<span class="n">s</span><span class="o">.</span><span class="n">setMidiInputDevice</span><span class="p">(</span><span class="mi">99</span><span class="p">)</span>  <span class="c1"># Open all input devices.</span>
+<span class="n">s</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+
+<span class="c1"># Automatically converts MIDI pitches to frequencies in Hz.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/midi.html#pyo.Notein" title="pyo.lib.midi.Notein"><span class="n">notes</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/midi.html#pyo.Notein" title="pyo.lib.midi.Notein"><span class="n">Notein</span></a><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">notes</span><span class="o">.</span><span class="n">keyboard</span><span class="p">()</span>
+
+<span class="c1"># MIDI-triggered ADSR envelope.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/midi.html#pyo.MidiAdsr" title="pyo.lib.midi.MidiAdsr"><span class="n">env1</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/midi.html#pyo.MidiAdsr" title="pyo.lib.midi.MidiAdsr"><span class="n">MidiAdsr</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/midi.html#pyo.Notein" title="pyo.lib.midi.Notein"><span class="n">notes</span></a><span class="p">[</span><span class="s2">"velocity"</span><span class="p">],</span> <span class="n">attack</span><span class="o">=</span><span class="mf">0.005</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">sustain</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">release</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+
+<span class="c1"># MIDI-triggered DADSR envelope (a classic ADSR with an adjustable pre-delay).</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/midi.html#pyo.MidiDelAdsr" title="pyo.lib.midi.MidiDelAdsr"><span class="n">env2</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/midi.html#pyo.MidiDelAdsr" title="pyo.lib.midi.MidiDelAdsr"><span class="n">MidiDelAdsr</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/midi.html#pyo.Notein" title="pyo.lib.midi.Notein"><span class="n">notes</span></a><span class="p">[</span><span class="s2">"velocity"</span><span class="p">],</span> <span class="n">delay</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">attack</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">sustain</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">release</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+
+<span class="c1"># Root frequency appears instantly.</span>
+<span class="n">sig1</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.RCOsc" title="pyo.lib.generators.RCOsc"><span class="n">RCOsc</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/midi.html#pyo.Notein" title="pyo.lib.midi.Notein"><span class="n">notes</span></a><span class="p">[</span><span class="s2">"pitch"</span><span class="p">],</span> <span class="n">sharp</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/midi.html#pyo.MidiAdsr" title="pyo.lib.midi.MidiAdsr"><span class="n">env1</span></a><span class="p">)</span><span class="o">.</span><span class="n">mix</span><span class="p">()</span><span class="o">.</span><span class="n">mix</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+<span class="c1"># Small frequency deviations appear smoothly after a half-second delay.</span>
+<span class="n">sig2</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.RCOsc" title="pyo.lib.generators.RCOsc"><span class="n">RCOsc</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/midi.html#pyo.Notein" title="pyo.lib.midi.Notein"><span class="n">notes</span></a><span class="p">[</span><span class="s2">"pitch"</span><span class="p">]</span> <span class="o">*</span> <span class="mf">0.992</span><span class="p">,</span> <span class="n">sharp</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/midi.html#pyo.MidiDelAdsr" title="pyo.lib.midi.MidiDelAdsr"><span class="n">env2</span></a><span class="p">)</span><span class="o">.</span><span class="n">mix</span><span class="p">()</span>
+<span class="n">sig3</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.RCOsc" title="pyo.lib.generators.RCOsc"><span class="n">RCOsc</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/midi.html#pyo.Notein" title="pyo.lib.midi.Notein"><span class="n">notes</span></a><span class="p">[</span><span class="s2">"pitch"</span><span class="p">]</span> <span class="o">*</span> <span class="mf">1.008</span><span class="p">,</span> <span class="n">sharp</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/midi.html#pyo.MidiDelAdsr" title="pyo.lib.midi.MidiDelAdsr"><span class="n">env2</span></a><span class="p">)</span><span class="o">.</span><span class="n">mix</span><span class="p">()</span>
+
+<span class="c1"># Create a stereo signal from the frequency deviations.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/internals.html#pyo.Mix" title="pyo.lib._core.Mix"><span class="n">stereo</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/internals.html#pyo.Mix" title="pyo.lib._core.Mix"><span class="n">Mix</span></a><span class="p">([</span><span class="n">sig2</span><span class="p">,</span> <span class="n">sig3</span><span class="p">],</span> <span class="n">voices</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="c1"># Sum the signals and apply a global reverberation.</span>
+<span class="n">rev</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/effects.html#pyo.WGVerb" title="pyo.lib.effects.WGVerb"><span class="n">WGVerb</span></a><span class="p">(</span><span class="n">sig1</span> <span class="o">+</span> <a class="sphinx-codeautolink-a" href="../../api/classes/internals.html#pyo.Mix" title="pyo.lib._core.Mix"><span class="n">stereo</span></a><span class="p">,</span> <span class="n">feedback</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="mi">5000</span><span class="p">,</span> <span class="n">bal</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h4>Previous topic</h4>
+<p class="topless"><a href="02-notein-object.html" title="previous chapter">02-notein-object.py - How to use the Notein object.</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="04-simple-midi-synth.html" title="next chapter">04-simple-midi-synth.py - Create a MIDI synthesizer as a custom class.</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="04-simple-midi-synth.html" title="04-simple-midi-synth.py - Create a MIDI synthesizer as a custom class.">next</a> |</li>
+<li class="right">
+<a href="02-notein-object.html" title="02-notein-object.py - How to use the Notein object.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="index.html">16-midi</a> »</li>
+<li class="nav-item nav-item-this"><a href="">03-midi-envelope.py - Shaping the sound of a MIDI synth.</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

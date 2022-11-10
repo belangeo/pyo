@@ -1,0 +1,250 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Compiling pyo from sources &#8212; Pyo 1.0.4 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/nature.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-codeautolink.css" />
+    <link rel="stylesheet" type="text/css" href="_static/autoclasstoc.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="shortcut icon" href="_static/E-PyoIcon.ico"/>
+    <link rel="author" title="About these documents" href="about.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Structure of the library" href="structure.html" />
+    <link rel="prev" title="Installing pyo with pip" href="download.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="structure.html" title="Structure of the library"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="download.html" title="Installing pyo with pip"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Pyo 1.0.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Compiling pyo from sources</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="compiling-pyo-from-sources">
+<h1>Compiling pyo from sources<a class="headerlink" href="#compiling-pyo-from-sources" title="Permalink to this headline">¶</a></h1>
+<p>Here is how you can compile pyo from sources on Linux and MacOS (if you are
+interested in the adventure of compiling pyo from sources on Windows, you can
+take a look at my personal notes in <a class="reference external" href="https://github.com/belangeo/pyo/blob/master/scripts/win/windows-10-64bit-build-routine.txt">windows-10-64bit-build-routine.txt</a>).</p>
+<section id="dependencies">
+<h2>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h2>
+<p>To compile pyo with all its features, you will need the following dependencies:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://www.python.org/downloads/">Python 3.6, 3.7, 3.8 or 3.9</a>.</p></li>
+<li><p><a class="reference external" href="https://www.wxpython.org/pages/downloads/">WxPython Phoenix 4.1.0 or higher</a></p></li>
+<li><p><a class="reference external" href="http://www.portaudio.com/">Portaudio</a></p></li>
+<li><p><a class="reference external" href="http://portmedia.sourceforge.net/portmidi/">Portmidi</a></p></li>
+<li><p><a class="reference external" href="http://www.mega-nerd.com/libsndfile/">libsndfile</a></p></li>
+<li><p><a class="reference external" href="http://liblo.sourceforge.net/">liblo</a></p></li>
+<li><p><a class="reference external" href="https://git-scm.com/">git</a> (if you want the latest sources)</p></li>
+</ul>
+<p>Please note that under MacOS you will need to install the
+<strong>Apple’s developer tools</strong> to compile pyo.</p>
+</section>
+<section id="getting-sources">
+<h2>Getting sources<a class="headerlink" href="#getting-sources" title="Permalink to this headline">¶</a></h2>
+<p>You can download pyo’s sources by checking out the source code
+<a class="reference external" href="https://github.com/belangeo/pyo">here</a>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/belangeo/pyo.git
+</pre></div>
+</div>
+</section>
+<section id="compilation">
+<h2>Compilation<a class="headerlink" href="#compilation" title="Permalink to this headline">¶</a></h2>
+<p>Once you have all the required dependencies, go in pyo’s directory:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> path/to/pyo
+</pre></div>
+</div>
+<p>And build the library:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo python setup.py install
+</pre></div>
+</div>
+<p>You can customize your compilation by giving some flags to the command line.</p>
+<section id="compilation-flags">
+<span id="compilation-flags-label"></span><h3>Compilation flags<a class="headerlink" href="#compilation-flags" title="Permalink to this headline">¶</a></h3>
+<p>If you want to be able to use coreaudio (MacOS):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>--use-coreaudio
+</pre></div>
+</div>
+<p>If you want JACK support (Linux, MacOS):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>--use-jack
+</pre></div>
+</div>
+<p>If you want to be able to use a 64-bit pyo (All platforms, this is the sample
+resolution, not the architecture), this will build both single and double
+precisions:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>--use-double
+</pre></div>
+</div>
+<p>If you want to disable most of messages printed to the console:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>--no-messages
+</pre></div>
+</div>
+<p>If you want to compile external classes defined in pyo/externals folder:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>--compile-externals
+</pre></div>
+</div>
+<p>By default, debug symbols are off. If you want to compile pyo with debug symbols:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>--debug
+</pre></div>
+</div>
+<p>By default, optimizations are activated. If you want to compile pyo without
+optimizations:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>--fast-compile
+</pre></div>
+</div>
+<p>If you want to compile pyo with minimal dependencies (mostly for integrated use
+in a host environment):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>--minimal
+</pre></div>
+</div>
+<p>This will compile pyo without portaudio, portmidi and liblo support.</p>
+</section>
+<section id="compilation-scripts">
+<h3>Compilation scripts<a class="headerlink" href="#compilation-scripts" title="Permalink to this headline">¶</a></h3>
+<p>In the ./scripts folder, there is some alternate scripts to simplify the
+compilation process a little bit. These scripts will compile pyo for the
+version of python pointed to by the command <cite>python</cite>.</p>
+<p>To compile both 32-bit and 64-bit resolutions on linux with jack support:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo sh scripts/compile_linux_withJack.sh
+</pre></div>
+</div>
+<p>To compile both 32-bit and 64-bit resolutions on macOS without Jack support:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo sh scripts/compile_OSX.sh
+</pre></div>
+</div>
+<p>To compile both 32-bit and 64-bit resolutions on macOS with Jack support (Jack headers must be present on the system):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo sh scripts/compile_OSX_withJack.sh
+</pre></div>
+</div>
+</section>
+</section>
+<section id="debian-ubuntu-apt-get">
+<h2>Debian &amp; Ubuntu (apt-get)<a class="headerlink" href="#debian-ubuntu-apt-get" title="Permalink to this headline">¶</a></h2>
+<p>Under Debian &amp; Ubuntu you can type the following commands to get pyo up and running.</p>
+<section id="for-python-3-6-and-higher">
+<h3>For Python 3.6 and higher<a class="headerlink" href="#for-python-3-6-and-higher" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo apt-get install libjack-jackd2-dev libportmidi-dev portaudio19-dev liblo-dev libsndfile-dev
+sudo apt-get install python3-dev python3-tk python3-pil.imagetk python3-pip
+git clone https://github.com/belangeo/pyo.git
+<span class="nb">cd</span> pyo
+sudo python3 setup.py install --use-jack --use-double
+</pre></div>
+</div>
+<p>If you want to be able to use all of pyo’s gui widgets, you will need wxPython Phoenix 4.1.0.</p>
+<ul class="simple">
+<li><p>To install wxPython with pip on linux, follow the instructions on the wxPython’s <a class="reference external" href="https://wxpython.org/pages/downloads/">downloads</a> page.</p></li>
+</ul>
+</section>
+</section>
+<section id="macos-homebrew">
+<h2>MacOS (Homebrew)<a class="headerlink" href="#macos-homebrew" title="Permalink to this headline">¶</a></h2>
+<p>Under macOS, it is very simple to build pyo from sources with the Homebrew
+package manager.</p>
+<p>The first step is to install the official Python from <a class="reference external" href="https://www.python.org/downloads/">python.org</a>.</p>
+<p>Second step, if you want to be able to use all of pyo’s gui widgets, you will need wxPython Phoenix. Install with pip:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3 -m pip install --user wxPython
+</pre></div>
+</div>
+<p>The third step is to install <a class="reference external" href="http://brew.sh/">Homebrew</a>.</p>
+<p>Finally, in a terminal window, install pyo’s dependencies, clone and build pyo:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>brew install liblo libsndfile portaudio portmidi
+git clone https://github.com/belangeo/pyo.git
+<span class="nb">cd</span> pyo
+python setup.py install --use-coreaudio --use-double
+</pre></div>
+</div>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Compiling pyo from sources</a><ul>
+<li><a class="reference internal" href="#dependencies">Dependencies</a></li>
+<li><a class="reference internal" href="#getting-sources">Getting sources</a></li>
+<li><a class="reference internal" href="#compilation">Compilation</a><ul>
+<li><a class="reference internal" href="#compilation-flags">Compilation flags</a></li>
+<li><a class="reference internal" href="#compilation-scripts">Compilation scripts</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#debian-ubuntu-apt-get">Debian &amp; Ubuntu (apt-get)</a><ul>
+<li><a class="reference internal" href="#for-python-3-6-and-higher">For Python 3.6 and higher</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#macos-homebrew">MacOS (Homebrew)</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="download.html"
+                        title="previous chapter">Installing pyo with pip</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="structure.html"
+                        title="next chapter">Structure of the library</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="structure.html" title="Structure of the library"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="download.html" title="Installing pyo with pip"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Pyo 1.0.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Compiling pyo from sources</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,115 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>Receiving OSC messages as list of audio streams — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="05-send-receive-data.html" rel="next" title="Sending and receiving data with OSC protocol"/>
+<link href="03-send-streams.html" rel="prev" title="Sending audio streams as Open Sound Control messages"/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="05-send-receive-data.html" title="Sending and receiving data with OSC protocol">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="03-send-streams.html" title="Sending audio streams as Open Sound Control messages">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a accesskey="U" href="index.html">17-osc</a> »</li>
+<li class="nav-item nav-item-this"><a href="">Receiving OSC messages as list of audio streams</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="receiving-osc-messages-as-list-of-audio-streams">
+<h1>Receiving OSC messages as list of audio streams<a class="headerlink" href="#receiving-osc-messages-as-list-of-audio-streams" title="Permalink to this headline">¶</a></h1>
+<p><strong>04-receive-list.py</strong></p>
+<p>OscListReceive receives list of values over a network via the Open Sound
+Control protocol. It converts the values as audio streams that can be used
+to control audio process.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+
+<a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">source</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">SfPlayer</span></a><span class="p">(</span><span class="s2">"../snds/flute.aif"</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+
+<span class="c1"># Receives a list of two values from a TouchOSC's XY pad and converts</span>
+<span class="c1"># them as audio streams. All streams for a given address can be retrieve</span>
+<span class="c1"># with the syntax: rec[address]. One can access the individual streams</span>
+<span class="c1"># for an address with slicing: rec[address][0], rec[address][1], etc.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/opensndctrl.html#pyo.OscListReceive" title="pyo.lib.opensndctrl.OscListReceive"><span class="n">rec</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/opensndctrl.html#pyo.OscListReceive" title="pyo.lib.opensndctrl.OscListReceive"><span class="n">OscListReceive</span></a><span class="p">(</span><span class="n">port</span><span class="o">=</span><span class="mi">9002</span><span class="p">,</span> <span class="n">address</span><span class="o">=</span><span class="s2">"/4/xy"</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="c1"># Sets initial values for the OSC streams. This allow the program to run with</span>
+<span class="c1"># minimal behaviour even if no message have been sent on this address.</span>
+<span class="n">rec</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="s2">"/4/xy"</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">])</span>
+
+<span class="c1"># Assign the value on the X axis to the drive parameter, and</span>
+<span class="c1"># the value on the Y axis to the slope (lowpass filter) parameter.</span>
+<span class="n">disto</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/effects.html#pyo.Disto" title="pyo.lib.effects.Disto"><span class="n">Disto</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">source</span></a><span class="p">,</span> <span class="n">drive</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/arithmetic.html#pyo.Sqrt" title="pyo.lib.arithmetic.Sqrt"><span class="n">Sqrt</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/opensndctrl.html#pyo.OscListReceive" title="pyo.lib.opensndctrl.OscListReceive"><span class="n">rec</span></a><span class="p">[</span><span class="s2">"/4/xy"</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span> <span class="n">slope</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/arithmetic.html#pyo.Sqrt" title="pyo.lib.arithmetic.Sqrt"><span class="n">Sqrt</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/opensndctrl.html#pyo.OscListReceive" title="pyo.lib.opensndctrl.OscListReceive"><span class="n">rec</span></a><span class="p">[</span><span class="s2">"/4/xy"</span><span class="p">][</span><span class="mi">1</span><span class="p">]),</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span><span class="o">.</span><span class="n">mix</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h4>Previous topic</h4>
+<p class="topless"><a href="03-send-streams.html" title="previous chapter">Sending audio streams as Open Sound Control messages</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="05-send-receive-data.html" title="next chapter">Sending and receiving data with OSC protocol</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="05-send-receive-data.html" title="Sending and receiving data with OSC protocol">next</a> |</li>
+<li class="right">
+<a href="03-send-streams.html" title="Sending audio streams as Open Sound Control messages">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="index.html">17-osc</a> »</li>
+<li class="nav-item nav-item-this"><a href="">Receiving OSC messages as list of audio streams</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

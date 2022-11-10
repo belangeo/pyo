@@ -1,0 +1,151 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>06-table-stutter.py - Variable length table reading. — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="07-moving-points.html" rel="next" title="07-moving-points.py - Periodically rewrite a break-point function table."/>
+<link href="05-micro-montage.html" rel="prev" title="05-micro-montage.py - Create table from random chunks of a soundfile."/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="07-moving-points.html" title="07-moving-points.py - Periodically rewrite a break-point function table.">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="05-micro-montage.html" title="05-micro-montage.py - Create table from random chunks of a soundfile.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a accesskey="U" href="index.html">10-tables</a> »</li>
+<li class="nav-item nav-item-this"><a href="">06-table-stutter.py - Variable length table reading.</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="table-stutter-py-variable-length-table-reading">
+<h1>06-table-stutter.py - Variable length table reading.<a class="headerlink" href="#table-stutter-py-variable-length-table-reading" title="Permalink to this headline">¶</a></h1>
+<p>This little program use a function and a time-variable function caller
+to stutter a sound loaded in a table. The starting point of the table
+playback is set initially to near the end of the table, and move toward
+the beginning each time a new playback is called.</p>
+<p>For the playback, we use a Pointer object, which is a table reader with
+control on the pointer position (normalized between 0 and 1).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">random</span>
+
+<span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+
+<span class="n">STUTTER</span> <span class="o">=</span> <span class="mf">0.025</span>  <span class="c1"># Delta time added each time the playback restart.</span>
+<span class="n">FADETIME</span> <span class="o">=</span> <span class="mf">0.01</span>  <span class="c1"># Fadein-fadeout time to avoid clicks.</span>
+
+<span class="c1"># Load a sound in the table and get its duration.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.SndTable" title="pyo.lib.tables.SndTable"><span class="n">table</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.SndTable" title="pyo.lib.tables.SndTable"><span class="n">SndTable</span></a><span class="p">(</span><span class="n">SNDS_PATH</span> <span class="o">+</span> <span class="s2">"/transparent.aif"</span><span class="p">)</span>
+<span class="n">tabdur</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">getDur</span><span class="p">()</span>
+
+<span class="c1"># Intialize the line used to read the table.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Linseg" title="pyo.lib.controls.Linseg"><span class="n">line</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Linseg" title="pyo.lib.controls.Linseg"><span class="n">Linseg</span></a><span class="p">([(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)])</span>
+
+<span class="c1"># Amplitude envelope, to avoid clicks.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Fader" title="pyo.lib.controls.Fader"><span class="n">amp</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Fader" title="pyo.lib.controls.Fader"><span class="n">Fader</span></a><span class="p">(</span><span class="n">FADETIME</span><span class="p">,</span> <span class="n">FADETIME</span><span class="p">,</span> <span class="n">dur</span><span class="o">=</span><span class="n">STUTTER</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">amp</span><span class="o">.</span><span class="n">setExp</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="c1"># Read the sound and mix it to stereo.</span>
+<span class="n">read</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/tableprocess.html#pyo.Pointer" title="pyo.lib.tableprocess.Pointer"><span class="n">Pointer</span></a><span class="p">(</span><span class="n">table</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.SndTable" title="pyo.lib.tables.SndTable"><span class="n">table</span></a><span class="p">,</span> <span class="n">index</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Linseg" title="pyo.lib.controls.Linseg"><span class="n">line</span></a><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Fader" title="pyo.lib.controls.Fader"><span class="n">amp</span></a><span class="p">)</span><span class="o">.</span><span class="n">mix</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+<span class="c1"># Global variables (start position and playback duration).</span>
+<span class="n">start</span> <span class="o">=</span> <span class="n">tabdur</span> <span class="o">-</span> <span class="n">STUTTER</span>
+<span class="n">dur</span> <span class="o">=</span> <span class="n">STUTTER</span>
+
+
+<span class="k">def</span> <span class="nf">go</span><span class="p">():</span>
+    <span class="s2">"Read a segment of a sound table and set the duration before the next iteration."</span>
+    <span class="k">global</span> <span class="n">start</span><span class="p">,</span> <span class="n">dur</span>
+
+    <span class="c1"># Create the pointer segment (from normalized start position to the end of the table)</span>
+    <span class="n">line</span><span class="o">.</span><span class="n">list</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="n">start</span> <span class="o">/</span> <span class="n">tabdur</span><span class="p">),</span> <span class="p">(</span><span class="n">dur</span><span class="p">,</span> <span class="mi">1</span><span class="p">)]</span>
+
+    <span class="c1"># Assign duration to the envelope and the function caller (Pattern).</span>
+    <span class="n">amp</span><span class="o">.</span><span class="n">dur</span> <span class="o">=</span> <span class="n">pat</span><span class="o">.</span><span class="n">time</span> <span class="o">=</span> <span class="n">dur</span>
+
+    <span class="c1"># Decrement start position and increment duration by STUTTER seconds.</span>
+    <span class="n">start</span> <span class="o">-=</span> <span class="n">STUTTER</span>
+    <span class="n">dur</span> <span class="o">+=</span> <span class="n">STUTTER</span>
+
+    <span class="c1"># Reset start and dur variables when reaching the beginning of the sound.</span>
+    <span class="k">if</span> <span class="n">start</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">tabdur</span> <span class="o">-</span> <span class="n">STUTTER</span>
+        <span class="n">dur</span> <span class="o">=</span> <span class="n">STUTTER</span>
+
+    <span class="c1"># Activate the pointer's index line and the amplitude envelope.</span>
+    <span class="n">line</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+    <span class="n">amp</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+
+
+<span class="c1"># Call go() each time the playback reaches the end of the file</span>
+<span class="n">pat</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/pattern.html#pyo.Pattern" title="pyo.lib.pattern.Pattern"><span class="n">Pattern</span></a><span class="p">(</span><span class="n">function</span><span class="o">=</span><span class="n">go</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">STUTTER</span><span class="p">)</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h4>Previous topic</h4>
+<p class="topless"><a href="05-micro-montage.html" title="previous chapter">05-micro-montage.py - Create table from random chunks of a soundfile.</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="07-moving-points.html" title="next chapter">07-moving-points.py - Periodically rewrite a break-point function table.</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="07-moving-points.html" title="07-moving-points.py - Periodically rewrite a break-point function table.">next</a> |</li>
+<li class="right">
+<a href="05-micro-montage.html" title="05-micro-montage.py - Create table from random chunks of a soundfile.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="index.html">10-tables</a> »</li>
+<li class="nav-item nav-item-this"><a href="">06-table-stutter.py - Variable length table reading.</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

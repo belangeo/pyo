@@ -1,0 +1,122 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>04-noise-generators.py - Different pseudo-random noise generators. — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="05-strange-attractors.html" rel="next" title="05-strange-attractors.py - Non-linear ordinary differential equations."/>
+<link href="03-fm-generators.html" rel="prev" title="03-fm-generators.py - Frequency modulation synthesis."/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="05-strange-attractors.html" title="05-strange-attractors.py - Non-linear ordinary differential equations.">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="03-fm-generators.html" title="03-fm-generators.py - Frequency modulation synthesis.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a accesskey="U" href="index.html">03-generators</a> »</li>
+<li class="nav-item nav-item-this"><a href="">04-noise-generators.py - Different pseudo-random noise generators.</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="noise-generators-py-different-pseudo-random-noise-generators">
+<h1>04-noise-generators.py - Different pseudo-random noise generators.<a class="headerlink" href="#noise-generators-py-different-pseudo-random-noise-generators" title="Permalink to this headline">¶</a></h1>
+<p>There are three noise generators (beside random generators that
+will be covered later) in the library. These are the classic
+white noise, pink noise and brown noise.</p>
+<p>Noise:
+White noise generator, flat spectrum.</p>
+<p>PinkNoise:
+Pink noise generator, 3dB rolloff per octave.</p>
+<p>BrownNoise:
+Brown noise generator, 6dB rolloff per octave.</p>
+<p>Use the “voice” slider of the window “Input interpolator” to
+interpolate between the three sources.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+
+<span class="c1"># White noise</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">n1</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">Noise</span></a><span class="p">(</span><span class="mf">0.3</span><span class="p">)</span>
+
+<span class="c1"># Pink noise</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.PinkNoise" title="pyo.lib.generators.PinkNoise"><span class="n">n2</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.PinkNoise" title="pyo.lib.generators.PinkNoise"><span class="n">PinkNoise</span></a><span class="p">(</span><span class="mf">0.3</span><span class="p">)</span>
+
+<span class="c1"># Brown noise</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.BrownNoise" title="pyo.lib.generators.BrownNoise"><span class="n">n3</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.BrownNoise" title="pyo.lib.generators.BrownNoise"><span class="n">BrownNoise</span></a><span class="p">(</span><span class="mf">0.3</span><span class="p">)</span>
+
+<span class="c1"># Interpolates between input objects to produce a single output</span>
+<span class="n">sel</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/pan.html#pyo.Selector" title="pyo.lib.pan.Selector"><span class="n">Selector</span></a><span class="p">([</span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">n1</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.PinkNoise" title="pyo.lib.generators.PinkNoise"><span class="n">n2</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.BrownNoise" title="pyo.lib.generators.BrownNoise"><span class="n">n3</span></a><span class="p">])</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+<span class="n">sel</span><span class="o">.</span><span class="n">ctrl</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"Input interpolator (0=White, 1=Pink, 2=Brown)"</span><span class="p">)</span>
+
+<span class="c1"># Displays the spectrum contents of the chosen source</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.Spectrum" title="pyo.lib.analysis.Spectrum"><span class="n">sp</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.Spectrum" title="pyo.lib.analysis.Spectrum"><span class="n">Spectrum</span></a><span class="p">(</span><span class="n">sel</span><span class="p">)</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h4>Previous topic</h4>
+<p class="topless"><a href="03-fm-generators.html" title="previous chapter">03-fm-generators.py - Frequency modulation synthesis.</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="05-strange-attractors.html" title="next chapter">05-strange-attractors.py - Non-linear ordinary differential equations.</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="05-strange-attractors.html" title="05-strange-attractors.py - Non-linear ordinary differential equations.">next</a> |</li>
+<li class="right">
+<a href="03-fm-generators.html" title="03-fm-generators.py - Frequency modulation synthesis.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="index.html">03-generators</a> »</li>
+<li class="nav-item nav-item-this"><a href="">04-noise-generators.py - Different pseudo-random noise generators.</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

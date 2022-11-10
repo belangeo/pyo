@@ -1,0 +1,718 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyo.lib.mmlmusic &#8212; Pyo 1.0.4 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/nature.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-codeautolink.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/autoclasstoc.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../../../_static/E-PyoIcon.ico"/>
+    <link rel="author" title="About these documents" href="../../../about.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">Pyo 1.0.4 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pyo.html" accesskey="U">pyo</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pyo.lib.mmlmusic</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyo.lib.mmlmusic</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Music Macro Language evaluator.</span>
+
+<span class="sd">The MML object implements acustom MML evaluator to allow simple and efficient</span>
+<span class="sd">music composition within pyo. The language&#39;s rules are explained below.</span>
+
+<span class="sd">The MML object generates triggers on new notes with additional streams to</span>
+<span class="sd">handle frequency, amplitude, duration and custom parameters. See the object</span>
+<span class="sd">documentation for more details.</span>
+
+<span class="sd">API documentation</span>
+<span class="sd">=================</span>
+
+<span class="sd">- The space separates the tokens in a music sequence (a token can be a note value,</span>
+<span class="sd">  an amplitude control, a tempo statement, etc.).</span>
+
+<span class="sd">Pre-Processing on music text</span>
+<span class="sd">----------------------------</span>
+
+<span class="sd">- A comment starts with a semicolon ( ; ) and ends at the end of the line. This</span>
+<span class="sd">  text will be removed before starting to evaluate the sequences.</span>
+
+<span class="sd">- A musical voice is represented by a single line of code.</span>
+
+<span class="sd">- We can break a long line into multiple short lines with the backslash ( \ ).</span>
+
+<span class="sd">- The symbol equal ( = ), preceded by a variable name in UPPER CASE, creates a</span>
+<span class="sd">  macro. The remaining part of the line is the macro body. Anywhere the </span>
+<span class="sd">  pre-processor finds the variable name in the music, it will be replaced by the</span>
+<span class="sd">  macro&#39;s body.</span>
+
+<span class="sd">Realtime Processing of the music</span>
+<span class="sd">--------------------------------</span>
+
+<span class="sd">- The letters `a` to `g` correspond to the musical pitches and cause the</span>
+<span class="sd">  corresponding note to be played.</span>
+
+<span class="sd">- Sharp notes are produced by appending a `+` to the pitch value, and flat notes</span>
+<span class="sd">  by appending a `-` to the pitch value.</span>
+
+<span class="sd">- The length of a note is specified by an integer following the note name. If a</span>
+<span class="sd">  note doesn&#39;t have a duration, the last specified duration is used. Default</span>
+<span class="sd">  duration is the Sixteenth note. Length values are:</span>
+
+<span class="sd">  - 0 = Thirty-second note</span>
+<span class="sd">  - 1 = Sixteenth note</span>
+<span class="sd">  - 2 = Dotted sixteenth note</span>
+<span class="sd">  - 3 = Eighth note</span>
+<span class="sd">  - 4 = Dotted eighth note</span>
+<span class="sd">  - 5 = Quarter note</span>
+<span class="sd">  - 6 = Dotted quarter note</span>
+<span class="sd">  - 7 = Half note</span>
+<span class="sd">  - 8 = Dotted half note</span>
+<span class="sd">  - 9 = Whole note</span>
+
+<span class="sd">- The letter `r` corresponds to a rest. The length of the rest is specified in</span>
+<span class="sd">  the same manner as the length of a note.</span>
+
+<span class="sd">- Notes surrounded by brakets ( `(` and `)` ) act as tuplet. Tuplet length is specified</span>
+<span class="sd">  just after the closing bracket using the same values as for a note duration. Length of</span>
+<span class="sd">  each note in tuplet will evenly be &lt;note length of tuplet&gt; / &lt;count of notes in tuplet&gt;.</span>
+<span class="sd">  If not specified, tuplet duration defaults to 5 (quarter note).</span>
+
+<span class="sd">- The letter `o`, followed by a number, selects the octave the instrument will play in.</span>
+<span class="sd">  If the letter `o` is followed by the symbol `+`, the octave steps up by one. If followed</span>
+<span class="sd">  by the symbol `-`, the octave steps down by one. If a number follows the symbol `+` or `-`,</span>
+<span class="sd">  the octave steps up or down by the given amount of octaves.</span>
+
+<span class="sd">- The letter `t`, followed by a number, sets the tempo in beats-per-minute.</span>
+<span class="sd">  If the letter `t` is followed by the symbol `+`, the tempo increases by one. If followed</span>
+<span class="sd">  by the symbol `-`, the tempo decreases by one. If a number follows the symbol `+` or `-`,</span>
+<span class="sd">  the tempo increases or decreases by the given amount of BPM.</span>
+
+<span class="sd">- The letter `v`, followed by a number between 0 and 100, sets the volume for the following</span>
+<span class="sd">  notes. If the letter `v` is followed by the symbol `+`, the volume increases by one. If</span>
+<span class="sd">  followed by the symbol `-`, the volume decreases by one. If a number follows the symbol </span>
+<span class="sd">  `+` or `-`, the volume increases or decreases by the given amount.</span>
+
+<span class="sd">- The symbol #, followed by a number indicates the voice number for the line. This should be</span>
+<span class="sd">  the first token of a line. If missing, the line defaults to voice number 0.</span>
+
+<span class="sd">- The letters `x`, `y` an `z`, followed by a real number, are user-defined parameters. They</span>
+<span class="sd">  can be used to control specific parameters of the synthesizer.</span>
+<span class="sd">  If the letter is followed by the symbol `+`, the value increases by 0.01. If followed</span>
+<span class="sd">  by the symbol `-`, the value decreases by 0.01. If a number follows the symbol `+` or `-`,</span>
+<span class="sd">  the value increases or decreases by the given amount.</span>
+
+<span class="sd">- Random choice within a set of values can be done with the ? symbol, followed by the</span>
+<span class="sd">  possible values inside square brackets.</span>
+<span class="sd">  Ex. ?[c e g b-] ; the note is a random choice between c e g and b-.</span>
+
+<span class="sd">- Random choice between a range can be done with the ? symbol, followed by the range inside</span>
+<span class="sd">  curly brackets. If two values are presents, they are the minimum and maximum of the range.</span>
+<span class="sd">  If there is only one value, the range is 0 to this value and if the brackets are empty, the</span>
+<span class="sd">  range is 0 to 1.</span>
+<span class="sd">  Ex. v?{40 70} ; volume is set randomly between 40 and 70.</span>
+
+<span class="sd">- The symbol |: starts a looped segment and the symbol :| ends it. A number right after the</span>
+<span class="sd">  last symbol indicates how many loops to perform. If missing, the number of loops is two (the</span>
+<span class="sd">  first pass + one repetition). It is possible to use loops inside other loops. There is no</span>
+<span class="sd">  limit to the number of levels of loop embedding.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Copyright 2009-2020 Olivier Belanger</span>
+
+<span class="sd">This file is part of pyo, a python module to help digital signal</span>
+<span class="sd">processing script creation.</span>
+
+<span class="sd">pyo is free software: you can redistribute it and/or modify</span>
+<span class="sd">it under the terms of the GNU Lesser General Public License as</span>
+<span class="sd">published by the Free Software Foundation, either version 3 of the</span>
+<span class="sd">License, or (at your option) any later version.</span>
+
+<span class="sd">pyo is distributed in the hope that it will be useful,</span>
+<span class="sd">but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="sd">MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="sd">GNU Lesser General Public License for more details.</span>
+
+<span class="sd">You should have received a copy of the GNU Lesser General Public</span>
+<span class="sd">License along with pyo.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">._core</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">._maps</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">._widgets</span> <span class="kn">import</span> <span class="n">createMMLEditorWindow</span>
+
+<span class="c1">### MML framework ###</span>
+<span class="c1">#####################</span>
+
+<span class="n">VALID_NOTES</span> <span class="o">=</span> <span class="s2">&quot;abcdefgr?&quot;</span>
+<span class="n">VALID_PARAMS</span> <span class="o">=</span> <span class="s2">&quot;xyz&quot;</span>
+<span class="n">VALID_DIGITS</span> <span class="o">=</span> <span class="s2">&quot;0123456789&quot;</span>
+<span class="n">VALID_SPACES</span> <span class="o">=</span> <span class="s2">&quot; </span><span class="se">\t\n</span><span class="s2">&quot;</span>
+<span class="n">VALID_CHARS</span> <span class="o">=</span> <span class="s2">&quot;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789?&quot;</span>
+<span class="n">MACRO_DELIMITERS</span> <span class="o">=</span> <span class="s2">&quot;0123456789abcdefgrxyz?()[]</span><span class="si">{}</span><span class="s2">.|: </span><span class="se">\t\n</span><span class="s2">&quot;</span>
+
+
+<span class="k">class</span> <span class="nc">MMLParser</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">voices</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">text</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">voices</span> <span class="o">=</span> <span class="n">voices</span>
+
+    <span class="k">def</span> <span class="nf">_remove_comments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="n">pos</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;;&quot;</span><span class="p">)</span>
+        <span class="k">while</span> <span class="n">pos</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">pos2</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pos</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">pos2</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="p">[:</span><span class="n">pos</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="p">[:</span><span class="n">pos</span><span class="p">]</span> <span class="o">+</span> <span class="n">text</span><span class="p">[</span><span class="n">pos2</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:]</span>
+            <span class="n">pos</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;;&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">text</span>
+
+    <span class="k">def</span> <span class="nf">_split_tuplets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">inside</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">rescan</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">text</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot; &quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">inside</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">text</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">i</span><span class="p">]:</span>
+                    <span class="n">l</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">text</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+                <span class="n">start</span> <span class="o">=</span> <span class="n">i</span>
+                <span class="n">rescan</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">elif</span> <span class="n">text</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;[&quot;</span><span class="p">:</span>
+                <span class="n">inside</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">elif</span> <span class="n">text</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;]&quot;</span><span class="p">:</span>
+                <span class="n">inside</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">text</span><span class="p">[</span><span class="n">start</span><span class="p">:]:</span>
+                    <span class="n">l</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">text</span><span class="p">[</span><span class="n">start</span><span class="p">:]</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+            <span class="k">elif</span> <span class="n">i</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">text</span><span class="p">[</span><span class="n">start</span><span class="p">:]:</span>
+                    <span class="n">l</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">text</span><span class="p">[</span><span class="n">start</span><span class="p">:]</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+            <span class="k">elif</span> <span class="n">rescan</span> <span class="ow">and</span> <span class="n">text</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot; &quot;</span><span class="p">:</span>
+                <span class="n">rescan</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">start</span> <span class="o">=</span> <span class="n">i</span>
+        <span class="k">return</span> <span class="n">l</span>
+
+    <span class="k">def</span> <span class="nf">_expand_tuplets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="n">pos</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;(&quot;</span><span class="p">)</span>
+        <span class="k">while</span> <span class="n">pos</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">nextpos</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;(&quot;</span><span class="p">,</span> <span class="n">pos</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">pos2</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;)&quot;</span><span class="p">,</span> <span class="n">pos</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">pos2</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="c1"># missing end brace, just ignore the tuplet.</span>
+                <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="p">[:</span><span class="n">pos</span><span class="p">]</span> <span class="o">+</span> <span class="n">text</span><span class="p">[</span><span class="n">pos</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:]</span>
+            <span class="k">elif</span> <span class="n">nextpos</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span> <span class="ow">and</span> <span class="n">nextpos</span> <span class="o">&lt;</span> <span class="n">pos2</span><span class="p">:</span>
+                <span class="c1"># missing end brace, just ignore the tuplet.</span>
+                <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="p">[:</span><span class="n">pos</span><span class="p">]</span> <span class="o">+</span> <span class="n">text</span><span class="p">[</span><span class="n">pos</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">durchar</span> <span class="o">=</span> <span class="n">text</span><span class="p">[</span><span class="n">pos2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">durchar</span> <span class="ow">in</span> <span class="n">VALID_DIGITS</span><span class="p">:</span>
+                    <span class="n">duration</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">durchar</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">duration</span> <span class="o">=</span> <span class="mi">5</span>  <span class="c1"># default tuplet duration is the quarter note.</span>
+                <span class="n">tmp_eles</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_split_tuplets</span><span class="p">(</span><span class="n">text</span><span class="p">[</span><span class="n">pos</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:</span> <span class="n">pos2</span><span class="p">])</span>
+                <span class="n">elements</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">ele</span> <span class="ow">in</span> <span class="n">tmp_eles</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">ele</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">VALID_NOTES</span><span class="p">:</span>
+                        <span class="n">elements</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s%i</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ele</span><span class="p">,</span> <span class="n">duration</span><span class="p">))</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">elements</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ele</span><span class="p">)</span>
+                <span class="c1"># count only note elements.</span>
+                <span class="n">num_eles</span> <span class="o">=</span> <span class="nb">len</span><span class="p">([</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">elements</span> <span class="k">if</span> <span class="n">e</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">VALID_NOTES</span><span class="p">])</span>
+                <span class="n">ele_text</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">elements</span><span class="p">)</span>
+                <span class="n">ele_div</span> <span class="o">=</span> <span class="s2">&quot; /</span><span class="si">%i</span><span class="s2"> &quot;</span> <span class="o">%</span> <span class="n">num_eles</span>
+                <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="p">[:</span><span class="n">pos</span><span class="p">]</span> <span class="o">+</span> <span class="n">ele_div</span> <span class="o">+</span> <span class="n">ele_text</span> <span class="o">+</span> <span class="s2">&quot; /1 &quot;</span> <span class="o">+</span> <span class="n">text</span><span class="p">[</span><span class="n">pos2</span> <span class="o">+</span> <span class="mi">2</span> <span class="p">:]</span>
+            <span class="n">pos</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;(&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Remove orphan closing braces.</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;)&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">text</span>
+
+    <span class="k">def</span> <span class="nf">_expand_macros</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="n">macros</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">new</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">splitlines</span><span class="p">(</span><span class="kc">True</span><span class="p">):</span>
+            <span class="k">if</span> <span class="s2">&quot;=&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                <span class="n">head</span><span class="p">,</span> <span class="n">tail</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">)</span>
+                <span class="n">tail</span> <span class="o">=</span> <span class="n">tail</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="n">macros</span><span class="p">[</span><span class="n">head</span><span class="o">.</span><span class="n">strip</span><span class="p">()]</span> <span class="o">=</span> <span class="n">tail</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">new</span> <span class="o">=</span> <span class="n">new</span> <span class="o">+</span> <span class="n">line</span>
+
+        <span class="c1"># Scan the text two times in case a macro uses another macro.</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">macro</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">macros</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="nb">len</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+                <span class="n">pos</span> <span class="o">=</span> <span class="n">new</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">macro</span><span class="p">)</span>
+                <span class="k">while</span> <span class="n">pos</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">new</span><span class="p">[</span><span class="n">pos</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="n">MACRO_DELIMITERS</span> <span class="ow">and</span> <span class="n">new</span><span class="p">[</span><span class="n">pos</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">macro</span><span class="p">)]</span> <span class="ow">in</span> <span class="n">MACRO_DELIMITERS</span><span class="p">:</span>
+                        <span class="n">new</span> <span class="o">=</span> <span class="n">new</span><span class="p">[:</span><span class="n">pos</span><span class="p">]</span> <span class="o">+</span> <span class="n">macros</span><span class="p">[</span><span class="n">macro</span><span class="p">]</span> <span class="o">+</span> <span class="n">new</span><span class="p">[</span><span class="n">pos</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">macro</span><span class="p">)</span> <span class="p">:]</span>
+                    <span class="n">pos</span> <span class="o">=</span> <span class="n">new</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">macro</span><span class="p">,</span> <span class="n">pos</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">macro</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">new</span>
+
+    <span class="k">def</span> <span class="nf">_remove_extra_spaces</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="k">while</span> <span class="s2">&quot;  &quot;</span> <span class="ow">in</span> <span class="n">text</span><span class="p">:</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;  &quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">text</span>
+
+    <span class="k">def</span> <span class="nf">_add_space_around_loops</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="n">pos</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;|:&quot;</span><span class="p">)</span>
+        <span class="k">while</span> <span class="n">pos</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">text</span><span class="p">[</span><span class="n">pos</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot; &quot;</span><span class="p">:</span>
+                <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="p">[:</span> <span class="n">pos</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="n">text</span><span class="p">[</span><span class="n">pos</span> <span class="o">+</span> <span class="mi">2</span> <span class="p">:]</span>
+            <span class="k">if</span> <span class="n">text</span><span class="p">[</span><span class="n">pos</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot; &quot;</span><span class="p">:</span>
+                <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="p">[:</span><span class="n">pos</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="n">text</span><span class="p">[</span><span class="n">pos</span><span class="p">:]</span>
+            <span class="n">pos</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;|:&quot;</span><span class="p">,</span> <span class="n">pos</span> <span class="o">+</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="n">pos</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;:|&quot;</span><span class="p">)</span>
+        <span class="k">while</span> <span class="n">pos</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">text</span><span class="p">[</span><span class="n">pos</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot; &quot;</span><span class="p">:</span>
+                <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="p">[:</span><span class="n">pos</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="n">text</span><span class="p">[</span><span class="n">pos</span><span class="p">:]</span>
+            <span class="n">pos</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;:|&quot;</span><span class="p">,</span> <span class="n">pos</span> <span class="o">+</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">text</span>
+
+    <span class="k">def</span> <span class="nf">_process_specific_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">inchar</span><span class="p">,</span> <span class="n">outchar</span><span class="p">):</span>
+        <span class="n">pos</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">inchar</span><span class="p">)</span>
+        <span class="k">while</span> <span class="n">pos</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">nextpos</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">inchar</span><span class="p">,</span> <span class="n">pos</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">pos2</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">outchar</span><span class="p">,</span> <span class="n">pos</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">pos2</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Missing </span><span class="si">%s</span><span class="s2"> symbol...&quot;</span> <span class="o">%</span> <span class="n">outchar</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">nextpos</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span> <span class="ow">and</span> <span class="n">nextpos</span> <span class="o">&lt;</span> <span class="n">pos2</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Missing </span><span class="si">%s</span><span class="s2"> symbol...&quot;</span> <span class="o">%</span> <span class="n">outchar</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">format</span> <span class="o">=</span> <span class="n">text</span><span class="p">[</span><span class="n">pos</span> <span class="p">:</span> <span class="n">pos2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;,&quot;</span><span class="p">)</span>
+                <span class="nb">format</span> <span class="o">=</span> <span class="nb">format</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="p">[:</span><span class="n">pos</span><span class="p">]</span> <span class="o">+</span> <span class="nb">format</span> <span class="o">+</span> <span class="n">text</span><span class="p">[</span><span class="n">pos2</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:]</span>
+            <span class="n">pos</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">inchar</span><span class="p">,</span> <span class="n">pos2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">text</span>
+
+    <span class="k">def</span> <span class="nf">_process_groups</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_specific_group</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="s2">&quot;[&quot;</span><span class="p">,</span> <span class="s2">&quot;]&quot;</span><span class="p">)</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_specific_group</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="s2">&quot;{&quot;</span><span class="p">,</span> <span class="s2">&quot;}&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">text</span>
+
+    <span class="k">def</span> <span class="nf">_expand_line_continuation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\r</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">pos</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">while</span> <span class="n">pos</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">pos2</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pos</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="p">[:</span><span class="n">pos</span><span class="p">]</span> <span class="o">+</span> <span class="n">text</span><span class="p">[</span><span class="n">pos2</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:]</span>
+            <span class="n">pos</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">pos</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">text</span>
+
+    <span class="k">def</span> <span class="nf">_preproc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_remove_comments</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_expand_line_continuation</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_remove_extra_spaces</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_expand_macros</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_expand_tuplets</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_space_around_loops</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_groups</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">text</span>
+
+    <span class="k">def</span> <span class="nf">setText</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">text</span>
+
+    <span class="k">def</span> <span class="nf">getSequences</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">sequences</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">voices</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_preproc</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="n">l</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span> <span class="k">if</span> <span class="n">l</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">):</span>
+                <span class="n">voice</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">:])</span>
+                <span class="k">if</span> <span class="n">voice</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">voices</span><span class="p">:</span>
+                    <span class="n">sequences</span><span class="p">[</span><span class="n">voice</span><span class="p">]</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">sequences</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">line</span>
+        <span class="k">return</span> <span class="n">sequences</span>
+
+
+<div class="viewcode-block" id="MML"><a class="viewcode-back" href="../../../api/classes/mmlmusic.html#pyo.MML">[docs]</a><span class="k">class</span> <span class="nc">MML</span><span class="p">(</span><span class="n">PyoObject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generates music sequences based on a custom MML notation.</span>
+
+<span class="sd">    Music Macro Language (MML) is a music description language used in</span>
+<span class="sd">    sequencing music on computer and video game systems.</span>
+
+
+<span class="sd">    :Parent: :py:class:`PyoObject`</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        music: string</span>
+<span class="sd">            The new music code to parse. If the string is a valid path</span>
+<span class="sd">            to a text file, the file is opened and its content is taken</span>
+<span class="sd">            as the music code.</span>
+<span class="sd">        voices: int, optional</span>
+<span class="sd">            The number of voices in the music code. This number is used</span>
+<span class="sd">            to initialize the internal voices that will play the sequences.</span>
+<span class="sd">            Defaults to 1.</span>
+<span class="sd">        loop: bool, optional</span>
+<span class="sd">            If True, the playback will start again when the music reaches</span>
+<span class="sd">            its end, otherwise the object just stops to send triggers.</span>
+<span class="sd">            Defaults to False.</span>
+<span class="sd">        poly: int, optional</span>
+<span class="sd">            Per voice polyphony. Denotes how many independent streams are</span>
+<span class="sd">            generated per voice by the object, allowing overlapping</span>
+<span class="sd">            processes.</span>
+
+<span class="sd">            Available only at initialization. Defaults to 1.</span>
+<span class="sd">        updateAtEnd: bool, optional</span>
+<span class="sd">            If True, voices will update their internal sequence only when</span>
+<span class="sd">            the current one reaches its end, no matter when the `music`</span>
+<span class="sd">            argument is changed. If False, sequences are updated immediately.</span>
+<span class="sd">            Defaults to False.</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        MML outputs many signals identified with a string between brackets:</span>
+
+<span class="sd">        |  obj[&#39;freq&#39;] returns an audio stream of the current note frequency.</span>
+<span class="sd">        |  obj[&#39;amp&#39;] returns an audio stream of the current note amplitude.</span>
+<span class="sd">        |  obj[&#39;dur&#39;] returns an audio stream of the current note duration in seconds.</span>
+<span class="sd">        |  obj[&#39;end&#39;] returns an audio stream with a trigger at the end of the sequence.</span>
+<span class="sd">        |  obj[&#39;x&#39;] returns an audio stream with the current value of the `x` parameter.</span>
+<span class="sd">        |  obj[&#39;y&#39;] returns an audio stream with the current value of the `y` parameter.</span>
+<span class="sd">        |  obj[&#39;z&#39;] returns an audio stream with the current value of the `z` parameter.</span>
+
+<span class="sd">        obj without brackets returns the generated trigger streams of the music.</span>
+
+<span class="sd">        The out() method is bypassed. MML&#39;s signal can not be sent to audio outs.</span>
+
+<span class="sd">        MML has no `mul` and `add` attributes.</span>
+
+<span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
+<span class="sd">    &gt;&gt;&gt; s.start()</span>
+<span class="sd">    &gt;&gt;&gt; a = &#39;&#39;&#39;</span>
+<span class="sd">    &gt;&gt;&gt; ; Title: La perdriole</span>
+<span class="sd">    &gt;&gt;&gt; ; Author: traditionnel</span>
+<span class="sd">    &gt;&gt;&gt; A = r6 o4 v40 g3 v50 o5 c d e f g5 o+ c o- b3 a g f e d c7</span>
+<span class="sd">    &gt;&gt;&gt; B = |: g3 g g4 f1 e3 d c5 :| g1 g g g g g g g b-3 o+ c d7 r7</span>
+<span class="sd">    &gt;&gt;&gt; C = |: o5 c4 d1 e3 f g4 o+ c1 o- b3 a g f e d e d c5 r5 :|</span>
+<span class="sd">    &gt;&gt;&gt; #0 t92 x.1 |: A A B C :|</span>
+<span class="sd">    &gt;&gt;&gt; A1 = |: r7 o4 c7 d7 e5 f g c7 :|</span>
+<span class="sd">    &gt;&gt;&gt; B1 = |: g7 o- b5 o+ c :| d5 d f g7 r7</span>
+<span class="sd">    &gt;&gt;&gt; C1 = |: c8 d7 g c5 r5 :|</span>
+<span class="sd">    &gt;&gt;&gt; #1 t92 x0.25 v50 |: A1 B1 C1 :|</span>
+<span class="sd">    &gt;&gt;&gt; &#39;&#39;&#39;</span>
+<span class="sd">    &gt;&gt;&gt; t = CosTable([(0,0), (64,1), (1024,1), (4096, 0.5), (8191,0)])</span>
+<span class="sd">    &gt;&gt;&gt; mml = MML(a, voices=2, loop=True, poly=4).play()</span>
+<span class="sd">    &gt;&gt;&gt; dur = Sig(mml.getVoice(0, &quot;dur&quot;), mul=2)</span>
+<span class="sd">    &gt;&gt;&gt; tr = TrigEnv(mml.getVoice(0), table=t, dur=dur, mul=mml.getVoice(0, &quot;amp&quot;))</span>
+<span class="sd">    &gt;&gt;&gt; a = SineLoop(freq=mml.getVoice(0, &quot;freq&quot;), feedback=mml.getVoice(0, &quot;x&quot;), mul=tr).mix()</span>
+<span class="sd">    &gt;&gt;&gt; dur2 = Sig(mml.getVoice(1, &quot;dur&quot;), mul=2)</span>
+<span class="sd">    &gt;&gt;&gt; tr2 = TrigEnv(mml.getVoice(1), table=t, dur=dur2, mul=mml.getVoice(1, &quot;amp&quot;))</span>
+<span class="sd">    &gt;&gt;&gt; a2 = LFO(freq=mml.getVoice(1, &quot;freq&quot;), sharp=mml.getVoice(1, &quot;x&quot;), type=2, mul=tr2).mix()</span>
+<span class="sd">    &gt;&gt;&gt; output = STRev([a, a2], inpos=[0.2, 0.8], bal=0.2, mul=1.5).out()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">music</span><span class="p">,</span> <span class="n">voices</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">poly</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">updateAtEnd</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;SIBIB&quot;</span><span class="p">,</span> <span class="n">music</span><span class="p">,</span> <span class="n">voices</span><span class="p">,</span> <span class="n">loop</span><span class="p">,</span> <span class="n">poly</span><span class="p">,</span> <span class="n">updateAtEnd</span><span class="p">)</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_editor</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pitches</span> <span class="o">=</span> <span class="n">pitches</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="mi">0</span><span class="p">:</span> <span class="s2">&quot;c&quot;</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">:</span> <span class="s2">&quot;c+&quot;</span><span class="p">,</span>
+            <span class="mi">2</span><span class="p">:</span> <span class="s2">&quot;d&quot;</span><span class="p">,</span>
+            <span class="mi">3</span><span class="p">:</span> <span class="s2">&quot;e-&quot;</span><span class="p">,</span>
+            <span class="mi">4</span><span class="p">:</span> <span class="s2">&quot;e&quot;</span><span class="p">,</span>
+            <span class="mi">5</span><span class="p">:</span> <span class="s2">&quot;f&quot;</span><span class="p">,</span>
+            <span class="mi">6</span><span class="p">:</span> <span class="s2">&quot;f+&quot;</span><span class="p">,</span>
+            <span class="mi">7</span><span class="p">:</span> <span class="s2">&quot;g&quot;</span><span class="p">,</span>
+            <span class="mi">8</span><span class="p">:</span> <span class="s2">&quot;a-&quot;</span><span class="p">,</span>
+            <span class="mi">9</span><span class="p">:</span> <span class="s2">&quot;a&quot;</span><span class="p">,</span>
+            <span class="mi">10</span><span class="p">:</span> <span class="s2">&quot;b-&quot;</span><span class="p">,</span>
+            <span class="mi">11</span><span class="p">:</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fre_dummy</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_amp_dummy</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dur_dummy</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_end_dummy</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_x_dummy</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_y_dummy</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_z_dummy</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_music</span> <span class="o">=</span> <span class="n">music</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_voices</span> <span class="o">=</span> <span class="n">voices</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_loop</span> <span class="o">=</span> <span class="n">loop</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_poly</span> <span class="o">=</span> <span class="n">poly</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_updateAtEnd</span> <span class="o">=</span> <span class="n">updateAtEnd</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">music</span><span class="p">):</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">music</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">music</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parser</span> <span class="o">=</span> <span class="n">MMLParser</span><span class="p">(</span><span class="n">music</span><span class="p">,</span> <span class="n">voices</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sequences</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">getSequences</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_players</span> <span class="o">=</span> <span class="p">[</span><span class="n">MMLMain_base</span><span class="p">(</span><span class="n">loop</span><span class="p">,</span> <span class="n">poly</span><span class="p">,</span> <span class="n">updateAtEnd</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">voices</span><span class="p">)]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">voices</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sequences</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_base_players</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">setSequence</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sequences</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span><span class="n">MML_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_players</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">voices</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">poly</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fre_objs</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">MMLFreqStream_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_players</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">voices</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">poly</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_amp_objs</span> <span class="o">=</span> <span class="p">[</span><span class="n">MMLAmpStream_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_players</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">voices</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">poly</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dur_objs</span> <span class="o">=</span> <span class="p">[</span><span class="n">MMLDurStream_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_players</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">voices</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">poly</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_end_objs</span> <span class="o">=</span> <span class="p">[</span><span class="n">MMLEndStream_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_players</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">voices</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">poly</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_x_objs</span> <span class="o">=</span> <span class="p">[</span><span class="n">MMLXStream_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_players</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">voices</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">poly</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_y_objs</span> <span class="o">=</span> <span class="p">[</span><span class="n">MMLYStream_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_players</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">voices</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">poly</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_z_objs</span> <span class="o">=</span> <span class="p">[</span><span class="n">MMLZStream_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_players</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">voices</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">poly</span><span class="p">)]</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="s2">&quot;freq&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_fre_dummy</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Dummy</span><span class="p">([</span><span class="n">obj</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fre_objs</span><span class="p">]))</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fre_dummy</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="s2">&quot;amp&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_amp_dummy</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Dummy</span><span class="p">([</span><span class="n">obj</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_amp_objs</span><span class="p">]))</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_amp_dummy</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="s2">&quot;dur&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dur_dummy</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Dummy</span><span class="p">([</span><span class="n">obj</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dur_objs</span><span class="p">]))</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dur_dummy</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="s2">&quot;end&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_end_dummy</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Dummy</span><span class="p">([</span><span class="n">obj</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_end_objs</span><span class="p">]))</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_end_dummy</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="s2">&quot;x&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_x_dummy</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Dummy</span><span class="p">([</span><span class="n">obj</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_x_objs</span><span class="p">]))</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_x_dummy</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_y_dummy</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Dummy</span><span class="p">([</span><span class="n">obj</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_y_objs</span><span class="p">]))</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_y_dummy</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="s2">&quot;z&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_z_dummy</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Dummy</span><span class="p">([</span><span class="n">obj</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_z_objs</span><span class="p">]))</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_z_dummy</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">==</span> <span class="nb">slice</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&#39;i&#39; too large!&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">getVoice</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">voice</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">sl</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="n">voice</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_poly</span><span class="p">,</span> <span class="p">(</span><span class="n">voice</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_poly</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">stream</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">sl</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">stream</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;freq&quot;</span><span class="p">,</span> <span class="s2">&quot;amp&quot;</span><span class="p">,</span> <span class="s2">&quot;dur&quot;</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">]:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">stream</span><span class="p">][</span><span class="n">sl</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;MML has no stream named </span><span class="si">%s</span><span class="s2">!&quot;</span> <span class="o">%</span> <span class="n">stream</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="MML.get"><a class="viewcode-back" href="../../../api/classes/mmlmusic.html#pyo.MML.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">identifier</span><span class="o">=</span><span class="s2">&quot;amp&quot;</span><span class="p">,</span> <span class="nb">all</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the first sample of the current buffer as a float.</span>
+
+<span class="sd">        Can be used to convert audio stream to usable Python data.</span>
+
+<span class="sd">        &quot;freq&quot;, &quot;amp&quot;, &quot;dur&quot;, &quot;end&quot;, &quot;x&quot;, &quot;y&quot; or &quot;z&quot; can be given</span>
+<span class="sd">        to `identifier` to retrieve a specific stream to get the</span>
+<span class="sd">        value from.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            identifier: string {&quot;freq&quot;, &quot;amp&quot;, &quot;dur&quot;, &quot;end&quot;, &quot;x&quot;, &quot;y&quot;, &quot;z&quot;}</span>
+<span class="sd">                Address string parameter identifying audio stream.</span>
+<span class="sd">                Defaults to &quot;amp&quot;.</span>
+<span class="sd">            all: boolean, optional</span>
+<span class="sd">                If True, the first value of each object&#39;s stream</span>
+<span class="sd">                will be returned as a list.</span>
+
+<span class="sd">                If False, only the value of the first object&#39;s</span>
+<span class="sd">                stream will be returned as a float.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">(</span><span class="n">identifier</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">_getStream</span><span class="p">()</span><span class="o">.</span><span class="n">getValue</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">_getStream</span><span class="p">()</span><span class="o">.</span><span class="n">getValue</span><span class="p">()</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">(</span><span class="n">identifier</span><span class="p">)</span><span class="o">.</span><span class="n">getBaseObjects</span><span class="p">()]</span></div>
+
+<div class="viewcode-block" id="MML.setMusic"><a class="viewcode-back" href="../../../api/classes/mmlmusic.html#pyo.MML.setMusic">[docs]</a>    <span class="k">def</span> <span class="nf">setMusic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `music` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: string</span>
+<span class="sd">                The new music code to parse. If the string is a valid path</span>
+<span class="sd">                to a text file, the file is opened and its content is taken</span>
+<span class="sd">                as the music code.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;S&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_music</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_editor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_editor</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sequences</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">getSequences</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_voices</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sequences</span><span class="p">):</span>
+                <span class="k">return</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sequences</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_base_players</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sequences</span><span class="p">[</span><span class="n">i</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="MML.getSequences"><a class="viewcode-back" href="../../../api/classes/mmlmusic.html#pyo.MML.getSequences">[docs]</a>    <span class="k">def</span> <span class="nf">getSequences</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the sequences parsed from the music text.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sequences</span></div>
+
+<div class="viewcode-block" id="MML.getNoteFromPitch"><a class="viewcode-back" href="../../../api/classes/mmlmusic.html#pyo.MML.getNoteFromPitch">[docs]</a>    <span class="k">def</span> <span class="nf">getNoteFromPitch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Converts a MIDI note to MML notation and returns the result as a string.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: int</span>
+<span class="sd">                The MIDI note to convert to MML notation. This will return two tokens,</span>
+<span class="sd">                the octave followed by the note name.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">oct</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span> <span class="o">/</span> <span class="mi">12</span><span class="p">)</span>
+        <span class="n">pit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pitches</span><span class="p">[</span><span class="n">x</span> <span class="o">%</span> <span class="mi">12</span><span class="p">]</span>
+        <span class="k">return</span> <span class="s2">&quot;o</span><span class="si">%d</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">oct</span><span class="p">,</span> <span class="n">pit</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MML.getVolumeFromVelocity"><a class="viewcode-back" href="../../../api/classes/mmlmusic.html#pyo.MML.getVolumeFromVelocity">[docs]</a>    <span class="k">def</span> <span class="nf">getVolumeFromVelocity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Converts a MIDI velocity to MML volume notation and returns the result as a string.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: int</span>
+<span class="sd">                The MIDI velocity to convert to MML volume notation. This will return a</span>
+<span class="sd">                volume token.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">vol</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span> <span class="o">/</span> <span class="mi">127</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s2">&quot;v</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">vol</span></div>
+
+<div class="viewcode-block" id="MML.play"><a class="viewcode-back" href="../../../api/classes/mmlmusic.html#pyo.MML.play">[docs]</a>    <span class="k">def</span> <span class="nf">play</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dur</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">dur</span><span class="p">,</span> <span class="n">delay</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">dur</span><span class="p">,</span> <span class="n">delay</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fre_objs</span> <span class="o">=</span> <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">play</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">dur</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">delay</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fre_objs</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_amp_objs</span> <span class="o">=</span> <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">play</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">dur</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">delay</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_amp_objs</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dur_objs</span> <span class="o">=</span> <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">play</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">dur</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">delay</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dur_objs</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_end_objs</span> <span class="o">=</span> <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">play</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">dur</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">delay</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_end_objs</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_x_objs</span> <span class="o">=</span> <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">play</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">dur</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">delay</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_x_objs</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_y_objs</span> <span class="o">=</span> <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">play</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">dur</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">delay</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_y_objs</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_z_objs</span> <span class="o">=</span> <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">play</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">dur</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">delay</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_z_objs</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="n">PyoObject</span><span class="o">.</span><span class="n">play</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dur</span><span class="p">,</span> <span class="n">delay</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MML.stop"><a class="viewcode-back" href="../../../api/classes/mmlmusic.html#pyo.MML.stop">[docs]</a>    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">stop</span><span class="p">(</span><span class="n">wait</span><span class="p">)</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fre_objs</span><span class="p">]</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">stop</span><span class="p">(</span><span class="n">wait</span><span class="p">)</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_amp_objs</span><span class="p">]</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">stop</span><span class="p">(</span><span class="n">wait</span><span class="p">)</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dur_objs</span><span class="p">]</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">stop</span><span class="p">(</span><span class="n">wait</span><span class="p">)</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_end_objs</span><span class="p">]</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">stop</span><span class="p">(</span><span class="n">wait</span><span class="p">)</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_x_objs</span><span class="p">]</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">stop</span><span class="p">(</span><span class="n">wait</span><span class="p">)</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_y_objs</span><span class="p">]</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">stop</span><span class="p">(</span><span class="n">wait</span><span class="p">)</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_z_objs</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">PyoObject</span><span class="o">.</span><span class="n">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wait</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MML.out"><a class="viewcode-back" href="../../../api/classes/mmlmusic.html#pyo.MML.out">[docs]</a>    <span class="k">def</span> <span class="nf">out</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chnl</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">inc</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">dur</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">play</span><span class="p">(</span><span class="n">dur</span><span class="p">,</span> <span class="n">delay</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MML.setMul"><a class="viewcode-back" href="../../../api/classes/mmlmusic.html#pyo.MML.setMul">[docs]</a>    <span class="k">def</span> <span class="nf">setMul</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="MML.setAdd"><a class="viewcode-back" href="../../../api/classes/mmlmusic.html#pyo.MML.setAdd">[docs]</a>    <span class="k">def</span> <span class="nf">setAdd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="MML.setSub"><a class="viewcode-back" href="../../../api/classes/mmlmusic.html#pyo.MML.setSub">[docs]</a>    <span class="k">def</span> <span class="nf">setSub</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="MML.setDiv"><a class="viewcode-back" href="../../../api/classes/mmlmusic.html#pyo.MML.setDiv">[docs]</a>    <span class="k">def</span> <span class="nf">setDiv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="MML.editor"><a class="viewcode-back" href="../../../api/classes/mmlmusic.html#pyo.MML.editor">[docs]</a>    <span class="k">def</span> <span class="nf">editor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;MML Editor&quot;</span><span class="p">,</span> <span class="n">wxnoserver</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Opens the text editor for this object.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            title: string, optional</span>
+<span class="sd">                Title of the window. If none is provided, the name of the</span>
+<span class="sd">                class is used.</span>
+<span class="sd">            wxnoserver: boolean, optional</span>
+<span class="sd">                With wxPython graphical toolkit, if True, tells the</span>
+<span class="sd">                interpreter that there will be no server window.</span>
+
+<span class="sd">        If `wxnoserver` is set to True, the interpreter will not wait for</span>
+<span class="sd">        the server GUI before showing the controller window.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">createMMLEditorWindow</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">wxnoserver</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">music</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;string. The music code to parse.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_music</span>
+
+    <span class="nd">@music</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">music</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setMusic</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">Pyo 1.0.4 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pyo.html" >pyo</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pyo.lib.mmlmusic</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+  </body>
+</html>

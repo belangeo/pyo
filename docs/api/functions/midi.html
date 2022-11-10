@@ -1,0 +1,196 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>Midi Setup — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="sndfile.html" rel="next" title="Soundfile"/>
+<link href="audio.html" rel="prev" title="Audio Setup"/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="sndfile.html" title="Soundfile">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="audio.html" title="Audio Setup">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="../index.html">API documentation</a> »</li>
+<li class="nav-item nav-item-2"><a accesskey="U" href="index.html">Functions</a> »</li>
+<li class="nav-item nav-item-this"><a href="">Midi Setup</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="midi-setup">
+<h1>Midi Setup<a class="headerlink" href="#midi-setup" title="Permalink to this headline">¶</a></h1>
+<p>Set of functions to inspect the system’s midi configuration.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>These functions are available only if pyo is built with portmidi support.</p>
+</div>
+<section id="pm-get-default-output">
+<h2><em>pm_get_default_output</em><a class="headerlink" href="#pm-get-default-output" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyo.pm_get_default_output">
+<span class="sig-name descname"><span class="pre">pm_get_default_output</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyo.pm_get_default_output" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the index number of Portmidi’s default output device.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">names</span><span class="p">,</span> <span class="n">indexes</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/functions/midi.html#pyo.pm_get_output_devices" title="pyo.pm_get_output_devices"><span class="n">pm_get_output_devices</span></a><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">name</span> <span class="o">=</span> <span class="n">names</span><span class="p">[</span><span class="n">indexes</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/functions/midi.html#pyo.pm_get_default_output" title="pyo.pm_get_default_output"><span class="n">pm_get_default_output</span></a><span class="p">())]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+<span class="go">'IAC Driver Bus 1'</span>
+</pre></div>
+</div>
+</dd></dl>
+</section>
+<section id="pm-get-default-input">
+<h2><em>pm_get_default_input</em><a class="headerlink" href="#pm-get-default-input" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyo.pm_get_default_input">
+<span class="sig-name descname"><span class="pre">pm_get_default_input</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyo.pm_get_default_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the index number of Portmidi’s default input device.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">names</span><span class="p">,</span> <span class="n">indexes</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/functions/midi.html#pyo.pm_get_input_devices" title="pyo.pm_get_input_devices"><span class="n">pm_get_input_devices</span></a><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">name</span> <span class="o">=</span> <span class="n">names</span><span class="p">[</span><span class="n">indexes</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/functions/midi.html#pyo.pm_get_default_input" title="pyo.pm_get_default_input"><span class="n">pm_get_default_input</span></a><span class="p">())]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+<span class="go">'IAC Driver Bus 1'</span>
+</pre></div>
+</div>
+</dd></dl>
+</section>
+<section id="pm-get-output-devices">
+<h2><em>pm_get_output_devices</em><a class="headerlink" href="#pm-get-output-devices" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyo.pm_get_output_devices">
+<span class="sig-name descname"><span class="pre">pm_get_output_devices</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyo.pm_get_output_devices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns midi output devices (device names, device indexes) found by Portmidi.</p>
+<p><cite>device names</cite> is a list of strings and <cite>device indexes</cite> is a list of the actual
+Portmidi index of each device.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">outs</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/functions/midi.html#pyo.pm_get_output_devices" title="pyo.pm_get_output_devices"><span class="n">pm_get_output_devices</span></a><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">outs</span><span class="p">)</span>
+<span class="go">(['IAC Driver Bus 1', 'to MaxMSP 1', 'to MaxMSP 2'], [3, 4, 5])</span>
+</pre></div>
+</div>
+</dd></dl>
+</section>
+<section id="pm-get-input-devices">
+<h2><em>pm_get_input_devices</em><a class="headerlink" href="#pm-get-input-devices" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyo.pm_get_input_devices">
+<span class="sig-name descname"><span class="pre">pm_get_input_devices</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyo.pm_get_input_devices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns midi input devices (device names, device indexes) found by Portmidi.</p>
+<p><cite>device names</cite> is a list of strings and <cite>device indexes</cite> is a list of the actual
+Portmidi index of each device.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ins</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/functions/midi.html#pyo.pm_get_input_devices" title="pyo.pm_get_input_devices"><span class="n">pm_get_input_devices</span></a><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ins</span><span class="p">)</span>
+<span class="go">(['IAC Driver Bus 1', 'from MaxMSP 1', 'from MaxMSP 2'], [0, 1, 2])</span>
+</pre></div>
+</div>
+</dd></dl>
+</section>
+<section id="pm-list-devices">
+<h2><em>pm_list_devices</em><a class="headerlink" href="#pm-list-devices" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyo.pm_list_devices">
+<span class="sig-name descname"><span class="pre">pm_list_devices</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyo.pm_list_devices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prints a list of all devices found by Portmidi.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/functions/midi.html#pyo.pm_list_devices" title="pyo.pm_list_devices"><span class="n">pm_list_devices</span></a><span class="p">()</span>
+<span class="go">MIDI devices:</span>
+<span class="go">0: IN, name: IAC Driver Bus 1, interface: CoreMIDI</span>
+<span class="go">1: IN, name: from MaxMSP 1, interface: CoreMIDI</span>
+<span class="go">2: IN, name: from MaxMSP 2, interface: CoreMIDI</span>
+<span class="go">3: OUT, name: IAC Driver Bus 1, interface: CoreMIDI</span>
+<span class="go">4: OUT, name: to MaxMSP 1, interface: CoreMIDI</span>
+<span class="go">5: OUT, name: to MaxMSP 2, interface: CoreMIDI</span>
+</pre></div>
+</div>
+</dd></dl>
+</section>
+<section id="pm-count-devices">
+<h2><em>pm_count_devices</em><a class="headerlink" href="#pm-count-devices" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyo.pm_count_devices">
+<span class="sig-name descname"><span class="pre">pm_count_devices</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyo.pm_count_devices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of devices found by Portmidi.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">c</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/functions/midi.html#pyo.pm_count_devices" title="pyo.pm_count_devices"><span class="n">pm_count_devices</span></a><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+<span class="go">6</span>
+</pre></div>
+</div>
+</dd></dl>
+</section>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h3><a href="../../index.html">Table of Contents</a></h3>
+<ul>
+<li><a class="reference internal" href="#">Midi Setup</a><ul>
+<li><a class="reference internal" href="#pm-get-default-output"><em>pm_get_default_output</em></a></li>
+<li><a class="reference internal" href="#pm-get-default-input"><em>pm_get_default_input</em></a></li>
+<li><a class="reference internal" href="#pm-get-output-devices"><em>pm_get_output_devices</em></a></li>
+<li><a class="reference internal" href="#pm-get-input-devices"><em>pm_get_input_devices</em></a></li>
+<li><a class="reference internal" href="#pm-list-devices"><em>pm_list_devices</em></a></li>
+<li><a class="reference internal" href="#pm-count-devices"><em>pm_count_devices</em></a></li>
+</ul>
+</li>
+</ul>
+<h4>Previous topic</h4>
+<p class="topless"><a href="audio.html" title="previous chapter">Audio Setup</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="sndfile.html" title="next chapter">Soundfile</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="sndfile.html" title="Soundfile">next</a> |</li>
+<li class="right">
+<a href="audio.html" title="Audio Setup">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="../index.html">API documentation</a> »</li>
+<li class="nav-item nav-item-2"><a href="index.html">Functions</a> »</li>
+<li class="nav-item nav-item-this"><a href="">Midi Setup</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

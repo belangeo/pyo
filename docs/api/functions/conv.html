@@ -1,0 +1,423 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>Conversions — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="server.html" rel="next" title="Server Queries"/>
+<link href="sampling.html" rel="prev" title="Resampling"/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="server.html" title="Server Queries">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="sampling.html" title="Resampling">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="../index.html">API documentation</a> »</li>
+<li class="nav-item nav-item-2"><a accesskey="U" href="index.html">Functions</a> »</li>
+<li class="nav-item nav-item-this"><a href="">Conversions</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="conversions">
+<h1>Conversions<a class="headerlink" href="#conversions" title="Permalink to this headline">¶</a></h1>
+<section id="miditohz">
+<h2><em>midiToHz</em><a class="headerlink" href="#miditohz" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyo.midiToHz">
+<span class="sig-name descname"><span class="pre">midiToHz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyo.midiToHz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts a midi note value to frequency in Hertz.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>x: int or float</dt><dd><p>Midi note. <cite>x</cite> can be a number, a list or a tuple, otherwise the function returns None.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="mi">48</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">62</span><span class="p">,</span> <span class="mi">67</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/functions/conv.html#pyo.midiToHz" title="pyo.midiToHz"><span class="n">midiToHz</span></a><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+<span class="go">(130.8127826503271, 261.62556530066814, 293.66476791748823, 391.9954359818656)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="p">[</span><span class="mi">48</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">62</span><span class="p">,</span> <span class="mi">67</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/functions/conv.html#pyo.midiToHz" title="pyo.midiToHz"><span class="n">midiToHz</span></a><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+<span class="go">[130.8127826503271, 261.62556530066814, 293.66476791748823, 391.9954359818656]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/functions/conv.html#pyo.midiToHz" title="pyo.midiToHz"><span class="n">midiToHz</span></a><span class="p">(</span><span class="mf">60.0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+<span class="go">261.625565301</span>
+</pre></div>
+</div>
+</dd></dl>
+</section>
+<section id="miditotranspo">
+<h2><em>midiToTranspo</em><a class="headerlink" href="#miditotranspo" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyo.midiToTranspo">
+<span class="sig-name descname"><span class="pre">midiToTranspo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyo.midiToTranspo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts a midi note value to transposition factor (central key = 60).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>x: int or float</dt><dd><p>Midi note. <cite>x</cite> can be a number, a list or a tuple, otherwise the function returns None.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="mi">48</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">62</span><span class="p">,</span> <span class="mi">67</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/functions/conv.html#pyo.midiToTranspo" title="pyo.midiToTranspo"><span class="n">midiToTranspo</span></a><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+<span class="go">    (0.49999999999997335, 1.0, 1.122462048309383, 1.4983070768767281)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="p">[</span><span class="mi">48</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">62</span><span class="p">,</span> <span class="mi">67</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/functions/conv.html#pyo.midiToTranspo" title="pyo.midiToTranspo"><span class="n">midiToTranspo</span></a><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+<span class="go">[0.49999999999997335, 1.0, 1.122462048309383, 1.4983070768767281]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/functions/conv.html#pyo.midiToTranspo" title="pyo.midiToTranspo"><span class="n">midiToTranspo</span></a><span class="p">(</span><span class="mf">60.0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+<span class="go">1.0</span>
+</pre></div>
+</div>
+</dd></dl>
+</section>
+<section id="sampstosec">
+<h2><em>sampsToSec</em><a class="headerlink" href="#sampstosec" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyo.sampsToSec">
+<span class="sig-name descname"><span class="pre">sampsToSec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyo.sampsToSec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the duration in seconds equivalent to the number of samples given as an argument.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>x: int or float</dt><dd><p>Duration in samples. <cite>x</cite> can be a number, a list or a tuple, otherwise function returns None.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">256</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/functions/conv.html#pyo.sampsToSec" title="pyo.sampsToSec"><span class="n">sampsToSec</span></a><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+<span class="go">(0.0014512471655328798, 0.0029024943310657597, 0.0058049886621315194)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="p">[</span><span class="mi">64</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">256</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/functions/conv.html#pyo.sampsToSec" title="pyo.sampsToSec"><span class="n">sampsToSec</span></a><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+<span class="go">[0.0014512471655328798, 0.0029024943310657597, 0.0058049886621315194]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/functions/conv.html#pyo.sampsToSec" title="pyo.sampsToSec"><span class="n">sampsToSec</span></a><span class="p">(</span><span class="mi">8192</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+<span class="go">0.185759637188</span>
+</pre></div>
+</div>
+</dd></dl>
+</section>
+<section id="sectosamps">
+<h2><em>secToSamps</em><a class="headerlink" href="#sectosamps" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyo.secToSamps">
+<span class="sig-name descname"><span class="pre">secToSamps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyo.secToSamps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of samples equivalent to the duration in seconds given as an argument.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>x: int or float</dt><dd><p>Duration in seconds. <cite>x</cite> can be a number, a list or a tuple, otherwise function returns None.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/functions/conv.html#pyo.secToSamps" title="pyo.secToSamps"><span class="n">secToSamps</span></a><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+<span class="go">(4410, 11025, 22050, 44100)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/functions/conv.html#pyo.secToSamps" title="pyo.secToSamps"><span class="n">secToSamps</span></a><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+<span class="go">[4410, 11025, 22050, 44100]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/functions/conv.html#pyo.secToSamps" title="pyo.secToSamps"><span class="n">secToSamps</span></a><span class="p">(</span><span class="mf">2.5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+<span class="go">110250</span>
+</pre></div>
+</div>
+</dd></dl>
+</section>
+<section id="beattodur">
+<h2><em>beatToDur</em><a class="headerlink" href="#beattodur" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyo.beatToDur">
+<span class="sig-name descname"><span class="pre">beatToDur</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">beat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bpm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">120</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#beatToDur"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.beatToDur" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts a beat value (multiplier of a quarter note) to a duration in seconds.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>beat: float</dt><dd><p>Beat value, in multiplier of the quarter note, to convert, according
+to the BPM value, which gives the duration of the quarter note. For
+example, to retrieve the duration of the sixteenth note, for a BPM
+of 90, we would write <cite>beatToDur(1/4, 90)</cite>. <cite>beat</cite> can be a number,
+a list or a tuple.</p>
+</dd>
+<dt>bpm: float, optional</dt><dd><p>The beat-per-minute value, which gives the duration of the quarter note.
+Defaults to 120. <cite>bpm</cite> can be a number, a list or a tuple.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bpm</span> <span class="o">=</span> <span class="mi">90</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Duration of a sixteenth note.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dur</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/functions/conv.html#pyo.beatToDur" title="pyo.beatToDur"><span class="n">beatToDur</span></a><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="mi">4</span><span class="p">,</span> <span class="mi">90</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">dur</span><span class="p">)</span>
+<span class="go">1.666666666666</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/functions/conv.html#pyo.beatToDur" title="pyo.beatToDur"><span class="n">beatToDur</span></a><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="mi">4</span><span class="p">,</span> <span class="p">[</span><span class="mi">60</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">120</span><span class="p">]))</span>
+<span class="go">[0.25, 0.166666666, 0.125]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/functions/conv.html#pyo.beatToDur" title="pyo.beatToDur"><span class="n">beatToDur</span></a><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="mi">4</span><span class="p">,</span> <span class="p">(</span><span class="mi">60</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">120</span><span class="p">)))</span>
+<span class="go">(0.25, 0.166666666, 0.125)</span>
+</pre></div>
+</div>
+</dd></dl>
+</section>
+<section id="lintocoscurve">
+<h2><em>linToCosCurve</em><a class="headerlink" href="#lintocoscurve" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyo.linToCosCurve">
+<span class="sig-name descname"><span class="pre">linToCosCurve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yrange</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0,</span> <span class="pre">1]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">totaldur</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1024</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyo.linToCosCurve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a cosinus interpolated curve from a list of points.</p>
+<p>A point is a tuple (or a list) of two floats, time and value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>data: list of points</dt><dd><p>Set of points between which will be inserted interpolated segments.</p>
+</dd>
+<dt>yrange: list of 2 floats, optional</dt><dd><p>Minimum and maximum values on the Y axis. Defaults to [0., 1.].</p>
+</dd>
+<dt>totaldur: float, optional</dt><dd><p>X axis duration. Defaults to 1.</p>
+</dd>
+<dt>points: int, optional</dt><dd><p>Number of points in the output list. Defaults to 1024.</p>
+</dd>
+<dt>log: boolean, optional</dt><dd><p>Set this value to True if the Y axis has a logarithmic scale. Defaults to False</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.25</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.33</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/functions/conv.html#pyo.linToCosCurve" title="pyo.linToCosCurve"><span class="n">linToCosCurve</span></a><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">yrange</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">totaldur</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="mi">8192</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.DataTable" title="pyo.lib.tables.DataTable"><span class="n">t</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/tables.html#pyo.DataTable" title="pyo.lib.tables.DataTable"><span class="n">DataTable</span></a><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">b</span><span class="p">),</span> <span class="n">init</span><span class="o">=</span><span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">b</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span><span class="o">.</span><span class="n">view</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+</section>
+<section id="rescale">
+<h2><em>rescale</em><a class="headerlink" href="#rescale" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyo.rescale">
+<span class="sig-name descname"><span class="pre">rescale</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xmin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ymin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ymax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlog</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylog</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyo.rescale" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts values from an input range to an output range.</p>
+<p>This function takes data in the range <cite>xmin</cite> - <cite>xmax</cite> and returns corresponding values
+in the range <cite>ymin</cite> - <cite>ymax</cite>.</p>
+<p><cite>data</cite> can be either a number or a list. Return value is of the same type as <cite>data</cite>
+with all values rescaled.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Argss</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>data: float or list of floats</dt><dd><p>Values to convert.</p>
+</dd>
+<dt>xmin: float, optional</dt><dd><p>Minimum value of the input range.</p>
+</dd>
+<dt>xmax: float, optional</dt><dd><p>Maximum value of the input range.</p>
+</dd>
+<dt>ymin: float, optional</dt><dd><p>Minimum value of the output range.</p>
+</dd>
+<dt>ymax: float, optional</dt><dd><p>Maximum value of the output range.</p>
+</dd>
+<dt>xlog: boolean, optional</dt><dd><p>Set this argument to True if the input range has a logarithmic scaling.</p>
+</dd>
+<dt>ylog: boolean, optional</dt><dd><p>Set this argument to True if the output range has a logarithmic scaling.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="mf">0.5</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/functions/conv.html#pyo.rescale" title="pyo.rescale"><span class="n">rescale</span></a><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">20000</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+<span class="go">632.453369141</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="o">.</span><span class="mi">4</span><span class="p">,</span> <span class="o">.</span><span class="mi">8</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/functions/conv.html#pyo.rescale" title="pyo.rescale"><span class="n">rescale</span></a><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">20000</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+<span class="go">[20.000001907348633, 316.97738647460938, 5023.7705078125]</span>
+</pre></div>
+</div>
+</dd></dl>
+</section>
+<section id="floatmap">
+<h2><em>floatmap</em><a class="headerlink" href="#floatmap" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyo.floatmap">
+<span class="sig-name descname"><span class="pre">floatmap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyo.floatmap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts values from a 0-1 range to an output range.</p>
+<p>This function takes data in the range <cite>0</cite> - <cite>1</cite> and returns corresponding values
+in the range <cite>min</cite> - <cite>max</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Argss</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>x: float</dt><dd><p>Value to convert, in the range 0 to 1.</p>
+</dd>
+<dt>min: float, optional</dt><dd><p>Minimum value of the output range. Defaults to 0.</p>
+</dd>
+<dt>max: float, optional</dt><dd><p>Maximum value of the output range. Defaults to 1.</p>
+</dd>
+<dt>exp: float, optional</dt><dd><p>Power factor (1 (default) is linear, les than 1 is logarithmic, greter than 1 is exponential).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="mf">0.5</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/functions/conv.html#pyo.floatmap" title="pyo.floatmap"><span class="n">floatmap</span></a><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+<span class="go">0.0625</span>
+</pre></div>
+</div>
+</dd></dl>
+</section>
+<section id="distancetosegment">
+<h2><em>distanceToSegment</em><a class="headerlink" href="#distancetosegment" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyo.distanceToSegment">
+<span class="sig-name descname"><span class="pre">distanceToSegment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xmin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ymin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ymax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlog</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylog</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyo.distanceToSegment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the distance from a point to a line or line segment.</p>
+<p>This function returns the shortest distance from a point to a line segment
+normalized between 0 and 1.</p>
+<p>A point is a tuple (or a list) of two floats, time and value. <cite>p</cite> is the point for which
+to find the distance from line <cite>p1</cite> to <cite>p2</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>p: list or tuple</dt><dd><p>Point for which to find the distance.</p>
+</dd>
+<dt>p1: list or tuple</dt><dd><p>First point of the segment.</p>
+</dd>
+<dt>p2: list or tuple</dt><dd><p>Second point of the segment.</p>
+</dd>
+<dt>xmin: float, optional</dt><dd><p>Minimum value on the X axis.</p>
+</dd>
+<dt>xmax: float, optional</dt><dd><p>Maximum value on the X axis.</p>
+</dd>
+<dt>ymin: float, optional</dt><dd><p>Minimum value on the Y axis.</p>
+</dd>
+<dt>ymax: float, optional</dt><dd><p>Maximum value on the Y axis.</p>
+</dd>
+<dt>xlog: boolean, optional</dt><dd><p>Set this argument to True if X axis has a logarithmic scaling.</p>
+</dd>
+<dt>ylog: boolean, optional</dt><dd><p>Set this argument to True if Y axis has a logarithmic scaling.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+</section>
+<section id="reducepoints">
+<h2><em>reducePoints</em><a class="headerlink" href="#reducepoints" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyo.reducePoints">
+<span class="sig-name descname"><span class="pre">reducePoints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pointlist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.02</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyo.reducePoints" title="Permalink to this definition">¶</a></dt>
+<dd><p>Douglas-Peucker curve reduction algorithm.</p>
+<p>This function receives a list of points as input and returns a simplified list by
+eliminating redundancies.</p>
+<p>A point is a tuple (or a list) of two floats, time and value. A list of points looks like:</p>
+<blockquote>
+<div><p>[ (0, 0), (0.1, 0.7), (0.2, 0.5), … ]</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>pointlist: list of lists or list of tuples</dt><dd><p>List of points (time, value) to filter.</p>
+</dd>
+<dt>tolerance: float, optional</dt><dd><p>Normalized distance threshold under which a point is
+excluded from the list. Defaults to 0.02.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+</section>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h3><a href="../../index.html">Table of Contents</a></h3>
+<ul>
+<li><a class="reference internal" href="#">Conversions</a><ul>
+<li><a class="reference internal" href="#miditohz"><em>midiToHz</em></a></li>
+<li><a class="reference internal" href="#miditotranspo"><em>midiToTranspo</em></a></li>
+<li><a class="reference internal" href="#sampstosec"><em>sampsToSec</em></a></li>
+<li><a class="reference internal" href="#sectosamps"><em>secToSamps</em></a></li>
+<li><a class="reference internal" href="#beattodur"><em>beatToDur</em></a></li>
+<li><a class="reference internal" href="#lintocoscurve"><em>linToCosCurve</em></a></li>
+<li><a class="reference internal" href="#rescale"><em>rescale</em></a></li>
+<li><a class="reference internal" href="#floatmap"><em>floatmap</em></a></li>
+<li><a class="reference internal" href="#distancetosegment"><em>distanceToSegment</em></a></li>
+<li><a class="reference internal" href="#reducepoints"><em>reducePoints</em></a></li>
+</ul>
+</li>
+</ul>
+<h4>Previous topic</h4>
+<p class="topless"><a href="sampling.html" title="previous chapter">Resampling</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="server.html" title="next chapter">Server Queries</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="server.html" title="Server Queries">next</a> |</li>
+<li class="right">
+<a href="sampling.html" title="Resampling">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="../index.html">API documentation</a> »</li>
+<li class="nav-item nav-item-2"><a href="index.html">Functions</a> »</li>
+<li class="nav-item nav-item-this"><a href="">Conversions</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

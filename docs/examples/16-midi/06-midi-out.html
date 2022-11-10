@@ -1,0 +1,153 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>06-midi-out.py - Sending MIDI events from pyo. — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="07-midifile-with-mido.html" rel="next" title="07-midifile-with-mido.py - Reading a MIDI file with mido and sending the events to pyo."/>
+<link href="05-control-change.html" rel="prev" title="05-control-change.py - Adding control changes to our MIDI synthesizer class."/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="07-midifile-with-mido.html" title="07-midifile-with-mido.py - Reading a MIDI file with mido and sending the events to pyo.">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="05-control-change.html" title="05-control-change.py - Adding control changes to our MIDI synthesizer class.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a accesskey="U" href="index.html">16-midi</a> »</li>
+<li class="nav-item nav-item-this"><a href="">06-midi-out.py - Sending MIDI events from pyo.</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="midi-out-py-sending-midi-events-from-pyo">
+<h1>06-midi-out.py - Sending MIDI events from pyo.<a class="headerlink" href="#midi-out-py-sending-midi-events-from-pyo" title="Permalink to this headline">¶</a></h1>
+<p>This program gives an example of how to build an algorithm with python/pyo and
+then send MIDI events from the Server to a connected MIDI synthesizer (physical
+or virtual).</p>
+<p>Available MIDI output methods (see the Server documentation for the details):</p>
+<ul class="simple">
+<li><p>afterout(pitch, velocity, channel=0, timestamp=0)</p></li>
+<li><p>bendout(value, channel=0, timestamp=0)</p></li>
+<li><p>ctlout(ctlnum, value, channel=0, timestamp=0)</p></li>
+<li><p>makenote(pitch, velocity, duration, channel=0)</p></li>
+<li><p>noteout(pitch, velocity, channel=0, timestamp=0)</p></li>
+<li><p>pressout(value, channel=0, timestamp=0)</p></li>
+<li><p>programout(value, channel=0, timestamp=0)</p></li>
+<li><p>sysexout(msg, timestamp=0)</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">from</span> <a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+
+<a class="sphinx-codeautolink-a" href="../../api/functions/midi.html#pyo.pm_list_devices" title="pyo.pm_list_devices"><span class="n">pm_list_devices</span></a><span class="p">()</span>
+
+<a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">s</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span>
+
+<span class="c1"># Open all MIDI output devices.</span>
+<span class="n">s</span><span class="o">.</span><span class="n">setMidiOutputDevice</span><span class="p">(</span><span class="mi">99</span><span class="p">)</span>
+
+<span class="c1"># Then boot the Server.</span>
+<span class="n">s</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+
+<span class="c1"># Generates an audio ramp from 36 to 84, from</span>
+<span class="c1"># which MIDI pitches will be extracted.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Phasor" title="pyo.lib.generators.Phasor"><span class="n">pitch</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Phasor" title="pyo.lib.generators.Phasor"><span class="n">Phasor</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mi">48</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="mi">36</span><span class="p">)</span>
+
+<span class="c1"># Global variable to count the down and up beats.</span>
+<span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+
+
+<span class="k">def</span> <span class="nf">midi_event</span><span class="p">():</span>
+    <span class="k">global</span> <span class="n">count</span>
+    <span class="c1"># Retrieve the value of the pitch audio stream and convert it to an int.</span>
+    <span class="n">pit</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">pitch</span><span class="o">.</span><span class="n">get</span><span class="p">())</span>
+
+    <span class="c1"># If the count is 0 (down beat), play a louder and longer event, otherwise</span>
+    <span class="c1"># play a softer and shorter one.</span>
+    <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">vel</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">90</span><span class="p">,</span> <span class="mi">110</span><span class="p">)</span>
+        <span class="n">dur</span> <span class="o">=</span> <span class="mi">500</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">vel</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">70</span><span class="p">)</span>
+        <span class="n">dur</span> <span class="o">=</span> <span class="mi">125</span>
+
+    <span class="c1"># Increase and wrap the count to generate a 4 beats sequence.</span>
+    <span class="n">count</span> <span class="o">=</span> <span class="p">(</span><span class="n">count</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="mi">4</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"pitch: </span><span class="si">%d</span><span class="s2">, velocity: </span><span class="si">%d</span><span class="s2">, duration: </span><span class="si">%d</span><span class="s2">"</span> <span class="o">%</span> <span class="p">(</span><span class="n">pit</span><span class="p">,</span> <span class="n">vel</span><span class="p">,</span> <span class="n">dur</span><span class="p">))</span>
+
+    <span class="c1"># The Server's `makenote` method generates a noteon event immediately</span>
+    <span class="c1"># and the correponding noteoff event after `duration` milliseconds.</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">makenote</span><span class="p">(</span><span class="n">pitch</span><span class="o">=</span><span class="n">pit</span><span class="p">,</span> <span class="n">velocity</span><span class="o">=</span><span class="n">vel</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="n">dur</span><span class="p">)</span>
+
+
+<span class="c1"># Generates a MIDI event every 125 milliseconds.</span>
+<span class="n">pat</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/pattern.html#pyo.Pattern" title="pyo.lib.pattern.Pattern"><span class="n">Pattern</span></a><span class="p">(</span><span class="n">midi_event</span><span class="p">,</span> <span class="mf">0.125</span><span class="p">)</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h4>Previous topic</h4>
+<p class="topless"><a href="05-control-change.html" title="previous chapter">05-control-change.py - Adding control changes to our MIDI synthesizer class.</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="07-midifile-with-mido.html" title="next chapter">07-midifile-with-mido.py - Reading a MIDI file with mido and sending the events to pyo.</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="07-midifile-with-mido.html" title="07-midifile-with-mido.py - Reading a MIDI file with mido and sending the events to pyo.">next</a> |</li>
+<li class="right">
+<a href="05-control-change.html" title="05-control-change.py - Adding control changes to our MIDI synthesizer class.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="index.html">16-midi</a> »</li>
+<li class="nav-item nav-item-this"><a href="">06-midi-out.py - Sending MIDI events from pyo.</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

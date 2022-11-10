@@ -1,0 +1,211 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>01-multi-rate-processing.py - Doing processing at very high sampling rate. — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="02-multi-rate-synthesis.html" rel="next" title="01-multi-rate-synthesis.py - Doing synthesis at very high sampling rate."/>
+<link href="index.html" rel="prev" title="19-multirate"/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="02-multi-rate-synthesis.html" title="01-multi-rate-synthesis.py - Doing synthesis at very high sampling rate.">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="index.html" title="19-multirate">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a accesskey="U" href="index.html">19-multirate</a> »</li>
+<li class="nav-item nav-item-this"><a href="">01-multi-rate-processing.py - Doing processing at very high sampling rate.</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="multi-rate-processing-py-doing-processing-at-very-high-sampling-rate">
+<h1>01-multi-rate-processing.py - Doing processing at very high sampling rate.<a class="headerlink" href="#multi-rate-processing-py-doing-processing-at-very-high-sampling-rate" title="Permalink to this headline">¶</a></h1>
+<p>In numerical audio computing, it is sometimes useful to be able to process
+a signal with much more timing precision than what the usual sampling rates
+offer. A typical case is when the effect applied to the sound adds a lot of
+harmonics. Higher harmonics will quickly wrap around the Nyquist frequency,
+producing aliasing in the output signal. The solution is to increase the
+sampling rate, so the nyquist frequency, and to use anti-aliasing filters
+when converting from one rate to another.</p>
+<p>Pyo allows to compute chunks of code at different sampling rates than the
+one with which the server was started. You should do this only for the objects
+you need to process with a higher sampling rate, without changing the server’s
+sampling rate, otherwise the program will be very CPU consuming.</p>
+<p>You start a new resampling block with the method:</p>
+<blockquote>
+<div><p>Server.beginResamplingBlock(x)</p>
+</div></blockquote>
+<p>where <cite>x</cite>, a power-of-two, is the resampling factor. A negative power-of-two
+will start a downsampling block of code.</p>
+<p>To close the block, simply call:</p>
+<blockquote>
+<div><p>Server.endResamplingBlock()</p>
+</div></blockquote>
+<p>Everything between the two calls will be computed with the new sampling rate.</p>
+<p>Audio signals must be resampled before used with a different sampling rate.
+The Resample object does this. Inside a resampling block, it will convert the
+signal to the new sampling rate, and outside the resampling block, it will
+convert the signal back to the original sampling rate. Its <cite>mode</cite> argument lets
+choose the quality of the interpolation/decimation filter used to resample the
+signal.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="c1"># We create a new class for our upsampled distortion effect.</span>
+<span class="k">class</span> <span class="nc">UpSampDisto</span><span class="p">:</span>
+    <span class="sd">"""</span>
+<span class="sd">    Upsampled distortion effect.</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        input: PyoObject</span>
+<span class="sd">            The signal to process.</span>
+<span class="sd">        drive: float or PyoObject, optional</span>
+<span class="sd">            Amount of distortion applied to the signal, between 0 and 1.</span>
+<span class="sd">        upfactor: int (power-of-two), optional</span>
+<span class="sd">            Resampling factor.</span>
+<span class="sd">        filtmode: int, optional</span>
+<span class="sd">            The interpolation/decimation mode. See Resample's man page</span>
+<span class="sd">            for details.</span>
+
+<span class="sd">    """</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">drive</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">upfactor</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">filtmode</span><span class="o">=</span><span class="mi">32</span><span class="p">):</span>
+        <span class="c1"># The InputFader object lets change its input signal without clicks.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/internals.html#pyo.InputFader" title="pyo.lib._core.InputFader"><span class="n">InputFader</span></a><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+
+        <span class="c1"># Convert the drive argument to audio signal.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">drive</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Sig" title="pyo.lib._core.Sig"><span class="n">Sig</span></a><span class="p">(</span><span class="n">drive</span><span class="p">)</span>
+
+        <span class="c1"># Get a reference to the audio server.</span>
+        <span class="n">server</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">drive</span><span class="o">.</span><span class="n">getServer</span><span class="p">()</span>
+
+        <span class="c1"># Start an upsampled block of code.</span>
+        <span class="n">server</span><span class="o">.</span><span class="n">beginResamplingBlock</span><span class="p">(</span><span class="n">upfactor</span><span class="p">)</span>
+
+        <span class="c1"># Resample the audio signals. Because the drive signal is only a</span>
+        <span class="c1"># control signal, a linear interpolation is enough. The input</span>
+        <span class="c1"># signal uses a much better filter to eliminate aliasing artifacts.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inputUp</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/utils.html#pyo.Resample" title="pyo.lib.utils.Resample"><span class="n">Resample</span></a><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">filtmode</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">driveUp</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/utils.html#pyo.Resample" title="pyo.lib.utils.Resample"><span class="n">Resample</span></a><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">drive</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># Apply the distortion effect.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">disto</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/effects.html#pyo.Disto" title="pyo.lib.effects.Disto"><span class="n">Disto</span></a><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inputUp</span><span class="p">,</span> <span class="n">drive</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">driveUp</span><span class="p">)</span>
+
+        <span class="c1"># Close the upsampled block.</span>
+        <span class="n">server</span><span class="o">.</span><span class="n">endResamplingBlock</span><span class="p">()</span>
+
+        <span class="c1"># Convert back the distorted signal to the current sampling rate.</span>
+        <span class="c1"># Again, we use a good decimination filter to eliminate aliasing.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/utils.html#pyo.Resample" title="pyo.lib.utils.Resample"><span class="n">Resample</span></a><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">disto</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">filtmode</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+
+    <span class="c1"># Define some useful methods.</span>
+    <span class="k">def</span> <span class="nf">setInput</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="o">=</span><span class="mf">0.05</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">setInput</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">setDrive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">drive</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">x</span>
+
+    <span class="k">def</span> <span class="nf">out</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chnl</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">out</span><span class="p">(</span><span class="n">chnl</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">sig</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">output</span>
+
+
+<span class="c1">### Usage example ###</span>
+<span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+
+<span class="c1"># Two different sources for testing, a sine wave and a flute melody.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">src1</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="mi">722</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+<span class="n">src1</span><span class="o">.</span><span class="n">ctrl</span><span class="p">([</span><a class="sphinx-codeautolink-a" href="../../api/classes/map.html#pyo.SLMapFreq" title="pyo.lib._maps.SLMapFreq"><span class="n">SLMapFreq</span></a><span class="p">(</span><span class="mi">722</span><span class="p">)],</span> <span class="n">title</span><span class="o">=</span><span class="s2">"Sine frequency"</span><span class="p">)</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">src2</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">SfPlayer</span></a><span class="p">(</span><span class="s2">"../snds/flute.aif"</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="c1"># Input source interpolation.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/utils.html#pyo.Interp" title="pyo.lib.utils.Interp"><span class="n">src</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/utils.html#pyo.Interp" title="pyo.lib.utils.Interp"><span class="n">Interp</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">src1</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="../../api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">src2</span></a><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">src</span><span class="o">.</span><span class="n">ctrl</span><span class="p">([</span><a class="sphinx-codeautolink-a" href="../../api/classes/map.html#pyo.SLMap" title="pyo.lib._maps.SLMap"><span class="n">SLMap</span></a><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"lin"</span><span class="p">,</span> <span class="s2">"interp"</span><span class="p">,</span> <span class="mi">0</span><span class="p">)],</span> <span class="n">title</span><span class="o">=</span><span class="s2">"Source: sine &lt;=&gt; flute"</span><span class="p">)</span>
+
+<span class="c1"># Control for the drive parameter of the distortion.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Sig" title="pyo.lib._core.Sig"><span class="n">drv</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Sig" title="pyo.lib._core.Sig"><span class="n">Sig</span></a><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">drv</span><span class="o">.</span><span class="n">ctrl</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"Drive"</span><span class="p">)</span>
+
+<span class="c1"># Distortion at current sampling rate.</span>
+<a class="sphinx-codeautolink-a" href="../../api/classes/effects.html#pyo.Disto" title="pyo.lib.effects.Disto"><span class="n">dist</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/effects.html#pyo.Disto" title="pyo.lib.effects.Disto"><span class="n">Disto</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/utils.html#pyo.Interp" title="pyo.lib.utils.Interp"><span class="n">src</span></a><span class="p">,</span> <span class="n">drive</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Sig" title="pyo.lib._core.Sig"><span class="n">drv</span></a><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+
+<span class="c1"># Distortion with increased sampling rate.</span>
+<span class="n">updist</span> <span class="o">=</span> <span class="n">UpSampDisto</span><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/utils.html#pyo.Interp" title="pyo.lib.utils.Interp"><span class="n">src</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Sig" title="pyo.lib._core.Sig"><span class="n">drv</span></a><span class="p">)</span>
+
+<span class="c1"># Interpolator to compare the two processes.</span>
+<span class="n">output</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/utils.html#pyo.Interp" title="pyo.lib.utils.Interp"><span class="n">Interp</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/effects.html#pyo.Disto" title="pyo.lib.effects.Disto"><span class="n">dist</span></a><span class="p">,</span> <span class="n">updist</span><span class="o">.</span><span class="n">sig</span><span class="p">(),</span> <span class="mi">0</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+<span class="n">output</span><span class="o">.</span><span class="n">ctrl</span><span class="p">([</span><a class="sphinx-codeautolink-a" href="../../api/classes/map.html#pyo.SLMap" title="pyo.lib._maps.SLMap"><span class="n">SLMap</span></a><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"lin"</span><span class="p">,</span> <span class="s2">"interp"</span><span class="p">,</span> <span class="mi">0</span><span class="p">)],</span> <span class="n">title</span><span class="o">=</span><span class="s2">"Up Sampling: without &lt;=&gt; with"</span><span class="p">)</span>
+
+<a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.Spectrum" title="pyo.lib.analysis.Spectrum"><span class="n">sp</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/analysis.html#pyo.Spectrum" title="pyo.lib.analysis.Spectrum"><span class="n">Spectrum</span></a><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h4>Previous topic</h4>
+<p class="topless"><a href="index.html" title="previous chapter">19-multirate</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="02-multi-rate-synthesis.html" title="next chapter">01-multi-rate-synthesis.py - Doing synthesis at very high sampling rate.</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="02-multi-rate-synthesis.html" title="01-multi-rate-synthesis.py - Doing synthesis at very high sampling rate.">next</a> |</li>
+<li class="right">
+<a href="index.html" title="19-multirate">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="index.html">19-multirate</a> »</li>
+<li class="nav-item nav-item-this"><a href="">01-multi-rate-processing.py - Doing processing at very high sampling rate.</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

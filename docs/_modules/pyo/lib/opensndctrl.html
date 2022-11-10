@@ -1,0 +1,933 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyo.lib.opensndctrl &#8212; Pyo 1.0.4 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/nature.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-codeautolink.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/autoclasstoc.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../../../_static/E-PyoIcon.ico"/>
+    <link rel="author" title="About these documents" href="../../../about.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">Pyo 1.0.4 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pyo.html" accesskey="U">pyo</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pyo.lib.opensndctrl</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyo.lib.opensndctrl</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Objects to manage values on an Open Sound Control port.</span>
+
+<span class="sd">OscSend takes the first value of each buffersize and send it on an</span>
+<span class="sd">OSC port.</span>
+
+<span class="sd">OscReceive creates and returns audio streams from the value in its</span>
+<span class="sd">input port.</span>
+
+<span class="sd">The audio streams of these objects are essentially intended to be</span>
+<span class="sd">controls and can&#39;t be sent to the output soundcard.</span>
+
+<span class="sd">These objects are available only if pyo is built with OSC (Open Sound</span>
+<span class="sd">Control) support.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Copyright 2009-2015 Olivier Belanger</span>
+
+<span class="sd">This file is part of pyo, a python module to help digital signal</span>
+<span class="sd">processing script creation.</span>
+
+<span class="sd">pyo is free software: you can redistribute it and/or modify</span>
+<span class="sd">it under the terms of the GNU Lesser General Public License as</span>
+<span class="sd">published by the Free Software Foundation, either version 3 of the</span>
+<span class="sd">License, or (at your option) any later version.</span>
+
+<span class="sd">pyo is distributed in the hope that it will be useful,</span>
+<span class="sd">but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="sd">MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="sd">GNU Lesser General Public License for more details.</span>
+
+<span class="sd">You should have received a copy of the GNU Lesser General Public</span>
+<span class="sd">License along with pyo.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">._core</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">._maps</span> <span class="kn">import</span> <span class="o">*</span>
+
+
+<span class="k">def</span> <span class="nf">assertOSCSupport</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">withOSC</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Pyo built without OSC support! &#39;</span><span class="si">%s</span><span class="s2">&#39; objects is not available.&quot;</span> <span class="o">%</span> <span class="n">obj</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<span class="c1">### TODO - Know bugs:</span>
+<span class="c1">### OscListReceive.setValue(address, value) make the program segfault on quit (python 2.7 and 3.5).</span>
+<span class="c1">### OscSend/OscReceive don&#39;t work with unicode on python 2.7 (ok on python 3.5)</span>
+<span class="c1">###</span>
+
+<span class="c1">######################################################################</span>
+<span class="c1">### Open Sound Control</span>
+<span class="c1">######################################################################</span>
+<div class="viewcode-block" id="OscSend"><a class="viewcode-back" href="../../../api/classes/opensndctrl.html#pyo.OscSend">[docs]</a><span class="k">class</span> <span class="nc">OscSend</span><span class="p">(</span><span class="n">PyoObject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sends values over a network via the Open Sound Control protocol.</span>
+
+<span class="sd">    Uses the OSC protocol to share values to other softwares or other</span>
+<span class="sd">    computers. Only the first value of each input buffersize will be</span>
+<span class="sd">    sent on the OSC port.</span>
+
+<span class="sd">    :Parent: :py:class:`PyoObject`</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        input: PyoObject</span>
+<span class="sd">            Input signal.</span>
+<span class="sd">        port: int</span>
+<span class="sd">            Port on which values are sent. Receiver should listen on the</span>
+<span class="sd">            same port.</span>
+<span class="sd">        address: string</span>
+<span class="sd">            Address used on the port to identify values. Address is in</span>
+<span class="sd">            the form of a Unix path (ex.: &#39;/pitch&#39;).</span>
+<span class="sd">        host: string, optional</span>
+<span class="sd">            IP address of the target computer. The default, &#39;127.0.0.1&#39;,</span>
+<span class="sd">            is the localhost.</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        The out() method is bypassed. OscSend&#39;s signal can not be sent</span>
+<span class="sd">        to audio outs.</span>
+
+<span class="sd">        OscSend has no `mul` and `add` attributes.</span>
+
+<span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
+<span class="sd">    &gt;&gt;&gt; s.start()</span>
+<span class="sd">    &gt;&gt;&gt; a = Sine(freq=[1,1.5], mul=[100,.1], add=[600, .1])</span>
+<span class="sd">    &gt;&gt;&gt; b = OscSend(a, port=10001, address=[&#39;/pitch&#39;,&#39;/amp&#39;])</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">):</span>
+        <span class="n">assertOSCSupport</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;oiss&quot;</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">host</span><span class="p">)</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input</span> <span class="o">=</span> <span class="nb">input</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span> <span class="o">=</span> <span class="n">InputFader</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+        <span class="n">in_fader</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">host</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">OscSend_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">in_fader</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">address</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_play</span><span class="p">()</span>
+
+<div class="viewcode-block" id="OscSend.setInput"><a class="viewcode-back" href="../../../api/classes/opensndctrl.html#pyo.OscSend.setInput">[docs]</a>    <span class="k">def</span> <span class="nf">setInput</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="o">=</span><span class="mf">0.05</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `input` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: PyoObject</span>
+<span class="sd">                New signal to process.</span>
+<span class="sd">            fadetime: float, optional</span>
+<span class="sd">                Crossfade time between old and new input. Defaults to 0.05.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;oN&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="o">.</span><span class="n">setInput</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="OscSend.out"><a class="viewcode-back" href="../../../api/classes/opensndctrl.html#pyo.OscSend.out">[docs]</a>    <span class="k">def</span> <span class="nf">out</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chnl</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">inc</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">dur</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">play</span><span class="p">(</span><span class="n">dur</span><span class="p">,</span> <span class="n">delay</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="OscSend.setMul"><a class="viewcode-back" href="../../../api/classes/opensndctrl.html#pyo.OscSend.setMul">[docs]</a>    <span class="k">def</span> <span class="nf">setMul</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="OscSend.setAdd"><a class="viewcode-back" href="../../../api/classes/opensndctrl.html#pyo.OscSend.setAdd">[docs]</a>    <span class="k">def</span> <span class="nf">setAdd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="OscSend.setBufferRate"><a class="viewcode-back" href="../../../api/classes/opensndctrl.html#pyo.OscSend.setBufferRate">[docs]</a>    <span class="k">def</span> <span class="nf">setBufferRate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets how many buffers to wait before sending a new value.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: int</span>
+<span class="sd">                Changes the data output frequency in multiples of the buffer size.</span>
+<span class="sd">                Should be greater or equal to 1.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;I&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setBufferRate</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">]</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;PyoObject. Input signal.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input</span>
+
+    <span class="nd">@input</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setInput</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="OscReceive"><a class="viewcode-back" href="../../../api/classes/opensndctrl.html#pyo.OscReceive">[docs]</a><span class="k">class</span> <span class="nc">OscReceive</span><span class="p">(</span><span class="n">PyoObject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Receives values over a network via the Open Sound Control protocol.</span>
+
+<span class="sd">    Uses the OSC protocol to receive values from other softwares or</span>
+<span class="sd">    other computers. Get a value at the beginning of each buffersize</span>
+<span class="sd">    and fill its buffer with it.</span>
+
+<span class="sd">    :Parent: :py:class:`PyoObject`</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        port: int</span>
+<span class="sd">            Port on which values are received. Sender should output on</span>
+<span class="sd">            the same port.</span>
+
+<span class="sd">            Unlike OscSend object, there can be only one port per OscReceive</span>
+<span class="sd">            object.</span>
+
+<span class="sd">            Available at initialization time only.</span>
+<span class="sd">        address: string</span>
+<span class="sd">            Address used on the port to identify values. Address is in</span>
+<span class="sd">            the form of a Unix path (ex.: &#39;/pitch&#39;).</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        Audio streams are accessed with the `address` string parameter.</span>
+<span class="sd">        The user should call :</span>
+
+<span class="sd">        OscReceive[&#39;/pitch&#39;] to retreive stream named &#39;/pitch&#39;.</span>
+
+<span class="sd">        The out() method is bypassed. OscReceive&#39;s signal can not be sent</span>
+<span class="sd">        to audio outs.</span>
+
+<span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
+<span class="sd">    &gt;&gt;&gt; s.start()</span>
+<span class="sd">    &gt;&gt;&gt; a = OscReceive(port=10001, address=[&#39;/pitch&#39;, &#39;/amp&#39;])</span>
+<span class="sd">    &gt;&gt;&gt; b = Sine(freq=a[&#39;/pitch&#39;], mul=a[&#39;/amp&#39;]).mix(2).out()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">assertOSCSupport</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;IsOO&quot;</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="n">address</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">address</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_address</span> <span class="o">=</span> <span class="n">address</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mainReceiver</span> <span class="o">=</span> <span class="n">OscReceiver_base</span><span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="n">address</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">OscReceive_base</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mainReceiver</span><span class="p">,</span> <span class="n">wrap</span><span class="p">(</span><span class="n">address</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_play</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_address</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">i</span><span class="p">)]</span>
+        <span class="k">elif</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&#39;i&#39; too large!&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="OscReceive.getAddresses"><a class="viewcode-back" href="../../../api/classes/opensndctrl.html#pyo.OscReceive.getAddresses">[docs]</a>    <span class="k">def</span> <span class="nf">getAddresses</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the addresses managed by the object.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_address</span></div>
+
+<div class="viewcode-block" id="OscReceive.addAddress"><a class="viewcode-back" href="../../../api/classes/opensndctrl.html#pyo.OscReceive.addAddress">[docs]</a>    <span class="k">def</span> <span class="nf">addAddress</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds new address(es) to the object&#39;s handler.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            path: string or list of strings</span>
+<span class="sd">                New path(s) to receive from.</span>
+<span class="sd">            mul: float or PyoObject</span>
+<span class="sd">                Multiplication factor. Defaults to 1.</span>
+<span class="sd">            add: float or PyoObject</span>
+<span class="sd">                Addition factor. Defaults to 0.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;sOO&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="n">path</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">,</span> <span class="n">lmax2</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">p</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_address</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_mainReceiver</span><span class="o">.</span><span class="n">addAddress</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_address</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">OscReceive_base</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mainReceiver</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">wrap</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">i</span><span class="p">)))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">play</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="OscReceive.delAddress"><a class="viewcode-back" href="../../../api/classes/opensndctrl.html#pyo.OscReceive.delAddress">[docs]</a>    <span class="k">def</span> <span class="nf">delAddress</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Removes address(es) from the object&#39;s handler.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            path: string or list of strings</span>
+<span class="sd">                Path(s) to remove.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;s&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+        <span class="n">path</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mainReceiver</span><span class="o">.</span><span class="n">delAddress</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">indexes</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_address</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">path</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">indexes</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_address</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">ind</span><span class="p">)</span>
+            <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">ind</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="OscReceive.setInterpolation"><a class="viewcode-back" href="../../../api/classes/opensndctrl.html#pyo.OscReceive.setInterpolation">[docs]</a>    <span class="k">def</span> <span class="nf">setInterpolation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Activate/Deactivate interpolation. Activated by default.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: boolean</span>
+<span class="sd">                True activates the interpolation, False deactivates it.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setInterpolation</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="OscReceive.setValue"><a class="viewcode-back" href="../../../api/classes/opensndctrl.html#pyo.OscReceive.setValue">[docs]</a>    <span class="k">def</span> <span class="nf">setValue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets value for a given address.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            path: string</span>
+<span class="sd">                Address to which the value should be attributed.</span>
+<span class="sd">            value: float</span>
+<span class="sd">                Value to attribute to the given address.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;sn&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="n">path</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">):</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">wrap</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_address</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_mainReceiver</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">wrap</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Error: OscReceive.setValue, Illegal address &quot;</span><span class="si">%s</span><span class="s1">&quot;&#39;</span> <span class="o">%</span> <span class="n">p</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="OscReceive.get"><a class="viewcode-back" href="../../../api/classes/opensndctrl.html#pyo.OscReceive.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">identifier</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">all</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the first sample of the current buffer as a float.</span>
+
+<span class="sd">        Can be used to convert audio stream to usable Python data.</span>
+
+<span class="sd">        Address as string must be given to `identifier` to specify</span>
+<span class="sd">        which stream to get value from.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            identifier: string</span>
+<span class="sd">                Address string parameter identifying audio stream.</span>
+<span class="sd">                Defaults to None, useful when `all` is True to</span>
+<span class="sd">                retreive all streams values.</span>
+<span class="sd">            all: boolean, optional</span>
+<span class="sd">                If True, the first value of each object&#39;s stream</span>
+<span class="sd">                will be returned as a list. Otherwise, only the value</span>
+<span class="sd">                of the first object&#39;s stream will be returned as a float.</span>
+<span class="sd">                Defaults to False.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_address</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">identifier</span><span class="p">)]</span><span class="o">.</span><span class="n">_getStream</span><span class="p">()</span><span class="o">.</span><span class="n">getValue</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">_getStream</span><span class="p">()</span><span class="o">.</span><span class="n">getValue</span><span class="p">()</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="OscReceive.play"><a class="viewcode-back" href="../../../api/classes/opensndctrl.html#pyo.OscReceive.play">[docs]</a>    <span class="k">def</span> <span class="nf">play</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dur</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">dur</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
+            <span class="n">maindur</span> <span class="o">=</span> <span class="n">dur</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">maindur</span> <span class="o">=</span> <span class="n">dur</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">delay</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
+            <span class="n">maindelay</span> <span class="o">=</span> <span class="n">delay</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">maindelay</span> <span class="o">=</span> <span class="n">delay</span>
+        <span class="n">tmp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mainReceiver</span><span class="o">.</span><span class="n">play</span><span class="p">(</span><span class="n">maindur</span><span class="p">,</span> <span class="n">maindelay</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">PyoObject</span><span class="o">.</span><span class="n">play</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dur</span><span class="p">,</span> <span class="n">delay</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="OscReceive.out"><a class="viewcode-back" href="../../../api/classes/opensndctrl.html#pyo.OscReceive.out">[docs]</a>    <span class="k">def</span> <span class="nf">out</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chnl</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">inc</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">dur</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">play</span><span class="p">(</span><span class="n">dur</span><span class="p">,</span> <span class="n">delay</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="OscReceive.stop"><a class="viewcode-back" href="../../../api/classes/opensndctrl.html#pyo.OscReceive.stop">[docs]</a>    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mainReceiver</span><span class="o">.</span><span class="n">stop</span><span class="p">(</span><span class="n">wait</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">PyoObject</span><span class="o">.</span><span class="n">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wait</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="OscDataSend"><a class="viewcode-back" href="../../../api/classes/opensndctrl.html#pyo.OscDataSend">[docs]</a><span class="k">class</span> <span class="nc">OscDataSend</span><span class="p">(</span><span class="n">PyoObject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sends data values over a network via the Open Sound Control protocol.</span>
+
+<span class="sd">    Uses the OSC protocol to share values to other softwares or other</span>
+<span class="sd">    computers. Values are sent on the form of a list containing `types`</span>
+<span class="sd">    elements.</span>
+
+<span class="sd">    :Parent: :py:class:`PyoObject`</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        types: str</span>
+<span class="sd">            String specifying the types sequence of the message to be sent.</span>
+<span class="sd">            Possible values are:</span>
+
+<span class="sd">            - &quot;i&quot;: integer</span>
+<span class="sd">            - &quot;h&quot;: long integer</span>
+<span class="sd">            - &quot;f&quot;: float</span>
+<span class="sd">            - &quot;d&quot;: double</span>
+<span class="sd">            - &quot;s&quot; ; string</span>
+<span class="sd">            - &quot;b&quot;: blob (list of chars)</span>
+<span class="sd">            - &quot;m&quot;: MIDI packet (list of 4 bytes: [midi port, status, data1, data2])</span>
+<span class="sd">            - &quot;c&quot;: char</span>
+<span class="sd">            - &quot;T&quot;: True</span>
+<span class="sd">            - &quot;F&quot;: False</span>
+<span class="sd">            - &quot;N&quot;: None (nil)</span>
+
+<span class="sd">            The string &quot;ssfi&quot; indicates that the value to send will be a list</span>
+<span class="sd">            containing two strings followed by a float and an integer.</span>
+<span class="sd">        port: int</span>
+<span class="sd">            Port on which values are sent. Receiver should listen on the</span>
+<span class="sd">            same port.</span>
+<span class="sd">        address: string</span>
+<span class="sd">            Address used on the port to identify values. Address is in</span>
+<span class="sd">            the form of a Unix path (ex.: &#39;/pitch&#39;).</span>
+<span class="sd">        host: string, optional</span>
+<span class="sd">            IP address of the target computer. The default, &#39;127.0.0.1&#39;,</span>
+<span class="sd">            is the localhost.</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        The out() method is bypassed. OscDataSend has no audio signal.</span>
+
+<span class="sd">        OscDataSend has no `mul` and `add` attributes.</span>
+
+<span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
+<span class="sd">    &gt;&gt;&gt; s.start()</span>
+<span class="sd">    &gt;&gt;&gt; def pp(address, *args):</span>
+<span class="sd">    ...     print(address)</span>
+<span class="sd">    ...     print(args)</span>
+<span class="sd">    &gt;&gt;&gt; r = OscDataReceive(9900, &quot;/data/test&quot;, pp)</span>
+<span class="sd">    &gt;&gt;&gt; # Send various types</span>
+<span class="sd">    &gt;&gt;&gt; a = OscDataSend(&quot;fissif&quot;, 9900, &quot;/data/test&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; msg = [3.14159, 1, &quot;Hello&quot;, &quot;world!&quot;, 2, 6.18]</span>
+<span class="sd">    &gt;&gt;&gt; a.send(msg)</span>
+<span class="sd">    &gt;&gt;&gt; # Send a blob</span>
+<span class="sd">    &gt;&gt;&gt; b = OscDataSend(&quot;b&quot;, 9900, &quot;/data/test&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; msg = [[chr(i) for i in range(10)]]</span>
+<span class="sd">    &gt;&gt;&gt; b.send(msg)</span>
+<span class="sd">    &gt;&gt;&gt; # Send a MIDI noteon on port 0</span>
+<span class="sd">    &gt;&gt;&gt; c = OscDataSend(&quot;m&quot;, 9900, &quot;/data/test&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; msg = [[0, 144, 60, 100]]</span>
+<span class="sd">    &gt;&gt;&gt; c.send(msg)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">types</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">):</span>
+        <span class="n">assertOSCSupport</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;siss&quot;</span><span class="p">,</span> <span class="n">types</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">host</span><span class="p">)</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">types</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">types</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">host</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">OscDataSend_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">types</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">address</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_addresses</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">adr</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">address</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_addresses</span><span class="p">[</span><span class="n">adr</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_play</span><span class="p">()</span>
+
+<div class="viewcode-block" id="OscDataSend.out"><a class="viewcode-back" href="../../../api/classes/opensndctrl.html#pyo.OscDataSend.out">[docs]</a>    <span class="k">def</span> <span class="nf">out</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chnl</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">inc</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">dur</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">play</span><span class="p">(</span><span class="n">dur</span><span class="p">,</span> <span class="n">delay</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="OscDataSend.setMul"><a class="viewcode-back" href="../../../api/classes/opensndctrl.html#pyo.OscDataSend.setMul">[docs]</a>    <span class="k">def</span> <span class="nf">setMul</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="OscDataSend.setAdd"><a class="viewcode-back" href="../../../api/classes/opensndctrl.html#pyo.OscDataSend.setAdd">[docs]</a>    <span class="k">def</span> <span class="nf">setAdd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="OscDataSend.getAddresses"><a class="viewcode-back" href="../../../api/classes/opensndctrl.html#pyo.OscDataSend.getAddresses">[docs]</a>    <span class="k">def</span> <span class="nf">getAddresses</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the addresses managed by the object.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_addresses</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="OscDataSend.addAddress"><a class="viewcode-back" href="../../../api/classes/opensndctrl.html#pyo.OscDataSend.addAddress">[docs]</a>    <span class="k">def</span> <span class="nf">addAddress</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">types</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds new address(es) to the object&#39;s handler.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            types: str</span>
+<span class="sd">                String specifying the types sequence of the message to be sent.</span>
+<span class="sd">                Possible values are:</span>
+<span class="sd">                - &quot;i&quot;: integer</span>
+<span class="sd">                - &quot;h&quot;: long integer</span>
+<span class="sd">                - &quot;f&quot;: float</span>
+<span class="sd">                - &quot;d&quot;: double</span>
+<span class="sd">                - &quot;s&quot; ; string</span>
+<span class="sd">                - &quot;b&quot;: blob (list of chars)</span>
+<span class="sd">                - &quot;m&quot;: MIDI packet (list of 4 bytes: [midi port, status, data1, data2])</span>
+<span class="sd">                - &quot;c&quot;: char</span>
+<span class="sd">                - &quot;T&quot;: True</span>
+<span class="sd">                - &quot;F&quot;: False</span>
+<span class="sd">                - &quot;N&quot;: None (nil)</span>
+
+<span class="sd">                The string &quot;ssfi&quot; indicates that the value to send will be a list</span>
+<span class="sd">                containing two strings followed by a float and an integer.</span>
+<span class="sd">            port: int</span>
+<span class="sd">                Port on which values are sent. Receiver should listen on the</span>
+<span class="sd">                same port.</span>
+<span class="sd">            address: string</span>
+<span class="sd">                Address used on the port to identify values. Address is in</span>
+<span class="sd">                the form of a Unix path (ex.: &#39;/pitch&#39;).</span>
+<span class="sd">            host: string, optional</span>
+<span class="sd">                IP address of the target computer. The default, &#39;127.0.0.1&#39;,</span>
+<span class="sd">                is the localhost.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;siss&quot;</span><span class="p">,</span> <span class="n">types</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">host</span><span class="p">)</span>
+        <span class="n">types</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">types</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">host</span><span class="p">)</span>
+        <span class="n">objs</span> <span class="o">=</span> <span class="p">[</span><span class="n">OscDataSend_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">types</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">address</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">objs</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">adr</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">address</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_addresses</span><span class="p">[</span><span class="n">adr</span><span class="p">]</span> <span class="o">=</span> <span class="n">objs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">play</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="OscDataSend.delAddress"><a class="viewcode-back" href="../../../api/classes/opensndctrl.html#pyo.OscDataSend.delAddress">[docs]</a>    <span class="k">def</span> <span class="nf">delAddress</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Removes address(es) from the object&#39;s handler.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            path: string or list of strings</span>
+<span class="sd">                Path(s) to remove.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;s&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+        <span class="n">path</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">path</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_addresses</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_addresses</span><span class="p">[</span><span class="n">p</span><span class="p">])</span>
+                <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_addresses</span><span class="p">[</span><span class="n">p</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="OscDataSend.send"><a class="viewcode-back" href="../../../api/classes/opensndctrl.html#pyo.OscDataSend.send">[docs]</a>    <span class="k">def</span> <span class="nf">send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="n">address</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method used to send `msg` values as a list.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            msg: list</span>
+<span class="sd">                List of values to send. Types of values in list</span>
+<span class="sd">                must be of the kind defined of `types` argument</span>
+<span class="sd">                given at the object&#39;s initialization.</span>
+<span class="sd">            address: string, optional</span>
+<span class="sd">                Address destination to send values. If None, values</span>
+<span class="sd">                will be sent to all addresses managed by the object.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">address</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;l&quot;</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
+            <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;lS&quot;</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="n">address</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_addresses</span><span class="p">[</span><span class="n">address</span><span class="p">]</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="OscDataReceive"><a class="viewcode-back" href="../../../api/classes/opensndctrl.html#pyo.OscDataReceive">[docs]</a><span class="k">class</span> <span class="nc">OscDataReceive</span><span class="p">(</span><span class="n">PyoObject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Receives data values over a network via the Open Sound Control protocol.</span>
+
+<span class="sd">    Uses the OSC protocol to receive data values from other softwares or</span>
+<span class="sd">    other computers. When a message is received, the function given at the</span>
+<span class="sd">    argument `function` is called with the current address destination in</span>
+<span class="sd">    argument followed by a tuple of values.</span>
+
+<span class="sd">    :Parent: :py:class:`PyoObject`</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        port: int</span>
+<span class="sd">            Port on which values are received. Sender should output on</span>
+<span class="sd">            the same port. Unlike OscDataSend object, there can be only</span>
+<span class="sd">            one port per OscDataReceive object. Available at initialization</span>
+<span class="sd">            time only.</span>
+<span class="sd">        address: string</span>
+<span class="sd">            Address used on the port to identify values. Address is in</span>
+<span class="sd">            the form of a Unix path (ex.: &quot;/pitch&quot;). There can be as many</span>
+<span class="sd">            addresses as needed on a single port.</span>
+<span class="sd">        function: callable (can&#39;t be a list)</span>
+<span class="sd">            This function will be called whenever a message with a known</span>
+<span class="sd">            address is received. there can be only one function per</span>
+<span class="sd">            OscDataReceive object. Available at initialization time only.</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        The header of the callable given at `function` argument must be in this form::</span>
+
+<span class="sd">            def my_func(address, *args):</span>
+<span class="sd">                ...</span>
+
+<span class="sd">        The out() method is bypassed. OscDataReceive has no audio signal.</span>
+
+<span class="sd">        OscDataReceive has no `mul` and `add` attributes.</span>
+
+<span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
+<span class="sd">    &gt;&gt;&gt; s.start()</span>
+<span class="sd">    &gt;&gt;&gt; def pp(address, *args):</span>
+<span class="sd">    ...     print(address)</span>
+<span class="sd">    ...     print(args)</span>
+<span class="sd">    &gt;&gt;&gt; r = OscDataReceive(9900, &quot;/data/test&quot;, pp)</span>
+<span class="sd">    &gt;&gt;&gt; # Send various types</span>
+<span class="sd">    &gt;&gt;&gt; a = OscDataSend(&quot;fissif&quot;, 9900, &quot;/data/test&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; msg = [3.14159, 1, &quot;Hello&quot;, &quot;world!&quot;, 2, 6.18]</span>
+<span class="sd">    &gt;&gt;&gt; a.send(msg)</span>
+<span class="sd">    &gt;&gt;&gt; # Send a blob</span>
+<span class="sd">    &gt;&gt;&gt; b = OscDataSend(&quot;b&quot;, 9900, &quot;/data/test&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; msg = [[chr(i) for i in range(10)]]</span>
+<span class="sd">    &gt;&gt;&gt; b.send(msg)</span>
+<span class="sd">    &gt;&gt;&gt; # Send a MIDI noteon on port 0</span>
+<span class="sd">    &gt;&gt;&gt; c = OscDataSend(&quot;m&quot;, 9900, &quot;/data/test&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; msg = [[0, 144, 60, 100]]</span>
+<span class="sd">    &gt;&gt;&gt; c.send(msg)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">function</span><span class="p">):</span>
+        <span class="n">assertOSCSupport</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;IsC&quot;</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">function</span><span class="p">)</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_port</span> <span class="o">=</span> <span class="n">port</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_function</span> <span class="o">=</span> <span class="n">WeakMethod</span><span class="p">(</span><span class="n">function</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_address</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
+        <span class="c1"># self._address is linked with list at C level</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span><span class="n">OscDataReceive_base</span><span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_address</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_function</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_play</span><span class="p">()</span>
+
+<div class="viewcode-block" id="OscDataReceive.setMul"><a class="viewcode-back" href="../../../api/classes/opensndctrl.html#pyo.OscDataReceive.setMul">[docs]</a>    <span class="k">def</span> <span class="nf">setMul</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="OscDataReceive.setAdd"><a class="viewcode-back" href="../../../api/classes/opensndctrl.html#pyo.OscDataReceive.setAdd">[docs]</a>    <span class="k">def</span> <span class="nf">setAdd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="OscDataReceive.out"><a class="viewcode-back" href="../../../api/classes/opensndctrl.html#pyo.OscDataReceive.out">[docs]</a>    <span class="k">def</span> <span class="nf">out</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chnl</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">inc</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">dur</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">play</span><span class="p">(</span><span class="n">dur</span><span class="p">,</span> <span class="n">delay</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="OscDataReceive.getAddresses"><a class="viewcode-back" href="../../../api/classes/opensndctrl.html#pyo.OscDataReceive.getAddresses">[docs]</a>    <span class="k">def</span> <span class="nf">getAddresses</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the addresses managed by the object.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_address</span></div>
+
+<div class="viewcode-block" id="OscDataReceive.addAddress"><a class="viewcode-back" href="../../../api/classes/opensndctrl.html#pyo.OscDataReceive.addAddress">[docs]</a>    <span class="k">def</span> <span class="nf">addAddress</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds new address(es) to the object&#39;s handler.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            path: string or list of strings</span>
+<span class="sd">                New path(s) to receive from.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;s&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+        <span class="n">path</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">path</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">p</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_address</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_address</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">addAddress</span><span class="p">(</span><span class="n">p</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="OscDataReceive.delAddress"><a class="viewcode-back" href="../../../api/classes/opensndctrl.html#pyo.OscDataReceive.delAddress">[docs]</a>    <span class="k">def</span> <span class="nf">delAddress</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Removes address(es) from the object&#39;s handler.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            path: string or list of strings</span>
+<span class="sd">                Path(s) to remove.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;s&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+        <span class="n">path</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">path</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_address</span><span class="p">:</span>
+                <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_address</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">delAddress</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_address</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">p</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="OscListReceive"><a class="viewcode-back" href="../../../api/classes/opensndctrl.html#pyo.OscListReceive">[docs]</a><span class="k">class</span> <span class="nc">OscListReceive</span><span class="p">(</span><span class="n">PyoObject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Receives list of values over a network via the Open Sound Control protocol.</span>
+
+<span class="sd">    Uses the OSC protocol to receive list of floating-point values from other</span>
+<span class="sd">    softwares or other computers. The list are converted into audio streams.</span>
+<span class="sd">    Get values at the beginning of each buffersize and fill buffers with them.</span>
+
+<span class="sd">    :Parent: :py:class:`PyoObject`</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        port: int</span>
+<span class="sd">            Port on which values are received. Sender should output on</span>
+<span class="sd">            the same port. Unlike OscSend object, there can be only one</span>
+<span class="sd">            port per OscListReceive object. Available at initialization time</span>
+<span class="sd">            only.</span>
+<span class="sd">        address: string</span>
+<span class="sd">            Address used on the port to identify values. Address is in</span>
+<span class="sd">            the form of a Unix path (ex.: &#39;/pitch&#39;).</span>
+<span class="sd">        num: int, optional</span>
+<span class="sd">            Length of the lists in input. The object will generate `num` audio</span>
+<span class="sd">            streams per given address. Available at initialization time only.</span>
+<span class="sd">            This value can&#39;t be a list. That means all addresses managed by an</span>
+<span class="sd">            OscListReceive object are of the same length. Defaults to 8.</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        Audio streams are accessed with the `address` string parameter.</span>
+<span class="sd">        The user should call :</span>
+
+<span class="sd">        OscReceive[&#39;/pitch&#39;] to retreive list of streams named &#39;/pitch&#39;.</span>
+
+<span class="sd">        The out() method is bypassed. OscReceive&#39;s signal can not be sent</span>
+<span class="sd">        to audio outs.</span>
+
+<span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
+<span class="sd">    &gt;&gt;&gt; s.start()</span>
+<span class="sd">    &gt;&gt;&gt; # 8 oscillators</span>
+<span class="sd">    &gt;&gt;&gt; a = OscListReceive(port=10001, address=[&#39;/pitch&#39;, &#39;/amp&#39;], num=8)</span>
+<span class="sd">    &gt;&gt;&gt; b = Sine(freq=a[&#39;/pitch&#39;], mul=a[&#39;/amp&#39;]).mix(2).out()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">assertOSCSupport</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;IsIOO&quot;</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">num</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_num</span> <span class="o">=</span> <span class="n">num</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_op_duplicate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num</span>
+        <span class="n">address</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">address</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_address</span> <span class="o">=</span> <span class="n">address</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mainReceiver</span> <span class="o">=</span> <span class="n">OscListReceiver_base</span><span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">num</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">OscListReceive_base</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mainReceiver</span><span class="p">,</span> <span class="n">wrap</span><span class="p">(</span><span class="n">address</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">j</span><span class="p">,</span> <span class="n">wrap</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_num</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_play</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+            <span class="n">first</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_address</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">[</span><span class="n">first</span> <span class="p">:</span> <span class="n">first</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">):</span>
+            <span class="n">first</span> <span class="o">=</span> <span class="n">i</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">[</span><span class="n">first</span> <span class="p">:</span> <span class="n">first</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&#39;i&#39; too large!&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="OscListReceive.getAddresses"><a class="viewcode-back" href="../../../api/classes/opensndctrl.html#pyo.OscListReceive.getAddresses">[docs]</a>    <span class="k">def</span> <span class="nf">getAddresses</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the addresses managed by the object.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_address</span></div>
+
+<div class="viewcode-block" id="OscListReceive.addAddress"><a class="viewcode-back" href="../../../api/classes/opensndctrl.html#pyo.OscListReceive.addAddress">[docs]</a>    <span class="k">def</span> <span class="nf">addAddress</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds new address(es) to the object&#39;s handler.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            path: string or list of strings</span>
+<span class="sd">                New path(s) to receive from.</span>
+<span class="sd">            mul: float or PyoObject</span>
+<span class="sd">                Multiplication factor. Defaults to 1.</span>
+<span class="sd">            add: float or PyoObject</span>
+<span class="sd">                Addition factor. Defaults to 0.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;sOO&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="n">path</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">,</span> <span class="n">lmax2</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">p</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_address</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_mainReceiver</span><span class="o">.</span><span class="n">addAddress</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_address</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="n">OscListReceive_base</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mainReceiver</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">wrap</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+                        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_num</span><span class="p">)</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">play</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="OscListReceive.delAddress"><a class="viewcode-back" href="../../../api/classes/opensndctrl.html#pyo.OscListReceive.delAddress">[docs]</a>    <span class="k">def</span> <span class="nf">delAddress</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Removes address(es) from the object&#39;s handler.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            path: string or list of strings</span>
+<span class="sd">                Path(s) to remove.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;s&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+        <span class="n">path</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mainReceiver</span><span class="o">.</span><span class="n">delAddress</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">indexes</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_address</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">path</span> <span class="k">if</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_address</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">indexes</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_address</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">ind</span><span class="p">)</span>
+            <span class="n">first</span> <span class="o">=</span> <span class="n">ind</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">first</span><span class="p">,</span> <span class="n">first</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num</span><span class="p">))):</span>
+                <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">i</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="OscListReceive.setInterpolation"><a class="viewcode-back" href="../../../api/classes/opensndctrl.html#pyo.OscListReceive.setInterpolation">[docs]</a>    <span class="k">def</span> <span class="nf">setInterpolation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Activate/Deactivate interpolation. Activated by default.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: boolean</span>
+<span class="sd">                True activates the interpolation, False deactivates it.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setInterpolation</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="OscListReceive.setValue"><a class="viewcode-back" href="../../../api/classes/opensndctrl.html#pyo.OscListReceive.setValue">[docs]</a>    <span class="k">def</span> <span class="nf">setValue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets value for a given address.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            path: string</span>
+<span class="sd">                Address to which the value should be attributed.</span>
+<span class="sd">            value: list of floats</span>
+<span class="sd">                List of values to attribute to the given address.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;sl&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="n">path</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">):</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">wrap</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_address</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
+                    <span class="n">val</span> <span class="o">=</span> <span class="n">wrap</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">val</span> <span class="o">=</span> <span class="n">value</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_mainReceiver</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error: OscListReceive.setValue, value must be of the same length as the `num` attribute.&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Error: OscListReceive.setValue, Illegal address &quot;</span><span class="si">%s</span><span class="s1">&quot;&#39;</span> <span class="o">%</span> <span class="n">p</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="OscListReceive.get"><a class="viewcode-back" href="../../../api/classes/opensndctrl.html#pyo.OscListReceive.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">identifier</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">all</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the first list of samples of the current buffer as floats.</span>
+
+<span class="sd">        Can be used to convert audio stream to usable Python data.</span>
+
+<span class="sd">        Address as string must be given to `identifier` to specify</span>
+<span class="sd">        which stream to get value from.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            identifier: string</span>
+<span class="sd">                Address string parameter identifying audio stream.</span>
+<span class="sd">                Defaults to None, useful when `all` is True to</span>
+<span class="sd">                retreive all streams values.</span>
+<span class="sd">            all: boolean, optional</span>
+<span class="sd">                If True, the first list of values of each object&#39;s stream</span>
+<span class="sd">                will be returned as a list of lists. Otherwise, only the</span>
+<span class="sd">                the list of the object&#39;s identifier will be returned as a</span>
+<span class="sd">                list of floats. Defaults to False.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">:</span>
+            <span class="n">first</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_address</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">identifier</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">_getStream</span><span class="p">()</span><span class="o">.</span><span class="n">getValue</span><span class="p">()</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">[</span><span class="n">first</span> <span class="p">:</span> <span class="n">first</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num</span><span class="p">]]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">outlist</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">add</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_address</span><span class="p">:</span>
+                <span class="n">first</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_address</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">add</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num</span>
+                <span class="n">l</span> <span class="o">=</span> <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">_getStream</span><span class="p">()</span><span class="o">.</span><span class="n">getValue</span><span class="p">()</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">[</span><span class="n">first</span> <span class="p">:</span> <span class="n">first</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num</span><span class="p">]]</span>
+                <span class="n">outlist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">outlist</span></div>
+
+<div class="viewcode-block" id="OscListReceive.play"><a class="viewcode-back" href="../../../api/classes/opensndctrl.html#pyo.OscListReceive.play">[docs]</a>    <span class="k">def</span> <span class="nf">play</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dur</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mainReceiver</span><span class="o">.</span><span class="n">play</span><span class="p">(</span><span class="n">dur</span><span class="p">,</span> <span class="n">delay</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">PyoObject</span><span class="o">.</span><span class="n">play</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dur</span><span class="p">,</span> <span class="n">delay</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="OscListReceive.out"><a class="viewcode-back" href="../../../api/classes/opensndctrl.html#pyo.OscListReceive.out">[docs]</a>    <span class="k">def</span> <span class="nf">out</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chnl</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">inc</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">dur</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">play</span><span class="p">(</span><span class="n">dur</span><span class="p">,</span> <span class="n">delay</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="OscListReceive.stop"><a class="viewcode-back" href="../../../api/classes/opensndctrl.html#pyo.OscListReceive.stop">[docs]</a>    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mainReceiver</span><span class="o">.</span><span class="n">stop</span><span class="p">(</span><span class="n">wait</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">PyoObject</span><span class="o">.</span><span class="n">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wait</span><span class="p">)</span></div></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">Pyo 1.0.4 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pyo.html" >pyo</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pyo.lib.opensndctrl</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+  </body>
+</html>

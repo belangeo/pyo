@@ -1,0 +1,173 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>04-data-control.py - Multicore midi synthesizer. — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="../21-utilities/index.html" rel="next" title="21-utilities"/>
+<link href="03-synchronization.html" rel="prev" title="03-synchronization.py - Synchronizing multiple processes."/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="../21-utilities/index.html" title="21-utilities">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="03-synchronization.html" title="03-synchronization.py - Synchronizing multiple processes.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a accesskey="U" href="index.html">20-multicore</a> »</li>
+<li class="nav-item nav-item-this"><a href="">04-data-control.py - Multicore midi synthesizer.</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="data-control-py-multicore-midi-synthesizer">
+<h1>04-data-control.py - Multicore midi synthesizer.<a class="headerlink" href="#data-control-py-multicore-midi-synthesizer" title="Permalink to this headline">¶</a></h1>
+<p>Need at least 4 cores to be really effective.</p>
+<dl class="simple">
+<dt>Usage:</dt><dd><p>python3 -i 04-data-control.py</p>
+</dd>
+</dl>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">time</span><span class="o">,</span> <span class="nn">multiprocessing</span>
+<span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">uniform</span>
+<span class="kn">from</span> <a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">VOICES_PER_CORE</span> <span class="o">=</span> <span class="mi">4</span>
+
+<span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"linux"</span><span class="p">):</span>
+    <span class="n">audio</span> <span class="o">=</span> <span class="s2">"jack"</span>
+<span class="k">elif</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"darwin"</span><span class="p">):</span>
+    <span class="n">audio</span> <span class="o">=</span> <span class="s2">"portaudio"</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Multicore examples don't run under Windows... Sorry!"</span><span class="p">)</span>
+    <span class="n">exit</span><span class="p">()</span>
+
+
+<span class="k">class</span> <span class="nc">Proc</span><span class="p">(</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">Process</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pipe</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Proc</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">daemon</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pipe</span> <span class="o">=</span> <span class="n">pipe</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">server</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">(</span><span class="n">audio</span><span class="o">=</span><span class="n">audio</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">server</span><span class="o">.</span><span class="n">deactivateMidi</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">server</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">mid</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/midi.html#pyo.Notein" title="pyo.lib.midi.Notein"><span class="n">Notein</span></a><span class="p">(</span><span class="n">poly</span><span class="o">=</span><span class="n">VOICES_PER_CORE</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">first</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">last</span><span class="o">=</span><span class="mi">127</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">amp</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/midi.html#pyo.MidiAdsr" title="pyo.lib.midi.MidiAdsr"><span class="n">MidiAdsr</span></a><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mid</span><span class="p">[</span><span class="s2">"velocity"</span><span class="p">],</span> <span class="mf">0.005</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mid</span><span class="p">[</span><span class="s2">"pitch"</span><span class="p">]</span> <span class="o">*</span> <span class="p">[</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.99</span><span class="p">,</span> <span class="mf">1.01</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">40</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rc1</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.RCOsc" title="pyo.lib.generators.RCOsc"><span class="n">RCOsc</span></a><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pit</span><span class="p">,</span> <span class="n">sharp</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">amp</span><span class="p">)</span><span class="o">.</span><span class="n">mix</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rc2</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.RCOsc" title="pyo.lib.generators.RCOsc"><span class="n">RCOsc</span></a><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pit</span> <span class="o">*</span> <span class="mf">0.99</span><span class="p">,</span> <span class="n">sharp</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">amp</span><span class="p">)</span><span class="o">.</span><span class="n">mix</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mix</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/internals.html#pyo.Mix" title="pyo.lib._core.Mix"><span class="n">Mix</span></a><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">rc1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rc2</span><span class="p">],</span> <span class="n">voices</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rev</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/effects.html#pyo.STRev" title="pyo.lib.effects.STRev"><span class="n">STRev</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/utils.html#pyo.Denorm" title="pyo.lib.utils.Denorm"><span class="n">Denorm</span></a><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mix</span><span class="p">),</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">],</span> <span class="mi">2</span><span class="p">,</span> <span class="n">bal</span><span class="o">=</span><span class="mf">0.30</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipe</span><span class="o">.</span><span class="n">poll</span><span class="p">():</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipe</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">server</span><span class="o">.</span><span class="n">addMidiEvent</span><span class="p">(</span><span class="o">*</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.001</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">server</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
+    <span class="n">main1</span><span class="p">,</span> <span class="n">child1</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Pipe</span><span class="p">()</span>
+    <span class="n">main2</span><span class="p">,</span> <span class="n">child2</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Pipe</span><span class="p">()</span>
+    <span class="n">main3</span><span class="p">,</span> <span class="n">child3</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Pipe</span><span class="p">()</span>
+    <span class="n">main4</span><span class="p">,</span> <span class="n">child4</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Pipe</span><span class="p">()</span>
+    <span class="n">mains</span> <span class="o">=</span> <span class="p">[</span><span class="n">main1</span><span class="p">,</span> <span class="n">main2</span><span class="p">,</span> <span class="n">main3</span><span class="p">,</span> <span class="n">main4</span><span class="p">]</span>
+    <span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">,</span> <span class="n">p3</span><span class="p">,</span> <span class="n">p4</span> <span class="o">=</span> <span class="n">Proc</span><span class="p">(</span><span class="n">child1</span><span class="p">),</span> <span class="n">Proc</span><span class="p">(</span><span class="n">child2</span><span class="p">),</span> <span class="n">Proc</span><span class="p">(</span><span class="n">child3</span><span class="p">),</span> <span class="n">Proc</span><span class="p">(</span><span class="n">child4</span><span class="p">)</span>
+    <span class="n">p1</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+    <span class="n">p2</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+    <span class="n">p3</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+    <span class="n">p4</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+    <span class="n">playing</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="p">[],</span> <span class="mi">1</span><span class="p">:</span> <span class="p">[],</span> <span class="mi">2</span><span class="p">:</span> <span class="p">[],</span> <span class="mi">3</span><span class="p">:</span> <span class="p">[]}</span>
+    <span class="n">currentcore</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">data1</span><span class="p">,</span> <span class="n">data2</span><span class="p">):</span>
+        <span class="k">global</span> <span class="n">currentcore</span>
+        <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="mh">0x80</span> <span class="ow">or</span> <span class="n">status</span> <span class="o">==</span> <span class="mh">0x90</span> <span class="ow">and</span> <span class="n">data2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">data1</span> <span class="ow">in</span> <span class="n">playing</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+                    <span class="n">playing</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">data1</span><span class="p">)</span>
+                    <span class="n">mains</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">send</span><span class="p">([</span><span class="n">status</span><span class="p">,</span> <span class="n">data1</span><span class="p">,</span> <span class="n">data2</span><span class="p">])</span>
+                    <span class="k">break</span>
+        <span class="k">elif</span> <span class="n">status</span> <span class="o">==</span> <span class="mh">0x90</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
+                <span class="n">currentcore</span> <span class="o">=</span> <span class="p">(</span><span class="n">currentcore</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="mi">4</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">playing</span><span class="p">[</span><span class="n">currentcore</span><span class="p">])</span> <span class="o">&lt;</span> <span class="n">VOICES_PER_CORE</span><span class="p">:</span>
+                    <span class="n">playing</span><span class="p">[</span><span class="n">currentcore</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data1</span><span class="p">)</span>
+                    <span class="n">mains</span><span class="p">[</span><span class="n">currentcore</span><span class="p">]</span><span class="o">.</span><span class="n">send</span><span class="p">([</span><span class="n">status</span><span class="p">,</span> <span class="n">data1</span><span class="p">,</span> <span class="n">data2</span><span class="p">])</span>
+                    <span class="k">break</span>
+
+    <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">s</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">setMidiInputDevice</span><span class="p">(</span><span class="mi">99</span><span class="p">)</span>  <span class="c1"># Open all devices.</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+    <a class="sphinx-codeautolink-a" href="../../api/classes/midi.html#pyo.RawMidi" title="pyo.lib.midi.RawMidi"><span class="n">raw</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/midi.html#pyo.RawMidi" title="pyo.lib.midi.RawMidi"><span class="n">RawMidi</span></a><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h4>Previous topic</h4>
+<p class="topless"><a href="03-synchronization.html" title="previous chapter">03-synchronization.py - Synchronizing multiple processes.</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="../21-utilities/index.html" title="next chapter">21-utilities</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="../21-utilities/index.html" title="21-utilities">next</a> |</li>
+<li class="right">
+<a href="03-synchronization.html" title="03-synchronization.py - Synchronizing multiple processes.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="index.html">20-multicore</a> »</li>
+<li class="nav-item nav-item-this"><a href="">04-data-control.py - Multicore midi synthesizer.</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

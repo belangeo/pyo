@@ -1,0 +1,1601 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyo.lib.randoms &#8212; Pyo 1.0.4 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/nature.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-codeautolink.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/autoclasstoc.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../../../_static/E-PyoIcon.ico"/>
+    <link rel="author" title="About these documents" href="../../../about.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">Pyo 1.0.4 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pyo.html" accesskey="U">pyo</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pyo.lib.randoms</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyo.lib.randoms</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Set of objects that implement different kinds of random noise generators.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Copyright 2009-2015 Olivier Belanger</span>
+
+<span class="sd">This file is part of pyo, a python module to help digital signal</span>
+<span class="sd">processing script creation.</span>
+
+<span class="sd">pyo is free software: you can redistribute it and/or modify</span>
+<span class="sd">it under the terms of the GNU Lesser General Public License as</span>
+<span class="sd">published by the Free Software Foundation, either version 3 of the</span>
+<span class="sd">License, or (at your option) any later version.</span>
+
+<span class="sd">pyo is distributed in the hope that it will be useful,</span>
+<span class="sd">but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="sd">MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="sd">GNU Lesser General Public License for more details.</span>
+
+<span class="sd">You should have received a copy of the GNU Lesser General Public</span>
+<span class="sd">License along with pyo.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">._core</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">._maps</span> <span class="kn">import</span> <span class="o">*</span>
+
+
+<div class="viewcode-block" id="Randi"><a class="viewcode-back" href="../../../api/classes/randoms.html#pyo.Randi">[docs]</a><span class="k">class</span> <span class="nc">Randi</span><span class="p">(</span><span class="n">PyoObject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Periodic pseudo-random generator with interpolation.</span>
+
+<span class="sd">    Randi generates a pseudo-random number between `min` and `max`</span>
+<span class="sd">    values at a frequency specified by `freq` parameter. Randi will</span>
+<span class="sd">    produce straight-line interpolation between current number and the next.</span>
+
+<span class="sd">    :Parent: :py:class:`PyoObject`</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        min: float or PyoObject, optional</span>
+<span class="sd">            Minimum value for the random generation. Defaults to 0.</span>
+<span class="sd">        max: float or PyoObject, optional</span>
+<span class="sd">            Maximum value for the random generation. Defaults to 1.</span>
+<span class="sd">        freq: float or PyoObject, optional</span>
+<span class="sd">            Polling frequency. Defaults to 1.</span>
+
+<span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
+<span class="sd">    &gt;&gt;&gt; s.start()</span>
+<span class="sd">    &gt;&gt;&gt; freq = Randi(500, 3000, 4)</span>
+<span class="sd">    &gt;&gt;&gt; noze = Noise().mix(2)</span>
+<span class="sd">    &gt;&gt;&gt; a = Biquad(noze, freq=freq, q=5, type=2, mul=.5).out()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">min</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;OOOOO&quot;</span><span class="p">,</span> <span class="nb">min</span><span class="p">,</span> <span class="nb">max</span><span class="p">,</span> <span class="n">freq</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_min</span> <span class="o">=</span> <span class="nb">min</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_max</span> <span class="o">=</span> <span class="nb">max</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_freq</span> <span class="o">=</span> <span class="n">freq</span>
+        <span class="nb">min</span><span class="p">,</span> <span class="nb">max</span><span class="p">,</span> <span class="n">freq</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="nb">min</span><span class="p">,</span> <span class="nb">max</span><span class="p">,</span> <span class="n">freq</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">Randi_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="nb">min</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="nb">max</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_play</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Randi.setMin"><a class="viewcode-back" href="../../../api/classes/randoms.html#pyo.Randi.setMin">[docs]</a>    <span class="k">def</span> <span class="nf">setMin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `min` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float or PyoObject</span>
+<span class="sd">                new `min` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_min</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setMin</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="Randi.setMax"><a class="viewcode-back" href="../../../api/classes/randoms.html#pyo.Randi.setMax">[docs]</a>    <span class="k">def</span> <span class="nf">setMax</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `max` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float or PyoObject</span>
+<span class="sd">                new `max` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_max</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setMax</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="Randi.setFreq"><a class="viewcode-back" href="../../../api/classes/randoms.html#pyo.Randi.setFreq">[docs]</a>    <span class="k">def</span> <span class="nf">setFreq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `freq` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float or PyoObject</span>
+<span class="sd">                new `freq` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_freq</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setFreq</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="Randi.ctrl"><a class="viewcode-back" href="../../../api/classes/randoms.html#pyo.Randi.ctrl">[docs]</a>    <span class="k">def</span> <span class="nf">ctrl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">map_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wxnoserver</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_map_list</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">SLMap</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="s2">&quot;min&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_min</span><span class="p">),</span>
+            <span class="n">SLMap</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max</span><span class="p">),</span>
+            <span class="n">SLMap</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">20.0</span><span class="p">,</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="s2">&quot;freq&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_freq</span><span class="p">),</span>
+            <span class="n">SLMapMul</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mul</span><span class="p">),</span>
+        <span class="p">]</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="n">ctrl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">map_list</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">wxnoserver</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">min</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float or PyoObject. Minimum value.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_min</span>
+
+    <span class="nd">@min</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">min</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setMin</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">max</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float or PyoObject. Maximum value.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max</span>
+
+    <span class="nd">@max</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">max</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setMax</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">freq</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float or PyoObject. Polling frequency.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_freq</span>
+
+    <span class="nd">@freq</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">freq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setFreq</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Randh"><a class="viewcode-back" href="../../../api/classes/randoms.html#pyo.Randh">[docs]</a><span class="k">class</span> <span class="nc">Randh</span><span class="p">(</span><span class="n">PyoObject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Periodic pseudo-random generator.</span>
+
+<span class="sd">    Randh generates a pseudo-random number between `min` and `max`</span>
+<span class="sd">    values at a frequency specified by `freq` parameter. Randh will</span>
+<span class="sd">    hold generated value until next generation.</span>
+
+<span class="sd">    :Parent: :py:class:`PyoObject`</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        min: float or PyoObject, optional</span>
+<span class="sd">            Minimum value for the random generation. Defaults to 0.</span>
+<span class="sd">        max: float or PyoObject, optional</span>
+<span class="sd">            Maximum value for the random generation. Defaults to 1.</span>
+<span class="sd">        freq: float or PyoObject, optional</span>
+<span class="sd">            Polling frequency. Defaults to 1.</span>
+
+<span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
+<span class="sd">    &gt;&gt;&gt; s.start()</span>
+<span class="sd">    &gt;&gt;&gt; freq = Randh(500, 3000, 4)</span>
+<span class="sd">    &gt;&gt;&gt; noze = Noise().mix(2)</span>
+<span class="sd">    &gt;&gt;&gt; a = Biquad(noze, freq=freq, q=5, type=2, mul=.5).out()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">min</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;OOOOO&quot;</span><span class="p">,</span> <span class="nb">min</span><span class="p">,</span> <span class="nb">max</span><span class="p">,</span> <span class="n">freq</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_min</span> <span class="o">=</span> <span class="nb">min</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_max</span> <span class="o">=</span> <span class="nb">max</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_freq</span> <span class="o">=</span> <span class="n">freq</span>
+        <span class="nb">min</span><span class="p">,</span> <span class="nb">max</span><span class="p">,</span> <span class="n">freq</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="nb">min</span><span class="p">,</span> <span class="nb">max</span><span class="p">,</span> <span class="n">freq</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">Randh_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="nb">min</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="nb">max</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_play</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Randh.setMin"><a class="viewcode-back" href="../../../api/classes/randoms.html#pyo.Randh.setMin">[docs]</a>    <span class="k">def</span> <span class="nf">setMin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `min` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float or PyoObject</span>
+<span class="sd">                new `min` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_min</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setMin</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="Randh.setMax"><a class="viewcode-back" href="../../../api/classes/randoms.html#pyo.Randh.setMax">[docs]</a>    <span class="k">def</span> <span class="nf">setMax</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `max` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float or PyoObject</span>
+<span class="sd">                new `max` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_max</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setMax</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="Randh.setFreq"><a class="viewcode-back" href="../../../api/classes/randoms.html#pyo.Randh.setFreq">[docs]</a>    <span class="k">def</span> <span class="nf">setFreq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `freq` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float or PyoObject</span>
+<span class="sd">                new `freq` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_freq</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setFreq</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="Randh.ctrl"><a class="viewcode-back" href="../../../api/classes/randoms.html#pyo.Randh.ctrl">[docs]</a>    <span class="k">def</span> <span class="nf">ctrl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">map_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wxnoserver</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_map_list</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">SLMap</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="s2">&quot;min&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_min</span><span class="p">),</span>
+            <span class="n">SLMap</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max</span><span class="p">),</span>
+            <span class="n">SLMap</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">20.0</span><span class="p">,</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="s2">&quot;freq&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_freq</span><span class="p">),</span>
+            <span class="n">SLMapMul</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mul</span><span class="p">),</span>
+        <span class="p">]</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="n">ctrl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">map_list</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">wxnoserver</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">min</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float or PyoObject. Minimum value.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_min</span>
+
+    <span class="nd">@min</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">min</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setMin</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">max</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float or PyoObject. Maximum value.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max</span>
+
+    <span class="nd">@max</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">max</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setMax</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">freq</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float or PyoObject. Polling frequency.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_freq</span>
+
+    <span class="nd">@freq</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">freq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setFreq</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Choice"><a class="viewcode-back" href="../../../api/classes/randoms.html#pyo.Choice">[docs]</a><span class="k">class</span> <span class="nc">Choice</span><span class="p">(</span><span class="n">PyoObject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Periodically choose a new value from a user list.</span>
+
+<span class="sd">    Choice chooses a new value from a predefined list of floats `choice`</span>
+<span class="sd">    at a frequency specified by `freq` parameter. Choice will</span>
+<span class="sd">    hold choosen value until next generation.</span>
+
+<span class="sd">    :Parent: :py:class:`PyoObject`</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        choice: list of floats or list of lists of floats</span>
+<span class="sd">            Possible values for the random generation.</span>
+<span class="sd">        freq: float or PyoObject, optional</span>
+<span class="sd">            Polling frequency. Defaults to 1.</span>
+
+<span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
+<span class="sd">    &gt;&gt;&gt; s.start()</span>
+<span class="sd">    &gt;&gt;&gt; freqs = midiToHz([60,62,64,65,67,69,71,72])</span>
+<span class="sd">    &gt;&gt;&gt; rnd = Choice(choice=freqs, freq=[3,4])</span>
+<span class="sd">    &gt;&gt;&gt; a = SineLoop(rnd, feedback=0.05, mul=.2).out()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choice</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;lOOO&quot;</span><span class="p">,</span> <span class="n">choice</span><span class="p">,</span> <span class="n">freq</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_choice</span> <span class="o">=</span> <span class="n">choice</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_freq</span> <span class="o">=</span> <span class="n">freq</span>
+        <span class="n">freq</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">choice</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">!=</span> <span class="nb">list</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span><span class="n">Choice_base</span><span class="p">(</span><span class="n">choice</span><span class="p">,</span> <span class="n">wrap</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">choicelen</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">choice</span><span class="p">)</span>
+            <span class="n">lmax</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">choicelen</span><span class="p">,</span> <span class="n">lmax</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">Choice_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">choice</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)</span>
+            <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_play</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Choice.setChoice"><a class="viewcode-back" href="../../../api/classes/randoms.html#pyo.Choice.setChoice">[docs]</a>    <span class="k">def</span> <span class="nf">setChoice</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `choice` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: list of floats or list of lists of floats</span>
+<span class="sd">                new `choice` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;l&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_choice</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">!=</span> <span class="nb">list</span><span class="p">:</span>
+            <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setChoice</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_choice</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setChoice</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_choice</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="Choice.setFreq"><a class="viewcode-back" href="../../../api/classes/randoms.html#pyo.Choice.setFreq">[docs]</a>    <span class="k">def</span> <span class="nf">setFreq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `freq` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float or PyoObject</span>
+<span class="sd">                new `freq` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_freq</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setFreq</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="Choice.ctrl"><a class="viewcode-back" href="../../../api/classes/randoms.html#pyo.Choice.ctrl">[docs]</a>    <span class="k">def</span> <span class="nf">ctrl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">map_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wxnoserver</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_map_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">SLMap</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">20.0</span><span class="p">,</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="s2">&quot;freq&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_freq</span><span class="p">),</span> <span class="n">SLMapMul</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mul</span><span class="p">)]</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="n">ctrl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">map_list</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">wxnoserver</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">choice</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;list of floats or list of lists of floats. Possible choices.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_choice</span>
+
+    <span class="nd">@choice</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">choice</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setChoice</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">freq</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float or PyoObject. Polling frequency.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_freq</span>
+
+    <span class="nd">@freq</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">freq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setFreq</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="RandInt"><a class="viewcode-back" href="../../../api/classes/randoms.html#pyo.RandInt">[docs]</a><span class="k">class</span> <span class="nc">RandInt</span><span class="p">(</span><span class="n">PyoObject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Periodic pseudo-random integer generator.</span>
+
+<span class="sd">    RandInt generates a pseudo-random integer number between 0 and `max`</span>
+<span class="sd">    values at a frequency specified by `freq` parameter. RandInt will</span>
+<span class="sd">    hold generated value until the next generation.</span>
+
+<span class="sd">    :Parent: :py:class:`PyoObject`</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        max: float or PyoObject, optional</span>
+<span class="sd">            Maximum value for the random generation. Defaults to 100.</span>
+<span class="sd">        freq: float or PyoObject, optional</span>
+<span class="sd">            Polling frequency. Defaults to 1.</span>
+
+<span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
+<span class="sd">    &gt;&gt;&gt; s.start()</span>
+<span class="sd">    &gt;&gt;&gt; freq = RandInt(max=10, freq=5, mul=100, add=500)</span>
+<span class="sd">    &gt;&gt;&gt; jit = Randi(min=0.99, max=1.01, freq=[2.33,3.41])</span>
+<span class="sd">    &gt;&gt;&gt; a = SineLoop(freq*jit, feedback=0.03, mul=.2).out()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;OOOO&quot;</span><span class="p">,</span> <span class="nb">max</span><span class="p">,</span> <span class="n">freq</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_max</span> <span class="o">=</span> <span class="nb">max</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_freq</span> <span class="o">=</span> <span class="n">freq</span>
+        <span class="nb">max</span><span class="p">,</span> <span class="n">freq</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="nb">max</span><span class="p">,</span> <span class="n">freq</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span><span class="n">RandInt_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="nb">max</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_play</span><span class="p">()</span>
+
+<div class="viewcode-block" id="RandInt.setMax"><a class="viewcode-back" href="../../../api/classes/randoms.html#pyo.RandInt.setMax">[docs]</a>    <span class="k">def</span> <span class="nf">setMax</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `max` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float or PyoObject</span>
+<span class="sd">                new `max` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_max</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setMax</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="RandInt.setFreq"><a class="viewcode-back" href="../../../api/classes/randoms.html#pyo.RandInt.setFreq">[docs]</a>    <span class="k">def</span> <span class="nf">setFreq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `freq` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float or PyoObject</span>
+<span class="sd">                new `freq` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_freq</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setFreq</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="RandInt.ctrl"><a class="viewcode-back" href="../../../api/classes/randoms.html#pyo.RandInt.ctrl">[docs]</a>    <span class="k">def</span> <span class="nf">ctrl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">map_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wxnoserver</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_map_list</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">SLMap</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max</span><span class="p">),</span>
+            <span class="n">SLMap</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">20.0</span><span class="p">,</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="s2">&quot;freq&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_freq</span><span class="p">),</span>
+            <span class="n">SLMapMul</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mul</span><span class="p">),</span>
+        <span class="p">]</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="n">ctrl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">map_list</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">wxnoserver</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">max</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float or PyoObject. Maximum value.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max</span>
+
+    <span class="nd">@max</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">max</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setMax</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">freq</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float or PyoObject. Polling frequency.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_freq</span>
+
+    <span class="nd">@freq</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">freq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setFreq</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="RandDur"><a class="viewcode-back" href="../../../api/classes/randoms.html#pyo.RandDur">[docs]</a><span class="k">class</span> <span class="nc">RandDur</span><span class="p">(</span><span class="n">PyoObject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Recursive time varying pseudo-random generator.</span>
+
+<span class="sd">    RandDur generates a pseudo-random number between `min` and `max`</span>
+<span class="sd">    arguments and uses that number to set the delay time before the next</span>
+<span class="sd">    generation. RandDur will hold the generated value until next generation.</span>
+
+<span class="sd">    :Parent: :py:class:`PyoObject`</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        min: float or PyoObject, optional</span>
+<span class="sd">            Minimum value for the random generation. Defaults to 0.</span>
+<span class="sd">        max: float or PyoObject, optional</span>
+<span class="sd">            Maximum value for the random generation. Defaults to 1.</span>
+
+<span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
+<span class="sd">    &gt;&gt;&gt; s.start()</span>
+<span class="sd">    &gt;&gt;&gt; dur = RandDur(min=[.05,0.1], max=[.4,.5])</span>
+<span class="sd">    &gt;&gt;&gt; trig = Change(dur)</span>
+<span class="sd">    &gt;&gt;&gt; amp = TrigEnv(trig, table=HannTable(), dur=dur, mul=.2)</span>
+<span class="sd">    &gt;&gt;&gt; freqs = midiToHz([60,63,67,70,72])</span>
+<span class="sd">    &gt;&gt;&gt; freq = TrigChoice(trig, choice=freqs)</span>
+<span class="sd">    &gt;&gt;&gt; a = LFO(freq=freq, type=2, mul=amp).out()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">min</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;OOOO&quot;</span><span class="p">,</span> <span class="nb">min</span><span class="p">,</span> <span class="nb">max</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_min</span> <span class="o">=</span> <span class="nb">min</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_max</span> <span class="o">=</span> <span class="nb">max</span>
+        <span class="nb">min</span><span class="p">,</span> <span class="nb">max</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="nb">min</span><span class="p">,</span> <span class="nb">max</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span><span class="n">RandDur_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="nb">min</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="nb">max</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_play</span><span class="p">()</span>
+
+<div class="viewcode-block" id="RandDur.setMin"><a class="viewcode-back" href="../../../api/classes/randoms.html#pyo.RandDur.setMin">[docs]</a>    <span class="k">def</span> <span class="nf">setMin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `min` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float or PyoObject</span>
+<span class="sd">                new `min` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_min</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setMin</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="RandDur.setMax"><a class="viewcode-back" href="../../../api/classes/randoms.html#pyo.RandDur.setMax">[docs]</a>    <span class="k">def</span> <span class="nf">setMax</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `max` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float or PyoObject</span>
+<span class="sd">                new `max` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_max</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setMax</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="RandDur.ctrl"><a class="viewcode-back" href="../../../api/classes/randoms.html#pyo.RandDur.ctrl">[docs]</a>    <span class="k">def</span> <span class="nf">ctrl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">map_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wxnoserver</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_map_list</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">SLMap</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="s2">&quot;min&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_min</span><span class="p">),</span>
+            <span class="n">SLMap</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max</span><span class="p">),</span>
+            <span class="n">SLMapMul</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mul</span><span class="p">),</span>
+        <span class="p">]</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="n">ctrl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">map_list</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">wxnoserver</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">min</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float or PyoObject. Minimum value.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_min</span>
+
+    <span class="nd">@min</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">min</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setMin</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">max</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float or PyoObject. Maximum value.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max</span>
+
+    <span class="nd">@max</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">max</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setMax</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Xnoise"><a class="viewcode-back" href="../../../api/classes/randoms.html#pyo.Xnoise">[docs]</a><span class="k">class</span> <span class="nc">Xnoise</span><span class="p">(</span><span class="n">PyoObject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    X-class pseudo-random generator.</span>
+
+<span class="sd">    Xnoise implements a few of the most common noise distributions.</span>
+<span class="sd">    Each distribution generates values in the range 0 and 1.</span>
+
+<span class="sd">    :Parent: :py:class:`PyoObject`</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        dist: string or int, optional</span>
+<span class="sd">            Distribution type. Defaults to 0.</span>
+<span class="sd">        freq: float or PyoObject, optional</span>
+<span class="sd">            Polling frequency. Defaults to 1.</span>
+<span class="sd">        x1: float or PyoObject, optional</span>
+<span class="sd">            First parameter. Defaults to 0.5.</span>
+<span class="sd">        x2: float or PyoObject, optional</span>
+<span class="sd">            Second parameter. Defaults to 0.5.</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        Available distributions are:</span>
+<span class="sd">            0. uniform</span>
+<span class="sd">            1. linear minimum</span>
+<span class="sd">            2. linear maximum</span>
+<span class="sd">            3. triangular</span>
+<span class="sd">            4. exponential minimum</span>
+<span class="sd">            5. exponential maximum</span>
+<span class="sd">            6. double (bi)exponential</span>
+<span class="sd">            7. cauchy</span>
+<span class="sd">            8. weibull</span>
+<span class="sd">            9. gaussian</span>
+<span class="sd">            10. poisson</span>
+<span class="sd">            11. walker (drunk)</span>
+<span class="sd">            12. loopseg (drunk with looped segments)</span>
+
+<span class="sd">        Depending on the distribution, `x1` and `x2` parameters are applied</span>
+<span class="sd">        as follow (names as string, or associated number can be used as `dist`</span>
+<span class="sd">        parameter):</span>
+
+<span class="sd">            0. uniform</span>
+<span class="sd">                - x1: not used</span>
+<span class="sd">                - x2: not used</span>
+<span class="sd">            1. linear_min</span>
+<span class="sd">                - x1: not used</span>
+<span class="sd">                - x2: not used</span>
+<span class="sd">            2. linear_max</span>
+<span class="sd">                - x1: not used</span>
+<span class="sd">                - x2: not used</span>
+<span class="sd">            3. triangle</span>
+<span class="sd">                - x1: not used</span>
+<span class="sd">                - x2: not used</span>
+<span class="sd">            4. expon_min</span>
+<span class="sd">                - x1: slope {0 = no slope -&gt; 10 = sharp slope}</span>
+<span class="sd">                - x2: not used</span>
+<span class="sd">            5. expon_max</span>
+<span class="sd">                - x1: slope {0 = no slope -&gt; 10 = sharp slope}</span>
+<span class="sd">                - x2: not used</span>
+<span class="sd">            6. biexpon</span>
+<span class="sd">                - x1: bandwidth {0 = huge bandwidth -&gt; 10 = narrow bandwidth}</span>
+<span class="sd">                - x2: not used</span>
+<span class="sd">            7. cauchy</span>
+<span class="sd">                - x1: bandwidth {0 = narrow bandwidth -&gt; 10 = huge bandwidth}</span>
+<span class="sd">                - x2: not used</span>
+<span class="sd">            8. weibull</span>
+<span class="sd">                - x1: mean location {0 -&gt; 1}</span>
+<span class="sd">                - x2: shape {0.5 = linear min, 1.5 = expon min, 3.5 = gaussian}</span>
+<span class="sd">            9. gaussian</span>
+<span class="sd">                - x1: mean location {0 -&gt; 1}</span>
+<span class="sd">                - x2: bandwidth {0 =  narrow bandwidth -&gt; 10 = huge bandwidth}</span>
+<span class="sd">            10. poisson</span>
+<span class="sd">                 - x1: gravity center {0 = low values -&gt; 10 = high values}</span>
+<span class="sd">                 - x2: compress/expand range {0.1 = full compress -&gt; 4 full expand}</span>
+<span class="sd">            11. walker</span>
+<span class="sd">                 - x1: maximum value {0.1 -&gt; 1}</span>
+<span class="sd">                 - x2: maximum step {0.1 -&gt; 1}</span>
+<span class="sd">            12. loopseg</span>
+<span class="sd">                 - x1: maximum value {0.1 -&gt; 1}</span>
+<span class="sd">                 - x2: maximum step {0.1 -&gt; 1}</span>
+
+<span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
+<span class="sd">    &gt;&gt;&gt; s.start()</span>
+<span class="sd">    &gt;&gt;&gt; lfo = Phasor(.1, 0, .5, .15)</span>
+<span class="sd">    &gt;&gt;&gt; freq = Xnoise(dist=12, freq=8, x1=1, x2=lfo, mul=1000, add=500)</span>
+<span class="sd">    &gt;&gt;&gt; jit = Randi(min=0.99, max=1.01, freq=[2.33,3.41])</span>
+<span class="sd">    &gt;&gt;&gt; a = SineLoop(freq*jit, feedback=0.03, mul=.2).out()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dist</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">x1</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">x2</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;OOOOO&quot;</span><span class="p">,</span> <span class="n">freq</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dist</span> <span class="o">=</span> <span class="n">dist</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_freq</span> <span class="o">=</span> <span class="n">freq</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_x1</span> <span class="o">=</span> <span class="n">x1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_x2</span> <span class="o">=</span> <span class="n">x2</span>
+        <span class="n">dist</span><span class="p">,</span> <span class="n">freq</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">dist</span><span class="p">,</span> <span class="n">freq</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dist</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+                <span class="n">dist</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">XNOISE_DICT</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">Xnoise_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">dist</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">x2</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_play</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Xnoise.setDist"><a class="viewcode-back" href="../../../api/classes/randoms.html#pyo.Xnoise.setDist">[docs]</a>    <span class="k">def</span> <span class="nf">setDist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `dist` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: string or int</span>
+<span class="sd">                new `dist` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dist</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+                <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">XNOISE_DICT</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setType</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="Xnoise.setX1"><a class="viewcode-back" href="../../../api/classes/randoms.html#pyo.Xnoise.setX1">[docs]</a>    <span class="k">def</span> <span class="nf">setX1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `x1` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float or PyoObject</span>
+<span class="sd">                new `x1` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_x1</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setX1</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="Xnoise.setX2"><a class="viewcode-back" href="../../../api/classes/randoms.html#pyo.Xnoise.setX2">[docs]</a>    <span class="k">def</span> <span class="nf">setX2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `x2` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float or PyoObject</span>
+<span class="sd">                new `x2` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_x2</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setX2</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="Xnoise.setFreq"><a class="viewcode-back" href="../../../api/classes/randoms.html#pyo.Xnoise.setFreq">[docs]</a>    <span class="k">def</span> <span class="nf">setFreq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `freq` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float or PyoObject</span>
+<span class="sd">                new `freq` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_freq</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setFreq</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="Xnoise.ctrl"><a class="viewcode-back" href="../../../api/classes/randoms.html#pyo.Xnoise.ctrl">[docs]</a>    <span class="k">def</span> <span class="nf">ctrl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">map_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wxnoserver</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_map_list</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">SLMap</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="s2">&quot;dist&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dist</span><span class="p">,</span> <span class="n">res</span><span class="o">=</span><span class="s2">&quot;int&quot;</span><span class="p">,</span> <span class="n">dataOnly</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+            <span class="n">SLMap</span><span class="p">(</span><span class="mf">0.001</span><span class="p">,</span> <span class="mf">200.0</span><span class="p">,</span> <span class="s2">&quot;log&quot;</span><span class="p">,</span> <span class="s2">&quot;freq&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_freq</span><span class="p">),</span>
+            <span class="n">SLMap</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="s2">&quot;x1&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_x1</span><span class="p">),</span>
+            <span class="n">SLMap</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="s2">&quot;x2&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_x2</span><span class="p">),</span>
+            <span class="n">SLMap</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2500</span><span class="p">,</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="s2">&quot;mul&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mul</span><span class="p">),</span>
+            <span class="n">SLMap</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2500</span><span class="p">,</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="s2">&quot;add&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">),</span>
+        <span class="p">]</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="n">ctrl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">map_list</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">wxnoserver</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">dist</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;string or int. Distribution type.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dist</span>
+
+    <span class="nd">@dist</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">dist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setDist</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">freq</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float or PyoObject. Polling frequency.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_freq</span>
+
+    <span class="nd">@freq</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">freq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setFreq</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">x1</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float or PyoObject. First parameter.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_x1</span>
+
+    <span class="nd">@x1</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">x1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setX1</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">x2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float or PyoObject. Second parameter.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_x2</span>
+
+    <span class="nd">@x2</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">x2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setX2</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="XnoiseMidi"><a class="viewcode-back" href="../../../api/classes/randoms.html#pyo.XnoiseMidi">[docs]</a><span class="k">class</span> <span class="nc">XnoiseMidi</span><span class="p">(</span><span class="n">PyoObject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    X-class midi notes pseudo-random generator.</span>
+
+<span class="sd">    XnoiseMidi implements a few of the most common noise distributions.</span>
+<span class="sd">    Each distribution generates integer values in the range defined with</span>
+<span class="sd">    `mrange` parameter and output can be scaled on midi notes, hertz or</span>
+<span class="sd">    transposition factor.</span>
+
+<span class="sd">    :Parent: :py:class:`PyoObject`</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        dist: string or int, optional</span>
+<span class="sd">            Distribution type. Defaults to 0.</span>
+<span class="sd">        freq: float or PyoObject, optional</span>
+<span class="sd">            Polling frequency. Defaults to 1.</span>
+<span class="sd">        x1: float or PyoObject, optional</span>
+<span class="sd">            First parameter. Defaults to 0.5.</span>
+<span class="sd">        x2: float or PyoObject, optional</span>
+<span class="sd">            Second parameter. Defaults to 0.5.</span>
+<span class="sd">        scale: int {0, 1, 2}, optional</span>
+<span class="sd">            Output format. 0 = Midi, 1 = Hertz, 2 = transposition factor.</span>
+<span class="sd">            In the transposition mode, the central key (the key where there</span>
+<span class="sd">            is no transposition) is (`minrange` + `maxrange`) / 2. Defaults</span>
+<span class="sd">            to 0.</span>
+<span class="sd">        mrange: tuple of int, optional</span>
+<span class="sd">            Minimum and maximum possible values, in Midi notes. Available</span>
+<span class="sd">            only at initialization time. Defaults to (0, 127).</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        Available distributions are:</span>
+<span class="sd">            0. uniform</span>
+<span class="sd">            1. linear minimum</span>
+<span class="sd">            2. linear maximum</span>
+<span class="sd">            3. triangular</span>
+<span class="sd">            4. exponential minimum</span>
+<span class="sd">            5. exponential maximum</span>
+<span class="sd">            6. double (bi)exponential</span>
+<span class="sd">            7. cauchy</span>
+<span class="sd">            8. weibull</span>
+<span class="sd">            9. gaussian</span>
+<span class="sd">            10. poisson</span>
+<span class="sd">            11. walker (drunk)</span>
+<span class="sd">            12. loopseg (drunk with looped segments)</span>
+
+<span class="sd">        Depending on the distribution, `x1` and `x2` parameters are applied</span>
+<span class="sd">        as follow (names as string, or associated number can be used as `dist`</span>
+<span class="sd">        parameter):</span>
+
+<span class="sd">            0. uniform</span>
+<span class="sd">                - x1: not used</span>
+<span class="sd">                - x2: not used</span>
+<span class="sd">            1. linear_min</span>
+<span class="sd">                - x1: not used</span>
+<span class="sd">                - x2: not used</span>
+<span class="sd">            2. linear_max</span>
+<span class="sd">                - x1: not used</span>
+<span class="sd">                - x2: not used</span>
+<span class="sd">            3. triangle</span>
+<span class="sd">                - x1: not used</span>
+<span class="sd">                - x2: not used</span>
+<span class="sd">            4. expon_min</span>
+<span class="sd">                - x1: slope {0 = no slope -&gt; 10 = sharp slope}</span>
+<span class="sd">                - x2: not used</span>
+<span class="sd">            5. expon_max</span>
+<span class="sd">                - x1: slope {0 = no slope -&gt; 10 = sharp slope}</span>
+<span class="sd">                - x2: not used</span>
+<span class="sd">            6. biexpon</span>
+<span class="sd">                - x1: bandwidth {0 = huge bandwidth -&gt; 10 = narrow bandwidth}</span>
+<span class="sd">                - x2: not used</span>
+<span class="sd">            7. cauchy</span>
+<span class="sd">                - x1: bandwidth {0 = narrow bandwidth -&gt; 10 = huge bandwidth}</span>
+<span class="sd">                - x2: not used</span>
+<span class="sd">            8. weibull</span>
+<span class="sd">                - x1: mean location {0 -&gt; 1}</span>
+<span class="sd">                - x2: shape {0.5 = linear min, 1.5 = expon min, 3.5 = gaussian}</span>
+<span class="sd">            9. gaussian</span>
+<span class="sd">                - x1: mean location {0 -&gt; 1}</span>
+<span class="sd">                - x2: bandwidth {0 =  narrow bandwidth -&gt; 10 = huge bandwidth}</span>
+<span class="sd">            10. poisson</span>
+<span class="sd">                 - x1: gravity center {0 = low values -&gt; 10 = high values}</span>
+<span class="sd">                 - x2: compress/expand range {0.1 = full compress -&gt; 4 full expand}</span>
+<span class="sd">            11. walker</span>
+<span class="sd">                 - x1: maximum value {0.1 -&gt; 1}</span>
+<span class="sd">                 - x2: maximum step {0.1 -&gt; 1}</span>
+<span class="sd">            12. loopseg</span>
+<span class="sd">                 - x1: maximum value {0.1 -&gt; 1}</span>
+<span class="sd">                 - x2: maximum step {0.1 -&gt; 1}</span>
+
+<span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
+<span class="sd">    &gt;&gt;&gt; s.start()</span>
+<span class="sd">    &gt;&gt;&gt; l = Phasor(.4)</span>
+<span class="sd">    &gt;&gt;&gt; rnd = XnoiseMidi(&#39;loopseg&#39;, freq=8, x1=1, x2=l, scale=0, mrange=(60,96))</span>
+<span class="sd">    &gt;&gt;&gt; freq = Snap(rnd, choice=[0, 2, 3, 5, 7, 8, 11], scale=1)</span>
+<span class="sd">    &gt;&gt;&gt; jit = Randi(min=0.99, max=1.01, freq=[2.33,3.41])</span>
+<span class="sd">    &gt;&gt;&gt; a = SineLoop(freq*jit, feedback=0.03, mul=.2).out()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dist</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">x1</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">x2</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">mrange</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">127</span><span class="p">),</span> <span class="n">mul</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;OOOixOO&quot;</span><span class="p">,</span> <span class="n">freq</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">scale</span><span class="p">,</span> <span class="n">mrange</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dist</span> <span class="o">=</span> <span class="n">dist</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_freq</span> <span class="o">=</span> <span class="n">freq</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_x1</span> <span class="o">=</span> <span class="n">x1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_x2</span> <span class="o">=</span> <span class="n">x2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_scale</span> <span class="o">=</span> <span class="n">scale</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mrange</span> <span class="o">=</span> <span class="n">mrange</span>
+        <span class="n">dist</span><span class="p">,</span> <span class="n">freq</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">scale</span><span class="p">,</span> <span class="n">mrange</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span>
+            <span class="n">dist</span><span class="p">,</span> <span class="n">freq</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">scale</span><span class="p">,</span> <span class="n">mrange</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dist</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+                <span class="n">dist</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">XNOISE_DICT</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">XnoiseMidi_base</span><span class="p">(</span>
+                <span class="n">wrap</span><span class="p">(</span><span class="n">dist</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span>
+                <span class="n">wrap</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span>
+                <span class="n">wrap</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span>
+                <span class="n">wrap</span><span class="p">(</span><span class="n">x2</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span>
+                <span class="n">wrap</span><span class="p">(</span><span class="n">scale</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span>
+                <span class="n">wrap</span><span class="p">(</span><span class="n">mrange</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span>
+                <span class="n">wrap</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span>
+                <span class="n">wrap</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_play</span><span class="p">()</span>
+
+<div class="viewcode-block" id="XnoiseMidi.setDist"><a class="viewcode-back" href="../../../api/classes/randoms.html#pyo.XnoiseMidi.setDist">[docs]</a>    <span class="k">def</span> <span class="nf">setDist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `dist` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: string or int</span>
+<span class="sd">                new `dist` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dist</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+                <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">XNOISE_DICT</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setType</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="XnoiseMidi.setScale"><a class="viewcode-back" href="../../../api/classes/randoms.html#pyo.XnoiseMidi.setScale">[docs]</a>    <span class="k">def</span> <span class="nf">setScale</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `scale` attribute.</span>
+
+<span class="sd">        Possible values are:</span>
+<span class="sd">            0. Midi notes</span>
+<span class="sd">            1. Hertz</span>
+<span class="sd">            2. transposition factor (centralkey is (`minrange` + `maxrange`) / 2</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: int {0, 1, 2}</span>
+<span class="sd">                new `scale` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;i&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_scale</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setScale</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="XnoiseMidi.setRange"><a class="viewcode-back" href="../../../api/classes/randoms.html#pyo.XnoiseMidi.setRange">[docs]</a>    <span class="k">def</span> <span class="nf">setRange</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mini</span><span class="p">,</span> <span class="n">maxi</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `mrange` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            mini: int</span>
+<span class="sd">                minimum output midi range.</span>
+<span class="sd">            maxi: int</span>
+<span class="sd">                maximum output midi range.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;ii&quot;</span><span class="p">,</span> <span class="n">mini</span><span class="p">,</span> <span class="n">maxi</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mrange</span> <span class="o">=</span> <span class="p">(</span><span class="n">mini</span><span class="p">,</span> <span class="n">maxi</span><span class="p">)</span>
+        <span class="n">mini</span><span class="p">,</span> <span class="n">maxi</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">mini</span><span class="p">,</span> <span class="n">maxi</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setRange</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">mini</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">maxi</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="XnoiseMidi.setX1"><a class="viewcode-back" href="../../../api/classes/randoms.html#pyo.XnoiseMidi.setX1">[docs]</a>    <span class="k">def</span> <span class="nf">setX1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `x1` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float or PyoObject</span>
+<span class="sd">                new `x1` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_x1</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setX1</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="XnoiseMidi.setX2"><a class="viewcode-back" href="../../../api/classes/randoms.html#pyo.XnoiseMidi.setX2">[docs]</a>    <span class="k">def</span> <span class="nf">setX2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `x2` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float or PyoObject</span>
+<span class="sd">                new `x2` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_x2</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setX2</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="XnoiseMidi.setFreq"><a class="viewcode-back" href="../../../api/classes/randoms.html#pyo.XnoiseMidi.setFreq">[docs]</a>    <span class="k">def</span> <span class="nf">setFreq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `freq` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float or PyoObject</span>
+<span class="sd">                new `freq` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_freq</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setFreq</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="XnoiseMidi.ctrl"><a class="viewcode-back" href="../../../api/classes/randoms.html#pyo.XnoiseMidi.ctrl">[docs]</a>    <span class="k">def</span> <span class="nf">ctrl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">map_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wxnoserver</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_map_list</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">SLMap</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="s2">&quot;dist&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dist</span><span class="p">,</span> <span class="n">res</span><span class="o">=</span><span class="s2">&quot;int&quot;</span><span class="p">,</span> <span class="n">dataOnly</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+            <span class="n">SLMap</span><span class="p">(</span><span class="mf">0.001</span><span class="p">,</span> <span class="mf">200.0</span><span class="p">,</span> <span class="s2">&quot;log&quot;</span><span class="p">,</span> <span class="s2">&quot;freq&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_freq</span><span class="p">),</span>
+            <span class="n">SLMap</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="s2">&quot;x1&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_x1</span><span class="p">),</span>
+            <span class="n">SLMap</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="s2">&quot;x2&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_x2</span><span class="p">),</span>
+            <span class="n">SLMap</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="s2">&quot;scale&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scale</span><span class="p">,</span> <span class="n">res</span><span class="o">=</span><span class="s2">&quot;int&quot;</span><span class="p">,</span> <span class="n">dataOnly</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+        <span class="p">]</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="n">ctrl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">map_list</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">wxnoserver</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">dist</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;string or int. Distribution type.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dist</span>
+
+    <span class="nd">@dist</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">dist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setDist</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">freq</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float or PyoObject. Polling frequency.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_freq</span>
+
+    <span class="nd">@freq</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">freq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setFreq</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">x1</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float or PyoObject. First parameter.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_x1</span>
+
+    <span class="nd">@x1</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">x1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setX1</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">x2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float or PyoObject. Second parameter.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_x2</span>
+
+    <span class="nd">@x2</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">x2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setX2</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">scale</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;int. Output format.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scale</span>
+
+    <span class="nd">@scale</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">scale</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setScale</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="XnoiseDur"><a class="viewcode-back" href="../../../api/classes/randoms.html#pyo.XnoiseDur">[docs]</a><span class="k">class</span> <span class="nc">XnoiseDur</span><span class="p">(</span><span class="n">PyoObject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Recursive time varying X-class pseudo-random generator.</span>
+
+<span class="sd">    Xnoise implements a few of the most common noise distributions.</span>
+<span class="sd">    Each distribution generates values in the range 0 to 1, which are</span>
+<span class="sd">    then rescaled between `min` and `max` arguments. The object uses</span>
+<span class="sd">    the generated value to set the delay time before the next generation.</span>
+<span class="sd">    XnoiseDur will hold the value until next generation.</span>
+
+<span class="sd">    :Parent: :py:class:`PyoObject`</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        dist: string or int, optional</span>
+<span class="sd">            Distribution type. Can be the name of the distribution as a string</span>
+<span class="sd">            or its associated number. Defaults to 0.</span>
+<span class="sd">        min: float or PyoObject, optional</span>
+<span class="sd">            Minimum value for the random generation. Defaults to 0.</span>
+<span class="sd">        max: float or PyoObject, optional</span>
+<span class="sd">            Maximum value for the random generation. Defaults to 1.</span>
+<span class="sd">        x1: float or PyoObject, optional</span>
+<span class="sd">            First parameter. Defaults to 0.5.</span>
+<span class="sd">        x2: float or PyoObject, optional</span>
+<span class="sd">            Second parameter. Defaults to 0.5.</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        Available distributions are:</span>
+<span class="sd">            0. uniform</span>
+<span class="sd">            1. linear minimum</span>
+<span class="sd">            2. linear maximum</span>
+<span class="sd">            3. triangular</span>
+<span class="sd">            4. exponential minimum</span>
+<span class="sd">            5. exponential maximum</span>
+<span class="sd">            6. double (bi)exponential</span>
+<span class="sd">            7. cauchy</span>
+<span class="sd">            8. weibull</span>
+<span class="sd">            9. gaussian</span>
+<span class="sd">            10. poisson</span>
+<span class="sd">            11. walker (drunk)</span>
+<span class="sd">            12. loopseg (drunk with looped segments)</span>
+
+<span class="sd">        Depending on the distribution, `x1` and `x2` parameters are applied</span>
+<span class="sd">        as follow (names as string, or associated number can be used as `dist`</span>
+<span class="sd">        parameter):</span>
+
+<span class="sd">            0. uniform</span>
+<span class="sd">                - x1: not used</span>
+<span class="sd">                - x2: not used</span>
+<span class="sd">            1. linear_min</span>
+<span class="sd">                - x1: not used</span>
+<span class="sd">                - x2: not used</span>
+<span class="sd">            2. linear_max</span>
+<span class="sd">                - x1: not used</span>
+<span class="sd">                - x2: not used</span>
+<span class="sd">            3. triangle</span>
+<span class="sd">                - x1: not used</span>
+<span class="sd">                - x2: not used</span>
+<span class="sd">            4. expon_min</span>
+<span class="sd">                - x1: slope {0 = no slope -&gt; 10 = sharp slope}</span>
+<span class="sd">                - x2: not used</span>
+<span class="sd">            5. expon_max</span>
+<span class="sd">                - x1: slope {0 = no slope -&gt; 10 = sharp slope}</span>
+<span class="sd">                - x2: not used</span>
+<span class="sd">            6. biexpon</span>
+<span class="sd">                - x1: bandwidth {0 = huge bandwidth -&gt; 10 = narrow bandwidth}</span>
+<span class="sd">                - x2: not used</span>
+<span class="sd">            7. cauchy</span>
+<span class="sd">                - x1: bandwidth {0 = narrow bandwidth -&gt; 10 = huge bandwidth}</span>
+<span class="sd">                - x2: not used</span>
+<span class="sd">            8. weibull</span>
+<span class="sd">                - x1: mean location {0 -&gt; 1}</span>
+<span class="sd">                - x2: shape {0.5 = linear min, 1.5 = expon min, 3.5 = gaussian}</span>
+<span class="sd">            9. gaussian</span>
+<span class="sd">                - x1: mean location {0 -&gt; 1}</span>
+<span class="sd">                - x2: bandwidth {0 =  narrow bandwidth -&gt; 10 = huge bandwidth}</span>
+<span class="sd">            10. poisson</span>
+<span class="sd">                 - x1: gravity center {0 = low values -&gt; 10 = high values}</span>
+<span class="sd">                 - x2: compress/expand range {0.1 = full compress -&gt; 4 full expand}</span>
+<span class="sd">            11. walker</span>
+<span class="sd">                 - x1: maximum value {0.1 -&gt; 1}</span>
+<span class="sd">                 - x2: maximum step {0.1 -&gt; 1}</span>
+<span class="sd">            12. loopseg</span>
+<span class="sd">                 - x1: maximum value {0.1 -&gt; 1}</span>
+<span class="sd">                 - x2: maximum step {0.1 -&gt; 1}</span>
+
+<span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
+<span class="sd">    &gt;&gt;&gt; s.start()</span>
+<span class="sd">    &gt;&gt;&gt; dur = XnoiseDur(dist=&quot;expon_min&quot;, min=[.05,0.1], max=[.4,.5], x1=3)</span>
+<span class="sd">    &gt;&gt;&gt; trig = Change(dur)</span>
+<span class="sd">    &gt;&gt;&gt; amp = TrigEnv(trig, table=HannTable(), dur=dur, mul=.2)</span>
+<span class="sd">    &gt;&gt;&gt; freqs = midiToHz([60,63,67,70,72])</span>
+<span class="sd">    &gt;&gt;&gt; freq = TrigChoice(trig, choice=freqs)</span>
+<span class="sd">    &gt;&gt;&gt; a = LFO(freq=freq, type=2, mul=amp).out()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dist</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nb">min</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">x1</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">x2</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;OOOOOO&quot;</span><span class="p">,</span> <span class="nb">min</span><span class="p">,</span> <span class="nb">max</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dist</span> <span class="o">=</span> <span class="n">dist</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_min</span> <span class="o">=</span> <span class="nb">min</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_max</span> <span class="o">=</span> <span class="nb">max</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_x1</span> <span class="o">=</span> <span class="n">x1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_x2</span> <span class="o">=</span> <span class="n">x2</span>
+        <span class="n">dist</span><span class="p">,</span> <span class="nb">min</span><span class="p">,</span> <span class="nb">max</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">dist</span><span class="p">,</span> <span class="nb">min</span><span class="p">,</span> <span class="nb">max</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dist</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+                <span class="n">dist</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">XNOISE_DICT</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">XnoiseDur_base</span><span class="p">(</span>
+                <span class="n">wrap</span><span class="p">(</span><span class="n">dist</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="nb">min</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="nb">max</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">x2</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_play</span><span class="p">()</span>
+
+<div class="viewcode-block" id="XnoiseDur.setDist"><a class="viewcode-back" href="../../../api/classes/randoms.html#pyo.XnoiseDur.setDist">[docs]</a>    <span class="k">def</span> <span class="nf">setDist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `dist` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: string or int</span>
+<span class="sd">                new `dist` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dist</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+                <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">XNOISE_DICT</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setType</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="XnoiseDur.setMin"><a class="viewcode-back" href="../../../api/classes/randoms.html#pyo.XnoiseDur.setMin">[docs]</a>    <span class="k">def</span> <span class="nf">setMin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `min` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float or PyoObject</span>
+<span class="sd">                new `min` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_min</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setMin</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="XnoiseDur.setMax"><a class="viewcode-back" href="../../../api/classes/randoms.html#pyo.XnoiseDur.setMax">[docs]</a>    <span class="k">def</span> <span class="nf">setMax</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `max` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float or PyoObject</span>
+<span class="sd">                new `max` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_max</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setMax</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="XnoiseDur.setX1"><a class="viewcode-back" href="../../../api/classes/randoms.html#pyo.XnoiseDur.setX1">[docs]</a>    <span class="k">def</span> <span class="nf">setX1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `x1` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float or PyoObject</span>
+<span class="sd">                new `x1` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_x1</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setX1</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="XnoiseDur.setX2"><a class="viewcode-back" href="../../../api/classes/randoms.html#pyo.XnoiseDur.setX2">[docs]</a>    <span class="k">def</span> <span class="nf">setX2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `x2` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float or PyoObject</span>
+<span class="sd">                new `x2` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_x2</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setX2</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="XnoiseDur.ctrl"><a class="viewcode-back" href="../../../api/classes/randoms.html#pyo.XnoiseDur.ctrl">[docs]</a>    <span class="k">def</span> <span class="nf">ctrl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">map_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wxnoserver</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_map_list</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">SLMap</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="s2">&quot;dist&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dist</span><span class="p">,</span> <span class="n">res</span><span class="o">=</span><span class="s2">&quot;int&quot;</span><span class="p">,</span> <span class="n">dataOnly</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+            <span class="n">SLMap</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="s2">&quot;min&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_min</span><span class="p">),</span>
+            <span class="n">SLMap</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max</span><span class="p">),</span>
+            <span class="n">SLMap</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="s2">&quot;x1&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_x1</span><span class="p">),</span>
+            <span class="n">SLMap</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="s2">&quot;x2&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_x2</span><span class="p">),</span>
+        <span class="p">]</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="n">ctrl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">map_list</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">wxnoserver</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">dist</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;string or int. Distribution type.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dist</span>
+
+    <span class="nd">@dist</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">dist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setDist</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">min</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float or PyoObject. Minimum value.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_min</span>
+
+    <span class="nd">@min</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">min</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setMin</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">max</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float or PyoObject. Maximum value.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max</span>
+
+    <span class="nd">@max</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">max</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setMax</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">x1</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float or PyoObject. First parameter.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_x1</span>
+
+    <span class="nd">@x1</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">x1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setX1</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">x2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float or PyoObject. Second parameter.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_x2</span>
+
+    <span class="nd">@x2</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">x2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setX2</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Urn"><a class="viewcode-back" href="../../../api/classes/randoms.html#pyo.Urn">[docs]</a><span class="k">class</span> <span class="nc">Urn</span><span class="p">(</span><span class="n">PyoObject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Periodic pseudo-random integer generator without duplicates.</span>
+
+<span class="sd">    Urn generates a pseudo-random integer number between 0 and `max`</span>
+<span class="sd">    values at a frequency specified by `freq` parameter. Urn will</span>
+<span class="sd">    hold generated value until the next generation. Urn works like RandInt,</span>
+<span class="sd">    except that it keeps track of each number which has been generated. After</span>
+<span class="sd">    all numbers have been outputed, the pool is reseted and the object send</span>
+<span class="sd">    a trigger signal.</span>
+
+<span class="sd">    :Parent: :py:class:`PyoObject`</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        max: int, optional</span>
+<span class="sd">            Maximum value for the random generation. Defaults to 100.</span>
+<span class="sd">        freq: float or PyoObject, optional</span>
+<span class="sd">            Polling frequency. Defaults to 1.</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        Urn will send a trigger signal when the pool is empty.</span>
+<span class="sd">        User can retreive the trigger streams by calling obj[&#39;trig&#39;].</span>
+<span class="sd">        Useful to synchronize other processes.</span>
+
+<span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
+<span class="sd">    &gt;&gt;&gt; s.start()</span>
+<span class="sd">    &gt;&gt;&gt; mid = Urn(max=12, freq=10, add=60)</span>
+<span class="sd">    &gt;&gt;&gt; fr = MToF(mid)</span>
+<span class="sd">    &gt;&gt;&gt; sigL = SineLoop(freq=fr, feedback=.08, mul=0.3).out()</span>
+<span class="sd">    &gt;&gt;&gt; amp = TrigExpseg(mid[&quot;trig&quot;], [(0,0),(.01,.25),(1,0)])</span>
+<span class="sd">    &gt;&gt;&gt; sigR = SineLoop(midiToHz(84), feedback=0.05, mul=amp).out(1)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;iOOO&quot;</span><span class="p">,</span> <span class="nb">max</span><span class="p">,</span> <span class="n">freq</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_max</span> <span class="o">=</span> <span class="nb">max</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_freq</span> <span class="o">=</span> <span class="n">freq</span>
+        <span class="nb">max</span><span class="p">,</span> <span class="n">freq</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="nb">max</span><span class="p">,</span> <span class="n">freq</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span><span class="n">Urn_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="nb">max</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_trig_objs</span> <span class="o">=</span> <span class="n">Dummy</span><span class="p">([</span><span class="n">TriggerDummy_base</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_play</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Urn.out"><a class="viewcode-back" href="../../../api/classes/randoms.html#pyo.Urn.out">[docs]</a>    <span class="k">def</span> <span class="nf">out</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chnl</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">inc</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">dur</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="Urn.setMax"><a class="viewcode-back" href="../../../api/classes/randoms.html#pyo.Urn.setMax">[docs]</a>    <span class="k">def</span> <span class="nf">setMax</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `max` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: int</span>
+<span class="sd">                new `max` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;i&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_max</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setMax</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="Urn.setFreq"><a class="viewcode-back" href="../../../api/classes/randoms.html#pyo.Urn.setFreq">[docs]</a>    <span class="k">def</span> <span class="nf">setFreq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `freq` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float or PyoObject</span>
+<span class="sd">                new `freq` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_freq</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setFreq</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="Urn.ctrl"><a class="viewcode-back" href="../../../api/classes/randoms.html#pyo.Urn.ctrl">[docs]</a>    <span class="k">def</span> <span class="nf">ctrl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">map_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wxnoserver</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_map_list</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">SLMap</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max</span><span class="p">,</span> <span class="n">res</span><span class="o">=</span><span class="s2">&quot;int&quot;</span><span class="p">,</span> <span class="n">dataOnly</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+            <span class="n">SLMap</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">20.0</span><span class="p">,</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="s2">&quot;freq&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_freq</span><span class="p">),</span>
+            <span class="n">SLMapMul</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mul</span><span class="p">),</span>
+        <span class="p">]</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="n">ctrl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">map_list</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">wxnoserver</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">max</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;int. Maximum value.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max</span>
+
+    <span class="nd">@max</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">max</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setMax</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">freq</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float or PyoObject. Polling frequency.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_freq</span>
+
+    <span class="nd">@freq</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">freq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setFreq</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LogiMap"><a class="viewcode-back" href="../../../api/classes/randoms.html#pyo.LogiMap">[docs]</a><span class="k">class</span> <span class="nc">LogiMap</span><span class="p">(</span><span class="n">PyoObject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Random generator based on the logistic map.</span>
+
+<span class="sd">    The logistic equation (sometimes called the Verhulst model or logistic</span>
+<span class="sd">    growth curve) is a model of population growth first published by Pierre</span>
+<span class="sd">    Verhulst (1845, 1847). The logistic map is a discrete quadratic recurrence</span>
+<span class="sd">    equation derived from the logistic equation that can be effectively used</span>
+<span class="sd">    as a number generator that exhibit chaotic behavior. This object uses the</span>
+<span class="sd">    following equation:</span>
+
+<span class="sd">        x[n] = (r + 3) * x[n-1] * (1.0 - x[n-1])</span>
+
+<span class="sd">    where &#39;r&#39; is the randomization factor between 0 and 1.</span>
+
+<span class="sd">    :Parent: :py:class:`PyoObject`</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        chaos: float or PyoObject, optional</span>
+<span class="sd">            Randomization factor, 0.0 &lt; chaos &lt; 1.0. Defaults to 0.6.</span>
+<span class="sd">        freq: float or PyoObject, optional</span>
+<span class="sd">            Polling frequency. Defaults to 1.</span>
+<span class="sd">        init: float, optional</span>
+<span class="sd">            Initial value, 0.0 &lt; init &lt; 1.0. Defaults to 0.5.</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        The method play() resets the internal state to the initial value.</span>
+
+<span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
+<span class="sd">    &gt;&gt;&gt; s.start()</span>
+<span class="sd">    &gt;&gt;&gt; val = LogiMap([0.6,0.65], [4,8])</span>
+<span class="sd">    &gt;&gt;&gt; mid = Round(Scale(val, 0, 1, [36,48], [72,84]))</span>
+<span class="sd">    &gt;&gt;&gt; hz = Snap(mid, [0,2,4,5,7,9,11], 1)</span>
+<span class="sd">    &gt;&gt;&gt; env = CosTable([(0,0), (32,1), (4064,1), (4096,0), (8192,0)])</span>
+<span class="sd">    &gt;&gt;&gt; amp = TrigEnv(Change(val), table=env, dur=[.25,.125], mul=0.3)</span>
+<span class="sd">    &gt;&gt;&gt; osc = RCOsc(hz, mul=amp).out()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chaos</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;OOnOO&quot;</span><span class="p">,</span> <span class="n">chaos</span><span class="p">,</span> <span class="n">freq</span><span class="p">,</span> <span class="n">init</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_chaos</span> <span class="o">=</span> <span class="n">chaos</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_freq</span> <span class="o">=</span> <span class="n">freq</span>
+        <span class="n">chaos</span><span class="p">,</span> <span class="n">freq</span><span class="p">,</span> <span class="n">init</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">chaos</span><span class="p">,</span> <span class="n">freq</span><span class="p">,</span> <span class="n">init</span><span class="p">,</span> <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">LogiMap_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">chaos</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">init</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">add</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_play</span><span class="p">()</span>
+
+<div class="viewcode-block" id="LogiMap.out"><a class="viewcode-back" href="../../../api/classes/randoms.html#pyo.LogiMap.out">[docs]</a>    <span class="k">def</span> <span class="nf">out</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chnl</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">inc</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">dur</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="LogiMap.setChaos"><a class="viewcode-back" href="../../../api/classes/randoms.html#pyo.LogiMap.setChaos">[docs]</a>    <span class="k">def</span> <span class="nf">setChaos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `chaos` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float or PyoObject</span>
+<span class="sd">                new `chaos` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_chaos</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setChaos</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="LogiMap.setFreq"><a class="viewcode-back" href="../../../api/classes/randoms.html#pyo.LogiMap.setFreq">[docs]</a>    <span class="k">def</span> <span class="nf">setFreq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `freq` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float or PyoObject</span>
+<span class="sd">                new `freq` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_freq</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setFreq</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="LogiMap.ctrl"><a class="viewcode-back" href="../../../api/classes/randoms.html#pyo.LogiMap.ctrl">[docs]</a>    <span class="k">def</span> <span class="nf">ctrl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">map_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wxnoserver</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_map_list</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">SLMap</span><span class="p">(</span><span class="mf">0.001</span><span class="p">,</span> <span class="mf">0.999</span><span class="p">,</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="s2">&quot;chaos&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_chaos</span><span class="p">),</span>
+            <span class="n">SLMap</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">20.0</span><span class="p">,</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="s2">&quot;freq&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_freq</span><span class="p">),</span>
+            <span class="n">SLMapMul</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mul</span><span class="p">),</span>
+        <span class="p">]</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="n">ctrl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">map_list</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">wxnoserver</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">chaos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float or PyoObject. Randomization factor.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_chaos</span>
+
+    <span class="nd">@chaos</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">chaos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setChaos</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">freq</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float or PyoObject. Polling frequency.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_freq</span>
+
+    <span class="nd">@freq</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">freq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setFreq</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">Pyo 1.0.4 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pyo.html" >pyo</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pyo.lib.randoms</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+  </body>
+</html>

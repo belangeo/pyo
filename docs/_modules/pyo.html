@@ -1,0 +1,614 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyo &#8212; Pyo 1.0.4 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/nature.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-codeautolink.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/autoclasstoc.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/E-PyoIcon.ico"/>
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Pyo 1.0.4 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pyo</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyo</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Copyright 2009-2019 Olivier Belanger</span>
+
+<span class="sd">This file is part of pyo, a python module to help digital signal</span>
+<span class="sd">processing script creation.</span>
+
+<span class="sd">pyo is free software: you can redistribute it and/or modify</span>
+<span class="sd">it under the terms of the GNU Lesser General Public License as</span>
+<span class="sd">published by the Free Software Foundation, either version 3 of the</span>
+<span class="sd">License, or (at your option) any later version.</span>
+
+<span class="sd">pyo is distributed in the hope that it will be useful,</span>
+<span class="sd">but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="sd">MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="sd">GNU Lesser General Public License for more details.</span>
+
+<span class="sd">You should have received a copy of the GNU Lesser General Public</span>
+<span class="sd">License along with pyo.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;linux&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;.libs&quot;</span><span class="p">)):</span>
+    <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">_linux_wheel_fix_symlinks</span>
+
+<span class="kn">from</span> <span class="nn">.lib._maps</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.lib</span> <span class="kn">import</span> <span class="n">analysis</span> <span class="k">as</span> <span class="n">analysis</span>
+<span class="kn">from</span> <span class="nn">.lib.analysis</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.lib</span> <span class="kn">import</span> <span class="n">controls</span> <span class="k">as</span> <span class="n">controls</span>
+<span class="kn">from</span> <span class="nn">.lib.controls</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.lib</span> <span class="kn">import</span> <span class="n">dynamics</span> <span class="k">as</span> <span class="n">dynamics</span>
+<span class="kn">from</span> <span class="nn">.lib.dynamics</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.lib</span> <span class="kn">import</span> <span class="n">effects</span> <span class="k">as</span> <span class="n">effects</span>
+<span class="kn">from</span> <span class="nn">.lib.effects</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.lib</span> <span class="kn">import</span> <span class="n">filters</span> <span class="k">as</span> <span class="n">filters</span>
+<span class="kn">from</span> <span class="nn">.lib.filters</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.lib</span> <span class="kn">import</span> <span class="n">generators</span> <span class="k">as</span> <span class="n">generators</span>
+<span class="kn">from</span> <span class="nn">.lib.generators</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.lib</span> <span class="kn">import</span> <span class="n">arithmetic</span> <span class="k">as</span> <span class="n">arithmetic</span>
+<span class="kn">from</span> <span class="nn">.lib.arithmetic</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.lib</span> <span class="kn">import</span> <span class="n">midi</span> <span class="k">as</span> <span class="n">midi</span>
+<span class="kn">from</span> <span class="nn">.lib.midi</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.lib</span> <span class="kn">import</span> <span class="n">opensndctrl</span> <span class="k">as</span> <span class="n">opensndctrl</span>
+<span class="kn">from</span> <span class="nn">.lib.opensndctrl</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.lib</span> <span class="kn">import</span> <span class="n">pan</span> <span class="k">as</span> <span class="n">pan</span>
+<span class="kn">from</span> <span class="nn">.lib.pan</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.lib</span> <span class="kn">import</span> <span class="n">pattern</span> <span class="k">as</span> <span class="n">pattern</span>
+<span class="kn">from</span> <span class="nn">.lib.pattern</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.lib</span> <span class="kn">import</span> <span class="n">randoms</span> <span class="k">as</span> <span class="n">randoms</span>
+<span class="kn">from</span> <span class="nn">.lib.randoms</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.lib.server</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.lib.listener</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.lib</span> <span class="kn">import</span> <span class="n">players</span> <span class="k">as</span> <span class="n">players</span>
+<span class="kn">from</span> <span class="nn">.lib.players</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.lib</span> <span class="kn">import</span> <span class="n">tableprocess</span> <span class="k">as</span> <span class="n">tableprocess</span>
+<span class="kn">from</span> <span class="nn">.lib.tableprocess</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.lib</span> <span class="kn">import</span> <span class="n">matrixprocess</span> <span class="k">as</span> <span class="n">matrixprocess</span>
+<span class="kn">from</span> <span class="nn">.lib.matrixprocess</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.lib.tables</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.lib.matrix</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.lib</span> <span class="kn">import</span> <span class="n">triggers</span> <span class="k">as</span> <span class="n">triggers</span>
+<span class="kn">from</span> <span class="nn">.lib.triggers</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.lib</span> <span class="kn">import</span> <span class="n">utils</span> <span class="k">as</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">.lib.utils</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.lib</span> <span class="kn">import</span> <span class="n">expression</span> <span class="k">as</span> <span class="n">expression</span>
+<span class="kn">from</span> <span class="nn">.lib.expression</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.lib</span> <span class="kn">import</span> <span class="n">fourier</span> <span class="k">as</span> <span class="n">fourier</span>
+<span class="kn">from</span> <span class="nn">.lib.fourier</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.lib</span> <span class="kn">import</span> <span class="n">phasevoc</span> <span class="k">as</span> <span class="n">phasevoc</span>
+<span class="kn">from</span> <span class="nn">.lib.phasevoc</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.lib._core</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.lib.wxgui</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.lib</span> <span class="kn">import</span> <span class="n">wxgui</span> <span class="k">as</span> <span class="n">wxgui</span>
+<span class="kn">from</span> <span class="nn">.lib.hrtf</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.lib</span> <span class="kn">import</span> <span class="n">hrtf</span> <span class="k">as</span> <span class="n">hrtf</span>
+<span class="kn">from</span> <span class="nn">.lib.events</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.lib</span> <span class="kn">import</span> <span class="n">events</span> <span class="k">as</span> <span class="n">events</span>
+<span class="kn">from</span> <span class="nn">.lib.mmlmusic</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.lib</span> <span class="kn">import</span> <span class="n">mmlmusic</span> <span class="k">as</span> <span class="n">mmlmusic</span>
+
+<span class="k">if</span> <span class="n">WITH_EXTERNALS</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">.lib</span> <span class="kn">import</span> <span class="n">external</span> <span class="k">as</span> <span class="n">external</span>
+    <span class="kn">from</span> <span class="nn">.lib.external</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">OBJECTS_TREE</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;functions&quot;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="s2">&quot;pa_count_devices&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pa_get_default_input&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pa_get_default_output&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pm_get_input_devices&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pa_list_devices&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pa_count_host_apis&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pa_list_host_apis&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pa_get_default_host_api&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pa_get_default_devices_from_host&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pm_count_devices&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pm_list_devices&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sndinfo&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;savefile&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pa_get_output_devices&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pa_get_input_devices&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;midiToHz&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;hzToMidi&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;sampsToSec&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;secToSamps&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;example&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;class_args&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pm_get_default_input&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pm_get_output_devices&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pm_get_default_output&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;midiToTranspo&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;getVersion&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;reducePoints&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;serverCreated&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;serverBooted&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;distanceToSegment&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;rescale&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;upsamp&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;downsamp&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;linToCosCurve&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;convertStringToSysEncoding&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;savefileFromTable&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pa_get_input_max_channels&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pa_get_output_max_channels&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pa_get_devices_infos&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pa_get_version&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;pa_get_version_text&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;floatmap&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;getPrecision&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;beatToDur&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+    <span class="p">),</span>
+    <span class="s2">&quot;PyoObjectBase&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;PyoMatrixObject&quot;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">([</span><span class="s2">&quot;NewMatrix&quot;</span><span class="p">]),</span>
+        <span class="s2">&quot;PyoTableObject&quot;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="s2">&quot;LinTable&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;NewTable&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;SndTable&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;HannTable&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;HarmTable&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;SawTable&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;ParaTable&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;LogTable&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;CosLogTable&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;SquareTable&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;TriangleTable&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;ChebyTable&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;CosTable&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;CurveTable&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;ExpTable&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;DataTable&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;WinTable&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;SincTable&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;PartialTable&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;AtanTable&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;PadSynthTable&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;SharedTable&quot;</span><span class="p">,</span>
+            <span class="p">]</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;PyoPVObject&quot;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="s2">&quot;PVAnal&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;PVSynth&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;PVTranspose&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;PVVerb&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;PVGate&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;PVAddSynth&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;PVCross&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;PVMult&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;PVMorph&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;PVFilter&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;PVDelay&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;PVBuffer&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;PVShift&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;PVAmpMod&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;PVFreqMod&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;PVBufLoops&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;PVBufTabLoops&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;PVMix&quot;</span><span class="p">,</span>
+            <span class="p">]</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;PyoObject&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;analysis&quot;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">&quot;Follower&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Follower2&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;ZCross&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Yin&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Centroid&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;AttackDetector&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Scope&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Spectrum&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;PeakAmp&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;RMS&quot;</span><span class="p">,</span>
+                <span class="p">]</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;arithmetic&quot;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">&quot;Sin&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Cos&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Tan&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Abs&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Sqrt&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Log&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Log2&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Log10&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Pow&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Atan2&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Floor&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Round&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Ceil&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Tanh&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Exp&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Div&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Sub&quot;</span><span class="p">,</span>
+                <span class="p">]</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;controls&quot;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">([</span><span class="s2">&quot;Fader&quot;</span><span class="p">,</span> <span class="s2">&quot;Sig&quot;</span><span class="p">,</span> <span class="s2">&quot;SigTo&quot;</span><span class="p">,</span> <span class="s2">&quot;Adsr&quot;</span><span class="p">,</span> <span class="s2">&quot;Linseg&quot;</span><span class="p">,</span> <span class="s2">&quot;Expseg&quot;</span><span class="p">]),</span>
+            <span class="s2">&quot;dynamics&quot;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span>
+                <span class="p">[</span><span class="s2">&quot;Clip&quot;</span><span class="p">,</span> <span class="s2">&quot;Compress&quot;</span><span class="p">,</span> <span class="s2">&quot;Degrade&quot;</span><span class="p">,</span> <span class="s2">&quot;Mirror&quot;</span><span class="p">,</span> <span class="s2">&quot;Wrap&quot;</span><span class="p">,</span> <span class="s2">&quot;Gate&quot;</span><span class="p">,</span> <span class="s2">&quot;Balance&quot;</span><span class="p">,</span> <span class="s2">&quot;Min&quot;</span><span class="p">,</span> <span class="s2">&quot;Max&quot;</span><span class="p">,</span> <span class="s2">&quot;Expand&quot;</span><span class="p">,]</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;effects&quot;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">&quot;Delay&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;SDelay&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Disto&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Freeverb&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Waveguide&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Convolve&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;WGVerb&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;SmoothDelay&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Harmonizer&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Chorus&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;AllpassWG&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;FreqShift&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Vocoder&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Delay1&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;STRev&quot;</span><span class="p">,</span>
+                <span class="p">]</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;filters&quot;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">&quot;Biquad&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;BandSplit&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Port&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Hilbert&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Tone&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;DCBlock&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;EQ&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Allpass&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Allpass2&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Phaser&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Biquadx&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;IRWinSinc&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;IRAverage&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;IRPulse&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;IRFM&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;FourBand&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Biquada&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Atone&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;SVF&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;SVF2&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Average&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Reson&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Resonx&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;ButLP&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;ButHP&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;ButBP&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;ButBR&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;ComplexRes&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;MoogLP&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;MultiBand&quot;</span><span class="p">,</span>
+                <span class="p">]</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;generators&quot;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">&quot;Noise&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Phasor&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Sine&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Input&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;CrossFM&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;SineLoop&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Blit&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;PinkNoise&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;FM&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;LFO&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;BrownNoise&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Rossler&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Lorenz&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;ChenLee&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;SumOsc&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;SuperSaw&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;RCOsc&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;FastSine&quot;</span><span class="p">,</span>
+                <span class="p">]</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;internals&quot;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">([</span><span class="s2">&quot;Dummy&quot;</span><span class="p">,</span> <span class="s2">&quot;InputFader&quot;</span><span class="p">,</span> <span class="s2">&quot;Mix&quot;</span><span class="p">,</span> <span class="s2">&quot;VarPort&quot;</span><span class="p">]),</span>
+            <span class="s2">&quot;midi&quot;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">&quot;Midictl&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;CtlScan&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;CtlScan2&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Notein&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;MidiAdsr&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;MidiDelAdsr&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Bendin&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Touchin&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Programin&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;RawMidi&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;MidiLinseg&quot;</span><span class="p">,</span>
+                <span class="p">]</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;opensndctrl&quot;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">([</span><span class="s2">&quot;OscReceive&quot;</span><span class="p">,</span> <span class="s2">&quot;OscSend&quot;</span><span class="p">,</span> <span class="s2">&quot;OscDataSend&quot;</span><span class="p">,</span> <span class="s2">&quot;OscDataReceive&quot;</span><span class="p">,</span> <span class="s2">&quot;OscListReceive&quot;</span><span class="p">,]),</span>
+            <span class="s2">&quot;pan&quot;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">([</span><span class="s2">&quot;Pan&quot;</span><span class="p">,</span> <span class="s2">&quot;SPan&quot;</span><span class="p">,</span> <span class="s2">&quot;Switch&quot;</span><span class="p">,</span> <span class="s2">&quot;Selector&quot;</span><span class="p">,</span> <span class="s2">&quot;Mixer&quot;</span><span class="p">,</span> <span class="s2">&quot;VoiceManager&quot;</span><span class="p">,</span> <span class="s2">&quot;HRTF&quot;</span><span class="p">,</span> <span class="s2">&quot;Binaural&quot;</span><span class="p">,]),</span>
+            <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">([</span><span class="s2">&quot;Pattern&quot;</span><span class="p">,</span> <span class="s2">&quot;Score&quot;</span><span class="p">,</span> <span class="s2">&quot;CallAfter&quot;</span><span class="p">]),</span>
+            <span class="s2">&quot;randoms&quot;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">&quot;Randi&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Randh&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Choice&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;RandInt&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Xnoise&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;XnoiseMidi&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;RandDur&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;XnoiseDur&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Urn&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;LogiMap&quot;</span><span class="p">,</span>
+                <span class="p">]</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;players&quot;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">([</span><span class="s2">&quot;SfMarkerShuffler&quot;</span><span class="p">,</span> <span class="s2">&quot;SfPlayer&quot;</span><span class="p">,</span> <span class="s2">&quot;SfMarkerLooper&quot;</span><span class="p">]),</span>
+            <span class="s2">&quot;tableprocess&quot;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">&quot;TableRec&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Osc&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Pointer&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Pointer2&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Lookup&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Granulator&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Pulsar&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;OscLoop&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Granule&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;TableRead&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;TableMorph&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Looper&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;TableIndex&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;OscBank&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;OscTrig&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;TablePut&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;TableScale&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Particle&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Particle2&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;TableWrite&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;TableFill&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;TableScan&quot;</span><span class="p">,</span>
+                <span class="p">]</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;matrixprocess&quot;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">([</span><span class="s2">&quot;MatrixRec&quot;</span><span class="p">,</span> <span class="s2">&quot;MatrixPointer&quot;</span><span class="p">,</span> <span class="s2">&quot;MatrixMorph&quot;</span><span class="p">,</span> <span class="s2">&quot;MatrixRecLoop&quot;</span><span class="p">]),</span>
+            <span class="s2">&quot;triggers&quot;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">&quot;Metro&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Beat&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;TrigEnv&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;TrigRand&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Trig&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;TrigRandInt&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Select&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Counter&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;TrigChoice&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;TrigFunc&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Thresh&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Cloud&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;TrigXnoise&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;TrigXnoiseMidi&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Timer&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Count&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Change&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;TrigLinseg&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;TrigExpseg&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Percent&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Seq&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;TrigTableRec&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Iter&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;NextTrig&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;TrigVal&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Euclide&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;TrigBurst&quot;</span><span class="p">,</span>
+                <span class="p">]</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;utils&quot;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">&quot;Clean_objects&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Print&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Snap&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Interp&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;SampHold&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Compare&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Record&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;DBToA&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;AToDB&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Between&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Denorm&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;ControlRec&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;ControlRead&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;NoteinRec&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;NoteinRead&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Scale&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;TrackHold&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;CentsToTranspo&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;TranspoToCents&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;MToF&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;FToM&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;MToT&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Resample&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Expr&quot;</span><span class="p">,</span>
+                <span class="p">]</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;expression&quot;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">([</span><span class="s2">&quot;Expr&quot;</span><span class="p">]),</span>
+            <span class="s2">&quot;mmlmusic&quot;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">([</span><span class="s2">&quot;MML&quot;</span><span class="p">]),</span>
+            <span class="s2">&quot;fourier&quot;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span>
+                <span class="p">[</span><span class="s2">&quot;FFT&quot;</span><span class="p">,</span> <span class="s2">&quot;IFFT&quot;</span><span class="p">,</span> <span class="s2">&quot;CarToPol&quot;</span><span class="p">,</span> <span class="s2">&quot;PolToCar&quot;</span><span class="p">,</span> <span class="s2">&quot;IFFTMatrix&quot;</span><span class="p">,</span> <span class="s2">&quot;FrameDelta&quot;</span><span class="p">,</span> <span class="s2">&quot;FrameAccum&quot;</span><span class="p">,</span> <span class="s2">&quot;Vectral&quot;</span><span class="p">,</span> <span class="s2">&quot;CvlVerb&quot;</span><span class="p">,]</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;events&quot;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">&quot;EventInstrument&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;DefaultInstrument&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;EventScale&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;EventGenerator&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;EventDummy&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;EventFilter&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;EventKey&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;EventSeq&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;EventSlide&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;EventIndex&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;EventMarkov&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;EventChoice&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;EventDrunk&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;EventNoise&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;EventCall&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;EventConditional&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Events&quot;</span><span class="p">,</span>
+                <span class="p">]</span>
+            <span class="p">),</span>
+        <span class="p">},</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;Map&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;SLMap&quot;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">([</span><span class="s2">&quot;SLMapFreq&quot;</span><span class="p">,</span> <span class="s2">&quot;SLMapMul&quot;</span><span class="p">,</span> <span class="s2">&quot;SLMapPhase&quot;</span><span class="p">,</span> <span class="s2">&quot;SLMapQ&quot;</span><span class="p">,</span> <span class="s2">&quot;SLMapDur&quot;</span><span class="p">,</span> <span class="s2">&quot;SLMapPan&quot;</span><span class="p">])},</span>
+    <span class="s2">&quot;Server&quot;</span><span class="p">:</span> <span class="p">[],</span>
+    <span class="s2">&quot;MidiListener&quot;</span><span class="p">:</span> <span class="p">[],</span>
+    <span class="s2">&quot;MidiDispatcher&quot;</span><span class="p">:</span> <span class="p">[],</span>
+    <span class="s2">&quot;OscListener&quot;</span><span class="p">:</span> <span class="p">[],</span>
+    <span class="s2">&quot;Stream&quot;</span><span class="p">:</span> <span class="p">[],</span>
+    <span class="s2">&quot;TableStream&quot;</span><span class="p">:</span> <span class="p">[],</span>
+    <span class="s2">&quot;PyoGui&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;PyoGuiControlSlider&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;PyoGuiVuMeter&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;PyoGuiGrapher&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;PyoGuiMultiSlider&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;PyoGuiSpectrum&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;PyoGuiScope&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;PyoGuiSndView&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;PyoGuiKeyboard&quot;</span><span class="p">,</span>
+    <span class="p">],</span>
+<span class="p">}</span>
+
+<span class="n">DOC_KEYWORDS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;Attributes&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Examples&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Parameters&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Methods&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Notes&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Methods details&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;See also&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Parentclass&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<div class="viewcode-block" id="getPyoKeywords"><a class="viewcode-back" href="../api/functions/util.html#pyo.getPyoKeywords">[docs]</a><span class="k">def</span> <span class="nf">getPyoKeywords</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns a list of every keywords (classes and functions) of pyo.</span>
+
+<span class="sd">    &gt;&gt;&gt; keywords = getPyoKeywords()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">tree</span> <span class="o">=</span> <span class="n">OBJECTS_TREE</span>
+    <span class="n">_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">k1</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">tree</span><span class="p">[</span><span class="n">k1</span><span class="p">])</span> <span class="o">==</span> <span class="nb">type</span><span class="p">({}):</span>
+            <span class="k">for</span> <span class="n">k2</span> <span class="ow">in</span> <span class="n">tree</span><span class="p">[</span><span class="n">k1</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">tree</span><span class="p">[</span><span class="n">k1</span><span class="p">][</span><span class="n">k2</span><span class="p">])</span> <span class="o">==</span> <span class="nb">type</span><span class="p">({}):</span>
+                    <span class="k">for</span> <span class="n">k3</span> <span class="ow">in</span> <span class="n">tree</span><span class="p">[</span><span class="n">k1</span><span class="p">][</span><span class="n">k2</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                        <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">tree</span><span class="p">[</span><span class="n">k1</span><span class="p">][</span><span class="n">k2</span><span class="p">][</span><span class="n">k3</span><span class="p">]:</span>
+                            <span class="n">_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">tree</span><span class="p">[</span><span class="n">k1</span><span class="p">][</span><span class="n">k2</span><span class="p">]:</span>
+                        <span class="n">_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">tree</span><span class="p">[</span><span class="n">k1</span><span class="p">]:</span>
+                <span class="n">_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+    <span class="n">_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+        <span class="p">[</span><span class="s2">&quot;PyoObjectBase&quot;</span><span class="p">,</span> <span class="s2">&quot;PyoObject&quot;</span><span class="p">,</span> <span class="s2">&quot;PyoTableObject&quot;</span><span class="p">,</span> <span class="s2">&quot;PyoMatrixObject&quot;</span><span class="p">,</span> <span class="s2">&quot;PyoPVObject&quot;</span><span class="p">,]</span>
+    <span class="p">)</span>
+    <span class="n">_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+        <span class="p">[</span><span class="s2">&quot;Server&quot;</span><span class="p">,</span> <span class="s2">&quot;Map&quot;</span><span class="p">,</span> <span class="s2">&quot;SLMap&quot;</span><span class="p">,</span> <span class="s2">&quot;MidiListener&quot;</span><span class="p">,</span> <span class="s2">&quot;MidiDispatcher&quot;</span><span class="p">,</span> <span class="s2">&quot;OscListener&quot;</span><span class="p">,</span> <span class="s2">&quot;Stream&quot;</span><span class="p">,</span> <span class="s2">&quot;TableStream&quot;</span><span class="p">,]</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">_list</span></div>
+
+
+<div class="viewcode-block" id="getPyoExamples"><a class="viewcode-back" href="../api/functions/util.html#pyo.getPyoExamples">[docs]</a><span class="k">def</span> <span class="nf">getPyoExamples</span><span class="p">(</span><span class="n">fullpath</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns a listing of the examples, as a dictionary, installed with pyo.</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        fullpath: boolean</span>
+<span class="sd">            If True, the full path of each file is returned. Otherwise, only the</span>
+<span class="sd">            filenames are listed.</span>
+
+<span class="sd">    &gt;&gt;&gt; examples = getPyoExamples()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">folder</span> <span class="o">=</span> <span class="s2">&quot;examples&quot;</span>
+    <span class="n">filedir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+    <span class="n">subfolders</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">filedir</span><span class="p">,</span> <span class="n">folder</span><span class="p">))</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">f</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;__&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">f</span> <span class="o">==</span> <span class="s2">&quot;snds&quot;</span><span class="p">]</span>
+    <span class="n">examples</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">subfolder</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">subfolders</span><span class="p">):</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">filedir</span><span class="p">,</span> <span class="n">folder</span><span class="p">,</span> <span class="n">subfolder</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">fullpath</span><span class="p">:</span>
+            <span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">f</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;__&quot;</span><span class="p">)]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">f</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;__&quot;</span><span class="p">)]</span>
+        <span class="n">examples</span><span class="p">[</span><span class="n">subfolder</span><span class="p">]</span> <span class="o">=</span> <span class="n">files</span>
+    <span class="k">return</span> <span class="n">examples</span></div>
+
+
+<span class="n">OBJECTS_TREE</span><span class="p">[</span><span class="s2">&quot;functions&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">OBJECTS_TREE</span><span class="p">[</span><span class="s2">&quot;functions&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;getPyoKeywords&quot;</span><span class="p">,</span> <span class="s2">&quot;getPyoExamples&quot;</span><span class="p">])</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Pyo 1.0.4 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pyo</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+  </body>
+</html>

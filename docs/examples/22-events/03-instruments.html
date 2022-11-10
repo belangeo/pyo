@@ -1,0 +1,140 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>03-instruments.py - Using custom instrument with events. — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="04-custom-params.html" rel="next" title="04-custom-params.py - Passing custom parameters to the instrument."/>
+<link href="02-parameters.html" rel="prev" title="02-parameters.py - Built-in arguments and conversions."/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="04-custom-params.html" title="04-custom-params.py - Passing custom parameters to the instrument.">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="02-parameters.html" title="02-parameters.py - Built-in arguments and conversions.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a accesskey="U" href="index.html">22-events</a> »</li>
+<li class="nav-item nav-item-this"><a href="">03-instruments.py - Using custom instrument with events.</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="instruments-py-using-custom-instrument-with-events">
+<h1>03-instruments.py - Using custom instrument with events.<a class="headerlink" href="#instruments-py-using-custom-instrument-with-events" title="Permalink to this headline">¶</a></h1>
+<p>The default instrument ( DefaultInstrument ) is a basic stereo RC oscillator
+passing through reverberation unit. For the events framework to be really
+useful, it has to give the user the opportunity to use his own instruments.
+Composing an instrument is very simple.</p>
+<p>An Events’s instrument must be derived from the EventInstrument class. Its
+signature must be:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">InstrumentName</span><span class="p">(</span><span class="n">EventInstrument</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">args</span><span class="p">):</span>
+        <span class="n">EventInstrument</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">args</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The EventInstrument is responsible for the creation of the envelope, accessible
+through the variable self.env, and also for clearing its resources when it’s done
+playing.</p>
+<p>All arguments given to the Events object can be retrieved in our instrument with
+the syntax self.argument_name (ex.: self.freq).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="../../api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
+
+
+<span class="k">class</span> <span class="nc">MyInstrument</span><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/classes/events.html#pyo.EventInstrument" title="pyo.lib.events.EventInstrument"><span class="n">EventInstrument</span></a><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">args</span><span class="p">):</span>
+        <span class="n">EventInstrument</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">args</span><span class="p">)</span>
+
+        <span class="c1"># self.freq is derived from the 'degree' argument.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Phasor" title="pyo.lib.generators.Phasor"><span class="n">Phasor</span></a><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">freq</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">freq</span> <span class="o">*</span> <span class="mf">1.003</span><span class="p">])</span>
+
+        <span class="c1"># self.dur is derived from the 'beat' argument.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">duty</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Expseg" title="pyo.lib.controls.Expseg"><span class="n">Expseg</span></a><span class="p">([(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">),</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dur</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)],</span> <span class="n">exp</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">osc</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/utils.html#pyo.Compare" title="pyo.lib._core.Compare"><span class="n">Compare</span></a><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phase</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">duty</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"&lt;"</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">add</span><span class="o">=-</span><span class="mf">0.5</span><span class="p">)</span>
+
+        <span class="c1"># EventInstrument created the amplitude envelope as self.env.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filt</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/filters.html#pyo.ButLP" title="pyo.lib.filters.ButLP"><span class="n">ButLP</span></a><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">osc</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="mi">5000</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+
+
+<span class="c1"># We tell the Events object which instrument to use with the 'instr' argument.</span>
+<span class="n">e</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/events.html#pyo.Events" title="pyo.lib.events.Events"><span class="n">Events</span></a><span class="p">(</span>
+    <span class="n">instr</span><span class="o">=</span><span class="n">MyInstrument</span><span class="p">,</span>
+    <span class="n">degree</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/events.html#pyo.EventSeq" title="pyo.lib.events.EventSeq"><span class="n">EventSeq</span></a><span class="p">([</span><span class="mf">5.00</span><span class="p">,</span> <span class="mf">5.04</span><span class="p">,</span> <span class="mf">5.07</span><span class="p">,</span> <span class="mf">6.00</span><span class="p">]),</span>
+    <span class="n">beat</span><span class="o">=</span><span class="mi">1</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">,</span>
+    <span class="n">db</span><span class="o">=-</span><span class="mi">12</span><span class="p">,</span>
+    <span class="n">attack</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span>
+    <span class="n">decay</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+    <span class="n">sustain</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">release</span><span class="o">=</span><span class="mf">0.005</span><span class="p">,</span>
+<span class="p">)</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h4>Previous topic</h4>
+<p class="topless"><a href="02-parameters.html" title="previous chapter">02-parameters.py - Built-in arguments and conversions.</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="04-custom-params.html" title="next chapter">04-custom-params.py - Passing custom parameters to the instrument.</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="04-custom-params.html" title="04-custom-params.py - Passing custom parameters to the instrument.">next</a> |</li>
+<li class="right">
+<a href="02-parameters.html" title="02-parameters.py - Built-in arguments and conversions.">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="index.html">22-events</a> »</li>
+<li class="nav-item nav-item-this"><a href="">03-instruments.py - Using custom instrument with events.</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

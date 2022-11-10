@@ -1,0 +1,378 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
+<title>Audio Setup — Pyo 1.0.4 documentation</title>
+<link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
+<script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+<script src="../../_static/jquery.js"></script>
+<script src="../../_static/underscore.js"></script>
+<script src="../../_static/doctools.js"></script>
+<link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
+<link href="../../about.html" rel="author" title="About these documents"/>
+<link href="../../genindex.html" rel="index" title="Index"/>
+<link href="../../search.html" rel="search" title="Search"/>
+<link href="midi.html" rel="next" title="Midi Setup"/>
+<link href="index.html" rel="prev" title="Functions"/>
+</head><body>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a accesskey="N" href="midi.html" title="Midi Setup">next</a> |</li>
+<li class="right">
+<a accesskey="P" href="index.html" title="Functions">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="../index.html">API documentation</a> »</li>
+<li class="nav-item nav-item-2"><a accesskey="U" href="index.html">Functions</a> »</li>
+<li class="nav-item nav-item-this"><a href="">Audio Setup</a></li>
+</ul>
+</div>
+<div class="document">
+<div class="documentwrapper">
+<div class="bodywrapper">
+<div class="body" role="main">
+<section id="audio-setup">
+<h1>Audio Setup<a class="headerlink" href="#audio-setup" title="Permalink to this headline">¶</a></h1>
+<p>Set of functions to inspect the system’s audio configuration.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>These functions are available only if pyo is built with portaudio support.</p>
+</div>
+<section id="pa-get-version">
+<h2><em>pa_get_version</em><a class="headerlink" href="#pa-get-version" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyo.pa_get_version">
+<span class="sig-name descname"><span class="pre">pa_get_version</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyo.pa_get_version" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the version number, as an integer, of the current portaudio installation.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">v</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/functions/audio.html#pyo.pa_get_version" title="pyo.pa_get_version"><span class="n">pa_get_version</span></a><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+<span class="go">1899</span>
+</pre></div>
+</div>
+</dd></dl>
+</section>
+<section id="pa-get-version-text">
+<h2><em>pa_get_version_text</em><a class="headerlink" href="#pa-get-version-text" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyo.pa_get_version_text">
+<span class="sig-name descname"><span class="pre">pa_get_version_text</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyo.pa_get_version_text" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the textual description of the current portaudio installation.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">desc</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/functions/audio.html#pyo.pa_get_version_text" title="pyo.pa_get_version_text"><span class="n">pa_get_version_text</span></a><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">desc</span><span class="p">)</span>
+<span class="go">PortAudio V19-devel (built Oct 8 2012 16:25:16)</span>
+</pre></div>
+</div>
+</dd></dl>
+</section>
+<section id="pa-count-host-apis">
+<h2><em>pa_count_host_apis</em><a class="headerlink" href="#pa-count-host-apis" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyo.pa_count_host_apis">
+<span class="sig-name descname"><span class="pre">pa_count_host_apis</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyo.pa_count_host_apis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of host apis found by Portaudio.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">c</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/functions/audio.html#pyo.pa_count_host_apis" title="pyo.pa_count_host_apis"><span class="n">pa_count_host_apis</span></a><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+<span class="go">1</span>
+</pre></div>
+</div>
+</dd></dl>
+</section>
+<section id="pa-list-host-apis">
+<h2><em>pa_list_host_apis</em><a class="headerlink" href="#pa-list-host-apis" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyo.pa_list_host_apis">
+<span class="sig-name descname"><span class="pre">pa_list_host_apis</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyo.pa_list_host_apis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prints a list of all host apis found by Portaudio.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/functions/audio.html#pyo.pa_list_host_apis" title="pyo.pa_list_host_apis"><span class="n">pa_list_host_apis</span></a><span class="p">()</span>
+<span class="go">index: 0, id: 5, name: Core Audio, num devices: 6, default in: 0, default out: 2</span>
+</pre></div>
+</div>
+</dd></dl>
+</section>
+<section id="pa-get-default-host-api">
+<h2><em>pa_get_default_host_api</em><a class="headerlink" href="#pa-get-default-host-api" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyo.pa_get_default_host_api">
+<span class="sig-name descname"><span class="pre">pa_get_default_host_api</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyo.pa_get_default_host_api" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the index number of Portaudio’s default host api.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">h</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/functions/audio.html#pyo.pa_get_default_host_api" title="pyo.pa_get_default_host_api"><span class="n">pa_get_default_host_api</span></a><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">h</span><span class="p">)</span>
+<span class="go">0</span>
+</pre></div>
+</div>
+</dd></dl>
+</section>
+<section id="pa-get-default-devices-from-host">
+<h2><em>pa_get_default_devices_from_host</em><a class="headerlink" href="#pa-get-default-devices-from-host" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyo.pa_get_default_devices_from_host">
+<span class="sig-name descname"><span class="pre">pa_get_default_devices_from_host</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">host</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#pa_get_default_devices_from_host"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.pa_get_default_devices_from_host" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the default input and output devices for a given audio host.</p>
+<p>This function can greatly help finding the device indexes (especially
+on Windows) to give to the server in order to use to desired audio host.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>host: string</dt><dd><p>Name of the desired audio host. Possible hosts are:</p>
+<ul class="simple">
+<li><p>For Windows: mme, directsound, asio, wasapi or wdm-ks.</p></li>
+<li><p>For linux: alsa, oss, pulse or jack.</p></li>
+<li><p>For MacOS: core audio, jack or soundflower.</p></li>
+</ul>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>Return: (default_input_device, default_output_device)</p>
+</dd></dl>
+</section>
+<section id="pa-count-devices">
+<h2><em>pa_count_devices</em><a class="headerlink" href="#pa-count-devices" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyo.pa_count_devices">
+<span class="sig-name descname"><span class="pre">pa_count_devices</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyo.pa_count_devices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of devices found by Portaudio.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">c</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/functions/audio.html#pyo.pa_count_devices" title="pyo.pa_count_devices"><span class="n">pa_count_devices</span></a><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+<span class="go">6</span>
+</pre></div>
+</div>
+</dd></dl>
+</section>
+<section id="pa-list-devices">
+<h2><em>pa_list_devices</em><a class="headerlink" href="#pa-list-devices" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyo.pa_list_devices">
+<span class="sig-name descname"><span class="pre">pa_list_devices</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyo.pa_list_devices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prints a list of all devices found by Portaudio.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/functions/audio.html#pyo.pa_list_devices" title="pyo.pa_list_devices"><span class="n">pa_list_devices</span></a><span class="p">()</span>
+<span class="go">AUDIO devices:</span>
+<span class="go">0: IN, name: Built-in Microphone, host api index: 0, default sr: 44100 Hz, latency: 0.001088 s</span>
+<span class="go">1: IN, name: Built-in Input, host api index: 0, default sr: 44100 Hz, latency: 0.001088 s</span>
+<span class="go">2: OUT, name: Built-in Output, host api index: 0, default sr: 44100 Hz, latency: 0.001088 s</span>
+<span class="go">3: IN, name: UA-4FX, host api index: 0, default sr: 44100 Hz, latency: 0.010000 s</span>
+<span class="go">3: OUT, name: UA-4FX, host api index: 0, default sr: 44100 Hz, latency: 0.003061 s</span>
+<span class="go">4: IN, name: Soundflower (2ch), host api index: 0, default sr: 44100 Hz, latency: 0.010000 s</span>
+<span class="go">4: OUT, name: Soundflower (2ch), host api index: 0, default sr: 44100 Hz, latency: 0.000000 s</span>
+<span class="go">5: IN, name: Soundflower (16ch), host api index: 0, default sr: 44100 Hz, latency: 0.010000 s</span>
+<span class="go">5: OUT, name: Soundflower (16ch), host api index: 0, default sr: 44100 Hz, latency: 0.000000 s</span>
+</pre></div>
+</div>
+</dd></dl>
+</section>
+<section id="pa-get-devices-infos">
+<h2><em>pa_get_devices_infos</em><a class="headerlink" href="#pa-get-devices-infos" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyo.pa_get_devices_infos">
+<span class="sig-name descname"><span class="pre">pa_get_devices_infos</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyo.pa_get_devices_infos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns informations about all devices found by Portaudio.</p>
+<p>This function returns two dictionaries, one containing a dictionary for each input device and one containing a dictionary for each output device. Keys of outer dictionaries are the device index as returned by Portaudio. Keys of inner dictionaries are: ‘name’, ‘host api index’, ‘default sr’ and ‘latency’.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/functions/audio.html#pyo.pa_get_devices_infos" title="pyo.pa_get_devices_infos"><span class="n">pa_get_devices_infos</span></a><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s1">'- Inputs:'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">inputs</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="s1">'  Device index:'</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'name'</span><span class="p">,</span> <span class="s1">'host api index'</span><span class="p">,</span> <span class="s1">'default sr'</span><span class="p">,</span> <span class="s1">'latency'</span><span class="p">]:</span>
+<span class="gp">... </span>        <span class="nb">print</span><span class="p">(</span><span class="s1">'    </span><span class="si">%s</span><span class="s1">:'</span> <span class="o">%</span> <span class="n">key</span><span class="p">,</span> <span class="n">inputs</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="n">key</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s1">'- Outputs:'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">outputs</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="s1">'  Device index:'</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'name'</span><span class="p">,</span> <span class="s1">'host api index'</span><span class="p">,</span> <span class="s1">'default sr'</span><span class="p">,</span> <span class="s1">'latency'</span><span class="p">]:</span>
+<span class="gp">... </span>        <span class="nb">print</span><span class="p">(</span><span class="s1">'    </span><span class="si">%s</span><span class="s1">:'</span> <span class="o">%</span> <span class="n">key</span><span class="p">,</span> <span class="n">outputs</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="n">key</span><span class="p">])</span>
+</pre></div>
+</div>
+</dd></dl>
+</section>
+<section id="pa-get-input-devices">
+<h2><em>pa_get_input_devices</em><a class="headerlink" href="#pa-get-input-devices" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyo.pa_get_input_devices">
+<span class="sig-name descname"><span class="pre">pa_get_input_devices</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyo.pa_get_input_devices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns input devices (device names, device indexes) found by Portaudio.</p>
+<p><cite>device names</cite> is a list of strings and <cite>device indexes</cite> is a list of the actual
+Portaudio index of each device.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ins</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/functions/audio.html#pyo.pa_get_input_devices" title="pyo.pa_get_input_devices"><span class="n">pa_get_input_devices</span></a><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ins</span><span class="p">)</span>
+<span class="go">(['Built-in Microphone', 'Built-in Input', 'UA-4FX', 'Soundflower (2ch)', 'Soundflower (16ch)'], [0, 1, 3, 4, 5])</span>
+</pre></div>
+</div>
+</dd></dl>
+</section>
+<section id="pa-get-output-devices">
+<h2><em>pa_get_output_devices</em><a class="headerlink" href="#pa-get-output-devices" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyo.pa_get_output_devices">
+<span class="sig-name descname"><span class="pre">pa_get_output_devices</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyo.pa_get_output_devices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns output devices (device names, device indexes) found by Portaudio.</p>
+<p><cite>device names</cite> is a list of strings and <cite>device indexes</cite> is a list of the actual
+Portaudio index of each device.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">outs</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/functions/audio.html#pyo.pa_get_output_devices" title="pyo.pa_get_output_devices"><span class="n">pa_get_output_devices</span></a><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">outs</span><span class="p">)</span>
+<span class="go">(['Built-in Output', 'UA-4FX', 'Soundflower (2ch)', 'Soundflower (16ch)'], [2, 3, 4, 5])</span>
+</pre></div>
+</div>
+</dd></dl>
+</section>
+<section id="pa-get-default-input">
+<h2><em>pa_get_default_input</em><a class="headerlink" href="#pa-get-default-input" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyo.pa_get_default_input">
+<span class="sig-name descname"><span class="pre">pa_get_default_input</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyo.pa_get_default_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the index number of Portaudio’s default input device.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">names</span><span class="p">,</span> <span class="n">indexes</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/functions/audio.html#pyo.pa_get_input_devices" title="pyo.pa_get_input_devices"><span class="n">pa_get_input_devices</span></a><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">name</span> <span class="o">=</span> <span class="n">names</span><span class="p">[</span><span class="n">indexes</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/functions/audio.html#pyo.pa_get_default_input" title="pyo.pa_get_default_input"><span class="n">pa_get_default_input</span></a><span class="p">())]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+<span class="go">'Built-in Microphone'</span>
+</pre></div>
+</div>
+</dd></dl>
+</section>
+<section id="pa-get-default-output">
+<h2><em>pa_get_default_output</em><a class="headerlink" href="#pa-get-default-output" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyo.pa_get_default_output">
+<span class="sig-name descname"><span class="pre">pa_get_default_output</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyo.pa_get_default_output" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the index number of Portaudio’s default output device.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">names</span><span class="p">,</span> <span class="n">indexes</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/functions/audio.html#pyo.pa_get_output_devices" title="pyo.pa_get_output_devices"><span class="n">pa_get_output_devices</span></a><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">name</span> <span class="o">=</span> <span class="n">names</span><span class="p">[</span><span class="n">indexes</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><a class="sphinx-codeautolink-a" href="../../api/functions/audio.html#pyo.pa_get_default_output" title="pyo.pa_get_default_output"><span class="n">pa_get_default_output</span></a><span class="p">())]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+<span class="go">'UA-4FX'</span>
+</pre></div>
+</div>
+</dd></dl>
+</section>
+<section id="pa-get-input-max-channels">
+<h2><em>pa_get_input_max_channels</em><a class="headerlink" href="#pa-get-input-max-channels" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyo.pa_get_input_max_channels">
+<span class="sig-name descname"><span class="pre">pa_get_input_max_channels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyo.pa_get_input_max_channels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the maximum number of input channels for the specified device.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>x: int</dt><dd><p>Device index as listed by Portaudio (see pa_get_input_devices).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">device</span> <span class="o">=</span> <span class="s1">'HDA Intel PCH: STAC92xx Analog (hw:0,0)'</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dev_list</span><span class="p">,</span> <span class="n">dev_index</span> <span class="o">=</span>  <a class="sphinx-codeautolink-a" href="../../api/functions/audio.html#pyo.pa_get_output_devices" title="pyo.pa_get_output_devices"><span class="n">pa_get_output_devices</span></a><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dev</span> <span class="o">=</span> <span class="n">dev_index</span><span class="p">[</span><span class="n">dev_list</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">device</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s1">'Device index:'</span><span class="p">,</span> <span class="n">dev</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">maxouts</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/functions/audio.html#pyo.pa_get_output_max_channels" title="pyo.pa_get_output_max_channels"><span class="n">pa_get_output_max_channels</span></a><span class="p">(</span><span class="n">dev</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">maxins</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/functions/audio.html#pyo.pa_get_input_max_channels" title="pyo.pa_get_input_max_channels"><span class="n">pa_get_input_max_channels</span></a><span class="p">(</span><span class="n">dev</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s1">'Max outputs'</span><span class="p">,</span> <span class="n">maxouts</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s1">'Max inputs:'</span><span class="p">,</span> <span class="n">maxins</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">if</span> <span class="n">maxouts</span> <span class="o">&gt;=</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">maxins</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">nchnls</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">else</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">nchnls</span> <span class="o">=</span> <span class="mi">1</span>
+</pre></div>
+</div>
+</dd></dl>
+</section>
+<section id="pa-get-output-max-channels">
+<h2><em>pa_get_output_max_channels</em><a class="headerlink" href="#pa-get-output-max-channels" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyo.pa_get_output_max_channels">
+<span class="sig-name descname"><span class="pre">pa_get_output_max_channels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyo.pa_get_output_max_channels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the maximum number of output channels for the specified device.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>x: int</dt><dd><p>Device index as listed by Portaudio (see pa_get_output_devices).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">device</span> <span class="o">=</span> <span class="s1">'HDA Intel PCH: STAC92xx Analog (hw:0,0)'</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dev_list</span><span class="p">,</span> <span class="n">dev_index</span> <span class="o">=</span>  <a class="sphinx-codeautolink-a" href="../../api/functions/audio.html#pyo.pa_get_output_devices" title="pyo.pa_get_output_devices"><span class="n">pa_get_output_devices</span></a><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dev</span> <span class="o">=</span> <span class="n">dev_index</span><span class="p">[</span><span class="n">dev_list</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">device</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s1">'Device index:'</span><span class="p">,</span> <span class="n">dev</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">maxouts</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/functions/audio.html#pyo.pa_get_output_max_channels" title="pyo.pa_get_output_max_channels"><span class="n">pa_get_output_max_channels</span></a><span class="p">(</span><span class="n">dev</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">maxins</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/functions/audio.html#pyo.pa_get_input_max_channels" title="pyo.pa_get_input_max_channels"><span class="n">pa_get_input_max_channels</span></a><span class="p">(</span><span class="n">dev</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s1">'Max outputs:'</span><span class="p">,</span> <span class="n">maxouts</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s1">'Max inputs:'</span><span class="p">,</span> <span class="n">maxins</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">if</span> <span class="n">maxouts</span> <span class="o">&gt;=</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">maxins</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">nchnls</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">else</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">nchnls</span> <span class="o">=</span> <span class="mi">1</span>
+</pre></div>
+</div>
+</dd></dl>
+</section>
+</section>
+<div class="clearer"></div>
+</div>
+</div>
+</div>
+<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
+<div class="sphinxsidebarwrapper">
+<h3><a href="../../index.html">Table of Contents</a></h3>
+<ul>
+<li><a class="reference internal" href="#">Audio Setup</a><ul>
+<li><a class="reference internal" href="#pa-get-version"><em>pa_get_version</em></a></li>
+<li><a class="reference internal" href="#pa-get-version-text"><em>pa_get_version_text</em></a></li>
+<li><a class="reference internal" href="#pa-count-host-apis"><em>pa_count_host_apis</em></a></li>
+<li><a class="reference internal" href="#pa-list-host-apis"><em>pa_list_host_apis</em></a></li>
+<li><a class="reference internal" href="#pa-get-default-host-api"><em>pa_get_default_host_api</em></a></li>
+<li><a class="reference internal" href="#pa-get-default-devices-from-host"><em>pa_get_default_devices_from_host</em></a></li>
+<li><a class="reference internal" href="#pa-count-devices"><em>pa_count_devices</em></a></li>
+<li><a class="reference internal" href="#pa-list-devices"><em>pa_list_devices</em></a></li>
+<li><a class="reference internal" href="#pa-get-devices-infos"><em>pa_get_devices_infos</em></a></li>
+<li><a class="reference internal" href="#pa-get-input-devices"><em>pa_get_input_devices</em></a></li>
+<li><a class="reference internal" href="#pa-get-output-devices"><em>pa_get_output_devices</em></a></li>
+<li><a class="reference internal" href="#pa-get-default-input"><em>pa_get_default_input</em></a></li>
+<li><a class="reference internal" href="#pa-get-default-output"><em>pa_get_default_output</em></a></li>
+<li><a class="reference internal" href="#pa-get-input-max-channels"><em>pa_get_input_max_channels</em></a></li>
+<li><a class="reference internal" href="#pa-get-output-max-channels"><em>pa_get_output_max_channels</em></a></li>
+</ul>
+</li>
+</ul>
+<h4>Previous topic</h4>
+<p class="topless"><a href="index.html" title="previous chapter">Functions</a></p>
+<h4>Next topic</h4>
+<p class="topless"><a href="midi.html" title="next chapter">Midi Setup</a></p>
+<div id="searchbox" role="search" style="display: none">
+<h3 id="searchlabel">Quick search</h3>
+<div class="searchformwrapper">
+<form action="../../search.html" class="search" method="get">
+<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+</div>
+<div class="clearer"></div>
+</div>
+<div aria-label="related navigation" class="related" role="navigation">
+<h3>Navigation</h3>
+<ul>
+<li class="right" style="margin-right: 10px">
+<a href="../../genindex.html" title="General Index">index</a></li>
+<li class="right">
+<a href="midi.html" title="Midi Setup">next</a> |</li>
+<li class="right">
+<a href="index.html" title="Functions">previous</a> |</li>
+<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
+<li class="nav-item nav-item-1"><a href="../index.html">API documentation</a> »</li>
+<li class="nav-item nav-item-2"><a href="index.html">Functions</a> »</li>
+<li class="nav-item nav-item-this"><a href="">Audio Setup</a></li>
+</ul>
+</div>
+<div class="footer" role="contentinfo">
+        © Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+</body>
+</html>

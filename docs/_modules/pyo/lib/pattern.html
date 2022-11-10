@@ -1,0 +1,470 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyo.lib.pattern &#8212; Pyo 1.0.4 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/nature.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-codeautolink.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/autoclasstoc.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../../../_static/E-PyoIcon.ico"/>
+    <link rel="author" title="About these documents" href="../../../about.html" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">Pyo 1.0.4 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pyo.html" accesskey="U">pyo</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pyo.lib.pattern</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyo.lib.pattern</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Set of objects that call Python functions from triggers or number counts.</span>
+<span class="sd">Useful for event sequencing.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Copyright 2009-2015 Olivier Belanger</span>
+
+<span class="sd">This file is part of pyo, a python module to help digital signal</span>
+<span class="sd">processing script creation.</span>
+
+<span class="sd">pyo is free software: you can redistribute it and/or modify</span>
+<span class="sd">it under the terms of the GNU Lesser General Public License as</span>
+<span class="sd">published by the Free Software Foundation, either version 3 of the</span>
+<span class="sd">License, or (at your option) any later version.</span>
+
+<span class="sd">pyo is distributed in the hope that it will be useful,</span>
+<span class="sd">but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="sd">MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="sd">GNU Lesser General Public License for more details.</span>
+
+<span class="sd">You should have received a copy of the GNU Lesser General Public</span>
+<span class="sd">License along with pyo.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">._core</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">._maps</span> <span class="kn">import</span> <span class="o">*</span>
+
+
+<div class="viewcode-block" id="Pattern"><a class="viewcode-back" href="../../../api/classes/pattern.html#pyo.Pattern">[docs]</a><span class="k">class</span> <span class="nc">Pattern</span><span class="p">(</span><span class="n">PyoObject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Periodically calls a Python function.</span>
+
+<span class="sd">    The play() method starts the pattern timer and is not called</span>
+<span class="sd">    at the object creation time.</span>
+
+<span class="sd">    :Parent: :py:class:`PyoObject`</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        function: Python callable (function or method)</span>
+<span class="sd">            Python function to be called periodically.</span>
+<span class="sd">        time: float or PyoObject, optional</span>
+<span class="sd">            Time, in seconds, between each call. Default to 1.</span>
+<span class="sd">        arg: anything, optional</span>
+<span class="sd">            Argument sent to the function&#39;s call. If None, the function</span>
+<span class="sd">            will be called without argument. Defaults to None.</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        The out() method is bypassed. Pattern doesn&#39;t return signal.</span>
+
+<span class="sd">        Pattern has no `mul` and `add` attributes.</span>
+
+<span class="sd">        If `arg` is None, the function must be defined without argument:</span>
+
+<span class="sd">        &gt;&gt;&gt; def tocall():</span>
+<span class="sd">        &gt;&gt;&gt;     pass # function&#39;s body</span>
+
+<span class="sd">        If `arg` is not None, the function must be defined with one argument:</span>
+
+<span class="sd">        &gt;&gt;&gt; def tocall(arg):</span>
+<span class="sd">        &gt;&gt;&gt;     print(arg)</span>
+
+<span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
+<span class="sd">    &gt;&gt;&gt; s.start()</span>
+<span class="sd">    &gt;&gt;&gt; t = HarmTable([1,0,.33,0,.2,0,.143,0,.111])</span>
+<span class="sd">    &gt;&gt;&gt; a = Osc(table=t, freq=[250,251], mul=.2).out()</span>
+<span class="sd">    &gt;&gt;&gt; def pat():</span>
+<span class="sd">    ...     f = random.randrange(200, 401, 25)</span>
+<span class="sd">    ...     a.freq = [f, f+1]</span>
+<span class="sd">    &gt;&gt;&gt; p = Pattern(pat, .125)</span>
+<span class="sd">    &gt;&gt;&gt; p.play()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">arg</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;cO&quot;</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">time</span><span class="p">)</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_function</span> <span class="o">=</span> <span class="n">getWeakMethodRef</span><span class="p">(</span><span class="n">function</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_time</span> <span class="o">=</span> <span class="n">time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_arg</span> <span class="o">=</span> <span class="n">arg</span>
+        <span class="n">function</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">arg</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">Pattern_base</span><span class="p">(</span><span class="n">WeakMethod</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="n">i</span><span class="p">)),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)</span>
+        <span class="p">]</span>
+
+<div class="viewcode-block" id="Pattern.setFunction"><a class="viewcode-back" href="../../../api/classes/pattern.html#pyo.Pattern.setFunction">[docs]</a>    <span class="k">def</span> <span class="nf">setFunction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `function` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: Python callable (function or method)</span>
+<span class="sd">                new `function` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_function</span> <span class="o">=</span> <span class="n">getWeakMethodRef</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setFunction</span><span class="p">(</span><span class="n">WeakMethod</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">)))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="Pattern.setTime"><a class="viewcode-back" href="../../../api/classes/pattern.html#pyo.Pattern.setTime">[docs]</a>    <span class="k">def</span> <span class="nf">setTime</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `time` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float or PyoObject</span>
+<span class="sd">                New `time` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_time</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setTime</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="Pattern.setArg"><a class="viewcode-back" href="../../../api/classes/pattern.html#pyo.Pattern.setArg">[docs]</a>    <span class="k">def</span> <span class="nf">setArg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `arg` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: Anything</span>
+<span class="sd">                new `arg` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_arg</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setArg</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="Pattern.out"><a class="viewcode-back" href="../../../api/classes/pattern.html#pyo.Pattern.out">[docs]</a>    <span class="k">def</span> <span class="nf">out</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">inc</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">dur</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">play</span><span class="p">(</span><span class="n">dur</span><span class="p">,</span> <span class="n">delay</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Pattern.setMul"><a class="viewcode-back" href="../../../api/classes/pattern.html#pyo.Pattern.setMul">[docs]</a>    <span class="k">def</span> <span class="nf">setMul</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Pattern.setAdd"><a class="viewcode-back" href="../../../api/classes/pattern.html#pyo.Pattern.setAdd">[docs]</a>    <span class="k">def</span> <span class="nf">setAdd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Pattern.setSub"><a class="viewcode-back" href="../../../api/classes/pattern.html#pyo.Pattern.setSub">[docs]</a>    <span class="k">def</span> <span class="nf">setSub</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Pattern.setDiv"><a class="viewcode-back" href="../../../api/classes/pattern.html#pyo.Pattern.setDiv">[docs]</a>    <span class="k">def</span> <span class="nf">setDiv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Pattern.ctrl"><a class="viewcode-back" href="../../../api/classes/pattern.html#pyo.Pattern.ctrl">[docs]</a>    <span class="k">def</span> <span class="nf">ctrl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">map_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wxnoserver</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_map_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">SLMap</span><span class="p">(</span><span class="mf">0.125</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_time</span><span class="p">)]</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="n">ctrl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">map_list</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">wxnoserver</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">function</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Python callable. Function to be called.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_function</span>
+
+    <span class="nd">@function</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">function</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setFunction</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">time</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float or PyoObject. Time, in seconds, between each call.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_time</span>
+
+    <span class="nd">@time</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setTime</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">arg</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Anything. Callable&#39;s argument.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arg</span>
+
+    <span class="nd">@arg</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">arg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setArg</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Score"><a class="viewcode-back" href="../../../api/classes/pattern.html#pyo.Score">[docs]</a><span class="k">class</span> <span class="nc">Score</span><span class="p">(</span><span class="n">PyoObject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calls functions by incrementation of a preformatted name.</span>
+
+<span class="sd">    Score takes audio stream containning integers in input and calls</span>
+<span class="sd">    a function whose name is the concatenation of `fname` and the changing</span>
+<span class="sd">    integer.</span>
+
+<span class="sd">    Can be used to sequence events, first by creating functions p0, p1,</span>
+<span class="sd">    p2, etc. and then, by passing a counter to a Score object with &quot;p&quot;</span>
+<span class="sd">    as `fname` argument. Functions are called without parameters.</span>
+
+<span class="sd">    :Parent: :py:class:`PyoObject`</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        input: PyoObject</span>
+<span class="sd">            Audio signal. Must contains integer numbers. Integer must change</span>
+<span class="sd">            before calling its function again.</span>
+<span class="sd">        fname: string, optional</span>
+<span class="sd">            Name of the functions to be called. Defaults to &#39;event_&#39;, meaning</span>
+<span class="sd">            that the object will call the function &#39;event_0&#39;, &#39;event_1&#39;, &#39;event_2&#39;,</span>
+<span class="sd">            and so on... Available at initialization time only.</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        The out() method is bypassed. Score&#39;s signal can not be sent</span>
+<span class="sd">        to audio outs.</span>
+
+<span class="sd">        Score has no `mul` and `add` attributes.</span>
+
+<span class="sd">    .. seealso:: :py:class:`Pattern`, :py:class:`TrigFunc`</span>
+
+<span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
+<span class="sd">    &gt;&gt;&gt; s.start()</span>
+<span class="sd">    &gt;&gt;&gt; a = SineLoop(freq=[200,300,400,500], feedback=0.05, mul=.1).out()</span>
+<span class="sd">    &gt;&gt;&gt; def event_0():</span>
+<span class="sd">    ...     a.freq=[200,300,400,500]</span>
+<span class="sd">    &gt;&gt;&gt; def event_1():</span>
+<span class="sd">    ...     a.freq=[300,400,450,600]</span>
+<span class="sd">    &gt;&gt;&gt; def event_2():</span>
+<span class="sd">    ...     a.freq=[150,375,450,525]</span>
+<span class="sd">    &gt;&gt;&gt; m = Metro(1).play()</span>
+<span class="sd">    &gt;&gt;&gt; c = Counter(m, min=0, max=3)</span>
+<span class="sd">    &gt;&gt;&gt; sc = Score(c)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">fname</span><span class="o">=</span><span class="s2">&quot;event_&quot;</span><span class="p">):</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;os&quot;</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">fname</span><span class="p">)</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input</span> <span class="o">=</span> <span class="nb">input</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fname</span> <span class="o">=</span> <span class="n">fname</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span> <span class="o">=</span> <span class="n">InputFader</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+        <span class="n">in_fader</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="p">,</span> <span class="n">fname</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span><span class="n">Score_base</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">in_fader</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_play</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Score.out"><a class="viewcode-back" href="../../../api/classes/pattern.html#pyo.Score.out">[docs]</a>    <span class="k">def</span> <span class="nf">out</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chnl</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">inc</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">dur</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">play</span><span class="p">(</span><span class="n">dur</span><span class="p">,</span> <span class="n">delay</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Score.setMul"><a class="viewcode-back" href="../../../api/classes/pattern.html#pyo.Score.setMul">[docs]</a>    <span class="k">def</span> <span class="nf">setMul</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Score.setAdd"><a class="viewcode-back" href="../../../api/classes/pattern.html#pyo.Score.setAdd">[docs]</a>    <span class="k">def</span> <span class="nf">setAdd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Score.setInput"><a class="viewcode-back" href="../../../api/classes/pattern.html#pyo.Score.setInput">[docs]</a>    <span class="k">def</span> <span class="nf">setInput</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="o">=</span><span class="mf">0.05</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `input` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: PyoObject</span>
+<span class="sd">                New signal to process.</span>
+<span class="sd">            fadetime: float, optional</span>
+<span class="sd">                Crossfade time between old and new input. Defaults to 0.05.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;oN&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_input</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_in_fader</span><span class="o">.</span><span class="n">setInput</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">fadetime</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;PyoObject. Audio signal sending integer numbers.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input</span>
+
+    <span class="nd">@input</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setInput</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CallAfter"><a class="viewcode-back" href="../../../api/classes/pattern.html#pyo.CallAfter">[docs]</a><span class="k">class</span> <span class="nc">CallAfter</span><span class="p">(</span><span class="n">PyoObject</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calls a Python function after a given time.</span>
+
+<span class="sd">    :Parent: :py:class:`PyoObject`</span>
+
+<span class="sd">    :Args:</span>
+
+<span class="sd">        function: Python callable (function or method)</span>
+<span class="sd">            Python callable execute after `time` seconds.</span>
+<span class="sd">        time: float, optional</span>
+<span class="sd">            Time, in seconds, before the call. Default to 1.</span>
+<span class="sd">        arg: any Python object, optional</span>
+<span class="sd">            Argument sent to the called function. Default to None.</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        The out() method is bypassed. CallAfter doesn&#39;t return signal.</span>
+
+<span class="sd">        CallAfter has no `mul` and `add` attributes.</span>
+
+<span class="sd">        If `arg` is None, the function must be defined without argument:</span>
+
+<span class="sd">        &gt;&gt;&gt; def tocall():</span>
+<span class="sd">        &gt;&gt;&gt;     pass # function&#39;s body</span>
+
+<span class="sd">        If `arg` is not None, the function must be defined with one argument:</span>
+
+<span class="sd">        &gt;&gt;&gt; def tocall(arg):</span>
+<span class="sd">        &gt;&gt;&gt;     print(arg)</span>
+
+<span class="sd">        The object is not deleted after the call. The user must delete it himself.</span>
+
+<span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
+<span class="sd">    &gt;&gt;&gt; s.start()</span>
+<span class="sd">    &gt;&gt;&gt; # Start an oscillator with a frequency of 250 Hz.</span>
+<span class="sd">    &gt;&gt;&gt; syn = SineLoop(freq=[250,251], feedback=.07, mul=.2).out()</span>
+<span class="sd">    &gt;&gt;&gt; def callback(arg):</span>
+<span class="sd">    ...     # Change the oscillator&#39;s frequency to 300 Hz after 2 seconds.</span>
+<span class="sd">    ...     # Convert the tuple back to a list.</span>
+<span class="sd">    ...     syn.freq = list(arg)</span>
+<span class="sd">    &gt;&gt;&gt; # Use a tuple for the argument to avoid multi-channel expansion.</span>
+<span class="sd">    &gt;&gt;&gt; a = CallAfter(callback, 2, (300,301))</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">arg</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;cn&quot;</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">time</span><span class="p">)</span>
+        <span class="n">PyoObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_function</span> <span class="o">=</span> <span class="n">getWeakMethodRef</span><span class="p">(</span><span class="n">function</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_time</span> <span class="o">=</span> <span class="n">time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_arg</span> <span class="o">=</span> <span class="n">arg</span>
+        <span class="n">function</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">arg</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">CallAfter_base</span><span class="p">(</span><span class="n">WeakMethod</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="n">i</span><span class="p">)),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">wrap</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lmax</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_play</span><span class="p">()</span>
+
+<div class="viewcode-block" id="CallAfter.out"><a class="viewcode-back" href="../../../api/classes/pattern.html#pyo.CallAfter.out">[docs]</a>    <span class="k">def</span> <span class="nf">out</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">inc</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">dur</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">play</span><span class="p">(</span><span class="n">dur</span><span class="p">,</span> <span class="n">delay</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CallAfter.setMul"><a class="viewcode-back" href="../../../api/classes/pattern.html#pyo.CallAfter.setMul">[docs]</a>    <span class="k">def</span> <span class="nf">setMul</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="CallAfter.setAdd"><a class="viewcode-back" href="../../../api/classes/pattern.html#pyo.CallAfter.setAdd">[docs]</a>    <span class="k">def</span> <span class="nf">setAdd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="CallAfter.setSub"><a class="viewcode-back" href="../../../api/classes/pattern.html#pyo.CallAfter.setSub">[docs]</a>    <span class="k">def</span> <span class="nf">setSub</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="CallAfter.setDiv"><a class="viewcode-back" href="../../../api/classes/pattern.html#pyo.CallAfter.setDiv">[docs]</a>    <span class="k">def</span> <span class="nf">setDiv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="CallAfter.setTime"><a class="viewcode-back" href="../../../api/classes/pattern.html#pyo.CallAfter.setTime">[docs]</a>    <span class="k">def</span> <span class="nf">setTime</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `time` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: float</span>
+<span class="sd">                New `time` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_time</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setTime</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="CallAfter.setArg"><a class="viewcode-back" href="../../../api/classes/pattern.html#pyo.CallAfter.setArg">[docs]</a>    <span class="k">def</span> <span class="nf">setArg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `arg` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: Anything</span>
+<span class="sd">                new `arg` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_arg</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">setArg</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">)]</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">time</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;float. Time, in seconds, before the function call.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_time</span>
+
+    <span class="nd">@time</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setTime</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">arg</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Anything. Callable&#39;s argument.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arg</span>
+
+    <span class="nd">@arg</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">arg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setArg</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">Pyo 1.0.4 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../pyo.html" >pyo</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pyo.lib.pattern</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Olivier Bélanger.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+  </body>
+</html>
