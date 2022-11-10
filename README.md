@@ -19,14 +19,14 @@ Systems : macOS (10.10+), linux, Windows (XP, Vista, 7, 8, 10)
 
 Python versions : 2.7 (up to 1.0.1), 3.5 (up to 1.0.1), 3.6, 3.7, 3.8, 3.9.
 
-**For more resources, informations and documentation**, visit the 
-[PYO OFFICIAL WEB SITE](http://ajaxsoundstudio.com/pyo/).
+**For more informations and documentation**, visit the 
+[PYO DOCUMENTATION](https://belangeo.github.io/pyo/).
 
 How to install pre-built packages on any platform using **pip**: 
-[INSTALL Instructions](http://ajaxsoundstudio.com/pyodoc/download.html).
+[INSTALL Instructions](https://belangeo.github.io/pyo/download.html).
     
 How to get pyo running from sources on macOS and linux:
-[COMPILE Instructions](http://ajaxsoundstudio.com/pyodoc/compiling.html).
+[COMPILE Instructions](https://belangeo.github.io/pyo/compiling.html).
 
 pyo was awarded **second prize** in the 
 [Lomus 2012](http://concours.afim-asso.org/2012/) Free Software Competition.
@@ -47,14 +47,14 @@ follow the rules and post it on the mailing-list !
 
 ## Software using Pyo as audio engine ##
 
-[Cecilia 5](http://ajaxsoundstudio.com/software/cecilia/) : An audio signal 
+[Cecilia 5](https://github.com/belangeo/cecilia5) : An audio signal 
 processing environment.
 
 [PsychoPy](http://www.psychopy.org/) : An open-source application to allow the 
 presentation of stimuli and collection of data for a wide range of neuroscience, 
 psychology and psychophysics experiments.
 
-[Soundgrain](http://ajaxsoundstudio.com/software/soundgrain/) : 
+[Soundgrain](https://github.com/belangeo/soundgrain) : 
 A graphical interface where users can draw and edit trajectories to control 
 granular sound synthesis.
 
