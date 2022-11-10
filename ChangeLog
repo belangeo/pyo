@@ -1,6 +1,26 @@
+2022-10-21 belangeo <belangeo@gmail.com>
+
+    * UI: Improved handling of system's dark mode.
+
+2022-05-17 belangeo <belangeo@gmail.com>
+
+    * Fixed PY_SSIZE_T_CLEAN macro must be defined for '#' formats.
+
 2022-05-13 belangeo <belangeo@gmail.com>
 
     * Fixed OscReceive.addAddress not polling the address immediately.
+
+2022-02-26 belangeo <belangeo@gmail.com>
+
+    * Fixed memory leak in trigmodule.
+
+2022-02-26 belangeo <belangeo@gmail.com>
+
+    * Ensure that there is no leaking audio streams in the server when objects are deleted.
+
+2022-01-25 belangeo <belangeo@gmail.com>
+
+    * Fix Keyboard widget note off handling in hold mode.
 
 2021-12-07 belangeo <belangeo@gmail.com>
 
@@ -12,6 +32,10 @@
 
     * Objects writing samples in tables can now write to any PyoTableObject.
     * Made getRate() and getDur() methods available to all PyoTableObject.
+
+2021-08-17 belangeo <belangeo@gmail.com>
+
+    * Allow more than 10 controls in PyoObjectControl window.
 
 2021-06-07 belangeo <belangeo@gmail.com>
 
