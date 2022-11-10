@@ -114,13 +114,12 @@ for dir in folders:
 
 
 os.system("sphinx-build -a -E -j 4 -b %s ./source %s" % (build_format, build_folder))
-# os.system("sphinx-build -a -E -b %s ./source %s" % (build_format, build_folder))
 
 if build_format == "latex":
     os.system("cd build_latex; pdflatex -interaction nonstopmode Pyo;  pdflatex -interaction nonstopmode Pyo")
 
-rep = input("Do you want to upload to ajax server (y/n) ? ")
-if rep == "y":
-    os.system("scp -r build_html/* jeadum1@ajaxsoundstudio.com:/home/jeadum1/ajaxsoundstudio.com/pyodoc")
+if build_format == "html":
+    os.system("cp -r build_html/* ../docs/")
+    os.system("rm -r build_html")
 
 os.system("rm -r source/examples")
