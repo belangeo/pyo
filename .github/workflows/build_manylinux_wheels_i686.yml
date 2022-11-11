@@ -22,8 +22,8 @@ jobs:
       uses: RalfG/python-wheels-manylinux-build@v0.5.0-manylinux2014_i686
       with:
         python-versions: 'cp37-cp37m cp38-cp38 cp39-cp39 cp310-cp310'
-        system-packages: 'guile-devel zlib-devel gettext portaudio-devel.i686 portmidi-devel.i686 libsndfile-devel.i686 autogen libdb-devel wget'
-        pre-build-command: 'sh manylinux-pre-build-script.sh'
+        system-packages: 'guile-devel zlib-devel gettext portmidi-devel libsndfile-devel autogen libdb-devel wget'
+        pre-build-command: 'sh manylinux-pre-build-script-i686.sh'
         pip-wheel-args: '-w ./dist --build-option --use-double --build-option --use-jack'
     - name: Publish wheels to test PyPI
       env:
