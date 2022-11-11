@@ -57,7 +57,7 @@
         {
             "label": "Compile Windows (single)",
             "type": "shell",
-            "command": "${config:build_windows_single} & ${config:install_windows}",
+            "command": "py -3.${input:pyMinVersion} setup.py bdist_wheel & py -3.${input:pyMinVersion} -m pip install --force-reinstall dist\\pyo-${config:pyo_version}-cp3${input:pyMinVersion}-cp3${input:pyMinVersion}-win_amd64.whl",
             "problemMatcher": [],
             "options": {
                 "cwd": "${workspaceFolder}"
@@ -74,7 +74,7 @@
         {
             "label": "Compile Windows (double)",
             "type": "shell",
-            "command": "${config:build_windows_double} & ${config:install_windows}",
+            "command": "py -3.${input:pyMinVersion} setup.py bdist_wheel --use-double & py -3.${input:pyMinVersion} -m pip install --force-reinstall dist\\pyo-${config:pyo_version}-cp3${input:pyMinVersion}-cp3${input:pyMinVersion}-win_amd64.whl",
             "problemMatcher": [],
             "options": {
                 "cwd": "${workspaceFolder}"
@@ -278,7 +278,7 @@
             "type": "pickString",
             "id": "pyMinVersion",
             "description": "Choose your python minor version...",
-            "options": ["7", "8", "9", "10"],
+            "options": ["7", "8", "9", "10", "11"],
             "default": "9"
         },
         {

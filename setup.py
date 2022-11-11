@@ -26,10 +26,6 @@ if sys.platform == "win32":
     with open("setup.cfg", "w") as f:
        f.write("[build]\ncompiler = mingw32")
 
-def tobytes(strng, encoding="utf-8"):
-    "Convert unicode string to bytes."
-    return bytes(strng, encoding=encoding)
-
 JACK1_MIN_VERSION = "0.125.0"
 JACK2_MIN_VERSION = "1.9.11"
 

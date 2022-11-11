@@ -1,11 +1,9 @@
 {
+    "pyo_version": "1.0.4.post5",
     "build_linux_debug": "python3 setup.py bdist_wheel --use-jack --debug --fast-compile",
     "build_linux_single": "python3 setup.py bdist_wheel --use-jack",
     "build_linux_double": "python3 setup.py bdist_wheel --use-jack --use-double",
     "install_linux": "python3 -m pip install --user --force-reinstall dist/pyo-*-cp39-cp39-linux_x86_64.whl",
-    "build_windows_single": "py -3.${input:pyMinVersion} setup.py bdist_wheel",
-    "build_windows_double": "py -3.${input:pyMinVersion} setup.py bdist_wheel --use-double",
-    "install_windows": "py -3.${input:pyMinVersion} -m pip install --force-reinstall dist\\pyo-*-cp3${input:pyMinVersion}-cp3${input:pyMinVersion}-win_amd64.whl",
     "build_macos_single": "/usr/local/bin/python3.${input:pyMinVersion} setup.py bdist_wheel --use-coreaudio",
     "build_macos_double": "/usr/local/bin/python3.${input:pyMinVersion} setup.py bdist_wheel --use-coreaudio --use-double",
     "install_macos": 
