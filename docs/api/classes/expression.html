@@ -1,19 +1,21 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
 <title>Prefix expression evaluators — Pyo 1.0.4 documentation</title>
 <link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
-<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/agogo.css" rel="stylesheet" type="text/css"/>
 <link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
 <link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
 <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
 <script src="../../_static/jquery.js"></script>
 <script src="../../_static/underscore.js"></script>
+<script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
 <script src="../../_static/doctools.js"></script>
+<script src="../../_static/sphinx_highlight.js"></script>
 <link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
 <link href="../../about.html" rel="author" title="About these documents"/>
 <link href="../../genindex.html" rel="index" title="Index"/>
@@ -21,36 +23,91 @@
 <link href="filters.html" rel="next" title="Filters"/>
 <link href="events.html" rel="prev" title="Events framework"/>
 </head><body>
-<div aria-label="related navigation" class="related" role="navigation">
-<h3>Navigation</h3>
+<div class="header-wrapper" role="banner">
+<div class="header">
+<div class="headertitle"><a href="../../index.html">Pyo 1.0.4 documentation</a></div>
+<div aria-label="related navigation" class="rel" role="navigation">
+<a accesskey="P" href="events.html" title="Events framework">previous</a> |
+          <a accesskey="N" href="filters.html" title="Filters">next</a> |
+          <a accesskey="I" href="../../genindex.html" title="General Index">index</a>
+</div>
+</div>
+</div>
+<div class="content-wrapper">
+<div class="content">
+<div class="sidebar">
+<h3>Table of Contents</h3>
 <ul>
-<li class="right" style="margin-right: 10px">
-<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
-<li class="right">
-<a accesskey="N" href="filters.html" title="Filters">next</a> |</li>
-<li class="right">
-<a accesskey="P" href="events.html" title="Events framework">previous</a> |</li>
-<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
-<li class="nav-item nav-item-1"><a href="../index.html">API documentation</a> »</li>
-<li class="nav-item nav-item-2"><a accesskey="U" href="index.html">Classes by category</a> »</li>
-<li class="nav-item nav-item-this"><a href="">Prefix expression evaluators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../about.html">About pyo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../download.html">Installing pyo with pip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../compiling.html">Compiling pyo from sources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../structure.html">Structure of the library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../gettingstarted.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../winaudioinspect.html">Configuring the audio output (especially on Windows)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../perftips.html">How to improve performance of your pyo programs</a></li>
 </ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../constants.html">Constants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../functions/index.html">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../alphabetical.html">Alphabetical class reference</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Classes by category</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/01-intro/index.html">First steps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/02-controls/index.html">Parameter control</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/03-generators/index.html">Synthesis generators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/04-soundfiles/index.html">Playing with soundfiles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/05-envelopes/index.html">Amplitude envelopes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/06-filters/index.html">Filtering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/07-effects/index.html">Creating sound effects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/08-dynamics/index.html">Dynamic range of audio signals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/09-callbacks/index.html">Calling python functions from audio objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/10-tables/index.html">Using tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/16-midi/index.html">How to use MIDI with pyo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/17-osc/index.html">How to use OSC with pyo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/19-multirate/index.html">Multirate audio processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/20-multicore/index.html">Multicore audio programming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/21-utilities/index.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/22-events/index.html">Events framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/23-expression/index.html">Evaluating prefix expression</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/pyoobject1.html">Tutorial: Creating a custom PyoObject - RingMod</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/pyoobject2.html">Tutorial: Creating a custom PyoObject - Flanger</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/pyotableobject1.html">Tutorial: Creating a custom PyoTableObject - TriangleTable</a></li>
+</ul>
+<div role="search">
+<h3 style="margin-top: 1.5em;">Search</h3>
+<form action="../../search.html" class="search" method="get">
+<input name="q" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
 </div>
 <div class="document">
 <div class="documentwrapper">
 <div class="bodywrapper">
 <div class="body" role="main">
 <section id="prefix-expression-evaluators">
-<h1>Prefix expression evaluators<a class="headerlink" href="#prefix-expression-evaluators" title="Permalink to this headline">¶</a></h1>
+<h1>Prefix expression evaluators<a class="headerlink" href="#prefix-expression-evaluators" title="Permalink to this heading">¶</a></h1>
 <p>Prefix audio expression evaluator.</p>
 <p>This family implements a tiny functional programming language that
 can be used to write synthesis or signal processing algorithms.</p>
+<section id="objects-in-this-category">
+<h2>Objects in this category<a class="headerlink" href="#objects-in-this-category" title="Permalink to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="#pyo.Expr" title="pyo.Expr"><code class="xref py py-class docutils literal notranslate"><span class="pre">Expr</span></code></a> :     Prefix audio expression evaluator.</p></li>
+</ul>
+</section>
 <section id="api-documentation">
-<h2><strong>API documentation</strong><a class="headerlink" href="#api-documentation" title="Permalink to this headline">¶</a></h2>
+<h2><strong>API documentation</strong><a class="headerlink" href="#api-documentation" title="Permalink to this heading">¶</a></h2>
 <p>This API is in alpha stage and subject to future changes!</p>
 </section>
 <section id="builtin-functions">
-<h2>Builtin functions<a class="headerlink" href="#builtin-functions" title="Permalink to this headline">¶</a></h2>
+<h2>Builtin functions<a class="headerlink" href="#builtin-functions" title="Permalink to this heading">¶</a></h2>
 <p><strong>Arithmetic operators</strong></p>
 <ul class="simple">
 <li><p>(+ x y) : returns the sum of two values.</p></li>
@@ -141,14 +198,14 @@ can be used to write synthesis or signal processing algorithms.</p>
 </ul>
 </section>
 <section id="comments">
-<h2>Comments<a class="headerlink" href="#comments" title="Permalink to this headline">¶</a></h2>
+<h2>Comments<a class="headerlink" href="#comments" title="Permalink to this heading">¶</a></h2>
 <p>A comment starts with two slashs ( // ) and ends at the end of the line:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>// This is a comment!
 </pre></div>
 </div>
 </section>
 <section id="input-and-output-signals">
-<h2>Input and Output signals<a class="headerlink" href="#input-and-output-signals" title="Permalink to this headline">¶</a></h2>
+<h2>Input and Output signals<a class="headerlink" href="#input-and-output-signals" title="Permalink to this heading">¶</a></h2>
 <p>User has access to the last buffer size of input and output samples.</p>
 <p>To use samples from past inputs, use $x0[n] notation, where 0 is the first
 audio stream ($x1[0] would retrieve the second audio stream) and n is the
@@ -184,7 +241,7 @@ be created with the out function.</p>
 </div>
 </section>
 <section id="defining-custom-functions">
-<h2>Defining custom functions<a class="headerlink" href="#defining-custom-functions" title="Permalink to this headline">¶</a></h2>
+<h2>Defining custom functions<a class="headerlink" href="#defining-custom-functions" title="Permalink to this heading">¶</a></h2>
 <p>The <cite>define</cite> keyword starts the definition of a custom function:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>(define funcname (body))
 </pre></div>
@@ -203,7 +260,7 @@ extracted directly from the body. They must be named $1, $2, $3, …, $9.</p>
 </div>
 </section>
 <section id="state-variables">
-<h2>State variables<a class="headerlink" href="#state-variables" title="Permalink to this headline">¶</a></h2>
+<h2>State variables<a class="headerlink" href="#state-variables" title="Permalink to this heading">¶</a></h2>
 <p>User can create state variable with the keyword <cite>let</cite>. This is useful
 to set an intermediate state to be used in multiple places in the
 processing chain. The syntax is:</p>
@@ -248,7 +305,7 @@ Undefined variables are initialized to 0:</p>
 </div>
 </section>
 <section id="user-variables">
-<h2>User variables<a class="headerlink" href="#user-variables" title="Permalink to this headline">¶</a></h2>
+<h2>User variables<a class="headerlink" href="#user-variables" title="Permalink to this heading">¶</a></h2>
 <p>User variables are created with the keyword <cite>var</cite>:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>(var #var (init))
 </pre></div>
@@ -280,7 +337,7 @@ pat = Pattern(update, 0.02).play()
 </div>
 </section>
 <section id="library-importation">
-<h2>Library importation<a class="headerlink" href="#library-importation" title="Permalink to this headline">¶</a></h2>
+<h2>Library importation<a class="headerlink" href="#library-importation" title="Permalink to this heading">¶</a></h2>
 <p>Custom functions can be defined in an external file and imported with the
 <cite>load</cite> function:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>(load path/to/the/file)
@@ -291,7 +348,7 @@ and all functions defined inside the file will then be accessible. The path
 can be absolute or relative to the current working directory.</p>
 </section>
 <section id="complex-numbers">
-<h2>Complex numbers<a class="headerlink" href="#complex-numbers" title="Permalink to this headline">¶</a></h2>
+<h2>Complex numbers<a class="headerlink" href="#complex-numbers" title="Permalink to this heading">¶</a></h2>
 <p>A complex number is created with the <cite>complex</cite> function:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>(complex x y)
 </pre></div>
@@ -307,7 +364,7 @@ will be used.</p>
 is set to 0.0.</p>
 </section>
 <section id="examples">
-<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this heading">¶</a></h2>
 <p>Here is some expression examples.</p>
 <p>A first-order IIR lowpass filter:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>(var #sr 44100)
@@ -338,13 +395,13 @@ triangle #freq
 </div>
 </section>
 <section id="objects">
-<h2><strong>Objects</strong><a class="headerlink" href="#objects" title="Permalink to this headline">¶</a></h2>
+<h2><strong>Objects</strong><a class="headerlink" href="#objects" title="Permalink to this heading">¶</a></h2>
 </section>
 <section id="expr">
-<h2><em>Expr</em><a class="headerlink" href="#expr" title="Permalink to this headline">¶</a></h2>
+<h2><em>Expr</em><a class="headerlink" href="#expr" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.Expr">
-<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">Expr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mul</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/expression.html#Expr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.Expr" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Expr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mul</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/expression.html#Expr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.Expr" title="Permalink to this definition">¶</a></dt>
 <dd><p>Prefix audio expression evaluator.</p>
 <p>Expr implements a tiny functional programming language that can be
 used to write synthesis or signal processing algorithms.</p>
@@ -388,7 +445,7 @@ Defaults to 0.0.</p>
 </div>
 <div class="autoclasstoc docutils container">
 <p class="rubric">Public Data Attributes:</p>
-<table class="longtable docutils align-default">
+<table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
 <col style="width: 90%"/>
@@ -399,7 +456,7 @@ Defaults to 0.0.</p>
 </tr>
 </tbody>
 </table>
-<details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></summary><table class="longtable docutils align-default">
+<details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></summary><table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
 <col style="width: 90%"/>
@@ -416,7 +473,7 @@ Defaults to 0.0.</p>
 </details></div>
 <div class="autoclasstoc docutils container">
 <p class="rubric">Public Methods:</p>
-<table class="longtable docutils align-default">
+<table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
 <col style="width: 90%"/>
@@ -425,27 +482,27 @@ Defaults to 0.0.</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>(input[, expr, outs, initout, mul, add])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pyo.Expr.setExpr" title="pyo.Expr.setExpr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setExpr</span></code></a>(x)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setExpr</span></code>(x)</p></td>
 <td><p>Replace the <cite>expr</cite> attribute.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.Expr.printNodes" title="pyo.Expr.printNodes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">printNodes</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">printNodes</span></code>()</p></td>
 <td><p>Print the list of current nodes.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setVar</span></code>(varname, value)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.Expr.editor" title="pyo.Expr.editor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">editor</span></code></a>([title, wxnoserver])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">editor</span></code>([title, wxnoserver])</p></td>
 <td><p>Opens the text editor for this object.</p></td>
 </tr>
 </tbody>
 </table>
-<details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></summary><table class="longtable docutils align-default">
+<details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></summary><table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
 <col style="width: 90%"/>
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>(input[, expr, outs, initout, mul, add])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>([mul, add])</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__add__</span></code>(x)</p></td>
@@ -526,6 +583,12 @@ Defaults to 0.0.</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__do_comp__</span></code>(comp, mode[, default])</p></td>
 <td><p></p></td>
 </tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__float__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__int__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isPlaying</span></code>([all])</p></td>
 <td><p>Returns True if the object is currently playing, otherwise, returns False.</p></td>
 </tr>
@@ -570,13 +633,13 @@ Defaults to 0.0.</p>
 </tr>
 </tbody>
 </table>
-</details><details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObjectBase" title="pyo.PyoObjectBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObjectBase</span></code></a></summary><table class="longtable docutils align-default">
+</details><details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObjectBase" title="pyo.PyoObjectBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObjectBase</span></code></a></summary><table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
 <col style="width: 90%"/>
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>(input[, expr, outs, initout, mul, add])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>()</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">dump</span></code>()</p></td>
@@ -638,7 +701,7 @@ Defaults to 0.0.</p>
 </details></div>
 <div class="autoclasstoc docutils container">
 <p class="rubric">Private Data Attributes:</p>
-<details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></summary><table class="longtable docutils align-default">
+<details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></summary><table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
 <col style="width: 90%"/>
@@ -649,7 +712,7 @@ Defaults to 0.0.</p>
 </tr>
 </tbody>
 </table>
-</details><details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObjectBase" title="pyo.PyoObjectBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObjectBase</span></code></a></summary><table class="longtable docutils align-default">
+</details><details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObjectBase" title="pyo.PyoObjectBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObjectBase</span></code></a></summary><table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
 <col style="width: 90%"/>
@@ -663,7 +726,7 @@ Defaults to 0.0.</p>
 </details></div>
 <div class="autoclasstoc docutils container">
 <p class="rubric">Private Methods:</p>
-<table class="longtable docutils align-default">
+<table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
 <col style="width: 90%"/>
@@ -683,7 +746,7 @@ Defaults to 0.0.</p>
 </tr>
 </tbody>
 </table>
-<details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></summary><table class="longtable docutils align-default">
+<details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></summary><table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
 <col style="width: 90%"/>
@@ -697,7 +760,7 @@ Defaults to 0.0.</p>
 </tr>
 </tbody>
 </table>
-</details><details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObjectBase" title="pyo.PyoObjectBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObjectBase</span></code></a></summary><table class="longtable docutils align-default">
+</details><details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObjectBase" title="pyo.PyoObjectBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObjectBase</span></code></a></summary><table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
 <col style="width: 90%"/>
@@ -752,7 +815,7 @@ the server GUI before showing the controller window.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.Expr.expr">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">expr</span></span><a class="headerlink" href="#pyo.Expr.expr" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">expr</span></span><a class="headerlink" href="#pyo.Expr.expr" title="Permalink to this definition">¶</a></dt>
 <dd><p>string. New expression to process.</p>
 </dd></dl>
 </dd></dl>
@@ -762,62 +825,29 @@ the server GUI before showing the controller window.</p>
 </div>
 </div>
 </div>
-<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
-<div class="sphinxsidebarwrapper">
-<h3><a href="../../index.html">Table of Contents</a></h3>
-<ul>
-<li><a class="reference internal" href="#">Prefix expression evaluators</a><ul>
-<li><a class="reference internal" href="#api-documentation"><strong>API documentation</strong></a></li>
-<li><a class="reference internal" href="#builtin-functions">Builtin functions</a></li>
-<li><a class="reference internal" href="#comments">Comments</a></li>
-<li><a class="reference internal" href="#input-and-output-signals">Input and Output signals</a></li>
-<li><a class="reference internal" href="#defining-custom-functions">Defining custom functions</a></li>
-<li><a class="reference internal" href="#state-variables">State variables</a></li>
-<li><a class="reference internal" href="#user-variables">User variables</a></li>
-<li><a class="reference internal" href="#library-importation">Library importation</a></li>
-<li><a class="reference internal" href="#complex-numbers">Complex numbers</a></li>
-<li><a class="reference internal" href="#examples">Examples</a></li>
-<li><a class="reference internal" href="#objects"><strong>Objects</strong></a></li>
-<li><a class="reference internal" href="#expr"><em>Expr</em></a></li>
-</ul>
-</li>
-</ul>
-<h4>Previous topic</h4>
-<p class="topless"><a href="events.html" title="previous chapter">Events framework</a></p>
-<h4>Next topic</h4>
-<p class="topless"><a href="filters.html" title="next chapter">Filters</a></p>
-<div id="searchbox" role="search" style="display: none">
-<h3 id="searchlabel">Quick search</h3>
-<div class="searchformwrapper">
-<form action="../../search.html" class="search" method="get">
-<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
-<input type="submit" value="Go"/>
-</form>
-</div>
-</div>
-<script>$('#searchbox').show(0);</script>
-</div>
 </div>
 <div class="clearer"></div>
 </div>
-<div aria-label="related navigation" class="related" role="navigation">
-<h3>Navigation</h3>
-<ul>
-<li class="right" style="margin-right: 10px">
-<a href="../../genindex.html" title="General Index">index</a></li>
-<li class="right">
-<a href="filters.html" title="Filters">next</a> |</li>
-<li class="right">
-<a href="events.html" title="Events framework">previous</a> |</li>
-<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
-<li class="nav-item nav-item-1"><a href="../index.html">API documentation</a> »</li>
-<li class="nav-item nav-item-2"><a href="index.html">Classes by category</a> »</li>
-<li class="nav-item nav-item-this"><a href="">Prefix expression evaluators</a></li>
-</ul>
 </div>
+<div class="footer-wrapper">
+<div class="footer">
+<div class="left">
+<div aria-label="related navigaton" role="navigation">
+<a href="events.html" title="Events framework">previous</a> |
+            <a href="filters.html" title="Filters">next</a> |
+            <a href="../../genindex.html" title="General Index">index</a>
+</div>
+<div aria-label="source link" role="note">
+</div>
+</div>
+<div class="right">
 <div class="footer" role="contentinfo">
         © Copyright 2021, Olivier Bélanger.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
     </div>
+</div>
+<div class="clearer"></div>
+</div>
+</div>
 </body>
 </html>

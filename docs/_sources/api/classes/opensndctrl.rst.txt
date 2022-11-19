@@ -19,6 +19,15 @@ controls and can't be sent to the output soundcard.
     These objects are available only if pyo is built with OSC (Open Sound 
     Control) support.
 
+Objects in this category
+------------------------------
+
+- :py:class:`OscDataReceive` :     Receives data values over a network via the Open Sound Control protocol.
+- :py:class:`OscDataSend` :     Sends data values over a network via the Open Sound Control protocol.
+- :py:class:`OscListReceive` :     Receives list of values over a network via the Open Sound Control protocol.
+- :py:class:`OscReceive` :     Receives values over a network via the Open Sound Control protocol.
+- :py:class:`OscSend` :     Sends values over a network via the Open Sound Control protocol.
+
 *OscDataReceive*
 -----------------------------------
 

@@ -1,19 +1,21 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
 <title>Conversions — Pyo 1.0.4 documentation</title>
 <link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
-<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/agogo.css" rel="stylesheet" type="text/css"/>
 <link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
 <link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
 <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
 <script src="../../_static/jquery.js"></script>
 <script src="../../_static/underscore.js"></script>
+<script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
 <script src="../../_static/doctools.js"></script>
+<script src="../../_static/sphinx_highlight.js"></script>
 <link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
 <link href="../../about.html" rel="author" title="About these documents"/>
 <link href="../../genindex.html" rel="index" title="Index"/>
@@ -21,29 +23,94 @@
 <link href="server.html" rel="next" title="Server Queries"/>
 <link href="sampling.html" rel="prev" title="Resampling"/>
 </head><body>
-<div aria-label="related navigation" class="related" role="navigation">
-<h3>Navigation</h3>
+<div class="header-wrapper" role="banner">
+<div class="header">
+<div class="headertitle"><a href="../../index.html">Pyo 1.0.4 documentation</a></div>
+<div aria-label="related navigation" class="rel" role="navigation">
+<a accesskey="P" href="sampling.html" title="Resampling">previous</a> |
+          <a accesskey="N" href="server.html" title="Server Queries">next</a> |
+          <a accesskey="I" href="../../genindex.html" title="General Index">index</a>
+</div>
+</div>
+</div>
+<div class="content-wrapper">
+<div class="content">
+<div class="sidebar">
+<h3>Table of Contents</h3>
 <ul>
-<li class="right" style="margin-right: 10px">
-<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
-<li class="right">
-<a accesskey="N" href="server.html" title="Server Queries">next</a> |</li>
-<li class="right">
-<a accesskey="P" href="sampling.html" title="Resampling">previous</a> |</li>
-<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
-<li class="nav-item nav-item-1"><a href="../index.html">API documentation</a> »</li>
-<li class="nav-item nav-item-2"><a accesskey="U" href="index.html">Functions</a> »</li>
-<li class="nav-item nav-item-this"><a href="">Conversions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../about.html">About pyo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../download.html">Installing pyo with pip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../compiling.html">Compiling pyo from sources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../structure.html">Structure of the library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../gettingstarted.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../winaudioinspect.html">Configuring the audio output (especially on Windows)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../perftips.html">How to improve performance of your pyo programs</a></li>
 </ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../constants.html">Constants</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../alphabetical.html">Alphabetical class reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../classes/index.html">Classes by category</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/01-intro/index.html">First steps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/02-controls/index.html">Parameter control</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/03-generators/index.html">Synthesis generators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/04-soundfiles/index.html">Playing with soundfiles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/05-envelopes/index.html">Amplitude envelopes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/06-filters/index.html">Filtering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/07-effects/index.html">Creating sound effects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/08-dynamics/index.html">Dynamic range of audio signals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/09-callbacks/index.html">Calling python functions from audio objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/10-tables/index.html">Using tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/16-midi/index.html">How to use MIDI with pyo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/17-osc/index.html">How to use OSC with pyo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/19-multirate/index.html">Multirate audio processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/20-multicore/index.html">Multicore audio programming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/21-utilities/index.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/22-events/index.html">Events framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/23-expression/index.html">Evaluating prefix expression</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/pyoobject1.html">Tutorial: Creating a custom PyoObject - RingMod</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/pyoobject2.html">Tutorial: Creating a custom PyoObject - Flanger</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/pyotableobject1.html">Tutorial: Creating a custom PyoTableObject - TriangleTable</a></li>
+</ul>
+<div role="search">
+<h3 style="margin-top: 1.5em;">Search</h3>
+<form action="../../search.html" class="search" method="get">
+<input name="q" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
 </div>
 <div class="document">
 <div class="documentwrapper">
 <div class="bodywrapper">
 <div class="body" role="main">
 <section id="conversions">
-<h1>Conversions<a class="headerlink" href="#conversions" title="Permalink to this headline">¶</a></h1>
+<h1>Conversions<a class="headerlink" href="#conversions" title="Permalink to this heading">¶</a></h1>
+<p>Functions that perform the conversion of values from one range to another range.</p>
+<section id="functions-in-this-category">
+<h2>Functions in this category<a class="headerlink" href="#functions-in-this-category" title="Permalink to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="#pyo.midiToHz" title="pyo.midiToHz"><code class="xref py py-func docutils literal notranslate"><span class="pre">midiToHz()</span></code></a> :     Converts a midi note value to frequency in Hertz.</p></li>
+<li><p><a class="reference internal" href="#pyo.midiToTranspo" title="pyo.midiToTranspo"><code class="xref py py-func docutils literal notranslate"><span class="pre">midiToTranspo()</span></code></a> :     Converts a midi note value to transposition factor (central key = 60).</p></li>
+<li><p><a class="reference internal" href="#pyo.sampsToSec" title="pyo.sampsToSec"><code class="xref py py-func docutils literal notranslate"><span class="pre">sampsToSec()</span></code></a> :     Returns the duration in seconds equivalent to the number of samples given as an argument.</p></li>
+<li><p><a class="reference internal" href="#pyo.secToSamps" title="pyo.secToSamps"><code class="xref py py-func docutils literal notranslate"><span class="pre">secToSamps()</span></code></a> :     Returns the number of samples equivalent to the duration in seconds given as an argument.</p></li>
+<li><p><a class="reference internal" href="#pyo.beatToDur" title="pyo.beatToDur"><code class="xref py py-func docutils literal notranslate"><span class="pre">beatToDur()</span></code></a> :     Converts a beat value (multiplier of a quarter note) to a duration in seconds.</p></li>
+<li><p><a class="reference internal" href="#pyo.linToCosCurve" title="pyo.linToCosCurve"><code class="xref py py-func docutils literal notranslate"><span class="pre">linToCosCurve()</span></code></a> :     Creates a cosinus interpolated curve from a list of points.</p></li>
+<li><p><a class="reference internal" href="#pyo.rescale" title="pyo.rescale"><code class="xref py py-func docutils literal notranslate"><span class="pre">rescale()</span></code></a> :     Converts values from an input range to an output range.</p></li>
+<li><p><a class="reference internal" href="#pyo.floatmap" title="pyo.floatmap"><code class="xref py py-func docutils literal notranslate"><span class="pre">floatmap()</span></code></a> :     Converts values from a 0-1 range to an output range.</p></li>
+<li><p><a class="reference internal" href="#pyo.distanceToSegment" title="pyo.distanceToSegment"><code class="xref py py-func docutils literal notranslate"><span class="pre">distanceToSegment()</span></code></a> :     Find the distance from a point to a line or line segment.</p></li>
+<li><p><a class="reference internal" href="#pyo.reducePoints" title="pyo.reducePoints"><code class="xref py py-func docutils literal notranslate"><span class="pre">reducePoints()</span></code></a> :     Douglas-Peucker curve reduction algorithm.</p></li>
+</ul>
+</section>
 <section id="miditohz">
-<h2><em>midiToHz</em><a class="headerlink" href="#miditohz" title="Permalink to this headline">¶</a></h2>
+<h2><em>midiToHz</em><a class="headerlink" href="#miditohz" title="Permalink to this heading">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="pyo.midiToHz">
 <span class="sig-name descname"><span class="pre">midiToHz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyo.midiToHz" title="Permalink to this definition">¶</a></dt>
@@ -72,7 +139,7 @@
 </dd></dl>
 </section>
 <section id="miditotranspo">
-<h2><em>midiToTranspo</em><a class="headerlink" href="#miditotranspo" title="Permalink to this headline">¶</a></h2>
+<h2><em>midiToTranspo</em><a class="headerlink" href="#miditotranspo" title="Permalink to this heading">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="pyo.midiToTranspo">
 <span class="sig-name descname"><span class="pre">midiToTranspo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyo.midiToTranspo" title="Permalink to this definition">¶</a></dt>
@@ -101,7 +168,7 @@
 </dd></dl>
 </section>
 <section id="sampstosec">
-<h2><em>sampsToSec</em><a class="headerlink" href="#sampstosec" title="Permalink to this headline">¶</a></h2>
+<h2><em>sampsToSec</em><a class="headerlink" href="#sampstosec" title="Permalink to this heading">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="pyo.sampsToSec">
 <span class="sig-name descname"><span class="pre">sampsToSec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyo.sampsToSec" title="Permalink to this definition">¶</a></dt>
@@ -131,7 +198,7 @@
 </dd></dl>
 </section>
 <section id="sectosamps">
-<h2><em>secToSamps</em><a class="headerlink" href="#sectosamps" title="Permalink to this headline">¶</a></h2>
+<h2><em>secToSamps</em><a class="headerlink" href="#sectosamps" title="Permalink to this heading">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="pyo.secToSamps">
 <span class="sig-name descname"><span class="pre">secToSamps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyo.secToSamps" title="Permalink to this definition">¶</a></dt>
@@ -161,7 +228,7 @@
 </dd></dl>
 </section>
 <section id="beattodur">
-<h2><em>beatToDur</em><a class="headerlink" href="#beattodur" title="Permalink to this headline">¶</a></h2>
+<h2><em>beatToDur</em><a class="headerlink" href="#beattodur" title="Permalink to this heading">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="pyo.beatToDur">
 <span class="sig-name descname"><span class="pre">beatToDur</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">beat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bpm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">120</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#beatToDur"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.beatToDur" title="Permalink to this definition">¶</a></dt>
@@ -195,7 +262,7 @@ Defaults to 120. <cite>bpm</cite> can be a number, a list or a tuple.</p>
 </dd></dl>
 </section>
 <section id="lintocoscurve">
-<h2><em>linToCosCurve</em><a class="headerlink" href="#lintocoscurve" title="Permalink to this headline">¶</a></h2>
+<h2><em>linToCosCurve</em><a class="headerlink" href="#lintocoscurve" title="Permalink to this heading">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="pyo.linToCosCurve">
 <span class="sig-name descname"><span class="pre">linToCosCurve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yrange</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0,</span> <span class="pre">1]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">totaldur</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1024</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyo.linToCosCurve" title="Permalink to this definition">¶</a></dt>
@@ -227,7 +294,7 @@ Defaults to 120. <cite>bpm</cite> can be a number, a list or a tuple.</p>
 </dd></dl>
 </section>
 <section id="rescale">
-<h2><em>rescale</em><a class="headerlink" href="#rescale" title="Permalink to this headline">¶</a></h2>
+<h2><em>rescale</em><a class="headerlink" href="#rescale" title="Permalink to this heading">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="pyo.rescale">
 <span class="sig-name descname"><span class="pre">rescale</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xmin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ymin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ymax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlog</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylog</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyo.rescale" title="Permalink to this definition">¶</a></dt>
@@ -260,7 +327,7 @@ with all values rescaled.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/functions/conv.html#pyo.rescale" title="pyo.rescale"><span class="n">rescale</span></a><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">20000</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
 <span class="go">632.453369141</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="o">.</span><span class="mi">4</span><span class="p">,</span> <span class="o">.</span><span class="mi">8</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">.4</span><span class="p">,</span> <span class="mf">.8</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">b</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/functions/conv.html#pyo.rescale" title="pyo.rescale"><span class="n">rescale</span></a><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">20000</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
 <span class="go">[20.000001907348633, 316.97738647460938, 5023.7705078125]</span>
@@ -269,7 +336,7 @@ with all values rescaled.</p>
 </dd></dl>
 </section>
 <section id="floatmap">
-<h2><em>floatmap</em><a class="headerlink" href="#floatmap" title="Permalink to this headline">¶</a></h2>
+<h2><em>floatmap</em><a class="headerlink" href="#floatmap" title="Permalink to this heading">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="pyo.floatmap">
 <span class="sig-name descname"><span class="pre">floatmap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyo.floatmap" title="Permalink to this definition">¶</a></dt>
@@ -299,7 +366,7 @@ in the range <cite>min</cite> - <cite>max</cite>.</p>
 </dd></dl>
 </section>
 <section id="distancetosegment">
-<h2><em>distanceToSegment</em><a class="headerlink" href="#distancetosegment" title="Permalink to this headline">¶</a></h2>
+<h2><em>distanceToSegment</em><a class="headerlink" href="#distancetosegment" title="Permalink to this heading">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="pyo.distanceToSegment">
 <span class="sig-name descname"><span class="pre">distanceToSegment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xmin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ymin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ymax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlog</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ylog</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyo.distanceToSegment" title="Permalink to this definition">¶</a></dt>
@@ -335,7 +402,7 @@ to find the distance from line <cite>p1</cite> to <cite>p2</cite>.</p>
 </dd></dl>
 </section>
 <section id="reducepoints">
-<h2><em>reducePoints</em><a class="headerlink" href="#reducepoints" title="Permalink to this headline">¶</a></h2>
+<h2><em>reducePoints</em><a class="headerlink" href="#reducepoints" title="Permalink to this heading">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="pyo.reducePoints">
 <span class="sig-name descname"><span class="pre">reducePoints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pointlist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.02</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyo.reducePoints" title="Permalink to this definition">¶</a></dt>
@@ -364,60 +431,29 @@ excluded from the list. Defaults to 0.02.</p>
 </div>
 </div>
 </div>
-<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
-<div class="sphinxsidebarwrapper">
-<h3><a href="../../index.html">Table of Contents</a></h3>
-<ul>
-<li><a class="reference internal" href="#">Conversions</a><ul>
-<li><a class="reference internal" href="#miditohz"><em>midiToHz</em></a></li>
-<li><a class="reference internal" href="#miditotranspo"><em>midiToTranspo</em></a></li>
-<li><a class="reference internal" href="#sampstosec"><em>sampsToSec</em></a></li>
-<li><a class="reference internal" href="#sectosamps"><em>secToSamps</em></a></li>
-<li><a class="reference internal" href="#beattodur"><em>beatToDur</em></a></li>
-<li><a class="reference internal" href="#lintocoscurve"><em>linToCosCurve</em></a></li>
-<li><a class="reference internal" href="#rescale"><em>rescale</em></a></li>
-<li><a class="reference internal" href="#floatmap"><em>floatmap</em></a></li>
-<li><a class="reference internal" href="#distancetosegment"><em>distanceToSegment</em></a></li>
-<li><a class="reference internal" href="#reducepoints"><em>reducePoints</em></a></li>
-</ul>
-</li>
-</ul>
-<h4>Previous topic</h4>
-<p class="topless"><a href="sampling.html" title="previous chapter">Resampling</a></p>
-<h4>Next topic</h4>
-<p class="topless"><a href="server.html" title="next chapter">Server Queries</a></p>
-<div id="searchbox" role="search" style="display: none">
-<h3 id="searchlabel">Quick search</h3>
-<div class="searchformwrapper">
-<form action="../../search.html" class="search" method="get">
-<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
-<input type="submit" value="Go"/>
-</form>
-</div>
-</div>
-<script>$('#searchbox').show(0);</script>
-</div>
 </div>
 <div class="clearer"></div>
 </div>
-<div aria-label="related navigation" class="related" role="navigation">
-<h3>Navigation</h3>
-<ul>
-<li class="right" style="margin-right: 10px">
-<a href="../../genindex.html" title="General Index">index</a></li>
-<li class="right">
-<a href="server.html" title="Server Queries">next</a> |</li>
-<li class="right">
-<a href="sampling.html" title="Resampling">previous</a> |</li>
-<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
-<li class="nav-item nav-item-1"><a href="../index.html">API documentation</a> »</li>
-<li class="nav-item nav-item-2"><a href="index.html">Functions</a> »</li>
-<li class="nav-item nav-item-this"><a href="">Conversions</a></li>
-</ul>
 </div>
+<div class="footer-wrapper">
+<div class="footer">
+<div class="left">
+<div aria-label="related navigaton" role="navigation">
+<a href="sampling.html" title="Resampling">previous</a> |
+            <a href="server.html" title="Server Queries">next</a> |
+            <a href="../../genindex.html" title="General Index">index</a>
+</div>
+<div aria-label="source link" role="note">
+</div>
+</div>
+<div class="right">
 <div class="footer" role="contentinfo">
         © Copyright 2021, Olivier Bélanger.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
     </div>
+</div>
+<div class="clearer"></div>
+</div>
+</div>
 </body>
 </html>

@@ -2,13 +2,13 @@ Functions
 ===================
 
 .. toctree::
-    :maxdepth: 2
+   :maxdepth: 2
 
-    audio
-    midi
-    sndfile
-    sampling
-    conv
-    server
-    util
+   audio
+   midi
+   sndfile
+   sampling
+   conv
+   server
+   util
 

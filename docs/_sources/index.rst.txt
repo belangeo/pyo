@@ -28,6 +28,10 @@ Parts of the documentation
    gettingstarted
    winaudioinspect
    perftips
+
+.. toctree::
+   :maxdepth: 2
+
    api/index
 
 Examples

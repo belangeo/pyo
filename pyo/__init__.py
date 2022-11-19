@@ -413,7 +413,6 @@ OBJECTS_TREE = {
                     "FToM",
                     "MToT",
                     "Resample",
-                    "Expr",
                 ]
             ),
             "expression": sorted(["Expr"]),

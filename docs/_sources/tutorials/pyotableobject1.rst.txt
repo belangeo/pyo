@@ -1,4 +1,4 @@
-Tutorial about recreating a custom PyoTableObject (TriangleTable)
+Tutorial: Creating a custom PyoTableObject - TriangleTable
 =================================================================
 
 .. code-block:: python

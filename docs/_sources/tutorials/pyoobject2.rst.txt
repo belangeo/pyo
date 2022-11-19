@@ -1,4 +1,4 @@
-Another tutorial about creating a custom PyoObject (Flanger)
+Tutorial: Creating a custom PyoObject - Flanger
 =============================================================
 
 There are few steps we need to take care of in order to create a class with all 

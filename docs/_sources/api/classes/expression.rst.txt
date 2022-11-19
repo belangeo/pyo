@@ -10,6 +10,11 @@ Prefix audio expression evaluator.
 This family implements a tiny functional programming language that 
 can be used to write synthesis or signal processing algorithms.
 
+Objects in this category
+------------------------------
+
+- :py:class:`Expr` :     Prefix audio expression evaluator.
+
 **API documentation**
 ---------------------
 

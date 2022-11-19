@@ -1,19 +1,21 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
 <title>Getting started — Pyo 1.0.4 documentation</title>
 <link href="_static/pygments.css" rel="stylesheet" type="text/css"/>
-<link href="_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="_static/agogo.css" rel="stylesheet" type="text/css"/>
 <link href="_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
 <link href="_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
 <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
 <script src="_static/jquery.js"></script>
 <script src="_static/underscore.js"></script>
+<script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
 <script src="_static/doctools.js"></script>
+<script src="_static/sphinx_highlight.js"></script>
 <link href="_static/E-PyoIcon.ico" rel="shortcut icon"/>
 <link href="about.html" rel="author" title="About these documents"/>
 <link href="genindex.html" rel="index" title="Index"/>
@@ -21,29 +23,74 @@
 <link href="winaudioinspect.html" rel="next" title="Configuring the audio output (especially on Windows)"/>
 <link href="structure.html" rel="prev" title="Structure of the library"/>
 </head><body>
-<div aria-label="related navigation" class="related" role="navigation">
-<h3>Navigation</h3>
-<ul>
-<li class="right" style="margin-right: 10px">
-<a accesskey="I" href="genindex.html" title="General Index">index</a></li>
-<li class="right">
-<a accesskey="N" href="winaudioinspect.html" title="Configuring the audio output (especially on Windows)">next</a> |</li>
-<li class="right">
-<a accesskey="P" href="structure.html" title="Structure of the library">previous</a> |</li>
-<li class="nav-item nav-item-0"><a href="index.html">Pyo 1.0.4 documentation</a> »</li>
-<li class="nav-item nav-item-this"><a href="">Getting started</a></li>
+<div class="header-wrapper" role="banner">
+<div class="header">
+<div class="headertitle"><a href="index.html">Pyo 1.0.4 documentation</a></div>
+<div aria-label="related navigation" class="rel" role="navigation">
+<a accesskey="P" href="structure.html" title="Structure of the library">previous</a> |
+          <a accesskey="N" href="winaudioinspect.html" title="Configuring the audio output (especially on Windows)">next</a> |
+          <a accesskey="I" href="genindex.html" title="General Index">index</a>
+</div>
+</div>
+</div>
+<div class="content-wrapper">
+<div class="content">
+<div class="sidebar">
+<h3>Table of Contents</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="about.html">About pyo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="download.html">Installing pyo with pip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compiling.html">Compiling pyo from sources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="structure.html">Structure of the library</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="winaudioinspect.html">Configuring the audio output (especially on Windows)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="perftips.html">How to improve performance of your pyo programs</a></li>
 </ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html">API documentation</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="examples/01-intro/index.html">First steps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/02-controls/index.html">Parameter control</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/03-generators/index.html">Synthesis generators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/04-soundfiles/index.html">Playing with soundfiles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/05-envelopes/index.html">Amplitude envelopes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/06-filters/index.html">Filtering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/07-effects/index.html">Creating sound effects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/08-dynamics/index.html">Dynamic range of audio signals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/09-callbacks/index.html">Calling python functions from audio objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/10-tables/index.html">Using tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/16-midi/index.html">How to use MIDI with pyo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/17-osc/index.html">How to use OSC with pyo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/19-multirate/index.html">Multirate audio processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/20-multicore/index.html">Multicore audio programming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/21-utilities/index.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/22-events/index.html">Events framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/23-expression/index.html">Evaluating prefix expression</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/pyoobject1.html">Tutorial: Creating a custom PyoObject - RingMod</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/pyoobject2.html">Tutorial: Creating a custom PyoObject - Flanger</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/pyotableobject1.html">Tutorial: Creating a custom PyoTableObject - TriangleTable</a></li>
+</ul>
+<div role="search">
+<h3 style="margin-top: 1.5em;">Search</h3>
+<form action="search.html" class="search" method="get">
+<input name="q" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
 </div>
 <div class="document">
 <div class="documentwrapper">
 <div class="bodywrapper">
 <div class="body" role="main">
 <section id="getting-started">
-<h1>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
+<h1>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this heading">¶</a></h1>
 <p>Here is quick introduction to Pyo. It assumes you already know Python and
 basics about OOP (Object-Oriented Programming).</p>
 <section id="the-pyo-server-and-gui">
-<h2>The Pyo Server and GUI<a class="headerlink" href="#the-pyo-server-and-gui" title="Permalink to this headline">¶</a></h2>
+<h2>The Pyo Server and GUI<a class="headerlink" href="#the-pyo-server-and-gui" title="Permalink to this heading">¶</a></h2>
 <p>The first thing you need to do to use Pyo is import the pyo python module and
 boot the server. This audio server will open audio and midi interfaces and
 will be ready to send to them the audio and MIDI produced by other pyo objects.
@@ -70,7 +117,7 @@ attributes later…) You can stop the server with:</p>
 </div>
 </section>
 <section id="to-interact-or-not-to-interact">
-<h2>To interact or not to interact<a class="headerlink" href="#to-interact-or-not-to-interact" title="Permalink to this headline">¶</a></h2>
+<h2>To interact or not to interact<a class="headerlink" href="#to-interact-or-not-to-interact" title="Permalink to this heading">¶</a></h2>
 <p>If you tried the above script from an interactive python shell you would have
 heard a sine tone, but if you ran it from a python script non-interactively,
 you are probably asking yourself why you haven’t heard anything. The reason
@@ -94,7 +141,7 @@ interactively to the interpreter, to start and stop objects, create or
 destroy them, etc.</p>
 </section>
 <section id="changing-object-characteristics">
-<h2>Changing Object Characteristics<a class="headerlink" href="#changing-object-characteristics" title="Permalink to this headline">¶</a></h2>
+<h2>Changing Object Characteristics<a class="headerlink" href="#changing-object-characteristics" title="Permalink to this heading">¶</a></h2>
 <p>The Sine class constructor is defined as:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">phase</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">add</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
@@ -131,7 +178,7 @@ object after it has been created you can use:</p>
 </div>
 </section>
 <section id="chaining-objects">
-<h2>Chaining objects<a class="headerlink" href="#chaining-objects" title="Permalink to this headline">¶</a></h2>
+<h2>Chaining objects<a class="headerlink" href="#chaining-objects" title="Permalink to this heading">¶</a></h2>
 <p>Oscillators like the Sine class can be used as inputs to other classes, for
 example for frequency modulation:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
@@ -144,7 +191,7 @@ example for frequency modulation:</p>
 <p>You can create an envelope for a sine wave like this:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
 <span class="n">s</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/server.html#pyo.Server" title="pyo.lib.server.Server"><span class="n">Server</span></a><span class="p">()</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span>
-<a class="sphinx-codeautolink-a" href="api/classes/controls.html#pyo.Adsr" title="pyo.lib.controls.Adsr"><span class="n">f</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/controls.html#pyo.Adsr" title="pyo.lib.controls.Adsr"><span class="n">Adsr</span></a><span class="p">(</span><span class="n">attack</span><span class="o">=.</span><span class="mi">01</span><span class="p">,</span> <span class="n">decay</span><span class="o">=.</span><span class="mi">2</span><span class="p">,</span> <span class="n">sustain</span><span class="o">=.</span><span class="mi">5</span><span class="p">,</span> <span class="n">release</span><span class="o">=.</span><span class="mi">1</span><span class="p">,</span> <span class="n">dur</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">mul</span><span class="o">=.</span><span class="mi">5</span><span class="p">)</span>
+<a class="sphinx-codeautolink-a" href="api/classes/controls.html#pyo.Adsr" title="pyo.lib.controls.Adsr"><span class="n">f</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/controls.html#pyo.Adsr" title="pyo.lib.controls.Adsr"><span class="n">Adsr</span></a><span class="p">(</span><span class="n">attack</span><span class="o">=</span><span class="mf">.01</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="mf">.2</span><span class="p">,</span> <span class="n">sustain</span><span class="o">=</span><span class="mf">.5</span><span class="p">,</span> <span class="n">release</span><span class="o">=</span><span class="mf">.1</span><span class="p">,</span> <span class="n">dur</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">.5</span><span class="p">)</span>
 <span class="n">a</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="n">mul</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="api/classes/controls.html#pyo.Adsr" title="pyo.lib.controls.Adsr"><span class="n">f</span></a><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
 <span class="n">f</span><span class="o">.</span><span class="n">play</span><span class="p">()</span>
 <span class="n">s</span><span class="o">.</span><span class="n">gui</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
@@ -152,7 +199,7 @@ example for frequency modulation:</p>
 </div>
 </section>
 <section id="class-examples">
-<h2>Class examples<a class="headerlink" href="#class-examples" title="Permalink to this headline">¶</a></h2>
+<h2>Class examples<a class="headerlink" href="#class-examples" title="Permalink to this heading">¶</a></h2>
 <p>All Classes in Pyo come with an example which shows how it can be used. To
 execute the example you can do:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <a class="sphinx-codeautolink-a" href="api/alphabetical.html#module-pyo" title="pyo"><span class="nn">pyo</span></a> <span class="kn">import</span> <span class="o">*</span>
@@ -166,53 +213,29 @@ execute the example you can do:</p>
 </div>
 </div>
 </div>
-<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
-<div class="sphinxsidebarwrapper">
-<h3><a href="index.html">Table of Contents</a></h3>
-<ul>
-<li><a class="reference internal" href="#">Getting started</a><ul>
-<li><a class="reference internal" href="#the-pyo-server-and-gui">The Pyo Server and GUI</a></li>
-<li><a class="reference internal" href="#to-interact-or-not-to-interact">To interact or not to interact</a></li>
-<li><a class="reference internal" href="#changing-object-characteristics">Changing Object Characteristics</a></li>
-<li><a class="reference internal" href="#chaining-objects">Chaining objects</a></li>
-<li><a class="reference internal" href="#class-examples">Class examples</a></li>
-</ul>
-</li>
-</ul>
-<h4>Previous topic</h4>
-<p class="topless"><a href="structure.html" title="previous chapter">Structure of the library</a></p>
-<h4>Next topic</h4>
-<p class="topless"><a href="winaudioinspect.html" title="next chapter">Configuring the audio output (especially on Windows)</a></p>
-<div id="searchbox" role="search" style="display: none">
-<h3 id="searchlabel">Quick search</h3>
-<div class="searchformwrapper">
-<form action="search.html" class="search" method="get">
-<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
-<input type="submit" value="Go"/>
-</form>
-</div>
-</div>
-<script>$('#searchbox').show(0);</script>
-</div>
 </div>
 <div class="clearer"></div>
 </div>
-<div aria-label="related navigation" class="related" role="navigation">
-<h3>Navigation</h3>
-<ul>
-<li class="right" style="margin-right: 10px">
-<a href="genindex.html" title="General Index">index</a></li>
-<li class="right">
-<a href="winaudioinspect.html" title="Configuring the audio output (especially on Windows)">next</a> |</li>
-<li class="right">
-<a href="structure.html" title="Structure of the library">previous</a> |</li>
-<li class="nav-item nav-item-0"><a href="index.html">Pyo 1.0.4 documentation</a> »</li>
-<li class="nav-item nav-item-this"><a href="">Getting started</a></li>
-</ul>
 </div>
+<div class="footer-wrapper">
+<div class="footer">
+<div class="left">
+<div aria-label="related navigaton" role="navigation">
+<a href="structure.html" title="Structure of the library">previous</a> |
+            <a href="winaudioinspect.html" title="Configuring the audio output (especially on Windows)">next</a> |
+            <a href="genindex.html" title="General Index">index</a>
+</div>
+<div aria-label="source link" role="note">
+</div>
+</div>
+<div class="right">
 <div class="footer" role="contentinfo">
         © Copyright 2021, Olivier Bélanger.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
     </div>
+</div>
+<div class="clearer"></div>
+</div>
+</div>
 </body>
 </html>

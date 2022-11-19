@@ -1,7 +1,24 @@
 Conversions
 =======================
 
+Functions that perform the conversion of values from one range to another range.
+
 .. currentmodule:: pyo
+
+Functions in this category
+------------------------------
+
+- :py:func:`midiToHz` :     Converts a midi note value to frequency in Hertz.
+- :py:func:`midiToTranspo` :     Converts a midi note value to transposition factor (central key = 60).
+- :py:func:`sampsToSec` :     Returns the duration in seconds equivalent to the number of samples given as an argument.
+- :py:func:`secToSamps` :     Returns the number of samples equivalent to the duration in seconds given as an argument.
+- :py:func:`beatToDur` :     Converts a beat value (multiplier of a quarter note) to a duration in seconds.
+- :py:func:`linToCosCurve` :     Creates a cosinus interpolated curve from a list of points.
+- :py:func:`rescale` :     Converts values from an input range to an output range.
+- :py:func:`floatmap` :     Converts values from a 0-1 range to an output range.
+- :py:func:`distanceToSegment` :     Find the distance from a point to a line or line segment.
+- :py:func:`reducePoints` :     Douglas-Peucker curve reduction algorithm.
+
 
 *midiToHz*
 ---------------------------------

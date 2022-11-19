@@ -1,19 +1,21 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
 <title>Audio Server — Pyo 1.0.4 documentation</title>
 <link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
-<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/agogo.css" rel="stylesheet" type="text/css"/>
 <link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
 <link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
 <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
 <script src="../../_static/jquery.js"></script>
 <script src="../../_static/underscore.js"></script>
+<script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
 <script src="../../_static/doctools.js"></script>
+<script src="../../_static/sphinx_highlight.js"></script>
 <link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
 <link href="../../about.html" rel="author" title="About these documents"/>
 <link href="../../genindex.html" rel="index" title="Index"/>
@@ -21,32 +23,81 @@
 <link href="listener.html" rel="next" title="Controller listeners"/>
 <link href="index.html" rel="prev" title="Classes by category"/>
 </head><body>
-<div aria-label="related navigation" class="related" role="navigation">
-<h3>Navigation</h3>
+<div class="header-wrapper" role="banner">
+<div class="header">
+<div class="headertitle"><a href="../../index.html">Pyo 1.0.4 documentation</a></div>
+<div aria-label="related navigation" class="rel" role="navigation">
+<a accesskey="P" href="index.html" title="Classes by category">previous</a> |
+          <a accesskey="N" href="listener.html" title="Controller listeners">next</a> |
+          <a accesskey="I" href="../../genindex.html" title="General Index">index</a>
+</div>
+</div>
+</div>
+<div class="content-wrapper">
+<div class="content">
+<div class="sidebar">
+<h3>Table of Contents</h3>
 <ul>
-<li class="right" style="margin-right: 10px">
-<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
-<li class="right">
-<a accesskey="N" href="listener.html" title="Controller listeners">next</a> |</li>
-<li class="right">
-<a accesskey="P" href="index.html" title="Classes by category">previous</a> |</li>
-<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
-<li class="nav-item nav-item-1"><a href="../index.html">API documentation</a> »</li>
-<li class="nav-item nav-item-2"><a accesskey="U" href="index.html">Classes by category</a> »</li>
-<li class="nav-item nav-item-this"><a href="">Audio Server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../about.html">About pyo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../download.html">Installing pyo with pip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../compiling.html">Compiling pyo from sources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../structure.html">Structure of the library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../gettingstarted.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../winaudioinspect.html">Configuring the audio output (especially on Windows)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../perftips.html">How to improve performance of your pyo programs</a></li>
 </ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../constants.html">Constants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../functions/index.html">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../alphabetical.html">Alphabetical class reference</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Classes by category</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/01-intro/index.html">First steps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/02-controls/index.html">Parameter control</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/03-generators/index.html">Synthesis generators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/04-soundfiles/index.html">Playing with soundfiles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/05-envelopes/index.html">Amplitude envelopes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/06-filters/index.html">Filtering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/07-effects/index.html">Creating sound effects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/08-dynamics/index.html">Dynamic range of audio signals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/09-callbacks/index.html">Calling python functions from audio objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/10-tables/index.html">Using tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/16-midi/index.html">How to use MIDI with pyo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/17-osc/index.html">How to use OSC with pyo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/19-multirate/index.html">Multirate audio processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/20-multicore/index.html">Multicore audio programming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/21-utilities/index.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/22-events/index.html">Events framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/23-expression/index.html">Evaluating prefix expression</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/pyoobject1.html">Tutorial: Creating a custom PyoObject - RingMod</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/pyoobject2.html">Tutorial: Creating a custom PyoObject - Flanger</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/pyotableobject1.html">Tutorial: Creating a custom PyoTableObject - TriangleTable</a></li>
+</ul>
+<div role="search">
+<h3 style="margin-top: 1.5em;">Search</h3>
+<form action="../../search.html" class="search" method="get">
+<input name="q" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
 </div>
 <div class="document">
 <div class="documentwrapper">
 <div class="bodywrapper">
 <div class="body" role="main">
 <section id="audio-server">
-<h1>Audio Server<a class="headerlink" href="#audio-server" title="Permalink to this headline">¶</a></h1>
+<h1>Audio Server<a class="headerlink" href="#audio-server" title="Permalink to this heading">¶</a></h1>
 <section id="server">
-<h2><em>Server</em><a class="headerlink" href="#server" title="Permalink to this headline">¶</a></h2>
+<h2><em>Server</em><a class="headerlink" href="#server" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.Server">
-<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">Server</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">44100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nchnls</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buffersize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">256</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duplex</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">audio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'portaudio'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">jackname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'pyo'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ichnls</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">winhost</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'directsound'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">midi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'portmidi'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/server.html#Server"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.Server" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Server</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">44100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nchnls</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buffersize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">256</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duplex</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">audio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'portaudio'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">jackname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'pyo'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ichnls</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">winhost</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'directsound'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">midi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'portmidi'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/server.html#Server"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.Server" title="Permalink to this definition">¶</a></dt>
 <dd><p>Main processing audio loop callback handler.</p>
 <p>The Server object handles all communications with Portaudio and
 Portmidi. It keeps track of all audio streams created as well as
@@ -138,7 +189,7 @@ the user’s responsability to manage the audio/midi configuration of its system
 </div>
 <div class="autoclasstoc docutils container">
 <p class="rubric">Public Data Attributes:</p>
-<table class="longtable docutils align-default">
+<table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
 <col style="width: 90%"/>
@@ -161,7 +212,7 @@ the user’s responsability to manage the audio/midi configuration of its system
 </div>
 <div class="autoclasstoc docutils container">
 <p class="rubric">Public Methods:</p>
-<table class="longtable docutils align-default">
+<table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
 <col style="width: 90%"/>
@@ -173,238 +224,238 @@ the user’s responsability to manage the audio/midi configuration of its system
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__del__</span></code>()</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.Server.reinit" title="pyo.Server.reinit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reinit</span></code></a>([sr, nchnls, buffersize, duplex, ...])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">reinit</span></code>([sr, nchnls, buffersize, duplex, ...])</p></td>
 <td><p>Reinit the server'settings.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pyo.Server.setCallback" title="pyo.Server.setCallback"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setCallback</span></code></a>(callback)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setCallback</span></code>(callback)</p></td>
 <td><p>Register a custom process callback.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.Server.gui" title="pyo.Server.gui"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gui</span></code></a>([locals, meter, timer, exit, title])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">gui</span></code>([locals, meter, timer, exit, title])</p></td>
 <td><p>Show the server's user interface.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pyo.Server.closeGui" title="pyo.Server.closeGui"><code class="xref py py-obj docutils literal notranslate"><span class="pre">closeGui</span></code></a>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">closeGui</span></code>()</p></td>
 <td><p>Programmatically close the server's GUI.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.Server.setTimeCallable" title="pyo.Server.setTimeCallable"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setTimeCallable</span></code></a>(func)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setTimeCallable</span></code>(func)</p></td>
 <td><p>Set a function callback that will receive the current time as argument.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pyo.Server.setMeterCallable" title="pyo.Server.setMeterCallable"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setMeterCallable</span></code></a>(func)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setMeterCallable</span></code>(func)</p></td>
 <td><p>Set a function callback that will receive the current rms values as argument.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.Server.setMeter" title="pyo.Server.setMeter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setMeter</span></code></a>(meter)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setMeter</span></code>(meter)</p></td>
 <td><p>Registers a meter object to the server.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pyo.Server.setInOutDevice" title="pyo.Server.setInOutDevice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setInOutDevice</span></code></a>(x)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setInOutDevice</span></code>(x)</p></td>
 <td><p>Set both input and output audio devices.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.Server.setInputDevice" title="pyo.Server.setInputDevice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setInputDevice</span></code></a>(x)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setInputDevice</span></code>(x)</p></td>
 <td><p>Set the audio input device number.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pyo.Server.setOutputDevice" title="pyo.Server.setOutputDevice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setOutputDevice</span></code></a>(x)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setOutputDevice</span></code>(x)</p></td>
 <td><p>Set the audio output device number.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.Server.setInputOffset" title="pyo.Server.setInputOffset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setInputOffset</span></code></a>(x)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setInputOffset</span></code>(x)</p></td>
 <td><p>Set the first physical input channel.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pyo.Server.setOutputOffset" title="pyo.Server.setOutputOffset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setOutputOffset</span></code></a>(x)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setOutputOffset</span></code>(x)</p></td>
 <td><p>Set the first physical output channel.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.Server.setInOutOffset" title="pyo.Server.setInOutOffset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setInOutOffset</span></code></a>(x)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setInOutOffset</span></code>(x)</p></td>
 <td><p>Set the first physical input and output channels.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pyo.Server.setMidiInputDevice" title="pyo.Server.setMidiInputDevice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setMidiInputDevice</span></code></a>(x)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setMidiInputDevice</span></code>(x)</p></td>
 <td><p>Set the Midi input device number.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.Server.setMidiOutputDevice" title="pyo.Server.setMidiOutputDevice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setMidiOutputDevice</span></code></a>(x)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setMidiOutputDevice</span></code>(x)</p></td>
 <td><p>Set the Midi output device number.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pyo.Server.allowMicrosoftMidiDevices" title="pyo.Server.allowMicrosoftMidiDevices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">allowMicrosoftMidiDevices</span></code></a>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">allowMicrosoftMidiDevices</span></code>()</p></td>
 <td><p>Allows the Microsoft Midi Mapper or GS Wavetable Synth device.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.Server.setSamplingRate" title="pyo.Server.setSamplingRate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setSamplingRate</span></code></a>(x)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setSamplingRate</span></code>(x)</p></td>
 <td><p>Set the sampling rate used by the server.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pyo.Server.setBufferSize" title="pyo.Server.setBufferSize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setBufferSize</span></code></a>(x)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setBufferSize</span></code>(x)</p></td>
 <td><p>Set the buffer size used by the server.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.Server.setNchnls" title="pyo.Server.setNchnls"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setNchnls</span></code></a>(x)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setNchnls</span></code>(x)</p></td>
 <td><p>Set the number of output (and input if <cite>ichnls</cite> = None) channels used by the server.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pyo.Server.setIchnls" title="pyo.Server.setIchnls"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setIchnls</span></code></a>(x)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setIchnls</span></code>(x)</p></td>
 <td><p>Set the number of input channels (if different of output channels) used by the server.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.Server.setDuplex" title="pyo.Server.setDuplex"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setDuplex</span></code></a>(x)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setDuplex</span></code>(x)</p></td>
 <td><p>Set the duplex mode used by the server.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pyo.Server.setVerbosity" title="pyo.Server.setVerbosity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setVerbosity</span></code></a>(x)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setVerbosity</span></code>(x)</p></td>
 <td><p>Set the server's verbosity.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.Server.setGlobalDur" title="pyo.Server.setGlobalDur"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setGlobalDur</span></code></a>(x)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setGlobalDur</span></code>(x)</p></td>
 <td><p>Set the global object duration (time to wait before stopping the object).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pyo.Server.setGlobalDel" title="pyo.Server.setGlobalDel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setGlobalDel</span></code></a>(x)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setGlobalDel</span></code>(x)</p></td>
 <td><p>Set the global object delay time (time to wait before activating the object).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.Server.setJackAuto" title="pyo.Server.setJackAuto"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setJackAuto</span></code></a>([xin, xout])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setJackAuto</span></code>([xin, xout])</p></td>
 <td><p>Tells the server to auto-connect (or not) Jack ports to System ports.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pyo.Server.setJackAutoConnectInputPorts" title="pyo.Server.setJackAutoConnectInputPorts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setJackAutoConnectInputPorts</span></code></a>(ports)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setJackAutoConnectInputPorts</span></code>(ports)</p></td>
 <td><p>Tells the server to auto-connect Jack input ports to pre-defined Jack ports.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.Server.setJackAutoConnectOutputPorts" title="pyo.Server.setJackAutoConnectOutputPorts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setJackAutoConnectOutputPorts</span></code></a>(ports)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setJackAutoConnectOutputPorts</span></code>(ports)</p></td>
 <td><p>Tells the server to auto-connect Jack output ports to pre-defined Jack ports.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pyo.Server.setJackInputPortNames" title="pyo.Server.setJackInputPortNames"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setJackInputPortNames</span></code></a>(name)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setJackInputPortNames</span></code>(name)</p></td>
 <td><p>Change the short name of pyo's input ports for the jack server.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.Server.setJackOutputPortNames" title="pyo.Server.setJackOutputPortNames"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setJackOutputPortNames</span></code></a>(name)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setJackOutputPortNames</span></code>(name)</p></td>
 <td><p>Change the short name of pyo's output ports for the jack server.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pyo.Server.setJackAutoConnectMidiInputPort" title="pyo.Server.setJackAutoConnectMidiInputPort"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setJackAutoConnectMidiInputPort</span></code></a>(ports)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setJackAutoConnectMidiInputPort</span></code>(ports)</p></td>
 <td><p>Tells the server to auto-connect Jack midi input port to pre-defined Jack ports.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.Server.setJackAutoConnectMidiOutputPort" title="pyo.Server.setJackAutoConnectMidiOutputPort"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setJackAutoConnectMidiOutputPort</span></code></a>(ports)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setJackAutoConnectMidiOutputPort</span></code>(ports)</p></td>
 <td><p>Tells the server to auto-connect Jack midi output port to pre-defined Jack ports.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pyo.Server.setJackMidiInputPortName" title="pyo.Server.setJackMidiInputPortName"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setJackMidiInputPortName</span></code></a>(name)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setJackMidiInputPortName</span></code>(name)</p></td>
 <td><p>Change the short name of pyo's midi input port for the jack server.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.Server.setJackMidiOutputPortName" title="pyo.Server.setJackMidiOutputPortName"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setJackMidiOutputPortName</span></code></a>(name)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setJackMidiOutputPortName</span></code>(name)</p></td>
 <td><p>Change the short name of pyo's midi output port for the jack server.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pyo.Server.setIsJackTransportSlave" title="pyo.Server.setIsJackTransportSlave"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setIsJackTransportSlave</span></code></a>(x)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setIsJackTransportSlave</span></code>(x)</p></td>
 <td><p>Set if pyo's server is slave to jack transport or not.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.Server.setGlobalSeed" title="pyo.Server.setGlobalSeed"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setGlobalSeed</span></code></a>(x)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setGlobalSeed</span></code>(x)</p></td>
 <td><p>Set the server's global seed used by random objects.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pyo.Server.setStartOffset" title="pyo.Server.setStartOffset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setStartOffset</span></code></a>(x)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setStartOffset</span></code>(x)</p></td>
 <td><p>Set the server's starting time offset.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.Server.setAmp" title="pyo.Server.setAmp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setAmp</span></code></a>(x)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setAmp</span></code>(x)</p></td>
 <td><p>Set the overall amplitude.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pyo.Server.beginResamplingBlock" title="pyo.Server.beginResamplingBlock"><code class="xref py py-obj docutils literal notranslate"><span class="pre">beginResamplingBlock</span></code></a>(x)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">beginResamplingBlock</span></code>(x)</p></td>
 <td><p>Starts a resampling block.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.Server.endResamplingBlock" title="pyo.Server.endResamplingBlock"><code class="xref py py-obj docutils literal notranslate"><span class="pre">endResamplingBlock</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">endResamplingBlock</span></code>()</p></td>
 <td><p>Ends a resampling block.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pyo.Server.shutdown" title="pyo.Server.shutdown"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shutdown</span></code></a>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">shutdown</span></code>()</p></td>
 <td><p>Shut down and clear the server.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.Server.boot" title="pyo.Server.boot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">boot</span></code></a>([newBuffer])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">boot</span></code>([newBuffer])</p></td>
 <td><p>Boot the server.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pyo.Server.start" title="pyo.Server.start"><code class="xref py py-obj docutils literal notranslate"><span class="pre">start</span></code></a>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">start</span></code>()</p></td>
 <td><p>Start the audio callback loop and begin processing.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.Server.stop" title="pyo.Server.stop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stop</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">stop</span></code>()</p></td>
 <td><p>Stop the audio callback loop.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pyo.Server.recordOptions" title="pyo.Server.recordOptions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">recordOptions</span></code></a>([dur, filename, fileformat, ...])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">recordOptions</span></code>([dur, filename, fileformat, ...])</p></td>
 <td><p>Sets options for soundfile created by offline rendering or global recording.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.Server.recstart" title="pyo.Server.recstart"><code class="xref py py-obj docutils literal notranslate"><span class="pre">recstart</span></code></a>([filename])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">recstart</span></code>([filename])</p></td>
 <td><p>Begins a default recording of the sound that is sent to the soundcard.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pyo.Server.recstop" title="pyo.Server.recstop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">recstop</span></code></a>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">recstop</span></code>()</p></td>
 <td><p>Stop the previously started recording.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.Server.noteout" title="pyo.Server.noteout"><code class="xref py py-obj docutils literal notranslate"><span class="pre">noteout</span></code></a>(pitch, velocity[, channel, timestamp])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">noteout</span></code>(pitch, velocity[, channel, timestamp])</p></td>
 <td><p>Send a MIDI note message to the selected midi output device.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pyo.Server.afterout" title="pyo.Server.afterout"><code class="xref py py-obj docutils literal notranslate"><span class="pre">afterout</span></code></a>(pitch, velocity[, channel, timestamp])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">afterout</span></code>(pitch, velocity[, channel, timestamp])</p></td>
 <td><p>Send an aftertouch message to the selected midi output device.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.Server.ctlout" title="pyo.Server.ctlout"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ctlout</span></code></a>(ctlnum, value[, channel, timestamp])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ctlout</span></code>(ctlnum, value[, channel, timestamp])</p></td>
 <td><p>Send a control change message to the selected midi output device.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pyo.Server.programout" title="pyo.Server.programout"><code class="xref py py-obj docutils literal notranslate"><span class="pre">programout</span></code></a>(value[, channel, timestamp])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">programout</span></code>(value[, channel, timestamp])</p></td>
 <td><p>Send a program change message to the selected midi output device.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.Server.pressout" title="pyo.Server.pressout"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pressout</span></code></a>(value[, channel, timestamp])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">pressout</span></code>(value[, channel, timestamp])</p></td>
 <td><p>Send a channel pressure message to the selected midi output device.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pyo.Server.bendout" title="pyo.Server.bendout"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bendout</span></code></a>(value[, channel, timestamp])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">bendout</span></code>(value[, channel, timestamp])</p></td>
 <td><p>Send a pitch bend message to the selected midi output device.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.Server.sysexout" title="pyo.Server.sysexout"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sysexout</span></code></a>(msg[, timestamp])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">sysexout</span></code>(msg[, timestamp])</p></td>
 <td><p>Send a system exclusive message to the selected midi output device.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pyo.Server.makenote" title="pyo.Server.makenote"><code class="xref py py-obj docutils literal notranslate"><span class="pre">makenote</span></code></a>(pitch, velocity, duration[, channel])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">makenote</span></code>(pitch, velocity, duration[, channel])</p></td>
 <td><p>Send MIDI noteon/noteoff messages to the selected midi output device.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.Server.addMidiEvent" title="pyo.Server.addMidiEvent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">addMidiEvent</span></code></a>(status[, data1, data2])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">addMidiEvent</span></code>(status[, data1, data2])</p></td>
 <td><p>Add a MIDI event in the server processing loop.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pyo.Server.getStreams" title="pyo.Server.getStreams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getStreams</span></code></a>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getStreams</span></code>()</p></td>
 <td><p>Returns the list of Stream objects currently in the Server memory.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.Server.getSamplingRate" title="pyo.Server.getSamplingRate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getSamplingRate</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getSamplingRate</span></code>()</p></td>
 <td><p>Return the current sampling rate.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pyo.Server.getNchnls" title="pyo.Server.getNchnls"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getNchnls</span></code></a>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getNchnls</span></code>()</p></td>
 <td><p>Return the current number of channels.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.Server.getBufferSize" title="pyo.Server.getBufferSize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getBufferSize</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getBufferSize</span></code>()</p></td>
 <td><p>Return the current buffer size.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pyo.Server.getGlobalDur" title="pyo.Server.getGlobalDur"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getGlobalDur</span></code></a>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getGlobalDur</span></code>()</p></td>
 <td><p>Return the current global duration.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.Server.getGlobalDel" title="pyo.Server.getGlobalDel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getGlobalDel</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getGlobalDel</span></code>()</p></td>
 <td><p>Return the current global delay time.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pyo.Server.getGlobalSeed" title="pyo.Server.getGlobalSeed"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getGlobalSeed</span></code></a>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getGlobalSeed</span></code>()</p></td>
 <td><p>Return the current global seed.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.Server.getIsStarted" title="pyo.Server.getIsStarted"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getIsStarted</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getIsStarted</span></code>()</p></td>
 <td><p>Returns 1 if the server is started, otherwise returns 0.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pyo.Server.getIsBooted" title="pyo.Server.getIsBooted"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getIsBooted</span></code></a>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getIsBooted</span></code>()</p></td>
 <td><p>Returns 1 if the server is booted, otherwise returns 0.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.Server.deactivateMidi" title="pyo.Server.deactivateMidi"><code class="xref py py-obj docutils literal notranslate"><span class="pre">deactivateMidi</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">deactivateMidi</span></code>()</p></td>
 <td><p>Deactivate Midi callback.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pyo.Server.getMidiActive" title="pyo.Server.getMidiActive"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getMidiActive</span></code></a>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getMidiActive</span></code>()</p></td>
 <td><p>Returns 1 if Midi callback is active, otherwise returns 0.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.Server.getNumberOfStreams" title="pyo.Server.getNumberOfStreams"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getNumberOfStreams</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getNumberOfStreams</span></code>()</p></td>
 <td><p>Returns the number of streams currently in the Server memory.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pyo.Server.setServer" title="pyo.Server.setServer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setServer</span></code></a>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setServer</span></code>()</p></td>
 <td><p>Sets this server as the one to use for new objects when using the embedded device.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.Server.getInputAddr" title="pyo.Server.getInputAddr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getInputAddr</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getInputAddr</span></code>()</p></td>
 <td><p>Return the address of the input buffer.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pyo.Server.getOutputAddr" title="pyo.Server.getOutputAddr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getOutputAddr</span></code></a>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getOutputAddr</span></code>()</p></td>
 <td><p>Return the address of the output buffer.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.Server.getServerID" title="pyo.Server.getServerID"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getServerID</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getServerID</span></code>()</p></td>
 <td><p>Return the server ID.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pyo.Server.getServerAddr" title="pyo.Server.getServerAddr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getServerAddr</span></code></a>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getServerAddr</span></code>()</p></td>
 <td><p>Return the address of the server.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.Server.getEmbedICallbackAddr" title="pyo.Server.getEmbedICallbackAddr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getEmbedICallbackAddr</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getEmbedICallbackAddr</span></code>()</p></td>
 <td><p>Return the address of the interleaved embedded callback function.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pyo.Server.getCurrentTime" title="pyo.Server.getCurrentTime"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getCurrentTime</span></code></a>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getCurrentTime</span></code>()</p></td>
 <td><p>Return the current time as a formatted string.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.Server.getCurrentTimeInSamples" title="pyo.Server.getCurrentTimeInSamples"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getCurrentTimeInSamples</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getCurrentTimeInSamples</span></code>()</p></td>
 <td><p>Return the current time in number of elapsed samples since the server was started.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pyo.Server.getCurrentAmp" title="pyo.Server.getCurrentAmp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getCurrentAmp</span></code></a>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getCurrentAmp</span></code>()</p></td>
 <td><p>Return the current amplitudes as a tuple of <cite>nchnls</cite> length.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.Server.setAutoStartChildren" title="pyo.Server.setAutoStartChildren"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setAutoStartChildren</span></code></a>(state)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setAutoStartChildren</span></code>(state)</p></td>
 <td><p>Giving True to this method tells pyo that a call to the <cite>play</cite>, <cite>out</cite> or <cite>stop</cite> method of audio objects should propagate to the other audio objects given as arguments.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pyo.Server.process" title="pyo.Server.process"><code class="xref py py-obj docutils literal notranslate"><span class="pre">process</span></code></a>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">process</span></code>()</p></td>
 <td><p>Tell the server to compute a single buffer size of audio samples.</p></td>
 </tr>
 </tbody>
@@ -1008,7 +1059,7 @@ C/C++ application with the embedded server.</p>
 </dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pyo.Server.recordOptions">
-<span class="sig-name descname"><span class="pre">recordOptions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dur</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fileformat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampletype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quality</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.4</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/server.html#Server.recordOptions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.Server.recordOptions" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">recordOptions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dur</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fileformat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampletype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quality</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.4</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/server.html#Server.recordOptions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.Server.recordOptions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets options for soundfile created by offline rendering or global recording.</p>
 <dl class="field-list">
 <dt class="field-odd">Args</dt>
@@ -1431,7 +1482,7 @@ very last object.</p>
 <p>With setAutoStartChildren(True), a call to the <cite>out</cite> method
 will automatically triggers the <cite>play</cite> method of the Fader
 object given as <cite>mul</cite> argument.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.RCOsc" title="pyo.lib.generators.RCOsc"><span class="n">RCOsc</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Fader" title="pyo.lib.controls.Fader"><span class="n">Fader</span></a><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">mul</span><span class="o">=.</span><span class="mi">3</span><span class="p">))</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.RCOsc" title="pyo.lib.generators.RCOsc"><span class="n">RCOsc</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Fader" title="pyo.lib.controls.Fader"><span class="n">Fader</span></a><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">.3</span><span class="p">))</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>With setAutoStartChildren(True), a call to the <cite>stop</cite> method
@@ -1445,7 +1496,7 @@ the Linseg assigned to the frequency waits for 1 second before
 actually stopping its process, the Fader assigned to the <cite>mul</cite>
 argument starts its fadeout immediately.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Linseg" title="pyo.lib.controls.Linseg"><span class="n">freq</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Linseg" title="pyo.lib.controls.Linseg"><span class="n">Linseg</span></a><span class="p">([(</span><span class="mi">0</span><span class="p">,</span><span class="mi">500</span><span class="p">),(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">750</span><span class="p">),(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">500</span><span class="p">)],</span> <span class="n">loop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Linseg" title="pyo.lib.controls.Linseg"><span class="n">freq</span></a><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Fader" title="pyo.lib.controls.Fader"><span class="n">Fader</span></a><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">mul</span><span class="o">=.</span><span class="mi">2</span><span class="p">))</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="../../api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Linseg" title="pyo.lib.controls.Linseg"><span class="n">freq</span></a><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="../../api/classes/controls.html#pyo.Fader" title="pyo.lib.controls.Fader"><span class="n">Fader</span></a><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">.2</span><span class="p">))</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>Sometime, we still want the process assigned to a <cite>mul</cite> attribute
@@ -1496,22 +1547,22 @@ It’s probably only useful in the context of internal testing.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.Server.amp">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">amp</span></span><a class="headerlink" href="#pyo.Server.amp" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">amp</span></span><a class="headerlink" href="#pyo.Server.amp" title="Permalink to this definition">¶</a></dt>
 <dd><p>float. Overall amplitude.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.Server.startoffset">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">startoffset</span></span><a class="headerlink" href="#pyo.Server.startoffset" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">startoffset</span></span><a class="headerlink" href="#pyo.Server.startoffset" title="Permalink to this definition">¶</a></dt>
 <dd><p>float. Starting time of the real-time processing.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.Server.verbosity">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">verbosity</span></span><a class="headerlink" href="#pyo.Server.verbosity" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">verbosity</span></span><a class="headerlink" href="#pyo.Server.verbosity" title="Permalink to this definition">¶</a></dt>
 <dd><p>int. Server verbosity.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.Server.globalseed">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">globalseed</span></span><a class="headerlink" href="#pyo.Server.globalseed" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">globalseed</span></span><a class="headerlink" href="#pyo.Server.globalseed" title="Permalink to this definition">¶</a></dt>
 <dd><p>int. Server global seed.</p>
 </dd></dl>
 </dd></dl>
@@ -1521,51 +1572,29 @@ It’s probably only useful in the context of internal testing.</p>
 </div>
 </div>
 </div>
-<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
-<div class="sphinxsidebarwrapper">
-<h3><a href="../../index.html">Table of Contents</a></h3>
-<ul>
-<li><a class="reference internal" href="#">Audio Server</a><ul>
-<li><a class="reference internal" href="#server"><em>Server</em></a></li>
-</ul>
-</li>
-</ul>
-<h4>Previous topic</h4>
-<p class="topless"><a href="index.html" title="previous chapter">Classes by category</a></p>
-<h4>Next topic</h4>
-<p class="topless"><a href="listener.html" title="next chapter">Controller listeners</a></p>
-<div id="searchbox" role="search" style="display: none">
-<h3 id="searchlabel">Quick search</h3>
-<div class="searchformwrapper">
-<form action="../../search.html" class="search" method="get">
-<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
-<input type="submit" value="Go"/>
-</form>
-</div>
-</div>
-<script>$('#searchbox').show(0);</script>
-</div>
 </div>
 <div class="clearer"></div>
 </div>
-<div aria-label="related navigation" class="related" role="navigation">
-<h3>Navigation</h3>
-<ul>
-<li class="right" style="margin-right: 10px">
-<a href="../../genindex.html" title="General Index">index</a></li>
-<li class="right">
-<a href="listener.html" title="Controller listeners">next</a> |</li>
-<li class="right">
-<a href="index.html" title="Classes by category">previous</a> |</li>
-<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
-<li class="nav-item nav-item-1"><a href="../index.html">API documentation</a> »</li>
-<li class="nav-item nav-item-2"><a href="index.html">Classes by category</a> »</li>
-<li class="nav-item nav-item-this"><a href="">Audio Server</a></li>
-</ul>
 </div>
+<div class="footer-wrapper">
+<div class="footer">
+<div class="left">
+<div aria-label="related navigaton" role="navigation">
+<a href="index.html" title="Classes by category">previous</a> |
+            <a href="listener.html" title="Controller listeners">next</a> |
+            <a href="../../genindex.html" title="General Index">index</a>
+</div>
+<div aria-label="source link" role="note">
+</div>
+</div>
+<div class="right">
 <div class="footer" role="contentinfo">
         © Copyright 2021, Olivier Bélanger.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
     </div>
+</div>
+<div class="clearer"></div>
+</div>
+</div>
 </body>
 </html>

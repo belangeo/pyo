@@ -147,6 +147,7 @@ Alphabetical class reference
 - :py:class:`Metro` :     Generates isochronous trigger signals.
 - :py:class:`MidiAdsr` :     Midi triggered ADSR envelope generator.
 - :py:class:`MidiDelAdsr` :     Midi triggered ADSR envelope generator with pre-delay.
+- :py:class:`MidiDispatcher` :     Self-contained midi dispatcher thread.
 - :py:class:`MidiLinseg` :     Line segments trigger.
 - :py:class:`MidiListener` :     Self-contained midi listener thread.
 - :py:class:`Midictl` :     Get the current value of a Midi controller.

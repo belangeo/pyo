@@ -1,20 +1,22 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
     <title>Functions &#8212; Pyo 1.0.4 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/nature.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/agogo.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-codeautolink.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/autoclasstoc.css" />
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
     <link rel="shortcut icon" href="../../_static/E-PyoIcon.ico"/>
     <link rel="author" title="About these documents" href="../../about.html" />
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -22,34 +24,90 @@
     <link rel="next" title="Audio Setup" href="audio.html" />
     <link rel="prev" title="Constants" href="../constants.html" /> 
   </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="audio.html" title="Audio Setup"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
+    <div class="header-wrapper" role="banner">
+      <div class="header">
+        <div class="headertitle"><a
+          href="../../index.html">Pyo 1.0.4 documentation</a></div>
+        <div class="rel" role="navigation" aria-label="related navigation">
           <a href="../constants.html" title="Constants"
-             accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">API documentation</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">Functions</a></li> 
-      </ul>
-    </div>  
+             accesskey="P">previous</a> |
+          <a href="audio.html" title="Audio Setup"
+             accesskey="N">next</a> |
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a>
+        </div>
+       </div>
+    </div>
 
-    <div class="document">
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="sidebar">
+          
+          <h3>Table of Contents</h3>
+          <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../about.html">About pyo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../download.html">Installing pyo with pip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../compiling.html">Compiling pyo from sources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../structure.html">Structure of the library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../gettingstarted.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../winaudioinspect.html">Configuring the audio output (especially on Windows)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../perftips.html">How to improve performance of your pyo programs</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../constants.html">Constants</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../alphabetical.html">Alphabetical class reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../classes/index.html">Classes by category</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/01-intro/index.html">First steps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/02-controls/index.html">Parameter control</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/03-generators/index.html">Synthesis generators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/04-soundfiles/index.html">Playing with soundfiles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/05-envelopes/index.html">Amplitude envelopes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/06-filters/index.html">Filtering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/07-effects/index.html">Creating sound effects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/08-dynamics/index.html">Dynamic range of audio signals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/09-callbacks/index.html">Calling python functions from audio objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/10-tables/index.html">Using tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/16-midi/index.html">How to use MIDI with pyo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/17-osc/index.html">How to use OSC with pyo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/19-multirate/index.html">Multirate audio processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/20-multicore/index.html">Multicore audio programming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/21-utilities/index.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/22-events/index.html">Events framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/23-expression/index.html">Evaluating prefix expression</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/pyoobject1.html">Tutorial: Creating a custom PyoObject - RingMod</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/pyoobject2.html">Tutorial: Creating a custom PyoObject - Flanger</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/pyotableobject1.html">Tutorial: Creating a custom PyoTableObject - TriangleTable</a></li>
+</ul>
+
+          <div role="search">
+            <h3 style="margin-top: 1.5em;">Search</h3>
+            <form class="search" action="../../search.html" method="get">
+                <input type="text" name="q" />
+                <input type="submit" value="Go" />
+            </form>
+          </div>
+
+        </div>
+        <div class="document">
+            
       <div class="documentwrapper">
         <div class="bodywrapper">
           <div class="body" role="main">
             
   <section id="functions">
-<h1>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h1>
+<h1>Functions<a class="headerlink" href="#functions" title="Permalink to this heading">¶</a></h1>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="audio.html">Audio Setup</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="audio.html#functions-in-this-category">Functions in this category</a></li>
 <li class="toctree-l2"><a class="reference internal" href="audio.html#pa-get-version"><em>pa_get_version</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="audio.html#pa-get-version-text"><em>pa_get_version_text</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="audio.html#pa-count-host-apis"><em>pa_count_host_apis</em></a></li>
@@ -68,6 +126,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="midi.html">Midi Setup</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="midi.html#functions-in-this-category">Functions in this category</a></li>
 <li class="toctree-l2"><a class="reference internal" href="midi.html#pm-get-default-output"><em>pm_get_default_output</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="midi.html#pm-get-default-input"><em>pm_get_default_input</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="midi.html#pm-get-output-devices"><em>pm_get_output_devices</em></a></li>
@@ -77,17 +136,20 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="sndfile.html">Soundfile</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="sndfile.html#functions-in-this-category">Functions in this category</a></li>
 <li class="toctree-l2"><a class="reference internal" href="sndfile.html#sndinfo"><em>sndinfo</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="sndfile.html#savefile"><em>savefile</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="sndfile.html#savefilefromtable"><em>savefileFromTable</em></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="sampling.html">Resampling</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="sampling.html#functions-in-this-category">Functions in this category</a></li>
 <li class="toctree-l2"><a class="reference internal" href="sampling.html#upsamp"><em>upsamp</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="sampling.html#downsamp"><em>downsamp</em></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="conv.html">Conversions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="conv.html#functions-in-this-category">Functions in this category</a></li>
 <li class="toctree-l2"><a class="reference internal" href="conv.html#miditohz"><em>midiToHz</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="conv.html#miditotranspo"><em>midiToTranspo</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="conv.html#sampstosec"><em>sampsToSec</em></a></li>
@@ -101,11 +163,13 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="server.html">Server Queries</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="server.html#functions-in-this-category">Functions in this category</a></li>
 <li class="toctree-l2"><a class="reference internal" href="server.html#servercreated"><em>serverCreated</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="server.html#serverbooted"><em>serverBooted</em></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="util.html">Utilities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="util.html#functions-in-this-category">Functions in this category</a></li>
 <li class="toctree-l2"><a class="reference internal" href="util.html#example"><em>example</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="util.html#class-args"><em>class_args</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="util.html#getversion"><em>getVersion</em></a></li>
@@ -131,48 +195,36 @@
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="../constants.html"
-                        title="previous chapter">Constants</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="audio.html"
-                        title="next chapter">Audio Setup</a></p>
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script>$('#searchbox').show(0);</script>
         </div>
+        <div class="clearer"></div>
       </div>
-      <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="audio.html" title="Audio Setup"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="../constants.html" title="Constants"
-             >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="../index.html" >API documentation</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">Functions</a></li> 
-      </ul>
-    </div>
+
+    <div class="footer-wrapper">
+      <div class="footer">
+        <div class="left">
+          <div role="navigation" aria-label="related navigaton">
+            <a href="../constants.html" title="Constants"
+              >previous</a> |
+            <a href="audio.html" title="Audio Setup"
+              >next</a> |
+            <a href="../../genindex.html" title="General Index"
+              >index</a>
+          </div>
+          <div role="note" aria-label="source link">
+          </div>
+        </div>
+
+        <div class="right">
+          
     <div class="footer" role="contentinfo">
         &#169; Copyright 2021, Olivier Bélanger.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
     </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
   </body>
 </html>

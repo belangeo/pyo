@@ -47,11 +47,12 @@ for key in [
     "PyoObjectBase",
     "Map",
     "MidiListener",
+    "MidiDispatcher",
     "OscListener",
     "PyoGui",
 ]:
     if type(OBJECTS_TREE[key]) == list:
-        if key in ["MidiListener", "OscListener"]:
+        if key in ["MidiListener", "MidiDispatcher", "OscListener"]:
             lines.append(format % (key, getDocFirstLine(key)))
         else:
             for obj in OBJECTS_TREE[key]:
@@ -78,6 +79,9 @@ f.close()
 
 # New examples listing
 src_example_dir = "../pyo/examples"
+dest_example_dir = "source/examples"
+if os.path.isdir(dest_example_dir):
+    os.system("rm -r source/examples")
 os.mkdir("source/examples")
 folders = sorted([d for d in os.listdir(src_example_dir) if d[0] in ["0", "1", "2"]])
 for dir in folders:

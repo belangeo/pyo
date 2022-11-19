@@ -1,19 +1,21 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
 <title>Events framework — Pyo 1.0.4 documentation</title>
 <link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
-<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/agogo.css" rel="stylesheet" type="text/css"/>
 <link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
 <link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
 <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
 <script src="../../_static/jquery.js"></script>
 <script src="../../_static/underscore.js"></script>
+<script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
 <script src="../../_static/doctools.js"></script>
+<script src="../../_static/sphinx_highlight.js"></script>
 <link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
 <link href="../../about.html" rel="author" title="About these documents"/>
 <link href="../../genindex.html" rel="index" title="Index"/>
@@ -21,27 +23,76 @@
 <link href="expression.html" rel="next" title="Prefix expression evaluators"/>
 <link href="effects.html" rel="prev" title="Special Effects"/>
 </head><body>
-<div aria-label="related navigation" class="related" role="navigation">
-<h3>Navigation</h3>
+<div class="header-wrapper" role="banner">
+<div class="header">
+<div class="headertitle"><a href="../../index.html">Pyo 1.0.4 documentation</a></div>
+<div aria-label="related navigation" class="rel" role="navigation">
+<a accesskey="P" href="effects.html" title="Special Effects">previous</a> |
+          <a accesskey="N" href="expression.html" title="Prefix expression evaluators">next</a> |
+          <a accesskey="I" href="../../genindex.html" title="General Index">index</a>
+</div>
+</div>
+</div>
+<div class="content-wrapper">
+<div class="content">
+<div class="sidebar">
+<h3>Table of Contents</h3>
 <ul>
-<li class="right" style="margin-right: 10px">
-<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
-<li class="right">
-<a accesskey="N" href="expression.html" title="Prefix expression evaluators">next</a> |</li>
-<li class="right">
-<a accesskey="P" href="effects.html" title="Special Effects">previous</a> |</li>
-<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
-<li class="nav-item nav-item-1"><a href="../index.html">API documentation</a> »</li>
-<li class="nav-item nav-item-2"><a accesskey="U" href="index.html">Classes by category</a> »</li>
-<li class="nav-item nav-item-this"><a href="">Events framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../about.html">About pyo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../download.html">Installing pyo with pip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../compiling.html">Compiling pyo from sources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../structure.html">Structure of the library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../gettingstarted.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../winaudioinspect.html">Configuring the audio output (especially on Windows)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../perftips.html">How to improve performance of your pyo programs</a></li>
 </ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../constants.html">Constants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../functions/index.html">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../alphabetical.html">Alphabetical class reference</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Classes by category</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/01-intro/index.html">First steps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/02-controls/index.html">Parameter control</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/03-generators/index.html">Synthesis generators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/04-soundfiles/index.html">Playing with soundfiles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/05-envelopes/index.html">Amplitude envelopes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/06-filters/index.html">Filtering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/07-effects/index.html">Creating sound effects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/08-dynamics/index.html">Dynamic range of audio signals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/09-callbacks/index.html">Calling python functions from audio objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/10-tables/index.html">Using tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/16-midi/index.html">How to use MIDI with pyo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/17-osc/index.html">How to use OSC with pyo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/19-multirate/index.html">Multirate audio processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/20-multicore/index.html">Multicore audio programming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/21-utilities/index.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/22-events/index.html">Events framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/23-expression/index.html">Evaluating prefix expression</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/pyoobject1.html">Tutorial: Creating a custom PyoObject - RingMod</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/pyoobject2.html">Tutorial: Creating a custom PyoObject - Flanger</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/pyotableobject1.html">Tutorial: Creating a custom PyoTableObject - TriangleTable</a></li>
+</ul>
+<div role="search">
+<h3 style="margin-top: 1.5em;">Search</h3>
+<form action="../../search.html" class="search" method="get">
+<input name="q" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
 </div>
 <div class="document">
 <div class="documentwrapper">
 <div class="bodywrapper">
 <div class="body" role="main">
 <section id="events-framework">
-<h1>Events framework<a class="headerlink" href="#events-framework" title="Permalink to this headline">¶</a></h1>
+<h1>Events framework<a class="headerlink" href="#events-framework" title="Permalink to this heading">¶</a></h1>
 <p>Set of tools to generate sequence of events.</p>
 <p>The purpose of the Event framework is to allow the user to generate a
 sequence of events with as few as possible parameters to specify.</p>
@@ -49,11 +100,32 @@ sequence of events with as few as possible parameters to specify.</p>
 parameters, generally designed with event generator objects, builds the events
 and plays the sequence.</p>
 <p>See the <strong>Events framework</strong> examples in the documentation for different use cases.</p>
+<section id="objects-in-this-category">
+<h2>Objects in this category<a class="headerlink" href="#objects-in-this-category" title="Permalink to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="#pyo.EventCall" title="pyo.EventCall"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventCall</span></code></a> :     Calls a function, with any number of arguments, and uses its return value.</p></li>
+<li><p><a class="reference internal" href="#pyo.EventChoice" title="pyo.EventChoice"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventChoice</span></code></a> :     Plays values randomly chosen from a list.</p></li>
+<li><p><a class="reference internal" href="#pyo.EventConditional" title="pyo.EventConditional"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventConditional</span></code></a> :     Executes one generator or the other depending on the result of a condition.</p></li>
+<li><p><a class="reference internal" href="#pyo.EventDrunk" title="pyo.EventDrunk"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventDrunk</span></code></a> :     Performs a random walk over a list of values.</p></li>
+<li><p><a class="reference internal" href="#pyo.EventDummy" title="pyo.EventDummy"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventDummy</span></code></a> : An EventGenerator created internally to handle arithmetic on Events.</p></li>
+<li><p><a class="reference internal" href="#pyo.EventFilter" title="pyo.EventFilter"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventFilter</span></code></a> : An EventGenerator created internally to handle simple filter on Events.</p></li>
+<li><p><a class="reference internal" href="#pyo.EventGenerator" title="pyo.EventGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventGenerator</span></code></a> :     Base class for all event generators.</p></li>
+<li><p><a class="reference internal" href="#pyo.EventIndex" title="pyo.EventIndex"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventIndex</span></code></a> :     Plays values from a list based on a position index.</p></li>
+<li><p><a class="reference internal" href="#pyo.EventInstrument" title="pyo.EventInstrument"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventInstrument</span></code></a> :     Base class for an Events instrument. All attributes given to the Events</p></li>
+<li><p><a class="reference internal" href="#pyo.EventKey" title="pyo.EventKey"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventKey</span></code></a> :     An EventGenerator that allow to retrieve the value of another parameter.</p></li>
+<li><p><a class="reference internal" href="#pyo.EventMarkov" title="pyo.EventMarkov"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventMarkov</span></code></a> :     Applies a Markov algorithm to a list of values.</p></li>
+<li><p><a class="reference internal" href="#pyo.EventNoise" title="pyo.EventNoise"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventNoise</span></code></a> :     Return a random value between -1.0 and 1.0.</p></li>
+<li><p><a class="reference internal" href="#pyo.EventScale" title="pyo.EventScale"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventScale</span></code></a> :     Musical scale builder.</p></li>
+<li><p><a class="reference internal" href="#pyo.EventSeq" title="pyo.EventSeq"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventSeq</span></code></a> :     Plays through an entire list of values many times.</p></li>
+<li><p><a class="reference internal" href="#pyo.EventSlide" title="pyo.EventSlide"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventSlide</span></code></a> :     Plays overlapping segments from a list of values.</p></li>
+<li><p><a class="reference internal" href="#pyo.Events" title="pyo.Events"><code class="xref py py-class docutils literal notranslate"><span class="pre">Events</span></code></a> :     Sequencing user-defined events to form musical phrases.</p></li>
+</ul>
+</section>
 <section id="eventscale">
-<h2><em>EventScale</em><a class="headerlink" href="#eventscale" title="Permalink to this headline">¶</a></h2>
+<h2><em>EventScale</em><a class="headerlink" href="#eventscale" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.EventScale">
-<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">EventScale</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'C'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'major'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">first</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">octaves</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/events.html#EventScale"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.EventScale" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">EventScale</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'C'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'major'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">first</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">octaves</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/events.html#EventScale"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.EventScale" title="Permalink to this definition">¶</a></dt>
 <dd><p>Musical scale builder.</p>
 <p>EventScale constructs a list of pitches according to its arguments.</p>
 <p>EventScale works similarly to list, ie. uses slicing with square brackets
@@ -151,7 +223,7 @@ EventScale can handle.</p>
 </div>
 <div class="autoclasstoc docutils container">
 <p class="rubric">Public Data Attributes:</p>
-<table class="longtable docutils align-default">
+<table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
 <col style="width: 90%"/>
@@ -177,7 +249,7 @@ EventScale can handle.</p>
 </div>
 <div class="autoclasstoc docutils container">
 <p class="rubric">Public Methods:</p>
-<table class="longtable docutils align-default">
+<table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
 <col style="width: 90%"/>
@@ -195,19 +267,19 @@ EventScale can handle.</p>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__setitem__</span></code>(key, item)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.EventScale.setRoot" title="pyo.EventScale.setRoot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setRoot</span></code></a>(x)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setRoot</span></code>(x)</p></td>
 <td><p>Replace the <cite>root</cite> attribute and reconstruct the scale.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pyo.EventScale.setScale" title="pyo.EventScale.setScale"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setScale</span></code></a>(x)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setScale</span></code>(x)</p></td>
 <td><p>Replace the <cite>scale</cite> attribute and reconstruct the scale.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.EventScale.setFirst" title="pyo.EventScale.setFirst"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setFirst</span></code></a>(x)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setFirst</span></code>(x)</p></td>
 <td><p>Replace the <cite>first</cite> attribute and reconstruct the scale.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pyo.EventScale.setOctaves" title="pyo.EventScale.setOctaves"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setOctaves</span></code></a>(x)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setOctaves</span></code>(x)</p></td>
 <td><p>Replace the <cite>octaves</cite> attribute and reconstruct the scale.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.EventScale.setType" title="pyo.EventScale.setType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setType</span></code></a>(x)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setType</span></code>(x)</p></td>
 <td><p>Replace the <cite>type</cite> attribute and reconstruct the scale.</p></td>
 </tr>
 </tbody>
@@ -215,7 +287,7 @@ EventScale can handle.</p>
 </div>
 <div class="autoclasstoc docutils container">
 <p class="rubric">Private Methods:</p>
-<table class="longtable docutils align-default">
+<table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
 <col style="width: 90%"/>
@@ -295,36 +367,36 @@ EventScale can handle.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.EventScale.root">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">root</span></span><a class="headerlink" href="#pyo.EventScale.root" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">root</span></span><a class="headerlink" href="#pyo.EventScale.root" title="Permalink to this definition">¶</a></dt>
 <dd><p>string. Name of the fundamental key.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.EventScale.scale">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">scale</span></span><a class="headerlink" href="#pyo.EventScale.scale" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">scale</span></span><a class="headerlink" href="#pyo.EventScale.scale" title="Permalink to this definition">¶</a></dt>
 <dd><p>string. Name of scale to generate.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.EventScale.first">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">first</span></span><a class="headerlink" href="#pyo.EventScale.first" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">first</span></span><a class="headerlink" href="#pyo.EventScale.first" title="Permalink to this definition">¶</a></dt>
 <dd><p>int. First octave to generate.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.EventScale.octaves">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">octaves</span></span><a class="headerlink" href="#pyo.EventScale.octaves" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">octaves</span></span><a class="headerlink" href="#pyo.EventScale.octaves" title="Permalink to this definition">¶</a></dt>
 <dd><p>int. Number of octaves to generate.</p>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pyo.EventScale.type">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">type</span></span><a class="headerlink" href="#pyo.EventScale.type" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">type</span></span><a class="headerlink" href="#pyo.EventScale.type" title="Permalink to this definition">¶</a></dt>
 <dd><p>int. Unit in which pitch values are stored.</p>
 </dd></dl>
 </dd></dl>
 </section>
 <section id="eventgenerator">
-<h2><em>EventGenerator</em><a class="headerlink" href="#eventgenerator" title="Permalink to this headline">¶</a></h2>
+<h2><em>EventGenerator</em><a class="headerlink" href="#eventgenerator" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.EventGenerator">
-<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">EventGenerator</span></span><a class="reference internal" href="../../_modules/pyo/lib/events.html#EventGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.EventGenerator" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">EventGenerator</span></span><a class="reference internal" href="../../_modules/pyo/lib/events.html#EventGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.EventGenerator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Base class for all event generators.</p>
 <p>This class contains the common behaviours of all event generators.</p>
 <p>Each EventGenerator contains a particular algorithm that can produce a
@@ -385,7 +457,7 @@ value and outputs it if the comparison is True.</p>
 </div></blockquote>
 <div class="autoclasstoc docutils container">
 <p class="rubric">Public Methods:</p>
-<table class="longtable docutils align-default">
+<table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
 <col style="width: 90%"/>
@@ -433,34 +505,34 @@ value and outputs it if the comparison is True.</p>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">resetEmbeddedGenerator</span></code>()</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.EventGenerator.floor" title="pyo.EventGenerator.floor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">floor</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">floor</span></code>()</p></td>
 <td><p>Return an EventFilter computing the largest integer less than or equal to its input value.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pyo.EventGenerator.ceil" title="pyo.EventGenerator.ceil"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ceil</span></code></a>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ceil</span></code>()</p></td>
 <td><p>Return an EventFilter computing the smallest integer greater than or equal to its input value.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.EventGenerator.round" title="pyo.EventGenerator.round"><code class="xref py py-obj docutils literal notranslate"><span class="pre">round</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">round</span></code>()</p></td>
 <td><p>Return an EventFilter computing the nearest integer to its input value.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pyo.EventGenerator.abs" title="pyo.EventGenerator.abs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">abs</span></code></a>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">abs</span></code>()</p></td>
 <td><p>Return an EventFilter computing the absolute value of its input value.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.EventGenerator.snap" title="pyo.EventGenerator.snap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">snap</span></code></a>(choice)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">snap</span></code>(choice)</p></td>
 <td><p>Return an EventFilter which choose the nearest value of its input value in the <cite>choice</cite> list.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pyo.EventGenerator.deviate" title="pyo.EventGenerator.deviate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">deviate</span></code></a>(depth)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">deviate</span></code>(depth)</p></td>
 <td><p>Return an EventFilter which randomly move, up or down, its input value according to the argument <cite>depth</cite>, in percent.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.EventGenerator.clip" title="pyo.EventGenerator.clip"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clip</span></code></a>(mini, maxi)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">clip</span></code>(mini, maxi)</p></td>
 <td><p>Return an EventFilter which clips its input value between the limits <cite>mini</cite> and <cite>maxi</cite>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pyo.EventGenerator.scale" title="pyo.EventGenerator.scale"><code class="xref py py-obj docutils literal notranslate"><span class="pre">scale</span></code></a>(mini, maxi, expon)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">scale</span></code>(mini, maxi, expon)</p></td>
 <td><p>Return an EventFilter which maps its input value, in the range 0 to 1, to an output range, with a scaling curve deternimed bu the <cite>expon</cite> value.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.EventGenerator.rescale" title="pyo.EventGenerator.rescale"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rescale</span></code></a>(inmin, inmax, outmin, outmax, expon)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">rescale</span></code>(inmin, inmax, outmin, outmax, expon)</p></td>
 <td><p>Return an EventFilter which maps its input value, in the range <cite>inmin</cite> to <cite>inmax</cite>, to an output range, <cite>outmin</cite> to <cite>outmax</cite>, with a scaling curve deternimed bu the <cite>expon</cite> value.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pyo.EventGenerator.iftrue" title="pyo.EventGenerator.iftrue"><code class="xref py py-obj docutils literal notranslate"><span class="pre">iftrue</span></code></a>(op, comp)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">iftrue</span></code>(op, comp)</p></td>
 <td><p>Return an EventFilter which compares its input value to the value given to <cite>comp</cite> argument, using the comparison operator <cite>op</cite>.</p></td>
 </tr>
 </tbody>
@@ -468,7 +540,7 @@ value and outputs it if the comparison is True.</p>
 </div>
 <div class="autoclasstoc docutils container">
 <p class="rubric">Private Methods:</p>
-<table class="longtable docutils align-default">
+<table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
 <col style="width: 90%"/>
@@ -627,14 +699,14 @@ the last valid value is sent again.</p>
 </dd></dl>
 </section>
 <section id="eventdummy">
-<h2><em>EventDummy</em><a class="headerlink" href="#eventdummy" title="Permalink to this headline">¶</a></h2>
+<h2><em>EventDummy</em><a class="headerlink" href="#eventdummy" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.EventDummy">
-<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">EventDummy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">generator1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generator2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/events.html#EventDummy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.EventDummy" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">EventDummy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">generator1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generator2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/events.html#EventDummy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.EventDummy" title="Permalink to this definition">¶</a></dt>
 <dd><p>An EventGenerator created internally to handle arithmetic on Events.</p>
 <div class="autoclasstoc docutils container">
 <p class="rubric">Public Methods:</p>
-<table class="longtable docutils align-default">
+<table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
 <col style="width: 90%"/>
@@ -648,13 +720,13 @@ the last valid value is sent again.</p>
 </tr>
 </tbody>
 </table>
-<details><summary>Inherited from <a class="reference internal" href="#pyo.EventGenerator" title="pyo.EventGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventGenerator</span></code></a></summary><table class="longtable docutils align-default">
+<details><summary>Inherited from <a class="reference internal" href="#pyo.EventGenerator" title="pyo.EventGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventGenerator</span></code></a></summary><table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
 <col style="width: 90%"/>
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>(generator1, generator2, type)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>()</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__add__</span></code>(generator)</p></td>
@@ -731,7 +803,7 @@ the last valid value is sent again.</p>
 </details></div>
 <div class="autoclasstoc docutils container">
 <p class="rubric">Private Methods:</p>
-<details><summary>Inherited from <a class="reference internal" href="#pyo.EventGenerator" title="pyo.EventGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventGenerator</span></code></a></summary><table class="longtable docutils align-default">
+<details><summary>Inherited from <a class="reference internal" href="#pyo.EventGenerator" title="pyo.EventGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventGenerator</span></code></a></summary><table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
 <col style="width: 90%"/>
@@ -759,14 +831,14 @@ the last valid value is sent again.</p>
 </section>
 <hr class="docutils"/>
 <section id="eventfilter">
-<h2><em>EventFilter</em><a class="headerlink" href="#eventfilter" title="Permalink to this headline">¶</a></h2>
+<h2><em>EventFilter</em><a class="headerlink" href="#eventfilter" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.EventFilter">
-<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">EventFilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">generator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/events.html#EventFilter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.EventFilter" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">EventFilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">generator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/events.html#EventFilter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.EventFilter" title="Permalink to this definition">¶</a></dt>
 <dd><p>An EventGenerator created internally to handle simple filter on Events.</p>
 <div class="autoclasstoc docutils container">
 <p class="rubric">Public Methods:</p>
-<table class="longtable docutils align-default">
+<table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
 <col style="width: 90%"/>
@@ -780,13 +852,13 @@ the last valid value is sent again.</p>
 </tr>
 </tbody>
 </table>
-<details><summary>Inherited from <a class="reference internal" href="#pyo.EventGenerator" title="pyo.EventGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventGenerator</span></code></a></summary><table class="longtable docutils align-default">
+<details><summary>Inherited from <a class="reference internal" href="#pyo.EventGenerator" title="pyo.EventGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventGenerator</span></code></a></summary><table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
 <col style="width: 90%"/>
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>(generator, type, *args)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>()</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__add__</span></code>(generator)</p></td>
@@ -863,7 +935,7 @@ the last valid value is sent again.</p>
 </details></div>
 <div class="autoclasstoc docutils container">
 <p class="rubric">Private Methods:</p>
-<details><summary>Inherited from <a class="reference internal" href="#pyo.EventGenerator" title="pyo.EventGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventGenerator</span></code></a></summary><table class="longtable docutils align-default">
+<details><summary>Inherited from <a class="reference internal" href="#pyo.EventGenerator" title="pyo.EventGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventGenerator</span></code></a></summary><table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
 <col style="width: 90%"/>
@@ -891,10 +963,10 @@ the last valid value is sent again.</p>
 </section>
 <hr class="docutils"/>
 <section id="eventkey">
-<h2><em>EventKey</em><a class="headerlink" href="#eventkey" title="Permalink to this headline">¶</a></h2>
+<h2><em>EventKey</em><a class="headerlink" href="#eventkey" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.EventKey">
-<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">EventKey</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">master</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/events.html#EventKey"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.EventKey" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">EventKey</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">master</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/events.html#EventKey"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.EventKey" title="Permalink to this definition">¶</a></dt>
 <dd><p>An EventGenerator that allow to retrieve the value of another parameter.</p>
 <p>EventKey returns the current value of another parameter of the Events
 object where it is used. From there, other processes can be applied
@@ -921,7 +993,7 @@ None (the default), the current Events object is used.</p>
 </div>
 <div class="autoclasstoc docutils container">
 <p class="rubric">Public Methods:</p>
-<table class="longtable docutils align-default">
+<table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
 <col style="width: 90%"/>
@@ -930,7 +1002,7 @@ None (the default), the current Events object is used.</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>(key[, master])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pyo.EventKey.getKey" title="pyo.EventKey.getKey"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getKey</span></code></a>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getKey</span></code>()</p></td>
 <td><p>Returns the key, as a string, of the parameter to read from.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">reset</span></code>()</p></td>
@@ -941,13 +1013,13 @@ None (the default), the current Events object is used.</p>
 </tr>
 </tbody>
 </table>
-<details><summary>Inherited from <a class="reference internal" href="#pyo.EventGenerator" title="pyo.EventGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventGenerator</span></code></a></summary><table class="longtable docutils align-default">
+<details><summary>Inherited from <a class="reference internal" href="#pyo.EventGenerator" title="pyo.EventGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventGenerator</span></code></a></summary><table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
 <col style="width: 90%"/>
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>(key[, master])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>()</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__add__</span></code>(generator)</p></td>
@@ -1024,7 +1096,7 @@ None (the default), the current Events object is used.</p>
 </details></div>
 <div class="autoclasstoc docutils container">
 <p class="rubric">Private Methods:</p>
-<details><summary>Inherited from <a class="reference internal" href="#pyo.EventGenerator" title="pyo.EventGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventGenerator</span></code></a></summary><table class="longtable docutils align-default">
+<details><summary>Inherited from <a class="reference internal" href="#pyo.EventGenerator" title="pyo.EventGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventGenerator</span></code></a></summary><table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
 <col style="width: 90%"/>
@@ -1057,10 +1129,10 @@ None (the default), the current Events object is used.</p>
 </dd></dl>
 </section>
 <section id="eventseq">
-<h2><em>EventSeq</em><a class="headerlink" href="#eventseq" title="Permalink to this headline">¶</a></h2>
+<h2><em>EventSeq</em><a class="headerlink" href="#eventseq" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.EventSeq">
-<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">EventSeq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occurrences</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stopEventsWhenDone</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/events.html#EventSeq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.EventSeq" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">EventSeq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occurrences</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stopEventsWhenDone</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/events.html#EventSeq"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.EventSeq" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plays through an entire list of values many times.</p>
 <p>EventSeq will loop over its list of values a number of times
 defined by the occurrences argument.</p>
@@ -1093,7 +1165,7 @@ automatically converted to an EventSeq.</p>
 </div>
 <div class="autoclasstoc docutils container">
 <p class="rubric">Public Methods:</p>
-<table class="longtable docutils align-default">
+<table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
 <col style="width: 90%"/>
@@ -1113,13 +1185,13 @@ automatically converted to an EventSeq.</p>
 </tr>
 </tbody>
 </table>
-<details><summary>Inherited from <a class="reference internal" href="#pyo.EventGenerator" title="pyo.EventGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventGenerator</span></code></a></summary><table class="longtable docutils align-default">
+<details><summary>Inherited from <a class="reference internal" href="#pyo.EventGenerator" title="pyo.EventGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventGenerator</span></code></a></summary><table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
 <col style="width: 90%"/>
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>(values[, occurrences, ...])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>()</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__add__</span></code>(generator)</p></td>
@@ -1196,7 +1268,7 @@ automatically converted to an EventSeq.</p>
 </details></div>
 <div class="autoclasstoc docutils container">
 <p class="rubric">Private Methods:</p>
-<details><summary>Inherited from <a class="reference internal" href="#pyo.EventGenerator" title="pyo.EventGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventGenerator</span></code></a></summary><table class="longtable docutils align-default">
+<details><summary>Inherited from <a class="reference internal" href="#pyo.EventGenerator" title="pyo.EventGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventGenerator</span></code></a></summary><table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
 <col style="width: 90%"/>
@@ -1224,10 +1296,10 @@ automatically converted to an EventSeq.</p>
 </section>
 <hr class="docutils"/>
 <section id="eventslide">
-<h2><em>EventSlide</em><a class="headerlink" href="#eventslide" title="Permalink to this headline">¶</a></h2>
+<h2><em>EventSlide</em><a class="headerlink" href="#eventslide" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.EventSlide">
-<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">EventSlide</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">startpos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wraparound</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occurrences</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stopEventsWhenDone</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/events.html#EventSlide"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.EventSlide" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">EventSlide</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">startpos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wraparound</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occurrences</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stopEventsWhenDone</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/events.html#EventSlide"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.EventSlide" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plays overlapping segments from a list of values.</p>
 <p>EventSlide will play a segment of length <cite>segment</cite> from startpos,
 then another segment with a start position incremented by <cite>step</cite>,
@@ -1269,7 +1341,7 @@ responsability to handle this case correctly. Defaults to True.</p>
 </div>
 <div class="autoclasstoc docutils container">
 <p class="rubric">Public Methods:</p>
-<table class="longtable docutils align-default">
+<table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
 <col style="width: 90%"/>
@@ -1295,13 +1367,13 @@ responsability to handle this case correctly. Defaults to True.</p>
 </tr>
 </tbody>
 </table>
-<details><summary>Inherited from <a class="reference internal" href="#pyo.EventGenerator" title="pyo.EventGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventGenerator</span></code></a></summary><table class="longtable docutils align-default">
+<details><summary>Inherited from <a class="reference internal" href="#pyo.EventGenerator" title="pyo.EventGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventGenerator</span></code></a></summary><table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
 <col style="width: 90%"/>
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>(values, segment, step[, startpos, ...])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>()</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__add__</span></code>(generator)</p></td>
@@ -1378,7 +1450,7 @@ responsability to handle this case correctly. Defaults to True.</p>
 </details></div>
 <div class="autoclasstoc docutils container">
 <p class="rubric">Private Methods:</p>
-<details><summary>Inherited from <a class="reference internal" href="#pyo.EventGenerator" title="pyo.EventGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventGenerator</span></code></a></summary><table class="longtable docutils align-default">
+<details><summary>Inherited from <a class="reference internal" href="#pyo.EventGenerator" title="pyo.EventGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventGenerator</span></code></a></summary><table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
 <col style="width: 90%"/>
@@ -1406,10 +1478,10 @@ responsability to handle this case correctly. Defaults to True.</p>
 </section>
 <hr class="docutils"/>
 <section id="eventindex">
-<h2><em>EventIndex</em><a class="headerlink" href="#eventindex" title="Permalink to this headline">¶</a></h2>
+<h2><em>EventIndex</em><a class="headerlink" href="#eventindex" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.EventIndex">
-<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">EventIndex</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occurrences</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stopEventsWhenDone</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/events.html#EventIndex"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.EventIndex" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">EventIndex</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occurrences</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stopEventsWhenDone</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/events.html#EventIndex"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.EventIndex" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plays values from a list based on a position index.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Args</dt>
@@ -1438,7 +1510,7 @@ responsability to handle this case correctly. Defaults to True.</p>
 </div>
 <div class="autoclasstoc docutils container">
 <p class="rubric">Public Methods:</p>
-<table class="longtable docutils align-default">
+<table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
 <col style="width: 90%"/>
@@ -1461,13 +1533,13 @@ responsability to handle this case correctly. Defaults to True.</p>
 </tr>
 </tbody>
 </table>
-<details><summary>Inherited from <a class="reference internal" href="#pyo.EventGenerator" title="pyo.EventGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventGenerator</span></code></a></summary><table class="longtable docutils align-default">
+<details><summary>Inherited from <a class="reference internal" href="#pyo.EventGenerator" title="pyo.EventGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventGenerator</span></code></a></summary><table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
 <col style="width: 90%"/>
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>(values, index[, occurrences, ...])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>()</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__add__</span></code>(generator)</p></td>
@@ -1544,7 +1616,7 @@ responsability to handle this case correctly. Defaults to True.</p>
 </details></div>
 <div class="autoclasstoc docutils container">
 <p class="rubric">Private Methods:</p>
-<details><summary>Inherited from <a class="reference internal" href="#pyo.EventGenerator" title="pyo.EventGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventGenerator</span></code></a></summary><table class="longtable docutils align-default">
+<details><summary>Inherited from <a class="reference internal" href="#pyo.EventGenerator" title="pyo.EventGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventGenerator</span></code></a></summary><table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
 <col style="width: 90%"/>
@@ -1572,10 +1644,10 @@ responsability to handle this case correctly. Defaults to True.</p>
 </section>
 <hr class="docutils"/>
 <section id="eventmarkov">
-<h2><em>EventMarkov</em><a class="headerlink" href="#eventmarkov" title="Permalink to this headline">¶</a></h2>
+<h2><em>EventMarkov</em><a class="headerlink" href="#eventmarkov" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.EventMarkov">
-<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">EventMarkov</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occurrences</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stopEventsWhenDone</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/events.html#EventMarkov"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.EventMarkov" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">EventMarkov</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occurrences</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stopEventsWhenDone</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/events.html#EventMarkov"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.EventMarkov" title="Permalink to this definition">¶</a></dt>
 <dd><p>Applies a Markov algorithm to a list of values.</p>
 <p>A Markov chain is a stochastic model describing a sequence of possible events
 in which the probability of each event depends only on the state attained in
@@ -1609,7 +1681,7 @@ responsability to handle this case correctly. Defaults to True.</p>
 </div>
 <div class="autoclasstoc docutils container">
 <p class="rubric">Public Methods:</p>
-<table class="longtable docutils align-default">
+<table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
 <col style="width: 90%"/>
@@ -1632,13 +1704,13 @@ responsability to handle this case correctly. Defaults to True.</p>
 </tr>
 </tbody>
 </table>
-<details><summary>Inherited from <a class="reference internal" href="#pyo.EventGenerator" title="pyo.EventGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventGenerator</span></code></a></summary><table class="longtable docutils align-default">
+<details><summary>Inherited from <a class="reference internal" href="#pyo.EventGenerator" title="pyo.EventGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventGenerator</span></code></a></summary><table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
 <col style="width: 90%"/>
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>(values[, order, occurrences, ...])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>()</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__add__</span></code>(generator)</p></td>
@@ -1715,7 +1787,7 @@ responsability to handle this case correctly. Defaults to True.</p>
 </details></div>
 <div class="autoclasstoc docutils container">
 <p class="rubric">Private Methods:</p>
-<details><summary>Inherited from <a class="reference internal" href="#pyo.EventGenerator" title="pyo.EventGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventGenerator</span></code></a></summary><table class="longtable docutils align-default">
+<details><summary>Inherited from <a class="reference internal" href="#pyo.EventGenerator" title="pyo.EventGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventGenerator</span></code></a></summary><table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
 <col style="width: 90%"/>
@@ -1743,10 +1815,10 @@ responsability to handle this case correctly. Defaults to True.</p>
 </section>
 <hr class="docutils"/>
 <section id="eventchoice">
-<h2><em>EventChoice</em><a class="headerlink" href="#eventchoice" title="Permalink to this headline">¶</a></h2>
+<h2><em>EventChoice</em><a class="headerlink" href="#eventchoice" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.EventChoice">
-<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">EventChoice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occurrences</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stopEventsWhenDone</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/events.html#EventChoice"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.EventChoice" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">EventChoice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occurrences</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stopEventsWhenDone</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/events.html#EventChoice"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.EventChoice" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plays values randomly chosen from a list.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Args</dt>
@@ -1772,7 +1844,7 @@ responsability to handle this case correctly. Defaults to True.</p>
 </div>
 <div class="autoclasstoc docutils container">
 <p class="rubric">Public Methods:</p>
-<table class="longtable docutils align-default">
+<table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
 <col style="width: 90%"/>
@@ -1792,13 +1864,13 @@ responsability to handle this case correctly. Defaults to True.</p>
 </tr>
 </tbody>
 </table>
-<details><summary>Inherited from <a class="reference internal" href="#pyo.EventGenerator" title="pyo.EventGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventGenerator</span></code></a></summary><table class="longtable docutils align-default">
+<details><summary>Inherited from <a class="reference internal" href="#pyo.EventGenerator" title="pyo.EventGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventGenerator</span></code></a></summary><table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
 <col style="width: 90%"/>
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>(values[, occurrences, ...])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>()</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__add__</span></code>(generator)</p></td>
@@ -1875,7 +1947,7 @@ responsability to handle this case correctly. Defaults to True.</p>
 </details></div>
 <div class="autoclasstoc docutils container">
 <p class="rubric">Private Methods:</p>
-<details><summary>Inherited from <a class="reference internal" href="#pyo.EventGenerator" title="pyo.EventGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventGenerator</span></code></a></summary><table class="longtable docutils align-default">
+<details><summary>Inherited from <a class="reference internal" href="#pyo.EventGenerator" title="pyo.EventGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventGenerator</span></code></a></summary><table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
 <col style="width: 90%"/>
@@ -1903,10 +1975,10 @@ responsability to handle this case correctly. Defaults to True.</p>
 </section>
 <hr class="docutils"/>
 <section id="eventdrunk">
-<h2><em>EventDrunk</em><a class="headerlink" href="#eventdrunk" title="Permalink to this headline">¶</a></h2>
+<h2><em>EventDrunk</em><a class="headerlink" href="#eventdrunk" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.EventDrunk">
-<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">EventDrunk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxStep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occurrences</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stopEventsWhenDone</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/events.html#EventDrunk"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.EventDrunk" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">EventDrunk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxStep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occurrences</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stopEventsWhenDone</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/events.html#EventDrunk"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.EventDrunk" title="Permalink to this definition">¶</a></dt>
 <dd><p>Performs a random walk over a list of values.</p>
 <p>A random walk is a stochastic process that consists of a succession of
 random steps, within a distance of +/- <cite>maxStep</cite> from the previous state.</p>
@@ -1938,7 +2010,7 @@ responsability to handle this case correctly. Defaults to True.</p>
 </div>
 <div class="autoclasstoc docutils container">
 <p class="rubric">Public Methods:</p>
-<table class="longtable docutils align-default">
+<table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
 <col style="width: 90%"/>
@@ -1961,13 +2033,13 @@ responsability to handle this case correctly. Defaults to True.</p>
 </tr>
 </tbody>
 </table>
-<details><summary>Inherited from <a class="reference internal" href="#pyo.EventGenerator" title="pyo.EventGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventGenerator</span></code></a></summary><table class="longtable docutils align-default">
+<details><summary>Inherited from <a class="reference internal" href="#pyo.EventGenerator" title="pyo.EventGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventGenerator</span></code></a></summary><table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
 <col style="width: 90%"/>
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>(values[, maxStep, occurrences, ...])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>()</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__add__</span></code>(generator)</p></td>
@@ -2044,7 +2116,7 @@ responsability to handle this case correctly. Defaults to True.</p>
 </details></div>
 <div class="autoclasstoc docutils container">
 <p class="rubric">Private Methods:</p>
-<details><summary>Inherited from <a class="reference internal" href="#pyo.EventGenerator" title="pyo.EventGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventGenerator</span></code></a></summary><table class="longtable docutils align-default">
+<details><summary>Inherited from <a class="reference internal" href="#pyo.EventGenerator" title="pyo.EventGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventGenerator</span></code></a></summary><table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
 <col style="width: 90%"/>
@@ -2072,10 +2144,10 @@ responsability to handle this case correctly. Defaults to True.</p>
 </section>
 <hr class="docutils"/>
 <section id="eventnoise">
-<h2><em>EventNoise</em><a class="headerlink" href="#eventnoise" title="Permalink to this headline">¶</a></h2>
+<h2><em>EventNoise</em><a class="headerlink" href="#eventnoise" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.EventNoise">
-<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">EventNoise</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occurrences</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stopEventsWhenDone</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/events.html#EventNoise"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.EventNoise" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">EventNoise</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occurrences</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stopEventsWhenDone</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/events.html#EventNoise"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.EventNoise" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a random value between -1.0 and 1.0.</p>
 <p>EventNoise returns a random value between -1.0 and 1.0, based on one of
 three common noise generators, white, pink (1/f) and brown (1/f^2).</p>
@@ -2107,7 +2179,7 @@ responsability to handle this case correctly. Defaults to True.</p>
 </div>
 <div class="autoclasstoc docutils container">
 <p class="rubric">Public Methods:</p>
-<table class="longtable docutils align-default">
+<table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
 <col style="width: 90%"/>
@@ -2130,13 +2202,13 @@ responsability to handle this case correctly. Defaults to True.</p>
 </tr>
 </tbody>
 </table>
-<details><summary>Inherited from <a class="reference internal" href="#pyo.EventGenerator" title="pyo.EventGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventGenerator</span></code></a></summary><table class="longtable docutils align-default">
+<details><summary>Inherited from <a class="reference internal" href="#pyo.EventGenerator" title="pyo.EventGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventGenerator</span></code></a></summary><table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
 <col style="width: 90%"/>
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>([type, occurrences, stopEventsWhenDone])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>()</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__add__</span></code>(generator)</p></td>
@@ -2213,7 +2285,7 @@ responsability to handle this case correctly. Defaults to True.</p>
 </details></div>
 <div class="autoclasstoc docutils container">
 <p class="rubric">Private Methods:</p>
-<details><summary>Inherited from <a class="reference internal" href="#pyo.EventGenerator" title="pyo.EventGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventGenerator</span></code></a></summary><table class="longtable docutils align-default">
+<details><summary>Inherited from <a class="reference internal" href="#pyo.EventGenerator" title="pyo.EventGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventGenerator</span></code></a></summary><table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
 <col style="width: 90%"/>
@@ -2241,10 +2313,10 @@ responsability to handle this case correctly. Defaults to True.</p>
 </section>
 <hr class="docutils"/>
 <section id="eventcall">
-<h2><em>EventCall</em><a class="headerlink" href="#eventcall" title="Permalink to this headline">¶</a></h2>
+<h2><em>EventCall</em><a class="headerlink" href="#eventcall" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.EventCall">
-<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">EventCall</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/events.html#EventCall"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.EventCall" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">EventCall</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/events.html#EventCall"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.EventCall" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calls a function, with any number of arguments, and uses its return value.</p>
 <p>EventCall can call any function (built-in, from a module or user-defined)
 and use its return as the value for the Events’s parameter where it is used.
@@ -2276,7 +2348,7 @@ responsability to handle this case correctly. Defaults to True.</p>
 </div>
 <div class="autoclasstoc docutils container">
 <p class="rubric">Public Methods:</p>
-<table class="longtable docutils align-default">
+<table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
 <col style="width: 90%"/>
@@ -2296,13 +2368,13 @@ responsability to handle this case correctly. Defaults to True.</p>
 </tr>
 </tbody>
 </table>
-<details><summary>Inherited from <a class="reference internal" href="#pyo.EventGenerator" title="pyo.EventGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventGenerator</span></code></a></summary><table class="longtable docutils align-default">
+<details><summary>Inherited from <a class="reference internal" href="#pyo.EventGenerator" title="pyo.EventGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventGenerator</span></code></a></summary><table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
 <col style="width: 90%"/>
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>(function, *args, **kwargs)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>()</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__add__</span></code>(generator)</p></td>
@@ -2379,7 +2451,7 @@ responsability to handle this case correctly. Defaults to True.</p>
 </details></div>
 <div class="autoclasstoc docutils container">
 <p class="rubric">Private Methods:</p>
-<details><summary>Inherited from <a class="reference internal" href="#pyo.EventGenerator" title="pyo.EventGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventGenerator</span></code></a></summary><table class="longtable docutils align-default">
+<details><summary>Inherited from <a class="reference internal" href="#pyo.EventGenerator" title="pyo.EventGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventGenerator</span></code></a></summary><table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
 <col style="width: 90%"/>
@@ -2407,10 +2479,10 @@ responsability to handle this case correctly. Defaults to True.</p>
 </section>
 <hr class="docutils"/>
 <section id="eventconditional">
-<h2><em>EventConditional</em><a class="headerlink" href="#eventconditional" title="Permalink to this headline">¶</a></h2>
+<h2><em>EventConditional</em><a class="headerlink" href="#eventconditional" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.EventConditional">
-<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">EventConditional</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">condition</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iftrue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iffalse</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occurrences</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stopEventsWhenDone</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/events.html#EventConditional"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.EventConditional" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">EventConditional</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">condition</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iftrue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iffalse</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occurrences</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stopEventsWhenDone</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/events.html#EventConditional"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.EventConditional" title="Permalink to this definition">¶</a></dt>
 <dd><p>Executes one generator or the other depending on the result of a condition.</p>
 <p>EventConditional takes three values or generators as arguments and if the
 value of <cite>condition</cite> is True (anything that python considers True), the
@@ -2449,7 +2521,7 @@ responsability to handle this case correctly. Defaults to True.</p>
 </div>
 <div class="autoclasstoc docutils container">
 <p class="rubric">Public Methods:</p>
-<table class="longtable docutils align-default">
+<table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
 <col style="width: 90%"/>
@@ -2478,13 +2550,13 @@ responsability to handle this case correctly. Defaults to True.</p>
 </tr>
 </tbody>
 </table>
-<details><summary>Inherited from <a class="reference internal" href="#pyo.EventGenerator" title="pyo.EventGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventGenerator</span></code></a></summary><table class="longtable docutils align-default">
+<details><summary>Inherited from <a class="reference internal" href="#pyo.EventGenerator" title="pyo.EventGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventGenerator</span></code></a></summary><table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
 <col style="width: 90%"/>
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>(condition, iftrue, iffalse[, ...])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>()</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__add__</span></code>(generator)</p></td>
@@ -2561,7 +2633,7 @@ responsability to handle this case correctly. Defaults to True.</p>
 </details></div>
 <div class="autoclasstoc docutils container">
 <p class="rubric">Private Methods:</p>
-<details><summary>Inherited from <a class="reference internal" href="#pyo.EventGenerator" title="pyo.EventGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventGenerator</span></code></a></summary><table class="longtable docutils align-default">
+<details><summary>Inherited from <a class="reference internal" href="#pyo.EventGenerator" title="pyo.EventGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">EventGenerator</span></code></a></summary><table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
 <col style="width: 90%"/>
@@ -2589,10 +2661,10 @@ responsability to handle this case correctly. Defaults to True.</p>
 </section>
 <hr class="docutils"/>
 <section id="eventinstrument">
-<h2><em>EventInstrument</em><a class="headerlink" href="#eventinstrument" title="Permalink to this headline">¶</a></h2>
+<h2><em>EventInstrument</em><a class="headerlink" href="#eventinstrument" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.EventInstrument">
-<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">EventInstrument</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/events.html#EventInstrument"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.EventInstrument" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">EventInstrument</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/events.html#EventInstrument"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.EventInstrument" title="Permalink to this definition">¶</a></dt>
 <dd><p>Base class for an Events instrument. All attributes given to the Events
 object can be accessed as self.attribute_name inside the instrument.</p>
 <p>This base class constructs an envelope, named self.env, according to the
@@ -2613,7 +2685,7 @@ himself. Instead, he should use it as a parent class for its own instruments.</p
 </div>
 <div class="autoclasstoc docutils container">
 <p class="rubric">Public Methods:</p>
-<table class="longtable docutils align-default">
+<table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
 <col style="width: 90%"/>
@@ -2632,10 +2704,10 @@ himself. Instead, he should use it as a parent class for its own instruments.</p
 </section>
 <hr class="docutils"/>
 <section id="events">
-<h2><em>Events</em><a class="headerlink" href="#events" title="Permalink to this headline">¶</a></h2>
+<h2><em>Events</em><a class="headerlink" href="#events" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.Events">
-<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">Events</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/events.html#Events"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.Events" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Events</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/events.html#Events"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.Events" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sequencing user-defined events to form musical phrases.</p>
 <p>The Events object is the primary tool in the events framework. It uses
 generators (derived from EventGenerator) as value for its arguments to
@@ -2819,7 +2891,7 @@ multiple Events objects. Defaults to None</p>
 </div>
 <div class="autoclasstoc docutils container">
 <p class="rubric">Public Methods:</p>
-<table class="longtable docutils align-default">
+<table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
 <col style="width: 90%"/>
@@ -2828,24 +2900,24 @@ multiple Events objects. Defaults to None</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>(**args)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pyo.Events.events" title="pyo.Events.events"><code class="xref py py-obj docutils literal notranslate"><span class="pre">events</span></code></a>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">events</span></code>()</p></td>
 <td><p>Return a copy of this Events object.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.Events.play" title="pyo.Events.play"><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code></a>([dur, delay])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
 <td><p>Start the events playback.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pyo.Events.stop" title="pyo.Events.stop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stop</span></code></a>([wait])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">stop</span></code>([wait])</p></td>
 <td><p>Stop the events playback.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">getCurrentDict</span></code>()</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pyo.Events.sig" title="pyo.Events.sig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sig</span></code></a>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">sig</span></code>()</p></td>
 <td><p>Return the audio output signal (sum of all active instances), if defined.</p></td>
 </tr>
 </tbody>
 </table>
-<details><summary>Inherited from <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></summary><table class="longtable docutils align-default">
+<details><summary>Inherited from <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></summary><table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
 <col style="width: 90%"/>
@@ -2952,7 +3024,7 @@ multiple Events objects. Defaults to None</p>
 </details></div>
 <div class="autoclasstoc docutils container">
 <p class="rubric">Private Methods:</p>
-<table class="longtable docutils align-default">
+<table class="autosummary longtable docutils align-default">
 <colgroup>
 <col style="width: 10%"/>
 <col style="width: 90%"/>
@@ -3022,66 +3094,29 @@ of audio streams produced by the instrument.</p>
 </div>
 </div>
 </div>
-<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
-<div class="sphinxsidebarwrapper">
-<h3><a href="../../index.html">Table of Contents</a></h3>
-<ul>
-<li><a class="reference internal" href="#">Events framework</a><ul>
-<li><a class="reference internal" href="#eventscale"><em>EventScale</em></a></li>
-<li><a class="reference internal" href="#eventgenerator"><em>EventGenerator</em></a></li>
-<li><a class="reference internal" href="#eventdummy"><em>EventDummy</em></a></li>
-<li><a class="reference internal" href="#eventfilter"><em>EventFilter</em></a></li>
-<li><a class="reference internal" href="#eventkey"><em>EventKey</em></a></li>
-<li><a class="reference internal" href="#eventseq"><em>EventSeq</em></a></li>
-<li><a class="reference internal" href="#eventslide"><em>EventSlide</em></a></li>
-<li><a class="reference internal" href="#eventindex"><em>EventIndex</em></a></li>
-<li><a class="reference internal" href="#eventmarkov"><em>EventMarkov</em></a></li>
-<li><a class="reference internal" href="#eventchoice"><em>EventChoice</em></a></li>
-<li><a class="reference internal" href="#eventdrunk"><em>EventDrunk</em></a></li>
-<li><a class="reference internal" href="#eventnoise"><em>EventNoise</em></a></li>
-<li><a class="reference internal" href="#eventcall"><em>EventCall</em></a></li>
-<li><a class="reference internal" href="#eventconditional"><em>EventConditional</em></a></li>
-<li><a class="reference internal" href="#eventinstrument"><em>EventInstrument</em></a></li>
-<li><a class="reference internal" href="#events"><em>Events</em></a></li>
-</ul>
-</li>
-</ul>
-<h4>Previous topic</h4>
-<p class="topless"><a href="effects.html" title="previous chapter">Special Effects</a></p>
-<h4>Next topic</h4>
-<p class="topless"><a href="expression.html" title="next chapter">Prefix expression evaluators</a></p>
-<div id="searchbox" role="search" style="display: none">
-<h3 id="searchlabel">Quick search</h3>
-<div class="searchformwrapper">
-<form action="../../search.html" class="search" method="get">
-<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
-<input type="submit" value="Go"/>
-</form>
-</div>
-</div>
-<script>$('#searchbox').show(0);</script>
-</div>
 </div>
 <div class="clearer"></div>
 </div>
-<div aria-label="related navigation" class="related" role="navigation">
-<h3>Navigation</h3>
-<ul>
-<li class="right" style="margin-right: 10px">
-<a href="../../genindex.html" title="General Index">index</a></li>
-<li class="right">
-<a href="expression.html" title="Prefix expression evaluators">next</a> |</li>
-<li class="right">
-<a href="effects.html" title="Special Effects">previous</a> |</li>
-<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
-<li class="nav-item nav-item-1"><a href="../index.html">API documentation</a> »</li>
-<li class="nav-item nav-item-2"><a href="index.html">Classes by category</a> »</li>
-<li class="nav-item nav-item-this"><a href="">Events framework</a></li>
-</ul>
 </div>
+<div class="footer-wrapper">
+<div class="footer">
+<div class="left">
+<div aria-label="related navigaton" role="navigation">
+<a href="effects.html" title="Special Effects">previous</a> |
+            <a href="expression.html" title="Prefix expression evaluators">next</a> |
+            <a href="../../genindex.html" title="General Index">index</a>
+</div>
+<div aria-label="source link" role="note">
+</div>
+</div>
+<div class="right">
 <div class="footer" role="contentinfo">
         © Copyright 2021, Olivier Bélanger.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
     </div>
+</div>
+<div class="clearer"></div>
+</div>
+</div>
 </body>
 </html>

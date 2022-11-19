@@ -5,6 +5,15 @@ Internal objects
 
 These objects are mainly used by pyo itself, inside other objects.
 
+Objects in this category
+------------------------------
+
+- :py:class:`Dummy` :     Dummy object used to perform arithmetics on PyoObject.
+- :py:class:`InputFader` :     Audio streams crossfader.
+- :py:class:`Mix` :     Mix audio streams to arbitrary number of streams.
+- :py:class:`VarPort` :     Convert numeric value to PyoObject signal with portamento.
+- :py:class:`Stream` :     Audio stream objects. For internal use only.
+
 *Dummy*
 -----------------------------------
 

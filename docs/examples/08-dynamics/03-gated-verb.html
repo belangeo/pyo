@@ -1,19 +1,21 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
 <title>03-gated-verb.py - Gated reverb applied to a drum loop. — Pyo 1.0.4 documentation</title>
 <link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
-<link href="../../_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="../../_static/agogo.css" rel="stylesheet" type="text/css"/>
 <link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
 <link href="../../_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
 <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
 <script src="../../_static/jquery.js"></script>
 <script src="../../_static/underscore.js"></script>
+<script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
 <script src="../../_static/doctools.js"></script>
+<script src="../../_static/sphinx_highlight.js"></script>
 <link href="../../_static/E-PyoIcon.ico" rel="shortcut icon"/>
 <link href="../../about.html" rel="author" title="About these documents"/>
 <link href="../../genindex.html" rel="index" title="Index"/>
@@ -21,26 +23,70 @@
 <link href="04-rms-tracing.html" rel="next" title="04-rms-tracing.py - Auto-wah effect."/>
 <link href="02-ducking.html" rel="prev" title="02-ducking.py - Adjust the gain of a signal based on the presence of another one."/>
 </head><body>
-<div aria-label="related navigation" class="related" role="navigation">
-<h3>Navigation</h3>
+<div class="header-wrapper" role="banner">
+<div class="header">
+<div class="headertitle"><a href="../../index.html">Pyo 1.0.4 documentation</a></div>
+<div aria-label="related navigation" class="rel" role="navigation">
+<a accesskey="P" href="02-ducking.html" title="02-ducking.py - Adjust the gain of a signal based on the presence of another one.">previous</a> |
+          <a accesskey="N" href="04-rms-tracing.html" title="04-rms-tracing.py - Auto-wah effect.">next</a> |
+          <a accesskey="I" href="../../genindex.html" title="General Index">index</a>
+</div>
+</div>
+</div>
+<div class="content-wrapper">
+<div class="content">
+<div class="sidebar">
+<h3>Table of Contents</h3>
 <ul>
-<li class="right" style="margin-right: 10px">
-<a accesskey="I" href="../../genindex.html" title="General Index">index</a></li>
-<li class="right">
-<a accesskey="N" href="04-rms-tracing.html" title="04-rms-tracing.py - Auto-wah effect.">next</a> |</li>
-<li class="right">
-<a accesskey="P" href="02-ducking.html" title="02-ducking.py - Adjust the gain of a signal based on the presence of another one.">previous</a> |</li>
-<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
-<li class="nav-item nav-item-1"><a accesskey="U" href="index.html">08-dynamics</a> »</li>
-<li class="nav-item nav-item-this"><a href="">03-gated-verb.py - Gated reverb applied to a drum loop.</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../about.html">About pyo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../download.html">Installing pyo with pip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../compiling.html">Compiling pyo from sources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../structure.html">Structure of the library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../gettingstarted.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../winaudioinspect.html">Configuring the audio output (especially on Windows)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../perftips.html">How to improve performance of your pyo programs</a></li>
 </ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/index.html">API documentation</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../01-intro/index.html">First steps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02-controls/index.html">Parameter control</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../03-generators/index.html">Synthesis generators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../04-soundfiles/index.html">Playing with soundfiles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../05-envelopes/index.html">Amplitude envelopes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../06-filters/index.html">Filtering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../07-effects/index.html">Creating sound effects</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Dynamic range of audio signals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../09-callbacks/index.html">Calling python functions from audio objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../10-tables/index.html">Using tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../16-midi/index.html">How to use MIDI with pyo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../17-osc/index.html">How to use OSC with pyo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../19-multirate/index.html">Multirate audio processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../20-multicore/index.html">Multicore audio programming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../21-utilities/index.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../22-events/index.html">Events framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../23-expression/index.html">Evaluating prefix expression</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/pyoobject1.html">Tutorial: Creating a custom PyoObject - RingMod</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/pyoobject2.html">Tutorial: Creating a custom PyoObject - Flanger</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/pyotableobject1.html">Tutorial: Creating a custom PyoTableObject - TriangleTable</a></li>
+</ul>
+<div role="search">
+<h3 style="margin-top: 1.5em;">Search</h3>
+<form action="../../search.html" class="search" method="get">
+<input name="q" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
 </div>
 <div class="document">
 <div class="documentwrapper">
 <div class="bodywrapper">
 <div class="body" role="main">
 <section id="gated-verb-py-gated-reverb-applied-to-a-drum-loop">
-<h1>03-gated-verb.py - Gated reverb applied to a drum loop.<a class="headerlink" href="#gated-verb-py-gated-reverb-applied-to-a-drum-loop" title="Permalink to this headline">¶</a></h1>
+<h1>03-gated-verb.py - Gated reverb applied to a drum loop.<a class="headerlink" href="#gated-verb-py-gated-reverb-applied-to-a-drum-loop" title="Permalink to this heading">¶</a></h1>
 <p>The gated reverb effect, which was most popular in the 1980s, is made using a
 combination of strong reverb and a noise gate. The drum sound passes through
 a strong reverb, which is rapidly cut off with a gate driven by the dry signal.</p>
@@ -71,43 +117,29 @@ a strong reverb, which is rapidly cut off with a gate driven by the dry signal.<
 </div>
 </div>
 </div>
-<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
-<div class="sphinxsidebarwrapper">
-<h4>Previous topic</h4>
-<p class="topless"><a href="02-ducking.html" title="previous chapter">02-ducking.py - Adjust the gain of a signal based on the presence of another one.</a></p>
-<h4>Next topic</h4>
-<p class="topless"><a href="04-rms-tracing.html" title="next chapter">04-rms-tracing.py - Auto-wah effect.</a></p>
-<div id="searchbox" role="search" style="display: none">
-<h3 id="searchlabel">Quick search</h3>
-<div class="searchformwrapper">
-<form action="../../search.html" class="search" method="get">
-<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
-<input type="submit" value="Go"/>
-</form>
-</div>
-</div>
-<script>$('#searchbox').show(0);</script>
-</div>
 </div>
 <div class="clearer"></div>
 </div>
-<div aria-label="related navigation" class="related" role="navigation">
-<h3>Navigation</h3>
-<ul>
-<li class="right" style="margin-right: 10px">
-<a href="../../genindex.html" title="General Index">index</a></li>
-<li class="right">
-<a href="04-rms-tracing.html" title="04-rms-tracing.py - Auto-wah effect.">next</a> |</li>
-<li class="right">
-<a href="02-ducking.html" title="02-ducking.py - Adjust the gain of a signal based on the presence of another one.">previous</a> |</li>
-<li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> »</li>
-<li class="nav-item nav-item-1"><a href="index.html">08-dynamics</a> »</li>
-<li class="nav-item nav-item-this"><a href="">03-gated-verb.py - Gated reverb applied to a drum loop.</a></li>
-</ul>
 </div>
+<div class="footer-wrapper">
+<div class="footer">
+<div class="left">
+<div aria-label="related navigaton" role="navigation">
+<a href="02-ducking.html" title="02-ducking.py - Adjust the gain of a signal based on the presence of another one.">previous</a> |
+            <a href="04-rms-tracing.html" title="04-rms-tracing.py - Auto-wah effect.">next</a> |
+            <a href="../../genindex.html" title="General Index">index</a>
+</div>
+<div aria-label="source link" role="note">
+</div>
+</div>
+<div class="right">
 <div class="footer" role="contentinfo">
         © Copyright 2021, Olivier Bélanger.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
     </div>
+</div>
+<div class="clearer"></div>
+</div>
+</div>
 </body>
 </html>

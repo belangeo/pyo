@@ -12,6 +12,11 @@ The MML object generates triggers on new notes with additional streams to
 handle frequency, amplitude, duration and custom parameters. See the object
 documentation for more details.
 
+Objects in this category
+------------------------------
+
+- :py:class:`MML` :     Generates music sequences based on a custom MML notation.
+
 **API documentation**
 ---------------------
 

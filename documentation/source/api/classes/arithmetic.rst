@@ -5,6 +5,27 @@ Arithmetic
 
 Tools to perform arithmetic operations on audio signals.
 
+Objects in this category
+------------------------------
+
+- :py:class:`Sin` :     Performs a sine function on audio signal.
+- :py:class:`Cos` :     Performs a cosine function on audio signal.
+- :py:class:`Tan` :     Performs a tangent function on audio signal.
+- :py:class:`Tanh` :     Performs a hyperbolic tangent function on audio signal.
+- :py:class:`Abs` :     Performs an absolute function on audio signal.
+- :py:class:`Sqrt` :     Performs a square-root function on audio signal.
+- :py:class:`Log` :     Performs a natural log function on audio signal.
+- :py:class:`Log2` :     Performs a base 2 log function on audio signal.
+- :py:class:`Log10` :     Performs a base 10 log function on audio signal.
+- :py:class:`Atan2` :     Computes the principal value of the arc tangent of b/a.
+- :py:class:`Floor` :     Rounds to largest integral value not greater than audio signal.
+- :py:class:`Ceil` :     Rounds to smallest integral value greater than or equal to the input signal.
+- :py:class:`Round` :     Rounds to the nearest integer value in a floating-point format.
+- :py:class:`Pow` :     Performs a power function on audio signal.
+- :py:class:`Exp` :     Calculates the value of e to the power of x.
+- :py:class:`Div` :     Divides a by b.
+- :py:class:`Sub` :     Substracts b from a.
+
 *Sin*
 ----------
 

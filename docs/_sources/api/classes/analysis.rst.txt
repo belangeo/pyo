@@ -3,11 +3,26 @@ Audio Signal Analysis
 
 .. currentmodule:: pyo
 
-Tools to analyze audio signals.
+Tools to analyze audio signal characteristics.
 
-These objects are designed to retrieve specific informations
-from an audio stream. Analysis are sent at audio rate, user 
-can use them for controlling parameters of others objects.
+These objects are designed to extract specific information and meaning from an audio stream.
+Analysis data is stored in the object's internal buffer, as an audio rate signal (except for
+the Scope and Spectrum objects, which are mainly used for visualization, and can share their
+results via function handlers). The user can use these objects for controlling parameters of others objects.
+
+Objects in this category
+------------------------------
+
+- :py:class:`Follower` :     Envelope follower.
+- :py:class:`Follower2` :     Envelope follower with different attack and release times.
+- :py:class:`ZCross` :     Zero-crossing counter.
+- :py:class:`Yin` :     Pitch tracker using the Yin algorithm.
+- :py:class:`Centroid` :     Computes the spectral centroid of an input signal.
+- :py:class:`AttackDetector` :     Audio signal onset detection.
+- :py:class:`Spectrum` :     Spectrum analyzer and display.
+- :py:class:`Scope` :     Oscilloscope - audio waveform display.
+- :py:class:`PeakAmp` :     Peak amplitude follower.
+- :py:class:`RMS` :     Returns the RMS (Root-Mean-Square) value of a signal.
 
 *Follower*
 ----------

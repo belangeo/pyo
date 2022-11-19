@@ -1,19 +1,21 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
 <title>How to improve performance of your pyo programs — Pyo 1.0.4 documentation</title>
 <link href="_static/pygments.css" rel="stylesheet" type="text/css"/>
-<link href="_static/nature.css" rel="stylesheet" type="text/css"/>
+<link href="_static/agogo.css" rel="stylesheet" type="text/css"/>
 <link href="_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
 <link href="_static/autoclasstoc.css" rel="stylesheet" type="text/css"/>
 <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
 <script src="_static/jquery.js"></script>
 <script src="_static/underscore.js"></script>
+<script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
 <script src="_static/doctools.js"></script>
+<script src="_static/sphinx_highlight.js"></script>
 <link href="_static/E-PyoIcon.ico" rel="shortcut icon"/>
 <link href="about.html" rel="author" title="About these documents"/>
 <link href="genindex.html" rel="index" title="Index"/>
@@ -21,41 +23,86 @@
 <link href="api/index.html" rel="next" title="API documentation"/>
 <link href="winaudioinspect.html" rel="prev" title="Configuring the audio output (especially on Windows)"/>
 </head><body>
-<div aria-label="related navigation" class="related" role="navigation">
-<h3>Navigation</h3>
-<ul>
-<li class="right" style="margin-right: 10px">
-<a accesskey="I" href="genindex.html" title="General Index">index</a></li>
-<li class="right">
-<a accesskey="N" href="api/index.html" title="API documentation">next</a> |</li>
-<li class="right">
-<a accesskey="P" href="winaudioinspect.html" title="Configuring the audio output (especially on Windows)">previous</a> |</li>
-<li class="nav-item nav-item-0"><a href="index.html">Pyo 1.0.4 documentation</a> »</li>
-<li class="nav-item nav-item-this"><a href="">How to improve performance of your pyo programs</a></li>
+<div class="header-wrapper" role="banner">
+<div class="header">
+<div class="headertitle"><a href="index.html">Pyo 1.0.4 documentation</a></div>
+<div aria-label="related navigation" class="rel" role="navigation">
+<a accesskey="P" href="winaudioinspect.html" title="Configuring the audio output (especially on Windows)">previous</a> |
+          <a accesskey="N" href="api/index.html" title="API documentation">next</a> |
+          <a accesskey="I" href="genindex.html" title="General Index">index</a>
+</div>
+</div>
+</div>
+<div class="content-wrapper">
+<div class="content">
+<div class="sidebar">
+<h3>Table of Contents</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="about.html">About pyo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="download.html">Installing pyo with pip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compiling.html">Compiling pyo from sources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="structure.html">Structure of the library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gettingstarted.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="winaudioinspect.html">Configuring the audio output (especially on Windows)</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">How to improve performance of your pyo programs</a></li>
 </ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html">API documentation</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="examples/01-intro/index.html">First steps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/02-controls/index.html">Parameter control</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/03-generators/index.html">Synthesis generators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/04-soundfiles/index.html">Playing with soundfiles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/05-envelopes/index.html">Amplitude envelopes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/06-filters/index.html">Filtering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/07-effects/index.html">Creating sound effects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/08-dynamics/index.html">Dynamic range of audio signals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/09-callbacks/index.html">Calling python functions from audio objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/10-tables/index.html">Using tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/16-midi/index.html">How to use MIDI with pyo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/17-osc/index.html">How to use OSC with pyo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/19-multirate/index.html">Multirate audio processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/20-multicore/index.html">Multicore audio programming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/21-utilities/index.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/22-events/index.html">Events framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/23-expression/index.html">Evaluating prefix expression</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/pyoobject1.html">Tutorial: Creating a custom PyoObject - RingMod</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/pyoobject2.html">Tutorial: Creating a custom PyoObject - Flanger</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/pyotableobject1.html">Tutorial: Creating a custom PyoTableObject - TriangleTable</a></li>
+</ul>
+<div role="search">
+<h3 style="margin-top: 1.5em;">Search</h3>
+<form action="search.html" class="search" method="get">
+<input name="q" type="text"/>
+<input type="submit" value="Go"/>
+</form>
+</div>
 </div>
 <div class="document">
 <div class="documentwrapper">
 <div class="bodywrapper">
 <div class="body" role="main">
 <section id="how-to-improve-performance-of-your-pyo-programs">
-<h1>How to improve performance of your pyo programs<a class="headerlink" href="#how-to-improve-performance-of-your-pyo-programs" title="Permalink to this headline">¶</a></h1>
+<h1>How to improve performance of your pyo programs<a class="headerlink" href="#how-to-improve-performance-of-your-pyo-programs" title="Permalink to this heading">¶</a></h1>
 <p>This document lists various tips that help to improve the performance of your
 pyo programs.</p>
 <section id="python-tips">
-<h2>Python tips<a class="headerlink" href="#python-tips" title="Permalink to this headline">¶</a></h2>
+<h2>Python tips<a class="headerlink" href="#python-tips" title="Permalink to this heading">¶</a></h2>
 <p>There is not much you can do at the Python level because once the script has
 finished its execution run, almost all computations are done in the C level
 of pyo. Nevertheless, there is these two tricks to consider:</p>
 <section id="adjust-the-interpreter-s-check-interval">
-<h3>Adjust the interpreter’s “check interval”<a class="headerlink" href="#adjust-the-interpreter-s-check-interval" title="Permalink to this headline">¶</a></h3>
+<h3>Adjust the interpreter’s “check interval”<a class="headerlink" href="#adjust-the-interpreter-s-check-interval" title="Permalink to this heading">¶</a></h3>
 <p>You can change how often the interpreter checks for periodic things with
 <cite>sys.setcheckinterval(interval)</cite>. The defaults is 100, which means the check
 is performed every 100 Python virtual instructions. Setting it to a larger
 value may increase performance for programs using threads.</p>
 </section>
 <section id="use-the-subprocess-or-multiprocessing-modules">
-<h3>Use the subprocess or multiprocessing modules<a class="headerlink" href="#use-the-subprocess-or-multiprocessing-modules" title="Permalink to this headline">¶</a></h3>
+<h3>Use the subprocess or multiprocessing modules<a class="headerlink" href="#use-the-subprocess-or-multiprocessing-modules" title="Permalink to this heading">¶</a></h3>
 <p>You can use the subprocess or multiprocessing modules to spawn your processes
 on multiple processors. From the python docs:</p>
 <blockquote>
@@ -96,7 +143,7 @@ sine wave computations to multiple processors.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">server</span><span class="o">.</span><span class="n">boot</span><span class="p">()</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 
         <span class="n">freqs</span> <span class="o">=</span> <span class="p">[</span><span class="n">uniform</span><span class="p">(</span><span class="mi">400</span><span class="p">,</span><span class="mi">800</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_of_sines</span><span class="p">)]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">oscs</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.SineLoop" title="pyo.lib.generators.SineLoop"><span class="n">SineLoop</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="n">freqs</span><span class="p">,</span> <span class="n">feedback</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">mul</span><span class="o">=.</span><span class="mi">005</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">oscs</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.SineLoop" title="pyo.lib.generators.SineLoop"><span class="n">SineLoop</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="n">freqs</span><span class="p">,</span> <span class="n">feedback</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">.005</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
 
         <span class="c1"># Keeps the process alive...</span>
         <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_terminated</span><span class="p">:</span>
@@ -120,7 +167,7 @@ sine wave computations to multiple processors.</p>
 </div>
 </section>
 <section id="avoid-memory-allocation-after-initialization">
-<h3>Avoid memory allocation after initialization<a class="headerlink" href="#avoid-memory-allocation-after-initialization" title="Permalink to this headline">¶</a></h3>
+<h3>Avoid memory allocation after initialization<a class="headerlink" href="#avoid-memory-allocation-after-initialization" title="Permalink to this heading">¶</a></h3>
 <p>Dynamic memory allocation (malloc/calloc/realloc) tends to be
 nondeterministic; the time taken to allocate memory may not be predictable,
 making it inappropriate for real time systems. To be sure that the audio
@@ -180,7 +227,7 @@ simple example and watch the process’s CPU growing:</p>
 </div>
 </section>
 <section id="don-t-do-anything-that-can-trigger-the-garbage-collector">
-<h3>Don’t do anything that can trigger the garbage collector<a class="headerlink" href="#don-t-do-anything-that-can-trigger-the-garbage-collector" title="Permalink to this headline">¶</a></h3>
+<h3>Don’t do anything that can trigger the garbage collector<a class="headerlink" href="#don-t-do-anything-that-can-trigger-the-garbage-collector" title="Permalink to this heading">¶</a></h3>
 <p>The garbage collector of python is another nondeterministic process. You
 should avoid doing anything that can trigger it. So, instead of deleting
 an audio object, which can turn out to delete many stream objects, you
@@ -189,11 +236,11 @@ processing loop.</p>
 </section>
 </section>
 <section id="pyo-tips">
-<h2>Pyo tips<a class="headerlink" href="#pyo-tips" title="Permalink to this headline">¶</a></h2>
+<h2>Pyo tips<a class="headerlink" href="#pyo-tips" title="Permalink to this heading">¶</a></h2>
 <p>Here is a list of tips specific to pyo that you should consider when trying to
 reduce the CPU consumption of your audio program.</p>
 <section id="mix-down-before-applying-effects">
-<h3>Mix down before applying effects<a class="headerlink" href="#mix-down-before-applying-effects" title="Permalink to this headline">¶</a></h3>
+<h3>Mix down before applying effects<a class="headerlink" href="#mix-down-before-applying-effects" title="Permalink to this heading">¶</a></h3>
 <p>It is very easy to over-saturate the CPU with pyo, especially if you use the
 multi-channel expansion feature. If your final output uses less channels than
 the number of audio streams in an object, don’t forget to mix it down (call
@@ -202,7 +249,7 @@ its <cite>mix()</cite> method) before applying effects on the sum of the signals
 apply a phasing effect on the resulting sound:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.SineLoop" title="pyo.lib.generators.SineLoop"><span class="n">src</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.SineLoop" title="pyo.lib.generators.SineLoop"><span class="n">SineLoop</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="p">[</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">190</span><span class="p">,</span><span class="mi">210</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">50</span><span class="p">)],</span>
                <span class="n">feedback</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
-<span class="n">lfo</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="o">.</span><span class="mi">25</span><span class="p">)</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">400</span><span class="p">)</span>
+<span class="n">lfo</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="mf">.25</span><span class="p">)</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">400</span><span class="p">)</span>
 <span class="n">phs</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/filters.html#pyo.Phaser" title="pyo.lib.filters.Phaser"><span class="n">Phaser</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.SineLoop" title="pyo.lib.generators.SineLoop"><span class="n">src</span></a><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="n">lfo</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">feedback</span><span class="o">=</span><span class="mf">0.95</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -213,7 +260,7 @@ waste of CPU. The next version mixes the oscillators into a stereo stream
 before applying the effect and the CPU consumption drops to ~7% !</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.SineLoop" title="pyo.lib.generators.SineLoop"><span class="n">src</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.SineLoop" title="pyo.lib.generators.SineLoop"><span class="n">SineLoop</span></a><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="p">[</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">190</span><span class="p">,</span><span class="mi">210</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">50</span><span class="p">)],</span>
                <span class="n">feedback</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
-<span class="n">lfo</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="o">.</span><span class="mi">25</span><span class="p">)</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">400</span><span class="p">)</span>
+<span class="n">lfo</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="mf">.25</span><span class="p">)</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">400</span><span class="p">)</span>
 <span class="n">phs</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/filters.html#pyo.Phaser" title="pyo.lib.filters.Phaser"><span class="n">Phaser</span></a><span class="p">(</span><span class="n">src</span><span class="o">.</span><span class="n">mix</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">freq</span><span class="o">=</span><span class="n">lfo</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">feedback</span><span class="o">=</span><span class="mf">0.95</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -221,7 +268,7 @@ before applying the effect and the CPU consumption drops to ~7% !</p>
 CPU usage.</p>
 </section>
 <section id="stop-your-unused-audio-objects">
-<h3>Stop your unused audio objects<a class="headerlink" href="#stop-your-unused-audio-objects" title="Permalink to this headline">¶</a></h3>
+<h3>Stop your unused audio objects<a class="headerlink" href="#stop-your-unused-audio-objects" title="Permalink to this heading">¶</a></h3>
 <p>Whenever you don’t use an audio object (but you want to keep it for future
 uses), call its <cite>stop()</cite> method. This will inform the server to remove it from
 the computation loop. Setting the volume to 0 does not save CPU (everything is
@@ -251,12 +298,12 @@ often looks like something like this:</p>
 </div>
 </section>
 <section id="control-attribute-with-numbers-instead-of-pyoobjects">
-<h3>Control attribute with numbers instead of PyoObjects<a class="headerlink" href="#control-attribute-with-numbers-instead-of-pyoobjects" title="Permalink to this headline">¶</a></h3>
+<h3>Control attribute with numbers instead of PyoObjects<a class="headerlink" href="#control-attribute-with-numbers-instead-of-pyoobjects" title="Permalink to this heading">¶</a></h3>
 <p>Objects internal processing functions are optimized when plain numbers are
 given to their attributes. Unless you really need audio control over some
 parameters, don’t waste CPU cycles and give fixed numbers to every attribute
 that don’t need to change over time. See this comparison:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">n</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">Noise</span></a><span class="p">(</span><span class="o">.</span><span class="mi">2</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">n</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">Noise</span></a><span class="p">(</span><span class="mf">.2</span><span class="p">)</span>
 
 <span class="c1"># ~5% CPU</span>
 <span class="n">p1</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/filters.html#pyo.Phaser" title="pyo.lib.filters.Phaser"><span class="n">Phaser</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">n</span></a><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="p">[</span><span class="mi">100</span><span class="p">,</span><span class="mi">105</span><span class="p">],</span> <span class="n">spread</span><span class="o">=</span><span class="mf">1.2</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
@@ -272,7 +319,7 @@ the 48 notches to be recalculated every sample, which can be a very costly
 process.</p>
 </section>
 <section id="check-for-denormal-numbers">
-<h3>Check for denormal numbers<a class="headerlink" href="#check-for-denormal-numbers" title="Permalink to this headline">¶</a></h3>
+<h3>Check for denormal numbers<a class="headerlink" href="#check-for-denormal-numbers" title="Permalink to this heading">¶</a></h3>
 <p>From wikipedia:</p>
 <blockquote>
 <div><p>In computer science, denormal numbers or denormalized numbers (now
@@ -290,20 +337,20 @@ the same noise for multiple denormalizations:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">n</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">Noise</span></a><span class="p">(</span><span class="mf">1e-24</span><span class="p">)</span> <span class="c1"># low-level noise for denormals</span>
 
 <a class="sphinx-codeautolink-a" href="api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">src</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">SfPlayer</span></a><span class="p">(</span><span class="n">SNDS_PATH</span><span class="o">+</span><span class="s2">"/transparent.aif"</span><span class="p">)</span>
-<span class="n">dly</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/effects.html#pyo.Delay" title="pyo.lib.effects.Delay"><span class="n">Delay</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">src</span></a><span class="o">+</span><a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">n</span></a><span class="p">,</span> <span class="n">delay</span><span class="o">=.</span><span class="mi">1</span><span class="p">,</span> <span class="n">feedback</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+<span class="n">dly</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/effects.html#pyo.Delay" title="pyo.lib.effects.Delay"><span class="n">Delay</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">src</span></a><span class="o">+</span><a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">n</span></a><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mf">.1</span><span class="p">,</span> <span class="n">feedback</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">mul</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
 <span class="n">rev</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/effects.html#pyo.WGVerb" title="pyo.lib.effects.WGVerb"><span class="n">WGVerb</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="api/classes/players.html#pyo.SfPlayer" title="pyo.lib.players.SfPlayer"><span class="n">src</span></a><span class="o">+</span><a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Noise" title="pyo.lib.generators.Noise"><span class="n">n</span></a><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
 </pre></div>
 </div>
 </section>
 <section id="use-a-pyoobject-when-available">
-<h3>Use a PyoObject when available<a class="headerlink" href="#use-a-pyoobject-when-available" title="Permalink to this headline">¶</a></h3>
+<h3>Use a PyoObject when available<a class="headerlink" href="#use-a-pyoobject-when-available" title="Permalink to this heading">¶</a></h3>
 <p>Always look first if a PyoObject does what you want, it will always be more
 efficient than the same process written from scratch.</p>
 <p>This construct, although pedagogically valid, will never be more efficient, in
 term of CPU and memory usage, than a native PyoObject (Phaser) written in C.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">a</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.BrownNoise" title="pyo.lib.generators.BrownNoise"><span class="n">BrownNoise</span></a><span class="p">(</span><span class="o">.</span><span class="mi">02</span><span class="p">)</span><span class="o">.</span><span class="n">mix</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">a</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.BrownNoise" title="pyo.lib.generators.BrownNoise"><span class="n">BrownNoise</span></a><span class="p">(</span><span class="mf">.02</span><span class="p">)</span><span class="o">.</span><span class="n">mix</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">out</span><span class="p">()</span>
 
-<span class="n">lfo</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="o">.</span><span class="mi">25</span><span class="p">)</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="o">.</span><span class="mi">75</span><span class="p">,</span> <span class="mf">1.25</span><span class="p">)</span>
+<span class="n">lfo</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/classes/generators.html#pyo.Sine" title="pyo.lib.generators.Sine"><span class="n">Sine</span></a><span class="p">(</span><span class="mf">.25</span><span class="p">)</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="mf">.75</span><span class="p">,</span> <span class="mf">1.25</span><span class="p">)</span>
 <span class="n">filters</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">24</span><span class="p">):</span>
     <span class="n">freq</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="api/functions/conv.html#pyo.rescale" title="pyo.rescale"><span class="n">rescale</span></a><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">xmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">xmax</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span> <span class="n">ymin</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">ymax</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
@@ -315,7 +362,7 @@ term of CPU and memory usage, than a native PyoObject (Phaser) written in C.</p>
 <cite>Biquad</cite> objects with identical arguments.</p>
 </section>
 <section id="avoid-trigonometric-computation">
-<h3>Avoid trigonometric computation<a class="headerlink" href="#avoid-trigonometric-computation" title="Permalink to this headline">¶</a></h3>
+<h3>Avoid trigonometric computation<a class="headerlink" href="#avoid-trigonometric-computation" title="Permalink to this heading">¶</a></h3>
 <p>Avoid trigonometric functions computed at audio rate (<cite>Sin</cite>, <cite>Cos</cite>, <cite>Tan</cite>,
 <cite>Atan2</cite>, etc.), use simple approximations instead. For example, you can
 replace a clean <cite>Sin/Cos</cite> panning function with a cheaper one based on <cite>Sqrt</cite>:</p>
@@ -334,7 +381,7 @@ replace a clean <cite>Sin/Cos</cite> panning function with a cheaper one based o
 </div>
 </section>
 <section id="use-approximations-if-absolute-precision-is-not-needed">
-<h3>Use approximations if absolute precision is not needed<a class="headerlink" href="#use-approximations-if-absolute-precision-is-not-needed" title="Permalink to this headline">¶</a></h3>
+<h3>Use approximations if absolute precision is not needed<a class="headerlink" href="#use-approximations-if-absolute-precision-is-not-needed" title="Permalink to this heading">¶</a></h3>
 <p>When absolute precision is not really important, you can save precious CPU
 cycles by using approximations instead of the real function. <cite>FastSine</cite> is an
 approximation of the <cite>sin</cite> function that can be almost twice cheaper than a
@@ -342,7 +389,7 @@ lookup table (Sine). I plan to add more approximations like this one in the
 future.</p>
 </section>
 <section id="re-use-your-generators">
-<h3>Re-use your generators<a class="headerlink" href="#re-use-your-generators" title="Permalink to this headline">¶</a></h3>
+<h3>Re-use your generators<a class="headerlink" href="#re-use-your-generators" title="Permalink to this heading">¶</a></h3>
 <p>Some times it possible to use the same signal for parallel purposes. Let’s
 study the next process:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># single white noise</span>
@@ -368,7 +415,7 @@ waveguide. This is surely cheaper than generating three different white noises
 without noticeable difference in the sound.</p>
 </section>
 <section id="leave-mul-and-add-attributes-to-their-defaults-when-possible">
-<h3>Leave ‘mul’ and ‘add’ attributes to their defaults when possible<a class="headerlink" href="#leave-mul-and-add-attributes-to-their-defaults-when-possible" title="Permalink to this headline">¶</a></h3>
+<h3>Leave ‘mul’ and ‘add’ attributes to their defaults when possible<a class="headerlink" href="#leave-mul-and-add-attributes-to-their-defaults-when-possible" title="Permalink to this heading">¶</a></h3>
 <p>There is an internal condition that bypass the object “post-processing”
 function when <cite>mul=1</cite> and <cite>add=0</cite>. It is a good practice to apply amplitude
 control in one place instead of messing with the <cite>mul</cite> attribute of each
@@ -390,7 +437,7 @@ objects.</p>
 </div>
 </section>
 <section id="avoid-graphical-updates">
-<h3>Avoid graphical updates<a class="headerlink" href="#avoid-graphical-updates" title="Permalink to this headline">¶</a></h3>
+<h3>Avoid graphical updates<a class="headerlink" href="#avoid-graphical-updates" title="Permalink to this heading">¶</a></h3>
 <p>Even if they run in different threads, with different priorities, the audio
 callback and the graphical interface of a python program are parts of a unique
 process, sharing the same CPU. Don’t use the Server’s GUI if you don’t need to
@@ -401,7 +448,7 @@ from command line with <cite>-i</cite> flag to leave the interpreter alive.</p>
 </div>
 </section>
 <section id="list-of-cpu-intensive-objects">
-<h3>List of CPU intensive objects<a class="headerlink" href="#list-of-cpu-intensive-objects" title="Permalink to this headline">¶</a></h3>
+<h3>List of CPU intensive objects<a class="headerlink" href="#list-of-cpu-intensive-objects" title="Permalink to this heading">¶</a></h3>
 <p>Here is a non-exhaustive list of the most CPU intensive objects of the library.</p>
 <ul class="simple">
 <li><dl class="simple">
@@ -512,69 +559,29 @@ from command line with <cite>-i</cite> flag to leave the interpreter alive.</p>
 </div>
 </div>
 </div>
-<div aria-label="main navigation" class="sphinxsidebar" role="navigation">
-<div class="sphinxsidebarwrapper">
-<h3><a href="index.html">Table of Contents</a></h3>
-<ul>
-<li><a class="reference internal" href="#">How to improve performance of your pyo programs</a><ul>
-<li><a class="reference internal" href="#python-tips">Python tips</a><ul>
-<li><a class="reference internal" href="#adjust-the-interpreter-s-check-interval">Adjust the interpreter’s “check interval”</a></li>
-<li><a class="reference internal" href="#use-the-subprocess-or-multiprocessing-modules">Use the subprocess or multiprocessing modules</a></li>
-<li><a class="reference internal" href="#avoid-memory-allocation-after-initialization">Avoid memory allocation after initialization</a></li>
-<li><a class="reference internal" href="#don-t-do-anything-that-can-trigger-the-garbage-collector">Don’t do anything that can trigger the garbage collector</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#pyo-tips">Pyo tips</a><ul>
-<li><a class="reference internal" href="#mix-down-before-applying-effects">Mix down before applying effects</a></li>
-<li><a class="reference internal" href="#stop-your-unused-audio-objects">Stop your unused audio objects</a></li>
-<li><a class="reference internal" href="#control-attribute-with-numbers-instead-of-pyoobjects">Control attribute with numbers instead of PyoObjects</a></li>
-<li><a class="reference internal" href="#check-for-denormal-numbers">Check for denormal numbers</a></li>
-<li><a class="reference internal" href="#use-a-pyoobject-when-available">Use a PyoObject when available</a></li>
-<li><a class="reference internal" href="#avoid-trigonometric-computation">Avoid trigonometric computation</a></li>
-<li><a class="reference internal" href="#use-approximations-if-absolute-precision-is-not-needed">Use approximations if absolute precision is not needed</a></li>
-<li><a class="reference internal" href="#re-use-your-generators">Re-use your generators</a></li>
-<li><a class="reference internal" href="#leave-mul-and-add-attributes-to-their-defaults-when-possible">Leave ‘mul’ and ‘add’ attributes to their defaults when possible</a></li>
-<li><a class="reference internal" href="#avoid-graphical-updates">Avoid graphical updates</a></li>
-<li><a class="reference internal" href="#list-of-cpu-intensive-objects">List of CPU intensive objects</a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<h4>Previous topic</h4>
-<p class="topless"><a href="winaudioinspect.html" title="previous chapter">Configuring the audio output (especially on Windows)</a></p>
-<h4>Next topic</h4>
-<p class="topless"><a href="api/index.html" title="next chapter">API documentation</a></p>
-<div id="searchbox" role="search" style="display: none">
-<h3 id="searchlabel">Quick search</h3>
-<div class="searchformwrapper">
-<form action="search.html" class="search" method="get">
-<input aria-labelledby="searchlabel" autocapitalize="off" autocomplete="off" autocorrect="off" name="q" spellcheck="false" type="text"/>
-<input type="submit" value="Go"/>
-</form>
-</div>
-</div>
-<script>$('#searchbox').show(0);</script>
-</div>
 </div>
 <div class="clearer"></div>
 </div>
-<div aria-label="related navigation" class="related" role="navigation">
-<h3>Navigation</h3>
-<ul>
-<li class="right" style="margin-right: 10px">
-<a href="genindex.html" title="General Index">index</a></li>
-<li class="right">
-<a href="api/index.html" title="API documentation">next</a> |</li>
-<li class="right">
-<a href="winaudioinspect.html" title="Configuring the audio output (especially on Windows)">previous</a> |</li>
-<li class="nav-item nav-item-0"><a href="index.html">Pyo 1.0.4 documentation</a> »</li>
-<li class="nav-item nav-item-this"><a href="">How to improve performance of your pyo programs</a></li>
-</ul>
 </div>
+<div class="footer-wrapper">
+<div class="footer">
+<div class="left">
+<div aria-label="related navigaton" role="navigation">
+<a href="winaudioinspect.html" title="Configuring the audio output (especially on Windows)">previous</a> |
+            <a href="api/index.html" title="API documentation">next</a> |
+            <a href="genindex.html" title="General Index">index</a>
+</div>
+<div aria-label="source link" role="note">
+</div>
+</div>
+<div class="right">
 <div class="footer" role="contentinfo">
         © Copyright 2021, Olivier Bélanger.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
     </div>
+</div>
+<div class="clearer"></div>
+</div>
+</div>
 </body>
 </html>

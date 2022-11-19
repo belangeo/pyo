@@ -67,7 +67,7 @@ You should also delete the **E-pyo** app in the `Applications` folder.
 **Windows**
 
 Under Windows, all you have to do is to run the uninstaller that comes with pyo to 
-remove all its components. It is located in the python root directory (ex.: C:\Python27) 
+remove all its components. It is located in the python root directory (ex.: C:\\Python27) 
 and is named `unins000.exe`.
 
 **linux**

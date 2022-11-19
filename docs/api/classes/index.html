@@ -1,20 +1,22 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
     <title>Classes by category &#8212; Pyo 1.0.4 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/nature.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/agogo.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-codeautolink.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/autoclasstoc.css" />
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
     <link rel="shortcut icon" href="../../_static/E-PyoIcon.ico"/>
     <link rel="author" title="About these documents" href="../../about.html" />
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -22,31 +24,86 @@
     <link rel="next" title="Audio Server" href="server.html" />
     <link rel="prev" title="Alphabetical class reference" href="../alphabetical.html" /> 
   </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="server.html" title="Audio Server"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
+    <div class="header-wrapper" role="banner">
+      <div class="header">
+        <div class="headertitle"><a
+          href="../../index.html">Pyo 1.0.4 documentation</a></div>
+        <div class="rel" role="navigation" aria-label="related navigation">
           <a href="../alphabetical.html" title="Alphabetical class reference"
-             accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">API documentation</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">Classes by category</a></li> 
-      </ul>
-    </div>  
+             accesskey="P">previous</a> |
+          <a href="server.html" title="Audio Server"
+             accesskey="N">next</a> |
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a>
+        </div>
+       </div>
+    </div>
 
-    <div class="document">
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="sidebar">
+          
+          <h3>Table of Contents</h3>
+          <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../about.html">About pyo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../download.html">Installing pyo with pip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../compiling.html">Compiling pyo from sources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../structure.html">Structure of the library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../gettingstarted.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../winaudioinspect.html">Configuring the audio output (especially on Windows)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../perftips.html">How to improve performance of your pyo programs</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../constants.html">Constants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../functions/index.html">Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../alphabetical.html">Alphabetical class reference</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Classes by category</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/01-intro/index.html">First steps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/02-controls/index.html">Parameter control</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/03-generators/index.html">Synthesis generators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/04-soundfiles/index.html">Playing with soundfiles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/05-envelopes/index.html">Amplitude envelopes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/06-filters/index.html">Filtering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/07-effects/index.html">Creating sound effects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/08-dynamics/index.html">Dynamic range of audio signals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/09-callbacks/index.html">Calling python functions from audio objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/10-tables/index.html">Using tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/16-midi/index.html">How to use MIDI with pyo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/17-osc/index.html">How to use OSC with pyo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/19-multirate/index.html">Multirate audio processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/20-multicore/index.html">Multicore audio programming</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/21-utilities/index.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/22-events/index.html">Events framework</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/23-expression/index.html">Evaluating prefix expression</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/pyoobject1.html">Tutorial: Creating a custom PyoObject - RingMod</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/pyoobject2.html">Tutorial: Creating a custom PyoObject - Flanger</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/pyotableobject1.html">Tutorial: Creating a custom PyoTableObject - TriangleTable</a></li>
+</ul>
+
+          <div role="search">
+            <h3 style="margin-top: 1.5em;">Search</h3>
+            <form class="search" action="../../search.html" method="get">
+                <input type="text" name="q" />
+                <input type="submit" value="Go" />
+            </form>
+          </div>
+
+        </div>
+        <div class="document">
+            
       <div class="documentwrapper">
         <div class="bodywrapper">
           <div class="body" role="main">
             
   <section id="classes-by-category">
-<h1>Classes by category<a class="headerlink" href="#classes-by-category" title="Permalink to this headline">¶</a></h1>
+<h1>Classes by category<a class="headerlink" href="#classes-by-category" title="Permalink to this heading">¶</a></h1>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="server.html">Audio Server</a><ul>
@@ -54,12 +111,14 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="listener.html">Controller listeners</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="listener.html#objects-in-this-category">Objects in this category</a></li>
 <li class="toctree-l2"><a class="reference internal" href="listener.html#midilistener"><em>MidiListener</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="listener.html#mididispatcher"><em>MidiDispatcher</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="listener.html#osclistener"><em>OscListener</em></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="_core.html">Base Classes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="_core.html#objects-in-this-category">Objects in this category</a></li>
 <li class="toctree-l2"><a class="reference internal" href="_core.html#pyoobjectbase"><em>PyoObjectBase</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="_core.html#pyoobject"><em>PyoObject</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="_core.html#pyotableobject"><em>PyoTableObject</em></a></li>
@@ -68,6 +127,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="analysis.html">Audio Signal Analysis</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="analysis.html#objects-in-this-category">Objects in this category</a></li>
 <li class="toctree-l2"><a class="reference internal" href="analysis.html#follower"><em>Follower</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="analysis.html#follower2"><em>Follower2</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="analysis.html#zcross"><em>ZCross</em></a></li>
@@ -81,6 +141,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="arithmetic.html">Arithmetic</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="arithmetic.html#objects-in-this-category">Objects in this category</a></li>
 <li class="toctree-l2"><a class="reference internal" href="arithmetic.html#sin"><em>Sin</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="arithmetic.html#cos"><em>Cos</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="arithmetic.html#tan"><em>Tan</em></a></li>
@@ -101,6 +162,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="controls.html">Control Signals</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="controls.html#objects-in-this-category">Objects in this category</a></li>
 <li class="toctree-l2"><a class="reference internal" href="controls.html#fader"><em>Fader</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="controls.html#adsr"><em>Adsr</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="controls.html#linseg"><em>Linseg</em></a></li>
@@ -110,6 +172,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="dynamics.html">Dynamic management</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="dynamics.html#objects-in-this-category">Objects in this category</a></li>
 <li class="toctree-l2"><a class="reference internal" href="dynamics.html#clip"><em>Clip</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="dynamics.html#degrade"><em>Degrade</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="dynamics.html#mirror"><em>Mirror</em></a></li>
@@ -123,6 +186,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="effects.html">Special Effects</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="effects.html#objects-in-this-category">Objects in this category</a></li>
 <li class="toctree-l2"><a class="reference internal" href="effects.html#disto"><em>Disto</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="effects.html#delay"><em>Delay</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="effects.html#sdelay"><em>SDelay</em></a></li>
@@ -140,6 +204,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="events.html">Events framework</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="events.html#objects-in-this-category">Objects in this category</a></li>
 <li class="toctree-l2"><a class="reference internal" href="events.html#eventscale"><em>EventScale</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="events.html#eventgenerator"><em>EventGenerator</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="events.html#eventdummy"><em>EventDummy</em></a></li>
@@ -159,6 +224,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="expression.html">Prefix expression evaluators</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="expression.html#objects-in-this-category">Objects in this category</a></li>
 <li class="toctree-l2"><a class="reference internal" href="expression.html#api-documentation"><strong>API documentation</strong></a></li>
 <li class="toctree-l2"><a class="reference internal" href="expression.html#builtin-functions">Builtin functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="expression.html#comments">Comments</a></li>
@@ -174,6 +240,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="filters.html">Filters</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="filters.html#objects-in-this-category">Objects in this category</a></li>
 <li class="toctree-l2"><a class="reference internal" href="filters.html#biquad"><em>Biquad</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="filters.html#biquadx"><em>Biquadx</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="filters.html#biquada"><em>Biquada</em></a></li>
@@ -208,6 +275,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="fourier.html">Fast Fourier Transform</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="fourier.html#objects-in-this-category">Objects in this category</a></li>
 <li class="toctree-l2"><a class="reference internal" href="fourier.html#fft"><em>FFT</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="fourier.html#ifft"><em>IFFT</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="fourier.html#poltocar"><em>PolToCar</em></a></li>
@@ -220,6 +288,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="pvoc.html">Phase Vocoder</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pvoc.html#objects-in-this-category">Objects in this category</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pvoc.html#pvanal"><em>PVAnal</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="pvoc.html#pvsynth"><em>PVSynth</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="pvoc.html#pvaddsynth"><em>PVAddSynth</em></a></li>
@@ -241,6 +310,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="generators.html">Signal Generators</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generators.html#objects-in-this-category">Objects in this category</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generators.html#blit"><em>Blit</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="generators.html#brownnoise"><em>BrownNoise</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="generators.html#chenlee"><em>ChenLee</em></a></li>
@@ -262,6 +332,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="internals.html">Internal objects</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="internals.html#objects-in-this-category">Objects in this category</a></li>
 <li class="toctree-l2"><a class="reference internal" href="internals.html#dummy"><em>Dummy</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="internals.html#inputfader"><em>InputFader</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="internals.html#mix"><em>Mix</em></a></li>
@@ -270,6 +341,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="matrixprocess.html">Matrix Processing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="matrixprocess.html#objects-in-this-category">Objects in this category</a></li>
 <li class="toctree-l2"><a class="reference internal" href="matrixprocess.html#matrixmorph"><em>MatrixMorph</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="matrixprocess.html#matrixpointer"><em>MatrixPointer</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="matrixprocess.html#matrixrec"><em>MatrixRec</em></a></li>
@@ -277,6 +349,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="midi.html">Midi Handling</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="midi.html#objects-in-this-category">Objects in this category</a></li>
 <li class="toctree-l2"><a class="reference internal" href="midi.html#bendin"><em>Bendin</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="midi.html#ctlscan"><em>CtlScan</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="midi.html#ctlscan2"><em>CtlScan2</em></a></li>
@@ -291,6 +364,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="mmlmusic.html">Music Macro Language evaluator</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="mmlmusic.html#objects-in-this-category">Objects in this category</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mmlmusic.html#api-documentation"><strong>API documentation</strong></a></li>
 <li class="toctree-l2"><a class="reference internal" href="mmlmusic.html#pre-processing-on-music-text">Pre-Processing on music text</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mmlmusic.html#realtime-processing-of-the-music">Realtime Processing of the music</a></li>
@@ -299,6 +373,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="opensndctrl.html">Open Sound Control</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="opensndctrl.html#objects-in-this-category">Objects in this category</a></li>
 <li class="toctree-l2"><a class="reference internal" href="opensndctrl.html#oscdatareceive"><em>OscDataReceive</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="opensndctrl.html#oscdatasend"><em>OscDataSend</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="opensndctrl.html#osclistreceive"><em>OscListReceive</em></a></li>
@@ -307,6 +382,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="pan.html">Routing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pan.html#objects-in-this-category">Objects in this category</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pan.html#mixer"><em>Mixer</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="pan.html#pan"><em>Pan</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="pan.html#span"><em>SPan</em></a></li>
@@ -318,18 +394,21 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="pattern.html">Event Sequencing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pattern.html#objects-in-this-category">Objects in this category</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pattern.html#callafter"><em>CallAfter</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="pattern.html#pattern"><em>Pattern</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="pattern.html#score"><em>Score</em></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="players.html">Soundfile Players</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="players.html#objects-in-this-category">Objects in this category</a></li>
 <li class="toctree-l2"><a class="reference internal" href="players.html#sfplayer"><em>SfPlayer</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="players.html#sfmarkerlooper"><em>SfMarkerLooper</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="players.html#sfmarkershuffler"><em>SfMarkerShuffler</em></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="randoms.html">Random generators</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="randoms.html#objects-in-this-category">Objects in this category</a></li>
 <li class="toctree-l2"><a class="reference internal" href="randoms.html#choice"><em>Choice</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="randoms.html#logimap"><em>LogiMap</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="randoms.html#randdur"><em>RandDur</em></a></li>
@@ -343,6 +422,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="tableprocess.html">Table Processing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tableprocess.html#objects-in-this-category">Objects in this category</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tableprocess.html#granulator"><em>Granulator</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="tableprocess.html#granule"><em>Granule</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="tableprocess.html#lookup"><em>Lookup</em></a></li>
@@ -368,6 +448,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="triggers.html">Sample Accurate Timing (Triggers)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="triggers.html#objects-in-this-category">Objects in this category</a></li>
 <li class="toctree-l2"><a class="reference internal" href="triggers.html#beat"><em>Beat</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="triggers.html#change"><em>Change</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="triggers.html#cloud"><em>Cloud</em></a></li>
@@ -398,6 +479,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="utils.html">Utilities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#objects-in-this-category">Objects in this category</a></li>
 <li class="toctree-l2"><a class="reference internal" href="utils.html#atodb"><em>AToDB</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="utils.html#between"><em>Between</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="utils.html#centstotranspo"><em>CentsToTranspo</em></a></li>
@@ -424,6 +506,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="tables.html">Tables</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tables.html#objects-in-this-category">Objects in this category</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tables.html#chebytable"><em>ChebyTable</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="tables.html#coslogtable"><em>CosLogTable</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="tables.html#costable"><em>CosTable</em></a></li>
@@ -449,10 +532,12 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="matrices.html">Matrices</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="matrices.html#objects-in-this-category">Objects in this category</a></li>
 <li class="toctree-l2"><a class="reference internal" href="matrices.html#newmatrix"><em>NewMatrix</em></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="map.html">Value Converters (SLMap)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="map.html#objects-in-this-category">Objects in this category</a></li>
 <li class="toctree-l2"><a class="reference internal" href="map.html#map"><em>Map</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="map.html#slmap"><em>SLMap</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="map.html#slmapfreq"><em>SLMapFreq</em></a></li>
@@ -464,6 +549,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="wxgui.html">Additional WxPython widgets</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="wxgui.html#objects-in-this-category">Objects in this category</a></li>
 <li class="toctree-l2"><a class="reference internal" href="wxgui.html#pyoguicontrolslider"><em>PyoGuiControlSlider</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="wxgui.html#pyoguivumeter"><em>PyoGuiVuMeter</em></a></li>
 <li class="toctree-l2"><a class="reference internal" href="wxgui.html#pyoguigrapher"><em>PyoGuiGrapher</em></a></li>
@@ -483,48 +569,36 @@
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="../alphabetical.html"
-                        title="previous chapter">Alphabetical class reference</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="server.html"
-                        title="next chapter">Audio Server</a></p>
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script>$('#searchbox').show(0);</script>
         </div>
+        <div class="clearer"></div>
       </div>
-      <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="server.html" title="Audio Server"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="../alphabetical.html" title="Alphabetical class reference"
-             >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">Pyo 1.0.4 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="../index.html" >API documentation</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">Classes by category</a></li> 
-      </ul>
-    </div>
+
+    <div class="footer-wrapper">
+      <div class="footer">
+        <div class="left">
+          <div role="navigation" aria-label="related navigaton">
+            <a href="../alphabetical.html" title="Alphabetical class reference"
+              >previous</a> |
+            <a href="server.html" title="Audio Server"
+              >next</a> |
+            <a href="../../genindex.html" title="General Index"
+              >index</a>
+          </div>
+          <div role="note" aria-label="source link">
+          </div>
+        </div>
+
+        <div class="right">
+          
     <div class="footer" role="contentinfo">
         &#169; Copyright 2021, Olivier Bélanger.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
     </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
   </body>
 </html>
