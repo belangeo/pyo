@@ -83,6 +83,35 @@ dest_example_dir = "source/examples"
 if os.path.isdir(dest_example_dir):
     os.system("rm -r source/examples")
 os.mkdir("source/examples")
+with open("source/examples/index.rst", "w") as f:
+    f.write(
+"""
+Examples
+================
+
+.. toctree::
+   :maxdepth: 1
+
+   First steps <01-intro/index>
+   Parameter control <02-controls/index>
+   Synthesis generators <03-generators/index>
+   Playing with soundfiles <04-soundfiles/index>
+   Amplitude envelopes <05-envelopes/index>
+   Filtering <06-filters/index>
+   Creating sound effects <07-effects/index>
+   Dynamic range of audio signals <08-dynamics/index>
+   Calling python functions from audio objects <09-callbacks/index>
+   Using tables <10-tables/index>
+   How to use MIDI with pyo <16-midi/index>
+   How to use OSC with pyo <17-osc/index>
+   Multirate audio processing <19-multirate/index>
+   Multicore audio programming <20-multicore/index>
+   Utilities <21-utilities/index>
+   Events framework <22-events/index>
+   Evaluating prefix expression <23-expression/index>
+
+"""
+    )
 folders = sorted([d for d in os.listdir(src_example_dir) if d[0] in ["0", "1", "2"]])
 for dir in folders:
     os.mkdir("source/examples/%s" % dir)

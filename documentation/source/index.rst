@@ -34,41 +34,9 @@ Parts of the documentation
 
    api/index
 
-Examples
----------------
+   examples/index
 
-.. toctree::
-   :maxdepth: 1
-   
-   First steps <examples/01-intro/index>
-   Parameter control <examples/02-controls/index>
-   Synthesis generators <examples/03-generators/index>
-   Playing with soundfiles <examples/04-soundfiles/index>
-   Amplitude envelopes <examples/05-envelopes/index>
-   Filtering <examples/06-filters/index>
-   Creating sound effects <examples/07-effects/index>
-   Dynamic range of audio signals <examples/08-dynamics/index>
-   Calling python functions from audio objects <examples/09-callbacks/index>
-   Using tables <examples/10-tables/index>
-   How to use MIDI with pyo <examples/16-midi/index>
-   How to use OSC with pyo <examples/17-osc/index>
-   Multirate audio processing <examples/19-multirate/index>
-   Multicore audio programming <examples/20-multicore/index>
-   Utilities <examples/21-utilities/index>
-   Events framework <examples/22-events/index>
-   Evaluating prefix expression <examples/23-expression/index>
-
-More to come... Stay tuned!
-
-Advanced tutorials
---------------------------
-
-.. toctree::
-   :maxdepth: 1
-
-   tutorials/pyoobject1
-   tutorials/pyoobject2
-   tutorials/pyotableobject1
+   tutorials/index
 
 Indices and tables
 ------------------

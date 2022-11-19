@@ -1,4 +1,4 @@
-Tutorial: Creating a custom PyoObject - RingMod
+Creating a custom PyoObject - RingMod
 =====================================================
 
 There are few steps we need to take care of in order to create a class with all 

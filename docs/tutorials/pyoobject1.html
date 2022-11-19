@@ -5,7 +5,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
-<title>Tutorial: Creating a custom PyoObject - RingMod — Pyo 1.0.4 documentation</title>
+<title>Creating a custom PyoObject - RingMod — Pyo 1.0.4 documentation</title>
 <link href="../_static/pygments.css" rel="stylesheet" type="text/css"/>
 <link href="../_static/agogo.css" rel="stylesheet" type="text/css"/>
 <link href="../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
@@ -20,15 +20,15 @@
 <link href="../about.html" rel="author" title="About these documents"/>
 <link href="../genindex.html" rel="index" title="Index"/>
 <link href="../search.html" rel="search" title="Search"/>
-<link href="pyoobject2.html" rel="next" title="Tutorial: Creating a custom PyoObject - Flanger"/>
-<link href="../examples/23-expression/09-multiple-outputs.html" rel="prev" title="How to send multiple outputs from a single expression"/>
+<link href="pyoobject2.html" rel="next" title="Creating a custom PyoObject - Flanger"/>
+<link href="index.html" rel="prev" title="Advanced tutorials"/>
 </head><body>
 <div class="header-wrapper" role="banner">
 <div class="header">
 <div class="headertitle"><a href="../index.html">Pyo 1.0.4 documentation</a></div>
 <div aria-label="related navigation" class="rel" role="navigation">
-<a accesskey="P" href="../examples/23-expression/09-multiple-outputs.html" title="How to send multiple outputs from a single expression">previous</a> |
-          <a accesskey="N" href="pyoobject2.html" title="Tutorial: Creating a custom PyoObject - Flanger">next</a> |
+<a accesskey="P" href="index.html" title="Advanced tutorials">previous</a> |
+          <a accesskey="N" href="pyoobject2.html" title="Creating a custom PyoObject - Flanger">next</a> |
           <a accesskey="I" href="../genindex.html" title="General Index">index</a>
 </div>
 </div>
@@ -46,32 +46,15 @@
 <li class="toctree-l1"><a class="reference internal" href="../winaudioinspect.html">Configuring the audio output (especially on Windows)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../perftips.html">How to improve performance of your pyo programs</a></li>
 </ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API documentation</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../examples/01-intro/index.html">First steps</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../examples/02-controls/index.html">Parameter control</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../examples/03-generators/index.html">Synthesis generators</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../examples/04-soundfiles/index.html">Playing with soundfiles</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../examples/05-envelopes/index.html">Amplitude envelopes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../examples/06-filters/index.html">Filtering</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../examples/07-effects/index.html">Creating sound effects</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../examples/08-dynamics/index.html">Dynamic range of audio signals</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../examples/09-callbacks/index.html">Calling python functions from audio objects</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../examples/10-tables/index.html">Using tables</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../examples/16-midi/index.html">How to use MIDI with pyo</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../examples/17-osc/index.html">How to use OSC with pyo</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../examples/19-multirate/index.html">Multirate audio processing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../examples/20-multicore/index.html">Multicore audio programming</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../examples/21-utilities/index.html">Utilities</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../examples/22-events/index.html">Events framework</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../examples/23-expression/index.html">Evaluating prefix expression</a></li>
-</ul>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorial: Creating a custom PyoObject - RingMod</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pyoobject2.html">Tutorial: Creating a custom PyoObject - Flanger</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pyotableobject1.html">Tutorial: Creating a custom PyoTableObject - TriangleTable</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Examples</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Advanced tutorials</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Creating a custom PyoObject - RingMod</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyoobject2.html">Creating a custom PyoObject - Flanger</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyotableobject1.html">Creating a custom PyoTableObject - TriangleTable</a></li>
+</ul>
+</li>
 </ul>
 <div role="search">
 <h3 style="margin-top: 1.5em;">Search</h3>
@@ -85,8 +68,8 @@
 <div class="documentwrapper">
 <div class="bodywrapper">
 <div class="body" role="main">
-<section id="tutorial-creating-a-custom-pyoobject-ringmod">
-<h1>Tutorial: Creating a custom PyoObject - RingMod<a class="headerlink" href="#tutorial-creating-a-custom-pyoobject-ringmod" title="Permalink to this heading">¶</a></h1>
+<section id="creating-a-custom-pyoobject-ringmod">
+<h1>Creating a custom PyoObject - RingMod<a class="headerlink" href="#creating-a-custom-pyoobject-ringmod" title="Permalink to this heading">¶</a></h1>
 <p>There are few steps we need to take care of in order to create a class with all
 of the PyoObject behaviors.</p>
 <p>Things to consider:</p>
@@ -400,8 +383,8 @@ definition of these methods in the PyoObject man page to understand the meaning 
 <div class="footer">
 <div class="left">
 <div aria-label="related navigaton" role="navigation">
-<a href="../examples/23-expression/09-multiple-outputs.html" title="How to send multiple outputs from a single expression">previous</a> |
-            <a href="pyoobject2.html" title="Tutorial: Creating a custom PyoObject - Flanger">next</a> |
+<a href="index.html" title="Advanced tutorials">previous</a> |
+            <a href="pyoobject2.html" title="Creating a custom PyoObject - Flanger">next</a> |
             <a href="../genindex.html" title="General Index">index</a>
 </div>
 <div aria-label="source link" role="note">
