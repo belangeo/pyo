@@ -5599,18 +5599,18 @@ class Editor(stc.StyledTextCtrl):
             selection = (0, self.GetLength())
 
         if map[evtType] == "FIND":
-            startpos = self.FindText(selection[0], selection[1], findTxt, evt.GetFlags())
+            startpos = self.FindText(selection[0], selection[1], findTxt, evt.GetFlags())[0]
             endpos = startpos + len(findTxt)
             self.anchor1 = endpos
             self.anchor2 = selection[1]
             self.SetSelection(startpos, endpos)
         elif map[evtType] == "FIND_NEXT":
-            startpos = self.FindText(self.anchor1, self.anchor2, findTxt, evt.GetFlags())
+            startpos = self.FindText(self.anchor1, self.anchor2, findTxt, evt.GetFlags())[0]
             endpos = startpos + len(findTxt)
             self.anchor1 = endpos
             self.SetSelection(startpos, endpos)
         elif map[evtType] == "REPLACE":
-            startpos = self.FindText(selection[0], selection[1], findTxt, evt.GetFlags())
+            startpos = self.FindText(selection[0], selection[1], findTxt, evt.GetFlags())[0]
             if startpos != -1:
                 endpos = startpos + len(findTxt)
                 self.SetSelection(startpos, endpos)
@@ -5621,7 +5621,7 @@ class Editor(stc.StyledTextCtrl):
             self.anchor1 = startpos = selection[0]
             self.anchor2 = selection[1]
             while startpos != -1:
-                startpos = self.FindText(self.anchor1, self.anchor2, findTxt, evt.GetFlags())
+                startpos = self.FindText(self.anchor1, self.anchor2, findTxt, evt.GetFlags())[0]
                 if startpos != -1:
                     endpos = startpos + len(findTxt)
                     self.SetSelection(startpos, endpos)
@@ -5801,7 +5801,7 @@ class Editor(stc.StyledTextCtrl):
 
     def onPasteFromList(self, evt):
         item = self.popupmenu.FindItemById(evt.GetId())
-        text = item.GetText()
+        text = item.GetItemLabelText()
         self.insertText(self.GetCurrentPos(), text)
         self.SetCurrentPos(self.GetCurrentPos() + len(text))
         wx.CallAfter(self.SetAnchor, self.GetCurrentPos())
