@@ -581,6 +581,9 @@ static PyObject * Pan_sub(Pan *self, PyObject *arg) { SUB };
 static PyObject * Pan_inplace_sub(Pan *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Pan_div(Pan *self, PyObject *arg) { DIV };
 static PyObject * Pan_inplace_div(Pan *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * Pan_int(Pan *self) { GET_I };
+static PyObject * Pan_float(Pan *self) { GET_F };
+static PyObject * Pan_get(Pan *self) { GET_F };
 
 static PyMemberDef Pan_members[] =
 {
@@ -595,6 +598,7 @@ static PyMethodDef Pan_methods[] =
 {
     {"getServer", (PyCFunction)Pan_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Pan_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)Pan_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Pan_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Pan_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Pan_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -623,9 +627,9 @@ static PyNumberMethods Pan_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
+    (unaryfunc)Pan_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)Pan_float,                     /*nb_float*/
     (binaryfunc)Pan_inplace_add,              /*inplace_add*/
     (binaryfunc)Pan_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Pan_inplace_multiply,         /*inplace_multiply*/
@@ -1209,6 +1213,9 @@ static PyObject * SPan_sub(SPan *self, PyObject *arg) { SUB };
 static PyObject * SPan_inplace_sub(SPan *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * SPan_div(SPan *self, PyObject *arg) { DIV };
 static PyObject * SPan_inplace_div(SPan *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * SPan_int(SPan *self) { GET_I };
+static PyObject * SPan_float(SPan *self) { GET_F };
+static PyObject * SPan_get(SPan *self) { GET_F };
 
 static PyMemberDef SPan_members[] =
 {
@@ -1223,6 +1230,7 @@ static PyMethodDef SPan_methods[] =
 {
     {"getServer", (PyCFunction)SPan_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)SPan_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)SPan_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)SPan_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)SPan_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)SPan_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -1251,9 +1259,9 @@ static PyNumberMethods SPan_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
+    (unaryfunc)SPan_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)SPan_float,                     /*nb_float*/
     (binaryfunc)SPan_inplace_add,              /*inplace_add*/
     (binaryfunc)SPan_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)SPan_inplace_multiply,         /*inplace_multiply*/
@@ -1757,6 +1765,9 @@ static PyObject * Switch_sub(Switch *self, PyObject *arg) { SUB };
 static PyObject * Switch_inplace_sub(Switch *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Switch_div(Switch *self, PyObject *arg) { DIV };
 static PyObject * Switch_inplace_div(Switch *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * Switch_int(Switch *self) { GET_I };
+static PyObject * Switch_float(Switch *self) { GET_F };
+static PyObject * Switch_get(Switch *self) { GET_F };
 
 static PyMemberDef Switch_members[] =
 {
@@ -1771,6 +1782,7 @@ static PyMethodDef Switch_methods[] =
 {
     {"getServer", (PyCFunction)Switch_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Switch_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)Switch_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Switch_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Switch_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Switch_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -1799,9 +1811,9 @@ static PyNumberMethods Switch_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
+    (unaryfunc)Switch_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)Switch_float,                     /*nb_float*/
     (binaryfunc)Switch_inplace_add,              /*inplace_add*/
     (binaryfunc)Switch_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Switch_inplace_multiply,         /*inplace_multiply*/
@@ -2073,6 +2085,9 @@ static PyObject * VoiceManager_sub(VoiceManager *self, PyObject *arg) { SUB };
 static PyObject * VoiceManager_inplace_sub(VoiceManager *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * VoiceManager_div(VoiceManager *self, PyObject *arg) { DIV };
 static PyObject * VoiceManager_inplace_div(VoiceManager *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * VoiceManager_int(VoiceManager *self) { GET_I };
+static PyObject * VoiceManager_float(VoiceManager *self) { GET_F };
+static PyObject * VoiceManager_get(VoiceManager *self) { GET_F };
 
 static PyObject *
 VoiceManager_setTriggers(VoiceManager *self, PyObject *arg)
@@ -2115,6 +2130,7 @@ static PyMethodDef VoiceManager_methods[] =
 {
     {"getServer", (PyCFunction)VoiceManager_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)VoiceManager_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)VoiceManager_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)VoiceManager_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)VoiceManager_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setTriggers", (PyCFunction)VoiceManager_setTriggers, METH_O, "Sets list of trigger streams."},
@@ -2143,9 +2159,9 @@ static PyNumberMethods VoiceManager_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
+    (unaryfunc)VoiceManager_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)VoiceManager_float,                     /*nb_float*/
     (binaryfunc)VoiceManager_inplace_add,                 /*inplace_add*/
     (binaryfunc)VoiceManager_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)VoiceManager_inplace_multiply,            /*inplace_multiply*/
@@ -2752,6 +2768,9 @@ static PyObject * MixerVoice_sub(MixerVoice *self, PyObject *arg) { SUB };
 static PyObject * MixerVoice_inplace_sub(MixerVoice *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * MixerVoice_div(MixerVoice *self, PyObject *arg) { DIV };
 static PyObject * MixerVoice_inplace_div(MixerVoice *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * MixerVoice_int(MixerVoice *self) { GET_I };
+static PyObject * MixerVoice_float(MixerVoice *self) { GET_F };
+static PyObject * MixerVoice_get(MixerVoice *self) { GET_F };
 
 static PyMemberDef MixerVoice_members[] =
 {
@@ -2766,6 +2785,7 @@ static PyMethodDef MixerVoice_methods[] =
 {
     {"getServer", (PyCFunction)MixerVoice_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)MixerVoice_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)MixerVoice_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)MixerVoice_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)MixerVoice_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)MixerVoice_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -2794,9 +2814,9 @@ static PyNumberMethods MixerVoice_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
+    (unaryfunc)MixerVoice_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)MixerVoice_float,                     /*nb_float*/
     (binaryfunc)MixerVoice_inplace_add,              /*inplace_add*/
     (binaryfunc)MixerVoice_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)MixerVoice_inplace_multiply,         /*inplace_multiply*/
@@ -3205,6 +3225,9 @@ static PyObject * Selector_sub(Selector *self, PyObject *arg) { SUB };
 static PyObject * Selector_inplace_sub(Selector *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Selector_div(Selector *self, PyObject *arg) { DIV };
 static PyObject * Selector_inplace_div(Selector *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * Selector_int(Selector *self) { GET_I };
+static PyObject * Selector_float(Selector *self) { GET_F };
+static PyObject * Selector_get(Selector *self) { GET_F };
 
 static PyObject *
 Selector_setInputs(Selector *self, PyObject *arg)
@@ -3255,6 +3278,7 @@ static PyMethodDef Selector_methods[] =
 {
     {"getServer", (PyCFunction)Selector_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Selector_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)Selector_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Selector_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Selector_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Selector_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -3286,9 +3310,9 @@ static PyNumberMethods Selector_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
+    (unaryfunc)Selector_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)Selector_float,                     /*nb_float*/
     (binaryfunc)Selector_inplace_add,                 /*inplace_add*/
     (binaryfunc)Selector_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Selector_inplace_multiply,            /*inplace_multiply*/
@@ -3347,4 +3371,3 @@ PyTypeObject SelectorType =
     0,                                              /* tp_alloc */
     Selector_new,                                     /* tp_new */
 };
-

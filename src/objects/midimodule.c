@@ -690,6 +690,9 @@ static PyObject * Midictl_sub(Midictl *self, PyObject *arg) { SUB };
 static PyObject * Midictl_inplace_sub(Midictl *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Midictl_div(Midictl *self, PyObject *arg) { DIV };
 static PyObject * Midictl_inplace_div(Midictl *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * Midictl_int(Midictl *self) { GET_I };
+static PyObject * Midictl_float(Midictl *self) { GET_F };
+static PyObject * Midictl_get(Midictl *self) { GET_F };
 
 static PyObject *
 Midictl_setValue(Midictl *self, PyObject *arg)
@@ -779,6 +782,7 @@ static PyMethodDef Midictl_methods[] =
 {
     {"getServer", (PyCFunction)Midictl_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Midictl_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)Midictl_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Midictl_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)Midictl_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setValue", (PyCFunction)Midictl_setValue, METH_O, "Resets audio stream to value in argument."},
@@ -811,9 +815,9 @@ static PyNumberMethods Midictl_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
+    (unaryfunc)Midictl_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)Midictl_float,                     /*nb_float*/
     (binaryfunc)Midictl_inplace_add,              /*inplace_add*/
     (binaryfunc)Midictl_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Midictl_inplace_multiply,         /*inplace_multiply*/
@@ -1108,6 +1112,9 @@ static PyObject * Bendin_sub(Bendin *self, PyObject *arg) { SUB };
 static PyObject * Bendin_inplace_sub(Bendin *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Bendin_div(Bendin *self, PyObject *arg) { DIV };
 static PyObject * Bendin_inplace_div(Bendin *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * Bendin_int(Bendin *self) { GET_I };
+static PyObject * Bendin_float(Bendin *self) { GET_F };
+static PyObject * Bendin_get(Bendin *self) { GET_F };
 
 static PyObject *
 Bendin_setBrange(Bendin *self, PyObject *arg)
@@ -1178,6 +1185,7 @@ static PyMethodDef Bendin_methods[] =
 {
     {"getServer", (PyCFunction)Bendin_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Bendin_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)Bendin_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Bendin_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)Bendin_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setBrange", (PyCFunction)Bendin_setBrange, METH_O, "Sets the bending bipolar range."},
@@ -1208,9 +1216,9 @@ static PyNumberMethods Bendin_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
+    (unaryfunc)Bendin_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)Bendin_float,                     /*nb_float*/
     (binaryfunc)Bendin_inplace_add,              /*inplace_add*/
     (binaryfunc)Bendin_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Bendin_inplace_multiply,         /*inplace_multiply*/
@@ -1493,6 +1501,9 @@ static PyObject * Touchin_sub(Touchin *self, PyObject *arg) { SUB };
 static PyObject * Touchin_inplace_sub(Touchin *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Touchin_div(Touchin *self, PyObject *arg) { DIV };
 static PyObject * Touchin_inplace_div(Touchin *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * Touchin_int(Touchin *self) { GET_I };
+static PyObject * Touchin_float(Touchin *self) { GET_F };
+static PyObject * Touchin_get(Touchin *self) { GET_F };
 
 static PyObject *
 Touchin_setMinScale(Touchin *self, PyObject *arg)
@@ -1551,6 +1562,7 @@ static PyMethodDef Touchin_methods[] =
 {
     {"getServer", (PyCFunction)Touchin_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Touchin_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)Touchin_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Touchin_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)Touchin_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setMinScale", (PyCFunction)Touchin_setMinScale, METH_O, "Sets the minimum value of scaling."},
@@ -1581,9 +1593,9 @@ static PyNumberMethods Touchin_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
+    (unaryfunc)Touchin_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)Touchin_float,                     /*nb_float*/
     (binaryfunc)Touchin_inplace_add,              /*inplace_add*/
     (binaryfunc)Touchin_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Touchin_inplace_multiply,         /*inplace_multiply*/
@@ -1840,6 +1852,9 @@ static PyObject * Programin_sub(Programin *self, PyObject *arg) { SUB };
 static PyObject * Programin_inplace_sub(Programin *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Programin_div(Programin *self, PyObject *arg) { DIV };
 static PyObject * Programin_inplace_div(Programin *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * Programin_int(Programin *self) { GET_I };
+static PyObject * Programin_float(Programin *self) { GET_F };
+static PyObject * Programin_get(Programin *self) { GET_F };
 
 static PyObject *
 Programin_setChannel(Programin *self, PyObject *arg)
@@ -1872,6 +1887,7 @@ static PyMethodDef Programin_methods[] =
 {
     {"getServer", (PyCFunction)Programin_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Programin_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)Programin_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Programin_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)Programin_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setChannel", (PyCFunction)Programin_setChannel, METH_O, "Sets the midi channel."},
@@ -1900,9 +1916,9 @@ static PyNumberMethods Programin_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
+    (unaryfunc)Programin_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)Programin_float,                     /*nb_float*/
     (binaryfunc)Programin_inplace_add,              /*inplace_add*/
     (binaryfunc)Programin_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Programin_inplace_multiply,         /*inplace_multiply*/
@@ -2652,6 +2668,7 @@ Notein_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * Notein_getServer(Notein* self) { GET_SERVER };
 static PyObject * Notein_getStream(Notein* self) { GET_STREAM };
+static PyObject * Notein_get(Notein *self) { GET_F };
 static PyObject * Notein_setMul(Notein *self, PyObject *arg) { SET_MUL };
 static PyObject * Notein_setAdd(Notein *self, PyObject *arg) { SET_ADD };
 static PyObject * Notein_setSub(Notein *self, PyObject *arg) { SET_SUB };
@@ -2668,6 +2685,8 @@ static PyObject * Notein_sub(Notein *self, PyObject *arg) { SUB };
 static PyObject * Notein_inplace_sub(Notein *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Notein_div(Notein *self, PyObject *arg) { DIV };
 static PyObject * Notein_inplace_div(Notein *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * Notein_int(Notein *self) { GET_I };
+static PyObject * Notein_float(Notein *self) { GET_F };
 
 static PyMemberDef Notein_members[] =
 {
@@ -2684,6 +2703,7 @@ static PyMethodDef Notein_methods[] =
     {"_getStream", (PyCFunction)Notein_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)Notein_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)Notein_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
+    {"get", (PyCFunction)Notein_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"setMul", (PyCFunction)Notein_setMul, METH_O, "Sets Notein mul factor."},
     {"setAdd", (PyCFunction)Notein_setAdd, METH_O, "Sets Notein add factor."},
     {"setSub", (PyCFunction)Notein_setSub, METH_O, "Sets inverse add factor."},
@@ -2709,9 +2729,9 @@ static PyNumberMethods Notein_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                       /*nb_int*/
+    (unaryfunc)Notein_int,                       /*nb_int*/
     0,                      /*nb_long*/
-    0,                     /*nb_float*/
+    (unaryfunc)Notein_float,                     /*nb_float*/
     (binaryfunc)Notein_inplace_add,              /*inplace_add*/
     (binaryfunc)Notein_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Notein_inplace_multiply,         /*inplace_multiply*/
@@ -2937,6 +2957,9 @@ static PyObject * NoteinTrig_sub(NoteinTrig *self, PyObject *arg) { SUB };
 static PyObject * NoteinTrig_inplace_sub(NoteinTrig *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * NoteinTrig_div(NoteinTrig *self, PyObject *arg) { DIV };
 static PyObject * NoteinTrig_inplace_div(NoteinTrig *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * NoteinTrig_int(NoteinTrig *self) { GET_I };
+static PyObject * NoteinTrig_float(NoteinTrig *self) { GET_F };
+static PyObject * NoteinTrig_get(NoteinTrig *self) { GET_F };
 
 static PyMemberDef NoteinTrig_members[] =
 {
@@ -2951,6 +2974,7 @@ static PyMethodDef NoteinTrig_methods[] =
 {
     {"getServer", (PyCFunction)NoteinTrig_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)NoteinTrig_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)NoteinTrig_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)NoteinTrig_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)NoteinTrig_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setMul", (PyCFunction)NoteinTrig_setMul, METH_O, "Sets NoteinTrig mul factor."},
@@ -2978,9 +3002,9 @@ static PyNumberMethods NoteinTrig_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
+    (unaryfunc)NoteinTrig_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)NoteinTrig_float,                     /*nb_float*/
     (binaryfunc)NoteinTrig_inplace_add,              /*inplace_add*/
     (binaryfunc)NoteinTrig_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)NoteinTrig_inplace_multiply,         /*inplace_multiply*/
@@ -3319,6 +3343,9 @@ static PyObject * MidiAdsr_sub(MidiAdsr *self, PyObject *arg) { SUB };
 static PyObject * MidiAdsr_inplace_sub(MidiAdsr *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * MidiAdsr_div(MidiAdsr *self, PyObject *arg) { DIV };
 static PyObject * MidiAdsr_inplace_div(MidiAdsr *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * MidiAdsr_int(MidiAdsr *self) { GET_I };
+static PyObject * MidiAdsr_float(MidiAdsr *self) { GET_F };
+static PyObject * MidiAdsr_get(MidiAdsr *self) { GET_F };
 
 static PyObject *
 MidiAdsr_setAttack(MidiAdsr *self, PyObject *arg)
@@ -3414,6 +3441,7 @@ static PyMethodDef MidiAdsr_methods[] =
 {
     {"getServer", (PyCFunction)MidiAdsr_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)MidiAdsr_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)MidiAdsr_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)MidiAdsr_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)MidiAdsr_stop, METH_VARARGS | METH_KEYWORDS, "Starts fadeout and stops computing."},
     {"setMul", (PyCFunction)MidiAdsr_setMul, METH_O, "Sets MidiAdsr mul factor."},
@@ -3446,9 +3474,9 @@ static PyNumberMethods MidiAdsr_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
+    (unaryfunc)MidiAdsr_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)MidiAdsr_float,                     /*nb_float*/
     (binaryfunc)MidiAdsr_inplace_add,              /*inplace_add*/
     (binaryfunc)MidiAdsr_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)MidiAdsr_inplace_multiply,         /*inplace_multiply*/
@@ -3793,6 +3821,9 @@ static PyObject * MidiDelAdsr_sub(MidiDelAdsr *self, PyObject *arg) { SUB };
 static PyObject * MidiDelAdsr_inplace_sub(MidiDelAdsr *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * MidiDelAdsr_div(MidiDelAdsr *self, PyObject *arg) { DIV };
 static PyObject * MidiDelAdsr_inplace_div(MidiDelAdsr *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * MidiDelAdsr_int(MidiDelAdsr *self) { GET_I };
+static PyObject * MidiDelAdsr_float(MidiDelAdsr *self) { GET_F };
+static PyObject * MidiDelAdsr_get(MidiDelAdsr *self) { GET_F };
 
 static PyObject *
 MidiDelAdsr_setDelay(MidiDelAdsr *self, PyObject *arg)
@@ -3902,6 +3933,7 @@ static PyMethodDef MidiDelAdsr_methods[] =
 {
     {"getServer", (PyCFunction)MidiDelAdsr_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)MidiDelAdsr_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)MidiDelAdsr_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)MidiDelAdsr_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)MidiDelAdsr_stop, METH_VARARGS | METH_KEYWORDS, "Starts fadeout and stops computing."},
     {"setMul", (PyCFunction)MidiDelAdsr_setMul, METH_O, "Sets MidiDelAdsr mul factor."},
@@ -3935,9 +3967,9 @@ static PyNumberMethods MidiDelAdsr_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
+    (unaryfunc)MidiDelAdsr_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)MidiDelAdsr_float,                     /*nb_float*/
     (binaryfunc)MidiDelAdsr_inplace_add,              /*inplace_add*/
     (binaryfunc)MidiDelAdsr_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)MidiDelAdsr_inplace_multiply,         /*inplace_multiply*/
@@ -4507,6 +4539,9 @@ static PyObject * MidiLinseg_sub(MidiLinseg *self, PyObject *arg) { SUB };
 static PyObject * MidiLinseg_inplace_sub(MidiLinseg *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * MidiLinseg_div(MidiLinseg *self, PyObject *arg) { DIV };
 static PyObject * MidiLinseg_inplace_div(MidiLinseg *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * MidiLinseg_int(MidiLinseg *self) { GET_I };
+static PyObject * MidiLinseg_float(MidiLinseg *self) { GET_F };
+static PyObject * MidiLinseg_get(MidiLinseg *self) { GET_F };
 
 static PyObject *
 MidiLinseg_setList(MidiLinseg *self, PyObject *value)
@@ -4559,6 +4594,7 @@ static PyMethodDef MidiLinseg_methods[] =
     {"getServer", (PyCFunction)MidiLinseg_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)MidiLinseg_getStream, METH_NOARGS, "Returns stream object."},
     {"_getTriggerStream", (PyCFunction)MidiLinseg_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
+    {"get", (PyCFunction)MidiLinseg_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)MidiLinseg_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)MidiLinseg_stop, METH_VARARGS | METH_KEYWORDS, "Starts fadeout and stops computing."},
     {"setList", (PyCFunction)MidiLinseg_setList, METH_O, "Sets target points list."},
@@ -4588,9 +4624,9 @@ static PyNumberMethods MidiLinseg_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
+    (unaryfunc)MidiLinseg_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)MidiLinseg_float,                     /*nb_float*/
     (binaryfunc)MidiLinseg_inplace_add,              /*inplace_add*/
     (binaryfunc)MidiLinseg_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)MidiLinseg_inplace_multiply,         /*inplace_multiply*/

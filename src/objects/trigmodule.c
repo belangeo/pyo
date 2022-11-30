@@ -248,6 +248,9 @@ static PyObject * TrigRandInt_sub(TrigRandInt *self, PyObject *arg) { SUB };
 static PyObject * TrigRandInt_inplace_sub(TrigRandInt *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * TrigRandInt_div(TrigRandInt *self, PyObject *arg) { DIV };
 static PyObject * TrigRandInt_inplace_div(TrigRandInt *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * TrigRandInt_int(TrigRandInt *self) { GET_I };
+static PyObject * TrigRandInt_float(TrigRandInt *self) { GET_F };
+static PyObject * TrigRandInt_get(TrigRandInt *self) { GET_F };
 
 static PyObject * TrigRandInt_setMax(TrigRandInt *self, PyObject *arg) { SET_PARAM(self->max, self->max_stream, 2); }
 
@@ -266,6 +269,7 @@ static PyMethodDef TrigRandInt_methods[] =
 {
     {"getServer", (PyCFunction)TrigRandInt_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)TrigRandInt_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)TrigRandInt_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)TrigRandInt_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)TrigRandInt_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)TrigRandInt_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -295,9 +299,9 @@ static PyNumberMethods TrigRandInt_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
+    (unaryfunc)TrigRandInt_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)TrigRandInt_float,                     /*nb_float*/
     (binaryfunc)TrigRandInt_inplace_add,                 /*inplace_add*/
     (binaryfunc)TrigRandInt_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)TrigRandInt_inplace_multiply,            /*inplace_multiply*/
@@ -720,6 +724,9 @@ static PyObject * TrigRand_sub(TrigRand *self, PyObject *arg) { SUB };
 static PyObject * TrigRand_inplace_sub(TrigRand *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * TrigRand_div(TrigRand *self, PyObject *arg) { DIV };
 static PyObject * TrigRand_inplace_div(TrigRand *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * TrigRand_int(TrigRand *self) { GET_I };
+static PyObject * TrigRand_float(TrigRand *self) { GET_F };
+static PyObject * TrigRand_get(TrigRand *self) { GET_F };
 
 static PyObject * TrigRand_setMin(TrigRand *self, PyObject *arg) { SET_PARAM(self->min, self->min_stream, 2); }
 static PyObject * TrigRand_setMax(TrigRand *self, PyObject *arg) { SET_PARAM(self->max, self->max_stream, 3); }
@@ -754,6 +761,7 @@ static PyMethodDef TrigRand_methods[] =
 {
     {"getServer", (PyCFunction)TrigRand_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)TrigRand_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)TrigRand_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)TrigRand_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)TrigRand_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)TrigRand_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -785,9 +793,9 @@ static PyNumberMethods TrigRand_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
+    (unaryfunc)TrigRand_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)TrigRand_float,                     /*nb_float*/
     (binaryfunc)TrigRand_inplace_add,                 /*inplace_add*/
     (binaryfunc)TrigRand_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)TrigRand_inplace_multiply,            /*inplace_multiply*/
@@ -1064,6 +1072,9 @@ static PyObject * TrigChoice_sub(TrigChoice *self, PyObject *arg) { SUB };
 static PyObject * TrigChoice_inplace_sub(TrigChoice *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * TrigChoice_div(TrigChoice *self, PyObject *arg) { DIV };
 static PyObject * TrigChoice_inplace_div(TrigChoice *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * TrigChoice_int(TrigChoice *self) { GET_I };
+static PyObject * TrigChoice_float(TrigChoice *self) { GET_F };
+static PyObject * TrigChoice_get(TrigChoice *self) { GET_F };
 
 static PyObject *
 TrigChoice_setChoice(TrigChoice *self, PyObject *arg)
@@ -1117,6 +1128,7 @@ static PyMethodDef TrigChoice_methods[] =
 {
     {"getServer", (PyCFunction)TrigChoice_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)TrigChoice_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)TrigChoice_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)TrigChoice_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)TrigChoice_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)TrigChoice_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -1147,9 +1159,9 @@ static PyNumberMethods TrigChoice_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
+    (unaryfunc)TrigChoice_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)TrigChoice_float,                     /*nb_float*/
     (binaryfunc)TrigChoice_inplace_add,                 /*inplace_add*/
     (binaryfunc)TrigChoice_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)TrigChoice_inplace_multiply,            /*inplace_multiply*/
@@ -1755,6 +1767,9 @@ static PyObject * TrigEnv_sub(TrigEnv *self, PyObject *arg) { SUB };
 static PyObject * TrigEnv_inplace_sub(TrigEnv *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * TrigEnv_div(TrigEnv *self, PyObject *arg) { DIV };
 static PyObject * TrigEnv_inplace_div(TrigEnv *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * TrigEnv_int(TrigEnv *self) { GET_I };
+static PyObject * TrigEnv_float(TrigEnv *self) { GET_F };
+static PyObject * TrigEnv_get(TrigEnv *self) { GET_F };
 
 static PyObject *
 TrigEnv_getTable(TrigEnv* self)
@@ -1809,6 +1824,7 @@ static PyMethodDef TrigEnv_methods[] =
     {"getServer", (PyCFunction)TrigEnv_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)TrigEnv_getStream, METH_NOARGS, "Returns stream object."},
     {"_getTriggerStream", (PyCFunction)TrigEnv_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
+    {"get", (PyCFunction)TrigEnv_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)TrigEnv_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)TrigEnv_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)TrigEnv_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -1840,9 +1856,9 @@ static PyNumberMethods TrigEnv_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
+    (unaryfunc)TrigEnv_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)TrigEnv_float,                     /*nb_float*/
     (binaryfunc)TrigEnv_inplace_add,              /*inplace_add*/
     (binaryfunc)TrigEnv_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)TrigEnv_inplace_multiply,         /*inplace_multiply*/
@@ -2172,6 +2188,9 @@ static PyObject * TrigLinseg_sub(TrigLinseg *self, PyObject *arg) { SUB };
 static PyObject * TrigLinseg_inplace_sub(TrigLinseg *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * TrigLinseg_div(TrigLinseg *self, PyObject *arg) { DIV };
 static PyObject * TrigLinseg_inplace_div(TrigLinseg *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * TrigLinseg_int(TrigLinseg *self) { GET_I };
+static PyObject * TrigLinseg_float(TrigLinseg *self) { GET_F };
+static PyObject * TrigLinseg_get(TrigLinseg *self) { GET_F };
 
 static PyObject *
 TrigLinseg_setList(TrigLinseg *self, PyObject *value)
@@ -2213,6 +2232,7 @@ static PyMethodDef TrigLinseg_methods[] =
     {"getServer", (PyCFunction)TrigLinseg_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)TrigLinseg_getStream, METH_NOARGS, "Returns stream object."},
     {"_getTriggerStream", (PyCFunction)TrigLinseg_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
+    {"get", (PyCFunction)TrigLinseg_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)TrigLinseg_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)TrigLinseg_stop, METH_VARARGS | METH_KEYWORDS, "Starts fadeout and stops computing."},
     {"setList", (PyCFunction)TrigLinseg_setList, METH_O, "Sets target points list."},
@@ -2241,9 +2261,9 @@ static PyNumberMethods TrigLinseg_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
+    (unaryfunc)TrigLinseg_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)TrigLinseg_float,                     /*nb_float*/
     (binaryfunc)TrigLinseg_inplace_add,              /*inplace_add*/
     (binaryfunc)TrigLinseg_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)TrigLinseg_inplace_multiply,         /*inplace_multiply*/
@@ -2604,6 +2624,9 @@ static PyObject * TrigExpseg_sub(TrigExpseg *self, PyObject *arg) { SUB };
 static PyObject * TrigExpseg_inplace_sub(TrigExpseg *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * TrigExpseg_div(TrigExpseg *self, PyObject *arg) { DIV };
 static PyObject * TrigExpseg_inplace_div(TrigExpseg *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * TrigExpseg_int(TrigExpseg *self) { GET_I };
+static PyObject * TrigExpseg_float(TrigExpseg *self) { GET_F };
+static PyObject * TrigExpseg_get(TrigExpseg *self) { GET_F };
 
 static PyObject *
 TrigExpseg_setList(TrigExpseg *self, PyObject *value)
@@ -2666,6 +2689,7 @@ static PyMethodDef TrigExpseg_methods[] =
     {"getServer", (PyCFunction)TrigExpseg_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)TrigExpseg_getStream, METH_NOARGS, "Returns stream object."},
     {"_getTriggerStream", (PyCFunction)TrigExpseg_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
+    {"get", (PyCFunction)TrigExpseg_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)TrigExpseg_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)TrigExpseg_stop, METH_VARARGS | METH_KEYWORDS, "Starts fadeout and stops computing."},
     {"setList", (PyCFunction)TrigExpseg_setList, METH_O, "Sets target points list."},
@@ -2696,9 +2720,9 @@ static PyNumberMethods TrigExpseg_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
+    (unaryfunc)TrigExpseg_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)TrigExpseg_float,                     /*nb_float*/
     (binaryfunc)TrigExpseg_inplace_add,              /*inplace_add*/
     (binaryfunc)TrigExpseg_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)TrigExpseg_inplace_multiply,         /*inplace_multiply*/
@@ -3394,6 +3418,9 @@ static PyObject * TrigXnoise_sub(TrigXnoise *self, PyObject *arg) { SUB };
 static PyObject * TrigXnoise_inplace_sub(TrigXnoise *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * TrigXnoise_div(TrigXnoise *self, PyObject *arg) { DIV };
 static PyObject * TrigXnoise_inplace_div(TrigXnoise *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * TrigXnoise_int(TrigXnoise *self) { GET_I };
+static PyObject * TrigXnoise_float(TrigXnoise *self) { GET_F };
+static PyObject * TrigXnoise_get(TrigXnoise *self) { GET_F };
 
 static PyObject *
 TrigXnoise_setType(TrigXnoise *self, PyObject *arg)
@@ -3428,6 +3455,7 @@ static PyMethodDef TrigXnoise_methods[] =
 {
     {"getServer", (PyCFunction)TrigXnoise_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)TrigXnoise_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)TrigXnoise_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)TrigXnoise_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)TrigXnoise_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)TrigXnoise_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -3459,9 +3487,9 @@ static PyNumberMethods TrigXnoise_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
+    (unaryfunc)TrigXnoise_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)TrigXnoise_float,                     /*nb_float*/
     (binaryfunc)TrigXnoise_inplace_add,                 /*inplace_add*/
     (binaryfunc)TrigXnoise_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)TrigXnoise_inplace_multiply,            /*inplace_multiply*/
@@ -4202,6 +4230,9 @@ static PyObject * TrigXnoiseMidi_sub(TrigXnoiseMidi *self, PyObject *arg) { SUB 
 static PyObject * TrigXnoiseMidi_inplace_sub(TrigXnoiseMidi *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * TrigXnoiseMidi_div(TrigXnoiseMidi *self, PyObject *arg) { DIV };
 static PyObject * TrigXnoiseMidi_inplace_div(TrigXnoiseMidi *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * TrigXnoiseMidi_int(TrigXnoiseMidi *self) { GET_I };
+static PyObject * TrigXnoiseMidi_float(TrigXnoiseMidi *self) { GET_F };
+static PyObject * TrigXnoiseMidi_get(TrigXnoiseMidi *self) { GET_F };
 
 static PyObject *
 TrigXnoiseMidi_setType(TrigXnoiseMidi *self, PyObject *arg)
@@ -4276,6 +4307,7 @@ static PyMethodDef TrigXnoiseMidi_methods[] =
 {
     {"getServer", (PyCFunction)TrigXnoiseMidi_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)TrigXnoiseMidi_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)TrigXnoiseMidi_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)TrigXnoiseMidi_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)TrigXnoiseMidi_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)TrigXnoiseMidi_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -4309,9 +4341,9 @@ static PyNumberMethods TrigXnoiseMidi_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
+    (unaryfunc)TrigXnoiseMidi_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)TrigXnoiseMidi_float,                     /*nb_float*/
     (binaryfunc)TrigXnoiseMidi_inplace_add,                 /*inplace_add*/
     (binaryfunc)TrigXnoiseMidi_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)TrigXnoiseMidi_inplace_multiply,            /*inplace_multiply*/
@@ -4592,6 +4624,9 @@ static PyObject * Counter_sub(Counter *self, PyObject *arg) { SUB };
 static PyObject * Counter_inplace_sub(Counter *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Counter_div(Counter *self, PyObject *arg) { DIV };
 static PyObject * Counter_inplace_div(Counter *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * Counter_int(Counter *self) { GET_I };
+static PyObject * Counter_float(Counter *self) { GET_F };
+static PyObject * Counter_get(Counter *self) { GET_F };
 
 static PyObject *
 Counter_setMin(Counter *self, PyObject *arg)
@@ -4670,6 +4705,7 @@ static PyMethodDef Counter_methods[] =
 {
     {"getServer", (PyCFunction)Counter_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Counter_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)Counter_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Counter_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)Counter_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setMin", (PyCFunction)Counter_setMin, METH_O, "Sets minimum value."},
@@ -4701,9 +4737,9 @@ static PyNumberMethods Counter_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
+    (unaryfunc)Counter_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)Counter_float,                     /*nb_float*/
     (binaryfunc)Counter_inplace_add,                 /*inplace_add*/
     (binaryfunc)Counter_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Counter_inplace_multiply,            /*inplace_multiply*/
@@ -5068,6 +5104,9 @@ static PyObject * Thresh_sub(Thresh *self, PyObject *arg) { SUB };
 static PyObject * Thresh_inplace_sub(Thresh *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Thresh_div(Thresh *self, PyObject *arg) { DIV };
 static PyObject * Thresh_inplace_div(Thresh *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * Thresh_int(Thresh *self) { GET_I };
+static PyObject * Thresh_float(Thresh *self) { GET_F };
+static PyObject * Thresh_get(Thresh *self) { GET_F };
 
 static PyObject * Thresh_setThreshold(Thresh *self, PyObject *arg) { SET_PARAM(self->threshold, self->threshold_stream, 2); }
 
@@ -5099,6 +5138,7 @@ static PyMethodDef Thresh_methods[] =
 {
     {"getServer", (PyCFunction)Thresh_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Thresh_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)Thresh_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Thresh_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)Thresh_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setThreshold", (PyCFunction)Thresh_setThreshold, METH_O, "Sets threshold value."},
@@ -5128,9 +5168,9 @@ static PyNumberMethods Thresh_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
+    (unaryfunc)Thresh_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)Thresh_float,                     /*nb_float*/
     (binaryfunc)Thresh_inplace_add,                 /*inplace_add*/
     (binaryfunc)Thresh_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Thresh_inplace_multiply,            /*inplace_multiply*/
@@ -5416,6 +5456,9 @@ static PyObject * Percent_sub(Percent *self, PyObject *arg) { SUB };
 static PyObject * Percent_inplace_sub(Percent *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Percent_div(Percent *self, PyObject *arg) { DIV };
 static PyObject * Percent_inplace_div(Percent *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * Percent_int(Percent *self) { GET_I };
+static PyObject * Percent_float(Percent *self) { GET_F };
+static PyObject * Percent_get(Percent *self) { GET_F };
 
 static PyObject * Percent_setPercent(Percent *self, PyObject *arg) { SET_PARAM(self->percent, self->percent_stream, 2); }
 
@@ -5434,6 +5477,7 @@ static PyMethodDef Percent_methods[] =
 {
     {"getServer", (PyCFunction)Percent_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Percent_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)Percent_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Percent_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)Percent_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setPercent", (PyCFunction)Percent_setPercent, METH_O, "Sets percentange value."},
@@ -5462,9 +5506,9 @@ static PyNumberMethods Percent_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
+    (unaryfunc)Percent_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)Percent_float,                     /*nb_float*/
     (binaryfunc)Percent_inplace_add,                 /*inplace_add*/
     (binaryfunc)Percent_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Percent_inplace_multiply,            /*inplace_multiply*/
@@ -5727,6 +5771,9 @@ static PyObject * Timer_sub(Timer *self, PyObject *arg) { SUB };
 static PyObject * Timer_inplace_sub(Timer *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Timer_div(Timer *self, PyObject *arg) { DIV };
 static PyObject * Timer_inplace_div(Timer *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * Timer_int(Timer *self) { GET_I };
+static PyObject * Timer_float(Timer *self) { GET_F };
+static PyObject * Timer_get(Timer *self) { GET_F };
 
 static PyMemberDef Timer_members[] =
 {
@@ -5743,6 +5790,7 @@ static PyMethodDef Timer_methods[] =
 {
     {"getServer", (PyCFunction)Timer_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Timer_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)Timer_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Timer_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)Timer_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setMul", (PyCFunction)Timer_setMul, METH_O, "Sets mul factor."},
@@ -5770,9 +5818,9 @@ static PyNumberMethods Timer_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
+    (unaryfunc)Timer_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)Timer_float,                     /*nb_float*/
     (binaryfunc)Timer_inplace_add,                 /*inplace_add*/
     (binaryfunc)Timer_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Timer_inplace_multiply,            /*inplace_multiply*/
@@ -6084,6 +6132,9 @@ static PyObject * Iter_sub(Iter *self, PyObject *arg) { SUB };
 static PyObject * Iter_inplace_sub(Iter *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Iter_div(Iter *self, PyObject *arg) { DIV };
 static PyObject * Iter_inplace_div(Iter *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * Iter_int(Iter *self) { GET_I };
+static PyObject * Iter_float(Iter *self) { GET_F };
+static PyObject * Iter_get(Iter *self) { GET_F };
 
 static PyObject *
 Iter_setChoice(Iter *self, PyObject *arg)
@@ -6136,6 +6187,7 @@ static PyMethodDef Iter_methods[] =
     {"getServer", (PyCFunction)Iter_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Iter_getStream, METH_NOARGS, "Returns stream object."},
     {"_getTriggerStream", (PyCFunction)Iter_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
+    {"get", (PyCFunction)Iter_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Iter_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Iter_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Iter_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -6166,9 +6218,9 @@ static PyNumberMethods Iter_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
+    (unaryfunc)Iter_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)Iter_float,                     /*nb_float*/
     (binaryfunc)Iter_inplace_add,                 /*inplace_add*/
     (binaryfunc)Iter_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Iter_inplace_multiply,            /*inplace_multiply*/
@@ -6421,6 +6473,9 @@ static PyObject * Count_sub(Count *self, PyObject *arg) { SUB };
 static PyObject * Count_inplace_sub(Count *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Count_div(Count *self, PyObject *arg) { DIV };
 static PyObject * Count_inplace_div(Count *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * Count_int(Count *self) { GET_I };
+static PyObject * Count_float(Count *self) { GET_F };
+static PyObject * Count_get(Count *self) { GET_F };
 
 static PyObject *
 Count_setMin(Count *self, PyObject *arg)
@@ -6456,6 +6511,7 @@ static PyMethodDef Count_methods[] =
 {
     {"getServer", (PyCFunction)Count_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Count_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)Count_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Count_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)Count_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setMin", (PyCFunction)Count_setMin, METH_O, "Sets the minimum value."},
@@ -6485,9 +6541,9 @@ static PyNumberMethods Count_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
+    (unaryfunc)Count_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)Count_float,                     /*nb_float*/
     (binaryfunc)Count_inplace_add,                 /*inplace_add*/
     (binaryfunc)Count_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Count_inplace_multiply,            /*inplace_multiply*/
@@ -6738,6 +6794,9 @@ static PyObject * NextTrig_sub(NextTrig *self, PyObject *arg) { SUB };
 static PyObject * NextTrig_inplace_sub(NextTrig *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * NextTrig_div(NextTrig *self, PyObject *arg) { DIV };
 static PyObject * NextTrig_inplace_div(NextTrig *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * NextTrig_int(NextTrig *self) { GET_I };
+static PyObject * NextTrig_float(NextTrig *self) { GET_F };
+static PyObject * NextTrig_get(NextTrig *self) { GET_F };
 
 static PyMemberDef NextTrig_members[] =
 {
@@ -6754,6 +6813,7 @@ static PyMethodDef NextTrig_methods[] =
 {
     {"getServer", (PyCFunction)NextTrig_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)NextTrig_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)NextTrig_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)NextTrig_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)NextTrig_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setMul", (PyCFunction)NextTrig_setMul, METH_O, "Sets mul factor."},
@@ -6781,9 +6841,9 @@ static PyNumberMethods NextTrig_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
+    (unaryfunc)NextTrig_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)NextTrig_float,                     /*nb_float*/
     (binaryfunc)NextTrig_inplace_add,                 /*inplace_add*/
     (binaryfunc)NextTrig_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)NextTrig_inplace_multiply,            /*inplace_multiply*/
@@ -7054,6 +7114,9 @@ static PyObject * TrigVal_sub(TrigVal *self, PyObject *arg) { SUB };
 static PyObject * TrigVal_inplace_sub(TrigVal *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * TrigVal_div(TrigVal *self, PyObject *arg) { DIV };
 static PyObject * TrigVal_inplace_div(TrigVal *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * TrigVal_int(TrigVal *self) { GET_I };
+static PyObject * TrigVal_float(TrigVal *self) { GET_F };
+static PyObject * TrigVal_get(TrigVal *self) { GET_F };
 
 static PyObject * TrigVal_setValue(TrigVal *self, PyObject *arg) { SET_PARAM(self->value, self->value_stream, 2); }
 
@@ -7072,6 +7135,7 @@ static PyMethodDef TrigVal_methods[] =
 {
     {"getServer", (PyCFunction)TrigVal_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)TrigVal_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)TrigVal_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)TrigVal_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)TrigVal_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)TrigVal_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -7101,9 +7165,9 @@ static PyNumberMethods TrigVal_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
+    (unaryfunc)TrigVal_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)TrigVal_float,                     /*nb_float*/
     (binaryfunc)TrigVal_inplace_add,                 /*inplace_add*/
     (binaryfunc)TrigVal_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)TrigVal_inplace_multiply,            /*inplace_multiply*/

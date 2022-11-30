@@ -649,7 +649,7 @@ class Notein(PyoObject):
 
     def get(self, identifier="pitch", all=False):
         """
-        Return the first sample of the current buffer as a float.
+        Return the last sample of the current buffer as a float.
 
         Can be used to convert audio stream to usable Python data.
 
@@ -662,10 +662,10 @@ class Notein(PyoObject):
                 Address string parameter identifying audio stream.
                 Defaults to "pitch".
             all: boolean, optional
-                If True, the first value of each object's stream
+                If True, the last value of each object's stream
                 will be returned as a list.
 
-                Otherwise, only the value of the first object's
+                Otherwise, only the last value of the first object's
                 stream will be returned as a float.
 
         """

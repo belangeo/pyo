@@ -513,6 +513,9 @@ static PyObject * FFT_sub(FFT *self, PyObject *arg) { SUB };
 static PyObject * FFT_inplace_sub(FFT *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * FFT_div(FFT *self, PyObject *arg) { DIV };
 static PyObject * FFT_inplace_div(FFT *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * FFT_int(FFT *self) { GET_I };
+static PyObject * FFT_float(FFT *self) { GET_F };
+static PyObject * FFT_get(FFT *self) { GET_F };
 
 static PyMemberDef FFT_members[] =
 {
@@ -527,6 +530,7 @@ static PyMethodDef FFT_methods[] =
 {
     {"getServer", (PyCFunction)FFT_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)FFT_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)FFT_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)FFT_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)FFT_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setMul", (PyCFunction)FFT_setMul, METH_O, "Sets FFT mul factor."},
@@ -554,9 +558,9 @@ static PyNumberMethods FFT_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
+    (unaryfunc)FFT_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)FFT_float,                     /*nb_float*/
     (binaryfunc)FFT_inplace_add,              /*inplace_add*/
     (binaryfunc)FFT_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)FFT_inplace_multiply,         /*inplace_multiply*/
@@ -903,6 +907,9 @@ static PyObject * IFFT_sub(IFFT *self, PyObject *arg) { SUB };
 static PyObject * IFFT_inplace_sub(IFFT *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * IFFT_div(IFFT *self, PyObject *arg) { DIV };
 static PyObject * IFFT_inplace_div(IFFT *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * IFFT_int(IFFT *self) { GET_I };
+static PyObject * IFFT_float(IFFT *self) { GET_F };
+static PyObject * IFFT_get(IFFT *self) { GET_F };
 
 static PyObject *
 IFFT_setSize(IFFT *self, PyObject *args, PyObject *kwds)
@@ -955,6 +962,7 @@ static PyMethodDef IFFT_methods[] =
 {
     {"getServer", (PyCFunction)IFFT_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)IFFT_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)IFFT_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)IFFT_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)IFFT_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)IFFT_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -985,9 +993,9 @@ static PyNumberMethods IFFT_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
+    (unaryfunc)IFFT_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)IFFT_float,                     /*nb_float*/
     (binaryfunc)IFFT_inplace_add,              /*inplace_add*/
     (binaryfunc)IFFT_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)IFFT_inplace_multiply,         /*inplace_multiply*/
@@ -1236,6 +1244,9 @@ static PyObject * CarToPol_sub(CarToPol *self, PyObject *arg) { SUB };
 static PyObject * CarToPol_inplace_sub(CarToPol *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * CarToPol_div(CarToPol *self, PyObject *arg) { DIV };
 static PyObject * CarToPol_inplace_div(CarToPol *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * CarToPol_int(CarToPol *self) { GET_I };
+static PyObject * CarToPol_float(CarToPol *self) { GET_F };
+static PyObject * CarToPol_get(CarToPol *self) { GET_F };
 
 static PyMemberDef CarToPol_members[] =
 {
@@ -1252,6 +1263,7 @@ static PyMethodDef CarToPol_methods[] =
 {
     {"getServer", (PyCFunction)CarToPol_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)CarToPol_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)CarToPol_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)CarToPol_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)CarToPol_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setMul", (PyCFunction)CarToPol_setMul, METH_O, "Sets CarToPol mul factor."},
@@ -1279,9 +1291,9 @@ static PyNumberMethods CarToPol_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
+    (unaryfunc)CarToPol_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)CarToPol_float,                     /*nb_float*/
     (binaryfunc)CarToPol_inplace_add,              /*inplace_add*/
     (binaryfunc)CarToPol_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)CarToPol_inplace_multiply,         /*inplace_multiply*/
@@ -1530,6 +1542,9 @@ static PyObject * PolToCar_sub(PolToCar *self, PyObject *arg) { SUB };
 static PyObject * PolToCar_inplace_sub(PolToCar *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * PolToCar_div(PolToCar *self, PyObject *arg) { DIV };
 static PyObject * PolToCar_inplace_div(PolToCar *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * PolToCar_int(PolToCar *self) { GET_I };
+static PyObject * PolToCar_float(PolToCar *self) { GET_F };
+static PyObject * PolToCar_get(PolToCar *self) { GET_F };
 
 static PyMemberDef PolToCar_members[] =
 {
@@ -1546,6 +1561,7 @@ static PyMethodDef PolToCar_methods[] =
 {
     {"getServer", (PyCFunction)PolToCar_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)PolToCar_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)PolToCar_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)PolToCar_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)PolToCar_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setMul", (PyCFunction)PolToCar_setMul, METH_O, "Sets PolToCar mul factor."},
@@ -1573,9 +1589,9 @@ static PyNumberMethods PolToCar_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
+    (unaryfunc)PolToCar_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)PolToCar_float,                     /*nb_float*/
     (binaryfunc)PolToCar_inplace_add,              /*inplace_add*/
     (binaryfunc)PolToCar_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)PolToCar_inplace_multiply,         /*inplace_multiply*/
@@ -2098,6 +2114,9 @@ static PyObject * FrameDelta_sub(FrameDelta *self, PyObject *arg) { SUB };
 static PyObject * FrameDelta_inplace_sub(FrameDelta *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * FrameDelta_div(FrameDelta *self, PyObject *arg) { DIV };
 static PyObject * FrameDelta_inplace_div(FrameDelta *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * FrameDelta_int(FrameDelta *self) { GET_I };
+static PyObject * FrameDelta_float(FrameDelta *self) { GET_F };
+static PyObject * FrameDelta_get(FrameDelta *self) { GET_F };
 
 static PyMemberDef FrameDelta_members[] =
 {
@@ -2112,6 +2131,7 @@ static PyMethodDef FrameDelta_methods[] =
 {
     {"getServer", (PyCFunction)FrameDelta_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)FrameDelta_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)FrameDelta_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)FrameDelta_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)FrameDelta_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)FrameDelta_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -2140,9 +2160,9 @@ static PyNumberMethods FrameDelta_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
+    (unaryfunc)FrameDelta_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)FrameDelta_float,                     /*nb_float*/
     (binaryfunc)FrameDelta_inplace_add,              /*inplace_add*/
     (binaryfunc)FrameDelta_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)FrameDelta_inplace_multiply,         /*inplace_multiply*/
@@ -2654,6 +2674,9 @@ static PyObject * FrameAccum_sub(FrameAccum *self, PyObject *arg) { SUB };
 static PyObject * FrameAccum_inplace_sub(FrameAccum *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * FrameAccum_div(FrameAccum *self, PyObject *arg) { DIV };
 static PyObject * FrameAccum_inplace_div(FrameAccum *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * FrameAccum_int(FrameAccum *self) { GET_I };
+static PyObject * FrameAccum_float(FrameAccum *self) { GET_F };
+static PyObject * FrameAccum_get(FrameAccum *self) { GET_F };
 
 static PyMemberDef FrameAccum_members[] =
 {
@@ -2668,6 +2691,7 @@ static PyMethodDef FrameAccum_methods[] =
 {
     {"getServer", (PyCFunction)FrameAccum_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)FrameAccum_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)FrameAccum_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)FrameAccum_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)FrameAccum_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)FrameAccum_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -2696,9 +2720,9 @@ static PyNumberMethods FrameAccum_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
+    (unaryfunc)FrameAccum_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)FrameAccum_float,                     /*nb_float*/
     (binaryfunc)FrameAccum_inplace_add,              /*inplace_add*/
     (binaryfunc)FrameAccum_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)FrameAccum_inplace_multiply,         /*inplace_multiply*/
@@ -3302,6 +3326,9 @@ static PyObject * Vectral_sub(Vectral *self, PyObject *arg) { SUB };
 static PyObject * Vectral_inplace_sub(Vectral *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Vectral_div(Vectral *self, PyObject *arg) { DIV };
 static PyObject * Vectral_inplace_div(Vectral *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * Vectral_int(Vectral *self) { GET_I };
+static PyObject * Vectral_float(Vectral *self) { GET_F };
+static PyObject * Vectral_get(Vectral *self) { GET_F };
 
 static PyMemberDef Vectral_members[] =
 {
@@ -3316,6 +3343,7 @@ static PyMethodDef Vectral_methods[] =
 {
     {"getServer", (PyCFunction)Vectral_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Vectral_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)Vectral_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Vectral_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Vectral_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Vectral_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -3344,9 +3372,9 @@ static PyNumberMethods Vectral_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
+    (unaryfunc)Vectral_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)Vectral_float,                     /*nb_float*/
     (binaryfunc)Vectral_inplace_add,              /*inplace_add*/
     (binaryfunc)Vectral_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Vectral_inplace_multiply,         /*inplace_multiply*/
@@ -3953,7 +3981,9 @@ static PyObject * CvlVerb_sub(CvlVerb *self, PyObject *arg) { SUB };
 static PyObject * CvlVerb_inplace_sub(CvlVerb *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * CvlVerb_div(CvlVerb *self, PyObject *arg) { DIV };
 static PyObject * CvlVerb_inplace_div(CvlVerb *self, PyObject *arg) { INPLACE_DIV };
-
+static PyObject * CvlVerb_int(CvlVerb *self) { GET_I };
+static PyObject * CvlVerb_float(CvlVerb *self) { GET_F };
+static PyObject * CvlVerb_get(CvlVerb *self) { GET_F };
 
 static PyMemberDef CvlVerb_members[] =
 {
@@ -3970,6 +4000,7 @@ static PyMethodDef CvlVerb_methods[] =
 {
     {"getServer", (PyCFunction)CvlVerb_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)CvlVerb_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)CvlVerb_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"out", (PyCFunction)CvlVerb_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"play", (PyCFunction)CvlVerb_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)CvlVerb_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -3999,9 +4030,9 @@ static PyNumberMethods CvlVerb_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
+    (unaryfunc)CvlVerb_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)CvlVerb_float,                     /*nb_float*/
     (binaryfunc)CvlVerb_inplace_add,              /*inplace_add*/
     (binaryfunc)CvlVerb_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)CvlVerb_inplace_multiply,         /*inplace_multiply*/
@@ -4864,6 +4895,9 @@ static PyObject * IFFTMatrix_sub(IFFTMatrix *self, PyObject *arg) { SUB };
 static PyObject * IFFTMatrix_inplace_sub(IFFTMatrix *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * IFFTMatrix_div(IFFTMatrix *self, PyObject *arg) { DIV };
 static PyObject * IFFTMatrix_inplace_div(IFFTMatrix *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * IFFTMatrix_int(IFFTMatrix *self) { GET_I };
+static PyObject * IFFTMatrix_float(IFFTMatrix *self) { GET_F };
+static PyObject * IFFTMatrix_get(IFFTMatrix *self) { GET_F };
 
 static PyObject * IFFTMatrix_setIndex(IFFTMatrix *self, PyObject *arg)
 {
@@ -4960,6 +4994,7 @@ static PyMethodDef IFFTMatrix_methods[] =
 {
     {"getServer", (PyCFunction)IFFTMatrix_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)IFFTMatrix_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)IFFTMatrix_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)IFFTMatrix_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)IFFTMatrix_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)IFFTMatrix_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -4992,9 +5027,9 @@ static PyNumberMethods IFFTMatrix_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
+    (unaryfunc)IFFTMatrix_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)IFFTMatrix_float,                     /*nb_float*/
     (binaryfunc)IFFTMatrix_inplace_add,              /*inplace_add*/
     (binaryfunc)IFFTMatrix_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)IFFTMatrix_inplace_multiply,         /*inplace_multiply*/

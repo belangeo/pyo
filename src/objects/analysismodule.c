@@ -257,6 +257,7 @@ Follower_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * Follower_getServer(Follower* self) { GET_SERVER };
 static PyObject * Follower_getStream(Follower* self) { GET_STREAM };
+static PyObject * Follower_get(Follower *self) { GET_F };
 static PyObject * Follower_setMul(Follower *self, PyObject *arg) { SET_MUL };
 static PyObject * Follower_setAdd(Follower *self, PyObject *arg) { SET_ADD };
 static PyObject * Follower_setSub(Follower *self, PyObject *arg) { SET_SUB };
@@ -273,6 +274,8 @@ static PyObject * Follower_sub(Follower *self, PyObject *arg) { SUB };
 static PyObject * Follower_inplace_sub(Follower *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Follower_div(Follower *self, PyObject *arg) { DIV };
 static PyObject * Follower_inplace_div(Follower *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * Follower_int(Follower *self) { GET_I };
+static PyObject * Follower_float(Follower *self) { GET_F };
 
 static PyObject * Follower_setFreq(Follower *self, PyObject *arg) { SET_PARAM(self->freq, self->freq_stream, 2); }
 
@@ -291,6 +294,7 @@ static PyMethodDef Follower_methods[] =
 {
     {"getServer", (PyCFunction)Follower_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Follower_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)Follower_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Follower_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)Follower_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setFreq", (PyCFunction)Follower_setFreq, METH_O, "Sets filter cutoff frequency in cycle per second."},
@@ -319,9 +323,9 @@ static PyNumberMethods Follower_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
+    (unaryfunc)Follower_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)Follower_float,                     /*nb_float*/
     (binaryfunc)Follower_inplace_add,                 /*inplace_add*/
     (binaryfunc)Follower_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Follower_inplace_multiply,            /*inplace_multiply*/
@@ -753,6 +757,7 @@ Follower2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * Follower2_getServer(Follower2* self) { GET_SERVER };
 static PyObject * Follower2_getStream(Follower2* self) { GET_STREAM };
+static PyObject * Follower2_get(Follower2 *self) { GET_F };
 static PyObject * Follower2_setMul(Follower2 *self, PyObject *arg) { SET_MUL };
 static PyObject * Follower2_setAdd(Follower2 *self, PyObject *arg) { SET_ADD };
 static PyObject * Follower2_setSub(Follower2 *self, PyObject *arg) { SET_SUB };
@@ -769,6 +774,8 @@ static PyObject * Follower2_sub(Follower2 *self, PyObject *arg) { SUB };
 static PyObject * Follower2_inplace_sub(Follower2 *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Follower2_div(Follower2 *self, PyObject *arg) { DIV };
 static PyObject * Follower2_inplace_div(Follower2 *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * Follower2_int(Follower2 *self) { GET_I };
+static PyObject * Follower2_float(Follower2 *self) { GET_F };
 
 static PyObject * Follower2_setRisetime(Follower2 *self, PyObject *arg) { SET_PARAM(self->risetime, self->risetime_stream, 2); }
 static PyObject * Follower2_setFalltime(Follower2 *self, PyObject *arg) { SET_PARAM(self->falltime, self->falltime_stream, 3); }
@@ -789,6 +796,7 @@ static PyMethodDef Follower2_methods[] =
 {
     {"getServer", (PyCFunction)Follower2_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Follower2_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)Follower2_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Follower2_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)Follower2_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setRisetime", (PyCFunction)Follower2_setRisetime, METH_O, "Sets filter risetime in second."},
@@ -818,9 +826,9 @@ static PyNumberMethods Follower2_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
+    (unaryfunc)Follower2_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)Follower2_float,                     /*nb_float*/
     (binaryfunc)Follower2_inplace_add,                 /*inplace_add*/
     (binaryfunc)Follower2_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Follower2_inplace_multiply,            /*inplace_multiply*/
@@ -1057,6 +1065,7 @@ ZCross_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * ZCross_getServer(ZCross* self) { GET_SERVER };
 static PyObject * ZCross_getStream(ZCross* self) { GET_STREAM };
+static PyObject * ZCross_get(ZCross *self) { GET_F };
 static PyObject * ZCross_setMul(ZCross *self, PyObject *arg) { SET_MUL };
 static PyObject * ZCross_setAdd(ZCross *self, PyObject *arg) { SET_ADD };
 static PyObject * ZCross_setSub(ZCross *self, PyObject *arg) { SET_SUB };
@@ -1073,6 +1082,8 @@ static PyObject * ZCross_sub(ZCross *self, PyObject *arg) { SUB };
 static PyObject * ZCross_inplace_sub(ZCross *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * ZCross_div(ZCross *self, PyObject *arg) { DIV };
 static PyObject * ZCross_inplace_div(ZCross *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * ZCross_int(ZCross *self) { GET_I };
+static PyObject * ZCross_float(ZCross *self) { GET_F };
 
 static PyObject *
 ZCross_setThresh(ZCross *self, PyObject *arg)
@@ -1101,6 +1112,7 @@ static PyMethodDef ZCross_methods[] =
 {
     {"getServer", (PyCFunction)ZCross_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)ZCross_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)ZCross_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)ZCross_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)ZCross_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setThresh", (PyCFunction)ZCross_setThresh, METH_O, "Sets the threshold factor."},
@@ -1129,9 +1141,9 @@ static PyNumberMethods ZCross_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
+    (unaryfunc)ZCross_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)ZCross_float,                     /*nb_float*/
     (binaryfunc)ZCross_inplace_add,                 /*inplace_add*/
     (binaryfunc)ZCross_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)ZCross_inplace_multiply,            /*inplace_multiply*/
@@ -1476,6 +1488,7 @@ Yin_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * Yin_getServer(Yin* self) { GET_SERVER };
 static PyObject * Yin_getStream(Yin* self) { GET_STREAM };
+static PyObject * Yin_get(Yin *self) { GET_F };
 static PyObject * Yin_setMul(Yin *self, PyObject *arg) { SET_MUL };
 static PyObject * Yin_setAdd(Yin *self, PyObject *arg) { SET_ADD };
 static PyObject * Yin_setSub(Yin *self, PyObject *arg) { SET_SUB };
@@ -1492,6 +1505,8 @@ static PyObject * Yin_sub(Yin *self, PyObject *arg) { SUB };
 static PyObject * Yin_inplace_sub(Yin *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Yin_div(Yin *self, PyObject *arg) { DIV };
 static PyObject * Yin_inplace_div(Yin *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * Yin_int(Yin *self) { GET_I };
+static PyObject * Yin_float(Yin *self) { GET_F };
 
 static PyObject *
 Yin_setTolerance(Yin *self, PyObject *arg)
@@ -1559,6 +1574,7 @@ static PyMethodDef Yin_methods[] =
 {
     {"getServer", (PyCFunction)Yin_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Yin_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)Yin_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Yin_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)Yin_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setTolerance", (PyCFunction)Yin_setTolerance, METH_O, "Sets the tolerance factor."},
@@ -1590,9 +1606,9 @@ static PyNumberMethods Yin_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
+    (unaryfunc)Yin_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)Yin_float,                     /*nb_float*/
     (binaryfunc)Yin_inplace_add,                 /*inplace_add*/
     (binaryfunc)Yin_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Yin_inplace_multiply,            /*inplace_multiply*/
@@ -1906,6 +1922,7 @@ Centroid_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * Centroid_getServer(Centroid* self) { GET_SERVER };
 static PyObject * Centroid_getStream(Centroid* self) { GET_STREAM };
+static PyObject * Centroid_get(Centroid *self) { GET_F };
 static PyObject * Centroid_setMul(Centroid *self, PyObject *arg) { SET_MUL };
 static PyObject * Centroid_setAdd(Centroid *self, PyObject *arg) { SET_ADD };
 static PyObject * Centroid_setSub(Centroid *self, PyObject *arg) { SET_SUB };
@@ -1922,6 +1939,8 @@ static PyObject * Centroid_sub(Centroid *self, PyObject *arg) { SUB };
 static PyObject * Centroid_inplace_sub(Centroid *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Centroid_div(Centroid *self, PyObject *arg) { DIV };
 static PyObject * Centroid_inplace_div(Centroid *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * Centroid_int(Centroid *self) { GET_I };
+static PyObject * Centroid_float(Centroid *self) { GET_F };
 
 
 static PyMemberDef Centroid_members[] =
@@ -1938,6 +1957,7 @@ static PyMethodDef Centroid_methods[] =
 {
     {"getServer", (PyCFunction)Centroid_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Centroid_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)Centroid_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Centroid_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)Centroid_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setMul", (PyCFunction)Centroid_setMul, METH_O, "Sets Centroid mul factor."},
@@ -1965,9 +1985,9 @@ static PyNumberMethods Centroid_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
+    (unaryfunc)Centroid_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)Centroid_float,                     /*nb_float*/
     (binaryfunc)Centroid_inplace_add,              /*inplace_add*/
     (binaryfunc)Centroid_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Centroid_inplace_multiply,         /*inplace_multiply*/
@@ -2292,6 +2312,7 @@ AttackDetector_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * AttackDetector_getServer(AttackDetector* self) { GET_SERVER };
 static PyObject * AttackDetector_getStream(AttackDetector* self) { GET_STREAM };
+static PyObject * AttackDetector_get(AttackDetector *self) { GET_F };
 static PyObject * AttackDetector_setMul(AttackDetector *self, PyObject *arg) { SET_MUL };
 static PyObject * AttackDetector_setAdd(AttackDetector *self, PyObject *arg) { SET_ADD };
 static PyObject * AttackDetector_setSub(AttackDetector *self, PyObject *arg) { SET_SUB };
@@ -2308,6 +2329,8 @@ static PyObject * AttackDetector_sub(AttackDetector *self, PyObject *arg) { SUB 
 static PyObject * AttackDetector_inplace_sub(AttackDetector *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * AttackDetector_div(AttackDetector *self, PyObject *arg) { DIV };
 static PyObject * AttackDetector_inplace_div(AttackDetector *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * AttackDetector_int(AttackDetector *self) { GET_I };
+static PyObject * AttackDetector_float(AttackDetector *self) { GET_F };
 
 static PyObject *
 AttackDetector_setDeltime(AttackDetector *self, PyObject *arg)
@@ -2416,6 +2439,7 @@ static PyMethodDef AttackDetector_methods[] =
 {
     {"getServer", (PyCFunction)AttackDetector_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)AttackDetector_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)AttackDetector_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)AttackDetector_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)AttackDetector_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setDeltime", (PyCFunction)AttackDetector_setDeltime, METH_O, "Sets the delay time between current and previous analysis."},
@@ -2449,9 +2473,9 @@ static PyNumberMethods AttackDetector_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
+    (unaryfunc)AttackDetector_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)AttackDetector_float,                     /*nb_float*/
     (binaryfunc)AttackDetector_inplace_add,                 /*inplace_add*/
     (binaryfunc)AttackDetector_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)AttackDetector_inplace_multiply,            /*inplace_multiply*/
@@ -3009,6 +3033,7 @@ PeakAmp_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * PeakAmp_getServer(PeakAmp* self) { GET_SERVER };
 static PyObject * PeakAmp_getStream(PeakAmp* self) { GET_STREAM };
+static PyObject * PeakAmp_get(PeakAmp *self) { GET_F };
 static PyObject * PeakAmp_setMul(PeakAmp *self, PyObject *arg) { SET_MUL };
 static PyObject * PeakAmp_setAdd(PeakAmp *self, PyObject *arg) { SET_ADD };
 static PyObject * PeakAmp_setSub(PeakAmp *self, PyObject *arg) { SET_SUB };
@@ -3025,6 +3050,8 @@ static PyObject * PeakAmp_sub(PeakAmp *self, PyObject *arg) { SUB };
 static PyObject * PeakAmp_inplace_sub(PeakAmp *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * PeakAmp_div(PeakAmp *self, PyObject *arg) { DIV };
 static PyObject * PeakAmp_inplace_div(PeakAmp *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * PeakAmp_int(PeakAmp *self) { GET_I };
+static PyObject * PeakAmp_float(PeakAmp *self) { GET_F };
 
 static PyObject *
 PeakAmp_getValue(PeakAmp *self)
@@ -3046,6 +3073,7 @@ static PyMethodDef PeakAmp_methods[] =
 {
     {"getServer", (PyCFunction)PeakAmp_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)PeakAmp_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)PeakAmp_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)PeakAmp_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)PeakAmp_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"getValue", (PyCFunction)PeakAmp_getValue, METH_NOARGS, "Returns the current peaking value."},
@@ -3074,9 +3102,9 @@ static PyNumberMethods PeakAmp_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
+    (unaryfunc)PeakAmp_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)PeakAmp_float,                     /*nb_float*/
     (binaryfunc)PeakAmp_inplace_add,                 /*inplace_add*/
     (binaryfunc)PeakAmp_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)PeakAmp_inplace_multiply,            /*inplace_multiply*/
@@ -3297,6 +3325,7 @@ RMS_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * RMS_getServer(RMS* self) { GET_SERVER };
 static PyObject * RMS_getStream(RMS* self) { GET_STREAM };
+static PyObject * RMS_get(RMS *self) { GET_F };
 static PyObject * RMS_setMul(RMS *self, PyObject *arg) { SET_MUL };
 static PyObject * RMS_setAdd(RMS *self, PyObject *arg) { SET_ADD };
 static PyObject * RMS_setSub(RMS *self, PyObject *arg) { SET_SUB };
@@ -3313,6 +3342,8 @@ static PyObject * RMS_sub(RMS *self, PyObject *arg) { SUB };
 static PyObject * RMS_inplace_sub(RMS *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * RMS_div(RMS *self, PyObject *arg) { DIV };
 static PyObject * RMS_inplace_div(RMS *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * RMS_int(RMS *self) { GET_I };
+static PyObject * RMS_float(RMS *self) { GET_F };
 
 static PyObject *
 RMS_getValue(RMS *self)
@@ -3334,6 +3365,7 @@ static PyMethodDef RMS_methods[] =
 {
     {"getServer", (PyCFunction)RMS_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)RMS_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)RMS_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)RMS_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)RMS_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"getValue", (PyCFunction)RMS_getValue, METH_NOARGS, "Returns the current peaking value."},
@@ -3362,9 +3394,9 @@ static PyNumberMethods RMS_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
+    (unaryfunc)RMS_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)RMS_float,                     /*nb_float*/
     (binaryfunc)RMS_inplace_add,                 /*inplace_add*/
     (binaryfunc)RMS_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)RMS_inplace_multiply,            /*inplace_multiply*/

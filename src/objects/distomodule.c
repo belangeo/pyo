@@ -338,6 +338,9 @@ static PyObject * Disto_sub(Disto *self, PyObject *arg) { SUB };
 static PyObject * Disto_inplace_sub(Disto *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Disto_div(Disto *self, PyObject *arg) { DIV };
 static PyObject * Disto_inplace_div(Disto *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * Disto_int(Disto *self) { GET_I };
+static PyObject * Disto_float(Disto *self) { GET_F };
+static PyObject * Disto_get(Disto *self) { GET_F };
 
 static PyObject * Disto_setDrive(Disto *self, PyObject *arg) { SET_PARAM(self->drive, self->drive_stream, 2); }
 static PyObject * Disto_setSlope(Disto *self, PyObject *arg) { SET_PARAM(self->slope, self->slope_stream, 3); }
@@ -358,6 +361,7 @@ static PyMethodDef Disto_methods[] =
 {
     {"getServer", (PyCFunction)Disto_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Disto_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)Disto_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Disto_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Disto_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Disto_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -388,9 +392,9 @@ static PyNumberMethods Disto_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
+    (unaryfunc)Disto_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)Disto_float,                     /*nb_float*/
     (binaryfunc)Disto_inplace_add,              /*inplace_add*/
     (binaryfunc)Disto_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Disto_inplace_multiply,         /*inplace_multiply*/
@@ -742,6 +746,9 @@ static PyObject * Clip_sub(Clip *self, PyObject *arg) { SUB };
 static PyObject * Clip_inplace_sub(Clip *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Clip_div(Clip *self, PyObject *arg) { DIV };
 static PyObject * Clip_inplace_div(Clip *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * Clip_int(Clip *self) { GET_I };
+static PyObject * Clip_float(Clip *self) { GET_F };
+static PyObject * Clip_get(Clip *self) { GET_F };
 
 static PyObject * Clip_setMin(Clip *self, PyObject *arg) { SET_PARAM(self->min, self->min_stream, 2); }
 static PyObject * Clip_setMax(Clip *self, PyObject *arg) { SET_PARAM(self->max, self->max_stream, 3); }
@@ -762,6 +769,7 @@ static PyMethodDef Clip_methods[] =
 {
     {"getServer", (PyCFunction)Clip_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Clip_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)Clip_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Clip_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Clip_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Clip_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -792,9 +800,9 @@ static PyNumberMethods Clip_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
+    (unaryfunc)Clip_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)Clip_float,                     /*nb_float*/
     (binaryfunc)Clip_inplace_add,              /*inplace_add*/
     (binaryfunc)Clip_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Clip_inplace_multiply,         /*inplace_multiply*/
@@ -1194,6 +1202,9 @@ static PyObject * Mirror_sub(Mirror *self, PyObject *arg) { SUB };
 static PyObject * Mirror_inplace_sub(Mirror *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Mirror_div(Mirror *self, PyObject *arg) { DIV };
 static PyObject * Mirror_inplace_div(Mirror *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * Mirror_int(Mirror *self) { GET_I };
+static PyObject * Mirror_float(Mirror *self) { GET_F };
+static PyObject * Mirror_get(Mirror *self) { GET_F };
 
 static PyObject * Mirror_setMin(Mirror *self, PyObject *arg) { SET_PARAM(self->min, self->min_stream, 2); }
 static PyObject * Mirror_setMax(Mirror *self, PyObject *arg) { SET_PARAM(self->max, self->max_stream, 3); }
@@ -1214,6 +1225,7 @@ static PyMethodDef Mirror_methods[] =
 {
     {"getServer", (PyCFunction)Mirror_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Mirror_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)Mirror_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Mirror_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Mirror_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Mirror_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -1244,9 +1256,9 @@ static PyNumberMethods Mirror_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
+    (unaryfunc)Mirror_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)Mirror_float,                     /*nb_float*/
     (binaryfunc)Mirror_inplace_add,              /*inplace_add*/
     (binaryfunc)Mirror_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Mirror_inplace_multiply,         /*inplace_multiply*/
@@ -1682,6 +1694,9 @@ static PyObject * Wrap_sub(Wrap *self, PyObject *arg) { SUB };
 static PyObject * Wrap_inplace_sub(Wrap *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Wrap_div(Wrap *self, PyObject *arg) { DIV };
 static PyObject * Wrap_inplace_div(Wrap *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * Wrap_int(Wrap *self) { GET_I };
+static PyObject * Wrap_float(Wrap *self) { GET_F };
+static PyObject * Wrap_get(Wrap *self) { GET_F };
 
 static PyObject * Wrap_setMin(Wrap *self, PyObject *arg) { SET_PARAM(self->min, self->min_stream, 2); }
 static PyObject * Wrap_setMax(Wrap *self, PyObject *arg) { SET_PARAM(self->max, self->max_stream, 3); }
@@ -1702,6 +1717,7 @@ static PyMethodDef Wrap_methods[] =
 {
     {"getServer", (PyCFunction)Wrap_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Wrap_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)Wrap_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Wrap_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Wrap_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Wrap_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -1732,9 +1748,9 @@ static PyNumberMethods Wrap_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
+    (unaryfunc)Wrap_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)Wrap_float,                     /*nb_float*/
     (binaryfunc)Wrap_inplace_add,              /*inplace_add*/
     (binaryfunc)Wrap_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Wrap_inplace_multiply,         /*inplace_multiply*/
@@ -2141,6 +2157,9 @@ static PyObject * Degrade_sub(Degrade *self, PyObject *arg) { SUB };
 static PyObject * Degrade_inplace_sub(Degrade *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Degrade_div(Degrade *self, PyObject *arg) { DIV };
 static PyObject * Degrade_inplace_div(Degrade *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * Degrade_int(Degrade *self) { GET_I };
+static PyObject * Degrade_float(Degrade *self) { GET_F };
+static PyObject * Degrade_get(Degrade *self) { GET_F };
 
 static PyObject * Degrade_setBitdepth(Degrade *self, PyObject *arg) { SET_PARAM(self->bitdepth, self->bitdepth_stream, 2); }
 static PyObject * Degrade_setSrscale(Degrade *self, PyObject *arg) { SET_PARAM(self->srscale, self->srscale_stream, 3); }
@@ -2161,6 +2180,7 @@ static PyMethodDef Degrade_methods[] =
 {
     {"getServer", (PyCFunction)Degrade_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Degrade_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)Degrade_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Degrade_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Degrade_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Degrade_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -2191,9 +2211,9 @@ static PyNumberMethods Degrade_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
+    (unaryfunc)Degrade_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)Degrade_float,                     /*nb_float*/
     (binaryfunc)Degrade_inplace_add,              /*inplace_add*/
     (binaryfunc)Degrade_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Degrade_inplace_multiply,         /*inplace_multiply*/
@@ -2460,6 +2480,9 @@ static PyObject * Min_sub(Min *self, PyObject *arg) { SUB };
 static PyObject * Min_inplace_sub(Min *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Min_div(Min *self, PyObject *arg) { DIV };
 static PyObject * Min_inplace_div(Min *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * Min_int(Min *self) { GET_I };
+static PyObject * Min_float(Min *self) { GET_F };
+static PyObject * Min_get(Min *self) { GET_F };
 
 static PyObject * Min_setComp(Min *self, PyObject *arg) { SET_PARAM(self->comp, self->comp_stream, 2); }
 
@@ -2478,6 +2501,7 @@ static PyMethodDef Min_methods[] =
 {
     {"getServer", (PyCFunction)Min_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Min_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)Min_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Min_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Min_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Min_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -2507,9 +2531,9 @@ static PyNumberMethods Min_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
+    (unaryfunc)Min_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)Min_float,                     /*nb_float*/
     (binaryfunc)Min_inplace_add,                 /*inplace_add*/
     (binaryfunc)Min_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Min_inplace_multiply,            /*inplace_multiply*/
@@ -2776,6 +2800,9 @@ static PyObject * Max_sub(Max *self, PyObject *arg) { SUB };
 static PyObject * Max_inplace_sub(Max *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Max_div(Max *self, PyObject *arg) { DIV };
 static PyObject * Max_inplace_div(Max *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * Max_int(Max *self) { GET_I };
+static PyObject * Max_float(Max *self) { GET_F };
+static PyObject * Max_get(Max *self) { GET_F };
 
 static PyObject * Max_setComp(Max *self, PyObject *arg) { SET_PARAM(self->comp, self->comp_stream, 2); }
 
@@ -2794,6 +2821,7 @@ static PyMethodDef Max_methods[] =
 {
     {"getServer", (PyCFunction)Max_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Max_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)Max_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Max_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Max_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Max_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -2823,9 +2851,9 @@ static PyNumberMethods Max_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
+    (unaryfunc)Max_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)Max_float,                     /*nb_float*/
     (binaryfunc)Max_inplace_add,                 /*inplace_add*/
     (binaryfunc)Max_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Max_inplace_multiply,            /*inplace_multiply*/

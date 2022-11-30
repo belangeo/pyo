@@ -296,7 +296,7 @@ class OscReceive(PyoObject):
 
     def get(self, identifier=None, all=False):
         """
-        Return the first sample of the current buffer as a float.
+        Return the last sample of the current buffer as a float.
 
         Can be used to convert audio stream to usable Python data.
 
@@ -310,8 +310,8 @@ class OscReceive(PyoObject):
                 Defaults to None, useful when `all` is True to
                 retreive all streams values.
             all: boolean, optional
-                If True, the first value of each object's stream
-                will be returned as a list. Otherwise, only the value
+                If True, the last value of each object's stream
+                will be returned as a list. Otherwise, only the last value
                 of the first object's stream will be returned as a float.
                 Defaults to False.
 
@@ -810,7 +810,7 @@ class OscListReceive(PyoObject):
 
     def get(self, identifier=None, all=False):
         """
-        Return the first list of samples of the current buffer as floats.
+        Return the list of last sample of the current buffers as floats.
 
         Can be used to convert audio stream to usable Python data.
 
@@ -824,7 +824,7 @@ class OscListReceive(PyoObject):
                 Defaults to None, useful when `all` is True to
                 retreive all streams values.
             all: boolean, optional
-                If True, the first list of values of each object's stream
+                If True, the list of last values of each object's stream
                 will be returned as a list of lists. Otherwise, only the
                 the list of the object's identifier will be returned as a
                 list of floats. Defaults to False.

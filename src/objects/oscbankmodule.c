@@ -608,6 +608,9 @@ static PyObject * OscBank_sub(OscBank *self, PyObject *arg) { SUB };
 static PyObject * OscBank_inplace_sub(OscBank *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * OscBank_div(OscBank *self, PyObject *arg) { DIV };
 static PyObject * OscBank_inplace_div(OscBank *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * OscBank_int(OscBank *self) { GET_I };
+static PyObject * OscBank_float(OscBank *self) { GET_F };
+static PyObject * OscBank_get(OscBank *self) { GET_F };
 
 static PyObject *
 OscBank_getTable(OscBank *self)
@@ -666,6 +669,7 @@ static PyMethodDef OscBank_methods[] =
     {"getTable", (PyCFunction)OscBank_getTable, METH_NOARGS, "Returns waveform table object."},
     {"getServer", (PyCFunction)OscBank_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)OscBank_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)OscBank_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)OscBank_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)OscBank_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)OscBank_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -703,9 +707,9 @@ static PyNumberMethods OscBank_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
+    (unaryfunc)OscBank_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)OscBank_float,                     /*nb_float*/
     (binaryfunc)OscBank_inplace_add,                 /*inplace_add*/
     (binaryfunc)OscBank_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)OscBank_inplace_multiply,            /*inplace_multiply*/

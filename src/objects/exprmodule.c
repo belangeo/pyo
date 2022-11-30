@@ -1400,6 +1400,9 @@ static PyObject * Expr_sub(Expr *self, PyObject *arg) { SUB };
 static PyObject * Expr_inplace_sub(Expr *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Expr_div(Expr *self, PyObject *arg) { DIV };
 static PyObject * Expr_inplace_div(Expr *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * Expr_int(Expr *self) { GET_I };
+static PyObject * Expr_float(Expr *self) { GET_F };
+static PyObject * Expr_get(Expr *self) { GET_F };
 
 static PyMemberDef Expr_members[] =
 {
@@ -1414,6 +1417,7 @@ static PyMethodDef Expr_methods[] =
 {
     {"getServer", (PyCFunction)Expr_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Expr_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)Expr_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Expr_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Expr_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Expr_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -1442,9 +1446,9 @@ static PyNumberMethods Expr_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
+    (unaryfunc)Expr_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)Expr_float,                     /*nb_float*/
     (binaryfunc)Expr_inplace_add,              /*inplace_add*/
     (binaryfunc)Expr_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Expr_inplace_multiply,         /*inplace_multiply*/

@@ -223,6 +223,9 @@ static PyObject * MatrixPointer_sub(MatrixPointer *self, PyObject *arg) { SUB };
 static PyObject * MatrixPointer_inplace_sub(MatrixPointer *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * MatrixPointer_div(MatrixPointer *self, PyObject *arg) { DIV };
 static PyObject * MatrixPointer_inplace_div(MatrixPointer *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * MatrixPointer_int(MatrixPointer *self) { GET_I };
+static PyObject * MatrixPointer_float(MatrixPointer *self) { GET_F };
+static PyObject * MatrixPointer_get(MatrixPointer *self) { GET_F };
 
 static PyObject *
 MatrixPointer_getMatrix(MatrixPointer* self)
@@ -309,6 +312,7 @@ static PyMethodDef MatrixPointer_methods[] =
     {"getMatrix", (PyCFunction)MatrixPointer_getMatrix, METH_NOARGS, "Returns waveform matrix object."},
     {"getServer", (PyCFunction)MatrixPointer_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)MatrixPointer_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)MatrixPointer_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)MatrixPointer_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)MatrixPointer_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)MatrixPointer_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -340,9 +344,9 @@ static PyNumberMethods MatrixPointer_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
+    (unaryfunc)MatrixPointer_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)MatrixPointer_float,                     /*nb_float*/
     (binaryfunc)MatrixPointer_inplace_add,              /*inplace_add*/
     (binaryfunc)MatrixPointer_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)MatrixPointer_inplace_multiply,         /*inplace_multiply*/

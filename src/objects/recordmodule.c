@@ -850,6 +850,9 @@ static PyObject * ControlRead_sub(ControlRead *self, PyObject *arg) { SUB };
 static PyObject * ControlRead_inplace_sub(ControlRead *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * ControlRead_div(ControlRead *self, PyObject *arg) { DIV };
 static PyObject * ControlRead_inplace_div(ControlRead *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * ControlRead_int(ControlRead *self) { GET_I };
+static PyObject * ControlRead_float(ControlRead *self) { GET_F };
+static PyObject * ControlRead_get(ControlRead *self) { GET_F };
 
 static PyObject *
 ControlRead_setValues(ControlRead *self, PyObject *arg)
@@ -920,6 +923,7 @@ static PyMethodDef ControlRead_methods[] =
     {"getServer", (PyCFunction)ControlRead_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)ControlRead_getStream, METH_NOARGS, "Returns stream object."},
     {"_getTriggerStream", (PyCFunction)ControlRead_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
+    {"get", (PyCFunction)ControlRead_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)ControlRead_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)ControlRead_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setValues", (PyCFunction)ControlRead_setValues, METH_O, "Fill buffer with values in input."},
@@ -951,9 +955,9 @@ static PyNumberMethods ControlRead_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
+    (unaryfunc)ControlRead_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)ControlRead_float,                     /*nb_float*/
     (binaryfunc)ControlRead_inplace_add,              /*inplace_add*/
     (binaryfunc)ControlRead_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)ControlRead_inplace_multiply,         /*inplace_multiply*/
@@ -1480,6 +1484,9 @@ static PyObject * NoteinRead_sub(NoteinRead *self, PyObject *arg) { SUB };
 static PyObject * NoteinRead_inplace_sub(NoteinRead *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * NoteinRead_div(NoteinRead *self, PyObject *arg) { DIV };
 static PyObject * NoteinRead_inplace_div(NoteinRead *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * NoteinRead_int(NoteinRead *self) { GET_I };
+static PyObject * NoteinRead_float(NoteinRead *self) { GET_F };
+static PyObject * NoteinRead_get(NoteinRead *self) { GET_F };
 
 static PyObject *
 NoteinRead_setValues(NoteinRead *self, PyObject *arg)
@@ -1542,6 +1549,7 @@ static PyMethodDef NoteinRead_methods[] =
     {"getServer", (PyCFunction)NoteinRead_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)NoteinRead_getStream, METH_NOARGS, "Returns stream object."},
     {"_getTriggerStream", (PyCFunction)NoteinRead_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
+    {"get", (PyCFunction)NoteinRead_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)NoteinRead_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)NoteinRead_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setValues", (PyCFunction)NoteinRead_setValues, METH_O, "Fill buffer with values in input."},
@@ -1572,9 +1580,9 @@ static PyNumberMethods NoteinRead_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
+    (unaryfunc)NoteinRead_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)NoteinRead_float,                     /*nb_float*/
     (binaryfunc)NoteinRead_inplace_add,              /*inplace_add*/
     (binaryfunc)NoteinRead_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)NoteinRead_inplace_multiply,         /*inplace_multiply*/

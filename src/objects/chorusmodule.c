@@ -592,6 +592,9 @@ static PyObject * Chorus_sub(Chorus *self, PyObject *arg) { SUB };
 static PyObject * Chorus_inplace_sub(Chorus *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Chorus_div(Chorus *self, PyObject *arg) { DIV };
 static PyObject * Chorus_inplace_div(Chorus *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * Chorus_int(Chorus *self) { GET_I };
+static PyObject * Chorus_float(Chorus *self) { GET_F };
+static PyObject * Chorus_get(Chorus *self) { GET_F };
 
 static PyObject *
 Chorus_reset(Chorus *self)
@@ -630,6 +633,7 @@ static PyMethodDef Chorus_methods[] =
 {
     {"getServer", (PyCFunction)Chorus_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Chorus_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)Chorus_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Chorus_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Chorus_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Chorus_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -662,9 +666,9 @@ static PyNumberMethods Chorus_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
+    (unaryfunc)Chorus_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)Chorus_float,                     /*nb_float*/
     (binaryfunc)Chorus_inplace_add,              /*inplace_add*/
     (binaryfunc)Chorus_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Chorus_inplace_multiply,         /*inplace_multiply*/

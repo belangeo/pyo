@@ -238,6 +238,9 @@ static PyObject * Convolve_sub(Convolve *self, PyObject *arg) { SUB };
 static PyObject * Convolve_inplace_sub(Convolve *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Convolve_div(Convolve *self, PyObject *arg) { DIV };
 static PyObject * Convolve_inplace_div(Convolve *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * Convolve_int(Convolve *self) { GET_I };
+static PyObject * Convolve_float(Convolve *self) { GET_F };
+static PyObject * Convolve_get(Convolve *self) { GET_F };
 
 static PyObject *
 Convolve_getTable(Convolve* self)
@@ -272,6 +275,7 @@ static PyMethodDef Convolve_methods[] =
     {"getTable", (PyCFunction)Convolve_getTable, METH_NOARGS, "Returns impulse response table object."},
     {"getServer", (PyCFunction)Convolve_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Convolve_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)Convolve_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Convolve_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Convolve_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Convolve_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -301,9 +305,9 @@ static PyNumberMethods Convolve_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
+    (unaryfunc)Convolve_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)Convolve_float,                     /*nb_float*/
     (binaryfunc)Convolve_inplace_add,                 /*inplace_add*/
     (binaryfunc)Convolve_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Convolve_inplace_multiply,            /*inplace_multiply*/
@@ -760,6 +764,9 @@ static PyObject * IRWinSinc_sub(IRWinSinc *self, PyObject *arg) { SUB };
 static PyObject * IRWinSinc_inplace_sub(IRWinSinc *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * IRWinSinc_div(IRWinSinc *self, PyObject *arg) { DIV };
 static PyObject * IRWinSinc_inplace_div(IRWinSinc *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * IRWinSinc_int(IRWinSinc *self) { GET_I };
+static PyObject * IRWinSinc_float(IRWinSinc *self) { GET_F };
+static PyObject * IRWinSinc_get(IRWinSinc *self) { GET_F };
 
 static PyObject * IRWinSinc_setFreq(IRWinSinc *self, PyObject *arg) { SET_PARAM(self->freq, self->freq_stream, 2); }
 static PyObject * IRWinSinc_setBandwidth(IRWinSinc *self, PyObject *arg) { SET_PARAM(self->bandwidth, self->bandwidth_stream, 3); }
@@ -794,6 +801,7 @@ static PyMethodDef IRWinSinc_methods[] =
 {
     {"getServer", (PyCFunction)IRWinSinc_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)IRWinSinc_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)IRWinSinc_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)IRWinSinc_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)IRWinSinc_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)IRWinSinc_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -825,9 +833,9 @@ static PyNumberMethods IRWinSinc_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
+    (unaryfunc)IRWinSinc_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)IRWinSinc_float,                     /*nb_float*/
     (binaryfunc)IRWinSinc_inplace_add,                 /*inplace_add*/
     (binaryfunc)IRWinSinc_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)IRWinSinc_inplace_multiply,            /*inplace_multiply*/
@@ -1116,6 +1124,9 @@ static PyObject * IRAverage_sub(IRAverage *self, PyObject *arg) { SUB };
 static PyObject * IRAverage_inplace_sub(IRAverage *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * IRAverage_div(IRAverage *self, PyObject *arg) { DIV };
 static PyObject * IRAverage_inplace_div(IRAverage *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * IRAverage_int(IRAverage *self) { GET_I };
+static PyObject * IRAverage_float(IRAverage *self) { GET_F };
+static PyObject * IRAverage_get(IRAverage *self) { GET_F };
 
 static PyMemberDef IRAverage_members[] =
 {
@@ -1131,6 +1142,7 @@ static PyMethodDef IRAverage_methods[] =
 {
     {"getServer", (PyCFunction)IRAverage_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)IRAverage_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)IRAverage_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)IRAverage_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)IRAverage_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)IRAverage_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -1159,9 +1171,9 @@ static PyNumberMethods IRAverage_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
+    (unaryfunc)IRAverage_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)IRAverage_float,                     /*nb_float*/
     (binaryfunc)IRAverage_inplace_add,                 /*inplace_add*/
     (binaryfunc)IRAverage_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)IRAverage_inplace_multiply,            /*inplace_multiply*/
@@ -1650,6 +1662,9 @@ static PyObject * IRPulse_sub(IRPulse *self, PyObject *arg) { SUB };
 static PyObject * IRPulse_inplace_sub(IRPulse *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * IRPulse_div(IRPulse *self, PyObject *arg) { DIV };
 static PyObject * IRPulse_inplace_div(IRPulse *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * IRPulse_int(IRPulse *self) { GET_I };
+static PyObject * IRPulse_float(IRPulse *self) { GET_F };
+static PyObject * IRPulse_get(IRPulse *self) { GET_F };
 
 static PyObject * IRPulse_setFreq(IRPulse *self, PyObject *arg) { SET_PARAM(self->freq, self->freq_stream, 2); }
 static PyObject * IRPulse_setBandwidth(IRPulse *self, PyObject *arg) { SET_PARAM(self->bandwidth, self->bandwidth_stream, 3); }
@@ -1685,6 +1700,7 @@ static PyMethodDef IRPulse_methods[] =
 {
     {"getServer", (PyCFunction)IRPulse_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)IRPulse_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)IRPulse_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)IRPulse_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)IRPulse_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)IRPulse_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -1716,9 +1732,9 @@ static PyNumberMethods IRPulse_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
+    (unaryfunc)IRPulse_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)IRPulse_float,                     /*nb_float*/
     (binaryfunc)IRPulse_inplace_add,                 /*inplace_add*/
     (binaryfunc)IRPulse_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)IRPulse_inplace_multiply,            /*inplace_multiply*/
@@ -2109,6 +2125,9 @@ static PyObject * IRFM_sub(IRFM *self, PyObject *arg) { SUB };
 static PyObject * IRFM_inplace_sub(IRFM *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * IRFM_div(IRFM *self, PyObject *arg) { DIV };
 static PyObject * IRFM_inplace_div(IRFM *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * IRFM_int(IRFM *self) { GET_I };
+static PyObject * IRFM_float(IRFM *self) { GET_F };
+static PyObject * IRFM_get(IRFM *self) { GET_F };
 
 static PyObject * IRFM_setCarrier(IRFM *self, PyObject *arg) { SET_PARAM(self->carrier, self->carrier_stream, 2); }
 static PyObject * IRFM_setRatio(IRFM *self, PyObject *arg) { SET_PARAM(self->ratio, self->ratio_stream, 3); }
@@ -2131,6 +2150,7 @@ static PyMethodDef IRFM_methods[] =
 {
     {"getServer", (PyCFunction)IRFM_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)IRFM_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)IRFM_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)IRFM_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)IRFM_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)IRFM_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -2162,9 +2182,9 @@ static PyNumberMethods IRFM_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
+    (unaryfunc)IRFM_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)IRFM_float,                     /*nb_float*/
     (binaryfunc)IRFM_inplace_add,                 /*inplace_add*/
     (binaryfunc)IRFM_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)IRFM_inplace_multiply,            /*inplace_multiply*/

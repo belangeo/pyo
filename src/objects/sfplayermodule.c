@@ -744,6 +744,9 @@ static PyObject * SfPlay_sub(SfPlay *self, PyObject *arg) { SUB };
 static PyObject * SfPlay_inplace_sub(SfPlay *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * SfPlay_div(SfPlay *self, PyObject *arg) { DIV };
 static PyObject * SfPlay_inplace_div(SfPlay *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * SfPlay_int(SfPlay *self) { GET_I };
+static PyObject * SfPlay_float(SfPlay *self) { GET_F };
+static PyObject * SfPlay_get(SfPlay *self) { GET_F };
 
 static PyMemberDef SfPlay_members[] =
 {
@@ -758,6 +761,7 @@ static PyMethodDef SfPlay_methods[] =
 {
     {"getServer", (PyCFunction)SfPlay_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)SfPlay_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)SfPlay_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)SfPlay_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)SfPlay_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)SfPlay_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -786,9 +790,9 @@ static PyNumberMethods SfPlay_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
+    (unaryfunc)SfPlay_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)SfPlay_float,                     /*nb_float*/
     (binaryfunc)SfPlay_inplace_add,              /*inplace_add*/
     (binaryfunc)SfPlay_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)SfPlay_inplace_multiply,         /*inplace_multiply*/
@@ -1734,6 +1738,9 @@ static PyObject * SfMarkerShuffle_sub(SfMarkerShuffle *self, PyObject *arg) { SU
 static PyObject * SfMarkerShuffle_inplace_sub(SfMarkerShuffle *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * SfMarkerShuffle_div(SfMarkerShuffle *self, PyObject *arg) { DIV };
 static PyObject * SfMarkerShuffle_inplace_div(SfMarkerShuffle *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * SfMarkerShuffle_int(SfMarkerShuffle *self) { GET_I };
+static PyObject * SfMarkerShuffle_float(SfMarkerShuffle *self) { GET_F };
+static PyObject * SfMarkerShuffle_get(SfMarkerShuffle *self) { GET_F };
 
 static PyMemberDef SfMarkerShuffle_members[] =
 {
@@ -1748,6 +1755,7 @@ static PyMethodDef SfMarkerShuffle_methods[] =
 {
     {"getServer", (PyCFunction)SfMarkerShuffle_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)SfMarkerShuffle_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)SfMarkerShuffle_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)SfMarkerShuffle_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)SfMarkerShuffle_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)SfMarkerShuffle_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -1776,9 +1784,9 @@ static PyNumberMethods SfMarkerShuffle_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
+    (unaryfunc)SfMarkerShuffle_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)SfMarkerShuffle_float,                     /*nb_float*/
     (binaryfunc)SfMarkerShuffle_inplace_add,              /*inplace_add*/
     (binaryfunc)SfMarkerShuffle_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)SfMarkerShuffle_inplace_multiply,         /*inplace_multiply*/
@@ -2530,6 +2538,9 @@ static PyObject * SfMarkerLoop_sub(SfMarkerLoop *self, PyObject *arg) { SUB };
 static PyObject * SfMarkerLoop_inplace_sub(SfMarkerLoop *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * SfMarkerLoop_div(SfMarkerLoop *self, PyObject *arg) { DIV };
 static PyObject * SfMarkerLoop_inplace_div(SfMarkerLoop *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * SfMarkerLoop_int(SfMarkerLoop *self) { GET_I };
+static PyObject * SfMarkerLoop_float(SfMarkerLoop *self) { GET_F };
+static PyObject * SfMarkerLoop_get(SfMarkerLoop *self) { GET_F };
 
 static PyMemberDef SfMarkerLoop_members[] =
 {
@@ -2544,6 +2555,7 @@ static PyMethodDef SfMarkerLoop_methods[] =
 {
     {"getServer", (PyCFunction)SfMarkerLoop_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)SfMarkerLoop_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)SfMarkerLoop_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)SfMarkerLoop_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)SfMarkerLoop_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)SfMarkerLoop_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -2572,9 +2584,9 @@ static PyNumberMethods SfMarkerLoop_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
+    (unaryfunc)SfMarkerLoop_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)SfMarkerLoop_float,                     /*nb_float*/
     (binaryfunc)SfMarkerLoop_inplace_add,              /*inplace_add*/
     (binaryfunc)SfMarkerLoop_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)SfMarkerLoop_inplace_multiply,         /*inplace_multiply*/

@@ -1375,6 +1375,12 @@ class PyoObject(PyoObjectBase):
         else:
             return Compare(self, comp=comp, mode=mode)
 
+    def __float__(self):
+        return float(self._base_objs[0])
+
+    def __int__(self):
+        return int(self._base_objs[0])
+
     def isPlaying(self, all=False):
         """
         Returns True if the object is currently playing, otherwise, returns False.
@@ -1420,7 +1426,7 @@ class PyoObject(PyoObjectBase):
 
     def get(self, all=False):
         """
-        Return the first sample of the current buffer as a float.
+        Return the last sample of the current buffer as a float.
 
         Can be used to convert audio stream to usable Python data.
 
@@ -1432,10 +1438,10 @@ class PyoObject(PyoObjectBase):
         :Args:
 
             all: boolean, optional
-                If True, the first value of each object's stream
+                If True, the last value of each object's stream
                 will be returned as a list.
 
-                If False, only the value of the first object's stream
+                If False, only the vlast alue of the first object's stream
                 will be returned as a float.
 
         """

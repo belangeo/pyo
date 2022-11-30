@@ -368,6 +368,9 @@ static PyObject * Compress_sub(Compress *self, PyObject *arg) { SUB };
 static PyObject * Compress_inplace_sub(Compress *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Compress_div(Compress *self, PyObject *arg) { DIV };
 static PyObject * Compress_inplace_div(Compress *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * Compress_int(Compress *self) { GET_I };
+static PyObject * Compress_float(Compress *self) { GET_F };
+static PyObject * Compress_get(Compress *self) { GET_F };
 
 static PyObject * Compress_setRiseTime(Compress *self, PyObject *arg) { SET_PARAM(self->risetime, self->risetime_stream, 2); }
 static PyObject * Compress_setFallTime(Compress *self, PyObject *arg) { SET_PARAM(self->falltime, self->falltime_stream, 3); }
@@ -432,6 +435,7 @@ static PyMethodDef Compress_methods[] =
 {
     {"getServer", (PyCFunction)Compress_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Compress_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)Compress_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Compress_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Compress_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Compress_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -466,9 +470,9 @@ static PyNumberMethods Compress_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
+    (unaryfunc)Compress_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)Compress_float,                     /*nb_float*/
     (binaryfunc)Compress_inplace_add,                 /*inplace_add*/
     (binaryfunc)Compress_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Compress_inplace_multiply,            /*inplace_multiply*/
@@ -1339,6 +1343,9 @@ static PyObject * Gate_sub(Gate *self, PyObject *arg) { SUB };
 static PyObject * Gate_inplace_sub(Gate *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Gate_div(Gate *self, PyObject *arg) { DIV };
 static PyObject * Gate_inplace_div(Gate *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * Gate_int(Gate *self) { GET_I };
+static PyObject * Gate_float(Gate *self) { GET_F };
+static PyObject * Gate_get(Gate *self) { GET_F };
 
 static PyObject * Gate_setThresh(Gate *self, PyObject *arg) { SET_PARAM(self->thresh, self->thresh_stream, 2); }
 static PyObject * Gate_setRiseTime(Gate *self, PyObject *arg) { SET_PARAM(self->risetime, self->risetime_stream, 3); }
@@ -1381,6 +1388,7 @@ static PyMethodDef Gate_methods[] =
 {
     {"getServer", (PyCFunction)Gate_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Gate_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)Gate_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Gate_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Gate_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Gate_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -1413,9 +1421,9 @@ static PyNumberMethods Gate_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
+    (unaryfunc)Gate_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)Gate_float,                     /*nb_float*/
     (binaryfunc)Gate_inplace_add,                 /*inplace_add*/
     (binaryfunc)Gate_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Gate_inplace_multiply,            /*inplace_multiply*/
@@ -1754,6 +1762,9 @@ static PyObject * Balance_sub(Balance *self, PyObject *arg) { SUB };
 static PyObject * Balance_inplace_sub(Balance *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Balance_div(Balance *self, PyObject *arg) { DIV };
 static PyObject * Balance_inplace_div(Balance *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * Balance_int(Balance *self) { GET_I };
+static PyObject * Balance_float(Balance *self) { GET_F };
+static PyObject * Balance_get(Balance *self) { GET_F };
 
 static PyObject * Balance_setFreq(Balance *self, PyObject *arg) { SET_PARAM(self->freq, self->freq_stream, 2); }
 
@@ -1773,6 +1784,7 @@ static PyMethodDef Balance_methods[] =
 {
     {"getServer", (PyCFunction)Balance_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Balance_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)Balance_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Balance_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Balance_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Balance_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -1802,9 +1814,9 @@ static PyNumberMethods Balance_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
+    (unaryfunc)Balance_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)Balance_float,                     /*nb_float*/
     (binaryfunc)Balance_inplace_add,                 /*inplace_add*/
     (binaryfunc)Balance_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Balance_inplace_multiply,            /*inplace_multiply*/
@@ -2203,6 +2215,9 @@ static PyObject * Expand_sub(Expand *self, PyObject *arg) { SUB };
 static PyObject * Expand_inplace_sub(Expand *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Expand_div(Expand *self, PyObject *arg) { DIV };
 static PyObject * Expand_inplace_div(Expand *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * Expand_int(Expand *self) { GET_I };
+static PyObject * Expand_float(Expand *self) { GET_F };
+static PyObject * Expand_get(Expand *self) { GET_F };
 
 static PyObject * Expand_setRiseTime(Expand *self, PyObject *arg) { SET_PARAM(self->risetime, self->risetime_stream, 2); }
 static PyObject * Expand_setFallTime(Expand *self, PyObject *arg) { SET_PARAM(self->falltime, self->falltime_stream, 3); }
@@ -2249,6 +2264,7 @@ static PyMethodDef Expand_methods[] =
 {
     {"getServer", (PyCFunction)Expand_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Expand_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)Expand_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Expand_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Expand_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Expand_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -2283,9 +2299,9 @@ static PyNumberMethods Expand_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
+    (unaryfunc)Expand_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)Expand_float,                     /*nb_float*/
     (binaryfunc)Expand_inplace_add,                 /*inplace_add*/
     (binaryfunc)Expand_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Expand_inplace_multiply,            /*inplace_multiply*/

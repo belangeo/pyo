@@ -1,3 +1,8 @@
+2022-11-29 belangeo <belangeo@gmail.com>
+
+    * Added get() method to *_base objects.
+    * Added int() and float() to PyoObject and *_base objects.
+
 2022-10-21 belangeo <belangeo@gmail.com>
 
     * UI: Improved handling of system's dark mode.

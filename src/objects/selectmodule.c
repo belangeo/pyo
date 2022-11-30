@@ -208,6 +208,9 @@ static PyObject * Select_sub(Select *self, PyObject *arg) { SUB };
 static PyObject * Select_inplace_sub(Select *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Select_div(Select *self, PyObject *arg) { DIV };
 static PyObject * Select_inplace_div(Select *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * Select_int(Select *self) { GET_I };
+static PyObject * Select_float(Select *self) { GET_F };
+static PyObject * Select_get(Select *self) { GET_F };
 
 static PyObject *
 Select_setValue(Select *self, PyObject *arg)
@@ -235,6 +238,7 @@ static PyMethodDef Select_methods[] =
 {
     {"getServer", (PyCFunction)Select_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Select_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)Select_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Select_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)Select_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setValue", (PyCFunction)Select_setValue, METH_O, "Sets value to select."},
@@ -263,9 +267,9 @@ static PyNumberMethods Select_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
+    (unaryfunc)Select_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)Select_float,                     /*nb_float*/
     (binaryfunc)Select_inplace_add,                 /*inplace_add*/
     (binaryfunc)Select_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Select_inplace_multiply,            /*inplace_multiply*/
@@ -506,6 +510,9 @@ static PyObject * Change_sub(Change *self, PyObject *arg) { SUB };
 static PyObject * Change_inplace_sub(Change *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Change_div(Change *self, PyObject *arg) { DIV };
 static PyObject * Change_inplace_div(Change *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * Change_int(Change *self) { GET_I };
+static PyObject * Change_float(Change *self) { GET_F };
+static PyObject * Change_get(Change *self) { GET_F };
 
 static PyMemberDef Change_members[] =
 {
@@ -520,6 +527,7 @@ static PyMethodDef Change_methods[] =
 {
     {"getServer", (PyCFunction)Change_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Change_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)Change_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Change_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)Change_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setMul", (PyCFunction)Change_setMul, METH_O, "Sets mul factor."},
@@ -547,9 +555,9 @@ static PyNumberMethods Change_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
+    (unaryfunc)Change_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)Change_float,                     /*nb_float*/
     (binaryfunc)Change_inplace_add,                 /*inplace_add*/
     (binaryfunc)Change_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Change_inplace_multiply,            /*inplace_multiply*/

@@ -818,6 +818,9 @@ static PyObject * Freeverb_sub(Freeverb *self, PyObject *arg) { SUB };
 static PyObject * Freeverb_inplace_sub(Freeverb *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Freeverb_div(Freeverb *self, PyObject *arg) { DIV };
 static PyObject * Freeverb_inplace_div(Freeverb *self, PyObject *arg) { INPLACE_DIV };
+static PyObject * Freeverb_int(Freeverb *self) { GET_I };
+static PyObject * Freeverb_float(Freeverb *self) { GET_F };
+static PyObject * Freeverb_get(Freeverb *self) { GET_F };
 
 static PyObject * Freeverb_setSize(Freeverb *self, PyObject *arg) { SET_PARAM(self->size, self->size_stream, 2); }
 static PyObject * Freeverb_setDamp(Freeverb *self, PyObject *arg) { SET_PARAM(self->damp, self->damp_stream, 3); }
@@ -869,6 +872,7 @@ static PyMethodDef Freeverb_methods[] =
 {
     {"getServer", (PyCFunction)Freeverb_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Freeverb_getStream, METH_NOARGS, "Returns stream object."},
+    {"get", (PyCFunction)Freeverb_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Freeverb_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Freeverb_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Freeverb_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -901,9 +905,9 @@ static PyNumberMethods Freeverb_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    0,                       /*nb_int*/
-    0,                      /*nb_long*/
-    0,                     /*nb_float*/
+    (unaryfunc)Freeverb_int,                       /*nb_int*/
+    0,                                        /*nb_long*/
+    (unaryfunc)Freeverb_float,                     /*nb_float*/
     (binaryfunc)Freeverb_inplace_add,              /*inplace_add*/
     (binaryfunc)Freeverb_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Freeverb_inplace_multiply,         /*inplace_multiply*/

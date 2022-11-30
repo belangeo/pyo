@@ -349,6 +349,57 @@ class TestPyoObject:
             assert a.get() == 25
             assert a.get(all=True) == [25, 50]
 
+    def test_get_from_base(self, audio_server):
+        a = Sig([100, 200])
+        assert a[0].get() == 100
+        assert a[1].get() == 200
+
+        a.value = [25, 50]
+
+        with StartAndAdvanceOneBuf(audio_server):
+            assert a[0].get() == 25
+            assert a[1].get() == 50
+
+    def test_convert_as_float(self, audio_server):
+        a = Sig(100.5)
+        assert float(a) == 100.5
+
+        a.value = 25.5
+
+        with StartAndAdvanceOneBuf(audio_server):
+            assert float(a) == 25.5
+
+    def test_convert_as_int(self, audio_server):
+        a = Sig(100.5)
+        assert int(a) == 100
+
+        a.value = 25.5
+
+        with StartAndAdvanceOneBuf(audio_server):
+            assert int(a) == 25
+
+    def test_convert_base_as_float(self, audio_server):
+        a = Sig([100.5, 200.5])
+        assert float(a[0]) == 100.5
+        assert float(a[1]) == 200.5
+
+        a.value = [25.5, 50.5]
+
+        with StartAndAdvanceOneBuf(audio_server):
+            assert float(a[0]) == 25.5
+            assert float(a[1]) == 50.5
+
+    def test_convert_base_as_int(self, audio_server):
+        a = Sig([100.5, 200.5])
+        assert int(a[0]) == 100
+        assert int(a[1]) == 200
+
+        a.value = [25.5, 50.5]
+
+        with StartAndAdvanceOneBuf(audio_server):
+            assert int(a[0]) == 25
+            assert int(a[1]) == 50
+
     def test_play(self, audio_server):
         a = Sine()
         assert a.isPlaying() == True
