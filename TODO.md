@@ -6,8 +6,6 @@ Roadmap 1.0.5
 
 - python 3.10 and 3.11 wheels
 
-- doc: Remove obsolete get_templates.py file
-
 Roadmap 1.0.6
 -------------
 
