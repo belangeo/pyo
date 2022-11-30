@@ -5794,8 +5794,9 @@ class Editor(stc.StyledTextCtrl):
         if pastingList != []:
             self.popupmenu = wx.Menu()
             for item in pastingList:
-                item = self.popupmenu.Append(-1, item)
-                self.Bind(wx.EVT_MENU, self.onPasteFromList, item)
+                if item:
+                    item = self.popupmenu.Append(-1, item)
+                    self.Bind(wx.EVT_MENU, self.onPasteFromList, item)
             self.PopupMenu(self.popupmenu, self.PointFromPosition(self.GetCurrentPos()))
             self.popupmenu.Destroy()
 
