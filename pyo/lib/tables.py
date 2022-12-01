@@ -287,9 +287,11 @@ class TriangleTable(PyoTableObject):
         PyoTableObject.__init__(self, size)
         self._order = order
         list = []
+        ph = 1.0
         for i in range(1, (order * 2)):
             if i % 2 == 1:
-                list.append(1.0 / pow(i, 2))
+                list.append(ph / pow(i, 2))
+                ph *= -1
             else:
                 list.append(0.0)
         self._base_objs = [HarmTable_base(list, size)]
@@ -307,9 +309,11 @@ class TriangleTable(PyoTableObject):
         pyoArgsAssert(self, "I", x)
         self._order = x
         list = []
+        ph = 1.0
         for i in range(1, (self._order * 2)):
             if i % 2 == 1:
-                list.append(1.0 / pow(i, 2))
+                list.append(ph / pow(i, 2))
+                ph *= -1
             else:
                 list.append(0.0)
         [obj.replace(list) for obj in self._base_objs]
