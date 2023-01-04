@@ -980,9 +980,6 @@ static PyObject * HRTF_sub(HRTF *self, PyObject *arg) { SUB };
 static PyObject * HRTF_inplace_sub(HRTF *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * HRTF_div(HRTF *self, PyObject *arg) { DIV };
 static PyObject * HRTF_inplace_div(HRTF *self, PyObject *arg) { INPLACE_DIV };
-static PyObject * HRTF_int(HRTF *self) { GET_I };
-static PyObject * HRTF_float(HRTF *self) { GET_F };
-static PyObject * HRTF_get(HRTF *self) { GET_F };
 
 static PyMemberDef HRTF_members[] =
 {
@@ -997,7 +994,6 @@ static PyMethodDef HRTF_methods[] =
 {
     {"getServer", (PyCFunction)HRTF_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)HRTF_getStream, METH_NOARGS, "Returns stream object."},
-    {"get", (PyCFunction)HRTF_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)HRTF_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)HRTF_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)HRTF_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -1026,9 +1022,9 @@ static PyNumberMethods HRTF_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    (unaryfunc)HRTF_int,                       /*nb_int*/
-    0,                                        /*nb_long*/
-    (unaryfunc)HRTF_float,                     /*nb_float*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
     (binaryfunc)HRTF_inplace_add,              /*inplace_add*/
     (binaryfunc)HRTF_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)HRTF_inplace_multiply,         /*inplace_multiply*/
@@ -1694,9 +1690,6 @@ static PyObject * Binaural_sub(Binaural *self, PyObject *arg) { SUB };
 static PyObject * Binaural_inplace_sub(Binaural *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Binaural_div(Binaural *self, PyObject *arg) { DIV };
 static PyObject * Binaural_inplace_div(Binaural *self, PyObject *arg) { INPLACE_DIV };
-static PyObject * Binaural_int(Binaural *self) { GET_I };
-static PyObject * Binaural_float(Binaural *self) { GET_F };
-static PyObject * Binaural_get(Binaural *self) { GET_F };
 
 static PyMemberDef Binaural_members[] =
 {
@@ -1711,7 +1704,6 @@ static PyMethodDef Binaural_methods[] =
 {
     {"getServer", (PyCFunction)Binaural_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Binaural_getStream, METH_NOARGS, "Returns stream object."},
-    {"get", (PyCFunction)Binaural_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Binaural_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Binaural_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Binaural_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -1740,9 +1732,9 @@ static PyNumberMethods Binaural_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    (unaryfunc)Binaural_int,                       /*nb_int*/
-    0,                                        /*nb_long*/
-    (unaryfunc)Binaural_float,                     /*nb_float*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
     (binaryfunc)Binaural_inplace_add,              /*inplace_add*/
     (binaryfunc)Binaural_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Binaural_inplace_multiply,         /*inplace_multiply*/

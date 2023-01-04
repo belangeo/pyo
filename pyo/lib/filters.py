@@ -1657,7 +1657,7 @@ class Hilbert(PyoObject):
 
     def get(self, identifier="real", all=False):
         """
-        Return the last sample of the current buffer as a float.
+        Return the first sample of the current buffer as a float.
 
         Can be used to convert audio stream to usable Python data.
 
@@ -1670,8 +1670,8 @@ class Hilbert(PyoObject):
                 Address string parameter identifying audio stream.
                 Defaults to "real".
             all: boolean, optional
-                If True, the last value of each object's stream
-                will be returned as a list. Otherwise, only the last value
+                If True, the first value of each object's stream
+                will be returned as a list. Otherwise, only the value
                 of the first object's stream will be returned as a float.
                 Defaults to False.
 

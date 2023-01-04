@@ -187,7 +187,6 @@ Mix_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * Mix_getServer(Mix* self) { GET_SERVER };
 static PyObject * Mix_getStream(Mix* self) { GET_STREAM };
-static PyObject * Mix_get(Mix *self) { GET_F };
 static PyObject * Mix_setMul(Mix *self, PyObject *arg) { SET_MUL };
 static PyObject * Mix_setAdd(Mix *self, PyObject *arg) { SET_ADD };
 static PyObject * Mix_setSub(Mix *self, PyObject *arg) { SET_SUB };
@@ -205,8 +204,6 @@ static PyObject * Mix_sub(Mix *self, PyObject *arg) { SUB };
 static PyObject * Mix_inplace_sub(Mix *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Mix_div(Mix *self, PyObject *arg) { DIV };
 static PyObject * Mix_inplace_div(Mix *self, PyObject *arg) { INPLACE_DIV };
-static PyObject * Mix_int(Mix *self) { GET_I };
-static PyObject * Mix_float(Mix *self) { GET_F };
 
 static PyMemberDef Mix_members[] =
 {
@@ -222,7 +219,6 @@ static PyMethodDef Mix_methods[] =
 {
     {"getServer", (PyCFunction)Mix_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Mix_getStream, METH_NOARGS, "Returns stream object."},
-    {"get", (PyCFunction)Mix_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Mix_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Mix_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Mix_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -251,9 +247,9 @@ static PyNumberMethods Mix_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    (unaryfunc)Mix_int,                       /*nb_int*/
-    0,                                        /*nb_long*/
-    (unaryfunc)Mix_float,                     /*nb_float*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
     (binaryfunc)Mix_inplace_add,              /*inplace_add*/
     (binaryfunc)Mix_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Mix_inplace_multiply,         /*inplace_multiply*/

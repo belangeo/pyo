@@ -592,9 +592,6 @@ static PyObject * Harmonizer_sub(Harmonizer *self, PyObject *arg) { SUB };
 static PyObject * Harmonizer_inplace_sub(Harmonizer *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Harmonizer_div(Harmonizer *self, PyObject *arg) { DIV };
 static PyObject * Harmonizer_inplace_div(Harmonizer *self, PyObject *arg) { INPLACE_DIV };
-static PyObject * Harmonizer_int(Harmonizer *self) { GET_I };
-static PyObject * Harmonizer_float(Harmonizer *self) { GET_F };
-static PyObject * Harmonizer_get(Harmonizer *self) { GET_F };
 
 static PyObject * Harmonizer_setTranspo(Harmonizer *self, PyObject *arg) {SET_PARAM(self->transpo, self->transpo_stream, 2); }
 static PyObject * Harmonizer_setFeedback(Harmonizer *self, PyObject *arg) { SET_PARAM(self->feedback, self->feedback_stream, 3); }
@@ -648,7 +645,6 @@ static PyMethodDef Harmonizer_methods[] =
 {
     {"getServer", (PyCFunction)Harmonizer_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Harmonizer_getStream, METH_NOARGS, "Returns stream object."},
-    {"get", (PyCFunction)Harmonizer_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Harmonizer_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Harmonizer_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Harmonizer_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -681,9 +677,9 @@ static PyNumberMethods Harmonizer_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    (unaryfunc)Harmonizer_int,                       /*nb_int*/
-    0,                                        /*nb_long*/
-    (unaryfunc)Harmonizer_float,                     /*nb_float*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
     (binaryfunc)Harmonizer_inplace_add,              /*inplace_add*/
     (binaryfunc)Harmonizer_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Harmonizer_inplace_multiply,         /*inplace_multiply*/

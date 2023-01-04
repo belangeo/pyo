@@ -6,8 +6,6 @@ Roadmap 1.0.5
 
 - python 3.10 and 3.11 wheels
 
-- Warnings when compiling vbap on Windows
-
 Roadmap 1.0.6
 -------------
 

@@ -440,9 +440,6 @@ static PyObject * Delay_sub(Delay *self, PyObject *arg) { SUB };
 static PyObject * Delay_inplace_sub(Delay *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Delay_div(Delay *self, PyObject *arg) { DIV };
 static PyObject * Delay_inplace_div(Delay *self, PyObject *arg) { INPLACE_DIV };
-static PyObject * Delay_int(Delay *self) { GET_I };
-static PyObject * Delay_float(Delay *self) { GET_F };
-static PyObject * Delay_get(Delay *self) { GET_F };
 
 static PyObject * Delay_setDelay(Delay *self, PyObject *arg) { SET_PARAM(self->delay, self->delay_stream, 2); }
 static PyObject * Delay_setFeedback(Delay *self, PyObject *arg) { SET_PARAM(self->feedback, self->feedback_stream, 3); }
@@ -476,7 +473,6 @@ static PyMethodDef Delay_methods[] =
 {
     {"getServer", (PyCFunction)Delay_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Delay_getStream, METH_NOARGS, "Returns stream object."},
-    {"get", (PyCFunction)Delay_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Delay_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Delay_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Delay_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -508,9 +504,9 @@ static PyNumberMethods Delay_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    (unaryfunc)Delay_int,                       /*nb_int*/
-    0,                                        /*nb_long*/
-    (unaryfunc)Delay_float,                     /*nb_float*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
     (binaryfunc)Delay_inplace_add,              /*inplace_add*/
     (binaryfunc)Delay_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Delay_inplace_multiply,         /*inplace_multiply*/
@@ -853,9 +849,6 @@ static PyObject * SDelay_sub(SDelay *self, PyObject *arg) { SUB };
 static PyObject * SDelay_inplace_sub(SDelay *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * SDelay_div(SDelay *self, PyObject *arg) { DIV };
 static PyObject * SDelay_inplace_div(SDelay *self, PyObject *arg) { INPLACE_DIV };
-static PyObject * SDelay_int(SDelay *self) { GET_I };
-static PyObject * SDelay_float(SDelay *self) { GET_F };
-static PyObject * SDelay_get(SDelay *self) { GET_F };
 
 static PyObject * SDelay_setDelay(SDelay *self, PyObject *arg) { SET_PARAM(self->delay, self->delay_stream, 2); }
 
@@ -887,7 +880,6 @@ static PyMethodDef SDelay_methods[] =
 {
     {"getServer", (PyCFunction)SDelay_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)SDelay_getStream, METH_NOARGS, "Returns stream object."},
-    {"get", (PyCFunction)SDelay_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)SDelay_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)SDelay_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)SDelay_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -918,9 +910,9 @@ static PyNumberMethods SDelay_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    (unaryfunc)SDelay_int,                       /*nb_int*/
-    0,                                        /*nb_long*/
-    (unaryfunc)SDelay_float,                     /*nb_float*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
     (binaryfunc)SDelay_inplace_add,              /*inplace_add*/
     (binaryfunc)SDelay_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)SDelay_inplace_multiply,         /*inplace_multiply*/
@@ -1597,9 +1589,6 @@ static PyObject * Waveguide_sub(Waveguide *self, PyObject *arg) { SUB };
 static PyObject * Waveguide_inplace_sub(Waveguide *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Waveguide_div(Waveguide *self, PyObject *arg) { DIV };
 static PyObject * Waveguide_inplace_div(Waveguide *self, PyObject *arg) { INPLACE_DIV };
-static PyObject * Waveguide_int(Waveguide *self) { GET_I };
-static PyObject * Waveguide_float(Waveguide *self) { GET_F };
-static PyObject * Waveguide_get(Waveguide *self) { GET_F };
 
 static PyObject *
 Waveguide_reset(Waveguide *self)
@@ -1642,7 +1631,6 @@ static PyMethodDef Waveguide_methods[] =
 {
     {"getServer", (PyCFunction)Waveguide_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Waveguide_getStream, METH_NOARGS, "Returns stream object."},
-    {"get", (PyCFunction)Waveguide_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Waveguide_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Waveguide_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Waveguide_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -1674,9 +1662,9 @@ static PyNumberMethods Waveguide_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    (unaryfunc)Waveguide_int,                       /*nb_int*/
-    0,                                        /*nb_long*/
-    (unaryfunc)Waveguide_float,                     /*nb_float*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
     (binaryfunc)Waveguide_inplace_add,              /*inplace_add*/
     (binaryfunc)Waveguide_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Waveguide_inplace_multiply,         /*inplace_multiply*/
@@ -2746,9 +2734,6 @@ static PyObject * AllpassWG_sub(AllpassWG *self, PyObject *arg) { SUB };
 static PyObject * AllpassWG_inplace_sub(AllpassWG *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * AllpassWG_div(AllpassWG *self, PyObject *arg) { DIV };
 static PyObject * AllpassWG_inplace_div(AllpassWG *self, PyObject *arg) { INPLACE_DIV };
-static PyObject * AllpassWG_int(AllpassWG *self) { GET_I };
-static PyObject * AllpassWG_float(AllpassWG *self) { GET_F };
-static PyObject * AllpassWG_get(AllpassWG *self) { GET_F };
 
 static PyObject *
 AllpassWG_reset(AllpassWG *self)
@@ -2795,7 +2780,6 @@ static PyMethodDef AllpassWG_methods[] =
 {
     {"getServer", (PyCFunction)AllpassWG_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)AllpassWG_getStream, METH_NOARGS, "Returns stream object."},
-    {"get", (PyCFunction)AllpassWG_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)AllpassWG_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)AllpassWG_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)AllpassWG_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -2828,9 +2812,9 @@ static PyNumberMethods AllpassWG_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    (unaryfunc)AllpassWG_int,                       /*nb_int*/
-    0,                                        /*nb_long*/
-    (unaryfunc)AllpassWG_float,                     /*nb_float*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
     (binaryfunc)AllpassWG_inplace_add,              /*inplace_add*/
     (binaryfunc)AllpassWG_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)AllpassWG_inplace_multiply,         /*inplace_multiply*/
@@ -3064,9 +3048,6 @@ static PyObject * Delay1_sub(Delay1 *self, PyObject *arg) { SUB };
 static PyObject * Delay1_inplace_sub(Delay1 *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Delay1_div(Delay1 *self, PyObject *arg) { DIV };
 static PyObject * Delay1_inplace_div(Delay1 *self, PyObject *arg) { INPLACE_DIV };
-static PyObject * Delay1_int(Delay1 *self) { GET_I };
-static PyObject * Delay1_float(Delay1 *self) { GET_F };
-static PyObject * Delay1_get(Delay1 *self) { GET_F };
 
 static PyMemberDef Delay1_members[] =
 {
@@ -3082,7 +3063,6 @@ static PyMethodDef Delay1_methods[] =
 {
     {"getServer", (PyCFunction)Delay1_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Delay1_getStream, METH_NOARGS, "Returns stream object."},
-    {"get", (PyCFunction)Delay1_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Delay1_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Delay1_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Delay1_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -3111,9 +3091,9 @@ static PyNumberMethods Delay1_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    (unaryfunc)Delay1_int,                       /*nb_int*/
-    0,                                        /*nb_long*/
-    (unaryfunc)Delay1_float,                     /*nb_float*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
     (binaryfunc)Delay1_inplace_add,                 /*inplace_add*/
     (binaryfunc)Delay1_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Delay1_inplace_multiply,            /*inplace_multiply*/
@@ -3797,9 +3777,6 @@ static PyObject * SmoothDelay_sub(SmoothDelay *self, PyObject *arg) { SUB };
 static PyObject * SmoothDelay_inplace_sub(SmoothDelay *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * SmoothDelay_div(SmoothDelay *self, PyObject *arg) { DIV };
 static PyObject * SmoothDelay_inplace_div(SmoothDelay *self, PyObject *arg) { INPLACE_DIV };
-static PyObject * SmoothDelay_int(SmoothDelay *self) { GET_I };
-static PyObject * SmoothDelay_float(SmoothDelay *self) { GET_F };
-static PyObject * SmoothDelay_get(SmoothDelay *self) { GET_F };
 
 static PyObject * SmoothDelay_setDelay(SmoothDelay *self, PyObject *arg) { SET_PARAM(self->delay, self->delay_stream, 2); }
 static PyObject * SmoothDelay_setFeedback(SmoothDelay *self, PyObject *arg) { SET_PARAM(self->feedback, self->feedback_stream, 3); }
@@ -3846,7 +3823,6 @@ static PyMethodDef SmoothDelay_methods[] =
 {
     {"getServer", (PyCFunction)SmoothDelay_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)SmoothDelay_getStream, METH_NOARGS, "Returns stream object."},
-    {"get", (PyCFunction)SmoothDelay_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)SmoothDelay_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)SmoothDelay_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)SmoothDelay_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -3879,9 +3855,9 @@ static PyNumberMethods SmoothDelay_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    (unaryfunc)SmoothDelay_int,                       /*nb_int*/
-    0,                                        /*nb_long*/
-    (unaryfunc)SmoothDelay_float,                     /*nb_float*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
     (binaryfunc)SmoothDelay_inplace_add,              /*inplace_add*/
     (binaryfunc)SmoothDelay_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)SmoothDelay_inplace_multiply,         /*inplace_multiply*/

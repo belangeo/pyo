@@ -407,9 +407,6 @@ static PyObject * Hilbert_sub(Hilbert *self, PyObject *arg) { SUB };
 static PyObject * Hilbert_inplace_sub(Hilbert *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Hilbert_div(Hilbert *self, PyObject *arg) { DIV };
 static PyObject * Hilbert_inplace_div(Hilbert *self, PyObject *arg) { INPLACE_DIV };
-static PyObject * Hilbert_int(Hilbert *self) { GET_I };
-static PyObject * Hilbert_float(Hilbert *self) { GET_F };
-static PyObject * Hilbert_get(Hilbert *self) { GET_F };
 
 static PyMemberDef Hilbert_members[] =
 {
@@ -424,7 +421,6 @@ static PyMethodDef Hilbert_methods[] =
 {
     {"getServer", (PyCFunction)Hilbert_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Hilbert_getStream, METH_NOARGS, "Returns stream object."},
-    {"get", (PyCFunction)Hilbert_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Hilbert_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Hilbert_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Hilbert_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -453,9 +449,9 @@ static PyNumberMethods Hilbert_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    (unaryfunc)Hilbert_int,                       /*nb_int*/
-    0,                                        /*nb_long*/
-    (unaryfunc)Hilbert_float,                     /*nb_float*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
     (binaryfunc)Hilbert_inplace_add,              /*inplace_add*/
     (binaryfunc)Hilbert_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Hilbert_inplace_multiply,         /*inplace_multiply*/

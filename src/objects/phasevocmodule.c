@@ -879,9 +879,6 @@ static PyObject * PVSynth_sub(PVSynth *self, PyObject *arg) { SUB };
 static PyObject * PVSynth_inplace_sub(PVSynth *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * PVSynth_div(PVSynth *self, PyObject *arg) { DIV };
 static PyObject * PVSynth_inplace_div(PVSynth *self, PyObject *arg) { INPLACE_DIV };
-static PyObject * PVSynth_int(PVSynth *self) { GET_I };
-static PyObject * PVSynth_float(PVSynth *self) { GET_F };
-static PyObject * PVSynth_get(PVSynth *self) { GET_F };
 
 static PyMemberDef PVSynth_members[] =
 {
@@ -897,7 +894,6 @@ static PyMethodDef PVSynth_methods[] =
 {
     {"getServer", (PyCFunction)PVSynth_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)PVSynth_getStream, METH_NOARGS, "Returns stream object."},
-    {"get", (PyCFunction)PVSynth_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)PVSynth_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)PVSynth_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)PVSynth_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -928,9 +924,9 @@ static PyNumberMethods PVSynth_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    (unaryfunc)PVSynth_int,                       /*nb_int*/
-    0,                                        /*nb_long*/
-    (unaryfunc)PVSynth_float,                     /*nb_float*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
     (binaryfunc)PVSynth_inplace_add,                 /*inplace_add*/
     (binaryfunc)PVSynth_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)PVSynth_inplace_multiply,            /*inplace_multiply*/
@@ -1452,9 +1448,6 @@ static PyObject * PVAddSynth_sub(PVAddSynth *self, PyObject *arg) { SUB };
 static PyObject * PVAddSynth_inplace_sub(PVAddSynth *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * PVAddSynth_div(PVAddSynth *self, PyObject *arg) { DIV };
 static PyObject * PVAddSynth_inplace_div(PVAddSynth *self, PyObject *arg) { INPLACE_DIV };
-static PyObject * PVAddSynth_int(PVAddSynth *self) { GET_I };
-static PyObject * PVAddSynth_float(PVAddSynth *self) { GET_F };
-static PyObject * PVAddSynth_get(PVAddSynth *self) { GET_F };
 
 static PyMemberDef PVAddSynth_members[] =
 {
@@ -1471,7 +1464,6 @@ static PyMethodDef PVAddSynth_methods[] =
 {
     {"getServer", (PyCFunction)PVAddSynth_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)PVAddSynth_getStream, METH_NOARGS, "Returns stream object."},
-    {"get", (PyCFunction)PVAddSynth_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)PVAddSynth_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)PVAddSynth_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)PVAddSynth_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -1505,9 +1497,9 @@ static PyNumberMethods PVAddSynth_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    (unaryfunc)PVAddSynth_int,                       /*nb_int*/
-    0,                                        /*nb_long*/
-    (unaryfunc)PVAddSynth_float,                     /*nb_float*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
     (binaryfunc)PVAddSynth_inplace_add,                 /*inplace_add*/
     (binaryfunc)PVAddSynth_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)PVAddSynth_inplace_multiply,            /*inplace_multiply*/

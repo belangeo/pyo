@@ -184,9 +184,6 @@ static PyObject * Input_sub(Input *self, PyObject *arg) { SUB };
 static PyObject * Input_inplace_sub(Input *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Input_div(Input *self, PyObject *arg) { DIV };
 static PyObject * Input_inplace_div(Input *self, PyObject *arg) { INPLACE_DIV };
-static PyObject * Input_int(Input *self) { GET_I };
-static PyObject * Input_float(Input *self) { GET_F };
-static PyObject * Input_get(Input *self) { GET_F };
 
 static PyMemberDef Input_members[] =
 {
@@ -201,7 +198,6 @@ static PyMethodDef Input_methods[] =
 {
     {"getServer", (PyCFunction)Input_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Input_getStream, METH_NOARGS, "Returns stream object."},
-    {"get", (PyCFunction)Input_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Input_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Input_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Input_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -230,9 +226,9 @@ static PyNumberMethods Input_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    (unaryfunc)Input_int,                       /*nb_int*/
-    0,                                        /*nb_long*/
-    (unaryfunc)Input_float,                     /*nb_float*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
     (binaryfunc)Input_inplace_add,              /*inplace_add*/
     (binaryfunc)Input_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Input_inplace_multiply,         /*inplace_multiply*/

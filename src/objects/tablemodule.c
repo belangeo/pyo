@@ -6585,9 +6585,6 @@ static PyObject * TableRecTimeStream_sub(TableRecTimeStream *self, PyObject *arg
 static PyObject * TableRecTimeStream_inplace_sub(TableRecTimeStream *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * TableRecTimeStream_div(TableRecTimeStream *self, PyObject *arg) { DIV };
 static PyObject * TableRecTimeStream_inplace_div(TableRecTimeStream *self, PyObject *arg) { INPLACE_DIV };
-static PyObject * TableRecTimeStream_int(TableRecTimeStream *self) { GET_I };
-static PyObject * TableRecTimeStream_float(TableRecTimeStream *self) { GET_F };
-static PyObject * TableRecTimeStream_get(TableRecTimeStream *self) { GET_F };
 
 static PyMemberDef TableRecTimeStream_members[] =
 {
@@ -6602,7 +6599,6 @@ static PyMethodDef TableRecTimeStream_methods[] =
 {
     {"getServer", (PyCFunction)TableRecTimeStream_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)TableRecTimeStream_getStream, METH_NOARGS, "Returns stream object."},
-    {"get", (PyCFunction)TableRecTimeStream_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)TableRecTimeStream_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)TableRecTimeStream_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)TableRecTimeStream_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -6631,9 +6627,9 @@ static PyNumberMethods TableRecTimeStream_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    (unaryfunc)TableRecTimeStream_int,                       /*nb_int*/
-    0,                                        /*nb_long*/
-    (unaryfunc)TableRecTimeStream_float,                     /*nb_float*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
     (binaryfunc)TableRecTimeStream_inplace_add,                 /*inplace_add*/
     (binaryfunc)TableRecTimeStream_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)TableRecTimeStream_inplace_multiply,            /*inplace_multiply*/
@@ -7418,9 +7414,6 @@ static PyObject * TrigTableRecTimeStream_sub(TrigTableRecTimeStream *self, PyObj
 static PyObject * TrigTableRecTimeStream_inplace_sub(TrigTableRecTimeStream *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * TrigTableRecTimeStream_div(TrigTableRecTimeStream *self, PyObject *arg) { DIV };
 static PyObject * TrigTableRecTimeStream_inplace_div(TrigTableRecTimeStream *self, PyObject *arg) { INPLACE_DIV };
-static PyObject * TrigTableRecTimeStream_int(TrigTableRecTimeStream *self) { GET_I };
-static PyObject * TrigTableRecTimeStream_float(TrigTableRecTimeStream *self) { GET_F };
-static PyObject * TrigTableRecTimeStream_get(TrigTableRecTimeStream *self) { GET_F };
 
 static PyMemberDef TrigTableRecTimeStream_members[] =
 {
@@ -7435,7 +7428,6 @@ static PyMethodDef TrigTableRecTimeStream_methods[] =
 {
     {"getServer", (PyCFunction)TrigTableRecTimeStream_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)TrigTableRecTimeStream_getStream, METH_NOARGS, "Returns stream object."},
-    {"get", (PyCFunction)TrigTableRecTimeStream_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)TrigTableRecTimeStream_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)TrigTableRecTimeStream_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)TrigTableRecTimeStream_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -7464,9 +7456,9 @@ static PyNumberMethods TrigTableRecTimeStream_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    (unaryfunc)TrigTableRecTimeStream_int,                       /*nb_int*/
-    0,                                        /*nb_long*/
-    (unaryfunc)TrigTableRecTimeStream_float,                     /*nb_float*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
     (binaryfunc)TrigTableRecTimeStream_inplace_add,                 /*inplace_add*/
     (binaryfunc)TrigTableRecTimeStream_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)TrigTableRecTimeStream_inplace_multiply,            /*inplace_multiply*/

@@ -144,7 +144,7 @@ class FFT(PyoObject):
 
     def get(self, identifier="real", all=False):
         """
-        Return the last sample of the current buffer as a float.
+        Return the first sample of the current buffer as a float.
 
         Can be used to convert audio stream to usable Python data.
 
@@ -157,8 +157,8 @@ class FFT(PyoObject):
                 Address string parameter identifying audio stream.
                 Defaults to "real".
             all: boolean, optional
-                If True, the last value of each object's stream
-                will be returned as a list. Otherwise, only the last value
+                If True, the first value of each object's stream
+                will be returned as a list. Otherwise, only the value
                 of the first object's stream will be returned as a float.
                 Defaults to False.
 
@@ -552,7 +552,7 @@ class CarToPol(PyoObject):
 
     def get(self, identifier="mag", all=False):
         """
-        Return the last sample of the current buffer as a float.
+        Return the first sample of the current buffer as a float.
 
         Can be used to convert audio stream to usable Python data.
 
@@ -565,8 +565,8 @@ class CarToPol(PyoObject):
                 Address string parameter identifying audio stream.
                 Defaults to "mag".
             all: boolean, optional
-                If True, the last value of each object's stream
-                will be returned as a list. Otherwise, only the last value
+                If True, the first value of each object's stream
+                will be returned as a list. Otherwise, only the value
                 of the first object's stream will be returned as a float.
                 Defaults to False.
 
@@ -705,7 +705,7 @@ class PolToCar(PyoObject):
 
     def get(self, identifier="real", all=False):
         """
-        Return the last sample of the current buffer as a float.
+        Return the first sample of the current buffer as a float.
 
         Can be used to convert audio stream to usable Python data.
 
@@ -718,8 +718,8 @@ class PolToCar(PyoObject):
                 Address string parameter identifying audio stream.
                 Defaults to "mag".
             all: boolean, optional
-                If True, the last value of each object's stream
-                will be returned as a list. Otherwise, only the last value
+                If True, the first value of each object's stream
+                will be returned as a list. Otherwise, only the value
                 of the first object's stream will be returned as a float.
                 Defaults to False.
 

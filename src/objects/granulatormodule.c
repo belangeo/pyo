@@ -900,9 +900,6 @@ static PyObject * Granulator_sub(Granulator *self, PyObject *arg) { SUB };
 static PyObject * Granulator_inplace_sub(Granulator *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Granulator_div(Granulator *self, PyObject *arg) { DIV };
 static PyObject * Granulator_inplace_div(Granulator *self, PyObject *arg) { INPLACE_DIV };
-static PyObject * Granulator_int(Granulator *self) { GET_I };
-static PyObject * Granulator_float(Granulator *self) { GET_F };
-static PyObject * Granulator_get(Granulator *self) { GET_F };
 
 static PyObject * Granulator_setPitch(Granulator *self, PyObject *arg) { SET_PARAM(self->pitch, self->pitch_stream, 2); }
 static PyObject * Granulator_setPos(Granulator *self, PyObject *arg) { SET_PARAM(self->pos, self->pos_stream, 3); }
@@ -1007,7 +1004,6 @@ static PyMethodDef Granulator_methods[] =
     {"setEnv", (PyCFunction)Granulator_setEnv, METH_O, "Sets envelope table."},
     {"getServer", (PyCFunction)Granulator_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Granulator_getStream, METH_NOARGS, "Returns stream object."},
-    {"get", (PyCFunction)Granulator_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Granulator_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Granulator_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Granulator_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -1041,9 +1037,9 @@ static PyNumberMethods Granulator_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    (unaryfunc)Granulator_int,                       /*nb_int*/
-    0,                                        /*nb_long*/
-    (unaryfunc)Granulator_float,                     /*nb_float*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
     (binaryfunc)Granulator_inplace_add,              /*inplace_add*/
     (binaryfunc)Granulator_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Granulator_inplace_multiply,         /*inplace_multiply*/
@@ -2188,9 +2184,6 @@ static PyObject * Looper_sub(Looper *self, PyObject *arg) { SUB };
 static PyObject * Looper_inplace_sub(Looper *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Looper_div(Looper *self, PyObject *arg) { DIV };
 static PyObject * Looper_inplace_div(Looper *self, PyObject *arg) { INPLACE_DIV };
-static PyObject * Looper_int(Looper *self) { GET_I };
-static PyObject * Looper_float(Looper *self) { GET_F };
-static PyObject * Looper_get(Looper *self) { GET_F };
 
 static PyObject * Looper_setPitch(Looper *self, PyObject *arg) { SET_PARAM(self->pitch, self->pitch_stream, 2); }
 static PyObject * Looper_setStart(Looper *self, PyObject *arg) { SET_PARAM(self->start, self->start_stream, 3); }
@@ -2350,7 +2343,6 @@ static PyMethodDef Looper_methods[] =
     {"getServer", (PyCFunction)Looper_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Looper_getStream, METH_NOARGS, "Returns stream object."},
     {"_getTriggerStream", (PyCFunction)Looper_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
-    {"get", (PyCFunction)Looper_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Looper_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Looper_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Looper_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -2392,9 +2384,9 @@ static PyNumberMethods Looper_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    (unaryfunc)Looper_int,                       /*nb_int*/
-    0,                                        /*nb_long*/
-    (unaryfunc)Looper_float,                     /*nb_float*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
     (binaryfunc)Looper_inplace_add,              /*inplace_add*/
     (binaryfunc)Looper_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Looper_inplace_multiply,         /*inplace_multiply*/
@@ -2606,9 +2598,6 @@ static PyObject * LooperTimeStream_sub(LooperTimeStream *self, PyObject *arg) { 
 static PyObject * LooperTimeStream_inplace_sub(LooperTimeStream *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * LooperTimeStream_div(LooperTimeStream *self, PyObject *arg) { DIV };
 static PyObject * LooperTimeStream_inplace_div(LooperTimeStream *self, PyObject *arg) { INPLACE_DIV };
-static PyObject * LooperTimeStream_int(LooperTimeStream *self) { GET_I };
-static PyObject * LooperTimeStream_float(LooperTimeStream *self) { GET_F };
-static PyObject * LooperTimeStream_get(LooperTimeStream *self) { GET_F };
 
 static PyMemberDef LooperTimeStream_members[] =
 {
@@ -2623,7 +2612,6 @@ static PyMethodDef LooperTimeStream_methods[] =
 {
     {"getServer", (PyCFunction)LooperTimeStream_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)LooperTimeStream_getStream, METH_NOARGS, "Returns stream object."},
-    {"get", (PyCFunction)LooperTimeStream_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)LooperTimeStream_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)LooperTimeStream_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)LooperTimeStream_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -2652,9 +2640,9 @@ static PyNumberMethods LooperTimeStream_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    (unaryfunc)LooperTimeStream_int,                       /*nb_int*/
-    0,                                        /*nb_long*/
-    (unaryfunc)LooperTimeStream_float,                     /*nb_float*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
     (binaryfunc)LooperTimeStream_inplace_add,                 /*inplace_add*/
     (binaryfunc)LooperTimeStream_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)LooperTimeStream_inplace_multiply,            /*inplace_multiply*/
@@ -3210,9 +3198,6 @@ static PyObject * Granule_sub(Granule *self, PyObject *arg) { SUB };
 static PyObject * Granule_inplace_sub(Granule *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Granule_div(Granule *self, PyObject *arg) { DIV };
 static PyObject * Granule_inplace_div(Granule *self, PyObject *arg) { INPLACE_DIV };
-static PyObject * Granule_int(Granule *self) { GET_I };
-static PyObject * Granule_float(Granule *self) { GET_F };
-static PyObject * Granule_get(Granule *self) { GET_F };
 
 static PyObject * Granule_setDens(Granule *self, PyObject *arg) { SET_PARAM(self->dens, self->dens_stream, 2); }
 static PyObject * Granule_setPitch(Granule *self, PyObject *arg) { SET_PARAM(self->pitch, self->pitch_stream, 3); }
@@ -3294,7 +3279,6 @@ static PyMethodDef Granule_methods[] =
     {"setEnv", (PyCFunction)Granule_setEnv, METH_O, "Sets envelope table."},
     {"getServer", (PyCFunction)Granule_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Granule_getStream, METH_NOARGS, "Returns stream object."},
-    {"get", (PyCFunction)Granule_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Granule_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Granule_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Granule_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -3328,9 +3312,9 @@ static PyNumberMethods Granule_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    (unaryfunc)Granule_int,                       /*nb_int*/
-    0,                                        /*nb_long*/
-    (unaryfunc)Granule_float,                     /*nb_float*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
     (binaryfunc)Granule_inplace_add,              /*inplace_add*/
     (binaryfunc)Granule_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Granule_inplace_multiply,         /*inplace_multiply*/
@@ -4516,9 +4500,6 @@ static PyObject * Particle_sub(Particle *self, PyObject *arg) { SUB };
 static PyObject * Particle_inplace_sub(Particle *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Particle_div(Particle *self, PyObject *arg) { DIV };
 static PyObject * Particle_inplace_div(Particle *self, PyObject *arg) { INPLACE_DIV };
-static PyObject * Particle_int(Particle *self) { GET_I };
-static PyObject * Particle_float(Particle *self) { GET_F };
-static PyObject * Particle_get(Particle *self) { GET_F };
 
 static PyMemberDef Particle_members[] =
 {
@@ -4533,7 +4514,6 @@ static PyMethodDef Particle_methods[] =
 {
     {"getServer", (PyCFunction)Particle_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Particle_getStream, METH_NOARGS, "Returns stream object."},
-    {"get", (PyCFunction)Particle_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Particle_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Particle_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Particle_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -4562,9 +4542,9 @@ static PyNumberMethods Particle_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    (unaryfunc)Particle_int,                       /*nb_int*/
-    0,                                        /*nb_long*/
-    (unaryfunc)Particle_float,                     /*nb_float*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
     (binaryfunc)Particle_inplace_add,              /*inplace_add*/
     (binaryfunc)Particle_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Particle_inplace_multiply,         /*inplace_multiply*/
@@ -6169,9 +6149,6 @@ static PyObject * Particle2_sub(Particle2 *self, PyObject *arg) { SUB };
 static PyObject * Particle2_inplace_sub(Particle2 *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Particle2_div(Particle2 *self, PyObject *arg) { DIV };
 static PyObject * Particle2_inplace_div(Particle2 *self, PyObject *arg) { INPLACE_DIV };
-static PyObject * Particle2_int(Particle2 *self) { GET_I };
-static PyObject * Particle2_float(Particle2 *self) { GET_F };
-static PyObject * Particle2_get(Particle2 *self) { GET_F };
 
 static PyMemberDef Particle2_members[] =
 {
@@ -6186,7 +6163,6 @@ static PyMethodDef Particle2_methods[] =
 {
     {"getServer", (PyCFunction)Particle2_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Particle2_getStream, METH_NOARGS, "Returns stream object."},
-    {"get", (PyCFunction)Particle2_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Particle2_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Particle2_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Particle2_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -6215,9 +6191,9 @@ static PyNumberMethods Particle2_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    (unaryfunc)Particle2_int,                       /*nb_int*/
-    0,                                        /*nb_long*/
-    (unaryfunc)Particle2_float,                     /*nb_float*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
     (binaryfunc)Particle2_inplace_add,              /*inplace_add*/
     (binaryfunc)Particle2_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Particle2_inplace_multiply,         /*inplace_multiply*/

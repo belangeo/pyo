@@ -1688,13 +1688,6 @@ extern PyTypeObject MMLZStreamType;
     Py_INCREF(self->pv_stream); \
     return (PyObject *)self->pv_stream;
 
-// *_base object's get() method.
-#define GET_F \
-    return PyFloat_FromDouble(self->data[self->bufsize - 1]);
-
-#define GET_I \
-    return PyLong_FromDouble(self->data[self->bufsize - 1]);
-
 #define SET_MUL \
     if (arg == NULL) { \
         Py_RETURN_NONE; \

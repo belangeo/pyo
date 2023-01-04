@@ -192,7 +192,6 @@ Dummy_setInput(Dummy *self, PyObject *arg)
 
 static PyObject * Dummy_getServer(Dummy* self) { GET_SERVER };
 static PyObject * Dummy_getStream(Dummy* self) { GET_STREAM };
-static PyObject * Dummy_get(Dummy *self) { GET_F };
 static PyObject * Dummy_setMul(Dummy *self, PyObject *arg) { SET_MUL };
 static PyObject * Dummy_setAdd(Dummy *self, PyObject *arg) { SET_ADD };
 static PyObject * Dummy_setSub(Dummy *self, PyObject *arg) { SET_SUB };
@@ -210,8 +209,6 @@ static PyObject * Dummy_sub(Dummy *self, PyObject *arg) { SUB };
 static PyObject * Dummy_inplace_sub(Dummy *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Dummy_div(Dummy *self, PyObject *arg) { DIV };
 static PyObject * Dummy_inplace_div(Dummy *self, PyObject *arg) { INPLACE_DIV };
-static PyObject * Dummy_int(Dummy *self) { GET_I };
-static PyObject * Dummy_float(Dummy *self) { GET_F };
 
 static PyMemberDef Dummy_members[] =
 {
@@ -227,7 +224,6 @@ static PyMethodDef Dummy_methods[] =
 {
     {"getServer", (PyCFunction)Dummy_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Dummy_getStream, METH_NOARGS, "Returns stream object."},
-    {"get", (PyCFunction)Dummy_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Dummy_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Dummy_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Dummy_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -258,9 +254,9 @@ static PyNumberMethods Dummy_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    (unaryfunc)Dummy_int,                       /*nb_int*/
-    0,                                        /*nb_long*/
-    (unaryfunc)Dummy_float,                     /*nb_float*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
     (binaryfunc)Dummy_inplace_add,                 /*inplace_add*/
     (binaryfunc)Dummy_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Dummy_inplace_multiply,            /*inplace_multiply*/
@@ -457,7 +453,6 @@ TriggerDummy_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * TriggerDummy_getServer(TriggerDummy* self) { GET_SERVER };
 static PyObject * TriggerDummy_getStream(TriggerDummy* self) { GET_STREAM };
-static PyObject * TriggerDummy_get(TriggerDummy *self) { GET_F };
 static PyObject * TriggerDummy_setMul(TriggerDummy *self, PyObject *arg) { SET_MUL };
 static PyObject * TriggerDummy_setAdd(TriggerDummy *self, PyObject *arg) { SET_ADD };
 static PyObject * TriggerDummy_setSub(TriggerDummy *self, PyObject *arg) { SET_SUB };
@@ -474,8 +469,6 @@ static PyObject * TriggerDummy_sub(TriggerDummy *self, PyObject *arg) { SUB };
 static PyObject * TriggerDummy_inplace_sub(TriggerDummy *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * TriggerDummy_div(TriggerDummy *self, PyObject *arg) { DIV };
 static PyObject * TriggerDummy_inplace_div(TriggerDummy *self, PyObject *arg) { INPLACE_DIV };
-static PyObject * TriggerDummy_int(TriggerDummy *self) { GET_I };
-static PyObject * TriggerDummy_float(TriggerDummy *self) { GET_F };
 
 static PyMemberDef TriggerDummy_members[] =
 {
@@ -490,7 +483,6 @@ static PyMethodDef TriggerDummy_methods[] =
 {
     {"getServer", (PyCFunction)TriggerDummy_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)TriggerDummy_getStream, METH_NOARGS, "Returns stream object."},
-    {"get", (PyCFunction)TriggerDummy_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)TriggerDummy_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)TriggerDummy_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setMul", (PyCFunction)TriggerDummy_setMul, METH_O, "Sets oscillator mul factor."},
@@ -517,9 +509,9 @@ static PyNumberMethods TriggerDummy_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    (unaryfunc)TriggerDummy_int,                       /*nb_int*/
-    0,                                        /*nb_long*/
-    (unaryfunc)TriggerDummy_float,                     /*nb_float*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
     (binaryfunc)TriggerDummy_inplace_add,                 /*inplace_add*/
     (binaryfunc)TriggerDummy_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)TriggerDummy_inplace_multiply,            /*inplace_multiply*/

@@ -472,9 +472,6 @@ static PyObject * OscReceive_sub(OscReceive *self, PyObject *arg) { SUB };
 static PyObject * OscReceive_inplace_sub(OscReceive *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * OscReceive_div(OscReceive *self, PyObject *arg) { DIV };
 static PyObject * OscReceive_inplace_div(OscReceive *self, PyObject *arg) { INPLACE_DIV };
-static PyObject * OscReceive_int(OscReceive *self) { GET_I };
-static PyObject * OscReceive_float(OscReceive *self) { GET_F };
-static PyObject * OscReceive_get(OscReceive *self) { GET_F };
 
 static PyMemberDef OscReceive_members[] =
 {
@@ -489,7 +486,6 @@ static PyMethodDef OscReceive_methods[] =
 {
     {"getServer", (PyCFunction)OscReceive_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)OscReceive_getStream, METH_NOARGS, "Returns stream object."},
-    {"get", (PyCFunction)OscReceive_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)OscReceive_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)OscReceive_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setInterpolation", (PyCFunction)OscReceive_setInterpolation, METH_O, "Sets interpolation on or off."},
@@ -518,9 +514,9 @@ static PyNumberMethods OscReceive_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    (unaryfunc)OscReceive_int,                       /*nb_int*/
-    0,                                        /*nb_long*/
-    (unaryfunc)OscReceive_float,                     /*nb_float*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
     (binaryfunc)OscReceive_inplace_add,              /*inplace_add*/
     (binaryfunc)OscReceive_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)OscReceive_inplace_multiply,         /*inplace_multiply*/
@@ -1847,9 +1843,6 @@ static PyObject * OscListReceive_sub(OscListReceive *self, PyObject *arg) { SUB 
 static PyObject * OscListReceive_inplace_sub(OscListReceive *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * OscListReceive_div(OscListReceive *self, PyObject *arg) { DIV };
 static PyObject * OscListReceive_inplace_div(OscListReceive *self, PyObject *arg) { INPLACE_DIV };
-static PyObject * OscListReceive_int(OscListReceive *self) { GET_I };
-static PyObject * OscListReceive_float(OscListReceive *self) { GET_F };
-static PyObject * OscListReceive_get(OscListReceive *self) { GET_F };
 
 static PyMemberDef OscListReceive_members[] =
 {
@@ -1864,7 +1857,6 @@ static PyMethodDef OscListReceive_methods[] =
 {
     {"getServer", (PyCFunction)OscListReceive_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)OscListReceive_getStream, METH_NOARGS, "Returns stream object."},
-    {"get", (PyCFunction)OscListReceive_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)OscListReceive_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)OscListReceive_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setInterpolation", (PyCFunction)OscListReceive_setInterpolation, METH_O, "Sets interpolation on or off."},
@@ -1893,9 +1885,9 @@ static PyNumberMethods OscListReceive_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    (unaryfunc)OscListReceive_int,                       /*nb_int*/
-    0,                                        /*nb_long*/
-    (unaryfunc)OscListReceive_float,                     /*nb_float*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
     (binaryfunc)OscListReceive_inplace_add,              /*inplace_add*/
     (binaryfunc)OscListReceive_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)OscListReceive_inplace_multiply,         /*inplace_multiply*/

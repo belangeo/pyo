@@ -262,9 +262,6 @@ static PyObject * Metro_sub(Metro *self, PyObject *arg) { SUB };
 static PyObject * Metro_inplace_sub(Metro *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Metro_div(Metro *self, PyObject *arg) { DIV };
 static PyObject * Metro_inplace_div(Metro *self, PyObject *arg) { INPLACE_DIV };
-static PyObject * Metro_int(Metro *self) { GET_I };
-static PyObject * Metro_float(Metro *self) { GET_F };
-static PyObject * Metro_get(Metro *self) { GET_F };
 
 static PyObject * Metro_setTime(Metro *self, PyObject *arg) { SET_PARAM(self->time, self->time_stream, 2); }
 
@@ -282,7 +279,6 @@ static PyMethodDef Metro_methods[] =
 {
     {"getServer", (PyCFunction)Metro_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Metro_getStream, METH_NOARGS, "Returns stream object."},
-    {"get", (PyCFunction)Metro_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Metro_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)Metro_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setTime", (PyCFunction)Metro_setTime, METH_O, "Sets time factor."},
@@ -311,9 +307,9 @@ static PyNumberMethods Metro_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    (unaryfunc)Metro_int,                       /*nb_int*/
-    0,                                        /*nb_long*/
-    (unaryfunc)Metro_float,                     /*nb_float*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
     (binaryfunc)Metro_inplace_add,                 /*inplace_add*/
     (binaryfunc)Metro_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Metro_inplace_multiply,            /*inplace_multiply*/
@@ -1027,9 +1023,6 @@ static PyObject * Seq_sub(Seq *self, PyObject *arg) { SUB };
 static PyObject * Seq_inplace_sub(Seq *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Seq_div(Seq *self, PyObject *arg) { DIV };
 static PyObject * Seq_inplace_div(Seq *self, PyObject *arg) { INPLACE_DIV };
-static PyObject * Seq_int(Seq *self) { GET_I };
-static PyObject * Seq_float(Seq *self) { GET_F };
-static PyObject * Seq_get(Seq *self) { GET_F };
 
 static PyMemberDef Seq_members[] =
 {
@@ -1044,7 +1037,6 @@ static PyMethodDef Seq_methods[] =
 {
     {"getServer", (PyCFunction)Seq_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Seq_getStream, METH_NOARGS, "Returns stream object."},
-    {"get", (PyCFunction)Seq_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Seq_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Seq_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Seq_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -1073,9 +1065,9 @@ static PyNumberMethods Seq_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    (unaryfunc)Seq_int,                       /*nb_int*/
-    0,                                        /*nb_long*/
-    (unaryfunc)Seq_float,                     /*nb_float*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
     (binaryfunc)Seq_inplace_add,                 /*inplace_add*/
     (binaryfunc)Seq_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Seq_inplace_multiply,            /*inplace_multiply*/
@@ -1540,9 +1532,6 @@ static PyObject * Cloud_sub(Cloud *self, PyObject *arg) { SUB };
 static PyObject * Cloud_inplace_sub(Cloud *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Cloud_div(Cloud *self, PyObject *arg) { DIV };
 static PyObject * Cloud_inplace_div(Cloud *self, PyObject *arg) { INPLACE_DIV };
-static PyObject * Cloud_int(Cloud *self) { GET_I };
-static PyObject * Cloud_float(Cloud *self) { GET_F };
-static PyObject * Cloud_get(Cloud *self) { GET_F };
 
 static PyMemberDef Cloud_members[] =
 {
@@ -1557,7 +1546,6 @@ static PyMethodDef Cloud_methods[] =
 {
     {"getServer", (PyCFunction)Cloud_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Cloud_getStream, METH_NOARGS, "Returns stream object."},
-    {"get", (PyCFunction)Cloud_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Cloud_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Cloud_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Cloud_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -1586,9 +1574,9 @@ static PyNumberMethods Cloud_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    (unaryfunc)Cloud_int,                       /*nb_int*/
-    0,                                        /*nb_long*/
-    (unaryfunc)Cloud_float,                     /*nb_float*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
     (binaryfunc)Cloud_inplace_add,                 /*inplace_add*/
     (binaryfunc)Cloud_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Cloud_inplace_multiply,            /*inplace_multiply*/
@@ -1801,9 +1789,6 @@ static PyObject * Trig_sub(Trig *self, PyObject *arg) { SUB };
 static PyObject * Trig_inplace_sub(Trig *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Trig_div(Trig *self, PyObject *arg) { DIV };
 static PyObject * Trig_inplace_div(Trig *self, PyObject *arg) { INPLACE_DIV };
-static PyObject * Trig_int(Trig *self) { GET_I };
-static PyObject * Trig_float(Trig *self) { GET_F };
-static PyObject * Trig_get(Trig *self) { GET_F };
 
 static PyMemberDef Trig_members[] =
 {
@@ -1818,7 +1803,6 @@ static PyMethodDef Trig_methods[] =
 {
     {"getServer", (PyCFunction)Trig_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Trig_getStream, METH_NOARGS, "Returns stream object."},
-    {"get", (PyCFunction)Trig_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Trig_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)Trig_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
     {"setMul", (PyCFunction)Trig_setMul, METH_O, "Sets oscillator mul factor."},
@@ -1846,9 +1830,9 @@ static PyNumberMethods Trig_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    (unaryfunc)Trig_int,                       /*nb_int*/
-    0,                                        /*nb_long*/
-    (unaryfunc)Trig_float,                     /*nb_float*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
     (binaryfunc)Trig_inplace_add,                 /*inplace_add*/
     (binaryfunc)Trig_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Trig_inplace_multiply,            /*inplace_multiply*/
@@ -3011,9 +2995,6 @@ static PyObject * Beat_sub(Beat *self, PyObject *arg) { SUB };
 static PyObject * Beat_inplace_sub(Beat *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Beat_div(Beat *self, PyObject *arg) { DIV };
 static PyObject * Beat_inplace_div(Beat *self, PyObject *arg) { INPLACE_DIV };
-static PyObject * Beat_int(Beat *self) { GET_I };
-static PyObject * Beat_float(Beat *self) { GET_F };
-static PyObject * Beat_get(Beat *self) { GET_F };
 
 static PyMemberDef Beat_members[] =
 {
@@ -3028,7 +3009,6 @@ static PyMethodDef Beat_methods[] =
 {
     {"getServer", (PyCFunction)Beat_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Beat_getStream, METH_NOARGS, "Returns stream object."},
-    {"get", (PyCFunction)Beat_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Beat_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Beat_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Beat_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -3057,9 +3037,9 @@ static PyNumberMethods Beat_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    (unaryfunc)Beat_int,                       /*nb_int*/
-    0,                                        /*nb_long*/
-    (unaryfunc)Beat_float,                     /*nb_float*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
     (binaryfunc)Beat_inplace_add,                 /*inplace_add*/
     (binaryfunc)Beat_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Beat_inplace_multiply,            /*inplace_multiply*/
@@ -3277,9 +3257,6 @@ static PyObject * BeatTapStream_sub(BeatTapStream *self, PyObject *arg) { SUB };
 static PyObject * BeatTapStream_inplace_sub(BeatTapStream *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * BeatTapStream_div(BeatTapStream *self, PyObject *arg) { DIV };
 static PyObject * BeatTapStream_inplace_div(BeatTapStream *self, PyObject *arg) { INPLACE_DIV };
-static PyObject * BeatTapStream_int(BeatTapStream *self) { GET_I };
-static PyObject * BeatTapStream_float(BeatTapStream *self) { GET_F };
-static PyObject * BeatTapStream_get(BeatTapStream *self) { GET_F };
 
 static PyMemberDef BeatTapStream_members[] =
 {
@@ -3294,7 +3271,6 @@ static PyMethodDef BeatTapStream_methods[] =
 {
     {"getServer", (PyCFunction)BeatTapStream_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)BeatTapStream_getStream, METH_NOARGS, "Returns stream object."},
-    {"get", (PyCFunction)BeatTapStream_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)BeatTapStream_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)BeatTapStream_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)BeatTapStream_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -3323,9 +3299,9 @@ static PyNumberMethods BeatTapStream_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    (unaryfunc)BeatTapStream_int,                       /*nb_int*/
-    0,                                        /*nb_long*/
-    (unaryfunc)BeatTapStream_float,                     /*nb_float*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
     (binaryfunc)BeatTapStream_inplace_add,                 /*inplace_add*/
     (binaryfunc)BeatTapStream_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)BeatTapStream_inplace_multiply,            /*inplace_multiply*/
@@ -3543,9 +3519,6 @@ static PyObject * BeatAmpStream_sub(BeatAmpStream *self, PyObject *arg) { SUB };
 static PyObject * BeatAmpStream_inplace_sub(BeatAmpStream *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * BeatAmpStream_div(BeatAmpStream *self, PyObject *arg) { DIV };
 static PyObject * BeatAmpStream_inplace_div(BeatAmpStream *self, PyObject *arg) { INPLACE_DIV };
-static PyObject * BeatAmpStream_int(BeatAmpStream *self) { GET_I };
-static PyObject * BeatAmpStream_float(BeatAmpStream *self) { GET_F };
-static PyObject * BeatAmpStream_get(BeatAmpStream *self) { GET_F };
 
 static PyMemberDef BeatAmpStream_members[] =
 {
@@ -3560,7 +3533,6 @@ static PyMethodDef BeatAmpStream_methods[] =
 {
     {"getServer", (PyCFunction)BeatAmpStream_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)BeatAmpStream_getStream, METH_NOARGS, "Returns stream object."},
-    {"get", (PyCFunction)BeatAmpStream_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)BeatAmpStream_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)BeatAmpStream_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)BeatAmpStream_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -3589,9 +3561,9 @@ static PyNumberMethods BeatAmpStream_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    (unaryfunc)BeatAmpStream_int,                       /*nb_int*/
-    0,                                        /*nb_long*/
-    (unaryfunc)BeatAmpStream_float,                     /*nb_float*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
     (binaryfunc)BeatAmpStream_inplace_add,                 /*inplace_add*/
     (binaryfunc)BeatAmpStream_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)BeatAmpStream_inplace_multiply,            /*inplace_multiply*/
@@ -3809,9 +3781,6 @@ static PyObject * BeatDurStream_sub(BeatDurStream *self, PyObject *arg) { SUB };
 static PyObject * BeatDurStream_inplace_sub(BeatDurStream *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * BeatDurStream_div(BeatDurStream *self, PyObject *arg) { DIV };
 static PyObject * BeatDurStream_inplace_div(BeatDurStream *self, PyObject *arg) { INPLACE_DIV };
-static PyObject * BeatDurStream_int(BeatDurStream *self) { GET_I };
-static PyObject * BeatDurStream_float(BeatDurStream *self) { GET_F };
-static PyObject * BeatDurStream_get(BeatDurStream *self) { GET_F };
 
 static PyMemberDef BeatDurStream_members[] =
 {
@@ -3826,7 +3795,6 @@ static PyMethodDef BeatDurStream_methods[] =
 {
     {"getServer", (PyCFunction)BeatDurStream_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)BeatDurStream_getStream, METH_NOARGS, "Returns stream object."},
-    {"get", (PyCFunction)BeatDurStream_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)BeatDurStream_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)BeatDurStream_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)BeatDurStream_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -3855,9 +3823,9 @@ static PyNumberMethods BeatDurStream_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    (unaryfunc)BeatDurStream_int,                       /*nb_int*/
-    0,                                        /*nb_long*/
-    (unaryfunc)BeatDurStream_float,                     /*nb_float*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
     (binaryfunc)BeatDurStream_inplace_add,                 /*inplace_add*/
     (binaryfunc)BeatDurStream_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)BeatDurStream_inplace_multiply,            /*inplace_multiply*/
@@ -4075,9 +4043,6 @@ static PyObject * BeatEndStream_sub(BeatEndStream *self, PyObject *arg) { SUB };
 static PyObject * BeatEndStream_inplace_sub(BeatEndStream *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * BeatEndStream_div(BeatEndStream *self, PyObject *arg) { DIV };
 static PyObject * BeatEndStream_inplace_div(BeatEndStream *self, PyObject *arg) { INPLACE_DIV };
-static PyObject * BeatEndStream_int(BeatEndStream *self) { GET_I };
-static PyObject * BeatEndStream_float(BeatEndStream *self) { GET_F };
-static PyObject * BeatEndStream_get(BeatEndStream *self) { GET_F };
 
 static PyMemberDef BeatEndStream_members[] =
 {
@@ -4092,7 +4057,6 @@ static PyMethodDef BeatEndStream_methods[] =
 {
     {"getServer", (PyCFunction)BeatEndStream_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)BeatEndStream_getStream, METH_NOARGS, "Returns stream object."},
-    {"get", (PyCFunction)BeatEndStream_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)BeatEndStream_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)BeatEndStream_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)BeatEndStream_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -4121,9 +4085,9 @@ static PyNumberMethods BeatEndStream_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    (unaryfunc)BeatEndStream_int,                       /*nb_int*/
-    0,                                        /*nb_long*/
-    (unaryfunc)BeatEndStream_float,                     /*nb_float*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
     (binaryfunc)BeatEndStream_inplace_add,                 /*inplace_add*/
     (binaryfunc)BeatEndStream_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)BeatEndStream_inplace_multiply,            /*inplace_multiply*/
@@ -4690,9 +4654,6 @@ static PyObject * TrigBurst_sub(TrigBurst *self, PyObject *arg) { SUB };
 static PyObject * TrigBurst_inplace_sub(TrigBurst *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * TrigBurst_div(TrigBurst *self, PyObject *arg) { DIV };
 static PyObject * TrigBurst_inplace_div(TrigBurst *self, PyObject *arg) { INPLACE_DIV };
-static PyObject * TrigBurst_int(TrigBurst *self) { GET_I };
-static PyObject * TrigBurst_float(TrigBurst *self) { GET_F };
-static PyObject * TrigBurst_get(TrigBurst *self) { GET_F };
 
 static PyMemberDef TrigBurst_members[] =
 {
@@ -4707,7 +4668,6 @@ static PyMethodDef TrigBurst_methods[] =
 {
     {"getServer", (PyCFunction)TrigBurst_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)TrigBurst_getStream, METH_NOARGS, "Returns stream object."},
-    {"get", (PyCFunction)TrigBurst_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)TrigBurst_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)TrigBurst_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)TrigBurst_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -4736,9 +4696,9 @@ static PyNumberMethods TrigBurst_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    (unaryfunc)TrigBurst_int,                       /*nb_int*/
-    0,                                        /*nb_long*/
-    (unaryfunc)TrigBurst_float,                     /*nb_float*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
     (binaryfunc)TrigBurst_inplace_add,                 /*inplace_add*/
     (binaryfunc)TrigBurst_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)TrigBurst_inplace_multiply,            /*inplace_multiply*/
@@ -4956,9 +4916,6 @@ static PyObject * TrigBurstTapStream_sub(TrigBurstTapStream *self, PyObject *arg
 static PyObject * TrigBurstTapStream_inplace_sub(TrigBurstTapStream *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * TrigBurstTapStream_div(TrigBurstTapStream *self, PyObject *arg) { DIV };
 static PyObject * TrigBurstTapStream_inplace_div(TrigBurstTapStream *self, PyObject *arg) { INPLACE_DIV };
-static PyObject * TrigBurstTapStream_int(TrigBurstTapStream *self) { GET_I };
-static PyObject * TrigBurstTapStream_float(TrigBurstTapStream *self) { GET_F };
-static PyObject * TrigBurstTapStream_get(TrigBurstTapStream *self) { GET_F };
 
 static PyMemberDef TrigBurstTapStream_members[] =
 {
@@ -4973,7 +4930,6 @@ static PyMethodDef TrigBurstTapStream_methods[] =
 {
     {"getServer", (PyCFunction)TrigBurstTapStream_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)TrigBurstTapStream_getStream, METH_NOARGS, "Returns stream object."},
-    {"get", (PyCFunction)TrigBurstTapStream_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)TrigBurstTapStream_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)TrigBurstTapStream_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)TrigBurstTapStream_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -5002,9 +4958,9 @@ static PyNumberMethods TrigBurstTapStream_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    (unaryfunc)TrigBurstTapStream_int,                       /*nb_int*/
-    0,                                        /*nb_long*/
-    (unaryfunc)TrigBurstTapStream_float,                     /*nb_float*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
     (binaryfunc)TrigBurstTapStream_inplace_add,                 /*inplace_add*/
     (binaryfunc)TrigBurstTapStream_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)TrigBurstTapStream_inplace_multiply,            /*inplace_multiply*/
@@ -5222,9 +5178,6 @@ static PyObject * TrigBurstAmpStream_sub(TrigBurstAmpStream *self, PyObject *arg
 static PyObject * TrigBurstAmpStream_inplace_sub(TrigBurstAmpStream *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * TrigBurstAmpStream_div(TrigBurstAmpStream *self, PyObject *arg) { DIV };
 static PyObject * TrigBurstAmpStream_inplace_div(TrigBurstAmpStream *self, PyObject *arg) { INPLACE_DIV };
-static PyObject * TrigBurstAmpStream_int(TrigBurstAmpStream *self) { GET_I };
-static PyObject * TrigBurstAmpStream_float(TrigBurstAmpStream *self) { GET_F };
-static PyObject * TrigBurstAmpStream_get(TrigBurstAmpStream *self) { GET_F };
 
 static PyMemberDef TrigBurstAmpStream_members[] =
 {
@@ -5239,7 +5192,6 @@ static PyMethodDef TrigBurstAmpStream_methods[] =
 {
     {"getServer", (PyCFunction)TrigBurstAmpStream_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)TrigBurstAmpStream_getStream, METH_NOARGS, "Returns stream object."},
-    {"get", (PyCFunction)TrigBurstAmpStream_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)TrigBurstAmpStream_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)TrigBurstAmpStream_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)TrigBurstAmpStream_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -5268,9 +5220,9 @@ static PyNumberMethods TrigBurstAmpStream_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    (unaryfunc)TrigBurstAmpStream_int,                       /*nb_int*/
-    0,                                        /*nb_long*/
-    (unaryfunc)TrigBurstAmpStream_float,                     /*nb_float*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
     (binaryfunc)TrigBurstAmpStream_inplace_add,                 /*inplace_add*/
     (binaryfunc)TrigBurstAmpStream_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)TrigBurstAmpStream_inplace_multiply,            /*inplace_multiply*/
@@ -5488,9 +5440,6 @@ static PyObject * TrigBurstDurStream_sub(TrigBurstDurStream *self, PyObject *arg
 static PyObject * TrigBurstDurStream_inplace_sub(TrigBurstDurStream *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * TrigBurstDurStream_div(TrigBurstDurStream *self, PyObject *arg) { DIV };
 static PyObject * TrigBurstDurStream_inplace_div(TrigBurstDurStream *self, PyObject *arg) { INPLACE_DIV };
-static PyObject * TrigBurstDurStream_int(TrigBurstDurStream *self) { GET_I };
-static PyObject * TrigBurstDurStream_float(TrigBurstDurStream *self) { GET_F };
-static PyObject * TrigBurstDurStream_get(TrigBurstDurStream *self) { GET_F };
 
 static PyMemberDef TrigBurstDurStream_members[] =
 {
@@ -5505,7 +5454,6 @@ static PyMethodDef TrigBurstDurStream_methods[] =
 {
     {"getServer", (PyCFunction)TrigBurstDurStream_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)TrigBurstDurStream_getStream, METH_NOARGS, "Returns stream object."},
-    {"get", (PyCFunction)TrigBurstDurStream_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)TrigBurstDurStream_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)TrigBurstDurStream_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)TrigBurstDurStream_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -5534,9 +5482,9 @@ static PyNumberMethods TrigBurstDurStream_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    (unaryfunc)TrigBurstDurStream_int,                       /*nb_int*/
-    0,                                        /*nb_long*/
-    (unaryfunc)TrigBurstDurStream_float,                     /*nb_float*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
     (binaryfunc)TrigBurstDurStream_inplace_add,                 /*inplace_add*/
     (binaryfunc)TrigBurstDurStream_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)TrigBurstDurStream_inplace_multiply,            /*inplace_multiply*/
@@ -5754,9 +5702,6 @@ static PyObject * TrigBurstEndStream_sub(TrigBurstEndStream *self, PyObject *arg
 static PyObject * TrigBurstEndStream_inplace_sub(TrigBurstEndStream *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * TrigBurstEndStream_div(TrigBurstEndStream *self, PyObject *arg) { DIV };
 static PyObject * TrigBurstEndStream_inplace_div(TrigBurstEndStream *self, PyObject *arg) { INPLACE_DIV };
-static PyObject * TrigBurstEndStream_int(TrigBurstEndStream *self) { GET_I };
-static PyObject * TrigBurstEndStream_float(TrigBurstEndStream *self) { GET_F };
-static PyObject * TrigBurstEndStream_get(TrigBurstEndStream *self) { GET_F };
 
 static PyMemberDef TrigBurstEndStream_members[] =
 {
@@ -5771,7 +5716,6 @@ static PyMethodDef TrigBurstEndStream_methods[] =
 {
     {"getServer", (PyCFunction)TrigBurstEndStream_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)TrigBurstEndStream_getStream, METH_NOARGS, "Returns stream object."},
-    {"get", (PyCFunction)TrigBurstEndStream_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)TrigBurstEndStream_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)TrigBurstEndStream_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)TrigBurstEndStream_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -5800,9 +5744,9 @@ static PyNumberMethods TrigBurstEndStream_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    (unaryfunc)TrigBurstEndStream_int,                       /*nb_int*/
-    0,                                        /*nb_long*/
-    (unaryfunc)TrigBurstEndStream_float,                     /*nb_float*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
     (binaryfunc)TrigBurstEndStream_inplace_add,                 /*inplace_add*/
     (binaryfunc)TrigBurstEndStream_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)TrigBurstEndStream_inplace_multiply,            /*inplace_multiply*/

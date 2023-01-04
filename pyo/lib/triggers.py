@@ -561,7 +561,7 @@ class Beat(PyoObject):
 
     def get(self, identifier="amp", all=False):
         """
-        Return the last sample of the current buffer as a float.
+        Return the first sample of the current buffer as a float.
 
         Can be used to convert audio stream to usable Python data.
 
@@ -574,10 +574,10 @@ class Beat(PyoObject):
                 Address string parameter identifying audio stream.
                 Defaults to "amp".
             all: boolean, optional
-                If True, the last value of each object's stream
+                If True, the first value of each object's stream
                 will be returned as a list.
 
-                If False, only the last value of the first object's
+                If False, only the value of the first object's
                 stream will be returned as a float.
 
         """
@@ -3751,7 +3751,7 @@ class Euclide(PyoObject):
 
     def get(self, identifier="amp", all=False):
         """
-        Return the last sample of the current buffer as a float.
+        Return the first sample of the current buffer as a float.
 
         Can be used to convert audio stream to usable Python data.
 
@@ -3764,10 +3764,10 @@ class Euclide(PyoObject):
                 Address string parameter identifying audio stream.
                 Defaults to "amp".
             all: boolean, optional
-                If True, the last value of each object's stream
+                If True, the first value of each object's stream
                 will be returned as a list.
 
-                If False, only the last value of the first object's
+                If False, only the value of the first object's
                 stream will be returned as a float.
 
         """
@@ -4015,7 +4015,7 @@ class TrigBurst(PyoObject):
 
     def get(self, identifier="amp", all=False):
         """
-        Return the last sample of the current buffer as a float.
+        Return the first sample of the current buffer as a float.
 
         Can be used to convert audio stream to usable Python data.
 
@@ -4028,10 +4028,10 @@ class TrigBurst(PyoObject):
                 Address string parameter identifying audio stream.
                 Defaults to "amp".
             all: boolean, optional
-                If True, the last value of each object's stream
+                If True, the first value of each object's stream
                 will be returned as a list.
 
-                If False, only the last value of the first object's
+                If False, only the value of the first object's
                 stream will be returned as a float.
 
         """

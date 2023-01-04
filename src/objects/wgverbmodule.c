@@ -663,9 +663,6 @@ static PyObject * WGVerb_sub(WGVerb *self, PyObject *arg) { SUB };
 static PyObject * WGVerb_inplace_sub(WGVerb *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * WGVerb_div(WGVerb *self, PyObject *arg) { DIV };
 static PyObject * WGVerb_inplace_div(WGVerb *self, PyObject *arg) { INPLACE_DIV };
-static PyObject * WGVerb_int(WGVerb *self) { GET_I };
-static PyObject * WGVerb_float(WGVerb *self) { GET_F };
-static PyObject * WGVerb_get(WGVerb *self) { GET_F };
 
 static PyObject *
 WGVerb_reset(WGVerb *self)
@@ -709,7 +706,6 @@ static PyMethodDef WGVerb_methods[] =
 {
     {"getServer", (PyCFunction)WGVerb_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)WGVerb_getStream, METH_NOARGS, "Returns stream object."},
-    {"get", (PyCFunction)WGVerb_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)WGVerb_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)WGVerb_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)WGVerb_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -742,9 +738,9 @@ static PyNumberMethods WGVerb_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    (unaryfunc)WGVerb_int,                       /*nb_int*/
-    0,                                        /*nb_long*/
-    (unaryfunc)WGVerb_float,                     /*nb_float*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
     (binaryfunc)WGVerb_inplace_add,              /*inplace_add*/
     (binaryfunc)WGVerb_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)WGVerb_inplace_multiply,         /*inplace_multiply*/
@@ -2117,9 +2113,6 @@ static PyObject * STRev_sub(STRev *self, PyObject *arg) { SUB };
 static PyObject * STRev_inplace_sub(STRev *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * STRev_div(STRev *self, PyObject *arg) { DIV };
 static PyObject * STRev_inplace_div(STRev *self, PyObject *arg) { INPLACE_DIV };
-static PyObject * STRev_int(STRev *self) { GET_I };
-static PyObject * STRev_float(STRev *self) { GET_F };
-static PyObject * STRev_get(STRev *self) { GET_F };
 
 static PyMemberDef STRev_members[] =
 {
@@ -2134,7 +2127,6 @@ static PyMethodDef STRev_methods[] =
 {
     {"getServer", (PyCFunction)STRev_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)STRev_getStream, METH_NOARGS, "Returns stream object."},
-    {"get", (PyCFunction)STRev_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)STRev_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)STRev_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)STRev_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -2163,9 +2155,9 @@ static PyNumberMethods STRev_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    (unaryfunc)STRev_int,                       /*nb_int*/
-    0,                                        /*nb_long*/
-    (unaryfunc)STRev_float,                     /*nb_float*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
     (binaryfunc)STRev_inplace_add,              /*inplace_add*/
     (binaryfunc)STRev_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)STRev_inplace_multiply,         /*inplace_multiply*/

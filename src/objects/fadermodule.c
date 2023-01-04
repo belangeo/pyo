@@ -356,9 +356,6 @@ static PyObject * Fader_sub(Fader *self, PyObject *arg) { SUB };
 static PyObject * Fader_inplace_sub(Fader *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Fader_div(Fader *self, PyObject *arg) { DIV };
 static PyObject * Fader_inplace_div(Fader *self, PyObject *arg) { INPLACE_DIV };
-static PyObject * Fader_int(Fader *self) { GET_I };
-static PyObject * Fader_float(Fader *self) { GET_F };
-static PyObject * Fader_get(Fader *self) { GET_F };
 
 static PyObject *
 Fader_setFadein(Fader *self, PyObject *arg)
@@ -407,7 +404,6 @@ static PyMethodDef Fader_methods[] =
     {"getServer", (PyCFunction)Fader_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Fader_getStream, METH_NOARGS, "Returns stream object."},
     {"_getTriggerStream", (PyCFunction)Fader_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
-    {"get", (PyCFunction)Fader_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Fader_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)Fader_stop, METH_VARARGS | METH_KEYWORDS, "Starts fadeout and stops computing."},
     {"setMul", (PyCFunction)Fader_setMul, METH_O, "Sets Fader mul factor."},
@@ -439,9 +435,9 @@ static PyNumberMethods Fader_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    (unaryfunc)Fader_int,                       /*nb_int*/
-    0,                                        /*nb_long*/
-    (unaryfunc)Fader_float,                     /*nb_float*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
     (binaryfunc)Fader_inplace_add,              /*inplace_add*/
     (binaryfunc)Fader_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Fader_inplace_multiply,         /*inplace_multiply*/
@@ -852,9 +848,6 @@ static PyObject * Adsr_sub(Adsr *self, PyObject *arg) { SUB };
 static PyObject * Adsr_inplace_sub(Adsr *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Adsr_div(Adsr *self, PyObject *arg) { DIV };
 static PyObject * Adsr_inplace_div(Adsr *self, PyObject *arg) { INPLACE_DIV };
-static PyObject * Adsr_int(Adsr *self) { GET_I };
-static PyObject * Adsr_float(Adsr *self) { GET_F };
-static PyObject * Adsr_get(Adsr *self) { GET_F };
 
 static PyObject *
 Adsr_setAttack(Adsr *self, PyObject *arg)
@@ -952,7 +945,6 @@ static PyMethodDef Adsr_methods[] =
     {"getServer", (PyCFunction)Adsr_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Adsr_getStream, METH_NOARGS, "Returns stream object."},
     {"_getTriggerStream", (PyCFunction)Adsr_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
-    {"get", (PyCFunction)Adsr_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Adsr_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)Adsr_stop, METH_VARARGS | METH_KEYWORDS, "Starts fadeout and stops computing."},
     {"setMul", (PyCFunction)Adsr_setMul, METH_O, "Sets Adsr mul factor."},
@@ -986,9 +978,9 @@ static PyNumberMethods Adsr_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    (unaryfunc)Adsr_int,                       /*nb_int*/
-    0,                                        /*nb_long*/
-    (unaryfunc)Adsr_float,                     /*nb_float*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
     (binaryfunc)Adsr_inplace_add,              /*inplace_add*/
     (binaryfunc)Adsr_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Adsr_inplace_multiply,         /*inplace_multiply*/
@@ -1326,9 +1318,6 @@ static PyObject * Linseg_sub(Linseg *self, PyObject *arg) { SUB };
 static PyObject * Linseg_inplace_sub(Linseg *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Linseg_div(Linseg *self, PyObject *arg) { DIV };
 static PyObject * Linseg_inplace_div(Linseg *self, PyObject *arg) { INPLACE_DIV };
-static PyObject * Linseg_int(Linseg *self) { GET_I };
-static PyObject * Linseg_float(Linseg *self) { GET_F };
-static PyObject * Linseg_get(Linseg *self) { GET_F };
 
 static PyObject *
 Linseg_setList(Linseg *self, PyObject *value)
@@ -1392,7 +1381,6 @@ static PyMethodDef Linseg_methods[] =
 {
     {"getServer", (PyCFunction)Linseg_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Linseg_getStream, METH_NOARGS, "Returns stream object."},
-    {"get", (PyCFunction)Linseg_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Linseg_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)Linseg_stop, METH_VARARGS | METH_KEYWORDS, "Starts fadeout and stops computing."},
     {"clear", (PyCFunction)Linseg_clear_data, METH_NOARGS, "Resets the data buffer to 0."},
@@ -1424,9 +1412,9 @@ static PyNumberMethods Linseg_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    (unaryfunc)Linseg_int,                       /*nb_int*/
-    0,                                        /*nb_long*/
-    (unaryfunc)Linseg_float,                     /*nb_float*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
     (binaryfunc)Linseg_inplace_add,              /*inplace_add*/
     (binaryfunc)Linseg_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Linseg_inplace_multiply,         /*inplace_multiply*/
@@ -1792,9 +1780,6 @@ static PyObject * Expseg_sub(Expseg *self, PyObject *arg) { SUB };
 static PyObject * Expseg_inplace_sub(Expseg *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Expseg_div(Expseg *self, PyObject *arg) { DIV };
 static PyObject * Expseg_inplace_div(Expseg *self, PyObject *arg) { INPLACE_DIV };
-static PyObject * Expseg_int(Expseg *self) { GET_I };
-static PyObject * Expseg_float(Expseg *self) { GET_F };
-static PyObject * Expseg_get(Expseg *self) { GET_F };
 
 static PyObject *
 Expseg_setList(Expseg *self, PyObject *value)
@@ -1880,7 +1865,6 @@ static PyMethodDef Expseg_methods[] =
 {
     {"getServer", (PyCFunction)Expseg_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Expseg_getStream, METH_NOARGS, "Returns stream object."},
-    {"get", (PyCFunction)Expseg_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Expseg_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)Expseg_stop, METH_VARARGS | METH_KEYWORDS, "Starts fadeout and stops computing."},
     {"pause", (PyCFunction)Expseg_pause, METH_NOARGS, "Toggles between play and stop without reset."},
@@ -1914,9 +1898,9 @@ static PyNumberMethods Expseg_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    (unaryfunc)Expseg_int,                       /*nb_int*/
-    0,                                        /*nb_long*/
-    (unaryfunc)Expseg_float,                     /*nb_float*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
     (binaryfunc)Expseg_inplace_add,              /*inplace_add*/
     (binaryfunc)Expseg_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Expseg_inplace_multiply,         /*inplace_multiply*/

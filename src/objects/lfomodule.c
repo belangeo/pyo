@@ -1422,9 +1422,6 @@ static PyObject * LFO_sub(LFO *self, PyObject *arg) { SUB };
 static PyObject * LFO_inplace_sub(LFO *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * LFO_div(LFO *self, PyObject *arg) { DIV };
 static PyObject * LFO_inplace_div(LFO *self, PyObject *arg) { INPLACE_DIV };
-static PyObject * LFO_int(LFO *self) { GET_I };
-static PyObject * LFO_float(LFO *self) { GET_F };
-static PyObject * LFO_get(LFO *self) { GET_F };
 
 static PyObject * LFO_setFreq(LFO *self, PyObject *arg) { SET_PARAM(self->freq, self->freq_stream, 2); }
 static PyObject * LFO_setSharp(LFO *self, PyObject *arg) { SET_PARAM(self->sharp, self->sharp_stream, 3); }
@@ -1473,7 +1470,6 @@ static PyMethodDef LFO_methods[] =
 {
     {"getServer", (PyCFunction)LFO_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)LFO_getStream, METH_NOARGS, "Returns stream object."},
-    {"get", (PyCFunction)LFO_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)LFO_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)LFO_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)LFO_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -1506,9 +1502,9 @@ static PyNumberMethods LFO_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    (unaryfunc)LFO_int,                       /*nb_int*/
-    0,                                        /*nb_long*/
-    (unaryfunc)LFO_float,                     /*nb_float*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
     (binaryfunc)LFO_inplace_add,                 /*inplace_add*/
     (binaryfunc)LFO_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)LFO_inplace_multiply,            /*inplace_multiply*/

@@ -214,9 +214,6 @@ static PyObject * Noise_sub(Noise *self, PyObject *arg) { SUB };
 static PyObject * Noise_inplace_sub(Noise *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Noise_div(Noise *self, PyObject *arg) { DIV };
 static PyObject * Noise_inplace_div(Noise *self, PyObject *arg) { INPLACE_DIV };
-static PyObject * Noise_int(Noise *self) { GET_I };
-static PyObject * Noise_float(Noise *self) { GET_F };
-static PyObject * Noise_get(Noise *self) { GET_F };
 
 static PyObject *
 Noise_setType(Noise *self, PyObject *arg)
@@ -246,7 +243,6 @@ static PyMethodDef Noise_methods[] =
 {
     {"getServer", (PyCFunction)Noise_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Noise_getStream, METH_NOARGS, "Returns stream object."},
-    {"get", (PyCFunction)Noise_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Noise_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Noise_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Noise_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -276,9 +272,9 @@ static PyNumberMethods Noise_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    (unaryfunc)Noise_int,                       /*nb_int*/
-    0,                                        /*nb_long*/
-    (unaryfunc)Noise_float,                     /*nb_float*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
     (binaryfunc)Noise_inplace_add,              /*inplace_add*/
     (binaryfunc)Noise_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Noise_inplace_multiply,         /*inplace_multiply*/
@@ -517,9 +513,6 @@ static PyObject * PinkNoise_sub(PinkNoise *self, PyObject *arg) { SUB };
 static PyObject * PinkNoise_inplace_sub(PinkNoise *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * PinkNoise_div(PinkNoise *self, PyObject *arg) { DIV };
 static PyObject * PinkNoise_inplace_div(PinkNoise *self, PyObject *arg) { INPLACE_DIV };
-static PyObject * PinkNoise_int(PinkNoise *self) { GET_I };
-static PyObject * PinkNoise_float(PinkNoise *self) { GET_F };
-static PyObject * PinkNoise_get(PinkNoise *self) { GET_F };
 
 static PyMemberDef PinkNoise_members[] =
 {
@@ -534,7 +527,6 @@ static PyMethodDef PinkNoise_methods[] =
 {
     {"getServer", (PyCFunction)PinkNoise_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)PinkNoise_getStream, METH_NOARGS, "Returns stream object."},
-    {"get", (PyCFunction)PinkNoise_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)PinkNoise_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)PinkNoise_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)PinkNoise_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -563,9 +555,9 @@ static PyNumberMethods PinkNoise_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    (unaryfunc)PinkNoise_int,                       /*nb_int*/
-    0,                                        /*nb_long*/
-    (unaryfunc)PinkNoise_float,                     /*nb_float*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
     (binaryfunc)PinkNoise_inplace_add,              /*inplace_add*/
     (binaryfunc)PinkNoise_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)PinkNoise_inplace_multiply,         /*inplace_multiply*/
@@ -796,9 +788,6 @@ static PyObject * BrownNoise_sub(BrownNoise *self, PyObject *arg) { SUB };
 static PyObject * BrownNoise_inplace_sub(BrownNoise *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * BrownNoise_div(BrownNoise *self, PyObject *arg) { DIV };
 static PyObject * BrownNoise_inplace_div(BrownNoise *self, PyObject *arg) { INPLACE_DIV };
-static PyObject * BrownNoise_int(BrownNoise *self) { GET_I };
-static PyObject * BrownNoise_float(BrownNoise *self) { GET_F };
-static PyObject * BrownNoise_get(BrownNoise *self) { GET_F };
 
 static PyMemberDef BrownNoise_members[] =
 {
@@ -813,7 +802,6 @@ static PyMethodDef BrownNoise_methods[] =
 {
     {"getServer", (PyCFunction)BrownNoise_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)BrownNoise_getStream, METH_NOARGS, "Returns stream object."},
-    {"get", (PyCFunction)BrownNoise_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)BrownNoise_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)BrownNoise_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)BrownNoise_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -842,9 +830,9 @@ static PyNumberMethods BrownNoise_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    (unaryfunc)BrownNoise_int,                       /*nb_int*/
-    0,                                        /*nb_long*/
-    (unaryfunc)BrownNoise_float,                     /*nb_float*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
     (binaryfunc)BrownNoise_inplace_add,              /*inplace_add*/
     (binaryfunc)BrownNoise_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)BrownNoise_inplace_multiply,         /*inplace_multiply*/

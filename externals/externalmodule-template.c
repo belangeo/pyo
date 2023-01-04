@@ -322,7 +322,6 @@ Object dependant initializations can be added before PLAY, OUT and STOP macros.
 **********************************************************************/
 static PyObject * Gain_getServer(Gain *self) { GET_SERVER };
 static PyObject * Gain_getStream(Gain *self) { GET_STREAM };
-static PyObject * Gain_get(Gain *self) { GET_F };
 static PyObject * Gain_setMul(Gain *self, PyObject *arg) { SET_MUL };
 static PyObject * Gain_setAdd(Gain *self, PyObject *arg) { SET_ADD };
 static PyObject * Gain_setSub(Gain *self, PyObject *arg) { SET_SUB };
@@ -340,8 +339,6 @@ static PyObject * Gain_sub(Gain *self, PyObject *arg) { SUB };
 static PyObject * Gain_inplace_sub(Gain *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Gain_div(Gain *self, PyObject *arg) { DIV };
 static PyObject * Gain_inplace_div(Gain *self, PyObject *arg) { INPLACE_DIV };
-static PyObject * Gain_int(Gain *self) { GET_I };
-static PyObject * Gain_float(Gain *self) { GET_F };
 
 /**********************************************************************
 Setter function for attributes. Here, we need to check if the value is
@@ -406,7 +403,6 @@ static PyMethodDef Gain_methods[] =
 {
     {"getServer", (PyCFunction)Gain_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Gain_getStream, METH_NOARGS, "Returns stream object."},
-    {"get", (PyCFunction)Gain_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)Gain_play, METH_VARARGS | METH_KEYWORDS, "Starts dbuting without sending sound to soundcard."},
     {"out", (PyCFunction)Gain_out, METH_VARARGS | METH_KEYWORDS, "Starts dbuting and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Gain_stop, METH_VARARGS | METH_KEYWORDS, "Stops dbuting."},
@@ -442,9 +438,9 @@ static PyNumberMethods Gain_as_number =
     0,                                              /*nb_and*/
     0,                                              /*nb_xor*/
     0,                                              /*nb_or*/
-    (unaryfunc)Gain_int,                             /*nb_int*/
+    0,                                              /*nb_int*/
     0,                                              /*nb_long*/
-    (unaryfunc)Gain_float,                           /*nb_float*/
+    0,                                              /*nb_float*/
     (binaryfunc)Gain_inplace_add,                   /*inplace_add*/
     (binaryfunc)Gain_inplace_sub,                   /*inplace_subtract*/
     (binaryfunc)Gain_inplace_multiply,              /*inplace_multiply*/

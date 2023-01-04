@@ -520,9 +520,6 @@ static PyObject * BandSplit_sub(BandSplit *self, PyObject *arg) { SUB };
 static PyObject * BandSplit_inplace_sub(BandSplit *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * BandSplit_div(BandSplit *self, PyObject *arg) { DIV };
 static PyObject * BandSplit_inplace_div(BandSplit *self, PyObject *arg) { INPLACE_DIV };
-static PyObject * BandSplit_int(BandSplit *self) { GET_I };
-static PyObject * BandSplit_float(BandSplit *self) { GET_F };
-static PyObject * BandSplit_get(BandSplit *self) { GET_F };
 
 static PyMemberDef BandSplit_members[] =
 {
@@ -537,7 +534,6 @@ static PyMethodDef BandSplit_methods[] =
 {
     {"getServer", (PyCFunction)BandSplit_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)BandSplit_getStream, METH_NOARGS, "Returns stream object."},
-    {"get", (PyCFunction)BandSplit_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)BandSplit_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)BandSplit_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)BandSplit_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -566,9 +562,9 @@ static PyNumberMethods BandSplit_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    (unaryfunc)BandSplit_int,                       /*nb_int*/
-    0,                                        /*nb_long*/
-    (unaryfunc)BandSplit_float,                     /*nb_float*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
     (binaryfunc)BandSplit_inplace_add,              /*inplace_add*/
     (binaryfunc)BandSplit_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)BandSplit_inplace_multiply,         /*inplace_multiply*/
@@ -1216,9 +1212,6 @@ static PyObject * FourBand_sub(FourBand *self, PyObject *arg) { SUB };
 static PyObject * FourBand_inplace_sub(FourBand *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * FourBand_div(FourBand *self, PyObject *arg) { DIV };
 static PyObject * FourBand_inplace_div(FourBand *self, PyObject *arg) { INPLACE_DIV };
-static PyObject * FourBand_int(FourBand *self) { GET_I };
-static PyObject * FourBand_float(FourBand *self) { GET_F };
-static PyObject * FourBand_get(FourBand *self) { GET_F };
 
 static PyMemberDef FourBand_members[] =
 {
@@ -1233,7 +1226,6 @@ static PyMethodDef FourBand_methods[] =
 {
     {"getServer", (PyCFunction)FourBand_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)FourBand_getStream, METH_NOARGS, "Returns stream object."},
-    {"get", (PyCFunction)FourBand_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)FourBand_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)FourBand_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)FourBand_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -1262,9 +1254,9 @@ static PyNumberMethods FourBand_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    (unaryfunc)FourBand_int,                       /*nb_int*/
-    0,                                        /*nb_long*/
-    (unaryfunc)FourBand_float,                     /*nb_float*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
     (binaryfunc)FourBand_inplace_add,              /*inplace_add*/
     (binaryfunc)FourBand_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)FourBand_inplace_multiply,         /*inplace_multiply*/
@@ -1878,9 +1870,6 @@ static PyObject * MultiBand_sub(MultiBand *self, PyObject *arg) { SUB };
 static PyObject * MultiBand_inplace_sub(MultiBand *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * MultiBand_div(MultiBand *self, PyObject *arg) { DIV };
 static PyObject * MultiBand_inplace_div(MultiBand *self, PyObject *arg) { INPLACE_DIV };
-static PyObject * MultiBand_int(MultiBand *self) { GET_I };
-static PyObject * MultiBand_float(MultiBand *self) { GET_F };
-static PyObject * MultiBand_get(MultiBand *self) { GET_F };
 
 static PyMemberDef MultiBand_members[] =
 {
@@ -1895,7 +1884,6 @@ static PyMethodDef MultiBand_methods[] =
 {
     {"getServer", (PyCFunction)MultiBand_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)MultiBand_getStream, METH_NOARGS, "Returns stream object."},
-    {"get", (PyCFunction)MultiBand_get, METH_NOARGS, "Returns the last floating-point value of the stream's buffer data."},
     {"play", (PyCFunction)MultiBand_play, METH_VARARGS | METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)MultiBand_out, METH_VARARGS | METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)MultiBand_stop, METH_VARARGS | METH_KEYWORDS, "Stops computing."},
@@ -1924,9 +1912,9 @@ static PyNumberMethods MultiBand_as_number =
     0,              /*nb_and*/
     0,              /*nb_xor*/
     0,               /*nb_or*/
-    (unaryfunc)MultiBand_int,                       /*nb_int*/
-    0,                                        /*nb_long*/
-    (unaryfunc)MultiBand_float,                     /*nb_float*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
     (binaryfunc)MultiBand_inplace_add,              /*inplace_add*/
     (binaryfunc)MultiBand_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)MultiBand_inplace_multiply,         /*inplace_multiply*/
