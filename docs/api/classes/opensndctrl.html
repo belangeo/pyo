@@ -43,8 +43,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../compiling.html">Compiling pyo from sources</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../structure.html">Structure of the library</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../gettingstarted.html">Getting started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../winaudioinspect.html">Configuring the audio output (especially on Windows)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../perftips.html">How to improve performance of your pyo programs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../winaudioinspect.html">Configuring the audio output (Windows)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../perftips.html">Improve performance of pyo programs</a></li>
 </ul>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">API documentation</a><ul class="current">
@@ -303,7 +303,7 @@ OscDataReceive object. Available at initialization time only.</p>
 <td><p>Returns True if the object is outputting.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
-<td><p>Return the first sample of the current buffer as a float.</p></td>
+<td><p>Return the last sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
 <td><p>Start processing without sending samples to output.</p></td>
@@ -774,7 +774,7 @@ is the localhost.</p>
 <td><p>Returns True if the object is outputting.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
-<td><p>Return the first sample of the current buffer as a float.</p></td>
+<td><p>Return the last sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
 <td><p>Start processing without sending samples to output.</p></td>
@@ -1158,7 +1158,7 @@ to audio outs.</p>
 <td><p>Sets value for a given address.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([identifier, all])</p></td>
-<td><p>Return the first list of samples of the current buffer as floats.</p></td>
+<td><p>Return the list of last sample of the current buffers as floats.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
 <td><p>Start processing without sending samples to output.</p></td>
@@ -1271,7 +1271,7 @@ to audio outs.</p>
 <td><p>Returns True if the object is outputting.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
-<td><p>Return the first sample of the current buffer as a float.</p></td>
+<td><p>Return the last sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
 <td><p>Start processing without sending samples to output.</p></td>
@@ -1497,7 +1497,7 @@ to audio outs.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pyo.OscListReceive.get">
 <span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">identifier</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/opensndctrl.html#OscListReceive.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.OscListReceive.get" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the first list of samples of the current buffer as floats.</p>
+<dd><p>Return the list of last sample of the current buffers as floats.</p>
 <p>Can be used to convert audio stream to usable Python data.</p>
 <p>Address as string must be given to <cite>identifier</cite> to specify
 which stream to get value from.</p>
@@ -1508,7 +1508,7 @@ which stream to get value from.</p>
 Defaults to None, useful when <cite>all</cite> is True to
 retreive all streams values.</p>
 </dd>
-<dt>all: boolean, optional</dt><dd><p>If True, the first list of values of each object’s stream
+<dt>all: boolean, optional</dt><dd><p>If True, the list of last values of each object’s stream
 will be returned as a list of lists. Otherwise, only the
 the list of the object’s identifier will be returned as a
 list of floats. Defaults to False.</p>
@@ -1686,7 +1686,7 @@ to audio outs.</p>
 <td><p>Sets value for a given address.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([identifier, all])</p></td>
-<td><p>Return the first sample of the current buffer as a float.</p></td>
+<td><p>Return the last sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
 <td><p>Start processing without sending samples to output.</p></td>
@@ -1799,7 +1799,7 @@ to audio outs.</p>
 <td><p>Returns True if the object is outputting.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
-<td><p>Return the first sample of the current buffer as a float.</p></td>
+<td><p>Return the last sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
 <td><p>Start processing without sending samples to output.</p></td>
@@ -2025,7 +2025,7 @@ to audio outs.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pyo.OscReceive.get">
 <span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">identifier</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/opensndctrl.html#OscReceive.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.OscReceive.get" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the first sample of the current buffer as a float.</p>
+<dd><p>Return the last sample of the current buffer as a float.</p>
 <p>Can be used to convert audio stream to usable Python data.</p>
 <p>Address as string must be given to <cite>identifier</cite> to specify
 which stream to get value from.</p>
@@ -2036,8 +2036,8 @@ which stream to get value from.</p>
 Defaults to None, useful when <cite>all</cite> is True to
 retreive all streams values.</p>
 </dd>
-<dt>all: boolean, optional</dt><dd><p>If True, the first value of each object’s stream
-will be returned as a list. Otherwise, only the value
+<dt>all: boolean, optional</dt><dd><p>If True, the last value of each object’s stream
+will be returned as a list. Otherwise, only the last value
 of the first object’s stream will be returned as a float.
 Defaults to False.</p>
 </dd>
@@ -2323,7 +2323,7 @@ to audio outs.</p>
 <td><p>Returns True if the object is outputting.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
-<td><p>Return the first sample of the current buffer as a float.</p></td>
+<td><p>Return the last sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
 <td><p>Start processing without sending samples to output.</p></td>

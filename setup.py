@@ -385,10 +385,11 @@ classifiers = [
     # Specify the Python versions you support here. In particular, ensure
     # that you indicate whether you support Python 2, Python 3 or both.
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.6",
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
 ]
 
 setup(
@@ -407,7 +408,7 @@ setup(
     classifiers=classifiers,
     keywords="audio sound dsp synthesis signal-processing music",
     license="LGPLv3+",
-    python_requires=">=3.6, <4",
+    python_requires=">=3.7, <4",
     zip_safe=False,
     packages=packages,
     package_data={

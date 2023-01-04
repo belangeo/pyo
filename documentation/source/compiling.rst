@@ -6,13 +6,15 @@ interested in the adventure of compiling pyo from sources on Windows, you can
 take a look at my personal notes in `windows-10-64bit-build-routine.txt
 <https://github.com/belangeo/pyo/blob/master/scripts/win/windows-10-64bit-build-routine.txt>`_).
 
+See below for complete build routines for Debian/Ubuntu and MacOS.
+
 Dependencies
 ------------
 
 To compile pyo with all its features, you will need the following dependencies: 
 
-- `Python 3.6, 3.7, 3.8 or 3.9 <https://www.python.org/downloads/>`_.
-- `WxPython Phoenix 4.1.0 or higher <https://www.wxpython.org/pages/downloads/>`_
+- `Python 3.7, 3.8, 3.9, 3.10, or 3.11 <https://www.python.org/downloads/>`_.
+- `WxPython Phoenix 4.2.0 or higher <https://www.wxpython.org/pages/downloads/>`_
 - `Portaudio <http://www.portaudio.com/>`_
 - `Portmidi <http://portmedia.sourceforge.net/portmidi/>`_
 - `libsndfile <http://www.mega-nerd.com/libsndfile/>`_
@@ -138,7 +140,7 @@ Debian & Ubuntu (apt-get)
 
 Under Debian & Ubuntu you can type the following commands to get pyo up and running.
 
-For Python 3.6 and higher
+For Python 3.7 and higher
 *************************
 
 .. code-block:: bash
@@ -149,7 +151,7 @@ For Python 3.6 and higher
     cd pyo
     sudo python3 setup.py install --use-jack --use-double
 
-If you want to be able to use all of pyo's gui widgets, you will need wxPython Phoenix 4.1.0. 
+If you want to be able to use all of pyo's gui widgets, you will need wxPython Phoenix 4.2.0. 
 
 - To install wxPython with pip on linux, follow the instructions on the wxPython's `downloads <https://wxpython.org/pages/downloads/>`_ page. 
 

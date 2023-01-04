@@ -43,8 +43,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../compiling.html">Compiling pyo from sources</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../structure.html">Structure of the library</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../gettingstarted.html">Getting started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../winaudioinspect.html">Configuring the audio output (especially on Windows)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../perftips.html">How to improve performance of your pyo programs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../winaudioinspect.html">Configuring the audio output (Windows)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../perftips.html">Improve performance of pyo programs</a></li>
 </ul>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">API documentation</a><ul class="current">
@@ -213,7 +213,7 @@ of audio streams. The user should call :</p>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([identifier, all])</p></td>
-<td><p>Return the first sample of the current buffer as a float.</p></td>
+<td><p>Return the last sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setInput</span></code>(x[, fadetime])</p></td>
 <td><p>Replace the <cite>input</cite> attribute.</p></td>
@@ -335,7 +335,7 @@ of audio streams. The user should call :</p>
 <td><p>Returns True if the object is outputting.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
-<td><p>Return the first sample of the current buffer as a float.</p></td>
+<td><p>Return the last sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
 <td><p>Start processing without sending samples to output.</p></td>
@@ -498,7 +498,7 @@ of audio streams. The user should call :</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pyo.FFT.get">
 <span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">identifier</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'real'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/fourier.html#FFT.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.FFT.get" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the first sample of the current buffer as a float.</p>
+<dd><p>Return the last sample of the current buffer as a float.</p>
 <p>Can be used to convert audio stream to usable Python data.</p>
 <p>“real”, “imag” or “bin” must be given to <cite>identifier</cite> to specify
 which stream to get value from.</p>
@@ -508,8 +508,8 @@ which stream to get value from.</p>
 <dt>identifier: string {“real”, “imag”, “bin”}</dt><dd><p>Address string parameter identifying audio stream.
 Defaults to “real”.</p>
 </dd>
-<dt>all: boolean, optional</dt><dd><p>If True, the first value of each object’s stream
-will be returned as a list. Otherwise, only the value
+<dt>all: boolean, optional</dt><dd><p>If True, the last value of each object’s stream
+will be returned as a list. Otherwise, only the last value
 of the first object’s stream will be returned as a float.
 Defaults to False.</p>
 </dd>
@@ -893,7 +893,7 @@ an IFFT object.</p>
 <td><p>Returns True if the object is outputting.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
-<td><p>Return the first sample of the current buffer as a float.</p></td>
+<td><p>Return the last sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
 <td><p>Start processing without sending samples to output.</p></td>
@@ -1258,7 +1258,7 @@ with IFFT, before being sent to output.</p>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([identifier, all])</p></td>
-<td><p>Return the first sample of the current buffer as a float.</p></td>
+<td><p>Return the last sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setInMag</span></code>(x[, fadetime])</p></td>
 <td><p>Replace the <cite>inmag</cite> attribute.</p></td>
@@ -1368,7 +1368,7 @@ with IFFT, before being sent to output.</p>
 <td><p>Returns True if the object is outputting.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
-<td><p>Return the first sample of the current buffer as a float.</p></td>
+<td><p>Return the last sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
 <td><p>Start processing without sending samples to output.</p></td>
@@ -1531,7 +1531,7 @@ with IFFT, before being sent to output.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pyo.PolToCar.get">
 <span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">identifier</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'real'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/fourier.html#PolToCar.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PolToCar.get" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the first sample of the current buffer as a float.</p>
+<dd><p>Return the last sample of the current buffer as a float.</p>
 <p>Can be used to convert audio stream to usable Python data.</p>
 <p>“real” or “imag” must be given to <cite>identifier</cite> to specify
 which stream to get value from.</p>
@@ -1541,8 +1541,8 @@ which stream to get value from.</p>
 <dt>identifier: string {“real”, “imag”}</dt><dd><p>Address string parameter identifying audio stream.
 Defaults to “mag”.</p>
 </dd>
-<dt>all: boolean, optional</dt><dd><p>If True, the first value of each object’s stream
-will be returned as a list. Otherwise, only the value
+<dt>all: boolean, optional</dt><dd><p>If True, the last value of each object’s stream
+will be returned as a list. Otherwise, only the last value
 of the first object’s stream will be returned as a float.
 Defaults to False.</p>
 </dd>
@@ -1693,7 +1693,7 @@ with IFFT, before being sent to output.</p>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([identifier, all])</p></td>
-<td><p>Return the first sample of the current buffer as a float.</p></td>
+<td><p>Return the last sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setInReal</span></code>(x[, fadetime])</p></td>
 <td><p>Replace the <cite>inreal</cite> attribute.</p></td>
@@ -1803,7 +1803,7 @@ with IFFT, before being sent to output.</p>
 <td><p>Returns True if the object is outputting.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
-<td><p>Return the first sample of the current buffer as a float.</p></td>
+<td><p>Return the last sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
 <td><p>Start processing without sending samples to output.</p></td>
@@ -1966,7 +1966,7 @@ with IFFT, before being sent to output.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pyo.CarToPol.get">
 <span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">identifier</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mag'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/fourier.html#CarToPol.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.CarToPol.get" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the first sample of the current buffer as a float.</p>
+<dd><p>Return the last sample of the current buffer as a float.</p>
 <p>Can be used to convert audio stream to usable Python data.</p>
 <p>“mag” or “ang” must be given to <cite>identifier</cite> to specify
 which stream to get value from.</p>
@@ -1976,8 +1976,8 @@ which stream to get value from.</p>
 <dt>identifier: string {“mag”, “ang”}</dt><dd><p>Address string parameter identifying audio stream.
 Defaults to “mag”.</p>
 </dd>
-<dt>all: boolean, optional</dt><dd><p>If True, the first value of each object’s stream
-will be returned as a list. Otherwise, only the value
+<dt>all: boolean, optional</dt><dd><p>If True, the last value of each object’s stream
+will be returned as a list. Otherwise, only the last value
 of the first object’s stream will be returned as a float.
 Defaults to False.</p>
 </dd>
@@ -2237,7 +2237,7 @@ with IFFT, before being sent to output.</p>
 <td><p>Returns True if the object is outputting.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
-<td><p>Return the first sample of the current buffer as a float.</p></td>
+<td><p>Return the last sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
 <td><p>Start processing without sending samples to output.</p></td>
@@ -2678,7 +2678,7 @@ with IFFT, before being sent to output.</p>
 <td><p>Returns True if the object is outputting.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
-<td><p>Return the first sample of the current buffer as a float.</p></td>
+<td><p>Return the last sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
 <td><p>Start processing without sending samples to output.</p></td>
@@ -3106,7 +3106,7 @@ reverb. Defaults to 0.25.</p>
 <td><p>Returns True if the object is outputting.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
-<td><p>Return the first sample of the current buffer as a float.</p></td>
+<td><p>Return the last sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
 <td><p>Start processing without sending samples to output.</p></td>
@@ -3559,7 +3559,7 @@ with IFFT, before being sent to output.</p>
 <td><p>Returns True if the object is outputting.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
-<td><p>Return the first sample of the current buffer as a float.</p></td>
+<td><p>Return the last sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
 <td><p>Start processing without sending samples to output.</p></td>
@@ -4117,7 +4117,7 @@ to call the mix(number of channels) method on an IFFTMatrix object.</p>
 <td><p>Returns True if the object is outputting.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
-<td><p>Return the first sample of the current buffer as a float.</p></td>
+<td><p>Return the last sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
 <td><p>Start processing without sending samples to output.</p></td>

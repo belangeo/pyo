@@ -117,8 +117,8 @@ html_theme = "agogo"
 # documentation.
 html_theme_options = {
     "pagewidth": "100em",
-    "documentwidth": "75em",
-    "sidebarwidth": "25em",
+    "documentwidth": "80em",
+    "sidebarwidth": "20em",
     "rightsidebar": False
 }
 

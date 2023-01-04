@@ -1,4 +1,4 @@
-How to improve performance of your pyo programs
+Improve performance of pyo programs
 ===============================================
 
 This document lists various tips that help to improve the performance of your

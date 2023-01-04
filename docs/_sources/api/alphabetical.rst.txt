@@ -92,7 +92,6 @@ Alphabetical class reference
 - :py:class:`Exp` :     Calculates the value of e to the power of x.
 - :py:class:`Expand` :     Expand the dynamic range of an audio signal.
 - :py:class:`Expr` :     Prefix audio expression evaluator.
-- :py:class:`Expr` :     Prefix audio expression evaluator.
 - :py:class:`Expseg` :     Draw a series of exponential segments between specified break-points.
 - :py:class:`FFT` :     Fast Fourier Transform.
 - :py:class:`FM` :     A simple frequency modulation generator.

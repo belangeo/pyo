@@ -1,4 +1,4 @@
-Configuring the audio output (especially on Windows)
+Configuring the audio output (Windows)
 ====================================================
 
 Here is some tips to help you to configure the audio input/output on Windows. 

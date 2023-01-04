@@ -170,7 +170,7 @@ div.content-wrapper {
 }
 
 div.document {
-  width: 75em;
+  width: 80em;
   float: left;
 }
 
@@ -270,7 +270,7 @@ div.document ol {
 
 div.sidebar,
 aside.sidebar {
-  width: 25em;
+  width: 20em;
   float: left;
   font-size: .9em;
 }

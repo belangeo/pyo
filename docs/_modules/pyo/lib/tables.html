@@ -43,8 +43,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../compiling.html">Compiling pyo from sources</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../structure.html">Structure of the library</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../gettingstarted.html">Getting started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../winaudioinspect.html">Configuring the audio output (especially on Windows)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../perftips.html">How to improve performance of your pyo programs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../winaudioinspect.html">Configuring the audio output (Windows)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../perftips.html">Improve performance of pyo programs</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../api/index.html">API documentation</a></li>
@@ -357,9 +357,11 @@
         <span class="n">PyoTableObject</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_order</span> <span class="o">=</span> <span class="n">order</span>
         <span class="nb">list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">ph</span> <span class="o">=</span> <span class="mf">1.0</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="p">(</span><span class="n">order</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)):</span>
             <span class="k">if</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="nb">list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="nb">pow</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+                <span class="nb">list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ph</span> <span class="o">/</span> <span class="nb">pow</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+                <span class="n">ph</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="nb">list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[</span><span class="n">HarmTable_base</span><span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="n">size</span><span class="p">)]</span>
@@ -377,9 +379,11 @@
         <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;I&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_order</span> <span class="o">=</span> <span class="n">x</span>
         <span class="nb">list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">ph</span> <span class="o">=</span> <span class="mf">1.0</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_order</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)):</span>
             <span class="k">if</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="nb">list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="nb">pow</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+                <span class="nb">list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ph</span> <span class="o">/</span> <span class="nb">pow</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+                <span class="n">ph</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="nb">list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
         <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span><span class="p">]</span>

@@ -43,8 +43,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../compiling.html">Compiling pyo from sources</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../structure.html">Structure of the library</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../gettingstarted.html">Getting started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../winaudioinspect.html">Configuring the audio output (especially on Windows)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../perftips.html">How to improve performance of your pyo programs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../winaudioinspect.html">Configuring the audio output (Windows)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../perftips.html">Improve performance of pyo programs</a></li>
 </ul>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">API documentation</a><ul class="current">
@@ -513,7 +513,7 @@ All operators return False except <cite>a != None</cite>, which returns True.</p
 <td><p>Returns True if the object is outputting.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
-<td><p>Return the first sample of the current buffer as a float.</p></td>
+<td><p>Return the last sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
 <td><p>Start processing without sending samples to output.</p></td>
@@ -710,7 +710,7 @@ of the first stream.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pyo.PyoObject.get">
 <span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">all</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/_core.html#PyoObject.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.PyoObject.get" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the first sample of the current buffer as a float.</p>
+<dd><p>Return the last sample of the current buffer as a float.</p>
 <p>Can be used to convert audio stream to usable Python data.</p>
 <p>Object that implements string identifier for specific audio
 streams must use the corresponding string to specify the stream
@@ -719,9 +719,9 @@ object’s man pages.</p>
 <dl class="field-list">
 <dt class="field-odd">Args</dt>
 <dd class="field-odd"><dl>
-<dt>all: boolean, optional</dt><dd><p>If True, the first value of each object’s stream
+<dt>all: boolean, optional</dt><dd><p>If True, the last value of each object’s stream
 will be returned as a list.</p>
-<p>If False, only the value of the first object’s stream
+<p>If False, only the vlast alue of the first object’s stream
 will be returned as a float.</p>
 </dd>
 </dl>
