@@ -328,10 +328,10 @@ class ControlSlider(BasePanel):
             w, h = self.GetSize()
             pos = event.GetPosition()
             if self.orient == wx.VERTICAL:
-                if wx.Rect(0, self.pos - self.knobHalfSize, w, self.knobSize).Contains(pos):
+                if wx.Rect(0, int(self.pos) - self.knobHalfSize, w, self.knobSize).Contains(pos):
                     self.selected = True
             else:
-                if wx.Rect(self.pos - self.knobHalfSize, 0, self.knobSize, h).Contains(pos):
+                if wx.Rect(int(self.pos) - self.knobHalfSize, 0, self.knobSize, h).Contains(pos):
                     self.selected = True
             self.Refresh()
         event.Skip()
@@ -423,7 +423,7 @@ class ControlSlider(BasePanel):
         else:
             knobColour = "#DDDDDD"
         if self.orient == wx.VERTICAL:
-            rec = wx.Rect(0, self.pos - self.knobHalfSize, w, self.knobSize - 1)
+            rec = wx.Rect(0, int(self.pos) - self.knobHalfSize, w, self.knobSize - 1)
             if self.selected:
                 brush = wx.Brush("#333333", wx.SOLID)
             else:
