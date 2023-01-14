@@ -802,7 +802,7 @@ class RangeSlider(BasePanel):
         size = self.GetSize()
         xpos = evt.GetPosition()[0]
         self.middle = (self.handlePos[1] - self.handlePos[0]) // 2 + self.handlePos[0]
-        midrec = wx.Rect(self.middle - 7, 4, 15, size[1] - 9)
+        midrec = wx.Rect(int(self.middle) - 7, 4, 15, size[1] - 9)
         if midrec.Contains(evt.GetPosition()):
             self.lastpos = xpos
             self.length = self.handlePos[1] - self.handlePos[0]
@@ -939,13 +939,13 @@ class HRangeSlider(RangeSlider):
         dc.SetPen(wx.Pen(foregroundColour, width=1, style=wx.SOLID))
         dc.SetBrush(wx.Brush(foregroundColour))
 
-        rec = (self.handlePos[0], 3, self.handlePos[1] - self.handlePos[0], h - 7)
+        rec = wx.Rect(int(self.handlePos[0]), 3, int(self.handlePos[1] - self.handlePos[0]), h - 7)
         dc.DrawRoundedRectangle(rec[0], rec[1], rec[2], rec[3], 4)
 
         dc.SetPen(wx.Pen(self.backgroundColour, width=1, style=wx.SOLID))
         dc.SetBrush(wx.Brush(self.backgroundColour))
         mid = (self.handlePos[1] - self.handlePos[0]) // 2 + self.handlePos[0]
-        rec = (mid - 4, 4, 8, h - 9)
+        rec = wx.Rect(int(mid) - 4, 4, 8, h - 9)
         dc.DrawRoundedRectangle(rec[0], rec[1], rec[2], rec[3], 3)
 
         # Send value
@@ -1454,7 +1454,7 @@ class SndViewTablePanel(wx.Panel):
                 endpix = w
             else:
                 endpix = ((selendabs - self.begin) / (self.end - self.begin)) * w
-            gc.DrawRectangle(startpix, 0, endpix - startpix, h)
+            gc.DrawRectangle(int(startpix), 0, int(endpix - startpix), h)
 
         self.refresh_from_selection = False
 
