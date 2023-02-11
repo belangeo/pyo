@@ -24,7 +24,7 @@ import os, sys, subprocess, platform, glob
 
 if sys.platform == "win32":
     with open("setup.cfg", "w") as f:
-       f.write("[build]\ncompiler = mingw32")
+        f.write("[build]\ncompiler = mingw32")
 
 JACK1_MIN_VERSION = "0.125.0"
 JACK2_MIN_VERSION = "1.9.11"
@@ -126,29 +126,26 @@ else:
 # Specific audio drivers source files to compile
 ad_files = []
 obj_files = []
+libraries = []
 
 # Special flag to build without portaudio, portmidi and liblo deps.
 if "--minimal" in sys.argv:
     sys.argv.remove("--minimal")
-    libraries = []
 else:
     # portaudio
     macros.append(("USE_PORTAUDIO", None))
     ad_files.append("ad_portaudio.c")
-    libraries = ["portaudio"]
+    libraries.append("portaudio")
     # portmidi
     macros.append(("USE_PORTMIDI", None))
     ad_files.append("md_portmidi.c")
     ad_files.append("midilistenermodule.c")
-    libraries += ["portmidi"]
+    libraries.append("portmidi")
     # liblo
     macros.append(("USE_OSC", None))
     ad_files.append("osclistenermodule.c")
     obj_files.append("oscmodule.c")
-    if sys.platform == "win32":
-        libraries += ["liblo"]
-    else:
-        libraries += ["lo"]
+    libraries.append("liblo" if sys.platform == "win32" else "lo")
 
 # Optional Audio / Midi drivers
 if "--use-jack" in sys.argv:
@@ -250,7 +247,8 @@ if sys.platform == "win32":
         "mp3lame": (False, False, True),
         "mpg123": (False, False, True)
     }
-    vcpkg_packages_root = os.environ.get("VCPKG_PACKAGES_ROOT", "../vcpkg/packages")
+    vcpkg_root = os.environ.get("VCPKG_ROOT", "../vcpkg")
+    vcpkg_packages_root = os.environ.get("VCPKG_PACKAGES_ROOT", os.path.join(vcpkg_root, "packages"))
     vcpkg_triplet = os.environ.get("VCPKG_DEFAULT_TRIPLET", "x64-windows")
     msys2_mingw_root = os.environ.get("MSYS2_MINGW_ROOT", r"C:\msys64\mingw64")
 
@@ -270,12 +268,19 @@ if sys.platform == "win32":
                 library_dirs.append(os.path.join(pkg_dir, "lib"))
             if req[2]:
                 binary_dirs.append(os.path.join(pkg_dir, "bin"))
+        
+        # newer vcpkg stores unified deps in root/installed/triplet/(include|bin|lib)
+        vcpkg_shared_base = os.path.join(vcpkg_root, "installed", vcpkg_triplet)
+        include_dirs.append(os.path.join(vcpkg_shared_base, "include"))
+        library_dirs.append(os.path.join(vcpkg_shared_base, "lib"))
+        binary_dirs.append(os.path.join(vcpkg_shared_base, "bin"))
+        
         include_dirs.extend([
             os.path.join(msys2_mingw_root, "include"),
             "include",
         ])
 
-        libraries += ["sndfile"]
+        libraries.append("sndfile")
         macros.append(("MS_WIN64", None))
 else:
     include_dirs = ["include", "/usr/include", "/usr/local/include"]
