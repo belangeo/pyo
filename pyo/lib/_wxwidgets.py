@@ -138,8 +138,10 @@ class ControlSlider(BasePanel):
             self, parent=parent, id=wx.ID_ANY, pos=pos, size=size, style=wx.NO_BORDER | wx.WANTS_CHARS | wx.EXPAND
         )
         self.parent = parent
+        self.backgroundColourOverride = False
         if backColour:
             self.backgroundColour = backColour
+            self.backgroundColourOverride = True
         self.SetBackgroundColour(self.backgroundColour)
         self.orient = orient
         # self.SetMinSize(self.GetSize())
@@ -367,6 +369,7 @@ class ControlSlider(BasePanel):
 
     def setBackgroundColour(self, colour):
         self.backgroundColour = colour
+        self.backgroundColourOverride = True
         self.SetBackgroundColour(self.backgroundColour)
         self.Refresh()
 
@@ -380,7 +383,8 @@ class ControlSlider(BasePanel):
         dc = self.dcref(self)
         gc = wx.GraphicsContext_Create(dc)
 
-        self.backgroundColour = wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW)
+        if not self.backgroundColourOverride:
+            self.backgroundColour = wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW)
         dc.SetBrush(wx.Brush(self.backgroundColour, wx.SOLID))
         dc.Clear()
 
