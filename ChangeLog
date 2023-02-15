@@ -1,3 +1,11 @@
+2023-02-15 Hans-Jorg Bibiko
+
+    * Update Coreaudio support.
+
+2023-02-15 Hans-Jorg Bibiko
+
+    * Added to MidiNote holdmode, first/last velocity support and sendAllNotesOff method.
+
 2022-10-21 belangeo <belangeo@gmail.com>
 
     * UI: Improved handling of system's dark mode.

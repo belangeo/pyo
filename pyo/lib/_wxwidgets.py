@@ -138,8 +138,10 @@ class ControlSlider(BasePanel):
             self, parent=parent, id=wx.ID_ANY, pos=pos, size=size, style=wx.NO_BORDER | wx.WANTS_CHARS | wx.EXPAND
         )
         self.parent = parent
+        self.backgroundColourOverride = False
         if backColour:
             self.backgroundColour = backColour
+            self.backgroundColourOverride = True
         self.SetBackgroundColour(self.backgroundColour)
         self.orient = orient
         # self.SetMinSize(self.GetSize())
@@ -367,6 +369,7 @@ class ControlSlider(BasePanel):
 
     def setBackgroundColour(self, colour):
         self.backgroundColour = colour
+        self.backgroundColourOverride = True
         self.SetBackgroundColour(self.backgroundColour)
         self.Refresh()
 
@@ -380,7 +383,8 @@ class ControlSlider(BasePanel):
         dc = self.dcref(self)
         gc = wx.GraphicsContext_Create(dc)
 
-        self.backgroundColour = wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW)
+        if not self.backgroundColourOverride:
+            self.backgroundColour = wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW)
         dc.SetBrush(wx.Brush(self.backgroundColour, wx.SOLID))
         dc.Clear()
 
@@ -1512,6 +1516,7 @@ class ViewMatrix(ViewMatrixBase):
 class SpectrumDisplay(wx.Frame):
     def __init__(self, parent, obj=None):
         wx.Frame.__init__(self, parent, size=(600, 350))
+        self.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW))
         self.SetMinSize((400, 240))
         self.menubar = wx.MenuBar()
         self.fileMenu = wx.Menu()
@@ -1623,6 +1628,11 @@ class SpectrumDisplay(wx.Frame):
         self.dispBox.AddSpacer(5)
         self.mainBox.Add(self.dispBox, 1, wx.EXPAND)
         self.panel.SetSizer(self.mainBox)
+
+        self.Bind(wx.EVT_SYS_COLOUR_CHANGED, self.OnColourChanged)
+
+    def OnColourChanged(self, evt):
+        self.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW))
 
     def activate(self, evt):
         if evt.GetInt() == 1:
@@ -1931,6 +1941,7 @@ class SpectrumPanel(wx.Panel):
 class ScopeDisplay(wx.Frame):
     def __init__(self, parent, obj=None):
         wx.Frame.__init__(self, parent, size=(600, 350))
+        self.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW))
         self.SetMinSize((400, 240))
         self.menubar = wx.MenuBar()
         self.fileMenu = wx.Menu()
@@ -1977,6 +1988,7 @@ class ScopeDisplay(wx.Frame):
         self.panel.SetSizer(self.mainBox)
 
     def OnColourChanged(self, evt):
+        self.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW))
         colour = wx.SystemSettings.GetColour(wx.SYS_COLOUR_MENUTEXT)
         self.windowLengthText.SetForegroundColour(colour)
 

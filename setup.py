@@ -147,6 +147,9 @@ else:
     obj_files.append("oscmodule.c")
     libraries.append("liblo" if sys.platform == "win32" else "lo")
 
+# libsndfile
+libraries += ["sndfile"]
+
 # Optional Audio / Midi drivers
 if "--use-jack" in sys.argv:
     sys.argv.remove("--use-jack")
@@ -252,7 +255,7 @@ if sys.platform == "win32":
     vcpkg_triplet = os.environ.get("VCPKG_DEFAULT_TRIPLET", "x64-windows")
     msys2_mingw_root = os.environ.get("MSYS2_MINGW_ROOT", r"C:\msys64\mingw64")
 
-    include_dirs = []
+    include_dirs = ["include"]
     library_dirs = []
     binary_dirs = []
 
@@ -281,15 +284,39 @@ if sys.platform == "win32":
         ])
 
         libraries.append("sndfile")
+
         macros.append(("MS_WIN64", None))
+elif sys.platform == "darwin":
+    pkgs_3rdpary = {
+        #package flags: (include, lib, version)
+        "flac": (False, True, "1.4.2"),
+        "liblo": (True, True, "0.31"),
+        "libogg": (False, True, "1.3.5"),
+        "libsndfile": (True, True, "1.2.0"),
+        "libvorbis": (False, True, "1.3.7"),
+        "opus": (False, True, "1.3.1"),
+        "portaudio": (True, True, "19.7.0"),
+        "portmidi": (True, True, "2.0.4"),
+        "lame": (False, True, "3.100")
+    }
+
+    # Intel, brew's packages directory is usually /usr/local/Cellar
+    brew_packages_root = os.environ.get("BREW_PACKAGES_ROOT", "/opt/homebrew/Cellar")
+
+    include_dirs = ["include"]
+    library_dirs = []
+
+    for pkg, req in pkgs_3rdpary.items():
+        pkg_dir = os.path.join(brew_packages_root, pkg, req[2])
+        if req[0]:
+            include_dirs.append(os.path.join(pkg_dir, "include"))
+        if req[1]:
+            library_dirs.append(os.path.join(pkg_dir, "lib"))
+
 else:
     include_dirs = ["include", "/usr/include", "/usr/local/include"]
-    if sys.platform == "darwin":
-        include_dirs.append("/opt/local/include")
-    else:
-        libraries += ["rt"]
+    libraries += ["rt"]
     library_dirs = ["/usr/lib", "/usr/local/lib"]
-    libraries += ["sndfile"]
     if build_with_jack_support:
         libraries.append("jack")
 
@@ -307,22 +334,12 @@ if sys.platform == "win32":
     data_files = ((data_files_dest, dlls),)
 elif sys.platform == "darwin":
     if "bdist_wheel" in sys.argv:
-        data_files = [
-            (
-                "/pyo",
-                [
-                    "temp_libs/liblo.7.dylib",
-                    "temp_libs/libportaudio.2.dylib",
-                    "temp_libs/libportmidi.dylib",
-                    "temp_libs/libsndfile.1.dylib",
-                    "temp_libs/libFLAC.12.dylib",
-                    "temp_libs/libvorbisenc.2.dylib",
-                    "temp_libs/libvorbis.0.dylib",
-                    "temp_libs/libogg.0.dylib",
-                    "temp_libs/libopus.0.dylib",
-                ],
-            )
-        ]
+        dylibs = []
+        for bind in library_dirs:
+            dylibs.extend(glob.glob(os.path.join(bind, "*.dylib")))
+        dylibs = [dylib for dylib in dylibs if not os.path.islink(dylib)]
+        dylibs = [dylib for dylib in dylibs if "FLAC++" not in dylib and "portaudiocpp" not in dylib]
+        data_files = (("/pyo", dylibs),)
     else:
         data_files = []
 else:

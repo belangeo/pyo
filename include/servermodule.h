@@ -31,6 +31,10 @@ extern "C" {
 #include "sndfile.h"
 #include "pyomodule.h"
 
+#ifdef __APPLE__
+#include <CoreAudio/AudioHardware.h>
+#endif
+
 typedef enum
 {
     PyoPortaudio = 0,
@@ -119,6 +123,13 @@ typedef struct
     int stream_count;
     int record;
     int thisServerID;       /* To keep the reference index in the array of servers */
+
+#ifdef __APPLE__
+    pthread_mutex_t buf_mutex;
+    pthread_cond_t buf_cond;
+    AudioDeviceIOProcID outprocid;
+    AudioDeviceIOProcID inprocid;
+#endif
 
     /* global amplitude */
     MYFLT amp;

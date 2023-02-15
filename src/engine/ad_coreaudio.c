@@ -20,6 +20,11 @@
 
 #include "ad_coreaudio.h"
 
+#if !defined(MAC_OS_VERSION_12_0) || \
+    (MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_VERSION_12_0)
+#define kAudioObjectPropertyElementMain kAudioObjectPropertyElementMaster
+#endif
+
 OSStatus coreaudio_input_callback(AudioDeviceID device, const AudioTimeStamp* inNow,
                                   const AudioBufferList* inInputData,
                                   const AudioTimeStamp* inInputTime,
@@ -67,6 +72,7 @@ OSStatus coreaudio_output_callback(AudioDeviceID device, const AudioTimeStamp* i
     }
 
     Server_process_buffers(server);
+    pthread_mutex_lock(&server->buf_mutex);
     AudioBuffer* outputBuf = outOutputData->mBuffers;
     bufchnls = outputBuf->mNumberChannels;
     servchnls = server->nchnls < bufchnls ? server->nchnls : bufchnls;
@@ -84,6 +90,8 @@ OSStatus coreaudio_output_callback(AudioDeviceID device, const AudioTimeStamp* i
     }
 
     server->midi_count = 0;
+    pthread_cond_signal(&server->buf_cond);
+    pthread_mutex_unlock(&server->buf_mutex);
 
     return kAudioHardwareNoError;
 }
@@ -93,23 +101,23 @@ coreaudio_stop_callback(Server *self)
 {
     OSStatus err = kAudioHardwareNoError;
 
+    err = AudioDeviceStop(self->output, self->outprocid);
+
+    if (err != kAudioHardwareNoError)
+    {
+        Server_error(self, "Output AudioDeviceStop failed %d\n", (int)err);
+        return -1;
+    }
+
     if (self->duplex == 1)
     {
-        err = AudioDeviceStop(self->input, coreaudio_input_callback);
+        err = AudioDeviceStop(self->input, self->inprocid);
 
         if (err != kAudioHardwareNoError)
         {
             Server_error(self, "Input AudioDeviceStop failed %d\n", (int)err);
             return -1;
         }
-    }
-
-    err = AudioDeviceStop(self->output, coreaudio_output_callback);
-
-    if (err != kAudioHardwareNoError)
-    {
-        Server_error(self, "Output AudioDeviceStop failed %d\n", (int)err);
-        return -1;
     }
 
     self->server_started = 0;
@@ -120,24 +128,46 @@ int
 Server_coreaudio_init(Server *self)
 {
     OSStatus err = kAudioHardwareNoError;
-    UInt32 count, namelen, propertySize;
-    int i, numdevices;
+    UInt32 count, i, numdevices;
     char *name;
     AudioDeviceID mOutputDevice = kAudioDeviceUnknown;
     AudioDeviceID mInputDevice = kAudioDeviceUnknown;
     Boolean writable;
     AudioTimeStamp now;
+    AudioObjectPropertyAddress property_address;
+    UInt32 propertysize = 256;
+
+    property_address.mSelector = kAudioHardwarePropertyDevices;
+    property_address.mScope = kAudioObjectPropertyScopeGlobal;
+    property_address.mElement = kAudioObjectPropertyElementMain;
 
     now.mFlags = kAudioTimeStampHostTimeValid;
     now.mHostTime = AudioGetCurrentHostTime();
 
+    /* create mutex */
+    err = pthread_mutex_init(&self->buf_mutex, NULL);
+    if (err) {
+        Server_error(self, "Could not create mutex\nReason: %s\n", (char*)&err);
+        return -1;
+    }
+    /* create mutex condition*/
+    err = pthread_cond_init(&self->buf_cond, NULL);
+    if (err) {
+        Server_error(self, "Could not create mutex condition\nReason: %s\n", (char*)&err);
+        return -1;
+    }
+
     /************************************/
     /* List Coreaudio available devices */
     /************************************/
-    err = AudioHardwareGetPropertyInfo(kAudioHardwarePropertyDevices, &count, 0);
-    AudioDeviceID *devices = (AudioDeviceID*) PyMem_RawMalloc(count);
-    err = AudioHardwareGetProperty(kAudioHardwarePropertyDevices, &count, devices);
+    err = AudioObjectGetPropertyDataSize(kAudioObjectSystemObject, &property_address, 0, NULL, &count);
+    if (err)
+    {
+        Server_error(self, "Get data size error for kAudioObjectSystemObject.");
+    }
 
+    AudioDeviceID *devices = (AudioDeviceID*) PyMem_RawMalloc(count);
+    err = AudioObjectGetPropertyData(kAudioObjectSystemObject, &property_address, 0, NULL, &count, devices);
     if (err != kAudioHardwareNoError)
     {
         Server_error(self, "Get kAudioHardwarePropertyDevices error %s\n", (char*)&err);
@@ -147,22 +177,15 @@ Server_coreaudio_init(Server *self)
     numdevices = count / sizeof(AudioDeviceID);
     Server_debug(self, "Coreaudio : Number of devices: %i\n", numdevices);
 
+    property_address.mSelector = kAudioDevicePropertyDeviceName;
     for (i = 0; i < numdevices; ++i)
     {
-        err = AudioDeviceGetPropertyInfo(devices[i], 0, false, kAudioDevicePropertyDeviceName, &count, 0);
-
+        name = (char*)PyMem_RawMalloc(256);
+        propertysize = 256;
+        err = AudioObjectGetPropertyData(devices[i], &property_address, 0, NULL, &propertysize, name);
         if (err != kAudioHardwareNoError)
         {
             Server_error(self, "Info kAudioDevicePropertyDeviceName error %s A %d %08X\n", (char*)&err, i, devices[i]);
-            break;
-        }
-
-        char *name = (char*)PyMem_RawMalloc(count);
-        err = AudioDeviceGetProperty(devices[i], 0, false, kAudioDevicePropertyDeviceName, &count, name);
-
-        if (err != kAudioHardwareNoError)
-        {
-            Server_error(self, "Get kAudioDevicePropertyDeviceName error %s A %d %08X\n", (char*)&err, i, devices[i]);
             PyMem_RawFree(name);
             break;
         }
@@ -183,32 +206,29 @@ Server_coreaudio_init(Server *self)
         if (mInputDevice == kAudioDeviceUnknown)
         {
             count = sizeof(mInputDevice);
-            err = AudioHardwareGetProperty(kAudioHardwarePropertyDefaultInputDevice, &count, (void *) &mInputDevice);
+            property_address.mSelector = kAudioHardwarePropertyDefaultInputDevice;
+            err = AudioObjectGetPropertyData(kAudioObjectSystemObject, &property_address, 0, 0, &count, &mInputDevice);
 
             if (err != kAudioHardwareNoError)
             {
                 Server_error(self, "Get kAudioHardwarePropertyDefaultInputDevice error %s\n", (char*)&err);
+                PyMem_RawFree(devices);
                 return -1;
             }
         }
-
-        err = AudioDeviceGetPropertyInfo(mInputDevice, 0, false, kAudioDevicePropertyDeviceName, &namelen, 0);
+        property_address.mSelector = kAudioDevicePropertyDeviceName;
+        name = (char*)PyMem_RawMalloc(256);
+        propertysize = 256;
+        err = AudioObjectGetPropertyData(mInputDevice, &property_address, 0, NULL, &propertysize, name);
 
         if (err != kAudioHardwareNoError)
         {
             Server_error(self, "Info kAudioDevicePropertyDeviceName error %s A %08X\n", (char*)&err, mInputDevice);
         }
 
-        name = (char*)PyMem_RawMalloc(namelen);
-        err = AudioDeviceGetProperty(mInputDevice, 0, false, kAudioDevicePropertyDeviceName, &namelen, name);
-
-        if (err != kAudioHardwareNoError)
-        {
-            Server_error(self, "Get kAudioDevicePropertyDeviceName error %s A %08X\n", (char*)&err, mInputDevice);
-        }
-
         Server_debug(self, "Coreaudio : Uses input device : \"%s\"\n", name);
         self->input = mInputDevice;
+
         PyMem_RawFree(name);
     }
 
@@ -219,33 +239,32 @@ Server_coreaudio_init(Server *self)
     if (mOutputDevice == kAudioDeviceUnknown)
     {
         count = sizeof(mOutputDevice);
-        err = AudioHardwareGetProperty(kAudioHardwarePropertyDefaultOutputDevice, &count, (void *) &mOutputDevice);
+        property_address.mSelector = kAudioHardwarePropertyDefaultOutputDevice;
+        err = AudioObjectGetPropertyData(kAudioObjectSystemObject, &property_address, 0, 0, &count, &mOutputDevice);
 
         if (err != kAudioHardwareNoError)
         {
             Server_error(self, "Get kAudioHardwarePropertyDefaultOutputDevice error %s\n", (char*)&err);
+            PyMem_RawFree(devices);
             return -1;
         }
     }
 
-    err = AudioDeviceGetPropertyInfo(mOutputDevice, 0, false, kAudioDevicePropertyDeviceName, &namelen, 0);
+    property_address.mSelector = kAudioDevicePropertyDeviceName;
+    name = (char*)PyMem_RawMalloc(256);
+    propertysize = 256;
+    err = AudioObjectGetPropertyData(mOutputDevice, &property_address, 0, NULL, &propertysize, name);
 
     if (err != kAudioHardwareNoError)
     {
         Server_error(self, "Info kAudioDevicePropertyDeviceName error %s A %08X\n", (char*)&err, mOutputDevice);
     }
 
-    name = (char*)PyMem_RawMalloc(namelen);
-    err = AudioDeviceGetProperty(mOutputDevice, 0, false, kAudioDevicePropertyDeviceName, &namelen, name);
-
-    if (err != kAudioHardwareNoError)
-    {
-        Server_error(self, "Get kAudioDevicePropertyDeviceName error %s A %08X\n", (char*)&err, mOutputDevice);
-    }
-
     Server_debug(self, "Coreaudio : Uses output device : \"%s\"\n", name);
     self->output = mOutputDevice;
+
     PyMem_RawFree(name);
+    PyMem_RawFree(devices);
 
     /*************************************************/
     /* Get in/out buffer frame and buffer frame size */
@@ -258,7 +277,8 @@ Server_coreaudio_init(Server *self)
     if (self->duplex == 1)
     {
         count = sizeof(UInt32);
-        err = AudioDeviceGetProperty(mInputDevice, 0, false, kAudioDevicePropertyBufferFrameSize, &count, &bufferSize);
+        property_address.mSelector = kAudioDevicePropertyBufferFrameSize;
+        err = AudioObjectGetPropertyData(mInputDevice, &property_address, 0, NULL, &count, &bufferSize);
 
         if (err != kAudioHardwareNoError)
             Server_error(self, "Get kAudioDevicePropertyBufferFrameSize error %s\n", (char*)&err);
@@ -266,7 +286,8 @@ Server_coreaudio_init(Server *self)
         Server_debug(self, "Coreaudio : Coreaudio input device buffer size = %ld\n", bufferSize);
 
         count = sizeof(AudioValueRange);
-        err = AudioDeviceGetProperty(mInputDevice, 0, false, kAudioDevicePropertyBufferSizeRange, &count, &range);
+        property_address.mSelector = kAudioDevicePropertyBufferSizeRange;
+        err = AudioObjectGetPropertyData(mInputDevice, &property_address, 0, NULL, &count, &range);
 
         if (err != kAudioHardwareNoError)
             Server_error(self, "Get kAudioDevicePropertyBufferSizeRange error %s\n", (char*)&err);
@@ -275,17 +296,19 @@ Server_coreaudio_init(Server *self)
 
         /* Get input device sampling rate */
         count = sizeof(Float64);
-        err = AudioDeviceGetProperty(mInputDevice, 0, false, kAudioDevicePropertyNominalSampleRate, &count, &sampleRate);
+        property_address.mSelector = kAudioDevicePropertyNominalSampleRate;
+        err = AudioObjectGetPropertyData(mInputDevice, &property_address, 0, NULL, &count, &sampleRate);
 
         if (err != kAudioHardwareNoError)
-            Server_debug(self, "Get kAudioDevicePropertyNominalSampleRate error %s\n", (char*)&err);
+            Server_error(self, "Get kAudioDevicePropertyNominalSampleRate error %s\n", (char*)&err);
 
         Server_debug(self, "Coreaudio : Coreaudio input device sampling rate = %.2f\n", sampleRate);
     }
 
     /* Get output device buffer frame size and buffer frame size range */
     count = sizeof(UInt32);
-    err = AudioDeviceGetProperty(mOutputDevice, 0, false, kAudioDevicePropertyBufferFrameSize, &count, &bufferSize);
+    property_address.mSelector = kAudioDevicePropertyBufferFrameSize;
+    err = AudioObjectGetPropertyData(mOutputDevice, &property_address, 0, NULL, &count, &bufferSize);
 
     if (err != kAudioHardwareNoError)
         Server_error(self, "Get kAudioDevicePropertyBufferFrameSize error %s\n", (char*)&err);
@@ -293,7 +316,8 @@ Server_coreaudio_init(Server *self)
     Server_debug(self, "Coreaudio : Coreaudio output device buffer size = %ld\n", bufferSize);
 
     count = sizeof(AudioValueRange);
-    err = AudioDeviceGetProperty(mOutputDevice, 0, false, kAudioDevicePropertyBufferSizeRange, &count, &range);
+    property_address.mSelector = kAudioDevicePropertyBufferSizeRange;
+    err = AudioObjectGetPropertyData(mOutputDevice, &property_address, 0, NULL, &count, &range);
 
     if (err != kAudioHardwareNoError)
         Server_error(self, "Get kAudioDevicePropertyBufferSizeRange error %s\n", (char*)&err);
@@ -302,10 +326,11 @@ Server_coreaudio_init(Server *self)
 
     /* Get output device sampling rate */
     count = sizeof(Float64);
-    err = AudioDeviceGetProperty(mOutputDevice, 0, false, kAudioDevicePropertyNominalSampleRate, &count, &sampleRate);
+    property_address.mSelector = kAudioDevicePropertyNominalSampleRate;
+    err = AudioObjectGetPropertyData(mOutputDevice, &property_address, 0, NULL, &count, &sampleRate);
 
     if (err != kAudioHardwareNoError)
-        Server_debug(self, "Get kAudioDevicePropertyNominalSampleRate error %s\n", (char*)&err);
+        Server_error(self, "Get kAudioDevicePropertyNominalSampleRate error %s\n", (char*)&err);
 
     Server_debug(self, "Coreaudio : Coreaudio output device sampling rate = %.2f\n", sampleRate);
 
@@ -315,13 +340,14 @@ Server_coreaudio_init(Server *self)
     /****************************************/
     /* set/get the buffersize for the devices */
     count = sizeof(UInt32);
-    err = AudioDeviceSetProperty(mOutputDevice, &now, 0, false, kAudioDevicePropertyBufferFrameSize, count, &self->bufferSize);
+    property_address.mSelector = kAudioDevicePropertyBufferFrameSize;
+    err = AudioObjectSetPropertyData(mOutputDevice, &property_address, 0, NULL, count, &self->bufferSize);
 
     if (err != kAudioHardwareNoError)
     {
         Server_error(self, "set kAudioDevicePropertyBufferFrameSize error %4.4s\n", (char*)&err);
         self->bufferSize = bufferSize;
-        err = AudioDeviceSetProperty(mOutputDevice, &now, 0, false, kAudioDevicePropertyBufferFrameSize, count, &self->bufferSize);
+        err = AudioObjectSetPropertyData(mOutputDevice, &property_address, 0, NULL, count, &self->bufferSize);
 
         if (err != kAudioHardwareNoError)
             Server_error(self, "set kAudioDevicePropertyBufferFrameSize error %4.4s\n", (char*)&err);
@@ -333,7 +359,7 @@ Server_coreaudio_init(Server *self)
 
     if (self->duplex == 1)
     {
-        err = AudioDeviceSetProperty(mInputDevice, &now, 0, false, kAudioDevicePropertyBufferFrameSize, count, &self->bufferSize);
+        err = AudioObjectSetPropertyData(mInputDevice, &property_address, 0, NULL, count, &self->bufferSize);
 
         if (err != kAudioHardwareNoError)
         {
@@ -344,13 +370,14 @@ Server_coreaudio_init(Server *self)
     /* set/get the sampling rate for the devices */
     count = sizeof(double);
     double pyoSamplingRate = self->samplingRate;
-    err = AudioDeviceSetProperty(mOutputDevice, &now, 0, false, kAudioDevicePropertyNominalSampleRate, count, &pyoSamplingRate);
+    property_address.mSelector = kAudioDevicePropertyNominalSampleRate;
+    err = AudioObjectSetPropertyData(mOutputDevice, &property_address, 0, NULL, count, &pyoSamplingRate);
 
     if (err != kAudioHardwareNoError)
     {
         Server_error(self, "set kAudioDevicePropertyNominalSampleRate error %s\n", (char*)&err);
         self->samplingRate = (double)sampleRate;
-        err = AudioDeviceSetProperty(mOutputDevice, &now, 0, false, kAudioDevicePropertyNominalSampleRate, count, &sampleRate);
+        err = AudioObjectSetPropertyData(mOutputDevice, &property_address, 0, NULL, count, &sampleRate);
 
         if (err != kAudioHardwareNoError)
             Server_error(self, "set kAudioDevicePropertyNominalSampleRate error %s\n", (char*)&err);
@@ -363,7 +390,7 @@ Server_coreaudio_init(Server *self)
     if (self->duplex == 1)
     {
         pyoSamplingRate = self->samplingRate;
-        err = AudioDeviceSetProperty(mInputDevice, &now, 0, false, kAudioDevicePropertyNominalSampleRate, count, &pyoSamplingRate);
+        err = AudioObjectSetPropertyData(mInputDevice, &property_address, 0, NULL, count, &pyoSamplingRate);
 
         if (err != kAudioHardwareNoError)
         {
@@ -381,24 +408,40 @@ Server_coreaudio_init(Server *self)
     // Get input device stream configuration
     if (self->duplex == 1)
     {
+        AudioObjectPropertyAddress pa;
+            pa.mSelector = kAudioDevicePropertyStreamFormat;
+            pa.mScope = kAudioDevicePropertyScopeInput;
+            pa.mElement = kAudioObjectPropertyElementMain;
         count = sizeof(AudioStreamBasicDescription);
-        err = AudioDeviceGetProperty(mInputDevice, 0, true, kAudioDevicePropertyStreamFormat, &count, &inputStreamDescription);
+        err = AudioObjectGetPropertyData(mInputDevice, &pa, 0, NULL, &count, &inputStreamDescription);
 
         if (err != kAudioHardwareNoError)
-            Server_debug(self, "Get kAudioDevicePropertyStreamFormat error %s\n", (char*)&err);
+        {
+            Server_error(self, "Get kAudioDevicePropertyStreamFormat error %s\n", (char*)&err);
+        }
+        else
+        {
+            inputStreamDescription.mSampleRate = (Float64)self->samplingRate;
+            if (self->ichnls + self->input_offset > (int)inputStreamDescription.mChannelsPerFrame)
+            {
+                property_address.mSelector = kAudioDevicePropertyDeviceName;
+                name = (char*)PyMem_RawMalloc(256);
+                propertysize = 256;
+                err = AudioObjectGetPropertyData(mInputDevice, &property_address, 0, NULL, &propertysize, name);
 
-        /*
-        inputStreamDescription.mSampleRate = (Float64)self->samplingRate;
+                if (err != kAudioHardwareNoError)
+                {
+                    Server_error(self, "Info kAudioDevicePropertyDeviceName error %s A %08X\n", (char*)&err, mInputDevice);
+                }
+                Server_warning(self, "Coreaudio input device `%s` has fewer channels (%d) than requested (%d).\n", name,
+                               inputStreamDescription.mChannelsPerFrame,
+                               self->ichnls + self->input_offset);
+                PyMem_RawFree(name);
+                self->ichnls = inputStreamDescription.mChannelsPerFrame;
+                self->input_offset = 0;
+            }
+        }
 
-        err = AudioDeviceSetProperty(mInputDevice, &now, 0, false, kAudioDevicePropertyStreamFormat, count, &inputStreamDescription);
-        if (err != kAudioHardwareNoError)
-            Server_debug(self, "-- Set kAudioDevicePropertyStreamFormat error %s\n", (char*)&err);
-
-        // Print new input stream description
-        err = AudioDeviceGetProperty(mInputDevice, 0, true, kAudioDevicePropertyStreamFormat, &count, &inputStreamDescription);
-        if (err != kAudioHardwareNoError)
-            Server_debug(self, "Get kAudioDevicePropertyNominalSampleRate error %s\n", (char*)&err);
-        */
         Server_debug(self, "Coreaudio : Coreaudio driver input stream sampling rate = %.2f\n", inputStreamDescription.mSampleRate);
         Server_debug(self, "Coreaudio : Coreaudio driver input stream bytes per frame = %i\n", inputStreamDescription.mBytesPerFrame);
         Server_debug(self, "Coreaudio : Coreaudio driver input stream number of channels = %i\n", inputStreamDescription.mChannelsPerFrame);
@@ -406,23 +449,17 @@ Server_coreaudio_init(Server *self)
 
     /* Get output device stream configuration */
     count = sizeof(AudioStreamBasicDescription);
-    err = AudioDeviceGetProperty(mOutputDevice, 0, false, kAudioDevicePropertyStreamFormat, &count, &outputStreamDescription);
+    property_address.mSelector = kAudioDevicePropertyStreamFormat;
+    err = AudioObjectGetPropertyData(mOutputDevice, &property_address, 0, NULL, &count, &outputStreamDescription);
 
-    if (err != kAudioHardwareNoError)
-        Server_debug(self, "Get kAudioDevicePropertyStreamFormat error %s\n", (char*)&err);
+    if (err != kAudioHardwareNoError) {
+        Server_error(self, "Get kAudioDevicePropertyStreamFormat error %s\n", (char*)&err);
+    }
+    else
+    {
+        outputStreamDescription.mSampleRate = (Float64)self->samplingRate;
+    }
 
-    /*
-    outputStreamDescription.mSampleRate = (Float64)self->samplingRate;
-
-    err = AudioDeviceSetProperty(mOutputDevice, &now, 0, false, kAudioDevicePropertyStreamFormat, count, &outputStreamDescription);
-    if (err != kAudioHardwareNoError)
-        Server_debug(self, "Set kAudioDevicePropertyStreamFormat error %s\n", (char*)&err);
-
-    // Print new output stream description
-    err = AudioDeviceGetProperty(mOutputDevice, 0, false, kAudioDevicePropertyStreamFormat, &count, &outputStreamDescription);
-    if (err != kAudioHardwareNoError)
-        Server_debug(self, "Get kAudioDevicePropertyStreamFormat error %s\n", (char*)&err);
-    */
     Server_debug(self, "Coreaudio : Coreaudio driver output stream sampling rate = %.2f\n", outputStreamDescription.mSampleRate);
     Server_debug(self, "Coreaudio : Coreaudio driver output stream bytes per frame = %i\n", outputStreamDescription.mBytesPerFrame);
     Server_debug(self, "Coreaudio : Coreaudio driver output stream number of channels = %i\n", outputStreamDescription.mChannelsPerFrame);
@@ -433,47 +470,53 @@ Server_coreaudio_init(Server *self)
     /**************************************************/
     if (self->duplex == 1)
     {
-        err = AudioDeviceAddIOProc(self->input, coreaudio_input_callback, (void *) self);    // setup our device with an IO proc
-
+        self->inprocid = NULL;
+        err = AudioDeviceCreateIOProcID(self->input, (AudioDeviceIOProc) coreaudio_input_callback, self, &self->inprocid);    // setup our device with an IO proc
         if (err != kAudioHardwareNoError)
         {
             Server_error(self, "Input AudioDeviceAddIOProc failed %d\n", (int)err);
             return -1;
         }
 
-        err = AudioDeviceGetPropertyInfo(self->input, 0, true, kAudioDevicePropertyIOProcStreamUsage, &propertySize, &writable);
-        AudioHardwareIOProcStreamUsage *input_su = (AudioHardwareIOProcStreamUsage*)PyMem_RawMalloc(propertySize);
+        AudioObjectPropertyAddress pas;
+            pas.mSelector = kAudioDevicePropertyIOProcStreamUsage;
+            pas.mScope = kAudioDevicePropertyScopeInput;
+            pas.mElement = kAudioObjectPropertyElementMain;
+        err = AudioObjectGetPropertyData(self->input, &pas, 0, NULL, &propertysize, &writable);
+        AudioHardwareIOProcStreamUsage *input_su = (AudioHardwareIOProcStreamUsage*)PyMem_RawMalloc(propertysize);
         input_su->mIOProc = (void*)coreaudio_input_callback;
-        err = AudioDeviceGetProperty(self->input, 0, true, kAudioDevicePropertyIOProcStreamUsage, &propertySize, input_su);
+        err = AudioObjectGetPropertyData(self->input, &pas, 0, NULL, &propertysize, input_su);
 
         for (i = 0; i < inputStreamDescription.mChannelsPerFrame; ++i)
         {
             input_su->mStreamIsOn[i] = 1;
         }
 
-        err = AudioDeviceSetProperty(self->input, &now, 0, true, kAudioDevicePropertyIOProcStreamUsage, propertySize, input_su);
+        err = AudioObjectSetPropertyData(self->input, &property_address, 0, NULL, propertysize, input_su);
+        PyMem_RawFree(input_su);
     }
 
-    err = AudioDeviceAddIOProc(self->output, coreaudio_output_callback, (void *) self);    // setup our device with an IO proc
+    self->outprocid = NULL;
+    err = AudioDeviceCreateIOProcID(self->output, (AudioDeviceIOProc) coreaudio_output_callback, self, &self->outprocid);    // setup our device with an IO proc
 
     if (err != kAudioHardwareNoError)
     {
-        Server_error(self, "Output AudioDeviceAddIOProc failed %d\n", (int)err);
+        Server_error(self, "Output AudioDeviceCreateIOProcID failed %d\n", (int)err);
         return -1;
     }
 
-    err = AudioDeviceGetPropertyInfo(self->output, 0, false, kAudioDevicePropertyIOProcStreamUsage, &propertySize, &writable);
-    AudioHardwareIOProcStreamUsage *output_su = (AudioHardwareIOProcStreamUsage*)PyMem_RawMalloc(propertySize);
+    property_address.mSelector = kAudioDevicePropertyIOProcStreamUsage;
+    err = AudioObjectGetPropertyData(self->output, &property_address, 0, NULL, &propertysize, &writable);
+    AudioHardwareIOProcStreamUsage *output_su = (AudioHardwareIOProcStreamUsage*)PyMem_RawMalloc(propertysize);
     output_su->mIOProc = (void*)coreaudio_output_callback;
-    err = AudioDeviceGetProperty(self->output, 0, false, kAudioDevicePropertyIOProcStreamUsage, &propertySize, output_su);
+    err = AudioObjectGetPropertyData(self->output, &property_address, 0, NULL, &propertysize, output_su);
 
     for (i = 0; i < outputStreamDescription.mChannelsPerFrame; ++i)
     {
         output_su->mStreamIsOn[i] = 1;
     }
-
-    err = AudioDeviceSetProperty(self->output, &now, 0, false, kAudioDevicePropertyIOProcStreamUsage, propertySize, output_su);
-
+    err = AudioObjectSetPropertyData(self->output, &property_address, 0, NULL, propertysize, output_su);
+    PyMem_RawFree(output_su);
     return 0;
 }
 
@@ -482,9 +525,20 @@ Server_coreaudio_deinit(Server *self)
 {
     OSStatus err = kAudioHardwareNoError;
 
+    /* destroy mutex */
+    err = pthread_mutex_destroy(&self->buf_mutex);
+    if (err) {
+        Server_error(self, "Could not destroy mutex\nReason: %s\n", (char*)&err);
+    }
+    /* destroy mutex condition*/
+    err = pthread_cond_destroy(&self->buf_cond);
+    if (err) {
+        Server_error(self, "Could not destroy mutex condition\nReason: %s\n", (char*)&err);
+    }
+
     if (self->duplex == 1)
     {
-        err = AudioDeviceRemoveIOProc(self->input, coreaudio_input_callback);
+        AudioDeviceDestroyIOProcID(self->input, self->inprocid);
 
         if (err != kAudioHardwareNoError)
         {
@@ -493,7 +547,7 @@ Server_coreaudio_deinit(Server *self)
         }
     }
 
-    err = AudioDeviceRemoveIOProc(self->output, coreaudio_output_callback);
+    AudioDeviceDestroyIOProcID(self->output, self->outprocid);
 
     if (err != kAudioHardwareNoError)
     {
@@ -511,7 +565,7 @@ Server_coreaudio_start(Server *self)
 
     if (self->duplex == 1)
     {
-        err = AudioDeviceStart(self->input, coreaudio_input_callback);
+        err = AudioDeviceStart(self->input, self->inprocid);
 
         if (err != kAudioHardwareNoError)
         {
@@ -520,13 +574,15 @@ Server_coreaudio_start(Server *self)
         }
     }
 
-    err = AudioDeviceStart(self->output, coreaudio_output_callback);
+    err = AudioDeviceStart(self->output, self->outprocid);
 
     if (err != kAudioHardwareNoError)
     {
         Server_error(self, "Output AudioDeviceStart failed %d\n", (int)err);
         return -1;
     }
+    self->server_started = 1;
+    self->server_stopped = 0;
 
     return 0;
 }
