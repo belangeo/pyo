@@ -49,7 +49,7 @@ def get_jack_api():
         return "JACK_NEW_API"
 
 
-pyo_version = "1.0.4-5"
+pyo_version = "1.0.4"
 build_with_jack_support = False
 compile_externals = False
 win_arch = platform.architecture()[0]
@@ -297,7 +297,8 @@ elif sys.platform == "darwin":
         "opus": (False, True, "1.3.1"),
         "portaudio": (True, True, "19.7.0"),
         "portmidi": (True, True, "2.0.4"),
-        "lame": (False, True, "3.100")
+        "lame": (False, True, "3.100"),
+        "mpg123": (False, True, "1.31.2"),
     }
 
     # Intel, brew's packages directory is usually /usr/local/Cellar
