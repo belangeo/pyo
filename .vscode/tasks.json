@@ -91,7 +91,7 @@
         {
             "label": "Compile MacOS (single)",
             "type": "shell",
-            "command": "/usr/local/bin/python3.${input:pyMinVersion} setup.py bdist_wheel --use-coreaudio && /usr/local/bin/python3.${input:pyMinVersion} -m pip install --user --force-reinstall dist/pyo-*-cp3${input:pyMinVersion}-cp3${input:pyMinVersion}-universal2.whl",
+            "command": "/usr/local/bin/python3.${input:pyMinVersion} setup.py bdist_wheel --use-coreaudio && /usr/local/bin/python3.${input:pyMinVersion} -m pip install --user --force-reinstall dist/pyo-*-cp3${input:pyMinVersion}-cp3${input:pyMinVersion}-*_universal2.whl",
             "problemMatcher": [],
             "options": {
                 "cwd": "${workspaceFolder}"
@@ -108,7 +108,7 @@
         {
             "label": "Compile MacOS (double)",
             "type": "shell",
-            "command": "/usr/local/bin/python3.${input:pyMinVersion} setup.py bdist_wheel --use-coreaudio --use-double && /usr/local/bin/python3.${input:pyMinVersion} -m pip install --user --force-reinstall dist/pyo-*-cp3${input:pyMinVersion}-cp3${input:pyMinVersion}-universal2.whl",
+            "command": "/usr/local/bin/python3.${input:pyMinVersion} setup.py bdist_wheel --use-coreaudio --use-double && /usr/local/bin/python3.${input:pyMinVersion} -m pip install --user --force-reinstall dist/pyo-*-cp3${input:pyMinVersion}-cp3${input:pyMinVersion}-*_universal2.whl",
             "problemMatcher": [],
             "options": {
                 "cwd": "${workspaceFolder}"
