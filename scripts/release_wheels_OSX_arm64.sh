@@ -22,9 +22,9 @@ rm -rf build dist
 /usr/local/bin/python3.10 setup.py sdist
 
 ### Build pyo for python 3.8
-/usr/local/bin/python3.8 setup.py bdist_wheel --use-coreaudio --use-double
+/usr/local/bin/python3.8 setup.py bdist_wheel --use-coreaudio --use-double -p macosx_13_0_arm64
 
-wheel_file=pyo-XXX-cp38-cp38-macosx_13_0_universal2.whl
+wheel_file=pyo-XXX-cp38-cp38-macosx_13_0_arm64.whl
 dist_info=pyo-XXX.dist-info
 
 if cd dist; then
@@ -46,9 +46,9 @@ else
 fi
 
 ### Build pyo for python 3.9
-/usr/local/bin/python3.9 setup.py bdist_wheel --use-coreaudio --use-double
+/usr/local/bin/python3.9 setup.py bdist_wheel --use-coreaudio --use-double -p macosx_13_0_arm64
 
-wheel_file=pyo-XXX-cp39-cp39-macosx_13_0_universal2.whl
+wheel_file=pyo-XXX-cp39-cp39-macosx_13_0_arm64.whl
 dist_info=pyo-XXX.dist-info
 
 if cd dist; then
@@ -70,9 +70,9 @@ else
 fi
 
 ### Build pyo for python 3.10
-/usr/local/bin/python3.10 setup.py bdist_wheel --use-coreaudio --use-double
+/usr/local/bin/python3.10 setup.py bdist_wheel --use-coreaudio --use-double -p macosx_13_0_arm64
 
-wheel_file=pyo-XXX-cp310-cp310-macosx_13_0_universal2.whl
+wheel_file=pyo-XXX-cp310-cp310-macosx_13_0_arm64.whl
 dist_info=pyo-XXX.dist-info
 
 if cd dist; then
@@ -94,9 +94,9 @@ else
 fi
 
 ### Build pyo for python 3.11
-/usr/local/bin/python3.11 setup.py bdist_wheel --use-coreaudio --use-double
+/usr/local/bin/python3.11 setup.py bdist_wheel --use-coreaudio --use-double -p macosx_13_0_arm64
 
-wheel_file=pyo-XXX-cp311-cp311-macosx_13_0_universal2.whl
+wheel_file=pyo-XXX-cp311-cp311-macosx_13_0_arm64.whl
 dist_info=pyo-XXX.dist-info
 
 if cd dist; then
