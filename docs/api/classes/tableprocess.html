@@ -5,7 +5,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
-<title>Table Processing — Pyo 1.0.4 documentation</title>
+<title>Table Processing — Pyo 1.0.5 documentation</title>
 <link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
 <link href="../../_static/agogo.css" rel="stylesheet" type="text/css"/>
 <link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
@@ -25,7 +25,7 @@
 </head><body>
 <div class="header-wrapper" role="banner">
 <div class="header">
-<div class="headertitle"><a href="../../index.html">Pyo 1.0.4 documentation</a></div>
+<div class="headertitle"><a href="../../index.html">Pyo 1.0.5 documentation</a></div>
 <div aria-label="related navigation" class="rel" role="navigation">
 <a accesskey="P" href="randoms.html" title="Random generators">previous</a> |
           <a accesskey="N" href="triggers.html" title="Sample Accurate Timing (Triggers)">next</a> |
@@ -318,12 +318,6 @@ Defaults to 0.1.</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__do_comp__</span></code>(comp, mode[, default])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__float__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__int__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isPlaying</span></code>([all])</p></td>
 <td><p>Returns True if the object is currently playing, otherwise, returns False.</p></td>
 </tr>
@@ -331,7 +325,7 @@ Defaults to 0.1.</p>
 <td><p>Returns True if the object is outputting.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
-<td><p>Return the last sample of the current buffer as a float.</p></td>
+<td><p>Return the first sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
 <td><p>Start processing without sending samples to output.</p></td>
@@ -858,12 +852,6 @@ and hold it until the end of the grain. Defaults to 0.1.</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__do_comp__</span></code>(comp, mode[, default])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__float__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__int__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isPlaying</span></code>([all])</p></td>
 <td><p>Returns True if the object is currently playing, otherwise, returns False.</p></td>
 </tr>
@@ -871,7 +859,7 @@ and hold it until the end of the grain. Defaults to 0.1.</p>
 <td><p>Returns True if the object is outputting.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
-<td><p>Return the last sample of the current buffer as a float.</p></td>
+<td><p>Return the first sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
 <td><p>Start processing without sending samples to output.</p></td>
@@ -1353,12 +1341,6 @@ used as the index position in the table.</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__do_comp__</span></code>(comp, mode[, default])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__float__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__int__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isPlaying</span></code>([all])</p></td>
 <td><p>Returns True if the object is currently playing, otherwise, returns False.</p></td>
 </tr>
@@ -1366,7 +1348,7 @@ used as the index position in the table.</p>
 <td><p>Returns True if the object is outputting.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
-<td><p>Return the last sample of the current buffer as a float.</p></td>
+<td><p>Return the first sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
 <td><p>Start processing without sending samples to output.</p></td>
@@ -1887,12 +1869,6 @@ by calling obj[‘time’]. New in version 0.8.1.</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__do_comp__</span></code>(comp, mode[, default])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__float__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__int__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isPlaying</span></code>([all])</p></td>
 <td><p>Returns True if the object is currently playing, otherwise, returns False.</p></td>
 </tr>
@@ -1900,7 +1876,7 @@ by calling obj[‘time’]. New in version 0.8.1.</p>
 <td><p>Returns True if the object is outputting.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
-<td><p>Return the last sample of the current buffer as a float.</p></td>
+<td><p>Return the first sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
 <td><p>Start processing without sending samples to output.</p></td>
@@ -2538,12 +2514,6 @@ Defaults to 0.</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__do_comp__</span></code>(comp, mode[, default])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__float__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__int__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isPlaying</span></code>([all])</p></td>
 <td><p>Returns True if the object is currently playing, otherwise, returns False.</p></td>
 </tr>
@@ -2551,7 +2521,7 @@ Defaults to 0.</p>
 <td><p>Returns True if the object is outputting.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
-<td><p>Return the last sample of the current buffer as a float.</p></td>
+<td><p>Return the first sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
 <td><p>Start processing without sending samples to output.</p></td>
@@ -3077,12 +3047,6 @@ at low rate (&lt; 20 Hz).</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__do_comp__</span></code>(comp, mode[, default])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__float__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__int__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isPlaying</span></code>([all])</p></td>
 <td><p>Returns True if the object is currently playing, otherwise, returns False.</p></td>
 </tr>
@@ -3090,7 +3054,7 @@ at low rate (&lt; 20 Hz).</p>
 <td><p>Returns True if the object is outputting.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
-<td><p>Return the last sample of the current buffer as a float.</p></td>
+<td><p>Return the first sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
 <td><p>Start processing without sending samples to output.</p></td>
@@ -3622,12 +3586,6 @@ Controls the brightness. Defaults to 0.</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__do_comp__</span></code>(comp, mode[, default])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__float__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__int__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isPlaying</span></code>([all])</p></td>
 <td><p>Returns True if the object is currently playing, otherwise, returns False.</p></td>
 </tr>
@@ -3635,7 +3593,7 @@ Controls the brightness. Defaults to 0.</p>
 <td><p>Returns True if the object is outputting.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
-<td><p>Return the last sample of the current buffer as a float.</p></td>
+<td><p>Return the first sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
 <td><p>Start processing without sending samples to output.</p></td>
@@ -4085,12 +4043,6 @@ Defaults to 0.</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__do_comp__</span></code>(comp, mode[, default])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__float__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__int__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isPlaying</span></code>([all])</p></td>
 <td><p>Returns True if the object is currently playing, otherwise, returns False.</p></td>
 </tr>
@@ -4098,7 +4050,7 @@ Defaults to 0.</p>
 <td><p>Returns True if the object is outputting.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
-<td><p>Return the last sample of the current buffer as a float.</p></td>
+<td><p>Return the first sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
 <td><p>Start processing without sending samples to output.</p></td>
@@ -4623,12 +4575,6 @@ loaded sound and the current sampling rate of the Server.</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__do_comp__</span></code>(comp, mode[, default])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__float__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__int__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isPlaying</span></code>([all])</p></td>
 <td><p>Returns True if the object is currently playing, otherwise, returns False.</p></td>
 </tr>
@@ -4636,7 +4582,7 @@ loaded sound and the current sampling rate of the Server.</p>
 <td><p>Returns True if the object is outputting.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
-<td><p>Return the last sample of the current buffer as a float.</p></td>
+<td><p>Return the first sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
 <td><p>Start processing without sending samples to output.</p></td>
@@ -5255,12 +5201,6 @@ loaded sound and the current sampling rate of the Server.</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__do_comp__</span></code>(comp, mode[, default])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__float__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__int__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isPlaying</span></code>([all])</p></td>
 <td><p>Returns True if the object is currently playing, otherwise, returns False.</p></td>
 </tr>
@@ -5268,7 +5208,7 @@ loaded sound and the current sampling rate of the Server.</p>
 <td><p>Returns True if the object is outputting.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
-<td><p>Return the last sample of the current buffer as a float.</p></td>
+<td><p>Return the first sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
 <td><p>Start processing without sending samples to output.</p></td>
@@ -5821,12 +5761,6 @@ the server GUI before showing the controller window.</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__do_comp__</span></code>(comp, mode[, default])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__float__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__int__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isPlaying</span></code>([all])</p></td>
 <td><p>Returns True if the object is currently playing, otherwise, returns False.</p></td>
 </tr>
@@ -5834,7 +5768,7 @@ the server GUI before showing the controller window.</p>
 <td><p>Returns True if the object is outputting.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
-<td><p>Return the last sample of the current buffer as a float.</p></td>
+<td><p>Return the first sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
 <td><p>Start processing without sending samples to output.</p></td>
@@ -6251,12 +6185,6 @@ the server GUI before showing the controller window.</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__do_comp__</span></code>(comp, mode[, default])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__float__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__int__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isPlaying</span></code>([all])</p></td>
 <td><p>Returns True if the object is currently playing, otherwise, returns False.</p></td>
 </tr>
@@ -6264,7 +6192,7 @@ the server GUI before showing the controller window.</p>
 <td><p>Returns True if the object is outputting.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
-<td><p>Return the last sample of the current buffer as a float.</p></td>
+<td><p>Return the first sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
 <td><p>Start processing without sending samples to output.</p></td>
@@ -6754,12 +6682,6 @@ Defaults to 0.</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__do_comp__</span></code>(comp, mode[, default])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__float__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__int__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isPlaying</span></code>([all])</p></td>
 <td><p>Returns True if the object is currently playing, otherwise, returns False.</p></td>
 </tr>
@@ -6767,7 +6689,7 @@ Defaults to 0.</p>
 <td><p>Returns True if the object is outputting.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
-<td><p>Return the last sample of the current buffer as a float.</p></td>
+<td><p>Return the first sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
 <td><p>Start processing without sending samples to output.</p></td>
@@ -7241,12 +7163,6 @@ between 0 and table’s size - 1.</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__do_comp__</span></code>(comp, mode[, default])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__float__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__int__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isPlaying</span></code>([all])</p></td>
 <td><p>Returns True if the object is currently playing, otherwise, returns False.</p></td>
 </tr>
@@ -7254,7 +7170,7 @@ between 0 and table’s size - 1.</p>
 <td><p>Returns True if the object is outputting.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
-<td><p>Return the last sample of the current buffer as a float.</p></td>
+<td><p>Return the first sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
 <td><p>Start processing without sending samples to output.</p></td>
@@ -7674,12 +7590,6 @@ tables with different size can produce strange behaviours.</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__do_comp__</span></code>(comp, mode[, default])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__float__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__int__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isPlaying</span></code>([all])</p></td>
 <td><p>Returns True if the object is currently playing, otherwise, returns False.</p></td>
 </tr>
@@ -7687,7 +7597,7 @@ tables with different size can produce strange behaviours.</p>
 <td><p>Returns True if the object is outputting.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
-<td><p>Return the last sample of the current buffer as a float.</p></td>
+<td><p>Return the first sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
 <td><p>Start processing without sending samples to output.</p></td>
@@ -8160,12 +8070,6 @@ User can retrieve the trigger streams by calling obj[‘trig’].</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__do_comp__</span></code>(comp, mode[, default])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__float__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__int__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isPlaying</span></code>([all])</p></td>
 <td><p>Returns True if the object is currently playing, otherwise, returns False.</p></td>
 </tr>
@@ -8173,7 +8077,7 @@ User can retrieve the trigger streams by calling obj[‘trig’].</p>
 <td><p>Returns True if the object is outputting.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
-<td><p>Return the last sample of the current buffer as a float.</p></td>
+<td><p>Return the first sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
 <td><p>Start processing without sending samples to output.</p></td>
@@ -8644,12 +8548,6 @@ retreive the trigger streams by calling obj[‘trig’]:</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__do_comp__</span></code>(comp, mode[, default])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__float__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__int__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isPlaying</span></code>([all])</p></td>
 <td><p>Returns True if the object is currently playing, otherwise, returns False.</p></td>
 </tr>
@@ -8657,7 +8555,7 @@ retreive the trigger streams by calling obj[‘trig’]:</p>
 <td><p>Returns True if the object is outputting.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
-<td><p>Return the last sample of the current buffer as a float.</p></td>
+<td><p>Return the first sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
 <td><p>Start processing without sending samples to output.</p></td>
@@ -9146,12 +9044,6 @@ in samples.</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__do_comp__</span></code>(comp, mode[, default])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__float__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__int__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isPlaying</span></code>([all])</p></td>
 <td><p>Returns True if the object is currently playing, otherwise, returns False.</p></td>
 </tr>
@@ -9159,7 +9051,7 @@ in samples.</p>
 <td><p>Returns True if the object is outputting.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
-<td><p>Return the last sample of the current buffer as a float.</p></td>
+<td><p>Return the first sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
 <td><p>Start processing without sending samples to output.</p></td>
@@ -9628,12 +9520,6 @@ Available at initialization time only. Defaults to 1024.</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__do_comp__</span></code>(comp, mode[, default])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__float__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__int__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isPlaying</span></code>([all])</p></td>
 <td><p>Returns True if the object is currently playing, otherwise, returns False.</p></td>
 </tr>
@@ -9641,7 +9527,7 @@ Available at initialization time only. Defaults to 1024.</p>
 <td><p>Returns True if the object is outputting.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
-<td><p>Return the last sample of the current buffer as a float.</p></td>
+<td><p>Return the first sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
 <td><p>Start processing without sending samples to output.</p></td>
@@ -10091,12 +9977,6 @@ to <cite>mul</cite> and <cite>add</cite> arguments and writes the new values in
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__do_comp__</span></code>(comp, mode[, default])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__float__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__int__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isPlaying</span></code>([all])</p></td>
 <td><p>Returns True if the object is currently playing, otherwise, returns False.</p></td>
 </tr>
@@ -10104,7 +9984,7 @@ to <cite>mul</cite> and <cite>add</cite> arguments and writes the new values in
 <td><p>Returns True if the object is outputting.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
-<td><p>Return the last sample of the current buffer as a float.</p></td>
+<td><p>Return the first sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
 <td><p>Start processing without sending samples to output.</p></td>
@@ -10518,12 +10398,6 @@ of the table.</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__do_comp__</span></code>(comp, mode[, default])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__float__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__int__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isPlaying</span></code>([all])</p></td>
 <td><p>Returns True if the object is currently playing, otherwise, returns False.</p></td>
 </tr>
@@ -10531,7 +10405,7 @@ of the table.</p>
 <td><p>Returns True if the object is outputting.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
-<td><p>Return the last sample of the current buffer as a float.</p></td>
+<td><p>Return the first sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
 <td><p>Start processing without sending samples to output.</p></td>
@@ -10969,12 +10843,6 @@ reaching the end of the table.</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__do_comp__</span></code>(comp, mode[, default])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__float__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__int__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isPlaying</span></code>([all])</p></td>
 <td><p>Returns True if the object is currently playing, otherwise, returns False.</p></td>
 </tr>
@@ -10982,7 +10850,7 @@ reaching the end of the table.</p>
 <td><p>Returns True if the object is outputting.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
-<td><p>Return the last sample of the current buffer as a float.</p></td>
+<td><p>Return the first sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
 <td><p>Start processing without sending samples to output.</p></td>

@@ -89,9 +89,9 @@
             }
         },
         {
-            "label": "Compile MacOS (single)",
+            "label": "Compile MacOS arm64 (single)",
             "type": "shell",
-            "command": "/usr/local/bin/python3.${input:pyMinVersion} setup.py bdist_wheel --use-coreaudio && /usr/local/bin/python3.${input:pyMinVersion} -m pip install --user --force-reinstall dist/pyo-*-cp3${input:pyMinVersion}-cp3${input:pyMinVersion}-*_universal2.whl",
+            "command": "/usr/local/bin/python3.${input:pyMinVersion} setup.py bdist_wheel --use-coreaudio -p macosx_13_0_universal2 && /usr/local/bin/python3.${input:pyMinVersion} -m pip install --user --force-reinstall dist/pyo-*-cp3${input:pyMinVersion}-cp3${input:pyMinVersion}-*_universal2.whl",
             "problemMatcher": [],
             "options": {
                 "cwd": "${workspaceFolder}"
@@ -106,9 +106,43 @@
             }
         },
         {
-            "label": "Compile MacOS (double)",
+            "label": "Compile MacOS arm64 (double)",
             "type": "shell",
-            "command": "/usr/local/bin/python3.${input:pyMinVersion} setup.py bdist_wheel --use-coreaudio --use-double && /usr/local/bin/python3.${input:pyMinVersion} -m pip install --user --force-reinstall dist/pyo-*-cp3${input:pyMinVersion}-cp3${input:pyMinVersion}-*_universal2.whl",
+            "command": "/usr/local/bin/python3.${input:pyMinVersion} setup.py bdist_wheel --use-coreaudio --use-double -p macosx_13_0_universal2 && /usr/local/bin/python3.${input:pyMinVersion} -m pip install --user --force-reinstall dist/pyo-*-cp3${input:pyMinVersion}-cp3${input:pyMinVersion}-*_universal2.whl",
+            "problemMatcher": [],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            }
+        },
+        {
+            "label": "Compile MacOS x86_64 (single)",
+            "type": "shell",
+            "command": "/usr/local/bin/python3.${input:pyMinVersion} setup.py bdist_wheel --use-coreaudio -p macosx_12_0_x86_64 && /usr/local/bin/python3.${input:pyMinVersion} -m pip install --user --force-reinstall dist/pyo-*-cp3${input:pyMinVersion}-cp3${input:pyMinVersion}-*_x86_64.whl",
+            "problemMatcher": [],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            }
+        },
+        {
+            "label": "Compile MacOS x86_64 (double)",
+            "type": "shell",
+            "command": "/usr/local/bin/python3.${input:pyMinVersion} setup.py bdist_wheel --use-coreaudio --use-double -p macosx_12_0_x86_64 && /usr/local/bin/python3.${input:pyMinVersion} -m pip install --user --force-reinstall dist/pyo-*-cp3${input:pyMinVersion}-cp3${input:pyMinVersion}-*_x86_64.whl",
             "problemMatcher": [],
             "options": {
                 "cwd": "${workspaceFolder}"

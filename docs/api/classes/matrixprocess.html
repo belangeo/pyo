@@ -5,7 +5,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
-<title>Matrix Processing — Pyo 1.0.4 documentation</title>
+<title>Matrix Processing — Pyo 1.0.5 documentation</title>
 <link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
 <link href="../../_static/agogo.css" rel="stylesheet" type="text/css"/>
 <link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
@@ -25,7 +25,7 @@
 </head><body>
 <div class="header-wrapper" role="banner">
 <div class="header">
-<div class="headertitle"><a href="../../index.html">Pyo 1.0.4 documentation</a></div>
+<div class="headertitle"><a href="../../index.html">Pyo 1.0.5 documentation</a></div>
 <div aria-label="related navigation" class="rel" role="navigation">
 <a accesskey="P" href="internals.html" title="Internal objects">previous</a> |
           <a accesskey="N" href="midi.html" title="Midi Handling">next</a> |
@@ -281,12 +281,6 @@ and 1 is the last.</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__do_comp__</span></code>(comp, mode[, default])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__float__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__int__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isPlaying</span></code>([all])</p></td>
 <td><p>Returns True if the object is currently playing, otherwise, returns False.</p></td>
 </tr>
@@ -294,7 +288,7 @@ and 1 is the last.</p>
 <td><p>Returns True if the object is outputting.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
-<td><p>Return the last sample of the current buffer as a float.</p></td>
+<td><p>Return the first sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
 <td><p>Start processing without sending samples to output.</p></td>
@@ -753,12 +747,6 @@ assigned to successive streams.</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__do_comp__</span></code>(comp, mode[, default])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__float__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__int__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isPlaying</span></code>([all])</p></td>
 <td><p>Returns True if the object is currently playing, otherwise, returns False.</p></td>
 </tr>
@@ -766,7 +754,7 @@ assigned to successive streams.</p>
 <td><p>Returns True if the object is outputting.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
-<td><p>Return the last sample of the current buffer as a float.</p></td>
+<td><p>Return the first sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
 <td><p>Start processing without sending samples to output.</p></td>
@@ -1212,12 +1200,6 @@ User can retreive the trigger streams by calling obj[‘trig’]. See
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__do_comp__</span></code>(comp, mode[, default])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__float__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__int__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isPlaying</span></code>([all])</p></td>
 <td><p>Returns True if the object is currently playing, otherwise, returns False.</p></td>
 </tr>
@@ -1225,7 +1207,7 @@ User can retreive the trigger streams by calling obj[‘trig’]. See
 <td><p>Returns True if the object is outputting.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
-<td><p>Return the last sample of the current buffer as a float.</p></td>
+<td><p>Return the first sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
 <td><p>Start processing without sending samples to output.</p></td>
@@ -1676,12 +1658,6 @@ obj[‘trig’]. See <cite>TableRec</cite> documentation for an example.</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__do_comp__</span></code>(comp, mode[, default])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__float__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__int__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isPlaying</span></code>([all])</p></td>
 <td><p>Returns True if the object is currently playing, otherwise, returns False.</p></td>
 </tr>
@@ -1689,7 +1665,7 @@ obj[‘trig’]. See <cite>TableRec</cite> documentation for an example.</p>
 <td><p>Returns True if the object is outputting.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
-<td><p>Return the last sample of the current buffer as a float.</p></td>
+<td><p>Return the first sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
 <td><p>Start processing without sending samples to output.</p></td>

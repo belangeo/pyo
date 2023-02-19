@@ -5,7 +5,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
-<title>Midi Handling — Pyo 1.0.4 documentation</title>
+<title>Midi Handling — Pyo 1.0.5 documentation</title>
 <link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
 <link href="../../_static/agogo.css" rel="stylesheet" type="text/css"/>
 <link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
@@ -25,7 +25,7 @@
 </head><body>
 <div class="header-wrapper" role="banner">
 <div class="header">
-<div class="headertitle"><a href="../../index.html">Pyo 1.0.4 documentation</a></div>
+<div class="headertitle"><a href="../../index.html">Pyo 1.0.5 documentation</a></div>
 <div aria-label="related navigation" class="rel" role="navigation">
 <a accesskey="P" href="matrixprocess.html" title="Matrix Processing">previous</a> |
           <a accesskey="N" href="mmlmusic.html" title="Music Macro Language evaluator">next</a> |
@@ -290,12 +290,6 @@ to audio outs.</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__do_comp__</span></code>(comp, mode[, default])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__float__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__int__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isPlaying</span></code>([all])</p></td>
 <td><p>Returns True if the object is currently playing, otherwise, returns False.</p></td>
 </tr>
@@ -303,7 +297,7 @@ to audio outs.</p>
 <td><p>Returns True if the object is outputting.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
-<td><p>Return the last sample of the current buffer as a float.</p></td>
+<td><p>Return the first sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
 <td><p>Start processing without sending samples to output.</p></td>
@@ -778,12 +772,6 @@ to audio outs.</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__do_comp__</span></code>(comp, mode[, default])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__float__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__int__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isPlaying</span></code>([all])</p></td>
 <td><p>Returns True if the object is currently playing, otherwise, returns False.</p></td>
 </tr>
@@ -791,7 +779,7 @@ to audio outs.</p>
 <td><p>Returns True if the object is outputting.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
-<td><p>Return the last sample of the current buffer as a float.</p></td>
+<td><p>Return the first sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
 <td><p>Start processing without sending samples to output.</p></td>
@@ -1275,12 +1263,6 @@ to audio outs.</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__do_comp__</span></code>(comp, mode[, default])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__float__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__int__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isPlaying</span></code>([all])</p></td>
 <td><p>Returns True if the object is currently playing, otherwise, returns False.</p></td>
 </tr>
@@ -1288,7 +1270,7 @@ to audio outs.</p>
 <td><p>Returns True if the object is outputting.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
-<td><p>Return the last sample of the current buffer as a float.</p></td>
+<td><p>Return the first sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
 <td><p>Start processing without sending samples to output.</p></td>
@@ -1786,12 +1768,6 @@ with the exponent factor (see setExp() method).</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__do_comp__</span></code>(comp, mode[, default])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__float__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__int__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isPlaying</span></code>([all])</p></td>
 <td><p>Returns True if the object is currently playing, otherwise, returns False.</p></td>
 </tr>
@@ -1799,7 +1775,7 @@ with the exponent factor (see setExp() method).</p>
 <td><p>Returns True if the object is outputting.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
-<td><p>Return the last sample of the current buffer as a float.</p></td>
+<td><p>Return the first sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
 <td><p>Start processing without sending samples to output.</p></td>
@@ -2348,12 +2324,6 @@ with the exponent factor (see setExp() method).</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__do_comp__</span></code>(comp, mode[, default])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__float__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__int__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isPlaying</span></code>([all])</p></td>
 <td><p>Returns True if the object is currently playing, otherwise, returns False.</p></td>
 </tr>
@@ -2361,7 +2331,7 @@ with the exponent factor (see setExp() method).</p>
 <td><p>Returns True if the object is outputting.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
-<td><p>Return the last sample of the current buffer as a float.</p></td>
+<td><p>Return the first sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
 <td><p>Start processing without sending samples to output.</p></td>
@@ -2908,12 +2878,6 @@ to audio outs.</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__do_comp__</span></code>(comp, mode[, default])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__float__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__int__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isPlaying</span></code>([all])</p></td>
 <td><p>Returns True if the object is currently playing, otherwise, returns False.</p></td>
 </tr>
@@ -2921,7 +2885,7 @@ to audio outs.</p>
 <td><p>Returns True if the object is outputting.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
-<td><p>Return the last sample of the current buffer as a float.</p></td>
+<td><p>Return the first sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
 <td><p>Start processing without sending samples to output.</p></td>
@@ -3316,6 +3280,15 @@ to audio outs.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#pyo.Notein.channel" title="pyo.Notein.channel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">channel</span></code></a></p></td>
 <td><p>int.</p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.Notein.holdmode" title="pyo.Notein.holdmode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">holdmode</span></code></a></p></td>
+<td><p>int.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyo.Notein.firstVelocity" title="pyo.Notein.firstVelocity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">firstVelocity</span></code></a></p></td>
+<td><p>int.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyo.Notein.lastVelocity" title="pyo.Notein.lastVelocity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lastVelocity</span></code></a></p></td>
+<td><p>int.</p></td>
+</tr>
 </tbody>
 </table>
 <details><summary>Inherited from <a class="reference internal" href="_core.html#pyo.PyoObject" title="pyo.PyoObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">PyoObject</span></code></a></summary><table class="autosummary longtable docutils align-default">
@@ -3365,8 +3338,20 @@ to audio outs.</p>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setStealing</span></code>(x)</p></td>
 <td><p>Activates the stealing mode if True.</p></td>
 </tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setHoldmode</span></code>(x)</p></td>
+<td><p>Sets the key mode.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">sendAllNotesOff</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setFirstVelocity</span></code>(x)</p></td>
+<td><p>Replace the <cite>firstVelocity</cite> attribute.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setLastVelocity</span></code>(x)</p></td>
+<td><p>Replace the <cite>lastVelocity</cite> attribute.</p></td>
+</tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([identifier, all])</p></td>
-<td><p>Return the last sample of the current buffer as a float.</p></td>
+<td><p>Return the first sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
 <td><p>Start processing without sending samples to output.</p></td>
@@ -3472,12 +3457,6 @@ to audio outs.</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__do_comp__</span></code>(comp, mode[, default])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__float__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__int__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isPlaying</span></code>([all])</p></td>
 <td><p>Returns True if the object is currently playing, otherwise, returns False.</p></td>
 </tr>
@@ -3485,7 +3464,7 @@ to audio outs.</p>
 <td><p>Returns True if the object is outputting.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
-<td><p>Return the last sample of the current buffer as a float.</p></td>
+<td><p>Return the first sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
 <td><p>Start processing without sending samples to output.</p></td>
@@ -3740,9 +3719,67 @@ polyphony is already full, the new notes will be ignored.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
+<dt class="sig sig-object py" id="pyo.Notein.setHoldmode">
+<span class="sig-name descname"><span class="pre">setHoldmode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/midi.html#Notein.setHoldmode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.Notein.setHoldmode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the key mode. Defaults to 0.</p>
+<p>Controls the behaviour of an incoming Midi note.</p>
+<dl class="field-list">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl>
+<dt>x: int</dt><dd><p>0 := no hold (default)
+1 := hold mode, new noteon event will be activate</p>
+<blockquote>
+<div><p>until the next noteon event with the same pitch,
+velocity sensitive</p>
+</div></blockquote>
+<dl class="simple">
+<dt>2 := onoff mode, new noteon event will be activate</dt><dd><p>until the next noteon event with the same pitch,
+noteon velocity is set to 127</p>
+</dd>
+<dt>3 := single key hold mode, new noteon event will be activate</dt><dd><p>until any next noteon event, if next noteon event has
+the same pitch a noteoff event will be sent,
+velocity sensitive</p>
+</dd>
+<dt>4 := single key onoff mode, new noteon event will be activate</dt><dd><p>until any next noteon event, if next noteon event has
+the same pitch a noteoff event will be sent,
+noteon velocity is set to 127</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.Notein.setFirstVelocity">
+<span class="sig-name descname"><span class="pre">setFirstVelocity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/midi.html#Notein.setFirstVelocity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.Notein.setFirstVelocity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace the <cite>firstVelocity</cite> attribute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>x: int</dt><dd><p>new <cite>firstVelocity</cite> attribute.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyo.Notein.setLastVelocity">
+<span class="sig-name descname"><span class="pre">setLastVelocity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/midi.html#Notein.setLastVelocity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.Notein.setLastVelocity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace the <cite>lastVelocity</cite> attribute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Args</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>x: int</dt><dd><p>new <cite>lastVelocity</cite> attribute.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
 <dt class="sig sig-object py" id="pyo.Notein.get">
 <span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">identifier</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'pitch'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/midi.html#Notein.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.Notein.get" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the last sample of the current buffer as a float.</p>
+<dd><p>Return the first sample of the current buffer as a float.</p>
 <p>Can be used to convert audio stream to usable Python data.</p>
 <p>“pitch” or “velocity” must be given to <cite>identifier</cite> to specify
 which stream to get value from.</p>
@@ -3752,9 +3789,9 @@ which stream to get value from.</p>
 <dt>identifier: string {“pitch”, “velocity”}</dt><dd><p>Address string parameter identifying audio stream.
 Defaults to “pitch”.</p>
 </dd>
-<dt>all: boolean, optional</dt><dd><p>If True, the last value of each object’s stream
+<dt>all: boolean, optional</dt><dd><p>If True, the first value of each object’s stream
 will be returned as a list.</p>
-<p>Otherwise, only the last value of the first object’s
+<p>Otherwise, only the value of the first object’s
 stream will be returned as a float.</p>
 </dd>
 </dl>
@@ -3912,6 +3949,21 @@ the server GUI before showing the controller window.</p>
 <dt class="sig sig-object py" id="pyo.Notein.channel">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">channel</span></span><a class="headerlink" href="#pyo.Notein.channel" title="Permalink to this definition">¶</a></dt>
 <dd><p>int. Midi channel. 0 means all channels.</p>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="pyo.Notein.holdmode">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">holdmode</span></span><a class="headerlink" href="#pyo.Notein.holdmode" title="Permalink to this definition">¶</a></dt>
+<dd><p>int. Hold mode. 0 = no hold, 1 = hold, 2 = onoff, 3 = single key hold, 4 = single key onoff.</p>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="pyo.Notein.firstVelocity">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">firstVelocity</span></span><a class="headerlink" href="#pyo.Notein.firstVelocity" title="Permalink to this definition">¶</a></dt>
+<dd><p>int. Lowest midi velocity.</p>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="pyo.Notein.lastVelocity">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">lastVelocity</span></span><a class="headerlink" href="#pyo.Notein.lastVelocity" title="Permalink to this definition">¶</a></dt>
+<dd><p>int. Highest midi velocity.</p>
 </dd></dl>
 </dd></dl>
 </section>
@@ -4085,12 +4137,6 @@ to audio outs.</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__do_comp__</span></code>(comp, mode[, default])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__float__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__int__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isPlaying</span></code>([all])</p></td>
 <td><p>Returns True if the object is currently playing, otherwise, returns False.</p></td>
 </tr>
@@ -4098,7 +4144,7 @@ to audio outs.</p>
 <td><p>Returns True if the object is outputting.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
-<td><p>Return the last sample of the current buffer as a float.</p></td>
+<td><p>Return the first sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
 <td><p>Start processing without sending samples to output.</p></td>
@@ -4527,12 +4573,6 @@ to audio outs.</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__do_comp__</span></code>(comp, mode[, default])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__float__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__int__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isPlaying</span></code>([all])</p></td>
 <td><p>Returns True if the object is currently playing, otherwise, returns False.</p></td>
 </tr>
@@ -4540,7 +4580,7 @@ to audio outs.</p>
 <td><p>Returns True if the object is outputting.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
-<td><p>Return the last sample of the current buffer as a float.</p></td>
+<td><p>Return the first sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
 <td><p>Start processing without sending samples to output.</p></td>
@@ -5003,12 +5043,6 @@ to audio outs.</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__do_comp__</span></code>(comp, mode[, default])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__float__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__int__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isPlaying</span></code>([all])</p></td>
 <td><p>Returns True if the object is currently playing, otherwise, returns False.</p></td>
 </tr>
@@ -5016,7 +5050,7 @@ to audio outs.</p>
 <td><p>Returns True if the object is outputting.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
-<td><p>Return the last sample of the current buffer as a float.</p></td>
+<td><p>Return the first sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
 <td><p>Start processing without sending samples to output.</p></td>
@@ -5484,12 +5518,6 @@ to audio outs.</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__do_comp__</span></code>(comp, mode[, default])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__float__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__int__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isPlaying</span></code>([all])</p></td>
 <td><p>Returns True if the object is currently playing, otherwise, returns False.</p></td>
 </tr>
@@ -5497,7 +5525,7 @@ to audio outs.</p>
 <td><p>Returns True if the object is outputting.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
-<td><p>Return the last sample of the current buffer as a float.</p></td>
+<td><p>Return the first sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
 <td><p>Start processing without sending samples to output.</p></td>

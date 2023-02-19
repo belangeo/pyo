@@ -1002,7 +1002,11 @@ class PyoObjectControl(wx.Frame):
         self._maps = {}
         self._sigs = {}
 
-        panel = BasePanel(self)
+        if sys.platform == "darwin":
+            panel = wx.Panel(self, style=wx.TAB_TRAVERSAL)
+            panel.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW))
+        else:
+            panel = BasePanel(self)
         mainBox = wx.BoxSizer(wx.VERTICAL)
         self.box = wx.FlexGridSizer(len(self._map_list), 2, 5, 5)
 
@@ -1134,7 +1138,11 @@ class ViewTable(wx.Frame):
         self.tableclass = tableclass
         self.object = object
         self.Bind(wx.EVT_CLOSE, self._destroy)
-        self.panel = BasePanel(self)
+        if sys.platform == "darwin":
+            self.panel = wx.Panel(self, style=wx.TAB_TRAVERSAL)
+            self.panel.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW))
+        else:
+            self.panel = BasePanel(self)
         self.box = wx.BoxSizer(wx.VERTICAL)
         self.wavePanel = ViewTablePanel(self.panel, object)
         self.box.Add(self.wavePanel, 1, wx.EXPAND | wx.ALL, 5)
@@ -1198,7 +1206,11 @@ class SndViewTable(wx.Frame):
         self.obj = obj
         self.chnls = len(self.obj)
         self.dur = self.obj.getDur(False)
-        self.panel = BasePanel(self)
+        if sys.platform == "darwin":
+            self.panel = wx.Panel(self, style=wx.TAB_TRAVERSAL)
+            self.panel.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW))
+        else:
+            self.panel = BasePanel(self)
         self.box = wx.BoxSizer(wx.VERTICAL)
         self.wavePanel = SndViewTablePanel(self.panel, obj, mouse_callback)
         self.box.Add(self.wavePanel, 1, wx.EXPAND | wx.ALL, 5)
@@ -1536,7 +1548,11 @@ class SpectrumDisplay(wx.Frame):
         self.SetMenuBar(self.menubar)
         self.Bind(wx.EVT_CLOSE, self._destroy)
         self.obj = obj
-        self.panel = BasePanel(self)
+        if sys.platform == "darwin":
+            self.panel = wx.Panel(self, style=wx.TAB_TRAVERSAL)
+            self.panel.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW))
+        else:
+            self.panel = BasePanel(self)
         self.mainBox = wx.BoxSizer(wx.VERTICAL)
         self.toolBox = wx.BoxSizer(wx.HORIZONTAL)
         if sys.platform == "darwin":
@@ -1955,7 +1971,11 @@ class ScopeDisplay(wx.Frame):
         self.obj = obj
         gain = self.obj.gain
         length = self.obj.length
-        self.panel = BasePanel(self)
+        if sys.platform == "darwin":
+            self.panel = wx.Panel(self, style=wx.TAB_TRAVERSAL)
+            self.panel.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW))
+        else:
+            self.panel = BasePanel(self)
         self.mainBox = wx.BoxSizer(wx.VERTICAL)
         self.toolBox = wx.BoxSizer(wx.HORIZONTAL)
         if sys.platform == "darwin":
@@ -3992,7 +4012,12 @@ class ServerGUI(wx.Frame):
         self._history = []
         self._histo_count = 0
 
-        panel = BasePanel(self)
+        if sys.platform == "darwin":
+            panel = wx.Panel(self, style=wx.TAB_TRAVERSAL)
+            panel.SetBackgroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW))
+        else:
+            panel = BasePanel(self)
+
         box = wx.BoxSizer(wx.VERTICAL)
 
         buttonBox = wx.BoxSizer(wx.HORIZONTAL)

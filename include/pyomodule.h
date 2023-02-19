@@ -26,7 +26,7 @@
 #include <stdint.h>
 #include <math.h>
 
-#define PYO_VERSION "1.0.4"
+#define PYO_VERSION "1.0.5"
 
 typedef Py_ssize_t T_SIZE_T;
 

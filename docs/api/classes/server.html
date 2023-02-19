@@ -5,7 +5,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
-<title>Audio Server — Pyo 1.0.4 documentation</title>
+<title>Audio Server — Pyo 1.0.5 documentation</title>
 <link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
 <link href="../../_static/agogo.css" rel="stylesheet" type="text/css"/>
 <link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
@@ -25,7 +25,7 @@
 </head><body>
 <div class="header-wrapper" role="banner">
 <div class="header">
-<div class="headertitle"><a href="../../index.html">Pyo 1.0.4 documentation</a></div>
+<div class="headertitle"><a href="../../index.html">Pyo 1.0.5 documentation</a></div>
 <div aria-label="related navigation" class="rel" role="navigation">
 <a accesskey="P" href="index.html" title="Classes by category">previous</a> |
           <a accesskey="N" href="listener.html" title="Controller listeners">next</a> |
@@ -75,7 +75,7 @@
 <h2><em>Server</em><a class="headerlink" href="#server" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pyo.Server">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Server</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">44100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nchnls</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buffersize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">256</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duplex</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">audio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'portaudio'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">jackname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'pyo'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ichnls</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">winhost</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'directsound'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">midi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'portmidi'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/server.html#Server"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.Server" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Server</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">44100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nchnls</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buffersize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">256</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duplex</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">audio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'portaudio'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">jackname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'pyo'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ichnls</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">winhost</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'directsound'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">midi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'portmidi'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbosity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">7</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/server.html#Server"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.Server" title="Permalink to this definition">¶</a></dt>
 <dd><p>Main processing audio loop callback handler.</p>
 <p>The Server object handles all communications with Portaudio and
 Portmidi. It keeps track of all audio streams created as well as
@@ -131,6 +131,8 @@ This behaviour can be changed with the SetXXXDevice methods. Defaults to “dire
 will ask jack to start in the background. Note that pyo never ask jack to close. It is
 the user’s responsability to manage the audio/midi configuration of its system.</p>
 <p>User can set an environment variable named PYO_SERVER_MIDI to set this value globally.</p>
+</dd>
+<dt>verbosity: int, optional</dt><dd><p>Set the server’s verbosity.</p>
 </dd>
 </dl>
 </dd>
