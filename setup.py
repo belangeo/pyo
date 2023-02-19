@@ -20,7 +20,7 @@ License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 from setuptools import setup, Extension
 from distutils.sysconfig import get_python_lib
-import os, sys, subprocess, platform, glob
+import os, sys, subprocess, platform, glob, shutil
 
 if sys.platform == "win32":
     with open("setup.cfg", "w") as f:
@@ -321,17 +321,13 @@ else:
         libraries.append("jack")
 
 # Platform-specific data files
+dlls = []
+data_files = []
 if sys.platform == "win32":
-    if "bdist_wheel" in sys.argv:
-        data_files_dest = os.path.join("Lib", "site-packages", "pyo")
-    else:
-        data_files_dest = "pyo"
-    dlls = []
     for bind in binary_dirs:
         dlls.extend(glob.glob(os.path.join(bind, "*.dll")))
     dlls = [item for item in dlls if "FLAC++" not in item]  # Lame: remove this manually
     dlls.extend(glob.glob(os.path.join(msys2_mingw_root, "bin", "lib*pthread*.dll")))
-    data_files = ((data_files_dest, dlls),)
 elif sys.platform == "darwin":
     if "bdist_wheel" in sys.argv:
         dylibs = []
@@ -340,10 +336,6 @@ elif sys.platform == "darwin":
         dylibs = [dylib for dylib in dylibs if not os.path.islink(dylib)]
         dylibs = [dylib for dylib in dylibs if "FLAC++" not in dylib and "portaudiocpp" not in dylib]
         data_files = (("/pyo", dylibs),)
-    else:
-        data_files = []
-else:
-    data_files = []
 
 libraries += ["m"]
 extra_compile_args = ["-Wno-strict-prototypes", "-Wno-strict-aliasing"] + oflag + gflag
@@ -414,6 +406,11 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
 ]
 
+# Copy dlls to package to pyo folder 
+if sys.platform == "win32":
+    for dll in dlls:
+        shutil.copy(dll, "pyo/")
+
 setup(
     name="pyo",
     author="Olivier Belanger",
@@ -434,6 +431,7 @@ setup(
     zip_safe=False,
     packages=packages,
     package_data={
+        "pyo": [os.path.basename(dll) for dll in dlls],
         "pyo.lib.snds": soundfiles,
         "pyo.editor.styles": [
             "Custom",
@@ -479,3 +477,8 @@ if compile_externals:
 
 if sys.platform == "win32" and os.path.isfile("setup.cfg"):
     os.remove("setup.cfg")
+
+# Remove packaged dlls from pyo folder 
+if sys.platform == "win32":
+    for dll in dlls:
+        os.remove(os.path.join("pyo", os.path.basename(dll)))
