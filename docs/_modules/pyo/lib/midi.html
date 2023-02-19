@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>pyo.lib.midi &#8212; Pyo 1.0.4 documentation</title>
+    <title>pyo.lib.midi &#8212; Pyo 1.0.5 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/agogo.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-codeautolink.css" />
@@ -24,7 +24,7 @@
     <div class="header-wrapper" role="banner">
       <div class="header">
         <div class="headertitle"><a
-          href="../../../index.html">Pyo 1.0.4 documentation</a></div>
+          href="../../../index.html">Pyo 1.0.5 documentation</a></div>
         <div class="rel" role="navigation" aria-label="related navigation">
           <a href="../../../genindex.html" title="General Index"
              accesskey="I">index</a>
@@ -603,6 +603,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_first</span> <span class="o">=</span> <span class="n">first</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_last</span> <span class="o">=</span> <span class="n">last</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_channel</span> <span class="o">=</span> <span class="n">channel</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_holdmode</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_firstvelocity</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lastvelocity</span> <span class="o">=</span> <span class="mi">127</span>
         <span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">,</span> <span class="n">lmax</span> <span class="o">=</span> <span class="n">convertArgsToLists</span><span class="p">(</span><span class="n">mul</span><span class="p">,</span> <span class="n">add</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_base_handler</span> <span class="o">=</span> <span class="n">MidiNote_base</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_poly</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scale</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_first</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_channel</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_base_objs</span> <span class="o">=</span> <span class="p">[]</span>
@@ -717,9 +720,70 @@
         <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_base_handler</span><span class="o">.</span><span class="n">setStealing</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
 
+<div class="viewcode-block" id="Notein.setHoldmode"><a class="viewcode-back" href="../../../api/classes/midi.html#pyo.Notein.setHoldmode">[docs]</a>    <span class="k">def</span> <span class="nf">setHoldmode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the key mode. Defaults to 0.</span>
+
+<span class="sd">        Controls the behaviour of an incoming Midi note.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: int</span>
+<span class="sd">                0 := no hold (default)</span>
+<span class="sd">                1 := hold mode, new noteon event will be activate</span>
+<span class="sd">                     until the next noteon event with the same pitch,</span>
+<span class="sd">                     velocity sensitive</span>
+<span class="sd">                2 := onoff mode, new noteon event will be activate</span>
+<span class="sd">                     until the next noteon event with the same pitch,</span>
+<span class="sd">                     noteon velocity is set to 127</span>
+<span class="sd">                3 := single key hold mode, new noteon event will be activate</span>
+<span class="sd">                     until any next noteon event, if next noteon event has</span>
+<span class="sd">                     the same pitch a noteoff event will be sent,</span>
+<span class="sd">                     velocity sensitive</span>
+<span class="sd">                4 := single key onoff mode, new noteon event will be activate</span>
+<span class="sd">                     until any next noteon event, if next noteon event has</span>
+<span class="sd">                     the same pitch a noteoff event will be sent,</span>
+<span class="sd">                     noteon velocity is set to 127</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;I&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_holdmode</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_handler</span><span class="o">.</span><span class="n">setHoldmode</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">sendAllNotesOff</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_handler</span><span class="o">.</span><span class="n">sendAllNotesOff</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Notein.setFirstVelocity"><a class="viewcode-back" href="../../../api/classes/midi.html#pyo.Notein.setFirstVelocity">[docs]</a>    <span class="k">def</span> <span class="nf">setFirstVelocity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `firstVelocity` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: int</span>
+<span class="sd">                new `firstVelocity` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;I&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_firstvelocity</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_handler</span><span class="o">.</span><span class="n">setFirstVelocity</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Notein.setLastVelocity"><a class="viewcode-back" href="../../../api/classes/midi.html#pyo.Notein.setLastVelocity">[docs]</a>    <span class="k">def</span> <span class="nf">setLastVelocity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace the `lastVelocity` attribute.</span>
+
+<span class="sd">        :Args:</span>
+
+<span class="sd">            x: int</span>
+<span class="sd">                new `lastVelocity` attribute.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pyoArgsAssert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;I&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lastvelocity</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_handler</span><span class="o">.</span><span class="n">setLastVelocity</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="Notein.get"><a class="viewcode-back" href="../../../api/classes/midi.html#pyo.Notein.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">identifier</span><span class="o">=</span><span class="s2">&quot;pitch&quot;</span><span class="p">,</span> <span class="nb">all</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Return the last sample of the current buffer as a float.</span>
+<span class="sd">        Return the first sample of the current buffer as a float.</span>
 
 <span class="sd">        Can be used to convert audio stream to usable Python data.</span>
 
@@ -732,10 +796,10 @@
 <span class="sd">                Address string parameter identifying audio stream.</span>
 <span class="sd">                Defaults to &quot;pitch&quot;.</span>
 <span class="sd">            all: boolean, optional</span>
-<span class="sd">                If True, the last value of each object&#39;s stream</span>
+<span class="sd">                If True, the first value of each object&#39;s stream</span>
 <span class="sd">                will be returned as a list.</span>
 
-<span class="sd">                Otherwise, only the last value of the first object&#39;s</span>
+<span class="sd">                Otherwise, only the value of the first object&#39;s</span>
 <span class="sd">                stream will be returned as a float.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -828,7 +892,34 @@
 
     <span class="nd">@channel</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">channel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">setChannel</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setChannel</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">holdmode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;int. Hold mode. 0 = no hold, 1 = hold, 2 = onoff, 3 = single key hold, 4 = single key onoff.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_holdmode</span>
+
+    <span class="nd">@holdmode</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">holdmode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setHoldmode</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">firstVelocity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;int. Lowest midi velocity.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_firstvelocity</span>
+
+    <span class="nd">@firstVelocity</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">firstVelocity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setFirstVelocity</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">lastVelocity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;int. Highest midi velocity.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lastvelocity</span>
+
+    <span class="nd">@lastVelocity</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">lastVelocity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setLastVelocity</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Bendin"><a class="viewcode-back" href="../../../api/classes/midi.html#pyo.Bendin">[docs]</a><span class="k">class</span> <span class="nc">Bendin</span><span class="p">(</span><span class="n">PyoObject</span><span class="p">):</span>

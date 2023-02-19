@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>pyo.lib.triggers &#8212; Pyo 1.0.4 documentation</title>
+    <title>pyo.lib.triggers &#8212; Pyo 1.0.5 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/agogo.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-codeautolink.css" />
@@ -24,7 +24,7 @@
     <div class="header-wrapper" role="banner">
       <div class="header">
         <div class="headertitle"><a
-          href="../../../index.html">Pyo 1.0.4 documentation</a></div>
+          href="../../../index.html">Pyo 1.0.5 documentation</a></div>
         <div class="rel" role="navigation" aria-label="related navigation">
           <a href="../../../genindex.html" title="General Index"
              accesskey="I">index</a>
@@ -631,7 +631,7 @@
 
 <div class="viewcode-block" id="Beat.get"><a class="viewcode-back" href="../../../api/classes/triggers.html#pyo.Beat.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">identifier</span><span class="o">=</span><span class="s2">&quot;amp&quot;</span><span class="p">,</span> <span class="nb">all</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Return the last sample of the current buffer as a float.</span>
+<span class="sd">        Return the first sample of the current buffer as a float.</span>
 
 <span class="sd">        Can be used to convert audio stream to usable Python data.</span>
 
@@ -644,10 +644,10 @@
 <span class="sd">                Address string parameter identifying audio stream.</span>
 <span class="sd">                Defaults to &quot;amp&quot;.</span>
 <span class="sd">            all: boolean, optional</span>
-<span class="sd">                If True, the last value of each object&#39;s stream</span>
+<span class="sd">                If True, the first value of each object&#39;s stream</span>
 <span class="sd">                will be returned as a list.</span>
 
-<span class="sd">                If False, only the last value of the first object&#39;s</span>
+<span class="sd">                If False, only the value of the first object&#39;s</span>
 <span class="sd">                stream will be returned as a float.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -3821,7 +3821,7 @@
 
 <div class="viewcode-block" id="Euclide.get"><a class="viewcode-back" href="../../../api/classes/triggers.html#pyo.Euclide.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">identifier</span><span class="o">=</span><span class="s2">&quot;amp&quot;</span><span class="p">,</span> <span class="nb">all</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Return the last sample of the current buffer as a float.</span>
+<span class="sd">        Return the first sample of the current buffer as a float.</span>
 
 <span class="sd">        Can be used to convert audio stream to usable Python data.</span>
 
@@ -3834,10 +3834,10 @@
 <span class="sd">                Address string parameter identifying audio stream.</span>
 <span class="sd">                Defaults to &quot;amp&quot;.</span>
 <span class="sd">            all: boolean, optional</span>
-<span class="sd">                If True, the last value of each object&#39;s stream</span>
+<span class="sd">                If True, the first value of each object&#39;s stream</span>
 <span class="sd">                will be returned as a list.</span>
 
-<span class="sd">                If False, only the last value of the first object&#39;s</span>
+<span class="sd">                If False, only the value of the first object&#39;s</span>
 <span class="sd">                stream will be returned as a float.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -4085,7 +4085,7 @@
 
 <div class="viewcode-block" id="TrigBurst.get"><a class="viewcode-back" href="../../../api/classes/triggers.html#pyo.TrigBurst.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">identifier</span><span class="o">=</span><span class="s2">&quot;amp&quot;</span><span class="p">,</span> <span class="nb">all</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Return the last sample of the current buffer as a float.</span>
+<span class="sd">        Return the first sample of the current buffer as a float.</span>
 
 <span class="sd">        Can be used to convert audio stream to usable Python data.</span>
 
@@ -4098,10 +4098,10 @@
 <span class="sd">                Address string parameter identifying audio stream.</span>
 <span class="sd">                Defaults to &quot;amp&quot;.</span>
 <span class="sd">            all: boolean, optional</span>
-<span class="sd">                If True, the last value of each object&#39;s stream</span>
+<span class="sd">                If True, the first value of each object&#39;s stream</span>
 <span class="sd">                will be returned as a list.</span>
 
-<span class="sd">                If False, only the last value of the first object&#39;s</span>
+<span class="sd">                If False, only the value of the first object&#39;s</span>
 <span class="sd">                stream will be returned as a float.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>

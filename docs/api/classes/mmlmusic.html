@@ -5,7 +5,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="Docutils 0.17.1: http://docutils.sourceforge.net/" name="generator"/>
-<title>Music Macro Language evaluator — Pyo 1.0.4 documentation</title>
+<title>Music Macro Language evaluator — Pyo 1.0.5 documentation</title>
 <link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
 <link href="../../_static/agogo.css" rel="stylesheet" type="text/css"/>
 <link href="../../_static/sphinx-codeautolink.css" rel="stylesheet" type="text/css"/>
@@ -25,7 +25,7 @@
 </head><body>
 <div class="header-wrapper" role="banner">
 <div class="header">
-<div class="headertitle"><a href="../../index.html">Pyo 1.0.4 documentation</a></div>
+<div class="headertitle"><a href="../../index.html">Pyo 1.0.5 documentation</a></div>
 <div aria-label="related navigation" class="rel" role="navigation">
 <a accesskey="P" href="midi.html" title="Midi Handling">previous</a> |
           <a accesskey="N" href="opensndctrl.html" title="Open Sound Control">next</a> |
@@ -315,7 +315,7 @@ Defaults to False.</p>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([identifier, all])</p></td>
-<td><p>Return the last sample of the current buffer as a float.</p></td>
+<td><p>Return the first sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setMusic</span></code>(x)</p></td>
 <td><p>Replace the <cite>music</cite> attribute.</p></td>
@@ -442,12 +442,6 @@ Defaults to False.</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__do_comp__</span></code>(comp, mode[, default])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__float__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__int__</span></code>()</p></td>
-<td><p></p></td>
-</tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">isPlaying</span></code>([all])</p></td>
 <td><p>Returns True if the object is currently playing, otherwise, returns False.</p></td>
 </tr>
@@ -455,7 +449,7 @@ Defaults to False.</p>
 <td><p>Returns True if the object is outputting.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code>([all])</p></td>
-<td><p>Return the last sample of the current buffer as a float.</p></td>
+<td><p>Return the first sample of the current buffer as a float.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">play</span></code>([dur, delay])</p></td>
 <td><p>Start processing without sending samples to output.</p></td>
@@ -618,7 +612,7 @@ Defaults to False.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pyo.MML.get">
 <span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">identifier</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'amp'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/mmlmusic.html#MML.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.MML.get" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the last sample of the current buffer as a float.</p>
+<dd><p>Return the first sample of the current buffer as a float.</p>
 <p>Can be used to convert audio stream to usable Python data.</p>
 <p>“freq”, “amp”, “dur”, “end”, “x”, “y” or “z” can be given
 to <cite>identifier</cite> to retrieve a specific stream to get the
@@ -629,9 +623,9 @@ value from.</p>
 <dt>identifier: string {“freq”, “amp”, “dur”, “end”, “x”, “y”, “z”}</dt><dd><p>Address string parameter identifying audio stream.
 Defaults to “amp”.</p>
 </dd>
-<dt>all: boolean, optional</dt><dd><p>If True, the last value of each object’s stream
+<dt>all: boolean, optional</dt><dd><p>If True, the first value of each object’s stream
 will be returned as a list.</p>
-<p>If False, only the last value of the first object’s
+<p>If False, only the value of the first object’s
 stream will be returned as a float.</p>
 </dd>
 </dl>
