@@ -1,5 +1,5 @@
 {
-    "pyo_version": "1.0.4.post5",
+    "pyo_version": "1.0.5",
     "build_linux_debug": "python3 setup.py bdist_wheel --use-jack --debug --fast-compile",
     "build_linux_single": "python3 setup.py bdist_wheel --use-jack",
     "build_linux_double": "python3 setup.py bdist_wheel --use-jack --use-double",
