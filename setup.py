@@ -301,8 +301,9 @@ elif sys.platform == "darwin":
         "mpg123": (False, True, "1.31.2"),
     }
 
-    # Intel, brew's packages directory is usually /usr/local/Cellar
-    brew_packages_root = os.environ.get("BREW_PACKAGES_ROOT", "/opt/homebrew/Cellar")
+    # Intel: /usr/local/Cellar
+    # arm64: /opt/homebrew/Cellar
+    brew_packages_root = os.environ.get("BREW_PACKAGES_ROOT", "/usr/local/Cellar")
 
     include_dirs = ["include"]
     library_dirs = []
