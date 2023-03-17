@@ -765,9 +765,12 @@ def pa_get_default_devices_from_host(host):
     # Retrieve host apis infos.
     tempfile = os.path.join(os.path.expanduser("~"), "pa_retrieve_host_apis")
     with open(tempfile, "w") as f:
-        with f as sys.stdout:
-            pa_list_host_apis()
-            sys.stdout = sys.__stdout__
+        old = sys.stdout
+        try:
+            with f as sys.stdout:
+                pa_list_host_apis()
+        finally:
+            sys.stdout = old
 
     with open(tempfile, "r") as f:
         lines = f.readlines()
