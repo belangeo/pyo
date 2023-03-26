@@ -17,11 +17,11 @@ benefits of a mature, and widely used, general programming language.
 
 Available from Pypi:
 
-python 3.7 (Windows amd64, MacOS x86_64, linux x86_64)
-python 3.8 (Windows amd64, MacOS x86_64 et arm64, linux x86_64)
-python 3.9 (Windows amd64, MacOS x86_64 et arm64, linux x86_64)
-python 3.10 (Windows amd64, MacOS x86_64 et arm64, linux x86_64)
-python 3.11 (Windows amd64, MacOS x86_64 et arm64)
+- python 3.7 (Windows amd64, MacOS x86_64, linux x86_64)
+- python 3.8 (Windows amd64, MacOS x86_64 et arm64, linux x86_64)
+- python 3.9 (Windows amd64, MacOS x86_64 et arm64, linux x86_64)
+- python 3.10 (Windows amd64, MacOS x86_64 et arm64, linux x86_64)
+- python 3.11 (Windows amd64, MacOS x86_64 et arm64)
 
 **For more informations and documentation**, visit the 
 [PYO DOCUMENTATION](https://belangeo.github.io/pyo/).
