@@ -9,6 +9,21 @@ Roadmap 1.0.5
 Roadmap 1.0.6
 -------------
 
+- HiDPI on Windows:
+
+• since I run Windows 11 in HighDPI resolution, the default GUI looks a bit pixelated
+-- this could be fixed later on by using
+if IS_WINDOWS:
+    try:
+        import ctypes
+        ctypes.windll.shcore.SetProcessDpiAwareness(True)
+    except Exception as e:
+        pass
+
+in conjunction with self.FromDIP(wx.Point, wx.Size, ...) in _wxwidgets.py
+
+ref: https://mail.google.com/mail/u/0/?zx=5375dhfmshql#label/PYO/KtbxLxghkxTqDXhnSCDJxLQkCDHGxpMslq
+
 - Safer version of realloc
 
 - Add Midifile object
