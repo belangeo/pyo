@@ -707,9 +707,9 @@ class TestPyoTableObject:
     def test_setSize2(self):
         dummy = Sig(0)
         samplerate = dummy.getServer().getSamplingRate()
-        t = NewTable(8 / samplerate, init=[1]*8)
+        t = NewTable(10 / samplerate, init=[1]*10)
         t.setSize(16)
-        assert t.getTable() == [1]*8 + [0]*8
+        assert t.getTable() == [1]*10 + [0]*6
 
     def test_setLength(self):
         dummy = Sig(0)
