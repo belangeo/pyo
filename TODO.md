@@ -9,6 +9,13 @@ Roadmap 1.0.5
 Roadmap 1.0.6
 -------------
 
+- Doc page about multichannel expansion.
+
+- FAQ in github's wiki
+    1) multi-channel expansion
+    2) the necessity of keeping the python process alive (no sound because the main python process quits)
+    3) scoping problems (defining a PyoObject in a function that gets garbage-collected before it produces sound)
+
 - HiDPI on Windows:
 
 • since I run Windows 11 in HighDPI resolution, the default GUI looks a bit pixelated
