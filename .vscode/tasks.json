@@ -227,10 +227,10 @@
         {
             "label": "Run current file linux",
             "type": "shell",
-            "command": "${config:activate_venv}; .venv/bin/python ${file}",
+            "command": "source ${workspaceFolder}/.venv/bin/activate; ${workspaceFolder}/.venv/bin/python ${file}",
             "problemMatcher": [],
             "options": {
-                "cwd": "${workspaceFolder}"
+                "cwd": "${fileDirname}"
             },
             "presentation": {
                 "echo": true,
@@ -295,7 +295,7 @@
         {
             "label": "Run EPyo",
             "type": "shell",
-            "command": "cd ~ & epyo",
+            "command": "cd ~; source ${workspaceFolder}/.venv/bin/activate; epyo",
             "problemMatcher": [],
             "presentation": {
                 "echo": true,
