@@ -15,8 +15,9 @@ TODO:
 import sys
 
 import os, inspect, keyword, wx, codecs, subprocess, unicodedata, types
-import contextlib, shutil, copy, pprint, random, time, threading
+import shutil, copy, pprint, random, time, threading
 from types import MethodType
+from contextlib import redirect_stdout
 from wx.lib.wordwrap import wordwrap
 from wx.lib.embeddedimage import PyEmbeddedImage
 from wx.lib.splitter import MultiSplitterWindow
@@ -71,15 +72,6 @@ APP_NAME = "EPyo"
 APP_VERSION = PYO_VERSION
 
 ################## Utility Functions ##################
-@contextlib.contextmanager
-def stdoutIO(stdout=None):
-    old = sys.stdout
-    if stdout is None:
-        stdout = StringIO()
-    sys.stdout = stdout
-    yield stdout
-    sys.stdout = old
-
 
 def ensureNFD(unistr):
     if PLATFORM == "win32" or PLATFORM.startswith("linux"):
@@ -4633,7 +4625,7 @@ class MainFrame(wx.Frame):
         pos = self.panel.editor.GetLineEndPosition(line)
         self.panel.editor.SetCurrentPos(pos)
         self.panel.editor.addText("\n", False)
-        with stdoutIO() as s:
+        with redirect_stdout(StringIO()) as s:
             exec(text)
         self.panel.editor.addText(s.getvalue())
 
