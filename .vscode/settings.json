@@ -1,7 +1,8 @@
 {
     "pyo_version": "1.0.5",
-    "build_linux_debug": "python3 setup.py bdist_wheel --use-jack --debug --fast-compile",
-    "build_linux_single": "python3 setup.py bdist_wheel --use-jack",
-    "build_linux_double": "python3 setup.py bdist_wheel --use-jack --use-double",
-    "install_linux": "python3 -m pip install --user --force-reinstall dist/pyo-*-cp39-cp39-linux_x86_64.whl"
+    "activate_venv": "source .venv/bin/activate",
+    "build_linux_debug": "python3 -m build --config-setting=\"--build-option=--use-jack\" --config-setting=\"--build-option=--debug\" --config-setting=\"--build-option=--fast-compile\"",
+    "build_linux_single": "python3 -m build --config-setting=\"--build-option=--use-jack\"",
+    "build_linux_double": "python3 -m build --config-setting=\"--build-option=--use-jack\" --config-setting=\"--build-option=--use-double\"",
+    "install_linux": "python3 -m pip install --force-reinstall dist/pyo-*-cp311-cp311-linux_x86_64.whl",
 }

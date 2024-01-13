@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Copyright 2009-2020 Olivier Belanger
+Copyright 2009-2023 Olivier Belanger
 
 This file is part of pyo, a python module to help digital signal
 processing script creation.
@@ -16,40 +16,15 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU Lesser General Public License for more details.
 
 You should have received a copy of the GNU Lesser General Public
-License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
+License along with pyo. If not, see <http://www.gnu.org/licenses/>.
 """
 from setuptools import setup, Extension
-from distutils.sysconfig import get_python_lib
 import os, sys, subprocess, platform, glob, shutil
 
 if sys.platform == "win32":
     with open("setup.cfg", "w") as f:
         f.write("[build]\ncompiler = mingw32")
 
-JACK1_MIN_VERSION = "0.125.0"
-JACK2_MIN_VERSION = "1.9.11"
-
-def get_jack_api():
-    try:
-        output = subprocess.check_output(
-            ['pkg-config', '--modversion', 'jack'],
-            shell=True, text=True
-        )
-    except:
-        # jack2-dbus is probably installed instead of jackd.
-        # If jack2-dbus version is >= 1.9.11, we need JACK_NEW_API.
-        return "JACK_NEW_API"
-
-    if output != "":
-        if (output.startswith("0") and output < JACK1_MIN_VERSION) or (output.startswith("1") and output < "JACK2_MIN_VERSION"):
-            return "JACK_OLD_API"
-        else:
-            return "JACK_NEW_API"
-    else:
-        return "JACK_NEW_API"
-
-
-pyo_version = "1.0.5"
 build_with_jack_support = False
 compile_externals = False
 win_arch = platform.architecture()[0]
@@ -57,48 +32,9 @@ win_arch = platform.architecture()[0]
 macros = []
 extension_names = ["pyo._pyo"]
 extra_macros_per_extension = [[]]
-packages = [
-    "pyo",
-    "pyo.lib",
-    "pyo.lib.snds",
-    "pyo.editor",
-    "pyo.editor.styles",
-    "pyo.editor.snippets",
-    "pyo.editor.snippets.Audio",
-    "pyo.editor.snippets.Control",
-    "pyo.editor.snippets.Interface",
-    "pyo.editor.snippets.Utilities",
-    "pyo.examples",
-    "pyo.examples.01-intro",
-    "pyo.examples.02-controls",
-    "pyo.examples.03-generators",
-    "pyo.examples.04-soundfiles",
-    "pyo.examples.05-envelopes",
-    "pyo.examples.06-filters",
-    "pyo.examples.07-effects",
-    "pyo.examples.08-dynamics",
-    "pyo.examples.09-callbacks",
-    "pyo.examples.10-tables",
-    "pyo.examples.16-midi",
-    "pyo.examples.17-osc",
-    "pyo.examples.19-multirate",
-    "pyo.examples.20-multicore",
-    "pyo.examples.21-utilities",
-    "pyo.examples.22-events",
-    "pyo.examples.23-expression",
-    "pyo.examples.algorithmic",
-    "pyo.examples.fft",
-    "pyo.examples.matrix",
-    "pyo.examples.sampling",
-    "pyo.examples.sequencing",
-    "pyo.examples.snds",
-    "pyo.examples.synthesis",
-    "pyo.examples.wxgui",
-]
 
 if "--use-double" in sys.argv:
     sys.argv.remove("--use-double")
-    packages.append("pyo64")
     extension_names.append("pyo._pyo64")
     extra_macros_per_extension.append([("USE_DOUBLE", None)])
 
@@ -168,63 +104,19 @@ if "--use-coreaudio" in sys.argv:
     macros.append(("USE_COREAUDIO", None))
     ad_files.append("ad_coreaudio.c")
 
+# Source files
 path = "src/engine"
 files = [
-    "pyomodule.c",
-    "streammodule.c",
-    "servermodule.c",
-    "pvstreammodule.c",
-    "dummymodule.c",
-    "mixmodule.c",
-    "inputfadermodule.c",
-    "interpolation.c",
-    "fft.c",
-    "wind.c",
-    "vbap.c",
+    f for f in os.listdir(path)
+        if not f.startswith("ad_") and
+        not f.startswith("md_") and
+        "listener" not in f
 ] + ad_files
 source_files = [os.path.join(path, f) for f in files]
 
 path = "src/objects"
 files = [
-    "mmlmodule.c",
-    "hrtfmodule.c",
-    "filtremodule.c",
-    "arithmeticmodule.c",
-    "oscilmodule.c",
-    "randommodule.c",
-    "analysismodule.c",
-    "sfplayermodule.c",
-    "oscbankmodule.c",
-    "lfomodule.c",
-    "exprmodule.c",
-    "utilsmodule.c",
-    "granulatormodule.c",
-    "matrixmodule.c",
-    "noisemodule.c",
-    "distomodule.c",
-    "tablemodule.c",
-    "wgverbmodule.c",
-    "inputmodule.c",
-    "fadermodule.c",
-    "midimodule.c",
-    "delaymodule.c",
-    "recordmodule.c",
-    "metromodule.c",
-    "trigmodule.c",
-    "patternmodule.c",
-    "bandsplitmodule.c",
-    "hilbertmodule.c",
-    "panmodule.c",
-    "selectmodule.c",
-    "compressmodule.c",
-    "freeverbmodule.c",
-    "phasevocmodule.c",
-    "fftmodule.c",
-    "convolvemodule.c",
-    "sigmodule.c",
-    "matrixprocessmodule.c",
-    "harmonizermodule.c",
-    "chorusmodule.c",
+    f for f in os.listdir(path) if "oscmodule" not in f
 ] + obj_files
 
 if compile_externals:
@@ -301,9 +193,12 @@ elif sys.platform == "darwin":
         "mpg123": (False, True, "1.31.2"),
     }
 
+    ### TODO: MacOS, script argument / conditional statement to automate the default path
     # Intel: /usr/local/Cellar
     # arm64: /opt/homebrew/Cellar
     brew_packages_root = os.environ.get("BREW_PACKAGES_ROOT", "/usr/local/Cellar")
+
+    ### TODO: MacOS, Copy lib files and run install_name_tool here...
 
     include_dirs = ["include"]
     library_dirs = []
@@ -360,118 +255,15 @@ if compile_externals:
     include_dirs.append("externals")
     os.system("cp externals/external.py pyo/lib/")
 
-soundfiles = [f for f in os.listdir(os.path.join("pyo", "lib", "snds")) if f[-3:] in ["aif", "wav"]]
-soundfiles.extend(["ControlRead_example_test_000", "ControlRead_example_test_001"])
-soundfiles.extend(["NoteinRead_example_test_000", "NoteinRead_example_test_001"])
-short_desc = "Python module to build digital signal processing program."
-long_desc = """
-pyo is a Python module containing classes for a wide variety of audio signal processing types. 
-With pyo, user will be able to include signal processing chains directly in Python scripts or 
-projects, and to manipulate them in real time through the interpreter. Tools in pyo module offer 
-primitives, like mathematical operations on audio signal, basic signal processing (filters, 
-delays, synthesis generators, etc.), but also complex algorithms to create sound granulation 
-and others creative audio manipulations. pyo supports OSC protocol (Open Sound Control), to ease 
-communications between softwares, and MIDI protocol, for generating sound events and controlling 
-process parameters. pyo allows creation of sophisticated signal processing chains with all the 
-benefits of a mature, and widely used, general programming language.
-"""
-
-classifiers = [
-    # How mature is this project? Common values are
-    #   3 - Alpha
-    #   4 - Beta
-    #   5 - Production/Stable
-    "Development Status :: 5 - Production/Stable",
-    # Indicate who your project is intended for
-    "Intended Audience :: Developers",
-    "Intended Audience :: End Users/Desktop",
-    "Intended Audience :: Science/Research",
-    "Intended Audience :: Other Audience",
-    # Operating systems
-    "Operating System :: MacOS :: MacOS X",
-    "Operating System :: Microsoft :: Windows",
-    "Operating System :: POSIX :: Linux",
-    # Pick your license as you wish (should match "license" above)
-    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
-    # Topics
-    "Topic :: Multimedia :: Sound/Audio",
-    "Topic :: Multimedia :: Sound/Audio :: Analysis",
-    "Topic :: Multimedia :: Sound/Audio :: Capture/Recording",
-    "Topic :: Multimedia :: Sound/Audio :: Sound Synthesis",
-    # Specify the Python versions you support here. In particular, ensure
-    # that you indicate whether you support Python 2, Python 3 or both.
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.7",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-]
-
 # Copy dlls to package to pyo folder 
 if sys.platform == "win32":
     for dll in dlls:
         shutil.copy(dll, "pyo/")
 
 setup(
-    name="pyo",
-    author="Olivier Belanger",
-    author_email="belangeo@gmail.com",
-    version=pyo_version,
-    description=short_desc,
-    long_description=long_desc,
-    url="http://ajaxsoundstudio.com/software/pyo/",
-    project_urls={
-        "Bug Tracker": "https://github.com/belangeo/pyo/issues",
-        "Documentation": "http://ajaxsoundstudio.com/pyodoc/",
-        "Source Code": "https://github.com/belangeo/pyo",
-    },
-    classifiers=classifiers,
-    keywords="audio sound dsp synthesis signal-processing music",
-    license="LGPLv3+",
-    python_requires=">=3.7, <4",
-    zip_safe=False,
-    packages=packages,
-    package_data={
-        "pyo": [os.path.basename(dll) for dll in dlls],
-        "pyo.lib.snds": soundfiles,
-        "pyo.editor.styles": [
-            "Custom",
-            "Default",
-            "Espresso",
-            "Smooth",
-            "Soft",
-            "Monokai-Soda",
-            "Solarized (dark)",
-            "Solarized (light)",
-        ],
-        "pyo.editor.snippets.Audio": ["SoundPlayer", "TableOsc"],
-        "pyo.editor.snippets.Control": ["ChorusJit", "Vibrato"],
-        "pyo.editor.snippets.Interface": ["NewFrame", "PaintPanel"],
-        "pyo.editor.snippets.Utilities": ["ChooseAudioDev", "Incrementor"],
-        "pyo.examples.23-expression": ["utils.expr", "filters.expr", "generators.expr"],
-        "pyo.examples.snds": [
-            "alum1.wav",
-            "alum2.wav",
-            "alum3.wav",
-            "alum4.wav",
-            "baseballmajeur_m.aif",
-            "drumloop.wav",
-            "flute.aif",
-            "ounkmaster.aif",
-            "snd_1.aif",
-            "snd_2.aif",
-            "snd_3.aif",
-            "snd_4.aif",
-            "snd_5.aif",
-            "snd_6.aif",
-            "mapleleafrag.mid",
-        ],
-    },
     ext_modules=extensions,
     # To install files outside the package (third-party libs).
     data_files=data_files,
-    entry_points={"console_scripts": ["epyo = pyo.editor.EPyo:main"]},
 )
 
 if compile_externals:

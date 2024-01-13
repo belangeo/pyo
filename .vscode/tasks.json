@@ -6,7 +6,7 @@
         {
             "label": "Compile linux debug (single, jack)",
             "type": "shell",
-            "command": "${config:build_linux_debug}; ${config:install_linux}",
+            "command": "${config:activate_venv}; ${config:build_linux_debug}; ${config:install_linux}",
             "problemMatcher": [],
             "options": {
                 "cwd": "${workspaceFolder}"
@@ -23,7 +23,7 @@
         {
             "label": "Compile linux (single, jack)",
             "type": "shell",
-            "command": "${config:build_linux_single}; ${config:install_linux}",
+            "command": "${config:activate_venv}; ${config:build_linux_single}; ${config:install_linux}",
             "problemMatcher": [],
             "options": {
                 "cwd": "${workspaceFolder}"
@@ -40,7 +40,7 @@
         {
             "label": "Compile linux (double, jack)",
             "type": "shell",
-            "command": "${config:build_linux_double}; ${config:install_linux}",
+            "command": "${config:activate_venv}; ${config:build_linux_double}; ${config:install_linux}",
             "problemMatcher": [],
             "options": {
                 "cwd": "${workspaceFolder}"
@@ -210,7 +210,24 @@
         {
             "label": "Run unit tests linux",
             "type": "shell",
-            "command": "jack_control stop; export -n PYO_SERVER_AUDIO; cd tests/pytests; python3 -m pytest -vv",
+            "command": "${config:activate_venv}; jack_control stop; export -n PYO_SERVER_AUDIO; cd tests/pytests; python3 -m pytest -vv",
+            "problemMatcher": [],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            }
+        },
+        {
+            "label": "Run current file linux",
+            "type": "shell",
+            "command": "${config:activate_venv}; .venv/bin/python ${file}",
             "problemMatcher": [],
             "options": {
                 "cwd": "${workspaceFolder}"
@@ -261,7 +278,7 @@
         {
             "label": "Run unit tests with coverage (linux)",
             "type": "shell",
-            "command": "cd tests/pytests; coverage run --source=pyo --omit=*/examples/*,*/editor/* -m pytest; coverage html",
+            "command": "${config:activate_venv}; cd tests/pytests; coverage run --source=pyo --omit=*/examples/*,*/editor/* -m pytest; coverage html",
             "problemMatcher": [],
             "options": {
                 "cwd": "${workspaceFolder}"

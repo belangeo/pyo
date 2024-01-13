@@ -1,0 +1,81 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pyo"
+version = "1.0.5"
+authors = [{name = "Olivier Belanger", email = "belangeo@gmail.com"}]
+description = "Python module to build digital signal processing program."
+readme = "README.md"
+requires-python = ">=3.7, <4"
+keywords = ["audio", "sound", "dsp", "synthesis", "signal-processing", "music"]
+license = {text = "LGPLv3+"}
+classifiers = [
+    # How mature is this project? Common values are
+    #   3 - Alpha
+    #   4 - Beta
+    #   5 - Production/Stable
+    "Development Status :: 5 - Production/Stable",
+    # Indicate who your project is intended for
+    "Intended Audience :: Developers",
+    "Intended Audience :: End Users/Desktop",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Other Audience",
+    # Operating systems
+    "Operating System :: MacOS :: MacOS X",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX :: Linux",
+    # Pick your license as you wish (should match "license" above)
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+    # Topics
+    "Topic :: Multimedia :: Sound/Audio",
+    "Topic :: Multimedia :: Sound/Audio :: Analysis",
+    "Topic :: Multimedia :: Sound/Audio :: Capture/Recording",
+    "Topic :: Multimedia :: Sound/Audio :: Sound Synthesis",
+    # Specify the Python versions you support here. In particular, ensure
+    # that you indicate whether you support Python 2, Python 3 or both.
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11"
+]
+
+[project.urls]
+Homepage = "https://github.com/belangeo/pyo"
+Documentation = "https://belangeo.github.io/pyo/"
+Repository = "https://github.com/belangeo/pyo"
+Changelog = "https://github.com/belangeo/pyo/blob/master/ChangeLog"
+
+
+[tool.setuptools]
+packages = [
+    "pyo64",
+    "pyo",
+    "pyo.lib",
+    "pyo.lib.snds",
+    "pyo.editor",
+    "pyo.editor.styles",
+    "pyo.editor.snippets",
+    "pyo.editor.snippets.Audio",
+    "pyo.editor.snippets.Control",
+    "pyo.editor.snippets.Interface",
+    "pyo.editor.snippets.Utilities",
+    "pyo.examples",
+    "pyo.examples.snds",
+    "pyo.examples.algorithmic",
+    "pyo.examples.fft",
+    "pyo.examples.matrix",
+    "pyo.examples.sampling",
+    "pyo.examples.sequencing",
+    "pyo.examples.synthesis",
+    "pyo.examples.wxgui"
+]
+
+[tool.setuptools.package-data]
+"*" = ["*.wav", "*.aif", "*.mid", ".expr", "*"]
+
+[project.scripts]
+epyo = "pyo.editor.EPyo:main"
