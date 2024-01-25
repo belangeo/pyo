@@ -4466,6 +4466,14 @@ PyTypeObject TranspoToCentsType =
 /************/
 /* MToF */
 /************/
+
+static MYFLT
+Midi_clip(MYFLT x)
+{
+    static MYFLT max = 256.0;
+    return x > max ? max : x < -max ? -max : x;
+}
+
 typedef struct
 {
     pyo_audio_HEAD
@@ -4485,7 +4493,7 @@ MToF_process(MToF *self)
 
     for (i = 0; i < self->bufsize; i++)
     {
-        midi = in[i];
+        midi = Midi_clip(in[i]);
 
         if (midi != self->lastmidi)
         {
