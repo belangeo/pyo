@@ -834,21 +834,21 @@ class Notein(PyoObject):
         self.setHoldmode(x)
 
     @property
-    def firstVelocity(self):
+    def firstvelocity(self):
         """int. Lowest midi velocity."""
         return self._firstvelocity
 
-    @firstVelocity.setter
-    def firstVelocity(self, x):
+    @firstvelocity.setter
+    def firstvelocity(self, x):
         self.setFirstVelocity(x)
 
     @property
-    def lastVelocity(self):
+    def lastvelocity(self):
         """int. Highest midi velocity."""
         return self._lastvelocity
 
-    @lastVelocity.setter
-    def lastVelocity(self, x):
+    @lastvelocity.setter
+    def lastvelocity(self, x):
         self.setLastVelocity(x)
 
 
