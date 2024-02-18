@@ -1,7 +1,9 @@
 import os
+from unittest import mock
+
 import pytest
-import mock
 import numpy
+
 from utilities import *
 from pyo import *
 
