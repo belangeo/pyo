@@ -1661,6 +1661,12 @@ x: int or float\n        Midi note. `x` can be a number, a list or a tuple, othe
 >>> print(b)\n\
 261.625565301\n\n"
 
+static double
+Midi_clip(double x)
+{
+    return x > 256.0 ? 256.0 : x < -256 ? -256.0 : x;
+}
+
 static PyObject *
 midiToHz(PyObject *self, PyObject *arg)
 {
@@ -1670,7 +1676,10 @@ midiToHz(PyObject *self, PyObject *arg)
     PyObject *newseq = NULL;
 
     if (PyNumber_Check(arg))
-        return Py_BuildValue("d", 440.0 * MYPOW(2.0, (PyFloat_AsDouble(arg) - 69) / 12.0));
+    {
+        x = Midi_clip(PyFloat_AsDouble(arg));
+        return Py_BuildValue("d", 440.0 * MYPOW(2.0, (x - 69) / 12.0));
+    }
     else if (PyList_Check(arg))
     {
         count = PyList_Size(arg);
@@ -1678,7 +1687,7 @@ midiToHz(PyObject *self, PyObject *arg)
 
         for (i = 0; i < count; i++)
         {
-            x = PyFloat_AsDouble(PyList_GET_ITEM(arg, i));
+            x = Midi_clip(PyFloat_AsDouble(PyList_GET_ITEM(arg, i)));
             PyList_SET_ITEM(newseq, i, PyFloat_FromDouble(440.0 * MYPOW(2.0, (x - 69) / 12.0)));
         }
 
@@ -1691,7 +1700,7 @@ midiToHz(PyObject *self, PyObject *arg)
 
         for (i = 0; i < count; i++)
         {
-            x = PyFloat_AsDouble(PyTuple_GET_ITEM(arg, i));
+            x = Midi_clip(PyFloat_AsDouble(PyTuple_GET_ITEM(arg, i)));
             PyTuple_SET_ITEM(newseq, i, PyFloat_FromDouble(440.0 * MYPOW(2.0, (x - 69) / 12.0)));
         }
 

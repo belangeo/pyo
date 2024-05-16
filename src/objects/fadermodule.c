@@ -1047,10 +1047,10 @@ typedef struct
     int modebuffer[2];
     double currentTime;
     double currentValue;
-    MYFLT sampleToSec;
+    double sampleToSec;
     double increment;
-    MYFLT *targets;
-    MYFLT *times;
+    double *targets;
+    double *times;
     int which;
     int flag;
     int newlist;
@@ -1066,8 +1066,8 @@ Linseg_convert_pointslist(Linseg *self)
     PyObject *tup;
 
     self->listsize = PyList_Size(self->pointslist);
-    self->targets = (MYFLT *)PyMem_RawRealloc(self->targets, self->listsize * sizeof(MYFLT));
-    self->times = (MYFLT *)PyMem_RawRealloc(self->times, self->listsize * sizeof(MYFLT));
+    self->targets = (double *)PyMem_RawRealloc(self->targets, self->listsize * sizeof(double));
+    self->times = (double *)PyMem_RawRealloc(self->times, self->listsize * sizeof(double));
 
     for (i = 0; i < self->listsize; i++)
     {
@@ -1120,10 +1120,21 @@ Linseg_generate(Linseg *self)
                 else
                 {
                     if ((self->times[self->which] - self->times[self->which - 1]) <= self->sampleToSec)
+                    {
                         self->increment = self->targets[self->which] - self->currentValue;
+                    }
                     else
-                        self->increment = (self->targets[self->which] - self->targets[self->which - 1]) / ((self->times[self->which] - self->times[self->which - 1]) / self->sampleToSec);
+                    {
+                        double targetDiff = self->targets[self->which] - self->targets[self->which - 1];
+                        double timeDiff = self->times[self->which] - self->times[self->which - 1];
+                        self->increment = targetDiff / (timeDiff / self->sampleToSec);
+                    }
+                    self->currentValue = (MYFLT)self->targets[self->which - 1];
+                    self->currentTime += self->sampleToSec;
                 }
+
+                self->data[i] = (MYFLT)self->currentValue;
+                continue;
             }
 
             if (self->currentTime <= self->times[self->listsize - 1])
@@ -1481,13 +1492,13 @@ typedef struct
     int modebuffer[2];
     double currentTime;
     double currentValue;
-    MYFLT sampleToSec;
+    double sampleToSec;
     double inc;
     double pointer;
-    MYFLT range;
+    double range;
     double steps;
-    MYFLT *targets;
-    MYFLT *times;
+    double *targets;
+    double *times;
     int which;
     int flag;
     int newlist;
@@ -1507,8 +1518,8 @@ Expseg_convert_pointslist(Expseg *self)
     PyObject *tup;
 
     self->listsize = PyList_Size(self->pointslist);
-    self->targets = (MYFLT *)PyMem_RawRealloc(self->targets, self->listsize * sizeof(MYFLT));
-    self->times = (MYFLT *)PyMem_RawRealloc(self->times, self->listsize * sizeof(MYFLT));
+    self->targets = (double *)PyMem_RawRealloc(self->targets, self->listsize * sizeof(double));
+    self->times = (double *)PyMem_RawRealloc(self->times, self->listsize * sizeof(double));
 
     for (i = 0; i < self->listsize; i++)
     {
@@ -1534,6 +1545,7 @@ Expseg_reinit(Expseg *self)
     self->exp = self->exp_tmp;
     self->inverse = self->inverse_tmp;
     self->okToPause = 1;
+    self->pointer = 0.0;
 }
 
 static void
@@ -1559,7 +1571,10 @@ Expseg_generate(Expseg *self)
                         self->flag = 0;
                         self->currentValue = self->targets[self->which - 1];
                         self->okToPause = 0;
+                        self->pointer = 0.0;
                     }
+                    self->data[i] = (MYFLT)self->currentValue;
+                    continue;
                 }
                 else
                 {
@@ -1570,9 +1585,9 @@ Expseg_generate(Expseg *self)
                         self->inc = 1.0;
                     else
                         self->inc = 1.0 / self->steps;
-                }
 
-                self->pointer = 0.0;
+                    self->pointer = 0.0;
+                }
             }
 
             if (self->currentTime <= self->times[self->listsize - 1])

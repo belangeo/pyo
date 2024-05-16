@@ -1044,7 +1044,11 @@ class NoteinRec(PyoObject):
     must call the `write` method to create text files on the disk.
 
     Each line in the text files contains three values, the absolute time
-    in seconds, the Midi pitch and the normalized velocity.
+    in seconds, the pitch value and the normalized velocity.
+
+    The pitch value can be a MIDI note number, a frequency in Hz, or a
+    transposition factor. The type follows the `scale` attribute of the
+    Notein object that is recorded.
 
     The play() method starts the recording and is not called at the
     object creation time.
@@ -1155,6 +1159,7 @@ class NoteinRead(PyoObject):
     >>> s.start()
     >>> notes = NoteinRead(SNDS_PATH+"/NoteinRead_example_test", loop=True)
     >>> amps = Port(notes['velocity'], 0.001, 0.45, mul=.3)
+    >>> # pitches are saved in MIDI values in NoteinRead_example_test
     >>> sines = SineLoop(freq=MToF(notes['pitch']), feedback=.05, mul=amps).out()
 
     """
