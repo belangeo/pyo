@@ -50,7 +50,7 @@ int process_osc(const char *path, const char *types, lo_arg **argv, int argc,
 {
     OscListener *server = (OscListener *)user_data;
     PyObject *tup;
-    lo_blob *blob = NULL;
+    lo_blob blob = NULL;
     char *blobdata = NULL;
     uint32_t blobsize = 0;
     PyObject *charlist = NULL;

@@ -787,9 +787,9 @@ OscDataSend_compute_next_data_frame(OscDataSend *self)
     PyObject *datalist = NULL;
     char *blobdata = NULL;
     uint8_t midi[4];
-    lo_blob *blob = NULL;
+    lo_blob blob = NULL;
     const char *path = NULL;
-    lo_message *msg;
+    lo_message msg;
 
     while (self->something_to_send)
     {
@@ -1057,7 +1057,7 @@ int OscDataReceive_handler(const char *path, const char *types, lo_arg **argv, i
 {
     OscDataReceive *self = user_data;
     PyObject *tup, *result = NULL;
-    lo_blob *blob = NULL;
+    lo_blob blob = NULL;
     char *blobdata = NULL;
     uint32_t blobsize = 0;
     PyObject *charlist = NULL;
