@@ -43,7 +43,7 @@ typedef struct
 } OscReceiver;
 
 int OscReceiver_handler(const char *path, const char *types, lo_arg **argv, int argc,
-                        void *data, void *user_data)
+                        struct lo_message_ *data, void *user_data)
 {
     OscReceiver *self = user_data;
     PyObject *pathObj = PyUnicode_FromString(path);
@@ -1053,7 +1053,7 @@ typedef struct
 } OscDataReceive;
 
 int OscDataReceive_handler(const char *path, const char *types, lo_arg **argv, int argc,
-                           void *data, void *user_data)
+                           struct lo_message_ *data, void *user_data)
 {
     OscDataReceive *self = user_data;
     PyObject *tup, *result = NULL;
@@ -1367,7 +1367,7 @@ typedef struct
 } OscListReceiver;
 
 int OscListReceiver_handler(const char *path, const char *types, lo_arg **argv, int argc,
-                            void *data, void *user_data)
+                            struct lo_message_ *data, void *user_data)
 {
     OscListReceiver *self = user_data;
 

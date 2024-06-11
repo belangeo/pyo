@@ -46,7 +46,7 @@ OscListener_get(OscListener *self)
 }
 
 int process_osc(const char *path, const char *types, lo_arg **argv, int argc,
-                void *data, void *user_data)
+                struct lo_message_ *data, void *user_data)
 {
     OscListener *server = (OscListener *)user_data;
     PyObject *tup;
