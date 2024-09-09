@@ -45,12 +45,13 @@ OscListener_get(OscListener *self)
     Py_RETURN_NONE;
 }
 
+/* lo_method_handler' (aka 'int (*)(const char *, const char *, lo_arg **, int, struct lo_message_ *, void *)') */
 int process_osc(const char *path, const char *types, lo_arg **argv, int argc,
-                void *data, void *user_data)
+                lo_message data, void *user_data)
 {
     OscListener *server = (OscListener *)user_data;
     PyObject *tup;
-    lo_blob *blob = NULL;
+    lo_blob blob = NULL;
     char *blobdata = NULL;
     uint32_t blobsize = 0;
     PyObject *charlist = NULL;
