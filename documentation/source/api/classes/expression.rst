@@ -222,6 +222,10 @@ Undefined variables are initialized to 0::
     )
     * (oscloop 200 0.7) 0.3
 
+An optional third argument, as a float, allow to set the initial value of the variable.
+
+    (let #x (+ #x (* #dx #delta)), 1.0) // #x is used before defined, initial value = 1.0.
+
 A state variable can also contain a complex number::
 
     (let #v (complex 0.2 0.7)) // #v = (0.2 0.7)

@@ -23,6 +23,7 @@
 # multi-stages function     ===>    (+ 1 2 3 4 5) --> (+ (+ (+ (+ 1 2) 3) 4) 5)
 # recursive function        ===>    (loop (delay x) 10) --> the output of the first call is used as input for the second and so on...
 # Optimization of the processing loop.
+# letonce                   ===>    Set a flag "already computed"
 
 """
 (loop (delay x) 4) ===>

@@ -322,7 +322,12 @@ Exprer_process(Exprer *self)
                             self->lexp[j].type_op == OP_CONST &&
                             (self->lexp[self->lexp[j].nodes[k]].type_op == OP_CPOLE ||
                              self->lexp[self->lexp[j].nodes[k]].type_op == OP_CZERO ||
-                             self->lexp[self->lexp[j].nodes[k]].type_op == OP_COMPLEX))
+                             self->lexp[self->lexp[j].nodes[k]].type_op == OP_COMPLEX ||
+                             (
+                             self->lexp[self->lexp[j].nodes[k]].type_op == OP_CONST &&
+                             self->lexp[self->lexp[j].nodes[k]].num == 2
+                             ))
+                        )
                         {
                             self->lexp[j].values[k + 1] = self->lexp[self->lexp[j].nodes[k]].result2;
                             self->lexp[j].num = 2;
@@ -912,12 +917,22 @@ Exprer_setExpr(Exprer *self, PyObject *arg)
             }
             Py_DECREF(varToken);
 
+            double initval = 0.0;
+
             // Prepare variable from "let" function
             PyObject *letToken = PyUnicode_FromString("let");
             if (PyUnicode_Compare(PyList_GetItem(explist, 0), letToken) == 0)
             {
                 Py_INCREF(constToken);
                 PyList_SetItem(explist, 0, constToken);
+
+                if (PyList_Size(explist) == 4)
+                {
+                    PyObject *valueAsFloat = PyFloat_FromString(PyList_GetItem(explist, 3));
+                    initval = PyFloat_AsDouble(valueAsFloat);
+                    PySequence_DelItem(explist, 3);
+                    Py_DECREF(valueAsFloat);
+                }
 
                 if (PyDict_GetItem(waitingDict, PyList_GetItem(explist, 1)) != NULL)
                 {
@@ -940,6 +955,9 @@ Exprer_setExpr(Exprer *self, PyObject *arg)
 
             // Initialize expression node
             self->lexp[self->count] = initexpr(PyUnicode_AsUTF8(PyList_GetItem(explist, 0)), PyList_Size(explist));
+
+            if (initval != 0.0)
+                self->lexp[self->count].result = initval;
 
             if (PyList_Size(explist) == 1 && self->lexp[self->count].type_op == OP_CONST)
             {
