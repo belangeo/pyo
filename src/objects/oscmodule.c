@@ -42,8 +42,9 @@ typedef struct
     PyObject *address_path;
 } OscReceiver;
 
+/* lo_method_handler' (aka 'int (*)(const char *, const char *, lo_arg **, int, struct lo_message_ *, void *)') */
 int OscReceiver_handler(const char *path, const char *types, lo_arg **argv, int argc,
-                        void *data, void *user_data)
+                        lo_message data, void *user_data)
 {
     OscReceiver *self = user_data;
     PyObject *pathObj = PyUnicode_FromString(path);
@@ -787,9 +788,9 @@ OscDataSend_compute_next_data_frame(OscDataSend *self)
     PyObject *datalist = NULL;
     char *blobdata = NULL;
     uint8_t midi[4];
-    lo_blob *blob = NULL;
+    lo_blob blob = NULL;
     const char *path = NULL;
-    lo_message *msg;
+    lo_message msg;
 
     while (self->something_to_send)
     {
@@ -1052,12 +1053,13 @@ typedef struct
     int port;
 } OscDataReceive;
 
+/* lo_method_handler' (aka 'int (*)(const char *, const char *, lo_arg **, int, struct lo_message_ *, void *)') */
 int OscDataReceive_handler(const char *path, const char *types, lo_arg **argv, int argc,
-                           void *data, void *user_data)
+                           lo_message data, void *user_data)
 {
     OscDataReceive *self = user_data;
     PyObject *tup, *result = NULL;
-    lo_blob *blob = NULL;
+    lo_blob blob = NULL;
     char *blobdata = NULL;
     uint32_t blobsize = 0;
     PyObject *charlist = NULL;
@@ -1366,8 +1368,9 @@ typedef struct
     int num;
 } OscListReceiver;
 
+/* lo_method_handler' (aka 'int (*)(const char *, const char *, lo_arg **, int, struct lo_message_ *, void *)') */
 int OscListReceiver_handler(const char *path, const char *types, lo_arg **argv, int argc,
-                            void *data, void *user_data)
+                            lo_message data, void *user_data)
 {
     OscListReceiver *self = user_data;
 

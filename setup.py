@@ -289,21 +289,26 @@ if sys.platform == "win32":
 elif sys.platform == "darwin":
     pkgs_3rdpary = {
         #package flags: (include, lib, version)
-        "flac": (False, True, "1.4.2"),
-        "liblo": (True, True, "0.31"),
+        "flac": (False, True, "1.4.3"),
+        "liblo": (True, True, "0.32"),
         "libogg": (False, True, "1.3.5"),
-        "libsndfile": (True, True, "1.2.0"),
+        "libsndfile": (True, True, "1.2.2"),
         "libvorbis": (False, True, "1.3.7"),
-        "opus": (False, True, "1.3.1"),
+        "opus": (False, True, "1.5.2"),
         "portaudio": (True, True, "19.7.0"),
-        "portmidi": (True, True, "2.0.4"),
+        "portmidi": (True, True, "2.0.4_1"),
         "lame": (False, True, "3.100"),
-        "mpg123": (False, True, "1.31.2"),
+        "mpg123": (False, True, "1.32.7"),
     }
 
     # Intel: /usr/local/Cellar
     # arm64: /opt/homebrew/Cellar
-    brew_packages_root = os.environ.get("BREW_PACKAGES_ROOT", "/usr/local/Cellar")
+    mac_arch = arch = platform.machine()
+    if mac_arch == "arm64":
+        brew_default_root = "/opt/homebrew/Cellar"
+    else:
+        brew_default_root = "/usr/local/Cellar"
+    brew_packages_root = os.environ.get("BREW_PACKAGES_ROOT", brew_default_root)
 
     include_dirs = ["include"]
     library_dirs = []
