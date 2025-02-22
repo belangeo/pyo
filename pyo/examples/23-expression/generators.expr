@@ -33,3 +33,57 @@
         (randf (neg $1) $1)
     )
 )
+
+// Sine wave oscillator with self feedback
+// usage: (xosc freq feed)
+(define xosc (
+        (let #xsin
+            (sin (+ (* (~ $1) (twopi)) (* #xsin $2)))
+        )
+        #xsin
+    )
+)
+
+// Band-limited sawtooth oscillator
+// usage: (blsaw freq sharp)
+(define blsaw (
+        (let #sr-over-four (/ sr 4))
+        (let #freq (max 0.00001 (min #sr-over-four $1)))
+        (let #max-harms (/ #sr-over-four #freq))
+        (let #numh (min (+ (* (max 0 (min 1 $2)) 46) 4) #max-harms))
+        (let #phase (- (* (~ #freq) 2) 1))
+        (- #phase (/ (tanh (* #phase #numh)) (tanh #numh)))
+    )
+)
+
+// Band-limited square wave oscillator
+// usage: (blsquare freq sharp)
+(define blsquare (
+        (let #sr-over-four (/ sr 4))
+        (let #freq (max 0.00001 (min #sr-over-four $1)))
+        (let #max-harms (/ (* #sr-over-four 0.5) #freq))
+        (let #numh (min (+ (* (max 0 (min 1 $2)) 46) 4) #max-harms))
+        (let #val (tanh (* (sin (* twopi (~ #freq))) #numh)))
+        (* #val (/ 1 (/ pi 2)))
+    )
+)
+
+// Band-limited triangular oscillator
+// usage: (bltri freq sharp)
+(define bltri (
+        (let #sr-over-four (/ sr 4))
+        (let #freq (max 0.00001 (min #sr-over-four $1)))
+        (let #max-harms (/ #sr-over-four #freq))
+        (let #sharp (max 0 (min 1 $2)))
+        (let #numh (if
+            (> (* #sharp 36) #max-harms)
+            (/ #max-harms 36)
+            #sharp
+        ))
+        (let #p1 (~ #freq))
+        (let #v1 (* (tan (sin (* twopi #p1))) (/ 1 (/ pi 2))))
+        (let #p2 (wrap (+ #p1 0.25)))
+        (let #v2 (- (* 4 (- 0.5 (abs (- #p2 0.5)))) 1))
+        (+ #v1 (* (- #v2 #v1) #numh))
+    )
+)

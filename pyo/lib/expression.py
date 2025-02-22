@@ -207,6 +207,10 @@ Undefined variables are initialized to 0.
     )
     * (oscloop 200 0.7) 0.3
 
+An optional third argument, as a float, allow to set the initial value of the variable.
+
+    (let #x (+ #x (* #dx #delta)), 1.0) // #x is used before defined, initial value = 1.0.
+
 A state variable can also contain a complex number:
 
     (let #v (complex 0.2 0.7)) // #v = (0.2 0.7)
@@ -417,7 +421,7 @@ class Expr(PyoObject):
         Print the list of current nodes.
 
         """
-        [obj.printNodes() for i, obj in enumerate(self._base_objs)]
+        [obj.printNodes() for i, obj in enumerate(self._base_players)]
 
     def setVar(self, varname, value):
         pyoArgsAssert(self, "sn", varname, value)
@@ -592,7 +596,7 @@ class Expr(PyoObject):
             if p2 == -1:
                 raise Exception("Mismatched brackets in function body.")
             p2 += 1
-            funcbody = x[p1:p2]
+            funcbody = x[p1+1:p2-1]
             # get end of the definition
             while x[p2] in " \t\n":
                 p2 += 1
