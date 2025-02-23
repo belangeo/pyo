@@ -24,7 +24,7 @@ jobs:
         python-versions: 'cp39-cp39 cp310-cp310 cp311-cp311 cp312-cp312 cp313-cp313'
         system-packages: 'guile-devel zlib-devel gettext portaudio-devel portmidi-devel libsndfile-devel autogen libdb-devel wget'
         pre-build-command: 'sh manylinux-pre-build-script.sh'
-        pip-wheel-args: '-w ./dist -config-setting="--build-option=--use-double" -config-setting="--build-option=--use-jack"'
+        pip-wheel-args: '-w ./dist --config-setting="--build-option=--use-double" --config-setting="--build-option=--use-jack"'
     - name: Publish wheels to test PyPI
       env:
         TWINE_USERNAME: __token__
