@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pyo"
-version = "1.0.5-1"
+version = "1.0.5-2"
 authors = [{name = "Olivier Belanger", email = "belangeo@gmail.com"}]
 description = "Python module to build digital signal processing program."
 readme = "README.md"
