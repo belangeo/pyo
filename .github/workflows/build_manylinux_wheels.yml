@@ -27,7 +27,7 @@ jobs:
         pip-wheel-args: '-w ./dist --build-option --use-double --build-option --use-jack'
     - name: Publish wheels to test PyPI
       env:
-        TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
-        TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+        TWINE_USERNAME: __token__
+        TWINE_PASSWORD: pypi-AgENdGVzdC5weXBpLm9yZwIkY2FkY2Y2MzktODE1NC00MDY1LTg5ZDctMzY0ODE1NGExYjgwAAILWzEsWyJweW8iXV0AAixbMixbIjJmMTZmZWQ3LTQ0ZmEtNGRmMC1hY2I0LTQ0M2ZmNDFkNzE5YiJdXQAABiD0UYJSUVETU3c-I0RJ8-E5Yi7dmtrH7fuMjngDX67khA
       run: |
         twine upload --verbose --repository testpypi dist/*-manylinux*.whl
