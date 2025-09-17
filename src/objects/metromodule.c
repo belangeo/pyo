@@ -124,50 +124,50 @@ Metro_setProcMode(Metro *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = Metro_generate_i;
+            self->proc_func_ptr = (void (*)(void *))Metro_generate_i;
             break;
 
         case 1:
-            self->proc_func_ptr = Metro_generate_a;
+            self->proc_func_ptr = (void (*)(void *))Metro_generate_a;
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Metro_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))Metro_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = Metro_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))Metro_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = Metro_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))Metro_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = Metro_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))Metro_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = Metro_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))Metro_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = Metro_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))Metro_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = Metro_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))Metro_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = Metro_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))Metro_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = Metro_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))Metro_postprocessing_revareva;
             break;
     }
 }
@@ -220,7 +220,7 @@ Metro_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Metro_compute_next_data_frame);
-    self->mode_func_ptr = Metro_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))Metro_setProcMode;
 
     Stream_setStreamActive(self->stream, 0);
 
@@ -640,19 +640,19 @@ Seqer_setProcMode(Seqer *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = Seqer_generate_ii;
+            self->proc_func_ptr = (void (*)(void *))Seqer_generate_ii;
             break;
 
         case 1:
-            self->proc_func_ptr = Seqer_generate_ai;
+            self->proc_func_ptr = (void (*)(void *))Seqer_generate_ai;
             break;
 
         case 10:
-            self->proc_func_ptr = Seqer_generate_ia;
+            self->proc_func_ptr = (void (*)(void *))Seqer_generate_ia;
             break;
 
         case 11:
-            self->proc_func_ptr = Seqer_generate_aa;
+            self->proc_func_ptr = (void (*)(void *))Seqer_generate_aa;
             break;
     }
 }
@@ -718,7 +718,7 @@ Seqer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Seqer_compute_next_data_frame);
-    self->mode_func_ptr = Seqer_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))Seqer_setProcMode;
 
     Stream_setStreamActive(self->stream, 0);
 
@@ -895,39 +895,39 @@ Seq_setProcMode(Seq *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Seq_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))Seq_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = Seq_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))Seq_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = Seq_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))Seq_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = Seq_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))Seq_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = Seq_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))Seq_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = Seq_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))Seq_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = Seq_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))Seq_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = Seq_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))Seq_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = Seq_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))Seq_postprocessing_revareva;
             break;
     }
 }
@@ -987,7 +987,7 @@ Seq_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Seq_compute_next_data_frame);
-    self->mode_func_ptr = Seq_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))Seq_setProcMode;
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
 
@@ -1225,11 +1225,11 @@ Clouder_setProcMode(Clouder *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = Clouder_generate_i;
+            self->proc_func_ptr = (void (*)(void *))Clouder_generate_i;
             break;
 
         case 1:
-            self->proc_func_ptr = Clouder_generate_a;
+            self->proc_func_ptr = (void (*)(void *))Clouder_generate_a;
             break;
     }
 }
@@ -1281,7 +1281,7 @@ Clouder_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Clouder_compute_next_data_frame);
-    self->mode_func_ptr = Clouder_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))Clouder_setProcMode;
 
     Stream_setStreamActive(self->stream, 0);
 
@@ -1404,39 +1404,39 @@ Cloud_setProcMode(Cloud *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Cloud_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))Cloud_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = Cloud_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))Cloud_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = Cloud_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))Cloud_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = Cloud_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))Cloud_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = Cloud_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))Cloud_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = Cloud_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))Cloud_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = Cloud_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))Cloud_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = Cloud_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))Cloud_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = Cloud_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))Cloud_postprocessing_revareva;
             break;
     }
 }
@@ -1496,7 +1496,7 @@ Cloud_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Cloud_compute_next_data_frame);
-    self->mode_func_ptr = Cloud_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))Cloud_setProcMode;
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
 
@@ -1665,39 +1665,39 @@ Trig_setProcMode(Trig *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Trig_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))Trig_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = Trig_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))Trig_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = Trig_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))Trig_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = Trig_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))Trig_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = Trig_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))Trig_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = Trig_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))Trig_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = Trig_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))Trig_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = Trig_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))Trig_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = Trig_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))Trig_postprocessing_revareva;
             break;
     }
 }
@@ -1752,7 +1752,7 @@ Trig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Trig_compute_next_data_frame);
-    self->mode_func_ptr = Trig_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))Trig_setProcMode;
 
     static char *kwlist[] = {NULL};
 
@@ -2443,11 +2443,11 @@ Beater_setProcMode(Beater *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = Beater_generate_i;
+            self->proc_func_ptr = (void (*)(void *))Beater_generate_i;
             break;
 
         case 1:
-            self->proc_func_ptr = Beater_generate_a;
+            self->proc_func_ptr = (void (*)(void *))Beater_generate_a;
             break;
     }
 }
@@ -2526,7 +2526,7 @@ Beater_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Beater_compute_next_data_frame);
-    self->mode_func_ptr = Beater_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))Beater_setProcMode;
 
     self->sampleToSec = 1. / self->sr;
     self->currentTime = -1.0;
@@ -2867,39 +2867,39 @@ Beat_setProcMode(Beat *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Beat_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))Beat_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = Beat_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))Beat_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = Beat_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))Beat_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = Beat_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))Beat_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = Beat_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))Beat_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = Beat_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))Beat_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = Beat_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))Beat_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = Beat_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))Beat_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = Beat_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))Beat_postprocessing_revareva;
             break;
     }
 }
@@ -2959,7 +2959,7 @@ Beat_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Beat_compute_next_data_frame);
-    self->mode_func_ptr = Beat_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))Beat_setProcMode;
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
 
@@ -3129,39 +3129,39 @@ BeatTapStream_setProcMode(BeatTapStream *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = BeatTapStream_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))BeatTapStream_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = BeatTapStream_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))BeatTapStream_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = BeatTapStream_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))BeatTapStream_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = BeatTapStream_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))BeatTapStream_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = BeatTapStream_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))BeatTapStream_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = BeatTapStream_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))BeatTapStream_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = BeatTapStream_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))BeatTapStream_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = BeatTapStream_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))BeatTapStream_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = BeatTapStream_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))BeatTapStream_postprocessing_revareva;
             break;
     }
 }
@@ -3221,7 +3221,7 @@ BeatTapStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, BeatTapStream_compute_next_data_frame);
-    self->mode_func_ptr = BeatTapStream_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))BeatTapStream_setProcMode;
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
 
@@ -3391,39 +3391,39 @@ BeatAmpStream_setProcMode(BeatAmpStream *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = BeatAmpStream_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))BeatAmpStream_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = BeatAmpStream_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))BeatAmpStream_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = BeatAmpStream_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))BeatAmpStream_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = BeatAmpStream_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))BeatAmpStream_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = BeatAmpStream_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))BeatAmpStream_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = BeatAmpStream_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))BeatAmpStream_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = BeatAmpStream_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))BeatAmpStream_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = BeatAmpStream_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))BeatAmpStream_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = BeatAmpStream_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))BeatAmpStream_postprocessing_revareva;
             break;
     }
 }
@@ -3483,7 +3483,7 @@ BeatAmpStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, BeatAmpStream_compute_next_data_frame);
-    self->mode_func_ptr = BeatAmpStream_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))BeatAmpStream_setProcMode;
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
 
@@ -3653,39 +3653,39 @@ BeatDurStream_setProcMode(BeatDurStream *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = BeatDurStream_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))BeatDurStream_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = BeatDurStream_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))BeatDurStream_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = BeatDurStream_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))BeatDurStream_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = BeatDurStream_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))BeatDurStream_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = BeatDurStream_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))BeatDurStream_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = BeatDurStream_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))BeatDurStream_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = BeatDurStream_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))BeatDurStream_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = BeatDurStream_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))BeatDurStream_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = BeatDurStream_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))BeatDurStream_postprocessing_revareva;
             break;
     }
 }
@@ -3745,7 +3745,7 @@ BeatDurStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, BeatDurStream_compute_next_data_frame);
-    self->mode_func_ptr = BeatDurStream_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))BeatDurStream_setProcMode;
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
 
@@ -3915,39 +3915,39 @@ BeatEndStream_setProcMode(BeatEndStream *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = BeatEndStream_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))BeatEndStream_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = BeatEndStream_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))BeatEndStream_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = BeatEndStream_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))BeatEndStream_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = BeatEndStream_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))BeatEndStream_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = BeatEndStream_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))BeatEndStream_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = BeatEndStream_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))BeatEndStream_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = BeatEndStream_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))BeatEndStream_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = BeatEndStream_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))BeatEndStream_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = BeatEndStream_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))BeatEndStream_postprocessing_revareva;
             break;
     }
 }
@@ -4007,7 +4007,7 @@ BeatEndStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, BeatEndStream_compute_next_data_frame);
-    self->mode_func_ptr = BeatEndStream_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))BeatEndStream_setProcMode;
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
 
@@ -4274,7 +4274,7 @@ TrigBurster_getEndBuffer(TrigBurster *self)
 static void
 TrigBurster_setProcMode(TrigBurster *self)
 {
-    self->proc_func_ptr = TrigBurster_generate_i;
+    self->proc_func_ptr = (void (*)(void *))TrigBurster_generate_i;
 }
 
 static void
@@ -4338,7 +4338,7 @@ TrigBurster_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, TrigBurster_compute_next_data_frame);
-    self->mode_func_ptr = TrigBurster_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))TrigBurster_setProcMode;
 
     self->sampleToSec = 1. / self->sr;
 
@@ -4526,39 +4526,39 @@ TrigBurst_setProcMode(TrigBurst *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = TrigBurst_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))TrigBurst_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = TrigBurst_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))TrigBurst_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = TrigBurst_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))TrigBurst_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = TrigBurst_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))TrigBurst_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = TrigBurst_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))TrigBurst_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = TrigBurst_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))TrigBurst_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = TrigBurst_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))TrigBurst_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = TrigBurst_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))TrigBurst_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = TrigBurst_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))TrigBurst_postprocessing_revareva;
             break;
     }
 }
@@ -4618,7 +4618,7 @@ TrigBurst_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, TrigBurst_compute_next_data_frame);
-    self->mode_func_ptr = TrigBurst_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))TrigBurst_setProcMode;
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
 
@@ -4788,39 +4788,39 @@ TrigBurstTapStream_setProcMode(TrigBurstTapStream *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = TrigBurstTapStream_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))TrigBurstTapStream_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = TrigBurstTapStream_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))TrigBurstTapStream_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = TrigBurstTapStream_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))TrigBurstTapStream_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = TrigBurstTapStream_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))TrigBurstTapStream_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = TrigBurstTapStream_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))TrigBurstTapStream_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = TrigBurstTapStream_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))TrigBurstTapStream_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = TrigBurstTapStream_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))TrigBurstTapStream_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = TrigBurstTapStream_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))TrigBurstTapStream_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = TrigBurstTapStream_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))TrigBurstTapStream_postprocessing_revareva;
             break;
     }
 }
@@ -4880,7 +4880,7 @@ TrigBurstTapStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, TrigBurstTapStream_compute_next_data_frame);
-    self->mode_func_ptr = TrigBurstTapStream_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))TrigBurstTapStream_setProcMode;
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
 
@@ -5050,39 +5050,39 @@ TrigBurstAmpStream_setProcMode(TrigBurstAmpStream *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = TrigBurstAmpStream_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))TrigBurstAmpStream_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = TrigBurstAmpStream_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))TrigBurstAmpStream_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = TrigBurstAmpStream_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))TrigBurstAmpStream_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = TrigBurstAmpStream_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))TrigBurstAmpStream_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = TrigBurstAmpStream_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))TrigBurstAmpStream_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = TrigBurstAmpStream_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))TrigBurstAmpStream_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = TrigBurstAmpStream_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))TrigBurstAmpStream_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = TrigBurstAmpStream_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))TrigBurstAmpStream_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = TrigBurstAmpStream_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))TrigBurstAmpStream_postprocessing_revareva;
             break;
     }
 }
@@ -5142,7 +5142,7 @@ TrigBurstAmpStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, TrigBurstAmpStream_compute_next_data_frame);
-    self->mode_func_ptr = TrigBurstAmpStream_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))TrigBurstAmpStream_setProcMode;
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
 
@@ -5312,39 +5312,39 @@ TrigBurstDurStream_setProcMode(TrigBurstDurStream *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = TrigBurstDurStream_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))TrigBurstDurStream_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = TrigBurstDurStream_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))TrigBurstDurStream_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = TrigBurstDurStream_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))TrigBurstDurStream_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = TrigBurstDurStream_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))TrigBurstDurStream_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = TrigBurstDurStream_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))TrigBurstDurStream_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = TrigBurstDurStream_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))TrigBurstDurStream_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = TrigBurstDurStream_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))TrigBurstDurStream_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = TrigBurstDurStream_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))TrigBurstDurStream_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = TrigBurstDurStream_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))TrigBurstDurStream_postprocessing_revareva;
             break;
     }
 }
@@ -5404,7 +5404,7 @@ TrigBurstDurStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, TrigBurstDurStream_compute_next_data_frame);
-    self->mode_func_ptr = TrigBurstDurStream_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))TrigBurstDurStream_setProcMode;
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
 
@@ -5574,39 +5574,39 @@ TrigBurstEndStream_setProcMode(TrigBurstEndStream *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = TrigBurstEndStream_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))TrigBurstEndStream_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = TrigBurstEndStream_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))TrigBurstEndStream_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = TrigBurstEndStream_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))TrigBurstEndStream_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = TrigBurstEndStream_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))TrigBurstEndStream_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = TrigBurstEndStream_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))TrigBurstEndStream_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = TrigBurstEndStream_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))TrigBurstEndStream_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = TrigBurstEndStream_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))TrigBurstEndStream_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = TrigBurstEndStream_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))TrigBurstEndStream_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = TrigBurstEndStream_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))TrigBurstEndStream_postprocessing_revareva;
             break;
     }
 }
@@ -5666,7 +5666,7 @@ TrigBurstEndStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, TrigBurstEndStream_compute_next_data_frame);
-    self->mode_func_ptr = TrigBurstEndStream_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))TrigBurstEndStream_setProcMode;
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
 

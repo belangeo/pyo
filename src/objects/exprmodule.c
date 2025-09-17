@@ -723,7 +723,7 @@ Exprer_getSamplesBuffer(Exprer *self)
 static void
 Exprer_setProcMode(Exprer *self)
 {
-    self->proc_func_ptr = Exprer_process;
+    self->proc_func_ptr = (void (*)(void *))Exprer_process;
 }
 
 static void
@@ -779,7 +779,7 @@ Exprer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Exprer_compute_next_data_frame);
-    self->mode_func_ptr = Exprer_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))Exprer_setProcMode;
 
     self->oneOverSr = 1.0 / self->sr;
 
@@ -1281,39 +1281,39 @@ Expr_setProcMode(Expr *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Expr_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))Expr_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = Expr_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))Expr_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = Expr_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))Expr_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = Expr_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))Expr_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = Expr_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))Expr_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = Expr_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))Expr_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = Expr_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))Expr_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = Expr_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))Expr_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = Expr_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))Expr_postprocessing_revareva;
             break;
     }
 }
@@ -1372,7 +1372,7 @@ Expr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Expr_compute_next_data_frame);
-    self->mode_func_ptr = Expr_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))Expr_setProcMode;
 
     static char *kwlist[] = {"mainSplitter", "chnl", "mul", "add", NULL};
 

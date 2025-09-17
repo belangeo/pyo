@@ -28,7 +28,7 @@ typedef struct
 {
     PyObject_HEAD
     PyObject *streamobject;
-    void (*funcptr)();
+    void (*funcptr)(void *);
     int sid;
     int chnl;
     int bufsize;

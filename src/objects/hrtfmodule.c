@@ -596,7 +596,7 @@ HRTFSpatter_getSamplesBuffer(HRTFSpatter *self)
 static void
 HRTFSpatter_setProcMode(HRTFSpatter *self)
 {
-    self->proc_func_ptr = HRTFSpatter_splitter;
+    self->proc_func_ptr = (void (*)(void *))HRTFSpatter_splitter;
 }
 
 static void
@@ -665,7 +665,7 @@ HRTFSpatter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, HRTFSpatter_compute_next_data_frame);
-    self->mode_func_ptr = HRTFSpatter_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))HRTFSpatter_setProcMode;
 
     self->azi = PyFloat_FromDouble(0.0);
     self->ele = PyFloat_FromDouble(0.0);
@@ -843,39 +843,39 @@ HRTF_setProcMode(HRTF *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = HRTF_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))HRTF_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = HRTF_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))HRTF_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = HRTF_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))HRTF_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = HRTF_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))HRTF_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = HRTF_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))HRTF_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = HRTF_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))HRTF_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = HRTF_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))HRTF_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = HRTF_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))HRTF_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = HRTF_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))HRTF_postprocessing_revareva;
             break;
     }
 }
@@ -934,7 +934,7 @@ HRTF_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, HRTF_compute_next_data_frame);
-    self->mode_func_ptr = HRTF_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))HRTF_setProcMode;
 
     static char *kwlist[] = {"mainSplitter", "chnl", "mul", "add", NULL};
 
@@ -1259,7 +1259,7 @@ Binauraler_getSamplesBuffer(Binauraler *self)
 static void
 Binauraler_setProcMode(Binauraler *self)
 {
-    self->proc_func_ptr = Binauraler_splitter;
+    self->proc_func_ptr = (void (*)(void *))Binauraler_splitter;
 }
 
 static void
@@ -1321,7 +1321,7 @@ Binauraler_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Binauraler_compute_next_data_frame);
-    self->mode_func_ptr = Binauraler_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))Binauraler_setProcMode;
 
     self->azi = PyFloat_FromDouble(0.0);
     self->ele = PyFloat_FromDouble(0.0);
@@ -1553,39 +1553,39 @@ Binaural_setProcMode(Binaural *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Binaural_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))Binaural_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = Binaural_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))Binaural_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = Binaural_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))Binaural_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = Binaural_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))Binaural_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = Binaural_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))Binaural_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = Binaural_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))Binaural_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = Binaural_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))Binaural_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = Binaural_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))Binaural_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = Binaural_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))Binaural_postprocessing_revareva;
             break;
     }
 }
@@ -1644,7 +1644,7 @@ Binaural_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Binaural_compute_next_data_frame);
-    self->mode_func_ptr = Binaural_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))Binaural_setProcMode;
 
     static char *kwlist[] = {"mainSplitter", "chnl", "mul", "add", NULL};
 

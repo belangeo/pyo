@@ -173,11 +173,11 @@ BandSplitter_setProcMode(BandSplitter *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = BandSplitter_filters_i;
+            self->proc_func_ptr = (void (*)(void *))BandSplitter_filters_i;
             break;
 
         case 1:
-            self->proc_func_ptr = BandSplitter_filters_a;
+            self->proc_func_ptr = (void (*)(void *))BandSplitter_filters_a;
             break;
     }
 }
@@ -241,7 +241,7 @@ BandSplitter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, BandSplitter_compute_next_data_frame);
-    self->mode_func_ptr = BandSplitter_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))BandSplitter_setProcMode;
 
     self->halfSr = self->sr / 2.01;
     self->TwoPiOnSr = TWOPI / self->sr;
@@ -382,39 +382,39 @@ BandSplit_setProcMode(BandSplit *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = BandSplit_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))BandSplit_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = BandSplit_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))BandSplit_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = BandSplit_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))BandSplit_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = BandSplit_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))BandSplit_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = BandSplit_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))BandSplit_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = BandSplit_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))BandSplit_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = BandSplit_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))BandSplit_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = BandSplit_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))BandSplit_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = BandSplit_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))BandSplit_postprocessing_revareva;
             break;
     }
 }
@@ -474,7 +474,7 @@ BandSplit_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, BandSplit_compute_next_data_frame);
-    self->mode_func_ptr = BandSplit_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))BandSplit_setProcMode;
 
     static char *kwlist[] = {"mainSplitter", "chnl", "mul", "add", NULL};
 
@@ -866,7 +866,7 @@ FourBandMain_getSamplesBuffer(FourBandMain *self)
 static void
 FourBandMain_setProcMode(FourBandMain *self)
 {
-    self->proc_func_ptr = FourBandMain_filters;
+    self->proc_func_ptr = (void (*)(void *))FourBandMain_filters;
 }
 
 static void
@@ -926,7 +926,7 @@ FourBandMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, FourBandMain_compute_next_data_frame);
-    self->mode_func_ptr = FourBandMain_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))FourBandMain_setProcMode;
 
     static char *kwlist[] = {"input", "freq1", "freq2", "freq3", NULL};
 
@@ -1074,39 +1074,39 @@ FourBand_setProcMode(FourBand *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = FourBand_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))FourBand_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = FourBand_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))FourBand_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = FourBand_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))FourBand_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = FourBand_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))FourBand_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = FourBand_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))FourBand_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = FourBand_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))FourBand_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = FourBand_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))FourBand_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = FourBand_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))FourBand_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = FourBand_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))FourBand_postprocessing_revareva;
             break;
     }
 }
@@ -1166,7 +1166,7 @@ FourBand_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, FourBand_compute_next_data_frame);
-    self->mode_func_ptr = FourBand_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))FourBand_setProcMode;
 
     static char *kwlist[] = {"mainSplitter", "chnl", "mul", "add", NULL};
 
@@ -1530,7 +1530,7 @@ MultiBandMain_getSamplesBuffer(MultiBandMain *self)
 static void
 MultiBandMain_setProcMode(MultiBandMain *self)
 {
-    self->proc_func_ptr = MultiBandMain_filters;
+    self->proc_func_ptr = (void (*)(void *))MultiBandMain_filters;
 }
 
 static void
@@ -1575,7 +1575,7 @@ MultiBandMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, MultiBandMain_compute_next_data_frame);
-    self->mode_func_ptr = MultiBandMain_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))MultiBandMain_setProcMode;
 
     static char *kwlist[] = {"input", "num", NULL};
 
@@ -1732,39 +1732,39 @@ MultiBand_setProcMode(MultiBand *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = MultiBand_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))MultiBand_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = MultiBand_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))MultiBand_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = MultiBand_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))MultiBand_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = MultiBand_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))MultiBand_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = MultiBand_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))MultiBand_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = MultiBand_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))MultiBand_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = MultiBand_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))MultiBand_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = MultiBand_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))MultiBand_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = MultiBand_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))MultiBand_postprocessing_revareva;
             break;
     }
 }
@@ -1824,7 +1824,7 @@ MultiBand_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, MultiBand_compute_next_data_frame);
-    self->mode_func_ptr = MultiBand_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))MultiBand_setProcMode;
 
     static char *kwlist[] = {"mainSplitter", "chnl", "mul", "add", NULL};
 

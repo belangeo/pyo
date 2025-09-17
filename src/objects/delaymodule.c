@@ -261,58 +261,58 @@ Delay_setProcMode(Delay *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = Delay_process_ii;
+            self->proc_func_ptr = (void (*)(void *))Delay_process_ii;
             break;
 
         case 1:
-            self->proc_func_ptr = Delay_process_ai;
+            self->proc_func_ptr = (void (*)(void *))Delay_process_ai;
             break;
 
         case 10:
-            self->proc_func_ptr = Delay_process_ia;
+            self->proc_func_ptr = (void (*)(void *))Delay_process_ia;
             break;
 
         case 11:
-            self->proc_func_ptr = Delay_process_aa;
+            self->proc_func_ptr = (void (*)(void *))Delay_process_aa;
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Delay_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))Delay_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = Delay_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))Delay_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = Delay_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))Delay_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = Delay_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))Delay_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = Delay_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))Delay_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = Delay_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))Delay_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = Delay_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))Delay_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = Delay_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))Delay_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = Delay_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))Delay_postprocessing_revareva;
             break;
     }
 }
@@ -376,7 +376,7 @@ Delay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->oneOverSr = 1.0 / self->sr;
 
     Stream_setFunctionPtr(self->stream, Delay_compute_next_data_frame);
-    self->mode_func_ptr = Delay_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))Delay_setProcMode;
 
     static char *kwlist[] = {"input", "delay", "feedback", "maxdelay", "mul", "add", NULL};
 
@@ -690,50 +690,50 @@ SDelay_setProcMode(SDelay *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = SDelay_process_i;
+            self->proc_func_ptr = (void (*)(void *))SDelay_process_i;
             break;
 
         case 1:
-            self->proc_func_ptr = SDelay_process_a;
+            self->proc_func_ptr = (void (*)(void *))SDelay_process_a;
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = SDelay_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))SDelay_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = SDelay_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))SDelay_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = SDelay_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))SDelay_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = SDelay_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))SDelay_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = SDelay_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))SDelay_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = SDelay_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))SDelay_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = SDelay_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))SDelay_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = SDelay_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))SDelay_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = SDelay_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))SDelay_postprocessing_revareva;
             break;
     }
 }
@@ -790,7 +790,7 @@ SDelay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, SDelay_compute_next_data_frame);
-    self->mode_func_ptr = SDelay_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))SDelay_setProcMode;
 
     static char *kwlist[] = {"input", "delay", "maxdelay", "mul", "add", NULL};
 
@@ -1397,58 +1397,58 @@ Waveguide_setProcMode(Waveguide *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = Waveguide_process_ii;
+            self->proc_func_ptr = (void (*)(void *))Waveguide_process_ii;
             break;
 
         case 1:
-            self->proc_func_ptr = Waveguide_process_ai;
+            self->proc_func_ptr = (void (*)(void *))Waveguide_process_ai;
             break;
 
         case 10:
-            self->proc_func_ptr = Waveguide_process_ia;
+            self->proc_func_ptr = (void (*)(void *))Waveguide_process_ia;
             break;
 
         case 11:
-            self->proc_func_ptr = Waveguide_process_aa;
+            self->proc_func_ptr = (void (*)(void *))Waveguide_process_aa;
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Waveguide_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))Waveguide_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = Waveguide_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))Waveguide_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = Waveguide_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))Waveguide_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = Waveguide_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))Waveguide_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = Waveguide_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))Waveguide_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = Waveguide_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))Waveguide_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = Waveguide_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))Waveguide_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = Waveguide_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))Waveguide_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = Waveguide_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))Waveguide_postprocessing_revareva;
             break;
     }
 }
@@ -1525,7 +1525,7 @@ Waveguide_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->nyquist = (MYFLT)self->sr * 0.45;
 
     Stream_setFunctionPtr(self->stream, Waveguide_compute_next_data_frame);
-    self->mode_func_ptr = Waveguide_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))Waveguide_setProcMode;
 
     static char *kwlist[] = {"input", "freq", "dur", "minfreq", "mul", "add", NULL};
 
@@ -2510,74 +2510,74 @@ AllpassWG_setProcMode(AllpassWG *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = AllpassWG_process_iii;
+            self->proc_func_ptr = (void (*)(void *))AllpassWG_process_iii;
             break;
 
         case 1:
-            self->proc_func_ptr = AllpassWG_process_aii;
+            self->proc_func_ptr = (void (*)(void *))AllpassWG_process_aii;
             break;
 
         case 10:
-            self->proc_func_ptr = AllpassWG_process_iai;
+            self->proc_func_ptr = (void (*)(void *))AllpassWG_process_iai;
             break;
 
         case 11:
-            self->proc_func_ptr = AllpassWG_process_aai;
+            self->proc_func_ptr = (void (*)(void *))AllpassWG_process_aai;
             break;
 
         case 100:
-            self->proc_func_ptr = AllpassWG_process_iia;
+            self->proc_func_ptr = (void (*)(void *))AllpassWG_process_iia;
             break;
 
         case 101:
-            self->proc_func_ptr = AllpassWG_process_aia;
+            self->proc_func_ptr = (void (*)(void *))AllpassWG_process_aia;
             break;
 
         case 110:
-            self->proc_func_ptr = AllpassWG_process_iaa;
+            self->proc_func_ptr = (void (*)(void *))AllpassWG_process_iaa;
             break;
 
         case 111:
-            self->proc_func_ptr = AllpassWG_process_aaa;
+            self->proc_func_ptr = (void (*)(void *))AllpassWG_process_aaa;
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = AllpassWG_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))AllpassWG_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = AllpassWG_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))AllpassWG_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = AllpassWG_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))AllpassWG_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = AllpassWG_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))AllpassWG_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = AllpassWG_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))AllpassWG_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = AllpassWG_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))AllpassWG_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = AllpassWG_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))AllpassWG_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = AllpassWG_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))AllpassWG_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = AllpassWG_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))AllpassWG_postprocessing_revareva;
             break;
     }
 }
@@ -2654,7 +2654,7 @@ AllpassWG_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->nyquist = (MYFLT)self->sr * 0.45;
 
     Stream_setFunctionPtr(self->stream, AllpassWG_compute_next_data_frame);
-    self->mode_func_ptr = AllpassWG_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))AllpassWG_setProcMode;
 
     static char *kwlist[] = {"input", "freq", "feed", "detune", "minfreq", "mul", "add", NULL};
 
@@ -2915,44 +2915,44 @@ Delay1_setProcMode(Delay1 *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    self->proc_func_ptr = Delay1_filters;
+    self->proc_func_ptr = (void (*)(void *))Delay1_filters;
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Delay1_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))Delay1_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = Delay1_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))Delay1_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = Delay1_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))Delay1_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = Delay1_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))Delay1_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = Delay1_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))Delay1_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = Delay1_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))Delay1_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = Delay1_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))Delay1_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = Delay1_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))Delay1_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = Delay1_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))Delay1_postprocessing_revareva;
             break;
     }
 }
@@ -3003,7 +3003,7 @@ Delay1_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Delay1_compute_next_data_frame);
-    self->mode_func_ptr = Delay1_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))Delay1_setProcMode;
 
     static char *kwlist[] = {"input", "mul", "add", NULL};
 
@@ -3592,58 +3592,58 @@ SmoothDelay_setProcMode(SmoothDelay *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = SmoothDelay_process_ii;
+            self->proc_func_ptr = (void (*)(void *))SmoothDelay_process_ii;
             break;
 
         case 1:
-            self->proc_func_ptr = SmoothDelay_process_ai;
+            self->proc_func_ptr = (void (*)(void *))SmoothDelay_process_ai;
             break;
 
         case 10:
-            self->proc_func_ptr = SmoothDelay_process_ia;
+            self->proc_func_ptr = (void (*)(void *))SmoothDelay_process_ia;
             break;
 
         case 11:
-            self->proc_func_ptr = SmoothDelay_process_aa;
+            self->proc_func_ptr = (void (*)(void *))SmoothDelay_process_aa;
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = SmoothDelay_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))SmoothDelay_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = SmoothDelay_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))SmoothDelay_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = SmoothDelay_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))SmoothDelay_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = SmoothDelay_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))SmoothDelay_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = SmoothDelay_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))SmoothDelay_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = SmoothDelay_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))SmoothDelay_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = SmoothDelay_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))SmoothDelay_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = SmoothDelay_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))SmoothDelay_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = SmoothDelay_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))SmoothDelay_postprocessing_revareva;
             break;
     }
 }
@@ -3713,7 +3713,7 @@ SmoothDelay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->oneOverSr = self->sampdel1 = self->sampdel2 = 1.0 / self->sr;
 
     Stream_setFunctionPtr(self->stream, SmoothDelay_compute_next_data_frame);
-    self->mode_func_ptr = SmoothDelay_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))SmoothDelay_setProcMode;
 
     static char *kwlist[] = {"input", "delay", "feedback", "crossfade", "maxdelay", "mul", "add", NULL};
 

@@ -104,7 +104,7 @@ Stream_setData(Stream *self, MYFLT *data)
 
 void Stream_setFunctionPtr(Stream *self, void *ptr)
 {
-    self->funcptr = ptr;
+    self->funcptr = (void (*)(void *))ptr;
 }
 
 void Stream_callFunction(Stream *self)

@@ -52,39 +52,39 @@ Sig_setProcMode(Sig *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Sig_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))Sig_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = Sig_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))Sig_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = Sig_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))Sig_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = Sig_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))Sig_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = Sig_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))Sig_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = Sig_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))Sig_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = Sig_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))Sig_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = Sig_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))Sig_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = Sig_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))Sig_postprocessing_revareva;
             break;
     }
 }
@@ -156,7 +156,7 @@ Sig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Sig_compute_next_data_frame);
-    self->mode_func_ptr = Sig_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))Sig_setProcMode;
 
     static char *kwlist[] = {"value", "mul", "add", NULL};
 
@@ -443,44 +443,44 @@ SigTo_setProcMode(SigTo *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    self->proc_func_ptr = SigTo_generates_i;
+    self->proc_func_ptr = (void (*)(void *))SigTo_generates_i;
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = SigTo_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))SigTo_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = SigTo_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))SigTo_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = SigTo_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))SigTo_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = SigTo_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))SigTo_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = SigTo_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))SigTo_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = SigTo_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))SigTo_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = SigTo_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))SigTo_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = SigTo_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))SigTo_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = SigTo_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))SigTo_postprocessing_revareva;
             break;
     }
 }
@@ -540,7 +540,7 @@ SigTo_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, SigTo_compute_next_data_frame);
-    self->mode_func_ptr = SigTo_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))SigTo_setProcMode;
 
     static char *kwlist[] = {"value", "time", "init", "mul", "add", NULL};
 
@@ -811,44 +811,44 @@ VarPort_setProcMode(VarPort *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    self->proc_func_ptr = VarPort_generates_i;
+    self->proc_func_ptr = (void (*)(void *))VarPort_generates_i;
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = VarPort_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))VarPort_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = VarPort_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))VarPort_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = VarPort_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))VarPort_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = VarPort_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))VarPort_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = VarPort_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))VarPort_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = VarPort_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))VarPort_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = VarPort_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))VarPort_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = VarPort_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))VarPort_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = VarPort_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))VarPort_postprocessing_revareva;
             break;
     }
 }
@@ -910,7 +910,7 @@ VarPort_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, VarPort_compute_next_data_frame);
-    self->mode_func_ptr = VarPort_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))VarPort_setProcMode;
 
     static char *kwlist[] = {"value", "time", "init", "callable", "arg", "mul", "add", NULL};
 

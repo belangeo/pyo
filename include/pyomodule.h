@@ -611,9 +611,9 @@ extern PyTypeObject MMLZStreamType;
     PyObject_HEAD \
     PyObject *server; \
     Stream *stream; \
-    void (*mode_func_ptr)(); \
-    void (*proc_func_ptr)(); \
-    void (*muladd_func_ptr)(); \
+    void (*mode_func_ptr)(void *); \
+    void (*proc_func_ptr)(void *); \
+    void (*muladd_func_ptr)(void *); \
     PyObject *mul; \
     Stream *mul_stream; \
     PyObject *add; \

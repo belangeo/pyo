@@ -89,44 +89,44 @@ Convolve_setProcMode(Convolve *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    self->proc_func_ptr = Convolve_filters;
+    self->proc_func_ptr = (void (*)(void *))Convolve_filters;
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Convolve_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))Convolve_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = Convolve_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))Convolve_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = Convolve_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))Convolve_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = Convolve_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))Convolve_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = Convolve_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))Convolve_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = Convolve_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))Convolve_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = Convolve_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))Convolve_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = Convolve_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))Convolve_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = Convolve_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))Convolve_postprocessing_revareva;
             break;
     }
 }
@@ -178,7 +178,7 @@ Convolve_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Convolve_compute_next_data_frame);
-    self->mode_func_ptr = Convolve_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))Convolve_setProcMode;
 
     static char *kwlist[] = {"input", "table", "size", "mul", "add", NULL};
 
@@ -599,44 +599,44 @@ IRWinSinc_setProcMode(IRWinSinc *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    self->proc_func_ptr = IRWinSinc_filters;
+    self->proc_func_ptr = (void (*)(void *))IRWinSinc_filters;
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = IRWinSinc_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))IRWinSinc_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = IRWinSinc_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))IRWinSinc_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = IRWinSinc_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))IRWinSinc_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = IRWinSinc_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))IRWinSinc_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = IRWinSinc_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))IRWinSinc_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = IRWinSinc_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))IRWinSinc_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = IRWinSinc_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))IRWinSinc_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = IRWinSinc_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))IRWinSinc_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = IRWinSinc_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))IRWinSinc_postprocessing_revareva;
             break;
     }
 }
@@ -703,7 +703,7 @@ IRWinSinc_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, IRWinSinc_compute_next_data_frame);
-    self->mode_func_ptr = IRWinSinc_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))IRWinSinc_setProcMode;
 
     static char *kwlist[] = {"input", "freq", "bw", "type", "order", "mul", "add", NULL};
 
@@ -978,44 +978,44 @@ IRAverage_setProcMode(IRAverage *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    self->proc_func_ptr = IRAverage_filters;
+    self->proc_func_ptr = (void (*)(void *))IRAverage_filters;
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = IRAverage_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))IRAverage_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = IRAverage_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))IRAverage_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = IRAverage_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))IRAverage_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = IRAverage_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))IRAverage_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = IRAverage_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))IRAverage_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = IRAverage_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))IRAverage_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = IRAverage_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))IRAverage_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = IRAverage_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))IRAverage_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = IRAverage_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))IRAverage_postprocessing_revareva;
             break;
     }
 }
@@ -1069,7 +1069,7 @@ IRAverage_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, IRAverage_compute_next_data_frame);
-    self->mode_func_ptr = IRAverage_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))IRAverage_setProcMode;
 
     static char *kwlist[] = {"input", "order", "mul", "add", NULL};
 
@@ -1490,44 +1490,44 @@ IRPulse_setProcMode(IRPulse *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    self->proc_func_ptr = IRPulse_filters;
+    self->proc_func_ptr = (void (*)(void *))IRPulse_filters;
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = IRPulse_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))IRPulse_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = IRPulse_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))IRPulse_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = IRPulse_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))IRPulse_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = IRPulse_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))IRPulse_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = IRPulse_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))IRPulse_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = IRPulse_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))IRPulse_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = IRPulse_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))IRPulse_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = IRPulse_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))IRPulse_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = IRPulse_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))IRPulse_postprocessing_revareva;
             break;
     }
 }
@@ -1593,7 +1593,7 @@ IRPulse_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, IRPulse_compute_next_data_frame);
-    self->mode_func_ptr = IRPulse_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))IRPulse_setProcMode;
 
     static char *kwlist[] = {"input", "freq", "bw", "type", "order", "mul", "add", NULL};
 
@@ -1941,44 +1941,44 @@ IRFM_setProcMode(IRFM *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    self->proc_func_ptr = IRFM_filters;
+    self->proc_func_ptr = (void (*)(void *))IRFM_filters;
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = IRFM_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))IRFM_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = IRFM_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))IRFM_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = IRFM_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))IRFM_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = IRFM_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))IRFM_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = IRFM_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))IRFM_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = IRFM_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))IRFM_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = IRFM_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))IRFM_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = IRFM_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))IRFM_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = IRFM_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))IRFM_postprocessing_revareva;
             break;
     }
 }
@@ -2047,7 +2047,7 @@ IRFM_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, IRFM_compute_next_data_frame);
-    self->mode_func_ptr = IRFM_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))IRFM_setProcMode;
 
     static char *kwlist[] = {"input", "carrier", "ratio", "index", "order", "mul", "add", NULL};
 

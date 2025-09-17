@@ -290,7 +290,7 @@ SfPlayer_readframes_i(SfPlayer *self)
 static void
 SfPlayer_setProcMode(SfPlayer *self)
 {
-    self->proc_func_ptr = SfPlayer_readframes_i;
+    self->proc_func_ptr = (void (*)(void *))SfPlayer_readframes_i;
 }
 
 static void
@@ -349,7 +349,7 @@ SfPlayer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, SfPlayer_compute_next_data_frame);
-    self->mode_func_ptr = SfPlayer_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))SfPlayer_setProcMode;
 
     static char *kwlist[] = {"path", "speed", "loop", "offset", "interp", NULL};
 
@@ -606,39 +606,39 @@ SfPlay_setProcMode(SfPlay *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = SfPlay_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))SfPlay_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = SfPlay_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))SfPlay_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = SfPlay_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))SfPlay_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = SfPlay_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))SfPlay_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = SfPlay_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))SfPlay_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = SfPlay_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))SfPlay_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = SfPlay_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))SfPlay_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = SfPlay_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))SfPlay_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = SfPlay_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))SfPlay_postprocessing_revareva;
             break;
     }
 }
@@ -698,7 +698,7 @@ SfPlay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, SfPlay_compute_next_data_frame);
-    self->mode_func_ptr = SfPlay_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))SfPlay_setProcMode;
 
     static char *kwlist[] = {"mainPlayer", "chnl", "mul", "add", NULL};
 
@@ -875,7 +875,7 @@ typedef struct
     MYFLT *markers;
     int markers_size;
     MYFLT x;
-    MYFLT (*type_func_ptr)();
+    MYFLT (*type_func_ptr)(void *);
     MYFLT (*interp_func_ptr)(MYFLT *, T_SIZE_T, MYFLT, T_SIZE_T);
 } SfMarkerShuffler;
 
@@ -1213,7 +1213,7 @@ SfMarkerShuffler_readframes_i(SfMarkerShuffler *self)
 static void
 SfMarkerShuffler_setProcMode(SfMarkerShuffler *self)
 {
-    self->proc_func_ptr = SfMarkerShuffler_readframes_i;
+    self->proc_func_ptr = (void (*)(void *))SfMarkerShuffler_readframes_i;
 }
 
 static void
@@ -1340,7 +1340,7 @@ SfMarkerShuffler_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->x = 0.5;
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, SfMarkerShuffler_compute_next_data_frame);
-    self->mode_func_ptr = SfMarkerShuffler_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))SfMarkerShuffler_setProcMode;
 
     static char *kwlist[] = {"path", "speed", "interp", NULL};
 
@@ -1356,7 +1356,7 @@ SfMarkerShuffler_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     (*self->mode_func_ptr)(self);
 
-    self->type_func_ptr = SfMarkerShuffler_uniform;
+    self->type_func_ptr = (MYFLT (*)(void *))SfMarkerShuffler_uniform;
 
     if (self->interp == 0)
         self->interp = 2;
@@ -1454,49 +1454,49 @@ SfMarkerShuffler_setRandomType(SfMarkerShuffler *self, PyObject *args, PyObject 
     switch (dist)
     {
         case 0:
-            self->type_func_ptr = SfMarkerShuffler_uniform;
+            self->type_func_ptr = (MYFLT (*)(void *))SfMarkerShuffler_uniform;
             break;
 
         case 1:
-            self->type_func_ptr = SfMarkerShuffler_linear_min;
+            self->type_func_ptr = (MYFLT (*)(void *))SfMarkerShuffler_linear_min;
             break;
 
         case 2:
-            self->type_func_ptr = SfMarkerShuffler_linear_max;
+            self->type_func_ptr = (MYFLT (*)(void *))SfMarkerShuffler_linear_max;
             break;
 
         case 3:
-            self->type_func_ptr = SfMarkerShuffler_triangle;
+            self->type_func_ptr = (MYFLT (*)(void *))SfMarkerShuffler_triangle;
             break;
 
         case 4:
-            self->type_func_ptr = SfMarkerShuffler_expon_min;
+            self->type_func_ptr = (MYFLT (*)(void *))SfMarkerShuffler_expon_min;
             self->x *= 10.0;
             break;
 
         case 5:
-            self->type_func_ptr = SfMarkerShuffler_expon_max;
+            self->type_func_ptr = (MYFLT (*)(void *))SfMarkerShuffler_expon_max;
             self->x *= 10.0;
             break;
 
         case 6:
-            self->type_func_ptr = SfMarkerShuffler_biexpon;
+            self->type_func_ptr = (MYFLT (*)(void *))SfMarkerShuffler_biexpon;
             self->x *= 10.0;
             break;
 
         case 7:
-            self->type_func_ptr = SfMarkerShuffler_cauchy;
+            self->type_func_ptr = (MYFLT (*)(void *))SfMarkerShuffler_cauchy;
             self->x *= 10.0;
             self->x = 10.0 - self->x;
             break;
 
         case 8:
-            self->type_func_ptr = SfMarkerShuffler_weibull;
+            self->type_func_ptr = (MYFLT (*)(void *))SfMarkerShuffler_weibull;
             self->x = self->x * 5.0 + 0.1;
             break;
 
         case 9:
-            self->type_func_ptr = SfMarkerShuffler_gaussian;
+            self->type_func_ptr = (MYFLT (*)(void *))SfMarkerShuffler_gaussian;
             self->x *= 10.0;
             self->x = 10.0 - self->x;
             break;
@@ -1621,39 +1621,39 @@ SfMarkerShuffle_setProcMode(SfMarkerShuffle *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = SfMarkerShuffle_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))SfMarkerShuffle_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = SfMarkerShuffle_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))SfMarkerShuffle_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = SfMarkerShuffle_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))SfMarkerShuffle_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = SfMarkerShuffle_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))SfMarkerShuffle_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = SfMarkerShuffle_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))SfMarkerShuffle_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = SfMarkerShuffle_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))SfMarkerShuffle_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = SfMarkerShuffle_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))SfMarkerShuffle_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = SfMarkerShuffle_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))SfMarkerShuffle_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = SfMarkerShuffle_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))SfMarkerShuffle_postprocessing_revareva;
             break;
     }
 }
@@ -1713,7 +1713,7 @@ SfMarkerShuffle_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, SfMarkerShuffle_compute_next_data_frame);
-    self->mode_func_ptr = SfMarkerShuffle_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))SfMarkerShuffle_setProcMode;
 
     static char *kwlist[] = {"mainPlayer", "chnl", "mul", "add", NULL};
 
@@ -2091,7 +2091,7 @@ SfMarkerLooper_readframes_i(SfMarkerLooper *self)
 static void
 SfMarkerLooper_setProcMode(SfMarkerLooper *self)
 {
-    self->proc_func_ptr = SfMarkerLooper_readframes_i;
+    self->proc_func_ptr = (void (*)(void *))SfMarkerLooper_readframes_i;
 }
 
 static void
@@ -2233,7 +2233,7 @@ SfMarkerLooper_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, SfMarkerLooper_compute_next_data_frame);
-    self->mode_func_ptr = SfMarkerLooper_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))SfMarkerLooper_setProcMode;
 
     static char *kwlist[] = {"path", "speed", "mark", "interp", NULL};
 
@@ -2442,39 +2442,39 @@ SfMarkerLoop_setProcMode(SfMarkerLoop *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = SfMarkerLoop_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))SfMarkerLoop_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = SfMarkerLoop_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))SfMarkerLoop_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = SfMarkerLoop_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))SfMarkerLoop_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = SfMarkerLoop_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))SfMarkerLoop_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = SfMarkerLoop_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))SfMarkerLoop_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = SfMarkerLoop_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))SfMarkerLoop_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = SfMarkerLoop_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))SfMarkerLoop_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = SfMarkerLoop_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))SfMarkerLoop_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = SfMarkerLoop_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))SfMarkerLoop_postprocessing_revareva;
             break;
     }
 }
@@ -2534,7 +2534,7 @@ SfMarkerLoop_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, SfMarkerLoop_compute_next_data_frame);
-    self->mode_func_ptr = SfMarkerLoop_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))SfMarkerLoop_setProcMode;
 
     static char *kwlist[] = {"mainPlayer", "chnl", "mul", "add", NULL};
 

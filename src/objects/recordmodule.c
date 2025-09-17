@@ -86,7 +86,7 @@ Record_process(Record *self)
 static void
 Record_setProcMode(Record *self)
 {
-    self->proc_func_ptr = Record_process;
+    self->proc_func_ptr = (void (*)(void *))Record_process;
 }
 
 static void
@@ -142,7 +142,7 @@ Record_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Record_compute_next_data_frame);
-    self->mode_func_ptr = Record_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))Record_setProcMode;
 
     static char *kwlist[] = {"input", "filename", "chnls", "fileformat", "sampletype", "buffering", "quality", NULL};
 
@@ -407,7 +407,7 @@ ControlRec_process(ControlRec *self)
 static void
 ControlRec_setProcMode(ControlRec *self)
 {
-    self->proc_func_ptr = ControlRec_process;
+    self->proc_func_ptr = (void (*)(void *))ControlRec_process;
 }
 
 static void
@@ -462,7 +462,7 @@ ControlRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, ControlRec_compute_next_data_frame);
-    self->mode_func_ptr = ControlRec_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))ControlRec_setProcMode;
 
     static char *kwlist[] = {"input", "rate", "dur", NULL};
 
@@ -686,44 +686,44 @@ ControlRead_setProcMode(ControlRead *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    self->proc_func_ptr = ControlRead_readframes_i;
+    self->proc_func_ptr = (void (*)(void *))ControlRead_readframes_i;
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = ControlRead_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))ControlRead_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = ControlRead_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))ControlRead_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = ControlRead_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))ControlRead_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = ControlRead_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))ControlRead_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = ControlRead_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))ControlRead_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = ControlRead_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))ControlRead_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = ControlRead_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))ControlRead_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = ControlRead_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))ControlRead_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = ControlRead_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))ControlRead_postprocessing_revareva;
             break;
     }
 }
@@ -778,7 +778,7 @@ ControlRead_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, ControlRead_compute_next_data_frame);
-    self->mode_func_ptr = ControlRead_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))ControlRead_setProcMode;
 
     static char *kwlist[] = {"values", "rate", "loop", "interp", "mul", "add", NULL};
 
@@ -1061,7 +1061,7 @@ NoteinRec_process(NoteinRec *self)
 static void
 NoteinRec_setProcMode(NoteinRec *self)
 {
-    self->proc_func_ptr = NoteinRec_process;
+    self->proc_func_ptr = (void (*)(void *))NoteinRec_process;
 }
 
 static void
@@ -1122,7 +1122,7 @@ NoteinRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, NoteinRec_compute_next_data_frame);
-    self->mode_func_ptr = NoteinRec_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))NoteinRec_setProcMode;
 
     static char *kwlist[] = {"inputp", "inputv", NULL};
 
@@ -1316,44 +1316,44 @@ NoteinRead_setProcMode(NoteinRead *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    self->proc_func_ptr = NoteinRead_readframes_i;
+    self->proc_func_ptr = (void (*)(void *))NoteinRead_readframes_i;
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = NoteinRead_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))NoteinRead_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = NoteinRead_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))NoteinRead_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = NoteinRead_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))NoteinRead_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = NoteinRead_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))NoteinRead_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = NoteinRead_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))NoteinRead_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = NoteinRead_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))NoteinRead_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = NoteinRead_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))NoteinRead_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = NoteinRead_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))NoteinRead_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = NoteinRead_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))NoteinRead_postprocessing_revareva;
             break;
     }
 }
@@ -1407,7 +1407,7 @@ NoteinRead_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, NoteinRead_compute_next_data_frame);
-    self->mode_func_ptr = NoteinRead_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))NoteinRead_setProcMode;
 
     static char *kwlist[] = {"values", "timestamps", "loop", "mul", "add", NULL};
 

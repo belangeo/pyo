@@ -147,11 +147,11 @@ Pattern_setProcMode(Pattern *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = Pattern_generate_i;
+            self->proc_func_ptr = (void (*)(void *))Pattern_generate_i;
             break;
 
         case 1:
-            self->proc_func_ptr = Pattern_generate_a;
+            self->proc_func_ptr = (void (*)(void *))Pattern_generate_a;
             break;
     }
 }
@@ -206,7 +206,7 @@ Pattern_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Pattern_compute_next_data_frame);
-    self->mode_func_ptr = Pattern_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))Pattern_setProcMode;
 
     self->sampleToSec = 1. / self->sr;
     self->currentTime = 0.;
@@ -385,7 +385,7 @@ Score_selector(Score *self)
 static void
 Score_setProcMode(Score *self)
 {
-    self->proc_func_ptr = Score_selector;
+    self->proc_func_ptr = (void (*)(void *))Score_selector;
 }
 
 static void
@@ -431,7 +431,7 @@ Score_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Score_compute_next_data_frame);
-    self->mode_func_ptr = Score_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))Score_setProcMode;
 
     static char *kwlist[] = {"input", "fname", NULL};
 
@@ -564,7 +564,7 @@ CallAfter_generate(CallAfter *self)
 static void
 CallAfter_setProcMode(CallAfter *self)
 {
-    self->proc_func_ptr = CallAfter_generate;
+    self->proc_func_ptr = (void (*)(void *))CallAfter_generate;
 }
 
 static void
@@ -613,7 +613,7 @@ CallAfter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, CallAfter_compute_next_data_frame);
-    self->mode_func_ptr = CallAfter_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))CallAfter_setProcMode;
 
     self->sampleToSec = 1. / self->sr;
     self->currentTime = 0.;

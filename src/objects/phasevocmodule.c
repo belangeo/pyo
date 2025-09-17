@@ -240,7 +240,7 @@ PVAnal_process(PVAnal *self)
 static void
 PVAnal_setProcMode(PVAnal *self)
 {
-    self->proc_func_ptr = PVAnal_process;
+    self->proc_func_ptr = (void (*)(void *))PVAnal_process;
 }
 
 static void
@@ -328,7 +328,7 @@ PVAnal_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->allocated = 0;
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, PVAnal_compute_next_data_frame);
-    self->mode_func_ptr = PVAnal_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))PVAnal_setProcMode;
 
     static char *kwlist[] = {"input", "size", "olaps", "wintype", "callback", NULL};
 
@@ -685,44 +685,44 @@ PVSynth_setProcMode(PVSynth *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    self->proc_func_ptr = PVSynth_process;
+    self->proc_func_ptr = (void (*)(void *))PVSynth_process;
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = PVSynth_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))PVSynth_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = PVSynth_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))PVSynth_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = PVSynth_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))PVSynth_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = PVSynth_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))PVSynth_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = PVSynth_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))PVSynth_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = PVSynth_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))PVSynth_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = PVSynth_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))PVSynth_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = PVSynth_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))PVSynth_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = PVSynth_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))PVSynth_postprocessing_revareva;
             break;
     }
 }
@@ -790,7 +790,7 @@ PVSynth_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->allocated = 0;
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, PVSynth_compute_next_data_frame);
-    self->mode_func_ptr = PVSynth_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))PVSynth_setProcMode;
 
     static char *kwlist[] = {"input", "wintype", "mul", "add", NULL};
 
@@ -1198,50 +1198,50 @@ PVAddSynth_setProcMode(PVAddSynth *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = PVAddSynth_process_i;
+            self->proc_func_ptr = (void (*)(void *))PVAddSynth_process_i;
             break;
 
         case 1:
-            self->proc_func_ptr = PVAddSynth_process_a;
+            self->proc_func_ptr = (void (*)(void *))PVAddSynth_process_a;
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = PVAddSynth_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))PVAddSynth_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = PVAddSynth_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))PVAddSynth_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = PVAddSynth_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))PVAddSynth_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = PVAddSynth_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))PVAddSynth_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = PVAddSynth_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))PVAddSynth_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = PVAddSynth_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))PVAddSynth_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = PVAddSynth_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))PVAddSynth_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = PVAddSynth_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))PVAddSynth_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = PVAddSynth_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))PVAddSynth_postprocessing_revareva;
             break;
     }
 }
@@ -1304,7 +1304,7 @@ PVAddSynth_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, PVAddSynth_compute_next_data_frame);
-    self->mode_func_ptr = PVAddSynth_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))PVAddSynth_setProcMode;
 
     static char *kwlist[] = {"input", "pitch", "num", "first", "inc", "mul", "add", NULL};
 
@@ -1737,11 +1737,11 @@ PVTranspose_setProcMode(PVTranspose *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = PVTranspose_process_i;
+            self->proc_func_ptr = (void (*)(void *))PVTranspose_process_i;
             break;
 
         case 1:
-            self->proc_func_ptr = PVTranspose_process_a;
+            self->proc_func_ptr = (void (*)(void *))PVTranspose_process_a;
             break;
     }
 }
@@ -1805,7 +1805,7 @@ PVTranspose_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->allocated = 0;
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, PVTranspose_compute_next_data_frame);
-    self->mode_func_ptr = PVTranspose_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))PVTranspose_setProcMode;
 
     static char *kwlist[] = {"input", "transpo", NULL};
 
@@ -2299,19 +2299,19 @@ PVVerb_setProcMode(PVVerb *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = PVVerb_process_ii;
+            self->proc_func_ptr = (void (*)(void *))PVVerb_process_ii;
             break;
 
         case 1:
-            self->proc_func_ptr = PVVerb_process_ai;
+            self->proc_func_ptr = (void (*)(void *))PVVerb_process_ai;
             break;
 
         case 10:
-            self->proc_func_ptr = PVVerb_process_ia;
+            self->proc_func_ptr = (void (*)(void *))PVVerb_process_ia;
             break;
 
         case 11:
-            self->proc_func_ptr = PVVerb_process_aa;
+            self->proc_func_ptr = (void (*)(void *))PVVerb_process_aa;
             break;
     }
 }
@@ -2380,7 +2380,7 @@ PVVerb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->allocated = 0;
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, PVVerb_compute_next_data_frame);
-    self->mode_func_ptr = PVVerb_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))PVVerb_setProcMode;
 
     static char *kwlist[] = {"input", "revtime", "damp", NULL};
 
@@ -2859,19 +2859,19 @@ PVGate_setProcMode(PVGate *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = PVGate_process_ii;
+            self->proc_func_ptr = (void (*)(void *))PVGate_process_ii;
             break;
 
         case 1:
-            self->proc_func_ptr = PVGate_process_ai;
+            self->proc_func_ptr = (void (*)(void *))PVGate_process_ai;
             break;
 
         case 10:
-            self->proc_func_ptr = PVGate_process_ia;
+            self->proc_func_ptr = (void (*)(void *))PVGate_process_ia;
             break;
 
         case 11:
-            self->proc_func_ptr = PVGate_process_aa;
+            self->proc_func_ptr = (void (*)(void *))PVGate_process_aa;
             break;
     }
 }
@@ -2939,7 +2939,7 @@ PVGate_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->inverse = 0;
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, PVGate_compute_next_data_frame);
-    self->mode_func_ptr = PVGate_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))PVGate_setProcMode;
 
     static char *kwlist[] = {"input", "thresh", "damp", "inverse", NULL};
 
@@ -3250,11 +3250,11 @@ PVCross_setProcMode(PVCross *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = PVCross_process_i;
+            self->proc_func_ptr = (void (*)(void *))PVCross_process_i;
             break;
 
         case 1:
-            self->proc_func_ptr = PVCross_process_a;
+            self->proc_func_ptr = (void (*)(void *))PVCross_process_a;
             break;
     }
 }
@@ -3320,7 +3320,7 @@ PVCross_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->allocated = 0;
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, PVCross_compute_next_data_frame);
-    self->mode_func_ptr = PVCross_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))PVCross_setProcMode;
 
     static char *kwlist[] = {"input", "input2", "fade", NULL};
 
@@ -3586,7 +3586,7 @@ PVMult_process_i(PVMult *self)
 static void
 PVMult_setProcMode(PVMult *self)
 {
-    self->proc_func_ptr = PVMult_process_i;
+    self->proc_func_ptr = (void (*)(void *))PVMult_process_i;
 }
 
 static void
@@ -3647,7 +3647,7 @@ PVMult_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->allocated = 0;
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, PVMult_compute_next_data_frame);
-    self->mode_func_ptr = PVMult_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))PVMult_setProcMode;
 
     static char *kwlist[] = {"input", "input2", NULL};
 
@@ -3967,11 +3967,11 @@ PVMorph_setProcMode(PVMorph *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = PVMorph_process_i;
+            self->proc_func_ptr = (void (*)(void *))PVMorph_process_i;
             break;
 
         case 1:
-            self->proc_func_ptr = PVMorph_process_a;
+            self->proc_func_ptr = (void (*)(void *))PVMorph_process_a;
             break;
     }
 }
@@ -4037,7 +4037,7 @@ PVMorph_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->allocated = 0;
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, PVMorph_compute_next_data_frame);
-    self->mode_func_ptr = PVMorph_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))PVMorph_setProcMode;
 
     static char *kwlist[] = {"input", "input2", "fade", NULL};
 
@@ -4414,11 +4414,11 @@ PVFilter_setProcMode(PVFilter *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = PVFilter_process_i;
+            self->proc_func_ptr = (void (*)(void *))PVFilter_process_i;
             break;
 
         case 1:
-            self->proc_func_ptr = PVFilter_process_a;
+            self->proc_func_ptr = (void (*)(void *))PVFilter_process_a;
             break;
     }
 }
@@ -4484,7 +4484,7 @@ PVFilter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
                        1 : index between 0 and hsize are scaled over table length */
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, PVFilter_compute_next_data_frame);
-    self->mode_func_ptr = PVFilter_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))PVFilter_setProcMode;
 
     static char *kwlist[] = {"input", "table", "gain", "mode", NULL};
 
@@ -4921,9 +4921,9 @@ static void
 PVDelay_setProcMode(PVDelay *self)
 {
     if (self->mode == 0)
-        self->proc_func_ptr = PVDelay_process_zero;
+        self->proc_func_ptr = (void (*)(void *))PVDelay_process_zero;
     else
-        self->proc_func_ptr = PVDelay_process_scaled;
+        self->proc_func_ptr = (void (*)(void *))PVDelay_process_scaled;
 }
 
 static void
@@ -4994,7 +4994,7 @@ PVDelay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->mode = 0;
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, PVDelay_compute_next_data_frame);
-    self->mode_func_ptr = PVDelay_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))PVDelay_setProcMode;
 
     static char *kwlist[] = {"input", "deltable", "feedtable", "maxdelay", "mode", NULL};
 
@@ -5431,11 +5431,11 @@ PVBuffer_setProcMode(PVBuffer *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = PVBuffer_process_i;
+            self->proc_func_ptr = (void (*)(void *))PVBuffer_process_i;
             break;
 
         case 1:
-            self->proc_func_ptr = PVBuffer_process_a;
+            self->proc_func_ptr = (void (*)(void *))PVBuffer_process_a;
             break;
     }
 }
@@ -5514,7 +5514,7 @@ PVBuffer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->length = 1.0;
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, PVBuffer_compute_next_data_frame);
-    self->mode_func_ptr = PVBuffer_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))PVBuffer_setProcMode;
 
     static char *kwlist[] = {"input", "index", "pitch", "length", NULL};
 
@@ -5878,11 +5878,11 @@ PVShift_setProcMode(PVShift *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = PVShift_process_i;
+            self->proc_func_ptr = (void (*)(void *))PVShift_process_i;
             break;
 
         case 1:
-            self->proc_func_ptr = PVShift_process_a;
+            self->proc_func_ptr = (void (*)(void *))PVShift_process_a;
             break;
     }
 }
@@ -5946,7 +5946,7 @@ PVShift_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->allocated = 0;
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, PVShift_compute_next_data_frame);
-    self->mode_func_ptr = PVShift_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))PVShift_setProcMode;
 
     static char *kwlist[] = {"input", "shift", NULL};
 
@@ -6464,19 +6464,19 @@ PVAmpMod_setProcMode(PVAmpMod *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = PVAmpMod_process_ii;
+            self->proc_func_ptr = (void (*)(void *))PVAmpMod_process_ii;
             break;
 
         case 1:
-            self->proc_func_ptr = PVAmpMod_process_ai;
+            self->proc_func_ptr = (void (*)(void *))PVAmpMod_process_ai;
             break;
 
         case 10:
-            self->proc_func_ptr = PVAmpMod_process_ia;
+            self->proc_func_ptr = (void (*)(void *))PVAmpMod_process_ia;
             break;
 
         case 11:
-            self->proc_func_ptr = PVAmpMod_process_aa;
+            self->proc_func_ptr = (void (*)(void *))PVAmpMod_process_aa;
             break;
     }
 }
@@ -6545,7 +6545,7 @@ PVAmpMod_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->allocated = 0;
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, PVAmpMod_compute_next_data_frame);
-    self->mode_func_ptr = PVAmpMod_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))PVAmpMod_setProcMode;
 
     static char *kwlist[] = {"input", "basefreq", "spread", "shape", NULL};
 
@@ -7108,19 +7108,19 @@ PVFreqMod_setProcMode(PVFreqMod *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = PVFreqMod_process_ii;
+            self->proc_func_ptr = (void (*)(void *))PVFreqMod_process_ii;
             break;
 
         case 1:
-            self->proc_func_ptr = PVFreqMod_process_ai;
+            self->proc_func_ptr = (void (*)(void *))PVFreqMod_process_ai;
             break;
 
         case 10:
-            self->proc_func_ptr = PVFreqMod_process_ia;
+            self->proc_func_ptr = (void (*)(void *))PVFreqMod_process_ia;
             break;
 
         case 11:
-            self->proc_func_ptr = PVFreqMod_process_aa;
+            self->proc_func_ptr = (void (*)(void *))PVFreqMod_process_aa;
             break;
     }
 }
@@ -7192,7 +7192,7 @@ PVFreqMod_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->allocated = 0;
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, PVFreqMod_compute_next_data_frame);
-    self->mode_func_ptr = PVFreqMod_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))PVFreqMod_setProcMode;
 
     static char *kwlist[] = {"input", "basefreq", "spread", "depth", "shape", NULL};
 
@@ -7652,7 +7652,7 @@ PVBufLoops_process(PVBufLoops *self)
 static void
 PVBufLoops_setProcMode(PVBufLoops *self)
 {
-    self->proc_func_ptr = PVBufLoops_process;
+    self->proc_func_ptr = (void (*)(void *))PVBufLoops_process;
 }
 
 static void
@@ -7733,7 +7733,7 @@ PVBufLoops_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->length = 1.0;
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, PVBufLoops_compute_next_data_frame);
-    self->mode_func_ptr = PVBufLoops_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))PVBufLoops_setProcMode;
 
     static char *kwlist[] = {"input", "low", "high", "mode", "length", NULL};
 
@@ -8085,7 +8085,7 @@ PVBufTabLoops_process(PVBufTabLoops *self)
 static void
 PVBufTabLoops_setProcMode(PVBufTabLoops *self)
 {
-    self->proc_func_ptr = PVBufTabLoops_process;
+    self->proc_func_ptr = (void (*)(void *))PVBufTabLoops_process;
 }
 
 static void
@@ -8156,7 +8156,7 @@ PVBufTabLoops_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->length = 1.0;
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, PVBufTabLoops_compute_next_data_frame);
-    self->mode_func_ptr = PVBufTabLoops_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))PVBufTabLoops_setProcMode;
 
     static char *kwlist[] = {"input", "speed", "length", NULL};
 
@@ -8430,7 +8430,7 @@ PVMix_process_i(PVMix *self)
 static void
 PVMix_setProcMode(PVMix *self)
 {
-    self->proc_func_ptr = PVMix_process_i;
+    self->proc_func_ptr = (void (*)(void *))PVMix_process_i;
 }
 
 static void
@@ -8491,7 +8491,7 @@ PVMix_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->allocated = 0;
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, PVMix_compute_next_data_frame);
-    self->mode_func_ptr = PVMix_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))PVMix_setProcMode;
 
     static char *kwlist[] = {"input", "input2", NULL};
 

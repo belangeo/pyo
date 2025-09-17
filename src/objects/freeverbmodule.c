@@ -583,74 +583,74 @@ Freeverb_setProcMode(Freeverb *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = Freeverb_transform_iii;
+            self->proc_func_ptr = (void (*)(void *))Freeverb_transform_iii;
             break;
 
         case 1:
-            self->proc_func_ptr = Freeverb_transform_aii;
+            self->proc_func_ptr = (void (*)(void *))Freeverb_transform_aii;
             break;
 
         case 10:
-            self->proc_func_ptr = Freeverb_transform_iai;
+            self->proc_func_ptr = (void (*)(void *))Freeverb_transform_iai;
             break;
 
         case 11:
-            self->proc_func_ptr = Freeverb_transform_aai;
+            self->proc_func_ptr = (void (*)(void *))Freeverb_transform_aai;
             break;
 
         case 100:
-            self->proc_func_ptr = Freeverb_transform_iia;
+            self->proc_func_ptr = (void (*)(void *))Freeverb_transform_iia;
             break;
 
         case 101:
-            self->proc_func_ptr = Freeverb_transform_aia;
+            self->proc_func_ptr = (void (*)(void *))Freeverb_transform_aia;
             break;
 
         case 110:
-            self->proc_func_ptr = Freeverb_transform_iaa;
+            self->proc_func_ptr = (void (*)(void *))Freeverb_transform_iaa;
             break;
 
         case 111:
-            self->proc_func_ptr = Freeverb_transform_aaa;
+            self->proc_func_ptr = (void (*)(void *))Freeverb_transform_aaa;
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Freeverb_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))Freeverb_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = Freeverb_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))Freeverb_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = Freeverb_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))Freeverb_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = Freeverb_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))Freeverb_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = Freeverb_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))Freeverb_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = Freeverb_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))Freeverb_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = Freeverb_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))Freeverb_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = Freeverb_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))Freeverb_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = Freeverb_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))Freeverb_postprocessing_revareva;
             break;
     }
 }
@@ -727,7 +727,7 @@ Freeverb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Freeverb_compute_next_data_frame);
-    self->mode_func_ptr = Freeverb_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))Freeverb_setProcMode;
 
     static char *kwlist[] = {"input", "size", "damp", "mix", "mul", "add", NULL};
 

@@ -668,74 +668,74 @@ Granulator_setProcMode(Granulator *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = Granulator_transform_iii;
+            self->proc_func_ptr = (void (*)(void *))Granulator_transform_iii;
             break;
 
         case 1:
-            self->proc_func_ptr = Granulator_transform_aii;
+            self->proc_func_ptr = (void (*)(void *))Granulator_transform_aii;
             break;
 
         case 10:
-            self->proc_func_ptr = Granulator_transform_iai;
+            self->proc_func_ptr = (void (*)(void *))Granulator_transform_iai;
             break;
 
         case 11:
-            self->proc_func_ptr = Granulator_transform_aai;
+            self->proc_func_ptr = (void (*)(void *))Granulator_transform_aai;
             break;
 
         case 100:
-            self->proc_func_ptr = Granulator_transform_iia;
+            self->proc_func_ptr = (void (*)(void *))Granulator_transform_iia;
             break;
 
         case 101:
-            self->proc_func_ptr = Granulator_transform_aia;
+            self->proc_func_ptr = (void (*)(void *))Granulator_transform_aia;
             break;
 
         case 110:
-            self->proc_func_ptr = Granulator_transform_iaa;
+            self->proc_func_ptr = (void (*)(void *))Granulator_transform_iaa;
             break;
 
         case 111:
-            self->proc_func_ptr = Granulator_transform_aaa;
+            self->proc_func_ptr = (void (*)(void *))Granulator_transform_aaa;
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Granulator_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))Granulator_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = Granulator_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))Granulator_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = Granulator_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))Granulator_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = Granulator_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))Granulator_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = Granulator_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))Granulator_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = Granulator_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))Granulator_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = Granulator_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))Granulator_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = Granulator_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))Granulator_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = Granulator_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))Granulator_postprocessing_revareva;
             break;
     }
 }
@@ -804,7 +804,7 @@ Granulator_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Granulator_compute_next_data_frame);
-    self->mode_func_ptr = Granulator_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))Granulator_setProcMode;
 
     static char *kwlist[] = {"table", "env", "pitch", "pos", "dur", "grains", "basedur", "mul", "add", NULL};
 
@@ -1966,50 +1966,50 @@ Looper_setProcMode(Looper *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = Looper_transform_i;
+            self->proc_func_ptr = (void (*)(void *))Looper_transform_i;
             break;
 
         case 1:
-            self->proc_func_ptr = Looper_transform_a;
+            self->proc_func_ptr = (void (*)(void *))Looper_transform_a;
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Looper_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))Looper_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = Looper_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))Looper_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = Looper_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))Looper_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = Looper_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))Looper_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = Looper_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))Looper_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = Looper_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))Looper_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = Looper_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))Looper_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = Looper_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))Looper_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = Looper_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))Looper_postprocessing_revareva;
             break;
     }
 }
@@ -2094,7 +2094,7 @@ Looper_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Looper_compute_next_data_frame);
-    self->mode_func_ptr = Looper_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))Looper_setProcMode;
 
     static char *kwlist[] = {"table", "pitch", "start", "dur", "xfade", "mode", "xfadeshape", "startfromloop", "interp", "autosmooth", "mul", "add", NULL};
 
@@ -2472,39 +2472,39 @@ LooperTimeStream_setProcMode(LooperTimeStream *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = LooperTimeStream_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))LooperTimeStream_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = LooperTimeStream_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))LooperTimeStream_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = LooperTimeStream_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))LooperTimeStream_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = LooperTimeStream_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))LooperTimeStream_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = LooperTimeStream_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))LooperTimeStream_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = LooperTimeStream_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))LooperTimeStream_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = LooperTimeStream_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))LooperTimeStream_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = LooperTimeStream_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))LooperTimeStream_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = LooperTimeStream_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))LooperTimeStream_postprocessing_revareva;
             break;
     }
 }
@@ -2562,7 +2562,7 @@ LooperTimeStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, LooperTimeStream_compute_next_data_frame);
-    self->mode_func_ptr = LooperTimeStream_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))LooperTimeStream_setProcMode;
 
     static char *kwlist[] = {"mainPlayer", NULL};
 
@@ -2986,50 +2986,50 @@ Granule_setProcMode(Granule *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = Granule_transform_i;
+            self->proc_func_ptr = (void (*)(void *))Granule_transform_i;
             break;
 
         case 1:
-            self->proc_func_ptr = Granule_transform_a;
+            self->proc_func_ptr = (void (*)(void *))Granule_transform_a;
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Granule_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))Granule_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = Granule_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))Granule_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = Granule_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))Granule_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = Granule_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))Granule_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = Granule_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))Granule_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = Granule_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))Granule_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = Granule_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))Granule_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = Granule_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))Granule_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = Granule_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))Granule_postprocessing_revareva;
             break;
     }
 }
@@ -3105,7 +3105,7 @@ Granule_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->srOnRandMax = self->sr / (MYFLT)PYO_RAND_MAX;
 
     Stream_setFunctionPtr(self->stream, Granule_compute_next_data_frame);
-    self->mode_func_ptr = Granule_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))Granule_setProcMode;
 
     static char *kwlist[] = {"table", "env", "dens", "pitch", "pos", "dur", "mul", "add", NULL};
 
@@ -4017,17 +4017,17 @@ MainParticle_setProcMode(MainParticle *self)
     {
         case 0:
             if (self->chnls == 1)
-                self->proc_func_ptr = MainParticle_transform_mono_i;
+                self->proc_func_ptr = (void (*)(void *))MainParticle_transform_mono_i;
             else
-                self->proc_func_ptr = MainParticle_transform_i;
+                self->proc_func_ptr = (void (*)(void *))MainParticle_transform_i;
 
             break;
 
         case 1:
             if (self->chnls == 1)
-                self->proc_func_ptr = MainParticle_transform_mono_a;
+                self->proc_func_ptr = (void (*)(void *))MainParticle_transform_mono_a;
             else
-                self->proc_func_ptr = MainParticle_transform_a;
+                self->proc_func_ptr = (void (*)(void *))MainParticle_transform_a;
 
             break;
     }
@@ -4121,7 +4121,7 @@ MainParticle_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->srOnRandMax = self->sr / (MYFLT)PYO_RAND_MAX;
 
     Stream_setFunctionPtr(self->stream, MainParticle_compute_next_data_frame);
-    self->mode_func_ptr = MainParticle_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))MainParticle_setProcMode;
 
     static char *kwlist[] = {"table", "env", "dens", "pitch", "pos", "dur", "dev", "pan", "chnls", NULL};
 
@@ -4363,39 +4363,39 @@ Particle_setProcMode(Particle *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Particle_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))Particle_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = Particle_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))Particle_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = Particle_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))Particle_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = Particle_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))Particle_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = Particle_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))Particle_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = Particle_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))Particle_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = Particle_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))Particle_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = Particle_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))Particle_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = Particle_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))Particle_postprocessing_revareva;
             break;
     }
 }
@@ -4454,7 +4454,7 @@ Particle_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Particle_compute_next_data_frame);
-    self->mode_func_ptr = Particle_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))Particle_setProcMode;
 
     static char *kwlist[] = {"mainSplitter", "chnl", "mul", "add", NULL};
 
@@ -5588,17 +5588,17 @@ MainParticle2_setProcMode(MainParticle2 *self)
     {
         case 0:
             if (self->chnls == 1)
-                self->proc_func_ptr = MainParticle2_transform_mono_i;
+                self->proc_func_ptr = (void (*)(void *))MainParticle2_transform_mono_i;
             else
-                self->proc_func_ptr = MainParticle2_transform_i;
+                self->proc_func_ptr = (void (*)(void *))MainParticle2_transform_i;
 
             break;
 
         case 1:
             if (self->chnls == 1)
-                self->proc_func_ptr = MainParticle2_transform_mono_a;
+                self->proc_func_ptr = (void (*)(void *))MainParticle2_transform_mono_a;
             else
-                self->proc_func_ptr = MainParticle2_transform_a;
+                self->proc_func_ptr = (void (*)(void *))MainParticle2_transform_a;
 
             break;
     }
@@ -5725,7 +5725,7 @@ MainParticle2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->filterfreq = PyFloat_FromDouble(self->nyquist);
 
     Stream_setFunctionPtr(self->stream, MainParticle2_compute_next_data_frame);
-    self->mode_func_ptr = MainParticle2_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))MainParticle2_setProcMode;
 
     static char *kwlist[] = {"table", "env", "dens", "pitch", "pos", "dur", "dev", "pan", "filterfreq", "filterq", "filtertype", "chnls", NULL};
 
@@ -6012,39 +6012,39 @@ Particle2_setProcMode(Particle2 *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Particle2_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))Particle2_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = Particle2_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))Particle2_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = Particle2_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))Particle2_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = Particle2_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))Particle2_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = Particle2_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))Particle2_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = Particle2_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))Particle2_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = Particle2_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))Particle2_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = Particle2_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))Particle2_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = Particle2_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))Particle2_postprocessing_revareva;
             break;
     }
 }
@@ -6103,7 +6103,7 @@ Particle2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Particle2_compute_next_data_frame);
-    self->mode_func_ptr = Particle2_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))Particle2_setProcMode;
 
     static char *kwlist[] = {"mainSplitter", "chnl", "mul", "add", NULL};
 

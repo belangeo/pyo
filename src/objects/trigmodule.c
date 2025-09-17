@@ -90,50 +90,50 @@ TrigRandInt_setProcMode(TrigRandInt *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = TrigRandInt_generate_i;
+            self->proc_func_ptr = (void (*)(void *))TrigRandInt_generate_i;
             break;
 
         case 1:
-            self->proc_func_ptr = TrigRandInt_generate_a;
+            self->proc_func_ptr = (void (*)(void *))TrigRandInt_generate_a;
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = TrigRandInt_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))TrigRandInt_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = TrigRandInt_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))TrigRandInt_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = TrigRandInt_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))TrigRandInt_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = TrigRandInt_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))TrigRandInt_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = TrigRandInt_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))TrigRandInt_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = TrigRandInt_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))TrigRandInt_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = TrigRandInt_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))TrigRandInt_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = TrigRandInt_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))TrigRandInt_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = TrigRandInt_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))TrigRandInt_postprocessing_revareva;
             break;
     }
 }
@@ -189,7 +189,7 @@ TrigRandInt_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, TrigRandInt_compute_next_data_frame);
-    self->mode_func_ptr = TrigRandInt_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))TrigRandInt_setProcMode;
 
     static char *kwlist[] = {"input", "max", "mul", "add", NULL};
 
@@ -546,58 +546,58 @@ TrigRand_setProcMode(TrigRand *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = TrigRand_generate_ii;
+            self->proc_func_ptr = (void (*)(void *))TrigRand_generate_ii;
             break;
 
         case 1:
-            self->proc_func_ptr = TrigRand_generate_ai;
+            self->proc_func_ptr = (void (*)(void *))TrigRand_generate_ai;
             break;
 
         case 10:
-            self->proc_func_ptr = TrigRand_generate_ia;
+            self->proc_func_ptr = (void (*)(void *))TrigRand_generate_ia;
             break;
 
         case 11:
-            self->proc_func_ptr = TrigRand_generate_aa;
+            self->proc_func_ptr = (void (*)(void *))TrigRand_generate_aa;
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = TrigRand_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))TrigRand_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = TrigRand_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))TrigRand_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = TrigRand_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))TrigRand_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = TrigRand_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))TrigRand_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = TrigRand_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))TrigRand_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = TrigRand_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))TrigRand_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = TrigRand_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))TrigRand_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = TrigRand_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))TrigRand_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = TrigRand_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))TrigRand_postprocessing_revareva;
             break;
     }
 }
@@ -660,7 +660,7 @@ TrigRand_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, TrigRand_compute_next_data_frame);
-    self->mode_func_ptr = TrigRand_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))TrigRand_setProcMode;
 
     static char *kwlist[] = {"input", "min", "max", "port", "init", "mul", "add", NULL};
 
@@ -916,44 +916,44 @@ TrigChoice_setProcMode(TrigChoice *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    self->proc_func_ptr = TrigChoice_generate;
+    self->proc_func_ptr = (void (*)(void *))TrigChoice_generate;
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = TrigChoice_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))TrigChoice_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = TrigChoice_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))TrigChoice_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = TrigChoice_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))TrigChoice_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = TrigChoice_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))TrigChoice_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = TrigChoice_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))TrigChoice_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = TrigChoice_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))TrigChoice_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = TrigChoice_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))TrigChoice_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = TrigChoice_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))TrigChoice_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = TrigChoice_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))TrigChoice_postprocessing_revareva;
             break;
     }
 }
@@ -1009,7 +1009,7 @@ TrigChoice_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, TrigChoice_compute_next_data_frame);
-    self->mode_func_ptr = TrigChoice_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))TrigChoice_setProcMode;
 
     static char *kwlist[] = {"input", "choice", "port", "init", "mul", "add", NULL};
 
@@ -1579,50 +1579,50 @@ TrigEnv_setProcMode(TrigEnv *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = TrigEnv_readframes_i;
+            self->proc_func_ptr = (void (*)(void *))TrigEnv_readframes_i;
             break;
 
         case 1:
-            self->proc_func_ptr = TrigEnv_readframes_a;
+            self->proc_func_ptr = (void (*)(void *))TrigEnv_readframes_a;
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = TrigEnv_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))TrigEnv_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = TrigEnv_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))TrigEnv_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = TrigEnv_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))TrigEnv_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = TrigEnv_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))TrigEnv_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = TrigEnv_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))TrigEnv_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = TrigEnv_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))TrigEnv_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = TrigEnv_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))TrigEnv_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = TrigEnv_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))TrigEnv_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = TrigEnv_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))TrigEnv_postprocessing_revareva;
             break;
     }
 }
@@ -1681,7 +1681,7 @@ TrigEnv_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, TrigEnv_compute_next_data_frame);
-    self->mode_func_ptr = TrigEnv_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))TrigEnv_setProcMode;
 
     self->dur = PyFloat_FromDouble(1.);
     self->current_dur = self->sr;
@@ -2017,44 +2017,44 @@ TrigLinseg_setProcMode(TrigLinseg *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    self->proc_func_ptr = TrigLinseg_generate;
+    self->proc_func_ptr = (void (*)(void *))TrigLinseg_generate;
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = TrigLinseg_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))TrigLinseg_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = TrigLinseg_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))TrigLinseg_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = TrigLinseg_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))TrigLinseg_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = TrigLinseg_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))TrigLinseg_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = TrigLinseg_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))TrigLinseg_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = TrigLinseg_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))TrigLinseg_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = TrigLinseg_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))TrigLinseg_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = TrigLinseg_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))TrigLinseg_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = TrigLinseg_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))TrigLinseg_postprocessing_revareva;
             break;
     }
 }
@@ -2111,7 +2111,7 @@ TrigLinseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, TrigLinseg_compute_next_data_frame);
-    self->mode_func_ptr = TrigLinseg_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))TrigLinseg_setProcMode;
 
     self->sampleToSec = 1. / self->sr;
 
@@ -2447,44 +2447,44 @@ TrigExpseg_setProcMode(TrigExpseg *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    self->proc_func_ptr = TrigExpseg_generate;
+    self->proc_func_ptr = (void (*)(void *))TrigExpseg_generate;
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = TrigExpseg_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))TrigExpseg_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = TrigExpseg_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))TrigExpseg_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = TrigExpseg_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))TrigExpseg_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = TrigExpseg_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))TrigExpseg_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = TrigExpseg_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))TrigExpseg_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = TrigExpseg_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))TrigExpseg_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = TrigExpseg_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))TrigExpseg_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = TrigExpseg_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))TrigExpseg_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = TrigExpseg_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))TrigExpseg_postprocessing_revareva;
             break;
     }
 }
@@ -2543,7 +2543,7 @@ TrigExpseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, TrigExpseg_compute_next_data_frame);
-    self->mode_func_ptr = TrigExpseg_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))TrigExpseg_setProcMode;
 
     self->sampleToSec = 1. / self->sr;
 
@@ -2770,7 +2770,7 @@ typedef struct
     PyObject *x2;
     Stream *x1_stream;
     Stream *x2_stream;
-    MYFLT (*type_func_ptr)();
+    MYFLT (*type_func_ptr)(void *);
     MYFLT xx1;
     MYFLT xx2;
     int type;
@@ -3144,55 +3144,55 @@ TrigXnoise_setRandomType(TrigXnoise *self)
     switch (self->type)
     {
         case 0:
-            self->type_func_ptr = TrigXnoise_uniform;
+            self->type_func_ptr = (MYFLT (*)(void *))TrigXnoise_uniform;
             break;
 
         case 1:
-            self->type_func_ptr = TrigXnoise_linear_min;
+            self->type_func_ptr = (MYFLT (*)(void *))TrigXnoise_linear_min;
             break;
 
         case 2:
-            self->type_func_ptr = TrigXnoise_linear_max;
+            self->type_func_ptr = (MYFLT (*)(void *))TrigXnoise_linear_max;
             break;
 
         case 3:
-            self->type_func_ptr = TrigXnoise_triangle;
+            self->type_func_ptr = (MYFLT (*)(void *))TrigXnoise_triangle;
             break;
 
         case 4:
-            self->type_func_ptr = TrigXnoise_expon_min;
+            self->type_func_ptr = (MYFLT (*)(void *))TrigXnoise_expon_min;
             break;
 
         case 5:
-            self->type_func_ptr = TrigXnoise_expon_max;
+            self->type_func_ptr = (MYFLT (*)(void *))TrigXnoise_expon_max;
             break;
 
         case 6:
-            self->type_func_ptr = TrigXnoise_biexpon;
+            self->type_func_ptr = (MYFLT (*)(void *))TrigXnoise_biexpon;
             break;
 
         case 7:
-            self->type_func_ptr = TrigXnoise_cauchy;
+            self->type_func_ptr = (MYFLT (*)(void *))TrigXnoise_cauchy;
             break;
 
         case 8:
-            self->type_func_ptr = TrigXnoise_weibull;
+            self->type_func_ptr = (MYFLT (*)(void *))TrigXnoise_weibull;
             break;
 
         case 9:
-            self->type_func_ptr = TrigXnoise_gaussian;
+            self->type_func_ptr = (MYFLT (*)(void *))TrigXnoise_gaussian;
             break;
 
         case 10:
-            self->type_func_ptr = TrigXnoise_poisson;
+            self->type_func_ptr = (MYFLT (*)(void *))TrigXnoise_poisson;
             break;
 
         case 11:
-            self->type_func_ptr = TrigXnoise_walker;
+            self->type_func_ptr = (MYFLT (*)(void *))TrigXnoise_walker;
             break;
 
         case 12:
-            self->type_func_ptr = TrigXnoise_loopseg;
+            self->type_func_ptr = (MYFLT (*)(void *))TrigXnoise_loopseg;
             break;
     }
 }
@@ -3207,58 +3207,58 @@ TrigXnoise_setProcMode(TrigXnoise *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = TrigXnoise_generate_ii;
+            self->proc_func_ptr = (void (*)(void *))TrigXnoise_generate_ii;
             break;
 
         case 1:
-            self->proc_func_ptr = TrigXnoise_generate_ai;
+            self->proc_func_ptr = (void (*)(void *))TrigXnoise_generate_ai;
             break;
 
         case 10:
-            self->proc_func_ptr = TrigXnoise_generate_ia;
+            self->proc_func_ptr = (void (*)(void *))TrigXnoise_generate_ia;
             break;
 
         case 11:
-            self->proc_func_ptr = TrigXnoise_generate_aa;
+            self->proc_func_ptr = (void (*)(void *))TrigXnoise_generate_aa;
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = TrigXnoise_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))TrigXnoise_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = TrigXnoise_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))TrigXnoise_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = TrigXnoise_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))TrigXnoise_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = TrigXnoise_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))TrigXnoise_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = TrigXnoise_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))TrigXnoise_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = TrigXnoise_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))TrigXnoise_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = TrigXnoise_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))TrigXnoise_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = TrigXnoise_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))TrigXnoise_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = TrigXnoise_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))TrigXnoise_postprocessing_revareva;
             break;
     }
 }
@@ -3337,7 +3337,7 @@ TrigXnoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->loopLen = (pyorand() % 10) + 3;
 
     Stream_setFunctionPtr(self->stream, TrigXnoise_compute_next_data_frame);
-    self->mode_func_ptr = TrigXnoise_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))TrigXnoise_setProcMode;
 
     static char *kwlist[] = {"input", "type", "x1", "x2", "mul", "add", NULL};
 
@@ -3533,7 +3533,7 @@ typedef struct
     PyObject *x2;
     Stream *x1_stream;
     Stream *x2_stream;
-    MYFLT (*type_func_ptr)();
+    MYFLT (*type_func_ptr)(void *);
     int scale; // 0 = Midi, 1 = frequency, 2 = transpo
     int range_min;
     int range_max;
@@ -3943,55 +3943,55 @@ TrigXnoiseMidi_setRandomType(TrigXnoiseMidi *self)
     switch (self->type)
     {
         case 0:
-            self->type_func_ptr = TrigXnoiseMidi_uniform;
+            self->type_func_ptr = (MYFLT (*)(void *))TrigXnoiseMidi_uniform;
             break;
 
         case 1:
-            self->type_func_ptr = TrigXnoiseMidi_linear_min;
+            self->type_func_ptr = (MYFLT (*)(void *))TrigXnoiseMidi_linear_min;
             break;
 
         case 2:
-            self->type_func_ptr = TrigXnoiseMidi_linear_max;
+            self->type_func_ptr = (MYFLT (*)(void *))TrigXnoiseMidi_linear_max;
             break;
 
         case 3:
-            self->type_func_ptr = TrigXnoiseMidi_triangle;
+            self->type_func_ptr = (MYFLT (*)(void *))TrigXnoiseMidi_triangle;
             break;
 
         case 4:
-            self->type_func_ptr = TrigXnoiseMidi_expon_min;
+            self->type_func_ptr = (MYFLT (*)(void *))TrigXnoiseMidi_expon_min;
             break;
 
         case 5:
-            self->type_func_ptr = TrigXnoiseMidi_expon_max;
+            self->type_func_ptr = (MYFLT (*)(void *))TrigXnoiseMidi_expon_max;
             break;
 
         case 6:
-            self->type_func_ptr = TrigXnoiseMidi_biexpon;
+            self->type_func_ptr = (MYFLT (*)(void *))TrigXnoiseMidi_biexpon;
             break;
 
         case 7:
-            self->type_func_ptr = TrigXnoiseMidi_cauchy;
+            self->type_func_ptr = (MYFLT (*)(void *))TrigXnoiseMidi_cauchy;
             break;
 
         case 8:
-            self->type_func_ptr = TrigXnoiseMidi_weibull;
+            self->type_func_ptr = (MYFLT (*)(void *))TrigXnoiseMidi_weibull;
             break;
 
         case 9:
-            self->type_func_ptr = TrigXnoiseMidi_gaussian;
+            self->type_func_ptr = (MYFLT (*)(void *))TrigXnoiseMidi_gaussian;
             break;
 
         case 10:
-            self->type_func_ptr = TrigXnoiseMidi_poisson;
+            self->type_func_ptr = (MYFLT (*)(void *))TrigXnoiseMidi_poisson;
             break;
 
         case 11:
-            self->type_func_ptr = TrigXnoiseMidi_walker;
+            self->type_func_ptr = (MYFLT (*)(void *))TrigXnoiseMidi_walker;
             break;
 
         case 12:
-            self->type_func_ptr = TrigXnoiseMidi_loopseg;
+            self->type_func_ptr = (MYFLT (*)(void *))TrigXnoiseMidi_loopseg;
             break;
     }
 }
@@ -4006,58 +4006,58 @@ TrigXnoiseMidi_setProcMode(TrigXnoiseMidi *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = TrigXnoiseMidi_generate_ii;
+            self->proc_func_ptr = (void (*)(void *))TrigXnoiseMidi_generate_ii;
             break;
 
         case 1:
-            self->proc_func_ptr = TrigXnoiseMidi_generate_ai;
+            self->proc_func_ptr = (void (*)(void *))TrigXnoiseMidi_generate_ai;
             break;
 
         case 10:
-            self->proc_func_ptr = TrigXnoiseMidi_generate_ia;
+            self->proc_func_ptr = (void (*)(void *))TrigXnoiseMidi_generate_ia;
             break;
 
         case 11:
-            self->proc_func_ptr = TrigXnoiseMidi_generate_aa;
+            self->proc_func_ptr = (void (*)(void *))TrigXnoiseMidi_generate_aa;
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = TrigXnoiseMidi_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))TrigXnoiseMidi_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = TrigXnoiseMidi_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))TrigXnoiseMidi_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = TrigXnoiseMidi_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))TrigXnoiseMidi_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = TrigXnoiseMidi_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))TrigXnoiseMidi_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = TrigXnoiseMidi_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))TrigXnoiseMidi_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = TrigXnoiseMidi_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))TrigXnoiseMidi_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = TrigXnoiseMidi_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))TrigXnoiseMidi_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = TrigXnoiseMidi_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))TrigXnoiseMidi_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = TrigXnoiseMidi_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))TrigXnoiseMidi_postprocessing_revareva;
             break;
     }
 }
@@ -4140,7 +4140,7 @@ TrigXnoiseMidi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->loopLen = (pyorand() % 10) + 3;
 
     Stream_setFunctionPtr(self->stream, TrigXnoiseMidi_compute_next_data_frame);
-    self->mode_func_ptr = TrigXnoiseMidi_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))TrigXnoiseMidi_setProcMode;
 
     static char *kwlist[] = {"input", "type", "x1", "x2", "scale", "range", "mul", "add", NULL};
 
@@ -4452,44 +4452,44 @@ Counter_setProcMode(Counter *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    self->proc_func_ptr = Counter_generates;
+    self->proc_func_ptr = (void (*)(void *))Counter_generates;
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Counter_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))Counter_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = Counter_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))Counter_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = Counter_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))Counter_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = Counter_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))Counter_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = Counter_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))Counter_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = Counter_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))Counter_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = Counter_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))Counter_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = Counter_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))Counter_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = Counter_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))Counter_postprocessing_revareva;
             break;
     }
 }
@@ -4543,7 +4543,7 @@ Counter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Counter_compute_next_data_frame);
-    self->mode_func_ptr = Counter_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))Counter_setProcMode;
 
     static char *kwlist[] = {"input", "min", "max", "dir", "mul", "add", NULL};
 
@@ -4920,50 +4920,50 @@ Thresh_setProcMode(Thresh *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = Thresh_generates_i;
+            self->proc_func_ptr = (void (*)(void *))Thresh_generates_i;
             break;
 
         case 1:
-            self->proc_func_ptr = Thresh_generates_a;
+            self->proc_func_ptr = (void (*)(void *))Thresh_generates_a;
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Thresh_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))Thresh_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = Thresh_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))Thresh_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = Thresh_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))Thresh_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = Thresh_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))Thresh_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = Thresh_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))Thresh_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = Thresh_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))Thresh_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = Thresh_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))Thresh_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = Thresh_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))Thresh_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = Thresh_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))Thresh_postprocessing_revareva;
             break;
     }
 }
@@ -5019,7 +5019,7 @@ Thresh_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Thresh_compute_next_data_frame);
-    self->mode_func_ptr = Thresh_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))Thresh_setProcMode;
 
     static char *kwlist[] = {"input", "threshold", "dir", "mul", "add", NULL};
 
@@ -5268,50 +5268,50 @@ Percent_setProcMode(Percent *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = Percent_generates_i;
+            self->proc_func_ptr = (void (*)(void *))Percent_generates_i;
             break;
 
         case 1:
-            self->proc_func_ptr = Percent_generates_a;
+            self->proc_func_ptr = (void (*)(void *))Percent_generates_a;
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Percent_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))Percent_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = Percent_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))Percent_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = Percent_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))Percent_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = Percent_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))Percent_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = Percent_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))Percent_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = Percent_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))Percent_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = Percent_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))Percent_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = Percent_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))Percent_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = Percent_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))Percent_postprocessing_revareva;
             break;
     }
 }
@@ -5365,7 +5365,7 @@ Percent_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Percent_compute_next_data_frame);
-    self->mode_func_ptr = Percent_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))Percent_setProcMode;
 
     static char *kwlist[] = {"input", "percent", "mul", "add", NULL};
 
@@ -5585,44 +5585,44 @@ Timer_setProcMode(Timer *self)
 {
     int muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    self->proc_func_ptr = Timer_generates;
+    self->proc_func_ptr = (void (*)(void *))Timer_generates;
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Timer_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))Timer_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = Timer_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))Timer_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = Timer_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))Timer_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = Timer_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))Timer_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = Timer_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))Timer_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = Timer_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))Timer_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = Timer_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))Timer_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = Timer_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))Timer_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = Timer_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))Timer_postprocessing_revareva;
             break;
     }
 }
@@ -5677,7 +5677,7 @@ Timer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Timer_compute_next_data_frame);
-    self->mode_func_ptr = Timer_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))Timer_setProcMode;
 
     static char *kwlist[] = {"input", "input2", "mul", "add", NULL};
 
@@ -5924,44 +5924,44 @@ Iter_setProcMode(Iter *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    self->proc_func_ptr = Iter_generate;
+    self->proc_func_ptr = (void (*)(void *))Iter_generate;
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Iter_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))Iter_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = Iter_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))Iter_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = Iter_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))Iter_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = Iter_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))Iter_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = Iter_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))Iter_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = Iter_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))Iter_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = Iter_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))Iter_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = Iter_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))Iter_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = Iter_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))Iter_postprocessing_revareva;
             break;
     }
 }
@@ -6021,7 +6021,7 @@ Iter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Iter_compute_next_data_frame);
-    self->mode_func_ptr = Iter_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))Iter_setProcMode;
 
     static char *kwlist[] = {"input", "choice", "init", "mul", "add", NULL};
 
@@ -6286,44 +6286,44 @@ Count_setProcMode(Count *self)
 {
     int muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    self->proc_func_ptr = Count_generates;
+    self->proc_func_ptr = (void (*)(void *))Count_generates;
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Count_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))Count_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = Count_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))Count_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = Count_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))Count_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = Count_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))Count_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = Count_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))Count_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = Count_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))Count_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = Count_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))Count_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = Count_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))Count_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = Count_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))Count_postprocessing_revareva;
             break;
     }
 }
@@ -6377,7 +6377,7 @@ Count_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Count_compute_next_data_frame);
-    self->mode_func_ptr = Count_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))Count_setProcMode;
 
     static char *kwlist[] = {"input", "min", "max", "mul", "add", NULL};
 
@@ -6598,44 +6598,44 @@ NextTrig_setProcMode(NextTrig *self)
 {
     int muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    self->proc_func_ptr = NextTrig_generates;
+    self->proc_func_ptr = (void (*)(void *))NextTrig_generates;
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = NextTrig_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))NextTrig_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = NextTrig_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))NextTrig_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = NextTrig_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))NextTrig_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = NextTrig_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))NextTrig_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = NextTrig_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))NextTrig_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = NextTrig_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))NextTrig_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = NextTrig_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))NextTrig_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = NextTrig_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))NextTrig_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = NextTrig_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))NextTrig_postprocessing_revareva;
             break;
     }
 }
@@ -6688,7 +6688,7 @@ NextTrig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, NextTrig_compute_next_data_frame);
-    self->mode_func_ptr = NextTrig_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))NextTrig_setProcMode;
 
     static char *kwlist[] = {"input", "input2", "mul", "add", NULL};
 
@@ -6906,50 +6906,50 @@ TrigVal_setProcMode(TrigVal *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = TrigVal_generate_i;
+            self->proc_func_ptr = (void (*)(void *))TrigVal_generate_i;
             break;
 
         case 1:
-            self->proc_func_ptr = TrigVal_generate_a;
+            self->proc_func_ptr = (void (*)(void *))TrigVal_generate_a;
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = TrigVal_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))TrigVal_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = TrigVal_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))TrigVal_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = TrigVal_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))TrigVal_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = TrigVal_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))TrigVal_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = TrigVal_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))TrigVal_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = TrigVal_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))TrigVal_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = TrigVal_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))TrigVal_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = TrigVal_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))TrigVal_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = TrigVal_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))TrigVal_postprocessing_revareva;
             break;
     }
 }
@@ -7004,7 +7004,7 @@ TrigVal_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, TrigVal_compute_next_data_frame);
-    self->mode_func_ptr = TrigVal_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))TrigVal_setProcMode;
 
     static char *kwlist[] = {"input", "value", "init", "mul", "add", NULL};
 

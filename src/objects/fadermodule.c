@@ -181,46 +181,46 @@ Fader_setProcMode(Fader *self)
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
     if (self->duration == 0.0)
-        self->proc_func_ptr = Fader_generate_wait;
+        self->proc_func_ptr = (void (*)(void *))Fader_generate_wait;
     else
-        self->proc_func_ptr = Fader_generate_auto;
+        self->proc_func_ptr = (void (*)(void *))Fader_generate_auto;
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Fader_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))Fader_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = Fader_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))Fader_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = Fader_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))Fader_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = Fader_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))Fader_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = Fader_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))Fader_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = Fader_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))Fader_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = Fader_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))Fader_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = Fader_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))Fader_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = Fader_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))Fader_postprocessing_revareva;
             break;
     }
 }
@@ -280,7 +280,7 @@ Fader_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Fader_compute_next_data_frame);
-    self->mode_func_ptr = Fader_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))Fader_setProcMode;
 
     self->sampleToSec = 1. / self->sr;
 
@@ -657,46 +657,46 @@ Adsr_setProcMode(Adsr *self)
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
     if (self->duration == 0.0)
-        self->proc_func_ptr = Adsr_generate_wait;
+        self->proc_func_ptr = (void (*)(void *))Adsr_generate_wait;
     else
-        self->proc_func_ptr = Adsr_generate_auto;
+        self->proc_func_ptr = (void (*)(void *))Adsr_generate_auto;
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Adsr_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))Adsr_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = Adsr_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))Adsr_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = Adsr_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))Adsr_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = Adsr_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))Adsr_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = Adsr_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))Adsr_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = Adsr_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))Adsr_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = Adsr_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))Adsr_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = Adsr_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))Adsr_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = Adsr_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))Adsr_postprocessing_revareva;
             break;
     }
 }
@@ -758,7 +758,7 @@ Adsr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Adsr_compute_next_data_frame);
-    self->mode_func_ptr = Adsr_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))Adsr_setProcMode;
 
     self->sampleToSec = 1. / self->sr;
 
@@ -1164,44 +1164,44 @@ Linseg_setProcMode(Linseg *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    self->proc_func_ptr = Linseg_generate;
+    self->proc_func_ptr = (void (*)(void *))Linseg_generate;
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Linseg_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))Linseg_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = Linseg_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))Linseg_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = Linseg_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))Linseg_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = Linseg_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))Linseg_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = Linseg_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))Linseg_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = Linseg_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))Linseg_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = Linseg_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))Linseg_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = Linseg_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))Linseg_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = Linseg_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))Linseg_postprocessing_revareva;
             break;
     }
 }
@@ -1256,7 +1256,7 @@ Linseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Linseg_compute_next_data_frame);
-    self->mode_func_ptr = Linseg_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))Linseg_setProcMode;
 
     self->sampleToSec = 1. / self->sr;
 
@@ -1628,44 +1628,44 @@ Expseg_setProcMode(Expseg *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    self->proc_func_ptr = Expseg_generate;
+    self->proc_func_ptr = (void (*)(void *))Expseg_generate;
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Expseg_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))Expseg_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = Expseg_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))Expseg_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = Expseg_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))Expseg_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = Expseg_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))Expseg_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = Expseg_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))Expseg_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = Expseg_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))Expseg_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = Expseg_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))Expseg_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = Expseg_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))Expseg_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = Expseg_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))Expseg_postprocessing_revareva;
             break;
     }
 }
@@ -1722,7 +1722,7 @@ Expseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Expseg_compute_next_data_frame);
-    self->mode_func_ptr = Expseg_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))Expseg_setProcMode;
 
     self->sampleToSec = 1. / self->sr;
 

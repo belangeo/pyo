@@ -410,58 +410,58 @@ Harmonizer_setProcMode(Harmonizer *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = Harmonizer_transform_ii;
+            self->proc_func_ptr = (void (*)(void *))Harmonizer_transform_ii;
             break;
 
         case 1:
-            self->proc_func_ptr = Harmonizer_transform_ai;
+            self->proc_func_ptr = (void (*)(void *))Harmonizer_transform_ai;
             break;
 
         case 10:
-            self->proc_func_ptr = Harmonizer_transform_ia;
+            self->proc_func_ptr = (void (*)(void *))Harmonizer_transform_ia;
             break;
 
         case 11:
-            self->proc_func_ptr = Harmonizer_transform_aa;
+            self->proc_func_ptr = (void (*)(void *))Harmonizer_transform_aa;
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Harmonizer_feedbacktprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))Harmonizer_feedbacktprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = Harmonizer_feedbacktprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))Harmonizer_feedbacktprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = Harmonizer_feedbacktprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))Harmonizer_feedbacktprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = Harmonizer_feedbacktprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))Harmonizer_feedbacktprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = Harmonizer_feedbacktprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))Harmonizer_feedbacktprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = Harmonizer_feedbacktprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))Harmonizer_feedbacktprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = Harmonizer_feedbacktprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))Harmonizer_feedbacktprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = Harmonizer_feedbacktprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))Harmonizer_feedbacktprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = Harmonizer_feedbacktprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))Harmonizer_feedbacktprocessing_revareva;
             break;
     }
 }
@@ -525,7 +525,7 @@ Harmonizer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Harmonizer_compute_next_data_frame);
-    self->mode_func_ptr = Harmonizer_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))Harmonizer_setProcMode;
 
     static char *kwlist[] = {"input", "transpo", "feedback", "winsize", "mul", "add", NULL};
 

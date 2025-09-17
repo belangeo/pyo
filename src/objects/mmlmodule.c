@@ -708,7 +708,7 @@ MMLMain_getZBuffer(MMLMain *self)
 static void
 MMLMain_setProcMode(MMLMain *self)
 {
-    self->proc_func_ptr = MMLMain_generate;
+    self->proc_func_ptr = (void (*)(void *))MMLMain_generate;
 }
 
 static void
@@ -788,7 +788,7 @@ MMLMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, MMLMain_compute_next_data_frame);
-    self->mode_func_ptr = MMLMain_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))MMLMain_setProcMode;
 
     Stream_setStreamActive(self->stream, 0);
 
@@ -1015,39 +1015,39 @@ MML_setProcMode(MML *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = MML_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))MML_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = MML_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))MML_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = MML_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))MML_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = MML_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))MML_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = MML_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))MML_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = MML_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))MML_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = MML_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))MML_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = MML_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))MML_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = MML_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))MML_postprocessing_revareva;
             break;
     }
 }
@@ -1107,7 +1107,7 @@ MML_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, MML_compute_next_data_frame);
-    self->mode_func_ptr = MML_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))MML_setProcMode;
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
 
@@ -1277,39 +1277,39 @@ MMLFreqStream_setProcMode(MMLFreqStream *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = MMLFreqStream_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))MMLFreqStream_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = MMLFreqStream_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))MMLFreqStream_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = MMLFreqStream_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))MMLFreqStream_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = MMLFreqStream_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))MMLFreqStream_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = MMLFreqStream_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))MMLFreqStream_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = MMLFreqStream_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))MMLFreqStream_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = MMLFreqStream_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))MMLFreqStream_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = MMLFreqStream_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))MMLFreqStream_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = MMLFreqStream_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))MMLFreqStream_postprocessing_revareva;
             break;
     }
 }
@@ -1369,7 +1369,7 @@ MMLFreqStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, MMLFreqStream_compute_next_data_frame);
-    self->mode_func_ptr = MMLFreqStream_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))MMLFreqStream_setProcMode;
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
 
@@ -1539,39 +1539,39 @@ MMLAmpStream_setProcMode(MMLAmpStream *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = MMLAmpStream_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))MMLAmpStream_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = MMLAmpStream_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))MMLAmpStream_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = MMLAmpStream_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))MMLAmpStream_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = MMLAmpStream_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))MMLAmpStream_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = MMLAmpStream_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))MMLAmpStream_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = MMLAmpStream_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))MMLAmpStream_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = MMLAmpStream_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))MMLAmpStream_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = MMLAmpStream_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))MMLAmpStream_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = MMLAmpStream_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))MMLAmpStream_postprocessing_revareva;
             break;
     }
 }
@@ -1631,7 +1631,7 @@ MMLAmpStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, MMLAmpStream_compute_next_data_frame);
-    self->mode_func_ptr = MMLAmpStream_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))MMLAmpStream_setProcMode;
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
 
@@ -1801,39 +1801,39 @@ MMLDurStream_setProcMode(MMLDurStream *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = MMLDurStream_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))MMLDurStream_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = MMLDurStream_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))MMLDurStream_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = MMLDurStream_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))MMLDurStream_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = MMLDurStream_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))MMLDurStream_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = MMLDurStream_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))MMLDurStream_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = MMLDurStream_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))MMLDurStream_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = MMLDurStream_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))MMLDurStream_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = MMLDurStream_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))MMLDurStream_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = MMLDurStream_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))MMLDurStream_postprocessing_revareva;
             break;
     }
 }
@@ -1893,7 +1893,7 @@ MMLDurStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, MMLDurStream_compute_next_data_frame);
-    self->mode_func_ptr = MMLDurStream_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))MMLDurStream_setProcMode;
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
 
@@ -2063,39 +2063,39 @@ MMLEndStream_setProcMode(MMLEndStream *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = MMLEndStream_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))MMLEndStream_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = MMLEndStream_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))MMLEndStream_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = MMLEndStream_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))MMLEndStream_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = MMLEndStream_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))MMLEndStream_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = MMLEndStream_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))MMLEndStream_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = MMLEndStream_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))MMLEndStream_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = MMLEndStream_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))MMLEndStream_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = MMLEndStream_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))MMLEndStream_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = MMLEndStream_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))MMLEndStream_postprocessing_revareva;
             break;
     }
 }
@@ -2155,7 +2155,7 @@ MMLEndStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, MMLEndStream_compute_next_data_frame);
-    self->mode_func_ptr = MMLEndStream_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))MMLEndStream_setProcMode;
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
 
@@ -2325,39 +2325,39 @@ MMLXStream_setProcMode(MMLXStream *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = MMLXStream_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))MMLXStream_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = MMLXStream_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))MMLXStream_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = MMLXStream_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))MMLXStream_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = MMLXStream_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))MMLXStream_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = MMLXStream_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))MMLXStream_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = MMLXStream_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))MMLXStream_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = MMLXStream_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))MMLXStream_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = MMLXStream_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))MMLXStream_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = MMLXStream_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))MMLXStream_postprocessing_revareva;
             break;
     }
 }
@@ -2417,7 +2417,7 @@ MMLXStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, MMLXStream_compute_next_data_frame);
-    self->mode_func_ptr = MMLXStream_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))MMLXStream_setProcMode;
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
 
@@ -2587,39 +2587,39 @@ MMLYStream_setProcMode(MMLYStream *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = MMLYStream_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))MMLYStream_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = MMLYStream_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))MMLYStream_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = MMLYStream_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))MMLYStream_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = MMLYStream_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))MMLYStream_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = MMLYStream_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))MMLYStream_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = MMLYStream_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))MMLYStream_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = MMLYStream_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))MMLYStream_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = MMLYStream_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))MMLYStream_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = MMLYStream_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))MMLYStream_postprocessing_revareva;
             break;
     }
 }
@@ -2679,7 +2679,7 @@ MMLYStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, MMLYStream_compute_next_data_frame);
-    self->mode_func_ptr = MMLYStream_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))MMLYStream_setProcMode;
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
 
@@ -2849,39 +2849,39 @@ MMLZStream_setProcMode(MMLZStream *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = MMLZStream_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))MMLZStream_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = MMLZStream_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))MMLZStream_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = MMLZStream_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))MMLZStream_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = MMLZStream_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))MMLZStream_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = MMLZStream_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))MMLZStream_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = MMLZStream_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))MMLZStream_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = MMLZStream_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))MMLZStream_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = MMLZStream_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))MMLZStream_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = MMLZStream_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))MMLZStream_postprocessing_revareva;
             break;
     }
 }
@@ -2941,7 +2941,7 @@ MMLZStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, MMLZStream_compute_next_data_frame);
-    self->mode_func_ptr = MMLZStream_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))MMLZStream_setProcMode;
 
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
 

@@ -75,50 +75,50 @@ Noise_setProcMode(Noise *self)
     switch (self->type)
     {
         case 0:
-            self->proc_func_ptr = Noise_generate;
+            self->proc_func_ptr = (void (*)(void *))Noise_generate;
             break;
 
         case 1:
-            self->proc_func_ptr = Noise_generate_cheap;
+            self->proc_func_ptr = (void (*)(void *))Noise_generate_cheap;
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Noise_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))Noise_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = Noise_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))Noise_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = Noise_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))Noise_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = Noise_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))Noise_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = Noise_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))Noise_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = Noise_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))Noise_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = Noise_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))Noise_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = Noise_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))Noise_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = Noise_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))Noise_postprocessing_revareva;
             break;
     }
 }
@@ -167,7 +167,7 @@ Noise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Noise_compute_next_data_frame);
-    self->mode_func_ptr = Noise_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))Noise_setProcMode;
 
     static char *kwlist[] = {"mul", "add", NULL};
 
@@ -387,39 +387,39 @@ PinkNoise_setProcMode(PinkNoise *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = PinkNoise_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))PinkNoise_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = PinkNoise_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))PinkNoise_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = PinkNoise_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))PinkNoise_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = PinkNoise_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))PinkNoise_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = PinkNoise_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))PinkNoise_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = PinkNoise_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))PinkNoise_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = PinkNoise_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))PinkNoise_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = PinkNoise_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))PinkNoise_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = PinkNoise_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))PinkNoise_postprocessing_revareva;
             break;
     }
 }
@@ -468,7 +468,7 @@ PinkNoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, PinkNoise_compute_next_data_frame);
-    self->mode_func_ptr = PinkNoise_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))PinkNoise_setProcMode;
 
     static char *kwlist[] = {"mul", "add", NULL};
 
@@ -658,39 +658,39 @@ BrownNoise_setProcMode(BrownNoise *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = BrownNoise_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))BrownNoise_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = BrownNoise_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))BrownNoise_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = BrownNoise_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))BrownNoise_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = BrownNoise_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))BrownNoise_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = BrownNoise_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))BrownNoise_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = BrownNoise_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))BrownNoise_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = BrownNoise_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))BrownNoise_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = BrownNoise_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))BrownNoise_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = BrownNoise_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))BrownNoise_postprocessing_revareva;
             break;
     }
 }
@@ -740,7 +740,7 @@ BrownNoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, BrownNoise_compute_next_data_frame);
-    self->mode_func_ptr = BrownNoise_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))BrownNoise_setProcMode;
 
     static char *kwlist[] = {"mul", "add", NULL};
 

@@ -104,7 +104,7 @@ HilbertMain_getSamplesBuffer(HilbertMain *self)
 static void
 HilbertMain_setProcMode(HilbertMain *self)
 {
-    self->proc_func_ptr = HilbertMain_filters;
+    self->proc_func_ptr = (void (*)(void *))HilbertMain_filters;
 }
 
 static void
@@ -149,7 +149,7 @@ HilbertMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, HilbertMain_compute_next_data_frame);
-    self->mode_func_ptr = HilbertMain_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))HilbertMain_setProcMode;
 
     for (i = 0; i < 12; i++)
     {
@@ -270,39 +270,39 @@ Hilbert_setProcMode(Hilbert *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Hilbert_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))Hilbert_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = Hilbert_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))Hilbert_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = Hilbert_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))Hilbert_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = Hilbert_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))Hilbert_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = Hilbert_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))Hilbert_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = Hilbert_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))Hilbert_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = Hilbert_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))Hilbert_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = Hilbert_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))Hilbert_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = Hilbert_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))Hilbert_postprocessing_revareva;
             break;
     }
 }
@@ -361,7 +361,7 @@ Hilbert_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Hilbert_compute_next_data_frame);
-    self->mode_func_ptr = Hilbert_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))Hilbert_setProcMode;
 
     static char *kwlist[] = {"mainSplitter", "chnl", "mul", "add", NULL};
 

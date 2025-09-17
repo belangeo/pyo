@@ -166,7 +166,7 @@ FFTMain_getSamplesBuffer(FFTMain *self)
 static void
 FFTMain_setProcMode(FFTMain *self)
 {
-    self->proc_func_ptr = FFTMain_filters;
+    self->proc_func_ptr = (void (*)(void *))FFTMain_filters;
 }
 
 static void
@@ -226,7 +226,7 @@ FFTMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->allocated = 0;
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, FFTMain_compute_next_data_frame);
-    self->mode_func_ptr = FFTMain_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))FFTMain_setProcMode;
 
     static char *kwlist[] = {"input", "size", "hopsize", "wintype", NULL};
 
@@ -377,39 +377,39 @@ FFT_setProcMode(FFT *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = FFT_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))FFT_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = FFT_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))FFT_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = FFT_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))FFT_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = FFT_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))FFT_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = FFT_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))FFT_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = FFT_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))FFT_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = FFT_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))FFT_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = FFT_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))FFT_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = FFT_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))FFT_postprocessing_revareva;
             break;
     }
 }
@@ -468,7 +468,7 @@ FFT_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, FFT_compute_next_data_frame);
-    self->mode_func_ptr = FFT_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))FFT_setProcMode;
 
     static char *kwlist[] = {"mainSplitter", "chnl", "mul", "add", NULL};
 
@@ -742,44 +742,44 @@ IFFT_setProcMode(IFFT *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    self->proc_func_ptr = IFFT_filters;
+    self->proc_func_ptr = (void (*)(void *))IFFT_filters;
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = IFFT_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))IFFT_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = IFFT_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))IFFT_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = IFFT_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))IFFT_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = IFFT_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))IFFT_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = IFFT_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))IFFT_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = IFFT_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))IFFT_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = IFFT_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))IFFT_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = IFFT_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))IFFT_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = IFFT_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))IFFT_postprocessing_revareva;
             break;
     }
 }
@@ -846,7 +846,7 @@ IFFT_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, IFFT_compute_next_data_frame);
-    self->mode_func_ptr = IFFT_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))IFFT_setProcMode;
 
     static char *kwlist[] = {"inreal", "inimag", "size", "hopsize", "wintype", "mul", "add", NULL};
 
@@ -1097,44 +1097,44 @@ CarToPol_setProcMode(CarToPol *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    self->proc_func_ptr = CarToPol_generate;
+    self->proc_func_ptr = (void (*)(void *))CarToPol_generate;
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = CarToPol_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))CarToPol_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = CarToPol_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))CarToPol_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = CarToPol_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))CarToPol_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = CarToPol_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))CarToPol_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = CarToPol_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))CarToPol_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = CarToPol_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))CarToPol_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = CarToPol_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))CarToPol_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = CarToPol_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))CarToPol_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = CarToPol_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))CarToPol_postprocessing_revareva;
             break;
     }
 }
@@ -1186,7 +1186,7 @@ CarToPol_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, CarToPol_compute_next_data_frame);
-    self->mode_func_ptr = CarToPol_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))CarToPol_setProcMode;
 
     static char *kwlist[] = {"input", "input2", "chnl", "mul", "add", NULL};
 
@@ -1391,44 +1391,44 @@ PolToCar_setProcMode(PolToCar *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    self->proc_func_ptr = PolToCar_generate;
+    self->proc_func_ptr = (void (*)(void *))PolToCar_generate;
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = PolToCar_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))PolToCar_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = PolToCar_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))PolToCar_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = PolToCar_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))PolToCar_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = PolToCar_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))PolToCar_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = PolToCar_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))PolToCar_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = PolToCar_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))PolToCar_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = PolToCar_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))PolToCar_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = PolToCar_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))PolToCar_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = PolToCar_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))PolToCar_postprocessing_revareva;
             break;
     }
 }
@@ -1480,7 +1480,7 @@ PolToCar_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, PolToCar_compute_next_data_frame);
-    self->mode_func_ptr = PolToCar_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))PolToCar_setProcMode;
 
     static char *kwlist[] = {"input", "input2", "chnl", "mul", "add", NULL};
 
@@ -1715,7 +1715,7 @@ FrameDeltaMain_getSamplesBuffer(FrameDeltaMain *self)
 static void
 FrameDeltaMain_setProcMode(FrameDeltaMain *self)
 {
-    self->proc_func_ptr = FrameDeltaMain_generate;
+    self->proc_func_ptr = (void (*)(void *))FrameDeltaMain_generate;
 }
 
 static void
@@ -1771,7 +1771,7 @@ FrameDeltaMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, FrameDeltaMain_compute_next_data_frame);
-    self->mode_func_ptr = FrameDeltaMain_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))FrameDeltaMain_setProcMode;
 
     static char *kwlist[] = {"input", "frameSize", "overlaps", NULL};
 
@@ -1961,39 +1961,39 @@ FrameDelta_setProcMode(FrameDelta *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = FrameDelta_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))FrameDelta_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = FrameDelta_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))FrameDelta_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = FrameDelta_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))FrameDelta_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = FrameDelta_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))FrameDelta_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = FrameDelta_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))FrameDelta_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = FrameDelta_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))FrameDelta_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = FrameDelta_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))FrameDelta_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = FrameDelta_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))FrameDelta_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = FrameDelta_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))FrameDelta_postprocessing_revareva;
             break;
     }
 }
@@ -2052,7 +2052,7 @@ FrameDelta_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, FrameDelta_compute_next_data_frame);
-    self->mode_func_ptr = FrameDelta_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))FrameDelta_setProcMode;
 
     static char *kwlist[] = {"mainSplitter", "chnl", "mul", "add", NULL};
 
@@ -2271,7 +2271,7 @@ FrameAccumMain_getSamplesBuffer(FrameAccumMain *self)
 static void
 FrameAccumMain_setProcMode(FrameAccumMain *self)
 {
-    self->proc_func_ptr = FrameAccumMain_generate;
+    self->proc_func_ptr = (void (*)(void *))FrameAccumMain_generate;
 }
 
 static void
@@ -2327,7 +2327,7 @@ FrameAccumMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, FrameAccumMain_compute_next_data_frame);
-    self->mode_func_ptr = FrameAccumMain_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))FrameAccumMain_setProcMode;
 
     static char *kwlist[] = {"input", "framesize", "overlaps", NULL};
 
@@ -2517,39 +2517,39 @@ FrameAccum_setProcMode(FrameAccum *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = FrameAccum_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))FrameAccum_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = FrameAccum_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))FrameAccum_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = FrameAccum_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))FrameAccum_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = FrameAccum_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))FrameAccum_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = FrameAccum_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))FrameAccum_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = FrameAccum_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))FrameAccum_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = FrameAccum_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))FrameAccum_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = FrameAccum_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))FrameAccum_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = FrameAccum_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))FrameAccum_postprocessing_revareva;
             break;
     }
 }
@@ -2608,7 +2608,7 @@ FrameAccum_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, FrameAccum_compute_next_data_frame);
-    self->mode_func_ptr = FrameAccum_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))FrameAccum_setProcMode;
 
     static char *kwlist[] = {"mainSplitter", "chnl", "mul", "add", NULL};
 
@@ -2883,7 +2883,7 @@ VectralMain_getSamplesBuffer(VectralMain *self)
 static void
 VectralMain_setProcMode(VectralMain *self)
 {
-    self->proc_func_ptr = VectralMain_generate;
+    self->proc_func_ptr = (void (*)(void *))VectralMain_generate;
 }
 
 static void
@@ -2953,7 +2953,7 @@ VectralMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, VectralMain_compute_next_data_frame);
-    self->mode_func_ptr = VectralMain_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))VectralMain_setProcMode;
 
     static char *kwlist[] = {"input", "frameSize", "overlaps", "up", "down", "damp", NULL};
 
@@ -3165,39 +3165,39 @@ Vectral_setProcMode(Vectral *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Vectral_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))Vectral_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = Vectral_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))Vectral_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = Vectral_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))Vectral_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = Vectral_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))Vectral_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = Vectral_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))Vectral_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = Vectral_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))Vectral_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = Vectral_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))Vectral_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = Vectral_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))Vectral_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = Vectral_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))Vectral_postprocessing_revareva;
             break;
     }
 }
@@ -3256,7 +3256,7 @@ Vectral_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Vectral_compute_next_data_frame);
-    self->mode_func_ptr = Vectral_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))Vectral_setProcMode;
 
     static char *kwlist[] = {"mainSplitter", "chnl", "mul", "add", NULL};
 
@@ -3759,50 +3759,50 @@ CvlVerb_setProcMode(CvlVerb *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = CvlVerb_process_i;
+            self->proc_func_ptr = (void (*)(void *))CvlVerb_process_i;
             break;
 
         case 1:
-            self->proc_func_ptr = CvlVerb_process_a;
+            self->proc_func_ptr = (void (*)(void *))CvlVerb_process_a;
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = CvlVerb_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))CvlVerb_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = CvlVerb_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))CvlVerb_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = CvlVerb_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))CvlVerb_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = CvlVerb_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))CvlVerb_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = CvlVerb_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))CvlVerb_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = CvlVerb_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))CvlVerb_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = CvlVerb_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))CvlVerb_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = CvlVerb_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))CvlVerb_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = CvlVerb_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))CvlVerb_postprocessing_revareva;
             break;
     }
 }
@@ -3885,7 +3885,7 @@ CvlVerb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->current_iter = 0;
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, CvlVerb_compute_next_data_frame);
-    self->mode_func_ptr = CvlVerb_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))CvlVerb_setProcMode;
 
     static char *kwlist[] = {"input", "impulse", "bal", "size", "chnl", "mul", "add", NULL};
 
@@ -4280,7 +4280,7 @@ Spectrum_filters(Spectrum *self)
 static void
 Spectrum_setProcMode(Spectrum *self)
 {
-    self->proc_func_ptr = Spectrum_filters;
+    self->proc_func_ptr = (void (*)(void *))Spectrum_filters;
 }
 
 static void
@@ -4353,7 +4353,7 @@ Spectrum_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->allocated = 0;
 
     Stream_setFunctionPtr(self->stream, Spectrum_compute_next_data_frame);
-    self->mode_func_ptr = Spectrum_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))Spectrum_setProcMode;
 
     static char *kwlist[] = {"input", "size", "wintype", NULL};
 
@@ -4694,44 +4694,44 @@ IFFTMatrix_setProcMode(IFFTMatrix *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    self->proc_func_ptr = IFFTMatrix_filters;
+    self->proc_func_ptr = (void (*)(void *))IFFTMatrix_filters;
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = IFFTMatrix_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))IFFTMatrix_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = IFFTMatrix_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))IFFTMatrix_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = IFFTMatrix_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))IFFTMatrix_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = IFFTMatrix_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))IFFTMatrix_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = IFFTMatrix_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))IFFTMatrix_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = IFFTMatrix_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))IFFTMatrix_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = IFFTMatrix_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))IFFTMatrix_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = IFFTMatrix_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))IFFTMatrix_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = IFFTMatrix_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))IFFTMatrix_postprocessing_revareva;
             break;
     }
 }
@@ -4801,7 +4801,7 @@ IFFTMatrix_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, IFFTMatrix_compute_next_data_frame);
-    self->mode_func_ptr = IFFTMatrix_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))IFFTMatrix_setProcMode;
 
     static char *kwlist[] = {"matrix", "index", "phase", "size", "hopsize", "wintype", "mul", "add", NULL};
 

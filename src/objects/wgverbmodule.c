@@ -54,7 +54,7 @@ typedef struct
     Stream *cutoff_stream;
     PyObject *mix;
     Stream *mix_stream;
-    void (*mix_func_ptr)();
+    void (*mix_func_ptr)(void *);
     int modebuffer[5];
     MYFLT total_signal;
     MYFLT delays[8];
@@ -445,69 +445,69 @@ WGVerb_setProcMode(WGVerb *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = WGVerb_process_ii;
+            self->proc_func_ptr = (void (*)(void *))WGVerb_process_ii;
             break;
 
         case 1:
-            self->proc_func_ptr = WGVerb_process_ai;
+            self->proc_func_ptr = (void (*)(void *))WGVerb_process_ai;
             break;
 
         case 10:
-            self->proc_func_ptr = WGVerb_process_ia;
+            self->proc_func_ptr = (void (*)(void *))WGVerb_process_ia;
             break;
 
         case 11:
-            self->proc_func_ptr = WGVerb_process_aa;
+            self->proc_func_ptr = (void (*)(void *))WGVerb_process_aa;
             break;
     }
 
     switch (mixmode)
     {
         case 0:
-            self->mix_func_ptr = WGVerb_mix_i;
+            self->mix_func_ptr = (void (*)(void *))WGVerb_mix_i;
             break;
 
         case 1:
-            self->mix_func_ptr = WGVerb_mix_a;
+            self->mix_func_ptr = (void (*)(void *))WGVerb_mix_a;
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = WGVerb_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))WGVerb_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = WGVerb_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))WGVerb_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = WGVerb_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))WGVerb_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = WGVerb_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))WGVerb_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = WGVerb_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))WGVerb_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = WGVerb_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))WGVerb_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = WGVerb_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))WGVerb_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = WGVerb_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))WGVerb_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = WGVerb_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))WGVerb_postprocessing_revareva;
             break;
     }
 }
@@ -580,7 +580,7 @@ WGVerb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, WGVerb_compute_next_data_frame);
-    self->mode_func_ptr = WGVerb_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))WGVerb_setProcMode;
 
     for (i = 0; i < 8; i++)
     {
@@ -816,7 +816,7 @@ typedef struct
     Stream *cutoff_stream;
     PyObject *mix;
     Stream *mix_stream;
-    void (*mix_func_ptr)();
+    void (*mix_func_ptr)(void *);
     int modebuffer[4];
     MYFLT firstRefGain;
     MYFLT total_signal[2];
@@ -1518,30 +1518,30 @@ STReverb_setProcMode(STReverb *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = STReverb_process_ii;
+            self->proc_func_ptr = (void (*)(void *))STReverb_process_ii;
             break;
 
         case 1:
-            self->proc_func_ptr = STReverb_process_ai;
+            self->proc_func_ptr = (void (*)(void *))STReverb_process_ai;
             break;
 
         case 10:
-            self->proc_func_ptr = STReverb_process_ia;
+            self->proc_func_ptr = (void (*)(void *))STReverb_process_ia;
             break;
 
         case 11:
-            self->proc_func_ptr = STReverb_process_aa;
+            self->proc_func_ptr = (void (*)(void *))STReverb_process_aa;
             break;
     }
 
     switch (mixmode)
     {
         case 0:
-            self->mix_func_ptr = STReverb_mix_i;
+            self->mix_func_ptr = (void (*)(void *))STReverb_mix_i;
             break;
 
         case 1:
-            self->mix_func_ptr = STReverb_mix_a;
+            self->mix_func_ptr = (void (*)(void *))STReverb_mix_a;
             break;
     }
 }
@@ -1638,7 +1638,7 @@ STReverb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->srfac = self->sr / 44100.0;
 
     Stream_setFunctionPtr(self->stream, STReverb_compute_next_data_frame);
-    self->mode_func_ptr = STReverb_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))STReverb_setProcMode;
 
     static char *kwlist[] = {"input", "inpos", "revtime", "cutoff", "mix", "roomSize", "firstRefGain", NULL};
 
@@ -1976,39 +1976,39 @@ STRev_setProcMode(STRev *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = STRev_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))STRev_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = STRev_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))STRev_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = STRev_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))STRev_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = STRev_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))STRev_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = STRev_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))STRev_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = STRev_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))STRev_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = STRev_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))STRev_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = STRev_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))STRev_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = STRev_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))STRev_postprocessing_revareva;
             break;
     }
 }
@@ -2067,7 +2067,7 @@ STRev_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, STRev_compute_next_data_frame);
-    self->mode_func_ptr = STRev_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))STRev_setProcMode;
 
     static char *kwlist[] = {"mainSplitter", "chnl", "mul", "add", NULL};
 

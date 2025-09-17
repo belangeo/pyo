@@ -1249,58 +1249,58 @@ LFO_setProcMode(LFO *self)
     switch (procmode)
     {
         case 0:
-            self->proc_func_ptr = LFO_generates_ii;
+            self->proc_func_ptr = (void (*)(void *))LFO_generates_ii;
             break;
 
         case 1:
-            self->proc_func_ptr = LFO_generates_ai;
+            self->proc_func_ptr = (void (*)(void *))LFO_generates_ai;
             break;
 
         case 10:
-            self->proc_func_ptr = LFO_generates_ia;
+            self->proc_func_ptr = (void (*)(void *))LFO_generates_ia;
             break;
 
         case 11:
-            self->proc_func_ptr = LFO_generates_aa;
+            self->proc_func_ptr = (void (*)(void *))LFO_generates_aa;
             break;
     }
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = LFO_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))LFO_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = LFO_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))LFO_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = LFO_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))LFO_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = LFO_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))LFO_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = LFO_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))LFO_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = LFO_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))LFO_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = LFO_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))LFO_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = LFO_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))LFO_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = LFO_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))LFO_postprocessing_revareva;
             break;
     }
 }
@@ -1365,7 +1365,7 @@ LFO_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->srOverFour = (MYFLT)self->sr * 0.25;
     self->srOverEight = (MYFLT)self->sr * 0.125;
     Stream_setFunctionPtr(self->stream, LFO_compute_next_data_frame);
-    self->mode_func_ptr = LFO_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))LFO_setProcMode;
 
     static char *kwlist[] = {"freq", "sharp", "type", "mul", "add", NULL};
 

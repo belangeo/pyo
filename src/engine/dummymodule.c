@@ -45,39 +45,39 @@ Dummy_setProcMode(Dummy *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Dummy_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))Dummy_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = Dummy_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))Dummy_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = Dummy_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))Dummy_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = Dummy_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))Dummy_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = Dummy_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))Dummy_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = Dummy_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))Dummy_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = Dummy_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))Dummy_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = Dummy_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))Dummy_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = Dummy_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))Dummy_postprocessing_revareva;
             break;
     }
 }
@@ -152,7 +152,7 @@ Dummy_initialize(Dummy *self)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Dummy_compute_next_data_frame);
-    self->mode_func_ptr = Dummy_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))Dummy_setProcMode;
 
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
@@ -346,39 +346,39 @@ TriggerDummy_setProcMode(TriggerDummy *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = TriggerDummy_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))TriggerDummy_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = TriggerDummy_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))TriggerDummy_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = TriggerDummy_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))TriggerDummy_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = TriggerDummy_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))TriggerDummy_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = TriggerDummy_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))TriggerDummy_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = TriggerDummy_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))TriggerDummy_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = TriggerDummy_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))TriggerDummy_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = TriggerDummy_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))TriggerDummy_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = TriggerDummy_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))TriggerDummy_postprocessing_revareva;
             break;
     }
 }
@@ -435,7 +435,7 @@ TriggerDummy_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, TriggerDummy_compute_next_data_frame);
-    self->mode_func_ptr = TriggerDummy_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))TriggerDummy_setProcMode;
 
     static char *kwlist[] = {"input", NULL};
 

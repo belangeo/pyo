@@ -303,39 +303,39 @@ OscReceive_setProcMode(OscReceive *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = OscReceive_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))OscReceive_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = OscReceive_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))OscReceive_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = OscReceive_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))OscReceive_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = OscReceive_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))OscReceive_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = OscReceive_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))OscReceive_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = OscReceive_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))OscReceive_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = OscReceive_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))OscReceive_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = OscReceive_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))OscReceive_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = OscReceive_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))OscReceive_postprocessing_revareva;
             break;
     }
 }
@@ -409,7 +409,7 @@ OscReceive_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->factor = 1. / (0.01 * self->sr);
 
     Stream_setFunctionPtr(self->stream, OscReceive_compute_next_data_frame);
-    self->mode_func_ptr = OscReceive_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))OscReceive_setProcMode;
 
     static char *kwlist[] = {"input", "address", "mul", "add", NULL};
 
@@ -1673,39 +1673,39 @@ OscListReceive_setProcMode(OscListReceive *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = OscListReceive_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))OscListReceive_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = OscListReceive_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))OscListReceive_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = OscListReceive_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))OscListReceive_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = OscListReceive_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))OscListReceive_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = OscListReceive_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))OscListReceive_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = OscListReceive_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))OscListReceive_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = OscListReceive_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))OscListReceive_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = OscListReceive_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))OscListReceive_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = OscListReceive_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))OscListReceive_postprocessing_revareva;
             break;
     }
 }
@@ -1782,7 +1782,7 @@ OscListReceive_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->factor = 1. / (0.01 * self->sr);
 
     Stream_setFunctionPtr(self->stream, OscListReceive_compute_next_data_frame);
-    self->mode_func_ptr = OscListReceive_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))OscListReceive_setProcMode;
 
     static char *kwlist[] = {"input", "address", "order", "mul", "add", NULL};
 

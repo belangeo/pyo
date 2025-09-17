@@ -70,44 +70,44 @@ MatrixPointer_setProcMode(MatrixPointer *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-    self->proc_func_ptr = MatrixPointer_readframes;
+    self->proc_func_ptr = (void (*)(void *))MatrixPointer_readframes;
 
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = MatrixPointer_postprocessing_ii;
+            self->muladd_func_ptr = (void (*)(void *))MatrixPointer_postprocessing_ii;
             break;
 
         case 1:
-            self->muladd_func_ptr = MatrixPointer_postprocessing_ai;
+            self->muladd_func_ptr = (void (*)(void *))MatrixPointer_postprocessing_ai;
             break;
 
         case 2:
-            self->muladd_func_ptr = MatrixPointer_postprocessing_revai;
+            self->muladd_func_ptr = (void (*)(void *))MatrixPointer_postprocessing_revai;
             break;
 
         case 10:
-            self->muladd_func_ptr = MatrixPointer_postprocessing_ia;
+            self->muladd_func_ptr = (void (*)(void *))MatrixPointer_postprocessing_ia;
             break;
 
         case 11:
-            self->muladd_func_ptr = MatrixPointer_postprocessing_aa;
+            self->muladd_func_ptr = (void (*)(void *))MatrixPointer_postprocessing_aa;
             break;
 
         case 12:
-            self->muladd_func_ptr = MatrixPointer_postprocessing_revaa;
+            self->muladd_func_ptr = (void (*)(void *))MatrixPointer_postprocessing_revaa;
             break;
 
         case 20:
-            self->muladd_func_ptr = MatrixPointer_postprocessing_ireva;
+            self->muladd_func_ptr = (void (*)(void *))MatrixPointer_postprocessing_ireva;
             break;
 
         case 21:
-            self->muladd_func_ptr = MatrixPointer_postprocessing_areva;
+            self->muladd_func_ptr = (void (*)(void *))MatrixPointer_postprocessing_areva;
             break;
 
         case 22:
-            self->muladd_func_ptr = MatrixPointer_postprocessing_revareva;
+            self->muladd_func_ptr = (void (*)(void *))MatrixPointer_postprocessing_revareva;
             break;
     }
 }
@@ -164,7 +164,7 @@ MatrixPointer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, MatrixPointer_compute_next_data_frame);
-    self->mode_func_ptr = MatrixPointer_setProcMode;
+    self->mode_func_ptr = (void (*)(void *))MatrixPointer_setProcMode;
 
     static char *kwlist[] = {"matrix", "x", "y", "mul", "add", NULL};
 

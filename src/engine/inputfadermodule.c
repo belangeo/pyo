@@ -87,7 +87,7 @@ static void InputFader_process_one(InputFader *self)
     }
 
     if (val == 1.)
-        self->proc_func_ptr = InputFader_process_only_first;
+        self->proc_func_ptr = (void (*)(void *))InputFader_process_only_first;
 
 }
 
@@ -115,7 +115,7 @@ static void InputFader_process_two(InputFader *self)
     }
 
     if (val == 1.)
-        self->proc_func_ptr = InputFader_process_only_second;
+        self->proc_func_ptr = (void (*)(void *))InputFader_process_only_second;
 }
 
 static void
@@ -170,8 +170,8 @@ InputFader_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->sampleToSec = 1. / self->sr;
 
     Stream_setFunctionPtr(self->stream, InputFader_compute_next_data_frame);
-    self->mode_func_ptr = InputFader_setProcMode;
-    self->proc_func_ptr = InputFader_process_only_first;
+    self->mode_func_ptr = (void (*)(void *))InputFader_setProcMode;
+    self->proc_func_ptr = (void (*)(void *))InputFader_process_only_first;
 
     static char *kwlist[] = {"input", NULL};
 
@@ -220,7 +220,7 @@ InputFader_setInput(InputFader *self, PyObject *args, PyObject *kwds)
         streamtmp = PyObject_CallMethod((PyObject *)self->input1, "_getStream", NULL);
         self->input1_stream = (Stream *)streamtmp;
         Py_INCREF(self->input1_stream);
-        self->proc_func_ptr = InputFader_process_one;
+        self->proc_func_ptr = (void (*)(void *))InputFader_process_one;
     }
     else
     {
@@ -230,7 +230,7 @@ InputFader_setInput(InputFader *self, PyObject *args, PyObject *kwds)
         streamtmp = PyObject_CallMethod((PyObject *)self->input2, "_getStream", NULL);
         self->input2_stream = (Stream *)streamtmp;
         Py_INCREF(self->input2_stream);
-        self->proc_func_ptr = InputFader_process_two;
+        self->proc_func_ptr = (void (*)(void *))InputFader_process_two;
     }
 
     Py_RETURN_NONE;
