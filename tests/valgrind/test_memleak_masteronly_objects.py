@@ -1,5 +1,5 @@
 # Run this file in valgrind with:
-#   PYTHONMALLOC=malloc valgrind --tool=memcheck --leak-check=yes --show-leak-kinds=definite --track-origins=yes --num-callers=12 --suppressions=valgrind-python3.9.supp python3 test_memleak_masteronly_objects.py 
+#   PYTHONMALLOC=malloc valgrind --tool=memcheck --leak-check=yes --show-leak-kinds=definite --track-origins=yes --num-callers=12 --suppressions=valgrind-python3.9.supp python3 test_memleak_masteronly_objects.py
 # There should not be any definitely lost bytes.
 
 # Errors still present:
@@ -7,6 +7,7 @@
 # `Invalid read of size 8` with OscListReceive
 
 import os
+
 os.environ["PYO_GUI_WX"] = "0"
 
 from pyo import *
@@ -47,19 +48,22 @@ f.setBal(Sig(0.5))
 
 g = Record([i1, i2], "Record_test.wav")
 
-a1 = Sine(freq=[1,1.5], mul=[100,.1], add=[600, .1])
-h = OscSend(a1, port=10001, address=['/pitch','/amp'])
+a1 = Sine(freq=[1, 1.5], mul=[100, 0.1], add=[600, 0.1])
+h = OscSend(a1, port=10001, address=["/pitch", "/amp"])
 
-a2 = OscReceive(port=10001, address=['/pitch', '/amp'])
-i = Sine(freq=a2['/pitch'], mul=a2['/amp']).mix(2).out()
+a2 = OscReceive(port=10001, address=["/pitch", "/amp"])
+i = Sine(freq=a2["/pitch"], mul=a2["/amp"]).mix(2).out()
 a2.addAddress("/temp", 0.5, 0.01)
 print(a2.getAddresses())
 a2.delAddress("/temp")
 print(a2.getAddresses())
 
+
 def pp(address, *args):
-     print(address)
-     print(args)
+    print(address)
+    print(args)
+
+
 r5 = OscDataReceive(9900, "/data/test", pp)
 r5.addAddress("/data/test2")
 
@@ -79,8 +83,8 @@ c5.addAddress("fissif", 9900, "/data/test2")
 msg = [3.14159, 1, "Hello", "world!", 2, 6.18]
 c5.send(msg, "/data/test2")
 
-j = OscListReceive(port=10002, address=['/pitch', '/amp'], num=8)
-b3 = Sine(freq=j['/pitch'], mul=j['/amp']).mix(2).out()
+j = OscListReceive(port=10002, address=["/pitch", "/amp"], num=8)
+b3 = Sine(freq=j["/pitch"], mul=j["/amp"]).mix(2).out()
 
 s.process()
 s.process()

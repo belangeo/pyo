@@ -19,9 +19,11 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
+
 import os, sys, time
 from ._core import *
 from ._widgets import createServerGUI
+
 
 ######################################################################
 ### Proxy of Server object
@@ -146,7 +148,12 @@ class Server(object):
         midi="portmidi",
         verbosity=7,
     ):
-        if "PYO_SERVER_AUDIO" in os.environ and audio not in ["offline", "offline_nb", "embedded", "manual"]:
+        if "PYO_SERVER_AUDIO" in os.environ and audio not in [
+            "offline",
+            "offline_nb",
+            "embedded",
+            "manual",
+        ]:
             audio = os.environ["PYO_SERVER_AUDIO"]
         if "PYO_SERVER_MIDI" in os.environ:
             midi = os.environ["PYO_SERVER_MIDI"]
@@ -171,7 +178,9 @@ class Server(object):
         self._globalseed = 0
         self._resampling = 1
         self._isJackTransportSlave = False
-        self._server = Server_base(sr, nchnls, buffersize, duplex, audio, jackname, self._ichnls, midi, self._verbosity)
+        self._server = Server_base(
+            sr, nchnls, buffersize, duplex, audio, jackname, self._ichnls, midi, self._verbosity
+        )
         self._server._setDefaultRecPath(os.path.join(os.path.expanduser("~"), "pyo_rec.wav"))
 
         if sys.platform.startswith("win"):
@@ -211,7 +220,12 @@ class Server(object):
             Same as in the __init__ method.
 
         """
-        if "PYO_SERVER_AUDIO" in os.environ and audio not in ["offline", "offline_nb", "embedded", "manual"]:
+        if "PYO_SERVER_AUDIO" in os.environ and audio not in [
+            "offline",
+            "offline_nb",
+            "embedded",
+            "manual",
+        ]:
             audio = os.environ["PYO_SERVER_AUDIO"]
         if "PYO_SERVER_MIDI" in os.environ:
             midi = os.environ["PYO_SERVER_MIDI"]
@@ -966,7 +980,9 @@ class Server(object):
                 fileformat = FILE_FORMATS[ext]
                 if fileformat != self._fileformat:
                     self._fileformat = fileformat
-                    self._server.recordOptions(self._dur, filename, self._fileformat, self._sampletype)
+                    self._server.recordOptions(
+                        self._dur, filename, self._fileformat, self._sampletype
+                    )
 
         self._server.recstart(stringencode(filename))
 
@@ -1000,9 +1016,13 @@ class Server(object):
                 is sent to the output midi stream. A value of 0
                 means to play the note now. Defaults to 0.
         """
-        pitch, velocity, channel, timestamp, lmax = convertArgsToLists(pitch, velocity, channel, timestamp)
+        pitch, velocity, channel, timestamp, lmax = convertArgsToLists(
+            pitch, velocity, channel, timestamp
+        )
         [
-            self._server.noteout(wrap(pitch, i), wrap(velocity, i), wrap(channel, i), wrap(timestamp, i))
+            self._server.noteout(
+                wrap(pitch, i), wrap(velocity, i), wrap(channel, i), wrap(timestamp, i)
+            )
             for i in range(lmax)
         ]
 
@@ -1028,9 +1048,13 @@ class Server(object):
                 is sent to the output midi stream. A value of 0
                 means to play the note now. Defaults to 0.
         """
-        pitch, velocity, channel, timestamp, lmax = convertArgsToLists(pitch, velocity, channel, timestamp)
+        pitch, velocity, channel, timestamp, lmax = convertArgsToLists(
+            pitch, velocity, channel, timestamp
+        )
         [
-            self._server.afterout(wrap(pitch, i), wrap(velocity, i), wrap(channel, i), wrap(timestamp, i))
+            self._server.afterout(
+                wrap(pitch, i), wrap(velocity, i), wrap(channel, i), wrap(timestamp, i)
+            )
             for i in range(lmax)
         ]
 
@@ -1056,9 +1080,13 @@ class Server(object):
                 is sent to the output midi stream. A value of 0
                 means to play the note now. Defaults to 0.
         """
-        ctlnum, value, channel, timestamp, lmax = convertArgsToLists(ctlnum, value, channel, timestamp)
+        ctlnum, value, channel, timestamp, lmax = convertArgsToLists(
+            ctlnum, value, channel, timestamp
+        )
         [
-            self._server.ctlout(wrap(ctlnum, i), wrap(value, i), wrap(channel, i), wrap(timestamp, i))
+            self._server.ctlout(
+                wrap(ctlnum, i), wrap(value, i), wrap(channel, i), wrap(timestamp, i)
+            )
             for i in range(lmax)
         ]
 
@@ -1083,7 +1111,10 @@ class Server(object):
                 means to play the note now. Defaults to 0.
         """
         value, channel, timestamp, lmax = convertArgsToLists(value, channel, timestamp)
-        [self._server.programout(wrap(value, i), wrap(channel, i), wrap(timestamp, i)) for i in range(lmax)]
+        [
+            self._server.programout(wrap(value, i), wrap(channel, i), wrap(timestamp, i))
+            for i in range(lmax)
+        ]
 
     def pressout(self, value, channel=0, timestamp=0):
         """
@@ -1106,7 +1137,10 @@ class Server(object):
                 means to play the note now. Defaults to 0.
         """
         value, channel, timestamp, lmax = convertArgsToLists(value, channel, timestamp)
-        [self._server.pressout(wrap(value, i), wrap(channel, i), wrap(timestamp, i)) for i in range(lmax)]
+        [
+            self._server.pressout(wrap(value, i), wrap(channel, i), wrap(timestamp, i))
+            for i in range(lmax)
+        ]
 
     def bendout(self, value, channel=0, timestamp=0):
         """
@@ -1130,7 +1164,10 @@ class Server(object):
                 means to play the note now. Defaults to 0.
         """
         value, channel, timestamp, lmax = convertArgsToLists(value, channel, timestamp)
-        [self._server.bendout(wrap(value, i), wrap(channel, i), wrap(timestamp, i)) for i in range(lmax)]
+        [
+            self._server.bendout(wrap(value, i), wrap(channel, i), wrap(timestamp, i))
+            for i in range(lmax)
+        ]
 
     def sysexout(self, msg, timestamp=0):
         """
@@ -1179,9 +1216,13 @@ class Server(object):
                 note is sent. A channel of 0 means all channels.
                 Defaults to 0.
         """
-        pitch, velocity, duration, channel, lmax = convertArgsToLists(pitch, velocity, duration, channel)
+        pitch, velocity, duration, channel, lmax = convertArgsToLists(
+            pitch, velocity, duration, channel
+        )
         [
-            self._server.makenote(wrap(pitch, i), wrap(velocity, i), wrap(duration, i), wrap(channel, i))
+            self._server.makenote(
+                wrap(pitch, i), wrap(velocity, i), wrap(duration, i), wrap(channel, i)
+            )
             for i in range(lmax)
         ]
 
@@ -1222,7 +1263,10 @@ class Server(object):
 
         """
         status, data1, data2, lmax = convertArgsToLists(status, data1, data2)
-        [self._server.addMidiEvent(wrap(status, i), wrap(data1, i), wrap(data2, i)) for i in range(lmax)]
+        [
+            self._server.addMidiEvent(wrap(status, i), wrap(data1, i), wrap(data2, i))
+            for i in range(lmax)
+        ]
 
     def getStreams(self):
         """
@@ -1389,7 +1433,7 @@ class Server(object):
         will automatically triggers the `play` method of the Fader
         object given as `mul` argument.
 
-        >>> a = RCOsc(freq=150, mul=Fader(1, 1, mul=.3)).out()
+        >>> a = RCOsc(freq=150, mul=Fader(1, 1, mul=0.3)).out()
 
         With setAutoStartChildren(True), a call to the `stop` method
         will also propagate to audio objects given as arguments. The
@@ -1403,7 +1447,7 @@ class Server(object):
         argument starts its fadeout immediately.
 
         >>> freq = Linseg([(0,500),(1, 750),(2, 500)], loop=True)
-        >>> a = Sine(freq=freq, mul=Fader(1, 1, mul=.2)).out()
+        >>> a = Sine(freq=freq, mul=Fader(1, 1, mul=0.2)).out()
 
         Sometime, we still want the process assigned to a `mul` attribute
         to wait before stopping its process. See the next case. The

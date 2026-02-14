@@ -12,6 +12,7 @@ Call t1.view(), t2.view(), t3.view(), t4.view() to view impulse response tables.
 Circular convolution is very expensive, so keep TLEN (in samples) small.
 
 """
+
 from pyo import *
 
 s = Server(duplex=1).boot()

@@ -9,6 +9,7 @@ chnl : Physical output assigned to the first audio stream of the object.
 inc : Output channel increment value.
 
 """
+
 from pyo import *
 
 # Creates a Server with 8 channels

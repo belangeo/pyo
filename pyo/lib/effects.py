@@ -68,8 +68,8 @@ class Disto(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> a = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True)
-    >>> lfo = Sine(freq=[.2,.25], mul=.5, add=.5)
-    >>> d = Disto(a, drive=lfo, slope=.8, mul=.15).out()
+    >>> lfo = Sine(freq=[.2,.25], mul=0.5, add=0.5)
+    >>> d = Disto(a, drive=lfo, slope=0.8, mul=0.15).out()
 
     """
 
@@ -80,9 +80,13 @@ class Disto(PyoObject):
         self._drive = drive
         self._slope = slope
         self._in_fader = InputFader(input)
-        in_fader, drive, slope, mul, add, lmax = convertArgsToLists(self._in_fader, drive, slope, mul, add)
+        in_fader, drive, slope, mul, add, lmax = convertArgsToLists(
+            self._in_fader, drive, slope, mul, add
+        )
         self._base_objs = [
-            Disto_base(wrap(in_fader, i), wrap(drive, i), wrap(slope, i), wrap(mul, i), wrap(add, i))
+            Disto_base(
+                wrap(in_fader, i), wrap(drive, i), wrap(slope, i), wrap(mul, i), wrap(add, i)
+            )
             for i in range(lmax)
         ]
         self._init_play()
@@ -201,8 +205,8 @@ class Delay(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True, mul=.3).mix(2).out()
-    >>> d = Delay(a, delay=[.15,.2], feedback=.5, mul=.4).out()
+    >>> a = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True, mul=0.3).mix(2).out()
+    >>> d = Delay(a, delay=[.15,.2], feedback=0.5, mul=0.4).out()
 
     """
 
@@ -219,7 +223,12 @@ class Delay(PyoObject):
         )
         self._base_objs = [
             Delay_base(
-                wrap(in_fader, i), wrap(delay, i), wrap(feedback, i), wrap(maxdelay, i), wrap(mul, i), wrap(add, i)
+                wrap(in_fader, i),
+                wrap(delay, i),
+                wrap(feedback, i),
+                wrap(maxdelay, i),
+                wrap(mul, i),
+                wrap(add, i),
             )
             for i in range(lmax)
         ]
@@ -339,7 +348,7 @@ class SDelay(PyoObject):
     >>> srPeriod = 1. / s.getSamplingRate()
     >>> dlys = [srPeriod * i * 5 for i in range(1, 7)]
     >>> a = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True)
-    >>> d = SDelay(a, delay=dlys, mul=.1).out(1)
+    >>> d = SDelay(a, delay=dlys, mul=0.1).out(1)
 
     """
 
@@ -350,9 +359,13 @@ class SDelay(PyoObject):
         self._delay = delay
         self._maxdelay = maxdelay
         self._in_fader = InputFader(input)
-        in_fader, delay, maxdelay, mul, add, lmax = convertArgsToLists(self._in_fader, delay, maxdelay, mul, add)
+        in_fader, delay, maxdelay, mul, add, lmax = convertArgsToLists(
+            self._in_fader, delay, maxdelay, mul, add
+        )
         self._base_objs = [
-            SDelay_base(wrap(in_fader, i), wrap(delay, i), wrap(maxdelay, i), wrap(mul, i), wrap(add, i))
+            SDelay_base(
+                wrap(in_fader, i), wrap(delay, i), wrap(maxdelay, i), wrap(mul, i), wrap(add, i)
+            )
             for i in range(lmax)
         ]
         self._init_play()
@@ -396,7 +409,10 @@ class SDelay(PyoObject):
         [obj.reset() for obj in self._base_objs]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0.0001, self._maxdelay, "log", "delay", self._delay), SLMapMul(self._mul)]
+        self._map_list = [
+            SLMap(0.0001, self._maxdelay, "log", "delay", self._delay),
+            SLMapMul(self._mul),
+        ]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
@@ -448,8 +464,8 @@ class Waveguide(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> sf = SfPlayer(SNDS_PATH + '/transparent.aif', speed=[.98,1.02], loop=True)
-    >>> gt = Gate(sf, thresh=-24, risetime=0.005, falltime=0.01, lookahead=5, mul=.2)
-    >>> w = Waveguide(gt, freq=[60,120.17,180.31,240.53], dur=20, minfreq=20, mul=.4).out()
+    >>> gt = Gate(sf, thresh=-24, risetime=0.005, falltime=0.01, lookahead=5, mul=0.2)
+    >>> w = Waveguide(gt, freq=[60,120.17,180.31,240.53], dur=20, minfreq=20, mul=0.4).out()
 
     """
 
@@ -460,9 +476,18 @@ class Waveguide(PyoObject):
         self._freq = freq
         self._dur = dur
         self._in_fader = InputFader(input)
-        in_fader, freq, dur, minfreq, mul, add, lmax = convertArgsToLists(self._in_fader, freq, dur, minfreq, mul, add)
+        in_fader, freq, dur, minfreq, mul, add, lmax = convertArgsToLists(
+            self._in_fader, freq, dur, minfreq, mul, add
+        )
         self._base_objs = [
-            Waveguide_base(wrap(in_fader, i), wrap(freq, i), wrap(dur, i), wrap(minfreq, i), wrap(mul, i), wrap(add, i))
+            Waveguide_base(
+                wrap(in_fader, i),
+                wrap(freq, i),
+                wrap(dur, i),
+                wrap(minfreq, i),
+                wrap(mul, i),
+                wrap(add, i),
+            )
             for i in range(lmax)
         ]
         self._init_play()
@@ -521,7 +546,11 @@ class Waveguide(PyoObject):
         [obj.reset() for obj in self._base_objs]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(10, 500.0, "log", "freq", self._freq), SLMapDur(self._dur), SLMapMul(self._mul)]
+        self._map_list = [
+            SLMap(10, 500.0, "log", "freq", self._freq),
+            SLMapDur(self._dur),
+            SLMapMul(self._mul),
+        ]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
@@ -585,10 +614,10 @@ class AllpassWG(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> sf = SfPlayer(SNDS_PATH + '/transparent.aif', speed=[.98,1.02], loop=True)
-    >>> gt = Gate(sf, thresh=-24, risetime=0.005, falltime=0.01, lookahead=5, mul=.2)
-    >>> rnd = Randi(min=.5, max=1.0, freq=[.13,.22,.155,.171])
-    >>> rnd2 = Randi(min=.95, max=1.05, freq=[.145,.2002,.1055,.071])
-    >>> fx = AllpassWG(gt, freq=rnd2*[74.87,75,75.07,75.21], feed=1, detune=rnd, mul=.15).out()
+    >>> gt = Gate(sf, thresh=-24, risetime=0.005, falltime=0.01, lookahead=5, mul=0.2)
+    >>> rnd = Randi(min=0.5, max=1.0, freq=[.13,.22,.155,.171])
+    >>> rnd2 = Randi(min=0.95, max=1.05, freq=[.145,.2002,.1055,.071])
+    >>> fx = AllpassWG(gt, freq=rnd2*[74.87,75,75.07,75.21], feed=1, detune=rnd, mul=0.15).out()
 
     """
 
@@ -763,8 +792,8 @@ class Freeverb(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True, mul=.4)
-    >>> b = Freeverb(a, size=[.79,.8], damp=.9, bal=.3).out()
+    >>> a = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True, mul=0.4)
+    >>> b = Freeverb(a, size=[.79,.8], damp=0.9, bal=0.3).out()
 
     """
 
@@ -776,9 +805,18 @@ class Freeverb(PyoObject):
         self._damp = damp
         self._bal = bal
         self._in_fader = InputFader(input)
-        in_fader, size, damp, bal, mul, add, lmax = convertArgsToLists(self._in_fader, size, damp, bal, mul, add)
+        in_fader, size, damp, bal, mul, add, lmax = convertArgsToLists(
+            self._in_fader, size, damp, bal, mul, add
+        )
         self._base_objs = [
-            Freeverb_base(wrap(in_fader, i), wrap(size, i), wrap(damp, i), wrap(bal, i), wrap(mul, i), wrap(add, i))
+            Freeverb_base(
+                wrap(in_fader, i),
+                wrap(size, i),
+                wrap(damp, i),
+                wrap(bal, i),
+                wrap(mul, i),
+                wrap(add, i),
+            )
             for i in range(lmax)
         ]
         self._init_play()
@@ -936,8 +974,8 @@ class Convolve(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> snd = SNDS_PATH + '/transparent.aif'
-    >>> sf = SfPlayer(snd, speed=[.999,1], loop=True, mul=.25).out()
-    >>> a = Convolve(sf, SndTable(SNDS_PATH+'/accord.aif'), size=512, mul=.2).out()
+    >>> sf = SfPlayer(snd, speed=[.999,1], loop=True, mul=0.25).out()
+    >>> a = Convolve(sf, SndTable(SNDS_PATH+'/accord.aif'), size=512, mul=0.2).out()
 
     """
 
@@ -948,9 +986,13 @@ class Convolve(PyoObject):
         self._table = table
         self._size = size
         self._in_fader = InputFader(input)
-        in_fader, table, size, mul, add, lmax = convertArgsToLists(self._in_fader, table, size, mul, add)
+        in_fader, table, size, mul, add, lmax = convertArgsToLists(
+            self._in_fader, table, size, mul, add
+        )
         self._base_objs = [
-            Convolve_base(wrap(in_fader, i), wrap(table, i), wrap(size, i), wrap(mul, i), wrap(add, i))
+            Convolve_base(
+                wrap(in_fader, i), wrap(table, i), wrap(size, i), wrap(mul, i), wrap(add, i)
+            )
             for i in range(lmax)
         ]
         self._init_play()
@@ -1039,7 +1081,7 @@ class WGVerb(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> a = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True)
-    >>> d = WGVerb(a, feedback=[.74,.75], cutoff=5000, bal=.25, mul=.3).out()
+    >>> d = WGVerb(a, feedback=[.74,.75], cutoff=5000, bal=0.25, mul=0.3).out()
 
     """
 
@@ -1055,7 +1097,14 @@ class WGVerb(PyoObject):
             self._in_fader, feedback, cutoff, bal, mul, add
         )
         self._base_objs = [
-            WGVerb_base(wrap(in_fader, i), wrap(feedback, i), wrap(cutoff, i), wrap(bal, i), wrap(mul, i), wrap(add, i))
+            WGVerb_base(
+                wrap(in_fader, i),
+                wrap(feedback, i),
+                wrap(cutoff, i),
+                wrap(bal, i),
+                wrap(mul, i),
+                wrap(add, i),
+            )
             for i in range(lmax)
         ]
         self._init_play()
@@ -1198,7 +1247,7 @@ class Chorus(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> sf = SfPlayer(SNDS_PATH + '/transparent.aif', loop=True, mul=.5)
+    >>> sf = SfPlayer(SNDS_PATH + '/transparent.aif', loop=True, mul=0.5)
     >>> chor = Chorus(sf, depth=[1.5,1.6], feedback=0.5, bal=0.5).out()
 
     """
@@ -1215,7 +1264,14 @@ class Chorus(PyoObject):
             self._in_fader, depth, feedback, bal, mul, add
         )
         self._base_objs = [
-            Chorus_base(wrap(in_fader, i), wrap(depth, i), wrap(feedback, i), wrap(bal, i), wrap(mul, i), wrap(add, i))
+            Chorus_base(
+                wrap(in_fader, i),
+                wrap(depth, i),
+                wrap(feedback, i),
+                wrap(bal, i),
+                wrap(mul, i),
+                wrap(add, i),
+            )
             for i in range(lmax)
         ]
         self._init_play()
@@ -1355,7 +1411,7 @@ class Harmonizer(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> sf = SfPlayer(SNDS_PATH + '/transparent.aif', loop=True, mul=.3).out()
+    >>> sf = SfPlayer(SNDS_PATH + '/transparent.aif', loop=True, mul=0.3).out()
     >>> harm = Harmonizer(sf, transpo=-5, winsize=0.05).out(1)
 
     """
@@ -1373,7 +1429,12 @@ class Harmonizer(PyoObject):
         )
         self._base_objs = [
             Harmonizer_base(
-                wrap(in_fader, i), wrap(transpo, i), wrap(feedback, i), wrap(winsize, i), wrap(mul, i), wrap(add, i)
+                wrap(in_fader, i),
+                wrap(transpo, i),
+                wrap(feedback, i),
+                wrap(winsize, i),
+                wrap(mul, i),
+                wrap(add, i),
             )
             for i in range(lmax)
         ]
@@ -1522,7 +1583,9 @@ class Delay1(PyoObject):
         self._input = input
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
-        self._base_objs = [Delay1_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
+        self._base_objs = [
+            Delay1_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+        ]
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -1597,8 +1660,21 @@ class STRev(PyoObject):
 
     """
 
-    def __init__(self, input, inpos=0.5, revtime=1, cutoff=5000, bal=0.5, roomSize=1, firstRefGain=-3, mul=1, add=0):
-        pyoArgsAssert(self, "oOOOOnnOO", input, inpos, revtime, cutoff, bal, roomSize, firstRefGain, mul, add)
+    def __init__(
+        self,
+        input,
+        inpos=0.5,
+        revtime=1,
+        cutoff=5000,
+        bal=0.5,
+        roomSize=1,
+        firstRefGain=-3,
+        mul=1,
+        add=0,
+    ):
+        pyoArgsAssert(
+            self, "oOOOOnnOO", input, inpos, revtime, cutoff, bal, roomSize, firstRefGain, mul, add
+        )
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._inpos = inpos
@@ -1608,8 +1684,10 @@ class STRev(PyoObject):
         self._roomSize = roomSize
         self._firstRefGain = firstRefGain
         self._in_fader = InputFader(input)
-        in_fader, inpos, revtime, cutoff, bal, roomSize, firstRefGain, mul, add, lmax = convertArgsToLists(
-            self._in_fader, inpos, revtime, cutoff, bal, roomSize, firstRefGain, mul, add
+        in_fader, inpos, revtime, cutoff, bal, roomSize, firstRefGain, mul, add, lmax = (
+            convertArgsToLists(
+                self._in_fader, inpos, revtime, cutoff, bal, roomSize, firstRefGain, mul, add
+            )
         )
         self._base_players = [
             STReverb_base(
@@ -2024,11 +2102,11 @@ class FreqShift(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = SineLoop(freq=300, feedback=.1, mul=.3)
-    >>> lf1 = Sine(freq=.04, mul=10)
-    >>> lf2 = Sine(freq=.05, mul=10)
-    >>> b = FreqShift(a, shift=lf1, mul=.5).out()
-    >>> c = FreqShift(a, shift=lf2, mul=.5).out(1)
+    >>> a = SineLoop(freq=300, feedback=0.1, mul=0.3)
+    >>> lf1 = Sine(freq=0.04, mul=10)
+    >>> lf2 = Sine(freq=0.05, mul=10)
+    >>> b = FreqShift(a, shift=lf1, mul=0.5).out()
+    >>> c = FreqShift(a, shift=lf2, mul=0.5).out(1)
 
     """
 
@@ -2051,7 +2129,8 @@ class FreqShift(PyoObject):
             self._cos_objs.append(Sine(freq=wrap(shift, i), phase=0.25, mul=0.707))
             self._mod_objs.append(
                 Mix(
-                    self._hilb_objs[-1]["real"] * self._sin_objs[-1] - self._hilb_objs[-1]["imag"] * self._cos_objs[-1],
+                    self._hilb_objs[-1]["real"] * self._sin_objs[-1]
+                    - self._hilb_objs[-1]["imag"] * self._cos_objs[-1],
                     mul=wrap(mul, i),
                     add=wrap(add, i),
                 )

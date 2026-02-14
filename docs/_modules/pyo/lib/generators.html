@@ -119,7 +119,7 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; sine = Sine(freq=[400,500], mul=.2).out()</span>
+<span class="sd">    &gt;&gt;&gt; sine = Sine(freq=[400,500], mul=0.2).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -359,7 +359,7 @@
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; lfo = Sine(.25, 0, .1, .1)</span>
-<span class="sd">    &gt;&gt;&gt; a = SineLoop(freq=[400,500], feedback=lfo, mul=.2).out()</span>
+<span class="sd">    &gt;&gt;&gt; a = SineLoop(freq=[400,500], feedback=lfo, mul=0.2).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -462,7 +462,7 @@
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; f = Phasor(freq=[1, 1.5], mul=1000, add=500)</span>
-<span class="sd">    &gt;&gt;&gt; sine = Sine(freq=f, mul=.2).out()</span>
+<span class="sd">    &gt;&gt;&gt; sine = Sine(freq=f, mul=0.2).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -567,8 +567,8 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server(duplex=1).boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; a = Input(chnl=0, mul=.7)</span>
-<span class="sd">    &gt;&gt;&gt; b = Delay(a, delay=.25, feedback=.5, mul=.5).out()</span>
+<span class="sd">    &gt;&gt;&gt; a = Input(chnl=0, mul=0.7)</span>
+<span class="sd">    &gt;&gt;&gt; b = Delay(a, delay=0.25, feedback=0.5, mul=0.5).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -743,7 +743,7 @@
 <span class="sd">    &gt;&gt;&gt; ind = LinTable([(0,3), (20,40), (300,10), (1000,5), (8191,3)])</span>
 <span class="sd">    &gt;&gt;&gt; m = Metro(4).play()</span>
 <span class="sd">    &gt;&gt;&gt; tr = TrigEnv(m, table=ind, dur=4)</span>
-<span class="sd">    &gt;&gt;&gt; f = FM(carrier=[251,250], ratio=[.2498,.2503], index=tr, mul=.2).out()</span>
+<span class="sd">    &gt;&gt;&gt; f = FM(carrier=[251,250], ratio=[.2498,.2503], index=tr, mul=0.2).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -888,7 +888,7 @@
 <span class="sd">    &gt;&gt;&gt; ind = LinTable([(0,20), (200,5), (1000,2), (8191,1)])</span>
 <span class="sd">    &gt;&gt;&gt; m = Metro(4).play()</span>
 <span class="sd">    &gt;&gt;&gt; tr = TrigEnv(m, table=ind, dur=4)</span>
-<span class="sd">    &gt;&gt;&gt; f = CrossFM(carrier=[250.5,250], ratio=[.2499,.2502], ind1=tr, ind2=tr, mul=.2).out()</span>
+<span class="sd">    &gt;&gt;&gt; f = CrossFM(carrier=[250.5,250], ratio=[.2499,.2502], ind1=tr, ind2=tr, mul=0.2).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -1049,9 +1049,9 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; lfo = Sine(freq=4, mul=.02, add=1)</span>
-<span class="sd">    &gt;&gt;&gt; lf2 = Sine(freq=.25, mul=10, add=30)</span>
-<span class="sd">    &gt;&gt;&gt; a = Blit(freq=[100, 99.7]*lfo, harms=lf2, mul=.3).out()</span>
+<span class="sd">    &gt;&gt;&gt; lfo = Sine(freq=4, mul=0.02, add=1)</span>
+<span class="sd">    &gt;&gt;&gt; lf2 = Sine(freq=0.25, mul=10, add=30)</span>
+<span class="sd">    &gt;&gt;&gt; a = Blit(freq=[100, 99.7]*lfo, harms=lf2, mul=0.3).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -1167,7 +1167,7 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; a = Rossler(pitch=.003, stereo=True, mul=.2, add=.2)</span>
+<span class="sd">    &gt;&gt;&gt; a = Rossler(pitch=0.003, stereo=True, mul=0.2, add=0.2)</span>
 <span class="sd">    &gt;&gt;&gt; b = Rossler(pitch=[.5,.48], mul=a).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1296,7 +1296,7 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; a = Lorenz(pitch=.003, stereo=True, mul=.2, add=.2)</span>
+<span class="sd">    &gt;&gt;&gt; a = Lorenz(pitch=0.003, stereo=True, mul=0.2, add=0.2)</span>
 <span class="sd">    &gt;&gt;&gt; b = Lorenz(pitch=[.4,.38], mul=a).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1425,7 +1425,7 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; a = ChenLee(pitch=.001, chaos=0.2, stereo=True, mul=.5, add=.5)</span>
+<span class="sd">    &gt;&gt;&gt; a = ChenLee(pitch=0.001, chaos=0.2, stereo=True, mul=0.5, add=0.5)</span>
 <span class="sd">    &gt;&gt;&gt; b = ChenLee(pitch=1, chaos=a, mul=0.5).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1548,9 +1548,9 @@
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; lf = Sine([.31,.34], mul=15, add=20)</span>
-<span class="sd">    &gt;&gt;&gt; lf2 = LFO([.43,.41], sharp=.7, type=2, mul=.4, add=.4)</span>
+<span class="sd">    &gt;&gt;&gt; lf2 = LFO([.43,.41], sharp=0.7, type=2, mul=0.4, add=0.4)</span>
 <span class="sd">    &gt;&gt;&gt; a = LFO(freq=lf, sharp=lf2, type=7, mul=100, add=300)</span>
-<span class="sd">    &gt;&gt;&gt; b = SineLoop(freq=a, feedback=0.12, mul=.2).out()</span>
+<span class="sd">    &gt;&gt;&gt; b = SineLoop(freq=a, feedback=0.12, mul=0.2).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -1721,7 +1721,7 @@
 <span class="sd">    &gt;&gt;&gt; ind = LinTable([(0,.3), (20,.85), (300,.7), (1000,.5), (8191,.3)])</span>
 <span class="sd">    &gt;&gt;&gt; m = Metro(4).play()</span>
 <span class="sd">    &gt;&gt;&gt; tr = TrigEnv(m, table=ind, dur=4)</span>
-<span class="sd">    &gt;&gt;&gt; f = SumOsc(freq=[301,300], ratio=[.2498,.2503], index=tr, mul=.2).out()</span>
+<span class="sd">    &gt;&gt;&gt; f = SumOsc(freq=[301,300], ratio=[.2498,.2503], index=tr, mul=0.2).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -1865,7 +1865,7 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; lfd = Sine([.4,.3], mul=.2, add=.5)</span>
+<span class="sd">    &gt;&gt;&gt; lfd = Sine([.4,.3], mul=0.2, add=0.5)</span>
 <span class="sd">    &gt;&gt;&gt; a = SuperSaw(freq=[49,50], detune=lfd, bal=0.7, mul=0.2).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -2003,8 +2003,8 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; fr = RCOsc(freq=[.48,.5], sharp=.2, mul=300, add=600)</span>
-<span class="sd">    &gt;&gt;&gt; a = RCOsc(freq=fr, sharp=.1, mul=.2).out()</span>
+<span class="sd">    &gt;&gt;&gt; fr = RCOsc(freq=[.48,.5], sharp=0.2, mul=300, add=600)</span>
+<span class="sd">    &gt;&gt;&gt; a = RCOsc(freq=fr, sharp=0.1, mul=0.2).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 

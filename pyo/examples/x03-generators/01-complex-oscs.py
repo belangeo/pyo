@@ -21,6 +21,7 @@ interpolate between the four waveforms. Each one have an LFO
 applied to the argument that change the tone of the sound.
 
 """
+
 from pyo import *
 
 s = Server().boot()

@@ -17,6 +17,7 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
+
 import wx, os, sys, math, time, unicodedata
 import wx.stc as stc
 from ._core import rescale
@@ -85,7 +86,7 @@ POWOFTWO = {
 
 def powOfTwo(x):
     "Return 2 raised to the power of x."
-    return 2 ** x
+    return 2**x
 
 
 def powOfTwoToInt(x):
@@ -107,13 +108,22 @@ def GetRoundBitmap(w, h, r):
     b.SetMaskColour(maskColor)
     return b
 
+
 class BasePanel(wx.Panel):
-    def __init__(self, parent=None, id=wx.ID_ANY, pos=wx.DefaultPosition, size=wx.DefaultSize, style=wx.TAB_TRAVERSAL):
+    def __init__(
+        self,
+        parent=None,
+        id=wx.ID_ANY,
+        pos=wx.DefaultPosition,
+        size=wx.DefaultSize,
+        style=wx.TAB_TRAVERSAL,
+    ):
         wx.Panel.__init__(self, parent, id, pos, size, style)
         self.backgroundColour = wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW)
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
         self.SetBackgroundColour(self.backgroundColour)
         self.SetForegroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_MENUTEXT))
+
 
 class ControlSlider(BasePanel):
     def __init__(
@@ -135,7 +145,12 @@ class ControlSlider(BasePanel):
         if size == (200, 16) and orient == wx.VERTICAL:
             size = (40, 200)
         BasePanel.__init__(
-            self, parent=parent, id=wx.ID_ANY, pos=pos, size=size, style=wx.NO_BORDER | wx.WANTS_CHARS | wx.EXPAND
+            self,
+            parent=parent,
+            id=wx.ID_ANY,
+            pos=pos,
+            size=size,
+            style=wx.NO_BORDER | wx.WANTS_CHARS | wx.EXPAND,
         )
         self.parent = parent
         self.backgroundColourOverride = False
@@ -186,10 +201,14 @@ class ControlSlider(BasePanel):
 
         if sys.platform == "win32" or sys.platform.startswith("linux"):
             self.dcref = wx.BufferedPaintDC
-            self.font = wx.Font(7, wx.FONTFAMILY_TELETYPE, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL)
+            self.font = wx.Font(
+                7, wx.FONTFAMILY_TELETYPE, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL
+            )
         else:
             self.dcref = wx.PaintDC
-            self.font = wx.Font(10, wx.FONTFAMILY_TELETYPE, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL)
+            self.font = wx.Font(
+                10, wx.FONTFAMILY_TELETYPE, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL
+            )
 
     def getCtrlLabel(self):
         return self.ctrllabel
@@ -236,7 +255,9 @@ class ControlSlider(BasePanel):
     def scale(self):
         if self.orient == wx.VERTICAL:
             h = self.GetSize()[1]
-            inter = tFromValue(h - self.pos, self.knobHalfSize, self.GetSize()[1] - self.knobHalfSize)
+            inter = tFromValue(
+                h - self.pos, self.knobHalfSize, self.GetSize()[1] - self.knobHalfSize
+            )
         else:
             inter = tFromValue(self.pos, self.knobHalfSize, self.GetSize()[0] - self.knobHalfSize)
         if not self.integer:
@@ -312,9 +333,13 @@ class ControlSlider(BasePanel):
         if self._enable:
             size = self.GetSize()
             if self.orient == wx.VERTICAL:
-                self.pos = clamp(evt.GetPosition()[1], self.knobHalfSize, size[1] - self.knobHalfSize)
+                self.pos = clamp(
+                    evt.GetPosition()[1], self.knobHalfSize, size[1] - self.knobHalfSize
+                )
             else:
-                self.pos = clamp(evt.GetPosition()[0], self.knobHalfSize, size[0] - self.knobHalfSize)
+                self.pos = clamp(
+                    evt.GetPosition()[0], self.knobHalfSize, size[0] - self.knobHalfSize
+                )
             self.value = self.scale()
             self.CaptureMouse()
             self.selected = False
@@ -343,9 +368,13 @@ class ControlSlider(BasePanel):
             size = self.GetSize()
             if self.HasCapture():
                 if self.orient == wx.VERTICAL:
-                    self.pos = clamp(evt.GetPosition()[1], self.knobHalfSize, size[1] - self.knobHalfSize)
+                    self.pos = clamp(
+                        evt.GetPosition()[1], self.knobHalfSize, size[1] - self.knobHalfSize
+                    )
                 else:
-                    self.pos = clamp(evt.GetPosition()[0], self.knobHalfSize, size[0] - self.knobHalfSize)
+                    self.pos = clamp(
+                        evt.GetPosition()[0], self.knobHalfSize, size[0] - self.knobHalfSize
+                    )
                 self.value = self.scale()
                 self.selected = False
                 self.Refresh()
@@ -361,10 +390,16 @@ class ControlSlider(BasePanel):
         else:
             val = self.value
         if self.orient == wx.VERTICAL:
-            self.pos = tFromValue(val, self.minvalue, self.maxvalue) * (size[1] - self.knobSize) + self.knobHalfSize
+            self.pos = (
+                tFromValue(val, self.minvalue, self.maxvalue) * (size[1] - self.knobSize)
+                + self.knobHalfSize
+            )
             self.pos = clamp(size[1] - self.pos, self.knobHalfSize, size[1] - self.knobHalfSize)
         else:
-            self.pos = tFromValue(val, self.minvalue, self.maxvalue) * (size[0] - self.knobSize) + self.knobHalfSize
+            self.pos = (
+                tFromValue(val, self.minvalue, self.maxvalue) * (size[0] - self.knobSize)
+                + self.knobHalfSize
+            )
             self.pos = clamp(self.pos, self.knobHalfSize, size[0] - self.knobHalfSize)
 
     def setBackgroundColour(self, colour):
@@ -400,23 +435,35 @@ class ControlSlider(BasePanel):
         if self.orient == wx.VERTICAL:
             w2 = (w - self.sliderWidth) // 2
             rec = wx.Rect(w2, 0, self.sliderWidth, h)
-            brush = gc.CreateLinearGradientBrush(w2, 0, w2 + self.sliderWidth, 0, "#646986", sliderColour)
+            brush = gc.CreateLinearGradientBrush(
+                w2, 0, w2 + self.sliderWidth, 0, "#646986", sliderColour
+            )
         else:
             h2 = self.sliderHeight // 4
             rec = wx.Rect(0, h2, w, self.sliderHeight)
-            brush = gc.CreateLinearGradientBrush(0, h2, 0, h2 + self.sliderHeight, "#646986", sliderColour)
+            brush = gc.CreateLinearGradientBrush(
+                0, h2, 0, h2 + self.sliderHeight, "#646986", sliderColour
+            )
         gc.SetBrush(brush)
         gc.DrawRoundedRectangle(rec[0], rec[1], rec[2], rec[3], 2)
 
         if self.midictl is not None:
             if sys.platform == "win32" or sys.platform.startswith("linux"):
-                dc.SetFont(wx.Font(6, wx.FONTFAMILY_ROMAN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL))
+                dc.SetFont(
+                    wx.Font(6, wx.FONTFAMILY_ROMAN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL)
+                )
             else:
-                dc.SetFont(wx.Font(9, wx.FONTFAMILY_ROMAN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL))
+                dc.SetFont(
+                    wx.Font(9, wx.FONTFAMILY_ROMAN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL)
+                )
             dc.SetTextForeground("#FFFFFF")
             if self.orient == wx.VERTICAL:
-                dc.DrawLabel(str(self.midictl), wx.Rect(w2, 2, self.sliderWidth, 12), wx.ALIGN_CENTER)
-                dc.DrawLabel(str(self.midictl), wx.Rect(w2, h - 12, self.sliderWidth, 12), wx.ALIGN_CENTER)
+                dc.DrawLabel(
+                    str(self.midictl), wx.Rect(w2, 2, self.sliderWidth, 12), wx.ALIGN_CENTER
+                )
+                dc.DrawLabel(
+                    str(self.midictl), wx.Rect(w2, h - 12, self.sliderWidth, 12), wx.ALIGN_CENTER
+                )
             else:
                 dc.DrawLabel(str(self.midictl), wx.Rect(2, 0, h, h), wx.ALIGN_CENTER)
                 dc.DrawLabel(str(self.midictl), wx.Rect(w - h, 0, h, h), wx.ALIGN_CENTER)
@@ -440,7 +487,12 @@ class ControlSlider(BasePanel):
                 brush = wx.Brush("#333333", wx.SOLID)
             else:
                 brush = gc.CreateLinearGradientBrush(
-                    self.pos - self.knobHalfSize, 0, self.pos + self.knobHalfSize, 0, "#323854", knobColour
+                    self.pos - self.knobHalfSize,
+                    0,
+                    self.pos + self.knobHalfSize,
+                    0,
+                    "#323854",
+                    knobColour,
                 )
             gc.SetBrush(brush)
             gc.DrawRoundedRectangle(rec[0], rec[1], rec[2], rec[3], 3)
@@ -564,7 +616,15 @@ class MultiSlider(BasePanel):
 
 
 class VuMeter(BasePanel):
-    def __init__(self, parent, size=(200, 11), numSliders=2, orient=wx.HORIZONTAL, pos=wx.DefaultPosition, style=0):
+    def __init__(
+        self,
+        parent,
+        size=(200, 11),
+        numSliders=2,
+        orient=wx.HORIZONTAL,
+        pos=wx.DefaultPosition,
+        style=0,
+    ):
         if orient == wx.HORIZONTAL:
             size = (size[0], numSliders * 5 + 1)
         else:
@@ -719,7 +779,9 @@ class RangeSlider(BasePanel):
         function=None,
         backColour=None,
     ):
-        BasePanel.__init__(self, parent=parent, id=wx.ID_ANY, pos=pos, size=size, style=wx.NO_BORDER)
+        BasePanel.__init__(
+            self, parent=parent, id=wx.ID_ANY, pos=pos, size=size, style=wx.NO_BORDER
+        )
         if backColour:
             self.backgroundColour = backColour
         self.SetBackgroundColour(self.backgroundColour)
@@ -730,7 +792,9 @@ class RangeSlider(BasePanel):
         self.fillcolor = "#AAAAAA"  # SLIDER_BACK_COLOUR
         self.knobcolor = "#333333"  # SLIDER_KNOB_COLOUR
         self.handlecolor = wx.Colour(
-            int(self.knobcolor[1:3]) - 10, int(self.knobcolor[3:5]) - 10, int(self.knobcolor[5:7]) - 10
+            int(self.knobcolor[1:3]) - 10,
+            int(self.knobcolor[3:5]) - 10,
+            int(self.knobcolor[5:7]) - 10,
         )
         self.outFunction = function
         if valtype.startswith("i"):
@@ -776,7 +840,9 @@ class RangeSlider(BasePanel):
     def setFillColour(self, col1, col2):
         self.fillcolor = col1
         self.knobcolor = col2
-        self.handlecolor = wx.Colour(self.knobcolor[0] * 0.35, self.knobcolor[1] * 0.35, self.knobcolor[2] * 0.35)
+        self.handlecolor = wx.Colour(
+            self.knobcolor[0] * 0.35, self.knobcolor[1] * 0.35, self.knobcolor[2] * 0.35
+        )
         self.createSliderBitmap()
 
     def SetRange(self, minvalue, maxvalue):
@@ -870,7 +936,9 @@ class HRangeSlider(RangeSlider):
         function=None,
         backColour=None,
     ):
-        RangeSlider.__init__(self, parent, minvalue, maxvalue, init, pos, size, valtype, log, function, backColour)
+        RangeSlider.__init__(
+            self, parent, minvalue, maxvalue, init, pos, size, valtype, log, function, backColour
+        )
         self.SetMinSize((50, 15))
 
         self.createSliderBitmap()
@@ -982,11 +1050,15 @@ class PyoObjectControl(wx.Frame):
         self.fileMenu.Bind(wx.EVT_MENU, self._destroy, id=9999)
         self.fileMenu.AppendSeparator()
         self.fileMenu.Append(
-            10000, "Copy all parameters to the clipboard (4 digits of precision)\tCtrl+C", kind=wx.ITEM_NORMAL
+            10000,
+            "Copy all parameters to the clipboard (4 digits of precision)\tCtrl+C",
+            kind=wx.ITEM_NORMAL,
         )
         self.Bind(wx.EVT_MENU, self.copy, id=10000)
         self.fileMenu.Append(
-            10001, "Copy all parameters to the clipboard (full precision)\tShift+Ctrl+C", kind=wx.ITEM_NORMAL
+            10001,
+            "Copy all parameters to the clipboard (full precision)\tShift+Ctrl+C",
+            kind=wx.ITEM_NORMAL,
         )
         self.Bind(wx.EVT_MENU, self.copy, id=10001)
         self.menubar.Append(self.fileMenu, "&File")
@@ -1011,7 +1083,15 @@ class PyoObjectControl(wx.Frame):
         self.box = wx.FlexGridSizer(len(self._map_list), 2, 5, 5)
 
         for i, m in enumerate(self._map_list):
-            key, init, mini, maxi, scl, res, dataOnly = m.name, m.init, m.min, m.max, m.scale, m.res, m.dataOnly
+            key, init, mini, maxi, scl, res, dataOnly = (
+                m.name,
+                m.init,
+                m.min,
+                m.max,
+                m.scale,
+                m.res,
+                m.dataOnly,
+            )
             # filters PyoObjects
             if type(init) not in [list, float, int]:
                 self._excluded.append(key)
@@ -1046,10 +1126,16 @@ class PyoObjectControl(wx.Frame):
                             ctrllabel=key,
                         )
                     )
-                    self.box.AddMany([(label, 0, wx.LEFT, 5), (self._sliders[-1], 1, wx.EXPAND | wx.LEFT, 5)])
+                    self.box.AddMany(
+                        [(label, 0, wx.LEFT, 5), (self._sliders[-1], 1, wx.EXPAND | wx.LEFT, 5)]
+                    )
                 else:
-                    self._sliders.append(MultiSlider(panel, init, key, self.setval, m, ctrllabel=key))
-                    self.box.AddMany([(label, 0, wx.LEFT, 5), (self._sliders[-1], 1, wx.EXPAND | wx.LEFT, 5)])
+                    self._sliders.append(
+                        MultiSlider(panel, init, key, self.setval, m, ctrllabel=key)
+                    )
+                    self.box.AddMany(
+                        [(label, 0, wx.LEFT, 5), (self._sliders[-1], 1, wx.EXPAND | wx.LEFT, 5)]
+                    )
                 # set obj attribute to PyoObject SigTo
                 if not dataOnly:
                     self._values[key] = init
@@ -1322,7 +1408,9 @@ class SndViewTablePanel(wx.Panel):
         else:
             y = pos[1]
         if self.obj is not None:
-            x = x * ((self.end - self.begin) / self.obj.getDur(False)) + (self.begin / self.obj.getDur(False))
+            x = x * ((self.end - self.begin) / self.obj.getDur(False)) + (
+                self.begin / self.obj.getDur(False)
+            )
         return (x, y)
 
     def OnMouseDown(self, evt):
@@ -1639,7 +1727,9 @@ class SpectrumDisplay(wx.Frame):
         )
         self.box.Add(self.zoomH, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 5)
         self.dispBox.Add(self.box, 1, wx.EXPAND, 0)
-        self.gainSlider = ControlSlider(self.panel, -24, 24, initgain, outFunction=self.setGain, orient=wx.VERTICAL)
+        self.gainSlider = ControlSlider(
+            self.panel, -24, 24, initgain, outFunction=self.setGain, orient=wx.VERTICAL
+        )
         self.dispBox.Add(self.gainSlider, 0, wx.EXPAND | wx.TOP, 5)
         self.dispBox.AddSpacer(5)
         self.mainBox.Add(self.dispBox, 1, wx.EXPAND)
@@ -1718,7 +1808,16 @@ class SpectrumDisplay(wx.Frame):
 # TODO: Adjust the font size according to the size of the panel.
 class SpectrumPanel(wx.Panel):
     def __init__(
-        self, parent, chnls, lowfreq, highfreq, fscaling, mscaling, pos=wx.DefaultPosition, size=wx.DefaultSize, style=0
+        self,
+        parent,
+        chnls,
+        lowfreq,
+        highfreq,
+        fscaling,
+        mscaling,
+        pos=wx.DefaultPosition,
+        size=wx.DefaultSize,
+        style=0,
     ):
         wx.Panel.__init__(self, parent, pos=pos, size=size, style=style)
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
@@ -1941,7 +2040,9 @@ class SpectrumPanel(wx.Panel):
                     for i in range(len(self.img)):
                         dc.SetTextForeground(self.pens[i % self.chnls].GetColour())
                         if i < len(self.channelNames):
-                            dc.DrawText(self.channelNames[i], w - tw - 20 - last_tw, i * th + th + 7)
+                            dc.DrawText(
+                                self.channelNames[i], w - tw - 20 - last_tw, i * th + th + 7
+                            )
                         else:
                             dc.DrawText("chan %d" % (i + 1), w - tw - 20 - last_tw, i * th + th + 7)
             # channel spectrums
@@ -1990,7 +2091,9 @@ class ScopeDisplay(wx.Frame):
         self.toolBox.AddSpacer(10)
         self.windowLengthText = wx.StaticText(self.panel, -1, label="Window length (ms):")
         self.toolBox.Add(self.windowLengthText, 0, wx.TOP, 11)
-        self.lenSlider = ControlSlider(self.panel, 10, 1000, length * 1000, log=True, outFunction=self.setLength)
+        self.lenSlider = ControlSlider(
+            self.panel, 10, 1000, length * 1000, log=True, outFunction=self.setLength
+        )
         self.toolBox.Add(self.lenSlider, 1, wx.TOP | wx.LEFT | wx.RIGHT, 11)
         self.toolBox.AddSpacer(40)
         self.mainBox.Add(self.toolBox, 0, wx.EXPAND)
@@ -2000,7 +2103,12 @@ class ScopeDisplay(wx.Frame):
         self.box.Add(self.scopePanel, 1, wx.EXPAND | wx.LEFT | wx.RIGHT, 5)
         self.dispBox.Add(self.box, 1, wx.EXPAND | wx.BOTTOM, 5)
         self.gainSlider = ControlSlider(
-            self.panel, -24, 24, 20.0 * math.log10(gain), outFunction=self.setGain, orient=wx.VERTICAL
+            self.panel,
+            -24,
+            24,
+            20.0 * math.log10(gain),
+            outFunction=self.setGain,
+            orient=wx.VERTICAL,
         )
         self.dispBox.Add(self.gainSlider, 0, wx.EXPAND | wx.BOTTOM, 5)
         self.dispBox.AddSpacer(5)
@@ -2158,8 +2266,8 @@ class ScopePanel(wx.Panel):
             dc.DrawText("%.3f" % (j * timestep), j * tickstep + 2, h - 15)
         # draw waveforms
         for i, samples in enumerate(self.img):
-            samples.append((w+1, h+1))
-            samples.append((-1, h+1))
+            samples.append((w + 1, h + 1))
+            samples.append((-1, h + 1))
             gc.SetPen(self.pens[i % 8])
             if len(samples) > 1:
                 gc.DrawLines(samples)
@@ -2340,7 +2448,11 @@ class Grapher(wx.Panel):
         self.Refresh()
 
     def OnKeyDown(self, evt):
-        if self.selected is not None and evt.GetKeyCode() in [wx.WXK_BACK, wx.WXK_DELETE, wx.WXK_NUMPAD_DELETE]:
+        if self.selected is not None and evt.GetKeyCode() in [
+            wx.WXK_BACK,
+            wx.WXK_DELETE,
+            wx.WXK_NUMPAD_DELETE,
+        ]:
             del self.points[self.selected]
             self.sendValues()
             self.selected = None
@@ -2567,7 +2679,9 @@ class Grapher(wx.Panel):
         dc.SetBrush(wx.Brush("#000000"))
         # Draw bounding box
         for i in range(4):
-            dc.DrawLine(corners[i][0], corners[i][1], corners[(i + 1) % 4][0], corners[(i + 1) % 4][1])
+            dc.DrawLine(
+                corners[i][0], corners[i][1], corners[(i + 1) % 4][0], corners[(i + 1) % 4][1]
+            )
 
         # Convert points in pixels
         w, h = w - OFF2 - RAD2, h - OFF2 - RAD2
@@ -2613,7 +2727,9 @@ class Grapher(wx.Panel):
             elif self.mode == 3:
                 curvetmp = self.addImaginaryPoints(tmp)
                 for i in range(1, len(curvetmp) - 2):
-                    tmp2 = self.getCurvePoints(curvetmp[i - 1], curvetmp[i], curvetmp[i + 1], curvetmp[i + 2])
+                    tmp2 = self.getCurvePoints(
+                        curvetmp[i - 1], curvetmp[i], curvetmp[i + 1], curvetmp[i + 2]
+                    )
                     if i == 1 and len(tmp2) < 2:
                         gc.DrawLines([curvetmp[i], curvetmp[i + 1]])
                     if last_p is not None:
@@ -2714,7 +2830,9 @@ class TableGrapher(wx.Frame):
                 outFunction=obj.replace,
             )
         else:
-            self.graph = Grapher(self, xlen=xlen, yrange=yrange, init=pts, mode=mode, outFunction=obj.replace)
+            self.graph = Grapher(
+                self, xlen=xlen, yrange=yrange, init=pts, mode=mode, outFunction=obj.replace
+            )
 
         self.menubar = wx.MenuBar()
         self.fileMenu = wx.Menu()
@@ -2722,11 +2840,15 @@ class TableGrapher(wx.Frame):
         self.Bind(wx.EVT_MENU, self.close, id=9999)
         self.fileMenu.AppendSeparator()
         self.fileMenu.Append(
-            10000, "Copy all points to the clipboard (4 digits of precision)\tCtrl+C", kind=wx.ITEM_NORMAL
+            10000,
+            "Copy all points to the clipboard (4 digits of precision)\tCtrl+C",
+            kind=wx.ITEM_NORMAL,
         )
         self.Bind(wx.EVT_MENU, self.copy, id=10000)
         self.fileMenu.Append(
-            10001, "Copy all points to the clipboard (full precision)\tShift+Ctrl+C", kind=wx.ITEM_NORMAL
+            10001,
+            "Copy all points to the clipboard (full precision)\tShift+Ctrl+C",
+            kind=wx.ITEM_NORMAL,
         )
         self.Bind(wx.EVT_MENU, self.copy, id=10001)
         self.fileMenu.AppendSeparator()
@@ -2765,7 +2887,9 @@ class TableGrapher(wx.Frame):
 
 
 class DataMultiSlider(BasePanel):
-    def __init__(self, parent, init, yrange=(0, 1), outFunction=None, pos=(0, 0), size=(300, 200), style=0):
+    def __init__(
+        self, parent, init, yrange=(0, 1), outFunction=None, pos=(0, 0), size=(300, 200), style=0
+    ):
         BasePanel.__init__(self, parent, pos=pos, size=size, style=style)
         self.Bind(wx.EVT_SIZE, self.OnResize)
         self.Bind(wx.EVT_PAINT, self.OnPaint)
@@ -2891,18 +3015,24 @@ class DataTableGrapher(wx.Frame):
         wx.Frame.__init__(self, parent, size=(500, 250))
         self.obj = obj
         self.length = len(self.obj._get_current_data())
-        self.multi = DataMultiSlider(self, self.obj._get_current_data(), yrange, outFunction=self.obj.replace)
+        self.multi = DataMultiSlider(
+            self, self.obj._get_current_data(), yrange, outFunction=self.obj.replace
+        )
         self.menubar = wx.MenuBar()
         self.fileMenu = wx.Menu()
         self.fileMenu.Append(9999, "Close\tCtrl+W", kind=wx.ITEM_NORMAL)
         self.Bind(wx.EVT_MENU, self.close, id=9999)
         self.fileMenu.AppendSeparator()
         self.fileMenu.Append(
-            10000, "Copy all points to the clipboard (4 digits of precision)\tCtrl+C", kind=wx.ITEM_NORMAL
+            10000,
+            "Copy all points to the clipboard (4 digits of precision)\tCtrl+C",
+            kind=wx.ITEM_NORMAL,
         )
         self.Bind(wx.EVT_MENU, self.copy, id=10000)
         self.fileMenu.Append(
-            10001, "Copy all points to the clipboard (full precision)\tShift+Ctrl+C", kind=wx.ITEM_NORMAL
+            10001,
+            "Copy all points to the clipboard (full precision)\tShift+Ctrl+C",
+            kind=wx.ITEM_NORMAL,
         )
         self.Bind(wx.EVT_MENU, self.copy, id=10001)
         self.menubar.Append(self.fileMenu, "&File")
@@ -3123,12 +3253,29 @@ class ExprEditor(stc.StyledTextCtrl):
         self.StyleSetSpec(stc.STC_STYLE_BRACEBAD, "fore:#000000,back:#FF0000,bold")
 
         # Expr specific styles
-        self.StyleSetSpec(self.lexer.STC_EXPR_DEFAULT, "fore:#000000,face:%(mono)s,size:%(size)d" % self.faces)
-        self.StyleSetSpec(self.lexer.STC_EXPR_KEYWORD, "fore:#3300DD,face:%(mono)s,size:%(size)d,bold" % self.faces)
-        self.StyleSetSpec(self.lexer.STC_EXPR_KEYWORD2, "fore:#0033FF,face:%(mono)s,size:%(size)d,bold" % self.faces)
-        self.StyleSetSpec(self.lexer.STC_EXPR_VARIABLE, "fore:#006600,face:%(mono)s,size:%(size)d,bold" % self.faces)
-        self.StyleSetSpec(self.lexer.STC_EXPR_LETVARIABLE, "fore:#555500,face:%(mono)s,size:%(size)d,bold" % self.faces)
-        self.StyleSetSpec(self.lexer.STC_EXPR_COMMENT, "fore:#444444,face:%(mono)s,size:%(size)d,italic" % self.faces)
+        self.StyleSetSpec(
+            self.lexer.STC_EXPR_DEFAULT, "fore:#000000,face:%(mono)s,size:%(size)d" % self.faces
+        )
+        self.StyleSetSpec(
+            self.lexer.STC_EXPR_KEYWORD,
+            "fore:#3300DD,face:%(mono)s,size:%(size)d,bold" % self.faces,
+        )
+        self.StyleSetSpec(
+            self.lexer.STC_EXPR_KEYWORD2,
+            "fore:#0033FF,face:%(mono)s,size:%(size)d,bold" % self.faces,
+        )
+        self.StyleSetSpec(
+            self.lexer.STC_EXPR_VARIABLE,
+            "fore:#006600,face:%(mono)s,size:%(size)d,bold" % self.faces,
+        )
+        self.StyleSetSpec(
+            self.lexer.STC_EXPR_LETVARIABLE,
+            "fore:#555500,face:%(mono)s,size:%(size)d,bold" % self.faces,
+        )
+        self.StyleSetSpec(
+            self.lexer.STC_EXPR_COMMENT,
+            "fore:#444444,face:%(mono)s,size:%(size)d,italic" % self.faces,
+        )
 
         self.SetSelBackground(1, "#CCCCDD")
 
@@ -3216,7 +3363,11 @@ class ExprEditorFrame(wx.Frame):
 
     def open(self, evt):
         dlg = wx.FileDialog(
-            self, message="Choose a file", defaultDir=os.path.expanduser("~"), defaultFile="", style=wx.FD_OPEN
+            self,
+            message="Choose a file",
+            defaultDir=os.path.expanduser("~"),
+            defaultFile="",
+            style=wx.FD_OPEN,
         )
         if dlg.ShowModal() == wx.ID_OK:
             path = ensureNFD(dlg.GetPath())
@@ -3237,7 +3388,11 @@ class ExprEditorFrame(wx.Frame):
     def saveas(self, evt):
         deffile = os.path.split(self.editor.currentfile)[1]
         dlg = wx.FileDialog(
-            self, message="Save file as ...", defaultDir=os.path.expanduser("~"), defaultFile=deffile, style=wx.FD_SAVE
+            self,
+            message="Save file as ...",
+            defaultDir=os.path.expanduser("~"),
+            defaultFile=deffile,
+            style=wx.FD_SAVE,
         )
         dlg.SetFilterIndex(0)
         if dlg.ShowModal() == wx.ID_OK:
@@ -3252,9 +3407,14 @@ class ExprEditorFrame(wx.Frame):
 class MMLLexer(object):
     """Defines simple interface for custom lexer objects."""
 
-    STC_MML_DEFAULT, STC_MML_KEYWORD, STC_MML_KEYWORD2, STC_MML_COMMENT, STC_MML_VARIABLE, STC_MML_VOICE_TOKEN = list(
-        range(6)
-    )
+    (
+        STC_MML_DEFAULT,
+        STC_MML_KEYWORD,
+        STC_MML_KEYWORD2,
+        STC_MML_COMMENT,
+        STC_MML_VARIABLE,
+        STC_MML_VOICE_TOKEN,
+    ) = list(range(6))
 
     def __init__(self):
         super(MMLLexer, self).__init__()
@@ -3265,7 +3425,10 @@ class MMLLexer(object):
         self.keywords = notes + ["%s%d" % (n, i) for n in notes for i in range(10)]
         stmts = ["t", "o", "v"]
         self.keywords2 = (
-            stmts + ["t%d" % i for i in range(256)] + ["o%d" % i for i in range(16)] + ["v%d" % i for i in range(101)]
+            stmts
+            + ["t%d" % i for i in range(256)]
+            + ["o%d" % i for i in range(16)]
+            + ["v%d" % i for i in range(101)]
         )
 
     def StyleText(self, evt):
@@ -3401,12 +3564,28 @@ class MMLEditor(stc.StyledTextCtrl):
         self.StyleSetSpec(stc.STC_STYLE_BRACEBAD, "fore:#000000,back:#FF0000,bold")
 
         # MML specific styles
-        self.StyleSetSpec(self.lexer.STC_MML_DEFAULT, "fore:#000000,face:%(mono)s,size:%(size)d" % self.faces)
-        self.StyleSetSpec(self.lexer.STC_MML_KEYWORD, "fore:#3300DD,face:%(mono)s,size:%(size)d,bold" % self.faces)
-        self.StyleSetSpec(self.lexer.STC_MML_KEYWORD2, "fore:#0033FF,face:%(mono)s,size:%(size)d,bold" % self.faces)
-        self.StyleSetSpec(self.lexer.STC_MML_VARIABLE, "fore:#006600,face:%(mono)s,size:%(size)d,bold" % self.faces)
-        self.StyleSetSpec(self.lexer.STC_MML_VOICE_TOKEN, "fore:#555500,face:%(mono)s,size:%(size)d,bold" % self.faces)
-        self.StyleSetSpec(self.lexer.STC_MML_COMMENT, "fore:#444444,face:%(mono)s,size:%(size)d,italic" % self.faces)
+        self.StyleSetSpec(
+            self.lexer.STC_MML_DEFAULT, "fore:#000000,face:%(mono)s,size:%(size)d" % self.faces
+        )
+        self.StyleSetSpec(
+            self.lexer.STC_MML_KEYWORD, "fore:#3300DD,face:%(mono)s,size:%(size)d,bold" % self.faces
+        )
+        self.StyleSetSpec(
+            self.lexer.STC_MML_KEYWORD2,
+            "fore:#0033FF,face:%(mono)s,size:%(size)d,bold" % self.faces,
+        )
+        self.StyleSetSpec(
+            self.lexer.STC_MML_VARIABLE,
+            "fore:#006600,face:%(mono)s,size:%(size)d,bold" % self.faces,
+        )
+        self.StyleSetSpec(
+            self.lexer.STC_MML_VOICE_TOKEN,
+            "fore:#555500,face:%(mono)s,size:%(size)d,bold" % self.faces,
+        )
+        self.StyleSetSpec(
+            self.lexer.STC_MML_COMMENT,
+            "fore:#444444,face:%(mono)s,size:%(size)d,italic" % self.faces,
+        )
 
         self.SetSelBackground(1, "#CCCCDD")
 
@@ -3494,7 +3673,11 @@ class MMLEditorFrame(wx.Frame):
 
     def open(self, evt):
         dlg = wx.FileDialog(
-            self, message="Choose a file", defaultDir=os.path.expanduser("~"), defaultFile="", style=wx.FD_OPEN
+            self,
+            message="Choose a file",
+            defaultDir=os.path.expanduser("~"),
+            defaultFile="",
+            style=wx.FD_OPEN,
         )
         if dlg.ShowModal() == wx.ID_OK:
             path = ensureNFD(dlg.GetPath())
@@ -3515,7 +3698,11 @@ class MMLEditorFrame(wx.Frame):
     def saveas(self, evt):
         deffile = os.path.split(self.editor.currentfile)[1]
         dlg = wx.FileDialog(
-            self, message="Save file as ...", defaultDir=os.path.expanduser("~"), defaultFile=deffile, style=wx.FD_SAVE
+            self,
+            message="Save file as ...",
+            defaultDir=os.path.expanduser("~"),
+            defaultFile=deffile,
+            style=wx.FD_SAVE,
         )
         dlg.SetFilterIndex(0)
         if dlg.ShowModal() == wx.ID_OK:
@@ -3615,9 +3802,19 @@ class Keyboard(wx.Panel):
         "Returns a list of the current notes."
         notes = []
         for key in self.whiteSelected:
-            notes.append((self.white[key % 7] + int(key / 7) * 12 + self.offset, 127 - self.whiteVelocities[key]))
+            notes.append(
+                (
+                    self.white[key % 7] + int(key / 7) * 12 + self.offset,
+                    127 - self.whiteVelocities[key],
+                )
+            )
         for key in self.blackSelected:
-            notes.append((self.black[key % 5] + int(key / 5) * 12 + self.offset, 127 - self.blackVelocities[key]))
+            notes.append(
+                (
+                    self.black[key % 5] + int(key / 5) * 12 + self.offset,
+                    127 - self.blackVelocities[key],
+                )
+            )
         notes.sort()
         return notes
 
@@ -4041,7 +4238,9 @@ class ServerGUI(wx.Frame):
         self.amplitudeText = wx.StaticText(panel, -1, "Amplitude (dB)")
         self.amplitudeText.SetForegroundColour(wx.SystemSettings.GetColour(wx.SYS_COLOUR_MENUTEXT))
         box.Add(self.amplitudeText, 0, wx.LEFT, 5)
-        self.ampScale = ControlSlider(panel, -60, 18, 20.0 * math.log10(amp), size=(202, 16), outFunction=self.setAmp)
+        self.ampScale = ControlSlider(
+            panel, -60, 18, 20.0 * math.log10(amp), size=(202, 16), outFunction=self.setAmp
+        )
         box.Add(self.ampScale, 0, wx.LEFT | wx.RIGHT | wx.EXPAND, 5)
 
         if meter:
@@ -4084,12 +4283,15 @@ class ServerGUI(wx.Frame):
         if hasattr(self, "timerText"):
             self.timerText.SetForegroundColour(colour)
         if hasattr(self, "timeText"):
-           self.timeText.SetForegroundColour(colour)
+            self.timeText.SetForegroundColour(colour)
         if hasattr(self, "interpreterText"):
-           self.interpreterText.SetForegroundColour(colour)
+            self.interpreterText.SetForegroundColour(colour)
 
     def setTime(self, *args):
-        wx.CallAfter(self.timeText.SetLabel, "%02d : %02d : %02d : %03d" % (args[0], args[1], args[2], args[3]))
+        wx.CallAfter(
+            self.timeText.SetLabel,
+            "%02d : %02d : %02d : %03d" % (args[0], args[1], args[2], args[3]),
+        )
 
     def start(self, evt=None, justSet=False):
         if self._started == False:
@@ -4187,10 +4389,22 @@ class ServerGUI(wx.Frame):
 
 def ensureNFD(unistr):
     if sys.platform == "win32" or sys.platform.startswith("linux"):
-        encodings = [sys.getdefaultencoding(), sys.getfilesystemencoding(), "cp1252", "iso-8859-1", "utf-16"]
+        encodings = [
+            sys.getdefaultencoding(),
+            sys.getfilesystemencoding(),
+            "cp1252",
+            "iso-8859-1",
+            "utf-16",
+        ]
         format = "NFC"
     else:
-        encodings = [sys.getdefaultencoding(), sys.getfilesystemencoding(), "macroman", "iso-8859-1", "utf-16"]
+        encodings = [
+            sys.getdefaultencoding(),
+            sys.getfilesystemencoding(),
+            "macroman",
+            "iso-8859-1",
+            "utf-16",
+        ]
         format = "NFC"
     decstr = unistr
     if type(decstr) != str:

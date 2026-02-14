@@ -5,6 +5,7 @@ Usage:
     python3 -i 03-synchronization.py
 
 """
+
 import sys, time, random, multiprocessing
 from pyo import *
 

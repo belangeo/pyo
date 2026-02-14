@@ -59,7 +59,7 @@ class Follower(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> sf = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True, mul=.4).out()
+    >>> sf = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True, mul=0.4).out()
     >>> fol = Follower(sf, freq=30)
     >>> n = Noise(mul=fol).out(1)
 
@@ -73,7 +73,8 @@ class Follower(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, freq, mul, add, lmax = convertArgsToLists(self._in_fader, freq, mul, add)
         self._base_objs = [
-            Follower_base(wrap(in_fader, i), wrap(freq, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+            Follower_base(wrap(in_fader, i), wrap(freq, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
         ]
         self._init_play()
 
@@ -162,8 +163,8 @@ class Follower2(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> sf = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True, mul=.4).out()
-    >>> fol2 = Follower2(sf, risetime=0.002, falltime=.1, mul=.5)
+    >>> sf = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True, mul=0.4).out()
+    >>> fol2 = Follower2(sf, risetime=0.002, falltime=0.1, mul=0.5)
     >>> n = Noise(fol2).out(1)
 
     """
@@ -175,9 +176,13 @@ class Follower2(PyoObject):
         self._risetime = risetime
         self._falltime = falltime
         self._in_fader = InputFader(input)
-        in_fader, risetime, falltime, mul, add, lmax = convertArgsToLists(self._in_fader, risetime, falltime, mul, add)
+        in_fader, risetime, falltime, mul, add, lmax = convertArgsToLists(
+            self._in_fader, risetime, falltime, mul, add
+        )
         self._base_objs = [
-            Follower2_base(wrap(in_fader, i), wrap(risetime, i), wrap(falltime, i), wrap(mul, i), wrap(add, i))
+            Follower2_base(
+                wrap(in_fader, i), wrap(risetime, i), wrap(falltime, i), wrap(mul, i), wrap(add, i)
+            )
             for i in range(lmax)
         ]
         self._init_play()
@@ -287,8 +292,8 @@ class ZCross(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True, mul=.4).out()
-    >>> b = ZCross(a, thresh=.02)
+    >>> a = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True, mul=0.4).out()
+    >>> b = ZCross(a, thresh=0.02)
     >>> n = Noise(b).out(1)
 
     """
@@ -301,7 +306,8 @@ class ZCross(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, thresh, mul, add, lmax = convertArgsToLists(self._in_fader, thresh, mul, add)
         self._base_objs = [
-            ZCross_base(wrap(in_fader, i), wrap(thresh, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+            ZCross_base(wrap(in_fader, i), wrap(thresh, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
         ]
         self._init_play()
 
@@ -404,7 +410,7 @@ class Yin(PyoObject):
     >>> s = Server(duplex=1).boot()
     >>> s.start()
     >>> lfo = Randh(min=100, max=500, freq=3)
-    >>> src = SineLoop(freq=lfo, feedback=0.1, mul=.3).out()
+    >>> src = SineLoop(freq=lfo, feedback=0.1, mul=0.3).out()
     >>> pit = Yin(src, tolerance=0.2, winsize=1024)
     >>> freq = Tone(pit, freq=10)
     >>> # fifth above
@@ -412,8 +418,20 @@ class Yin(PyoObject):
 
     """
 
-    def __init__(self, input, tolerance=0.2, minfreq=40, maxfreq=1000, cutoff=1000, winsize=1024, mul=1, add=0):
-        pyoArgsAssert(self, "onnnniOO", input, tolerance, minfreq, maxfreq, cutoff, winsize, mul, add)
+    def __init__(
+        self,
+        input,
+        tolerance=0.2,
+        minfreq=40,
+        maxfreq=1000,
+        cutoff=1000,
+        winsize=1024,
+        mul=1,
+        add=0,
+    ):
+        pyoArgsAssert(
+            self, "onnnniOO", input, tolerance, minfreq, maxfreq, cutoff, winsize, mul, add
+        )
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._tolerance = tolerance
@@ -603,7 +621,7 @@ class Centroid(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True, mul=.4).out()
+    >>> a = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True, mul=0.4).out()
     >>> b = Centroid(a, 1024)
     >>> c = Port(b, 0.05, 0.05)
     >>> d = ButBP(Noise(0.2), freq=c, q=5).out(1)
@@ -618,7 +636,8 @@ class Centroid(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, size, mul, add, lmax = convertArgsToLists(self._in_fader, size, mul, add)
         self._base_objs = [
-            Centroid_base(wrap(in_fader, i), wrap(size, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+            Centroid_base(wrap(in_fader, i), wrap(size, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
         ]
         self._init_play()
 
@@ -698,8 +717,12 @@ class AttackDetector(PyoObject):
 
     """
 
-    def __init__(self, input, deltime=0.005, cutoff=10, maxthresh=3, minthresh=-30, reltime=0.1, mul=1, add=0):
-        pyoArgsAssert(self, "onnnnnOO", input, deltime, cutoff, maxthresh, minthresh, reltime, mul, add)
+    def __init__(
+        self, input, deltime=0.005, cutoff=10, maxthresh=3, minthresh=-30, reltime=0.1, mul=1, add=0
+    ):
+        pyoArgsAssert(
+            self, "onnnnnOO", input, deltime, cutoff, maxthresh, minthresh, reltime, mul, add
+        )
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._deltime = deltime
@@ -708,8 +731,10 @@ class AttackDetector(PyoObject):
         self._minthresh = minthresh
         self._reltime = reltime
         self._in_fader = InputFader(input)
-        in_fader, deltime, cutoff, maxthresh, minthresh, reltime, mul, add, lmax = convertArgsToLists(
-            self._in_fader, deltime, cutoff, maxthresh, minthresh, reltime, mul, add
+        in_fader, deltime, cutoff, maxthresh, minthresh, reltime, mul, add, lmax = (
+            convertArgsToLists(
+                self._in_fader, deltime, cutoff, maxthresh, minthresh, reltime, mul, add
+            )
         )
         self._base_objs = [
             AttackDetector_base(
@@ -964,7 +989,9 @@ class Spectrum(PyoObject):
         self._gain = 1
         self._in_fader = InputFader(input)
         in_fader, size, wintype, lmax = convertArgsToLists(self._in_fader, size, wintype)
-        self._base_objs = [Spectrum_base(wrap(in_fader, i), wrap(size, i), wrap(wintype, i)) for i in range(lmax)]
+        self._base_objs = [
+            Spectrum_base(wrap(in_fader, i), wrap(size, i), wrap(wintype, i)) for i in range(lmax)
+        ]
         self._timer = Pattern(self.refreshView, 0.05).play()
         if function is None:
             self.view(wintitle)
@@ -1697,7 +1724,7 @@ class PeakAmp(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> sf = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True, mul=.4).out()
+    >>> sf = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True, mul=0.4).out()
     >>> amp = PeakAmp(sf)
     >>> n = Noise(mul=Port(amp)).out(1)
 
@@ -1713,7 +1740,9 @@ class PeakAmp(PyoObject):
             self._function = None
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
-        self._base_objs = [PeakAmp_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
+        self._base_objs = [
+            PeakAmp_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+        ]
         sr = self.getSamplingRate()
         bs = self.getBufferSize()
         self._timer = Pattern(self._buildList, 0.06).play()
@@ -1839,7 +1868,7 @@ class RMS(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> sf = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True, mul=.4).out()
+    >>> sf = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True, mul=0.4).out()
     >>> amp = RMS(sf)
     >>> n = Noise(mul=Port(amp)).out(1)
 
@@ -1855,7 +1884,9 @@ class RMS(PyoObject):
             self._function = None
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
-        self._base_objs = [RMS_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
+        self._base_objs = [
+            RMS_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+        ]
         sr = self.getSamplingRate()
         bs = self.getBufferSize()
         self._timer = Pattern(self._buildList, 0.06).play()

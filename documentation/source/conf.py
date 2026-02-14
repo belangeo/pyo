@@ -33,14 +33,14 @@ extensions = [
     "sphinx.ext.mathjax",
     "sphinx.ext.ifconfig",
     "sphinx.ext.viewcode",
-    "sphinx_codeautolink"
+    "sphinx_codeautolink",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
 
 # The suffix of source filenames.
-source_suffix = {'.rst': 'restructuredtext'}
+source_suffix = {".rst": "restructuredtext"}
 
 # The encoding of source files.
 # source_encoding = 'utf-8-sig'
@@ -49,8 +49,8 @@ source_suffix = {'.rst': 'restructuredtext'}
 master_doc = "index"
 
 # General information about the project.
-project = u"Pyo"
-copyright = u"2025, Olivier Bélanger"
+project = "Pyo"
+copyright = "2025, Olivier Bélanger"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -119,7 +119,7 @@ html_theme_options = {
     "pagewidth": "100em",
     "documentwidth": "80em",
     "sidebarwidth": "20em",
-    "rightsidebar": False
+    "rightsidebar": False,
 }
 
 # Add any paths that contain custom themes here, relative to this directory.
@@ -205,7 +205,7 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-    ("index", "Pyo.tex", u"Pyo Documentation", u"Olivier Bélanger", "manual"),
+    ("index", "Pyo.tex", "Pyo Documentation", "Olivier Bélanger", "manual"),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -235,7 +235,7 @@ latex_domain_indices = False
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [("index", "pyo", u"Pyo Documentation", [u"Olivier Bélanger"], 1)]
+man_pages = [("index", "pyo", "Pyo Documentation", ["Olivier Bélanger"], 1)]
 
 # If true, show URL addresses after external links.
 # man_show_urls = False
@@ -250,8 +250,8 @@ texinfo_documents = [
     (
         "index",
         "Pyo",
-        u"Pyo Documentation",
-        u"Olivier Bélanger",
+        "Pyo Documentation",
+        "Olivier Bélanger",
         "Pyo",
         "One line description of project.",
         "Miscellaneous",
@@ -271,5 +271,5 @@ autodoc_mock_imports = ["sip", "sip.simplewrapper"]
 autodoc_member_order = "bysource"
 add_module_names = False
 html_permalinks = True
-html_permalinks_icon = u"\u00B6"
+html_permalinks_icon = "\u00b6"
 html_show_sourcelink = False

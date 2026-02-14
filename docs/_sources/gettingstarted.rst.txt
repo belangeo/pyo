@@ -125,7 +125,7 @@ You can create an envelope for a sine wave like this:
 
     from pyo import *
     s = Server().boot()
-    f = Adsr(attack=.01, decay=.2, sustain=.5, release=.1, dur=5, mul=.5)
+    f = Adsr(attack=0.01, decay=0.2, sustain=0.5, release=0.1, dur=5, mul=0.5)
     a = Sine(mul=f).out()
     f.play()
     s.gui(locals())

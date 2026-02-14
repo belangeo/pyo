@@ -6,6 +6,7 @@ row, in the matrix used as the terrain for the synthesis. It is then
 scanned with sine waves assigned to x and y positions in the 2D table.
 
 """
+
 from pyo import *
 
 s = Server(duplex=0).boot()
@@ -36,9 +37,11 @@ c = MatrixPointer(matrix=field, x=x, y=y, mul=0.25)
 # Lowpass filtering of the output signal.
 filt = Tone(input=c, freq=3000).out()
 
+
 # Signals when the recording is done.
 def func():
     print("End of recording")
+
 
 tr = TrigFunc(rec["trig"], func)
 

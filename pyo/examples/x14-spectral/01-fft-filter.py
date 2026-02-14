@@ -16,6 +16,7 @@ For a simpler and more efficient process, see the Phase Vocoder
 implementation of the spectral filter: `PVFilter`.
 
 """
+
 from pyo import *
 
 s = Server(duplex=0).boot()
@@ -51,7 +52,7 @@ t.graph(title="Filter shape")
 # Table values will be used as the new amplitude of analysis bins.
 amp = TableIndex(t, fin["bin"])
 
-# Applies the amplitudes to the real/imaginary values of analysis bins. 
+# Applies the amplitudes to the real/imaginary values of analysis bins.
 re = fin["real"] * amp
 im = fin["imag"] * amp
 

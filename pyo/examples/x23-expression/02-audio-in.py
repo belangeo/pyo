@@ -39,6 +39,7 @@ This gives the modulated running phase driving the `sin` function:
 Complete example
 ----------------
 """
+
 from pyo import *
 
 s = Server().boot()

@@ -640,11 +640,11 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; sf = SfPlayer(SNDS_PATH+&quot;/transparent.aif&quot;, loop=True, mul=.7)</span>
+<span class="sd">    &gt;&gt;&gt; sf = SfPlayer(SNDS_PATH+&quot;/transparent.aif&quot;, loop=True, mul=0.7)</span>
 <span class="sd">    &gt;&gt;&gt; pva = PVAnal(sf, size=1024)</span>
 <span class="sd">    &gt;&gt;&gt; pvt = PVTranspose(pva, transpo=1.5)</span>
 <span class="sd">    &gt;&gt;&gt; pvs = PVSynth(pvt).out()</span>
-<span class="sd">    &gt;&gt;&gt; dry = Delay(sf, delay=1024./s.getSamplingRate(), mul=.7).out(1)</span>
+<span class="sd">    &gt;&gt;&gt; dry = Delay(sf, delay=1024./s.getSamplingRate(), mul=0.7).out(1)</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -742,12 +742,12 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; sf = SfPlayer(SNDS_PATH+&quot;/transparent.aif&quot;, loop=True, mul=.5)</span>
+<span class="sd">    &gt;&gt;&gt; sf = SfPlayer(SNDS_PATH+&quot;/transparent.aif&quot;, loop=True, mul=0.5)</span>
 <span class="sd">    &gt;&gt;&gt; pva = PVAnal(sf, size=2048)</span>
 <span class="sd">    &gt;&gt;&gt; pvg = PVGate(pva, thresh=-36, damp=0)</span>
 <span class="sd">    &gt;&gt;&gt; pvv = PVVerb(pvg, revtime=0.95, damp=0.95)</span>
 <span class="sd">    &gt;&gt;&gt; pvs = PVSynth(pvv).mix(2).out()</span>
-<span class="sd">    &gt;&gt;&gt; dry = Delay(sf, delay=2048./s.getSamplingRate(), mul=.4).mix(2).out()</span>
+<span class="sd">    &gt;&gt;&gt; dry = Delay(sf, delay=2048./s.getSamplingRate(), mul=0.4).mix(2).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -876,7 +876,7 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; sf = SfPlayer(SNDS_PATH+&quot;/transparent.aif&quot;, loop=True, mul=.5)</span>
+<span class="sd">    &gt;&gt;&gt; sf = SfPlayer(SNDS_PATH+&quot;/transparent.aif&quot;, loop=True, mul=0.5)</span>
 <span class="sd">    &gt;&gt;&gt; pva = PVAnal(sf, size=2048)</span>
 <span class="sd">    &gt;&gt;&gt; pvg = PVGate(pva, thresh=-50, damp=0)</span>
 <span class="sd">    &gt;&gt;&gt; pvs = PVSynth(pvg).mix(2).out()</span>
@@ -1048,8 +1048,8 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; sf = SineLoop(freq=[80,81], feedback=0.07, mul=.5)</span>
-<span class="sd">    &gt;&gt;&gt; sf2 = SfPlayer(SNDS_PATH+&quot;/transparent.aif&quot;, loop=True, mul=.5)</span>
+<span class="sd">    &gt;&gt;&gt; sf = SineLoop(freq=[80,81], feedback=0.07, mul=0.5)</span>
+<span class="sd">    &gt;&gt;&gt; sf2 = SfPlayer(SNDS_PATH+&quot;/transparent.aif&quot;, loop=True, mul=0.5)</span>
 <span class="sd">    &gt;&gt;&gt; pva = PVAnal(sf)</span>
 <span class="sd">    &gt;&gt;&gt; pva2 = PVAnal(sf2)</span>
 <span class="sd">    &gt;&gt;&gt; pvc = PVCross(pva, pva2, fade=1)</span>
@@ -1191,8 +1191,8 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; sf = FM(carrier=[100,150], ratio=[.999,.5005], index=20, mul=.4)</span>
-<span class="sd">    &gt;&gt;&gt; sf2 = SfPlayer(SNDS_PATH+&quot;/transparent.aif&quot;, loop=True, mul=.5)</span>
+<span class="sd">    &gt;&gt;&gt; sf = FM(carrier=[100,150], ratio=[.999,.5005], index=20, mul=0.4)</span>
+<span class="sd">    &gt;&gt;&gt; sf2 = SfPlayer(SNDS_PATH+&quot;/transparent.aif&quot;, loop=True, mul=0.5)</span>
 <span class="sd">    &gt;&gt;&gt; pva = PVAnal(sf)</span>
 <span class="sd">    &gt;&gt;&gt; pva2 = PVAnal(sf2)</span>
 <span class="sd">    &gt;&gt;&gt; pvc = PVMult(pva, pva2)</span>
@@ -1306,8 +1306,8 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; sf = SineLoop(freq=[100,101], feedback=0.12, mul=.5)</span>
-<span class="sd">    &gt;&gt;&gt; sf2 = SfPlayer(SNDS_PATH+&quot;/transparent.aif&quot;, loop=True, mul=.5)</span>
+<span class="sd">    &gt;&gt;&gt; sf = SineLoop(freq=[100,101], feedback=0.12, mul=0.5)</span>
+<span class="sd">    &gt;&gt;&gt; sf2 = SfPlayer(SNDS_PATH+&quot;/transparent.aif&quot;, loop=True, mul=0.5)</span>
 <span class="sd">    &gt;&gt;&gt; pva = PVAnal(sf)</span>
 <span class="sd">    &gt;&gt;&gt; pva2 = PVAnal(sf2)</span>
 <span class="sd">    &gt;&gt;&gt; pvc = PVMorph(pva, pva2, fade=0.5)</span>
@@ -1960,7 +1960,7 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; sf = SfPlayer(SNDS_PATH+&quot;/transparent.aif&quot;, loop=True, mul=.7)</span>
+<span class="sd">    &gt;&gt;&gt; sf = SfPlayer(SNDS_PATH+&quot;/transparent.aif&quot;, loop=True, mul=0.7)</span>
 <span class="sd">    &gt;&gt;&gt; pva = PVAnal(sf, size=1024)</span>
 <span class="sd">    &gt;&gt;&gt; pvt = PVShift(pva, shift=500)</span>
 <span class="sd">    &gt;&gt;&gt; pvs = PVSynth(pvt).out()</span>
@@ -2807,8 +2807,8 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; sf = SfPlayer(SNDS_PATH+&quot;/transparent.aif&quot;, loop=True, mul=.5)</span>
-<span class="sd">    &gt;&gt;&gt; sf2 = SfPlayer(SNDS_PATH+&quot;/accord.aif&quot;, loop=True, mul=.5)</span>
+<span class="sd">    &gt;&gt;&gt; sf = SfPlayer(SNDS_PATH+&quot;/transparent.aif&quot;, loop=True, mul=0.5)</span>
+<span class="sd">    &gt;&gt;&gt; sf2 = SfPlayer(SNDS_PATH+&quot;/accord.aif&quot;, loop=True, mul=0.5)</span>
 <span class="sd">    &gt;&gt;&gt; pva = PVAnal(sf)</span>
 <span class="sd">    &gt;&gt;&gt; pva2 = PVAnal(sf2)</span>
 <span class="sd">    &gt;&gt;&gt; pvm = PVMix(pva, pva2)</span>

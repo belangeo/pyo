@@ -18,6 +18,7 @@ Use the "voice" slider of the window "Input interpolator" to
 interpolate between the three sources.
 
 """
+
 from pyo import *
 
 s = Server().boot()

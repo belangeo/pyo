@@ -11,9 +11,10 @@ in semitones.
 The Harmonizer object (from pyo) implements an pitch shifter and should
 use less CPU than the hand-written version. this example's purpose is only
 to show how it works or to be used as a starting point to build an extended
-version. 
+version.
 
 """
+
 from pyo import *
 
 s = Server(duplex=0).boot()

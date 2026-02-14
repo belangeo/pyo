@@ -4,7 +4,7 @@
 This example implements a fuzz distortion. Bandpass filtered signal is
 heavily boosted, then fed to an asymmetrical transfer function, and
 finally lowpass filtered to smooth out the sound. Balance between the
-dry and the distorted sound is applied before sending the signal to the 
+dry and the distorted sound is applied before sending the signal to the
 outputs.
 
 Builtin objects to distort an audio signal:
@@ -12,9 +12,10 @@ Builtin objects to distort an audio signal:
     Disto, Clip, Mirror, Wrap
 
 Degrade object applies some kind of distortion to a signal by changing
-its sampling rate and bit depth. 
+its sampling rate and bit depth.
 
 """
+
 from pyo import *
 
 s = Server(duplex=0).boot()

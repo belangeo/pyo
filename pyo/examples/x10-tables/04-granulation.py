@@ -6,7 +6,7 @@ grains of sound. A grain is a short chunk of sound, typically between
 10 and 100 ms (but can also vary outside this range), with an amplitude
 envelope in the shape of a bell curve. The sonic quality of a granular
 texture is a result of the distribution of grains in time and of the
-parameters selected for the synthesis of each grain. 
+parameters selected for the synthesis of each grain.
 
 This example shows the usage of the most featured granulation object
 of the library!
@@ -19,6 +19,7 @@ Available granulation objects, in order of complexity, are:
 - Particle2
 
 """
+
 from pyo import *
 
 s = Server().boot()

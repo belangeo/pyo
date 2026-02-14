@@ -24,6 +24,7 @@ attractors. The last part of this tutorial shows the use of
 Lorenz's output to drive the frequency of two sine wave oscillators.
 
 """
+
 from pyo import *
 
 s = Server().boot()

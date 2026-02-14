@@ -5,6 +5,7 @@
 Synthesis sound with lot of harmonics passed through a Degrade object.
 
 """
+
 from pyo import *
 
 s = Server(duplex=0).boot()

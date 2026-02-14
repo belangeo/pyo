@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Copyright 2009-2023 Olivier Belanger
+Copyright 2009-2026 Olivier Belanger
 
 This file is part of pyo, a python module to help digital signal
 processing script creation.
@@ -18,6 +18,7 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with pyo. If not, see <http://www.gnu.org/licenses/>.
 """
+
 from setuptools import setup, Extension
 import os, sys, subprocess, platform, glob, shutil
 
@@ -107,27 +108,26 @@ if "--use-coreaudio" in sys.argv:
 # Source files
 path = "src/engine"
 files = [
-    f for f in os.listdir(path)
-        if not f.startswith("ad_") and
-        not f.startswith("md_") and
-        "listener" not in f
+    f
+    for f in os.listdir(path)
+    if not f.startswith("ad_") and not f.startswith("md_") and "listener" not in f
 ] + ad_files
 source_files = [os.path.join(path, f) for f in files]
 
 path = "src/objects"
-files = [
-    f for f in os.listdir(path) if "oscmodule" not in f
-] + obj_files
+files = [f for f in os.listdir(path) if "oscmodule" not in f] + obj_files
 
 if compile_externals:
-    source_files = source_files + ["externals/externalmodule.c"] + [os.path.join(path, f) for f in files]
+    source_files = (
+        source_files + ["externals/externalmodule.c"] + [os.path.join(path, f) for f in files]
+    )
 else:
     source_files = source_files + [os.path.join(path, f) for f in files]
 
 # Platform-specific build settings for the pyo extension(s).
 if sys.platform == "win32":
     pkgs_3rdpary = {
-        #package flags: (include, lib, bin)
+        # package flags: (include, lib, bin)
         "FLAC": (False, False, True),
         "liblo": (True, True, True),
         "ogg": (False, False, True),
@@ -137,12 +137,14 @@ if sys.platform == "win32":
         "portaudio": (True, True, True),
         "portmidi": (True, True, True),
         "libmp3lame": (False, False, True),
-        "mpg123": (False, False, True)
+        "mpg123": (False, False, True),
     }
     # We can't use relative path fot vcpkg because the build system copies the entire repo
     # in a temp folder and build from there. VCPKG_ROOT should be defined to build on a user computer.
     vcpkg_root = os.environ.get("VCPKG_ROOT", r"C:\Users\belan\git\vcpkg")
-    vcpkg_packages_root = os.environ.get("VCPKG_PACKAGES_ROOT", os.path.join(vcpkg_root, "installed"))
+    vcpkg_packages_root = os.environ.get(
+        "VCPKG_PACKAGES_ROOT", os.path.join(vcpkg_root, "installed")
+    )
     vcpkg_triplet = os.environ.get("VCPKG_DEFAULT_TRIPLET", "x64-windows")
     msys2_mingw_root = os.environ.get("MSYS2_MINGW_ROOT", r"C:\msys64\mingw64")
 
@@ -159,17 +161,18 @@ if sys.platform == "win32":
         include_dirs.append(os.path.join(vcpkg_shared_base, "include"))
         library_dirs.append(os.path.join(vcpkg_shared_base, "lib"))
         binary_dirs.append(os.path.join(vcpkg_shared_base, "bin"))
-        
-        include_dirs.extend([
-            os.path.join(msys2_mingw_root, "include"),
-            "include",
-        ])
+        include_dirs.extend(
+            [
+                os.path.join(msys2_mingw_root, "include"),
+                "include",
+            ]
+        )
 
         libraries.append("sndfile")
 
 elif sys.platform == "darwin":
     pkgs_3rdpary = {
-        #package flags: (include, lib, version)
+        # package flags: (include, lib, version)
         "flac": (False, True, "1.5.0"),
         "liblo": (True, True, "0.32"),
         "libogg": (False, True, "1.3.5"),
@@ -192,6 +195,24 @@ elif sys.platform == "darwin":
     include_dirs = ["include"]
     library_dirs = []
 
+    # Check for pyenv on macOS
+    pyenv_include_dir = None
+    pyenv_library_dir = None
+    try:
+        pyenv_prefix = subprocess.check_output(["pyenv", "prefix"], text=True).strip()
+        if pyenv_prefix:
+            py_version = f"{sys.version_info.major}.{sys.version_info.minor}"
+            pyenv_include_dir = os.path.join(pyenv_prefix, "include", f"python{py_version}")
+            pyenv_library_dir = os.path.join(pyenv_prefix, "lib")
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        # pyenv not installed or not active, continue without pyenv paths
+        pass
+
+    if pyenv_include_dir and os.path.isdir(pyenv_include_dir):
+        include_dirs.insert(0, pyenv_include_dir)
+    if pyenv_library_dir and os.path.isdir(pyenv_library_dir):
+        library_dirs.insert(0, pyenv_library_dir)
+
     for pkg, req in pkgs_3rdpary.items():
         pkg_dir = os.path.join(brew_packages_root, pkg, req[2])
         if req[0]:
@@ -200,9 +221,27 @@ elif sys.platform == "darwin":
             library_dirs.append(os.path.join(pkg_dir, "lib"))
 
 else:
+    pyenv_include_dir = None
+    pyenv_library_dir = None
+    try:
+        pyenv_prefix = subprocess.check_output(["pyenv", "prefix"], text=True).strip()
+        if pyenv_prefix:
+            py_version = f"{sys.version_info.major}.{sys.version_info.minor}"
+            pyenv_include_dir = os.path.join(pyenv_prefix, "include", f"python{py_version}")
+            pyenv_library_dir = os.path.join(pyenv_prefix, "lib")
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        # pyenv not installed or not active, continue without pyenv paths
+        pass
+
     include_dirs = ["include", "/usr/include", "/usr/local/include"]
+    if pyenv_include_dir and os.path.isdir(pyenv_include_dir):
+        include_dirs.insert(0, pyenv_include_dir)
+
     libraries += ["rt"]
     library_dirs = ["/usr/lib", "/usr/local/lib"]
+    if pyenv_library_dir and os.path.isdir(pyenv_library_dir):
+        library_dirs.insert(0, pyenv_library_dir)
+
     if build_with_jack_support:
         libraries.append("jack")
 
@@ -220,11 +259,19 @@ elif sys.platform == "darwin":
         for bind in library_dirs:
             dylibs.extend(glob.glob(os.path.join(bind, "*.dylib")))
         dylibs = [dylib for dylib in dylibs if not os.path.islink(dylib)]
-        dylibs = [os.path.relpath(dylib) for dylib in dylibs if "FLAC++" not in dylib and "portaudiocpp" not in dylib]
+        dylibs = [
+            os.path.relpath(dylib)
+            for dylib in dylibs
+            if "FLAC++" not in dylib and "portaudiocpp" not in dylib
+        ]
         data_files = (("/pyo", dylibs),)
 
 libraries += ["m"]
-extra_compile_args = ["-Wno-strict-prototypes", "-Wno-strict-aliasing", "-Wno-incompatible-pointer-types"] + oflag + gflag
+extra_compile_args = (
+    ["-Wno-strict-prototypes", "-Wno-strict-aliasing", "-Wno-incompatible-pointer-types"]
+    + oflag
+    + gflag
+)
 
 extensions = []
 for extension_name, extra_macros in zip(extension_names, extra_macros_per_extension):
@@ -244,7 +291,7 @@ if compile_externals:
     include_dirs.append("externals")
     os.system("cp externals/external.py pyo/lib/")
 
-# Copy dlls to package to pyo folder 
+# Copy dlls to package to pyo folder
 if sys.platform == "win32":
     for dll in dlls:
         shutil.copy(dll, "pyo/")
@@ -261,7 +308,7 @@ if compile_externals:
 if sys.platform == "win32" and os.path.isfile("setup.cfg"):
     os.remove("setup.cfg")
 
-# Remove packaged dlls from pyo folder 
+# Remove packaged dlls from pyo folder
 if sys.platform == "win32":
     for dll in dlls:
         os.remove(os.path.join("pyo", os.path.basename(dll)))

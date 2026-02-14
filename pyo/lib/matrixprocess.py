@@ -93,7 +93,9 @@ class MatrixRec(PyoObject):
         self._input = input
         self._matrix = matrix
         self._in_fader = InputFader(input).stop()
-        in_fader, matrix, fadetime, delay, lmax = convertArgsToLists(self._in_fader, matrix, fadetime, delay)
+        in_fader, matrix, fadetime, delay, lmax = convertArgsToLists(
+            self._in_fader, matrix, fadetime, delay
+        )
         self._base_objs = [
             MatrixRec_base(wrap(in_fader, i), wrap(matrix, i), wrap(fadetime, i), wrap(delay, i))
             for i in range(len(matrix))
@@ -195,7 +197,7 @@ class MatrixRecLoop(PyoObject):
     >>> s.start()
     >>> env = CosTable([(0,0), (300,1), (1000,.4), (8191,0)])
     >>> matrix = NewMatrix(8192, 8)
-    >>> src = SfPlayer(SNDS_PATH+'/transparent.aif', loop=True, mul=.3)
+    >>> src = SfPlayer(SNDS_PATH+'/transparent.aif', loop=True, mul=0.3)
     >>> m_rec = MatrixRecLoop(src, matrix)
     >>> period = 8192 / s.getSamplingRate()
     >>> metro = Metro(time=period/2, poly=2).play()
@@ -213,7 +215,9 @@ class MatrixRecLoop(PyoObject):
         self._matrix = matrix
         self._in_fader = InputFader(input)
         in_fader, matrix, lmax = convertArgsToLists(self._in_fader, matrix)
-        self._base_objs = [MatrixRecLoop_base(wrap(in_fader, i), wrap(matrix, i)) for i in range(len(matrix))]
+        self._base_objs = [
+            MatrixRecLoop_base(wrap(in_fader, i), wrap(matrix, i)) for i in range(len(matrix))
+        ]
         self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])
         self._init_play()
 
@@ -315,7 +319,8 @@ class MatrixPointer(PyoObject):
         self._y = y
         matrix, x, y, mul, add, lmax = convertArgsToLists(matrix, x, y, mul, add)
         self._base_objs = [
-            MatrixPointer_base(wrap(matrix, i), wrap(x, i), wrap(y, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+            MatrixPointer_base(wrap(matrix, i), wrap(x, i), wrap(y, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
         ]
         self._init_play()
 
@@ -448,7 +453,8 @@ class MatrixMorph(PyoObject):
         in_fader, matrix, lmax = convertArgsToLists(self._in_fader, matrix)
         self._base_sources = [source[0] for source in sources]
         self._base_objs = [
-            MatrixMorph_base(wrap(in_fader, i), wrap(matrix, i), self._base_sources) for i in range(len(matrix))
+            MatrixMorph_base(wrap(in_fader, i), wrap(matrix, i), self._base_sources)
+            for i in range(len(matrix))
         ]
         self._init_play()
 

@@ -95,7 +95,7 @@ Control) support.</p>
 <dt class="sig sig-object py" id="pyo.OscDataReceive">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">OscDataReceive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">port</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">address</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/opensndctrl.html#OscDataReceive"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.OscDataReceive" title="Link to this definition">¶</a></dt>
 <dd><p>Receives data values over a network via the Open Sound Control protocol.</p>
-<p>Uses the OSC protocol to receive data values from other softwares or
+<p>Uses the OSC protocol to receive data values from other software or
 other computers. When a message is received, the function given at the
 argument <cite>function</cite> is called with the current address destination in
 argument followed by a tuple of values.</p>
@@ -517,7 +517,7 @@ assigned to successive streams.</p>
 <dt class="sig sig-object py" id="pyo.OscDataSend">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">OscDataSend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">types</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">address</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'127.0.0.1'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/opensndctrl.html#OscDataSend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.OscDataSend" title="Link to this definition">¶</a></dt>
 <dd><p>Sends data values over a network via the Open Sound Control protocol.</p>
-<p>Uses the OSC protocol to share values to other softwares or other
+<p>Uses the OSC protocol to share values to other software or other
 computers. Values are sent on the form of a list containing <cite>types</cite>
 elements.</p>
 <dl class="field-list">
@@ -992,7 +992,7 @@ will be sent to all addresses managed by the object.</p>
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">OscListReceive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">port</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">address</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mul</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/opensndctrl.html#OscListReceive"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.OscListReceive" title="Link to this definition">¶</a></dt>
 <dd><p>Receives list of values over a network via the Open Sound Control protocol.</p>
 <p>Uses the OSC protocol to receive list of floating-point values from other
-softwares or other computers. The list are converted into audio streams.
+software or other computers. The list are converted into audio streams.
 Get values at the beginning of each buffer size and fill buffers with them.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parent<span class="colon">:</span></dt>
@@ -1486,7 +1486,7 @@ triggered by the stop call.</p>
 <dt class="sig sig-object py" id="pyo.OscReceive">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">OscReceive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">port</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">address</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mul</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/opensndctrl.html#OscReceive"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.OscReceive" title="Link to this definition">¶</a></dt>
 <dd><p>Receives values over a network via the Open Sound Control protocol.</p>
-<p>Uses the OSC protocol to receive values from other softwares or
+<p>Uses the OSC protocol to receive values from other software or
 other computers. Get a value at the beginning of each buffer size
 and fill its buffer with it.</p>
 <dl class="field-list">
@@ -1976,7 +1976,7 @@ triggered by the stop call.</p>
 <dt class="sig sig-object py" id="pyo.OscSend">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">OscSend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">address</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'127.0.0.1'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyo/lib/opensndctrl.html#OscSend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyo.OscSend" title="Link to this definition">¶</a></dt>
 <dd><p>Sends values over a network via the Open Sound Control protocol.</p>
-<p>Uses the OSC protocol to share values to other softwares or other
+<p>Uses the OSC protocol to share values to other software or other
 computers. Only the first value of each input buffer size will be
 sent on the OSC port.</p>
 <dl class="field-list simple">

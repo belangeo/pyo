@@ -3,7 +3,7 @@
 
 In numerical audio computing, it is sometimes useful to be able to process
 a signal with much more timing precision than what the usual sampling rates
-offer. A typical case is when the effect applied to the sound adds a lot of 
+offer. A typical case is when the effect applied to the sound adds a lot of
 harmonics. Higher harmonics will quickly wrap around the Nyquist frequency,
 producing aliasing in the output signal. The solution is to increase the
 sampling rate, so the Nyquist frequency, and to use anti-aliasing filters
@@ -35,7 +35,9 @@ choose the quality of the interpolation/decimation filter used to resample the
 signal.
 
 """
+
 from pyo import *
+
 
 # We create a new class for our up sampled distortion effect.
 class UpSampDisto:
@@ -53,7 +55,7 @@ class UpSampDisto:
         filtmode: int, optional
             The interpolation/decimation mode. See Resample's man page
             for details.
-        
+
     """
 
     def __init__(self, input, drive=0.5, upfactor=8, filtmode=32):

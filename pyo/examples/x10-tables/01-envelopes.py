@@ -26,6 +26,7 @@ Note: The wxPython Phoenix graphical library must be installed to use the graph.
 http://www.wxpython.org/
 
 """
+
 from pyo import *
 
 s = Server().boot()
@@ -33,7 +34,16 @@ s = Server().boot()
 # Defines tables for the amplitude, the ratio and the modulation index.
 amp_table = CosTable([(0, 0), (100, 1), (1024, 0.5), (7000, 0.5), (8192, 0)])
 rat_table = ExpTable(
-    [(0, 0.5), (1500, 0.5), (2000, 0.25), (3500, 0.25), (4000, 1), (5500, 1), (6000, 0.5), (8192, 0.5),]
+    [
+        (0, 0.5),
+        (1500, 0.5),
+        (2000, 0.25),
+        (3500, 0.25),
+        (4000, 1),
+        (5500, 1),
+        (6000, 0.5),
+        (8192, 0.5),
+    ]
 )
 ind_table = LinTable([(0, 20), (512, 10), (8192, 0)])
 
@@ -50,6 +60,7 @@ ind = TableRead(table=ind_table, freq=1, loop=False)
 
 # Use the signals from the table readers to control an FM synthesis.
 fm = FM(carrier=[100, 100], ratio=rat, index=ind, mul=amp).out()
+
 
 # Call the "note" function to generate an event.
 def note(freq=100, dur=1):

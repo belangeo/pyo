@@ -8,6 +8,7 @@ Frequency shifting is similar to ring modulation, except the
 upper and lower sidebands are separated into individual outputs.
 
 """
+
 from pyo import *
 
 

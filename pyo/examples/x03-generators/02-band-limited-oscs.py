@@ -23,6 +23,7 @@ particular waveforms:
 7. Modulated Sine
 
 """
+
 from pyo import *
 
 s = Server().boot()

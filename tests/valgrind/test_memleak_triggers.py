@@ -1,5 +1,5 @@
 # Run this file in valgrind with:
-#   PYTHONMALLOC=malloc valgrind --tool=memcheck --leak-check=yes --show-leak-kinds=definite --track-origins=yes --num-callers=12 --suppressions=valgrind-python3.9.supp python3 test_memleak_triggers.py 
+#   PYTHONMALLOC=malloc valgrind --tool=memcheck --leak-check=yes --show-leak-kinds=definite --track-origins=yes --num-callers=12 --suppressions=valgrind-python3.9.supp python3 test_memleak_triggers.py
 # There should not be any definitely lost bytes.
 
 from pyo import *
@@ -19,16 +19,22 @@ b.min = Sig(0.5)
 b.max = Sig(0.7)
 b.port = 0.5
 
-l1 = [1.1,2.2,3.3,4.4,5.5]
-l2 = [1.2,2.3,3.4,4.5,5.6]
+l1 = [1.1, 2.2, 3.3, 4.4, 5.5]
+l2 = [1.2, 2.3, 3.4, 4.5, 5.6]
 
 c = TrigChoice(t1, l1)
 c.port = 0.5
 c.input = t2
 c.choice = l2
 
-def call1(): pass
-def call2(x): pass
+
+def call1():
+    pass
+
+
+def call2(x):
+    pass
+
 
 d = TrigFunc(t1, call1)
 d.input = t2
@@ -44,13 +50,13 @@ f.input = t2
 f.table = e2
 f.dur = Sig(0.5)
 
-g = TrigLinseg(t1, [(0,0), (0.1,1), (0.2,0)])
+g = TrigLinseg(t1, [(0, 0), (0.1, 1), (0.2, 0)])
 g.input = t2
-g.setList([(0,1), (0.1,0), (0.2,1), (0.3, 0)])
+g.setList([(0, 1), (0.1, 0), (0.2, 1), (0.3, 0)])
 
-h = TrigExpseg(t1, [(0,0), (0.1,1), (0.2,0)])
+h = TrigExpseg(t1, [(0, 0), (0.1, 1), (0.2, 0)])
 h.input = t2
-h.setList([(0,1), (0.1,0), (0.2,1), (0.3, 0)])
+h.setList([(0, 1), (0.1, 0), (0.2, 1), (0.3, 0)])
 
 i = TrigXnoise(t1)
 i.input = t2

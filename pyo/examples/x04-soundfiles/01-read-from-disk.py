@@ -14,6 +14,7 @@ the soundfile is big, but it is more CPU expensive than loading
 the sound file in memory in a first pass.
 
 """
+
 from pyo import *
 
 s = Server().boot()

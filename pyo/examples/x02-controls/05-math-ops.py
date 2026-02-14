@@ -15,6 +15,7 @@ PyoObject can also be used in expression with the exponent (**),
 modulo (%) and unary negative (-) operators.
 
 """
+
 from pyo import *
 
 s = Server().boot()
@@ -38,7 +39,7 @@ d = a * c * 0.3
 d.out()
 
 # PyoObject can be used with Exponent operator.
-e = c ** 10 * 0.4
+e = c**10 * 0.4
 e.out(1)
 
 # Displays the ringmod and the rectified signals.

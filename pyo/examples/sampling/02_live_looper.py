@@ -7,6 +7,7 @@ rec.play()
 The buffer is looped with some funny parameters...
 
 """
+
 from pyo import *
 
 s = Server(duplex=1).boot()

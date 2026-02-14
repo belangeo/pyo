@@ -18,6 +18,7 @@ Where:
     - `order` is the length, in samples, of the anti-aliasing lowpass filter.
 
 """
+
 import os
 from pyo import *
 

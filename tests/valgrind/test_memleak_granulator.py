@@ -1,5 +1,5 @@
 # Run this file in valgrind with:
-#   PYTHONMALLOC=malloc valgrind --tool=memcheck --leak-check=yes --show-leak-kinds=definite --track-origins=yes --num-callers=12 --suppressions=valgrind-python.supp python3 test_memleak_granulator.py 
+#   PYTHONMALLOC=malloc valgrind --tool=memcheck --leak-check=yes --show-leak-kinds=definite --track-origins=yes --num-callers=12 --suppressions=valgrind-python.supp python3 test_memleak_granulator.py
 # There should not be any definitely lost bytes.
 
 from pyo import *
@@ -8,8 +8,8 @@ import random
 s = Server(audio="manual").boot().start()
 sr = int(s.getSamplingRate())
 
-t1 = DataTable(sr, init=[random.uniform(-1,1) for i in range(sr)])
-t2 = DataTable(sr, init=[random.uniform(-1,1) for i in range(sr)])
+t1 = DataTable(sr, init=[random.uniform(-1, 1) for i in range(sr)])
+t2 = DataTable(sr, init=[random.uniform(-1, 1) for i in range(sr)])
 
 env1 = WinTable()
 env2 = WinTable(3)

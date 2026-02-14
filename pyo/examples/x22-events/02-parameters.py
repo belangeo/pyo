@@ -90,7 +90,7 @@ created in the EventGenerator __init__ method.
 
 If 'envelope' receives a PyoTableObject, it will be used as the amplitude
 envelope of the events. If 'envelope' is None and 'decay' gets a value,
-the envelope will be an ADSR built with 'attack', 'decay', 'sustain' and 
+the envelope will be an ADSR built with 'attack', 'decay', 'sustain' and
 'release' argument. If both 'envelope' and 'decay' are None, the envelope
 will be an ASR, defined with 'attack', 'sustain' and 'release' arguments.
 
@@ -105,6 +105,7 @@ Complete Example
 ----------------
 
 """
+
 from pyo import *
 
 s = Server().boot()

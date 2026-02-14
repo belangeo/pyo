@@ -14,7 +14,7 @@ class TriTable(PyoTableObject):
     :Args:
 
         order : int, optional
-            Number of harmonics square waveform is made of. The waveform will 
+            Number of harmonics square waveform is made of. The waveform will
             contains `order` odd harmonics. Defaults to 10.
         size : int, optional
             Table size in samples. Defaults to 8192.
@@ -22,7 +22,7 @@ class TriTable(PyoTableObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> t = TriTable(order=15).normalize()
-    >>> a = Osc(table=t, freq=[199,200], mul=.2).out()
+    >>> a = Osc(table=t, freq=[199,200], mul=0.2).out()
 
     """
 
@@ -48,9 +48,9 @@ class TriTable(PyoTableObject):
     def setOrder(self, x):
         """
         Change the `order` attribute and redraw the waveform.
-        
+
         :Args:
-        
+
             x : int
                 New number of harmonics
 

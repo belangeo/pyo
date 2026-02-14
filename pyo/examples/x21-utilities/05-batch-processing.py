@@ -5,6 +5,7 @@ This program demonstrates how to use pyo to do offline batch processing
 given a folder of sounds.
 
 """
+
 import os
 from pyo import *
 

@@ -4,10 +4,10 @@
 An artificial reverberation based on the work of Manfred Schroeder.
 
 This reverberator takes a monophonic input and outputs two uncorrelated
-reverberated signals. 
+reverberated signals.
 
 This algorithm presents four parallel comb filters feeding two serial
-allpass filters. An additional lowpass filter is used at the end to 
+allpass filters. An additional lowpass filter is used at the end to
 control the brightness of the reverberator.
 
 The manual example for the Allpass object presents an other Schroeder's
@@ -22,6 +22,7 @@ Not really reverbs, but you can build some cool resonant effects with:
     Waveguide, AllpassWG
 
 """
+
 from pyo import *
 
 s = Server(duplex=0).boot()

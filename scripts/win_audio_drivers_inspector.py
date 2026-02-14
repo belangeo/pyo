@@ -5,6 +5,7 @@ This script will check if pyo can run in duplex mode (both audio input and outpu
 and will test every host API to help the user in making his audio device choice.
 
 """
+
 import sys, time
 from pyo import *
 

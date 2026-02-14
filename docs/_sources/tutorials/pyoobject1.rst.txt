@@ -57,8 +57,8 @@ standard python help() function.
 
         >>> s = Server().boot()
         >>> s.start()
-        >>> src = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=.3)
-        >>> lfo = Sine(.25, phase=[0,.5], mul=.5, add=.5)
+        >>> src = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=0.3)
+        >>> lfo = Sine(.25, phase=[0,.5], mul=0.5, add=0.5)
         >>> ring = RingMod(src, freq=[800,1000], mul=lfo).out()
 
         """
@@ -237,8 +237,8 @@ Complete class definition and test
 
         >>> s = Server().boot()
         >>> s.start()
-        >>> src = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=.3)
-        >>> lfo = Sine(.25, phase=[0,.5], mul=.5, add=.5)
+        >>> src = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=0.3)
+        >>> lfo = Sine(.25, phase=[0,.5], mul=0.5, add=0.5)
         >>> ring = RingMod(src, freq=[800,1000], mul=lfo).out()
 
         """
@@ -316,8 +316,8 @@ Complete class definition and test
     # Run the script to test the RingMod object.
     if __name__ == "__main__":
         s = Server().boot()
-        src = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=.3)
-        lfo = Sine(.25, phase=[0,.5], mul=.5, add=.5)
+        src = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=0.3)
+        lfo = Sine(.25, phase=[0,.5], mul=0.5, add=0.5)
         ring = RingMod(src, freq=[800,1000], mul=lfo).out()
         s.gui(locals())
 

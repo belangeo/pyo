@@ -72,13 +72,20 @@ class MultiSlider(tk.Frame):
         self._lines = []
         self._height = 16
         self.canvas = tk.Canvas(
-            self, height=self._height * self._nchnls + 1, width=225, relief=tk.FLAT, bd=0, bg="#BCBCAA"
+            self,
+            height=self._height * self._nchnls + 1,
+            width=225,
+            relief=tk.FLAT,
+            bd=0,
+            bg="#BCBCAA",
         )
         w = self.canvas.winfo_width()
         for i in range(self._nchnls):
             x = int(self._values[i] * w)
             y = self._height * i + Y_OFFSET
-            rect = self.canvas.create_rectangle(0, y, x, y + self._height - 1, width=0, fill="#121212")
+            rect = self.canvas.create_rectangle(
+                0, y, x, y + self._height - 1, width=0, fill="#121212"
+            )
             self._lines.append(rect)
         self.canvas.bind("<Button-1>", self.clicked)
         self.canvas.bind("<Motion>", self.move)
@@ -169,7 +176,9 @@ class PyoObjectControl(tk.Frame):
                 self._res[key] = res
                 # label (param name)
                 if dataOnly:
-                    label = tk.Label(self, height=1, width=10, highlightthickness=0, text=key + " *")
+                    label = tk.Label(
+                        self, height=1, width=10, highlightthickness=0, text=key + " *"
+                    )
                 else:
                     label = tk.Label(self, height=1, width=10, highlightthickness=0, text=key)
                 label.grid(row=i, column=0)
@@ -193,12 +202,16 @@ class PyoObjectControl(tk.Frame):
                     self._sliders[-1].set(m.set(init))
                     disp_height = 1
                 else:
-                    self._sliders.append(MultiSlider(self, [m.set(x) for x in init], key, self.setval))
+                    self._sliders.append(
+                        MultiSlider(self, [m.set(x) for x in init], key, self.setval)
+                    )
                     disp_height = len(init)
                 self._sliders[-1].grid(row=i, column=1, sticky=tk.E + tk.W)
                 # display of numeric values
                 textvar = tk.StringVar(self)
-                display = tk.Label(self, height=disp_height, width=10, highlightthickness=0, textvariable=textvar)
+                display = tk.Label(
+                    self, height=disp_height, width=10, highlightthickness=0, textvariable=textvar
+                )
                 display.grid(row=i, column=2)
                 self._displays[key] = textvar
                 if not isinstance(init, list):
@@ -259,9 +272,16 @@ class ViewTable(tk.Frame):
         self.width = 500
         self.height = 200
         self.half_height = self.height // 2
-        self.canvas = tk.Canvas(self, height=self.height, width=self.width, relief=tk.SUNKEN, bd=1, bg="#EFEFEF")
+        self.canvas = tk.Canvas(
+            self, height=self.height, width=self.width, relief=tk.SUNKEN, bd=1, bg="#EFEFEF"
+        )
         self.canvas.create_line(
-            0, self.half_height + Y_OFFSET, self.width, self.half_height + Y_OFFSET, fill="grey", dash=(4, 2)
+            0,
+            self.half_height + Y_OFFSET,
+            self.width,
+            self.half_height + Y_OFFSET,
+            fill="grey",
+            dash=(4, 2),
         )
         self.canvas.create_line(*samples)
         self.canvas.grid()
@@ -278,7 +298,9 @@ class ViewMatrix(tk.Frame):
         tk.Frame.__init__(self, master, bd=1, relief=tk.GROOVE)
         self.width = size[0]
         self.height = size[1]
-        self.canvas = tk.Canvas(self, width=self.width, height=self.height, relief=tk.SUNKEN, bd=1, bg="#EFEFEF")
+        self.canvas = tk.Canvas(
+            self, width=self.width, height=self.height, relief=tk.SUNKEN, bd=1, bg="#EFEFEF"
+        )
         for i in range(self.width * self.height):
             x = i % self.width
             y = i // self.width
@@ -385,7 +407,12 @@ class ServerGUI(tk.Frame):
 
         if self.meter:
             self.vumeter = tk.Canvas(
-                self, height=ptoi(5 * self.nchnls + 1), width=ptoi(250), relief=tk.FLAT, bd=0, bg="#323232"
+                self,
+                height=ptoi(5 * self.nchnls + 1),
+                width=ptoi(250),
+                relief=tk.FLAT,
+                bd=0,
+                bg="#323232",
             )
             self.green = []
             self.yellow = []
@@ -446,7 +473,14 @@ class ServerGUI(tk.Frame):
             self.interp_label.grid(ipadx=0, row=row, column=0, columnspan=3)
             row += 1
             self.text = tk.Text(
-                self, height=1, width=33, bd=1, relief=tk.RIDGE, highlightthickness=0, spacing1=2, spacing3=2
+                self,
+                height=1,
+                width=33,
+                bd=1,
+                relief=tk.RIDGE,
+                highlightthickness=0,
+                spacing1=2,
+                spacing3=2,
             )
             self.text.grid(ipadx=5, row=row, column=0, columnspan=3)
             self.text.bind("<Return>", self.getText)

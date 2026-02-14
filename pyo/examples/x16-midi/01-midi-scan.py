@@ -20,6 +20,7 @@ List of MIDI-related functions:
     Prints a list of all devices found by Portmidi.
 
 """
+
 from pyo import *
 
 # Print the list of available MIDI devices to the console.
@@ -36,6 +37,7 @@ s.setMidiInputDevice(99)
 s.boot().start()
 
 print("Play with your Midi controllers...")
+
 
 # Function called by CtlScan2 object.
 def scanner(ctlnum, midichnl):

@@ -6,6 +6,7 @@ This script records any number of buffers and loop them.
 Call r.play() (as many times as you want) to record a buffer from the input mic.
 
 """
+
 from pyo import *
 
 s = Server(duplex=1).boot()

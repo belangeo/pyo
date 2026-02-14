@@ -24,6 +24,7 @@ A PyoObject is considered by other object as a list. The function
 feature is useful to create a polyphonic dsp chain.
 
 """
+
 from pyo import *
 
 s = Server().boot()

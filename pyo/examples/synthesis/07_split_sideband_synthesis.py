@@ -9,6 +9,7 @@ Based on the article :
 Ann Arbor, MPublishing, University of Michigan Library, August 2008
 
 """
+
 from pyo import *
 import math
 
@@ -24,7 +25,8 @@ index = Sig([12.649, 9], mul=oneOverTwoPi)
 index.ctrl(map_list=[SLMap(0, 20, "lin", "value", [12.649, 9])], title="Indexes")
 car = Sig([150, 484.324])
 car.ctrl(
-    map_list=[SLMap(20, 2000, "log", "value", [150, 484.324])], title="Carrier frequencies",
+    map_list=[SLMap(20, 2000, "log", "value", [150, 484.324])],
+    title="Carrier frequencies",
 )
 
 a1 = Sine(freq=mod, mul=index[0])

@@ -4,6 +4,7 @@
 The Melo class records 16 notes in a table and reads it at variable speed.
 
 """
+
 from pyo import *
 import random
 
@@ -34,7 +35,10 @@ class Melo:
         self.rnd_amp = Randi(min=0, max=0.15, freq=[random.uniform(0.2, 0.5) for i in range(8)])
         # oscillators...
         self.osc = LFO(
-            self.freq_port * self.rnd_chorus, type=3, sharp=0.75, mul=Port(self.amp, mul=self.rnd_amp),
+            self.freq_port * self.rnd_chorus,
+            type=3,
+            sharp=0.75,
+            mul=Port(self.amp, mul=self.rnd_amp),
         ).out()
 
     def setScale(self, scl):

@@ -24,6 +24,7 @@ from pyo import *
 
 s = Server().boot()
 
+
 # A simple custom instrument. Note that the out() method is not called!
 class MyInstrument(EventInstrument):
     def __init__(self, **args):

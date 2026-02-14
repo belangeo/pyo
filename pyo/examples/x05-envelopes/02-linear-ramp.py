@@ -17,6 +17,7 @@ given parameter that accept audio signal but is not already
 controlled with a PyoObject.
 
 """
+
 from pyo import *
 
 s = Server().boot()

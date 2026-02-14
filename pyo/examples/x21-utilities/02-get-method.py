@@ -10,7 +10,7 @@ with the current value of all streams managed by the object. If False (the
 default), te value of the first audio stream will be returned as a float::
 
     lfos = Sine(freq=[.1,.2,.4,.3], mul=100, add=500)
-    synth = SineLoop(freq=lfos, feedback=.07, mul=.05).out()
+    synth = SineLoop(freq=lfos, feedback=0.07, mul=0.05).out()
 
     def print_val():
         # Print all four frequencies assigned to SineLoop's freq argument
@@ -26,7 +26,9 @@ from pyo import *
 
 s = Server(duplex=0).boot()
 
-t = CurveTable([(0, 0), (2048, 0.5), (4096, 0.2), (6144, 0.5), (8192, 0)], tension=0, bias=20).normalize()
+t = CurveTable(
+    [(0, 0), (2048, 0.5), (4096, 0.2), (6144, 0.5), (8192, 0)], tension=0, bias=20
+).normalize()
 t.view(title="LFO Waveform")
 
 # LFO applied on amplitude value of the synths.

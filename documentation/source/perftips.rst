@@ -9,21 +9,21 @@ Python tips
 
 There is not much you can do at the Python level because once the script has
 finished its execution run, almost all computations are done in the C level
-of pyo. Nevertheless, there is these two tricks to consider:
+of pyo. Nevertheless, there are these two tricks to consider:
 
 Adjust the interpreter's "check interval"
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 You can change how often the interpreter checks for periodic things with
-`sys.setcheckinterval(interval)`. The defaults is 100, which means the check
+`sys.setcheckinterval(interval)`. The default is 100, which means the check
 is performed every 100 Python virtual instructions. Setting it to a larger
 value may increase performance for programs using threads.
 
 Use the subprocess or multiprocessing modules
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-You can use the subprocess or multiprocessing modules to spawn your processes
-on multiple processors. From the python docs:
+You can use the `subprocess` or `multiprocessing` modules to spawn your processes
+on multiple processors. From the Python docs:
 
   The multiprocessing package offers both local and remote concurrency,
   effectively side-stepping the Global Interpreter Lock by using subprocesses
@@ -31,7 +31,7 @@ on multiple processors. From the python docs:
   programmer to fully leverage multiple processors on a given machine.
   It runs on both Unix and Windows.
 
-Here is a little example of using the multiprocessing module to spawn a lot of
+Here is a small example of using the `multiprocessing` module to spawn many
 sine wave computations to multiple processors.
 
 .. code-block:: python
@@ -42,7 +42,7 @@ sine wave computations to multiple processors.
     Spawning lot of sine waves to multiple processes.
     From the command line, run the script with -i flag.
 
-    Call quit() to stop the workers and quit the program.
+    Call `quit()` to stop the workers and quit the program.
 
     """
     import time
@@ -58,14 +58,13 @@ sine wave computations to multiple processors.
             self.num_of_sines = num_of_sines
 
         def run(self):
-            # All code that should run on a separated
-            # core must be created in the run() method.
+            # All code that should run on a separate core must be created in the `run()` method.
             self.server = Server()
             self.server.deactivateMidi()
             self.server.boot().start()
 
             freqs = [uniform(400,800) for i in range(self.num_of_sines)]
-            self.oscs = SineLoop(freq=freqs, feedback=0.1, mul=.005).out()
+            self.oscs = SineLoop(freq=freqs, feedback=0.1, mul=0.005).out()
 
             # Keeps the process alive...
             while not self._terminated:
@@ -97,9 +96,9 @@ objects at the program's initialization and call their `stop()`, `play()`,
 `out()` methods when needed.
 
 Be aware that a simple arithmetic operation involving an audio object will
-create a `Dummy` object (to hold the modified signal), thus will allocate
-memory for its audio stream AND add a processing task on the CPU. Run this
-simple example and watch the process's CPU growing:
+create a `Dummy` object (to hold the modified signal), thus allocating
+memory for its audio stream AND adding a processing task on the CPU. Run this
+simple example and watch the process's CPU grow:
 
 .. code-block:: python
 
@@ -114,7 +113,7 @@ simple example and watch the process's CPU growing:
 
     def change():
         freq = midiToHz(random.randrange(60, 72, 2))
-        # Because `jit` is a PyoObject, both `freq+jit` and `freq-jit` will
+        # Because `jit` is a `PyoObject`, both `freq+jit` and `freq-jit` will
         # create a `Dummy` object, for which a reference will be created and
         # saved in the `sig` object. The result is both memory and CPU
         # increase until something bad happens!
@@ -154,27 +153,27 @@ An efficient version of this program should look like this:
 Don't do anything that can trigger the garbage collector
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The garbage collector of python is another nondeterministic process. You
+The garbage collector of Python is another non-deterministic process. You
 should avoid doing anything that can trigger it. So, instead of deleting
-an audio object, which can turn out to delete many stream objects, you
+an audio object, which can lead to deleting many stream objects, you
 should just call its `stop()` method to remove it from the server's
 processing loop.
 
 Pyo tips
 --------
 
-Here is a list of tips specific to pyo that you should consider when trying to
+Here is a list of tips specific to Pyo that you should consider when trying to
 reduce the CPU consumption of your audio program.
 
 Mix down before applying effects
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-It is very easy to over-saturate the CPU with pyo, especially if you use the
+It is very easy to over-saturate the CPU with Pyo, especially if you use the
 multi-channel expansion feature. If your final output uses less channels than
 the number of audio streams in an object, don't forget to mix it down (call
 its `mix()` method) before applying effects on the sum of the signals.
 
-Consider the following snippet, which create a chorus of 50 oscillators and
+Consider the following snippet, which creates a chorus of 50 oscillators and
 apply a phasing effect on the resulting sound:
 
 .. code-block:: python
@@ -186,8 +185,8 @@ apply a phasing effect on the resulting sound:
 
 
 This version uses around 47% of the CPU on my Thinkpad T430, i5 3320M @ 2.6GHz.
-The problem is that the 50 oscillators given in input of the Phaser object
-creates 50 identical Phaser objects, one for each oscillator. That is a big
+The problem is that the 50 oscillators given as input to the Phaser object
+create 50 identical Phaser objects, one for each oscillator. That is a big
 waste of CPU. The next version mixes the oscillators into a stereo stream
 before applying the effect and the CPU consumption drops to ~7% !
 
@@ -199,8 +198,7 @@ before applying the effect and the CPU consumption drops to ~7% !
     phs = Phaser(src.mix(2), freq=lfo, q=20, feedback=0.95).out()
 
 
-When costly effects are involved, this can have a very drastic impact on the
-CPU usage.
+When costly effects are involved, this can have a very drastic impact on CPU usage.
 
 Stop your unused audio objects
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -281,7 +279,7 @@ the same noise for multiple denormalizations:
     n = Noise(1e-24) # low-level noise for denormals
 
     src = SfPlayer(SNDS_PATH+"/transparent.aif")
-    dly = Delay(src+n, delay=.1, feedback=0.8, mul=0.2).out()
+    dly = Delay(src+n, delay=0.1, feedback=0.8, mul=0.2).out()
     rev = WGVerb(src+n).out()
 
 Use a PyoObject when available
@@ -291,7 +289,7 @@ Always look first if a PyoObject does what you want, it will always be more
 efficient than the same process written from scratch.
 
 This construct, although pedagogically valid, will never be more efficient, in
-term of CPU and memory usage, than a native PyoObject (Phaser) written in C.
+terms of CPU and memory usage, than a native PyoObject (`Phaser`) written in C.
 
 .. code-block:: python
 
@@ -334,13 +332,13 @@ Use approximations if absolute precision is not needed
 When absolute precision is not really important, you can save precious CPU
 cycles by using approximations instead of the real function. `FastSine` is an
 approximation of the `sin` function that can be almost twice cheaper than a
-lookup table (Sine). I plan to add more approximations like this one in the
+lookup table (`Sine`). I plan to add more approximations like this one in the
 future.
 
 Re-use your generators
 ^^^^^^^^^^^^^^^^^^^^^^
 
-Some times it possible to use the same signal for parallel purposes. Let's
+Sometimes it is possible to use the same signal for parallel purposes. Let's
 study the next process:
 
 .. code-block:: python
@@ -364,15 +362,15 @@ it is used to generate a denormal signal. Then, it is used to generate a
 little jitter applied to the frequency of the waveguide (that adds a little
 buzz to the string sound) and finally, we use it as the excitation of the
 waveguide. This is surely cheaper than generating three different white noises
-without noticeable difference in the sound.
+without a noticeable difference in the sound.
 
 Leave 'mul' and 'add' attributes to their defaults when possible
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-There is an internal condition that bypass the object "post-processing"
-function when `mul=1` and `add=0`. It is a good practice to apply amplitude
+There is an internal condition that bypasses the object's "post-processing"
+function when `mul=1` and `add=0`. It is good practice to apply amplitude
 control in one place instead of messing with the `mul` attribute of each
-objects.
+object.
 
 .. code-block:: python
 
@@ -394,10 +392,10 @@ Avoid graphical updates
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 Even if they run in different threads, with different priorities, the audio
-callback and the graphical interface of a python program are parts of a unique
+callback and the graphical interface of a Python program are parts of a unique
 process, sharing the same CPU. Don't use the Server's GUI if you don't need to
 see the meters or use the volume slider. Instead, you could start the script
-from command line with `-i` flag to leave the interpreter alive.
+from the command line with `-i` flag to leave the interpreter alive.
 
 .. code-block:: bash
 
@@ -444,7 +442,7 @@ Here is a non-exhaustive list of the most CPU intensive objects of the library.
 - Table Processing
     - Granulator
     - Granule
-    - Particule
+    - Particle
     - OscBank
 - Utilities
     - Resample

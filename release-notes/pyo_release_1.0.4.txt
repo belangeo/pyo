@@ -45,8 +45,8 @@ I'm very happy to announce the release of pyo 1.0.4, available for python 3.6,
 3.7, 3.8 and 3.9.
 
 Pyo is a Python module written in C to help real-time digital signal processing
-script creation. It provides a complete set of classes to build audio softwares, 
-compose algorithmic musics or simply explore audio processing.It is available for 
+script creation. It provides a complete set of classes to build audio software, 
+compose algorithmic music or simply explore audio processing. It is available for 
 Windows, macOS and linux. It is released under the LGPL 3 license.
 
 Official website: http://ajaxsoundstudio.com/software/pyo/
@@ -112,8 +112,8 @@ I'm very happy to announce the release of pyo 1.0.4, available for python 3.6,
 3.7, 3.8 and 3.9.
 
 Pyo is a Python module written in C to help real-time digital signal processing
-script creation. It provides a complete set of classes to build audio softwares, 
-compose algorithmic musics or simply explore audio processing.It is available for 
+script creation. It provides a complete set of classes to build audio software, 
+compose algorithmic music or simply explore audio processing. It is available for 
 Windows, macOS and linux. It is released under the LGPL 3 license.
 
 Official website: http://ajaxsoundstudio.com/software/pyo/

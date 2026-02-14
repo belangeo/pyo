@@ -6,6 +6,7 @@ It is the one that handles the communication with the audio and midi
 drivers and also the one that keeps track of the processing chain.
 
 """
+
 from pyo import *
 
 # Creates a Server object with default arguments.

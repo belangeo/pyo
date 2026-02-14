@@ -2,6 +2,7 @@ import random
 from pyo import *
 from EventParser import EventParser
 
+
 ### Orchestra ###
 class Instr1:
     def __init__(self, duration, *args):

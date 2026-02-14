@@ -1,6 +1,7 @@
 import pytest
 from pyo import Server
 
+
 @pytest.fixture
 def audio_server():
     # setup

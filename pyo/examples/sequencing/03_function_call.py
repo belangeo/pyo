@@ -5,6 +5,7 @@
 Python function regularly called with a Pattern object.
 
 """
+
 from pyo import *
 import random
 

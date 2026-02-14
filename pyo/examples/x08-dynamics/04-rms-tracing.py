@@ -8,6 +8,7 @@ is rescaled and used to change the frequency of a bandpass filter applied
 to the source.
 
 """
+
 from pyo import *
 
 s = Server().boot()

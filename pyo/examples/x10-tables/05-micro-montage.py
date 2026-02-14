@@ -17,6 +17,7 @@ To generate a new mix in the sound table, call the `gen()` function
 in the Interpreter field of the Server GUI.
 
 """
+
 from pyo import *
 import random
 

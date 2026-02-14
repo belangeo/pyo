@@ -16,11 +16,12 @@ may want to use state variables.
 
 .. _documentation: http://ajaxsoundstudio.com/pyodoc/api/classes/expression.html
 
-The following example implements a phase-aligned formant (PAF) generator, as 
+The following example implements a phase-aligned formant (PAF) generator, as
 described by Miller Puckette in "The Theory and Technique of Electronic
 Music", p158.
 
 """
+
 from pyo import *
 
 s = Server().boot()

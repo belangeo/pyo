@@ -12,6 +12,7 @@ TODO:
     - Fix printing to pdf.
 
 """
+
 import sys
 
 import os, inspect, keyword, wx, codecs, subprocess, unicodedata, types
@@ -40,11 +41,14 @@ from wx.adv import AboutDialogInfo, AboutBox
 from wx import ComboCtrl
 from wx import ComboPopup
 
+
 def packItemData(obj):
     return obj
 
+
 def unpackItemData(obj):
     return obj
+
 
 ################## SETUP ##################
 PLATFORM = sys.platform
@@ -72,6 +76,7 @@ APP_NAME = "EPyo"
 APP_VERSION = PYO_VERSION
 
 ################## Utility Functions ##################
+
 
 def ensureNFD(unistr):
     if PLATFORM == "win32" or PLATFORM.startswith("linux"):
@@ -188,7 +193,9 @@ else:
 filedir = os.path.dirname(os.path.abspath(__file__))
 EXAMPLE_PATH = os.path.join(filedir, "../examples")
 EXAMPLE_FOLDERS = [
-    folder.capitalize() for folder in os.listdir(EXAMPLE_PATH) if folder[0] != "." and folder not in ["snds", "fft"]
+    folder.capitalize()
+    for folder in os.listdir(EXAMPLE_PATH)
+    if folder[0] != "." and folder not in ["snds", "fft"]
 ]
 EXAMPLE_FOLDERS.sort()
 
@@ -201,12 +208,19 @@ if not os.path.isdir(SNIPPETS_PATH):
             os.mkdir(os.path.join(SNIPPETS_PATH, rep))
             filedir = os.path.dirname(os.path.abspath(__file__))
             snippetspath = os.path.join(filedir, "snippets")
-            files = [f for f in os.listdir(os.path.join(snippetspath, rep)) if f[0] != "." and not f.startswith("__")]
+            files = [
+                f
+                for f in os.listdir(os.path.join(snippetspath, rep))
+                if f[0] != "." and not f.startswith("__")
+            ]
             for file in files:
                 shutil.copy(
-                    os.path.join(snippetspath, rep, file), os.path.join(SNIPPETS_PATH, rep),
+                    os.path.join(snippetspath, rep, file),
+                    os.path.join(SNIPPETS_PATH, rep),
                 )
-SNIPPETS_CATEGORIES = [rep for rep in os.listdir(SNIPPETS_PATH) if os.path.isdir(os.path.join(SNIPPETS_PATH, rep))]
+SNIPPETS_CATEGORIES = [
+    rep for rep in os.listdir(SNIPPETS_PATH) if os.path.isdir(os.path.join(SNIPPETS_PATH, rep))
+]
 SNIPPET_DEL_FILE_ID = 30
 SNIPPET_ADD_FOLDER_ID = 31
 
@@ -252,7 +266,9 @@ if not os.path.isfile(MARKERS_FILE):
     with open(MARKERS_FILE, "w") as f:
         f.write("=\n")
 
-BACKGROUND_SERVER_DEFAULT_ARGS = 'sr=44100, nchnls=2, buffersize=256, duplex=1, audio="portaudio", jackname="pyo"'
+BACKGROUND_SERVER_DEFAULT_ARGS = (
+    'sr=44100, nchnls=2, buffersize=256, duplex=1, audio="portaudio", jackname="pyo"'
+)
 BACKGROUND_SERVER_ARGS = PREFERENCES.get("background_server_args", BACKGROUND_SERVER_DEFAULT_ARGS)
 
 ################## TEMPLATES ##################
@@ -922,7 +938,7 @@ except:
         "caret": {"colour": "#000000"},
         "class": {"bold": 1, "colour": "#000097", "italic": 0, "underline": 0},
         "comment": {"bold": 0, "colour": "#0066FF", "italic": 1, "underline": 0},
-        "commentblock": {"bold": 0, "colour": u"#468EFF", "italic": 1, "underline": 0},
+        "commentblock": {"bold": 0, "colour": "#468EFF", "italic": 1, "underline": 0},
         "default": {"bold": 0, "colour": "#000000", "italic": 0, "underline": 0},
         "foldmarginback": {"colour": "#D0D0D0"},
         "function": {"bold": 1, "colour": "#0000A2", "italic": 0, "underline": 0},
@@ -1011,7 +1027,7 @@ DOC_STYLES = {
         "bracelight": "#AABBDD",
         "bracebad": "#DD0000",
         "lineedge": "#222222",
-    }
+    },
 }
 
 DOC_FACES = {"face": DEFAULT_FONT_FACE, "size": FONT_SIZE, "size2": FONT_SIZE2}
@@ -1179,7 +1195,7 @@ real-time through the interpreter. Tools in pyo module offer primitives, like
 mathematical operations on audio signal, basic signal processing (filters, 
 delays, synthesis generators, etc.) together with complex algorithms to create
 granulation and others creative sound manipulations. pyo supports OSC protocol 
-(Open Sound Control), to ease communications between softwares, and MIDI 
+(Open Sound Control), to ease communications between software, and MIDI 
 protocol, for generating sound events and controlling process parameters. pyo 
 allows creation of sophisticated signal processing chains with all the benefits 
 of a mature, and wild used, general programming language.
@@ -1294,43 +1310,61 @@ def _ed_set_style(editor, searchKey=None):
     editor.SetUseTabs(False)
 
     editor.StyleSetSpec(
-        stc.STC_STYLE_DEFAULT, "fore:%(default)s,face:%(face)s,size:%(size)d,back:%(background)s" % DOC_FACES,
+        stc.STC_STYLE_DEFAULT,
+        "fore:%(default)s,face:%(face)s,size:%(size)d,back:%(background)s" % DOC_FACES,
     )
     editor.StyleClearAll()
     editor.StyleSetSpec(
-        stc.STC_STYLE_DEFAULT, "fore:%(default)s,face:%(face)s,size:%(size)d" % DOC_FACES,
+        stc.STC_STYLE_DEFAULT,
+        "fore:%(default)s,face:%(face)s,size:%(size)d" % DOC_FACES,
     )
     editor.StyleSetSpec(
-        stc.STC_STYLE_LINENUMBER, "fore:%(linenumber)s,back:%(marginback)s,face:%(face)s,size:%(size2)d" % DOC_FACES,
+        stc.STC_STYLE_LINENUMBER,
+        "fore:%(linenumber)s,back:%(marginback)s,face:%(face)s,size:%(size2)d" % DOC_FACES,
     )
     editor.StyleSetSpec(stc.STC_STYLE_CONTROLCHAR, "fore:%(default)s,face:%(face)s" % DOC_FACES)
-    editor.StyleSetSpec(stc.STC_P_DEFAULT, "fore:%(default)s,face:%(face)s,size:%(size)d" % DOC_FACES)
     editor.StyleSetSpec(
-        stc.STC_P_COMMENTLINE, "fore:%(comment)s,face:%(face)s,size:%(size)d" % DOC_FACES,
+        stc.STC_P_DEFAULT, "fore:%(default)s,face:%(face)s,size:%(size)d" % DOC_FACES
     )
-    editor.StyleSetSpec(stc.STC_P_NUMBER, "fore:%(number)s,face:%(face)s,bold,size:%(size)d" % DOC_FACES)
-    editor.StyleSetSpec(stc.STC_P_STRING, "fore:%(string)s,face:%(face)s,size:%(size)d" % DOC_FACES)
-    editor.StyleSetSpec(stc.STC_P_CHARACTER, "fore:%(string)s,face:%(face)s,size:%(size)d" % DOC_FACES)
-    editor.StyleSetSpec(stc.STC_P_WORD, "fore:%(keyword)s,face:%(face)s,bold,size:%(size)d" % DOC_FACES)
     editor.StyleSetSpec(
-        stc.STC_P_WORD2, "fore:%(keyword2)s,face:%(face)s,bold,size:%(size3)d" % DOC_FACES,
+        stc.STC_P_COMMENTLINE,
+        "fore:%(comment)s,face:%(face)s,size:%(size)d" % DOC_FACES,
+    )
+    editor.StyleSetSpec(
+        stc.STC_P_NUMBER, "fore:%(number)s,face:%(face)s,bold,size:%(size)d" % DOC_FACES
+    )
+    editor.StyleSetSpec(stc.STC_P_STRING, "fore:%(string)s,face:%(face)s,size:%(size)d" % DOC_FACES)
+    editor.StyleSetSpec(
+        stc.STC_P_CHARACTER, "fore:%(string)s,face:%(face)s,size:%(size)d" % DOC_FACES
+    )
+    editor.StyleSetSpec(
+        stc.STC_P_WORD, "fore:%(keyword)s,face:%(face)s,bold,size:%(size)d" % DOC_FACES
+    )
+    editor.StyleSetSpec(
+        stc.STC_P_WORD2,
+        "fore:%(keyword2)s,face:%(face)s,bold,size:%(size3)d" % DOC_FACES,
     )
     editor.StyleSetSpec(stc.STC_P_TRIPLE, "fore:%(triple)s,face:%(face)s,size:%(size)d" % DOC_FACES)
     editor.StyleSetSpec(
-        stc.STC_P_TRIPLEDOUBLE, "fore:%(triple)s,face:%(face)s,size:%(size)d" % DOC_FACES,
+        stc.STC_P_TRIPLEDOUBLE,
+        "fore:%(triple)s,face:%(face)s,size:%(size)d" % DOC_FACES,
     )
     editor.StyleSetSpec(
-        stc.STC_P_CLASSNAME, "fore:%(class)s,face:%(face)s,bold,size:%(size)d" % DOC_FACES,
+        stc.STC_P_CLASSNAME,
+        "fore:%(class)s,face:%(face)s,bold,size:%(size)d" % DOC_FACES,
     )
     editor.StyleSetSpec(
-        stc.STC_P_DEFNAME, "fore:%(function)s,face:%(face)s,bold,size:%(size)d" % DOC_FACES,
+        stc.STC_P_DEFNAME,
+        "fore:%(function)s,face:%(face)s,bold,size:%(size)d" % DOC_FACES,
     )
     editor.StyleSetSpec(stc.STC_P_OPERATOR, "bold,size:%(size)d,face:%(face)s" % DOC_FACES)
     editor.StyleSetSpec(
-        stc.STC_P_IDENTIFIER, "fore:%(identifier)s,face:%(face)s,size:%(size)d" % DOC_FACES,
+        stc.STC_P_IDENTIFIER,
+        "fore:%(identifier)s,face:%(face)s,size:%(size)d" % DOC_FACES,
     )
     editor.StyleSetSpec(
-        stc.STC_P_COMMENTBLOCK, "fore:%(commentblock)s,face:%(face)s,size:%(size)d" % DOC_FACES,
+        stc.STC_P_COMMENTBLOCK,
+        "fore:%(commentblock)s,face:%(face)s,size:%(size)d" % DOC_FACES,
     )
 
 
@@ -1691,7 +1725,9 @@ class ManualPanel(wx.Treebook):
                                 line = lines[i]
                                 if ":Parent:" in line:
                                     line = (
-                                        line.replace(":Parent:", "Parent:").replace(":py:class:", "").replace("`", "")
+                                        line.replace(":Parent:", "Parent:")
+                                        .replace(":py:class:", "")
+                                        .replace("`", "")
                                     )
                                     parentclass = line.replace("Parent:", "").strip()
                                 text_form += line.rstrip() + "\n"
@@ -1700,7 +1736,9 @@ class ManualPanel(wx.Treebook):
                                 line = lines[i]
                                 if ":Parent:" in line:
                                     line = (
-                                        line.replace(":Parent:", "Parent:").replace(":py:class:", "").replace("`", "")
+                                        line.replace(":Parent:", "Parent:")
+                                        .replace(":py:class:", "")
+                                        .replace("`", "")
                                     )
                                     parentclass = line.replace("Parent:", "").strip()
                                 text_form += line.rstrip() + "\n"
@@ -1710,7 +1748,9 @@ class ManualPanel(wx.Treebook):
                             if obj not in OBJECTS_TREE["functions"]:
                                 text_form += "s.gui(locals())\n"
                         methods = self.getMethodsDoc(text, obj, parentclass)
-                        panel.win = stc.StyledTextCtrl(panel, -1, size=(600, 600), style=wx.SUNKEN_BORDER)
+                        panel.win = stc.StyledTextCtrl(
+                            panel, -1, size=(600, 600), style=wx.SUNKEN_BORDER
+                        )
                         panel.win.SetText(args + text_form + methods)
                     except:
                         text = eval(obj).__doc__
@@ -1720,7 +1760,9 @@ class ManualPanel(wx.Treebook):
                                     text += "\nOverview:\n"
                                     for o in OBJECTS_TREE["PyoObjectBase"]["PyoObject"][obj]:
                                         text += o + ": " + self.getDocFirstLine(o)
-                            panel.win = stc.StyledTextCtrl(panel, -1, size=(600, 600), style=wx.SUNKEN_BORDER)
+                            panel.win = stc.StyledTextCtrl(
+                                panel, -1, size=(600, 600), style=wx.SUNKEN_BORDER
+                            )
                             panel.win.SetText(text)
                         else:
                             panel.win.SetText(args + "\nNot documented yet...\n\n")
@@ -1752,7 +1794,9 @@ class ManualPanel(wx.Treebook):
                         text += "\nOverview:\n"
                         for o in OBJECTS_TREE["PyoObjectBase"]["PyoObject"][obj]:
                             text += o + ": " + self.getDocFirstLine(o)
-                    panel.win = stc.StyledTextCtrl(panel, -1, size=(600, 600), style=wx.SUNKEN_BORDER)
+                    panel.win = stc.StyledTextCtrl(
+                        panel, -1, size=(600, 600), style=wx.SUNKEN_BORDER
+                    )
                     panel.win.SetText(text)
             else:
                 panel.win = stc.StyledTextCtrl(panel, -1, size=(600, 600), style=wx.SUNKEN_BORDER)
@@ -1838,7 +1882,9 @@ class ManualPanel(wx.Treebook):
             if docstr != None:
                 docstr = docstr.replace(":Args:", "Parameters:")
                 args, varargs, varkw, defaults = inspect.getargspec(getattr(eval(obj), meth))
-                args = inspect.formatargspec(args, varargs, varkw, defaults, formatvalue=removeExtraDecimals)
+                args = inspect.formatargspec(
+                    args, varargs, varkw, defaults, formatvalue=removeExtraDecimals
+                )
                 args = args.replace("self, ", "")
                 methods += obj + "." + meth + args + ":\n"
                 methods += docstr + "\n    "
@@ -1915,7 +1961,9 @@ class ManualPanel(wx.Treebook):
                 panel = self.GetPage(self.GetSelection())
                 if not panel.isLoad:
                     panel.isLoad = True
-                    panel.win = stc.StyledTextCtrl(panel, -1, size=panel.GetSize(), style=wx.SUNKEN_BORDER)
+                    panel.win = stc.StyledTextCtrl(
+                        panel, -1, size=panel.GetSize(), style=wx.SUNKEN_BORDER
+                    )
                     panel.win.LoadFile(os.path.join(ensureNFD(DOC_PATH), stripname))
                     panel.win.SetMarginWidth(1, 0)
                     panel.win.Bind(wx.EVT_LEFT_DOWN, self.MouseDown)
@@ -1959,14 +2007,21 @@ class ManualPanel(wx.Treebook):
             if tree.ItemHasChildren(child):
                 (child2, cookie2) = tree.GetFirstChild(child)
                 while child2.IsOk():
-                    tree.SetItemTextColour(child2, wx.SystemSettings.GetColour(wx.SYS_COLOUR_MENUTEXT))
+                    tree.SetItemTextColour(
+                        child2, wx.SystemSettings.GetColour(wx.SYS_COLOUR_MENUTEXT)
+                    )
                     (child2, cookie2) = tree.GetNextChild(child, cookie2)
             (child, cookie) = tree.GetNextChild(root, cookie)
 
 
 class ManualFrame(wx.Frame):
     def __init__(
-        self, parent=None, id=-1, title="Pyo Documentation", size=(1000, 700), which_python="python",
+        self,
+        parent=None,
+        id=-1,
+        title="Pyo Documentation",
+        size=(1000, 700),
+        which_python="python",
     ):
         wx.Frame.__init__(self, parent=parent, id=id, title=title, size=size)
         self.SetMinSize((600, -1))
@@ -2021,7 +2076,12 @@ class ManualFrame(wx.Frame):
             self.Bind(wx.EVT_MENU, self.onSearchScope, id=id)
 
         tw, th = self.GetTextExtent("Q")
-        self.search = wx.SearchCtrl(self.toolbar, 200, size=(200, th + 6), style=wx.WANTS_CHARS | wx.TE_PROCESS_ENTER,)
+        self.search = wx.SearchCtrl(
+            self.toolbar,
+            200,
+            size=(200, th + 6),
+            style=wx.WANTS_CHARS | wx.TE_PROCESS_ENTER,
+        )
         self.search.ShowCancelButton(True)
         self.search.SetMenu(self.searchMenu)
         self.toolbar.AddControl(self.search)
@@ -2264,8 +2324,13 @@ class RunningThread(threading.Thread):
             )
 
         ltime = time.strftime('"%d %b %Y %H:%M:%S"', time.localtime())
-        header = '=== Output log of process "%s", launched: %s ===\n' % (self.filename, ltime,)
-        data_event = DataEvent({"log": header, "pid": self.pid, "filename": self.filename, "active": True})
+        header = '=== Output log of process "%s", launched: %s ===\n' % (
+            self.filename,
+            ltime,
+        )
+        data_event = DataEvent(
+            {"log": header, "pid": self.pid, "filename": self.filename, "active": True}
+        )
         wx.QueueEvent(self.event_receiver, data_event)
         while self.proc.poll() == None and not self.terminated:
             log = ""
@@ -2274,7 +2339,9 @@ class RunningThread(threading.Thread):
                 continue
             log = log + str(line)
             log = log.replace(">>> ", "").replace("... ", "")
-            data_event = DataEvent({"log": log, "pid": self.pid, "filename": self.filename, "active": True})
+            data_event = DataEvent(
+                {"log": log, "pid": self.pid, "filename": self.filename, "active": True}
+            )
             try:
                 wx.QueueEvent(self.event_receiver, data_event)
             except:
@@ -2314,7 +2381,9 @@ class RunningThread(threading.Thread):
                 pass
         if self.terminated:
             output = output + "\n=== Process killed. ==="
-        data_event = DataEvent({"log": output, "pid": self.pid, "filename": self.filename, "active": False})
+        data_event = DataEvent(
+            {"log": output, "pid": self.pid, "filename": self.filename, "active": False}
+        )
         try:
             wx.QueueEvent(self.event_receiver, data_event)
         except:
@@ -2347,7 +2416,12 @@ class BackgroundServerThread(threading.Thread):
     def run(self):
         if PLATFORM == "win32":
             self.proc = subprocess.Popen(
-                [WHICH_PYTHON, "-i", "-u", os.path.join(TEMP_PATH, "background_server.py"),],
+                [
+                    WHICH_PYTHON,
+                    "-i",
+                    "-u",
+                    os.path.join(TEMP_PATH, "background_server.py"),
+                ],
                 shell=True,
                 cwd=ensureNFD(self.cwd),
                 stdout=subprocess.PIPE,
@@ -2370,14 +2444,28 @@ class BackgroundServerThread(threading.Thread):
 
         ltime = time.strftime('"%d %b %Y %H:%M:%S"', time.localtime())
         header = "=== Output log of background server, launched: %s ===\n" % ltime
-        data_event = DataEvent({"log": header, "pid": self.pid, "filename": "background_server.py", "active": True,})
+        data_event = DataEvent(
+            {
+                "log": header,
+                "pid": self.pid,
+                "filename": "background_server.py",
+                "active": True,
+            }
+        )
         wx.QueueEvent(self.event_receiver, data_event)
         while self.proc.poll() == None and not self.terminated:
             log = ""
             for line in self.proc.stdout.readline():
                 log = log + str(line)
             log = log.replace(">>> ", "").replace("... ", "")
-            data_event = DataEvent({"log": log, "pid": self.pid, "filename": "background_server.py", "active": True,})
+            data_event = DataEvent(
+                {
+                    "log": log,
+                    "pid": self.pid,
+                    "filename": "background_server.py",
+                    "active": True,
+                }
+            )
             wx.QueueEvent(self.event_receiver, data_event)
             sys.stdout.flush()
             time.sleep(0.01)
@@ -2414,13 +2502,22 @@ class BackgroundServerThread(threading.Thread):
                 pass
         if self.terminated:
             output = output + "\n=== Process killed. ==="
-        data_event = DataEvent({"log": output, "pid": self.pid, "filename": "background_server.py", "active": False,})
+        data_event = DataEvent(
+            {
+                "log": output,
+                "pid": self.pid,
+                "filename": "background_server.py",
+                "active": False,
+            }
+        )
         wx.QueueEvent(self.event_receiver, data_event)
 
 
 class KeyCommandsFrame(wx.Frame):
     def __init__(self, parent):
-        wx.Frame.__init__(self, parent, wx.ID_ANY, title="Editor Key Commands List", size=(900, 700))
+        wx.Frame.__init__(
+            self, parent, wx.ID_ANY, title="Editor Key Commands List", size=(900, 700)
+        )
         self.menuBar = wx.MenuBar()
         menu1 = wx.Menu()
         menu1.Append(351, "Close\tCtrl+W")
@@ -2454,7 +2551,12 @@ class KeyCommandsFrame(wx.Frame):
 
 class EditorPreview(stc.StyledTextCtrl):
     def __init__(
-        self, parent, ID, pos=wx.DefaultPosition, size=wx.DefaultSize, style=wx.SUNKEN_BORDER | wx.WANTS_CHARS,
+        self,
+        parent,
+        ID,
+        pos=wx.DefaultPosition,
+        size=wx.DefaultSize,
+        style=wx.SUNKEN_BORDER | wx.WANTS_CHARS,
     ):
         stc.StyledTextCtrl.__init__(self, parent, ID, pos, size, style)
 
@@ -2505,9 +2607,17 @@ class EditorPreview(stc.StyledTextCtrl):
     def setStyle(self):
         def buildStyle(forekey, backkey=None, smallsize=False):
             if smallsize:
-                st = "face:%s,fore:%s,size:%s" % (STYLES["face"], STYLES[forekey]["colour"], STYLES["size2"],)
+                st = "face:%s,fore:%s,size:%s" % (
+                    STYLES["face"],
+                    STYLES[forekey]["colour"],
+                    STYLES["size2"],
+                )
             else:
-                st = "face:%s,fore:%s,size:%s" % (STYLES["face"], STYLES[forekey]["colour"], STYLES["size"],)
+                st = "face:%s,fore:%s,size:%s" % (
+                    STYLES["face"],
+                    STYLES[forekey]["colour"],
+                    STYLES["size"],
+                )
             if backkey:
                 st += ",back:%s" % STYLES[backkey]["colour"]
             if "bold" in STYLES[forekey]:
@@ -2522,7 +2632,10 @@ class EditorPreview(stc.StyledTextCtrl):
         self.StyleSetSpec(stc.STC_STYLE_DEFAULT, buildStyle("default", "background"))
         self.StyleClearAll()  # Reset all to be like the default
         self.MarkerDefine(
-            0, stc.STC_MARK_SHORTARROW, STYLES["markerbg"]["colour"], STYLES["markerbg"]["colour"],
+            0,
+            stc.STC_MARK_SHORTARROW,
+            STYLES["markerbg"]["colour"],
+            STYLES["markerbg"]["colour"],
         )
         self.MarkerDefine(
             stc.STC_MARKNUM_FOLDEROPEN,
@@ -2531,10 +2644,16 @@ class EditorPreview(stc.StyledTextCtrl):
             STYLES["markerbg"]["colour"],
         )
         self.MarkerDefine(
-            stc.STC_MARKNUM_FOLDER, stc.STC_MARK_BOXPLUS, STYLES["markerfg"]["colour"], STYLES["markerbg"]["colour"],
+            stc.STC_MARKNUM_FOLDER,
+            stc.STC_MARK_BOXPLUS,
+            STYLES["markerfg"]["colour"],
+            STYLES["markerbg"]["colour"],
         )
         self.MarkerDefine(
-            stc.STC_MARKNUM_FOLDERSUB, stc.STC_MARK_VLINE, STYLES["markerfg"]["colour"], STYLES["markerbg"]["colour"],
+            stc.STC_MARKNUM_FOLDERSUB,
+            stc.STC_MARK_VLINE,
+            STYLES["markerfg"]["colour"],
+            STYLES["markerbg"]["colour"],
         )
         self.MarkerDefine(
             stc.STC_MARKNUM_FOLDERTAIL,
@@ -2543,7 +2662,10 @@ class EditorPreview(stc.StyledTextCtrl):
             STYLES["markerbg"]["colour"],
         )
         self.MarkerDefine(
-            stc.STC_MARKNUM_FOLDEREND, stc.STC_MARK_ARROW, STYLES["markerfg"]["colour"], STYLES["markerbg"]["colour"],
+            stc.STC_MARKNUM_FOLDEREND,
+            stc.STC_MARK_ARROW,
+            STYLES["markerfg"]["colour"],
+            STYLES["markerbg"]["colour"],
         )
         self.MarkerDefine(
             stc.STC_MARKNUM_FOLDEROPENMID,
@@ -2592,7 +2714,9 @@ class EditorPreview(stc.StyledTextCtrl):
 
 class ComponentPanel(scrolled.ScrolledPanel):
     def __init__(self, parent, size):
-        scrolled.ScrolledPanel.__init__(self, parent, wx.ID_ANY, pos=(0, 0), size=size, style=wx.SUNKEN_BORDER)
+        scrolled.ScrolledPanel.__init__(
+            self, parent, wx.ID_ANY, pos=(0, 0), size=size, style=wx.SUNKEN_BORDER
+        )
         self.buttonRefs = {}
         self.bTogRefs = {}
         self.iTogRefs = {}
@@ -2618,7 +2742,9 @@ class ComponentPanel(scrolled.ScrolledPanel):
             utog.Bind(wx.EVT_TOGGLEBUTTON, self.OnUToggleButton)
             self.uTogRefs[utog] = component
             box.AddSpacer(20)
-            selector = csel.ColourSelect(self, -1, "", hex_to_rgb(STYLES[component]["colour"]), size=(20, 20))
+            selector = csel.ColourSelect(
+                self, -1, "", hex_to_rgb(STYLES[component]["colour"]), size=(20, 20)
+            )
             box.Add(selector, 0, wx.TOP, 1)
             selector.Bind(csel.EVT_COLOURSELECT, self.OnSelectColour)
             self.buttonRefs[selector] = component
@@ -2629,7 +2755,9 @@ class ComponentPanel(scrolled.ScrolledPanel):
             box = wx.BoxSizer(wx.HORIZONTAL)
             label = wx.StaticText(self, wx.ID_ANY, label=STYLES_LABELS[component])
             box.Add(label, 1, wx.EXPAND | wx.TOP | wx.LEFT, 3)
-            selector = csel.ColourSelect(self, -1, "", hex_to_rgb(STYLES[component]["colour"]), size=(20, 20))
+            selector = csel.ColourSelect(
+                self, -1, "", hex_to_rgb(STYLES[component]["colour"]), size=(20, 20)
+            )
             box.Add(selector, 0, wx.TOP, 1)
             selector.Bind(csel.EVT_COLOURSELECT, self.OnSelectColour)
             self.buttonRefs[selector] = component
@@ -2727,10 +2855,30 @@ class ColourEditor(wx.Frame):
         facelist.sort()
 
         buttonData = [
-            (STYLES_GENERALS[0], STYLES["default"]["colour"], (50, 24), STYLES_LABELS["default"],),
-            (STYLES_GENERALS[1], STYLES["background"]["colour"], (50, 24), STYLES_LABELS["background"],),
-            (STYLES_GENERALS[2], STYLES["selback"]["colour"], (50, 24), STYLES_LABELS["selback"],),
-            (STYLES_GENERALS[3], STYLES["caret"]["colour"], (50, 24), STYLES_LABELS["caret"],),
+            (
+                STYLES_GENERALS[0],
+                STYLES["default"]["colour"],
+                (50, 24),
+                STYLES_LABELS["default"],
+            ),
+            (
+                STYLES_GENERALS[1],
+                STYLES["background"]["colour"],
+                (50, 24),
+                STYLES_LABELS["background"],
+            ),
+            (
+                STYLES_GENERALS[2],
+                STYLES["selback"]["colour"],
+                (50, 24),
+                STYLES_LABELS["selback"],
+            ),
+            (
+                STYLES_GENERALS[3],
+                STYLES["caret"]["colour"],
+                (50, 24),
+                STYLES_LABELS["caret"],
+            ),
         ]
 
         self.buttonRefs = {}
@@ -2743,11 +2891,17 @@ class ColourEditor(wx.Frame):
             self.buttonRefs[b] = name
             buttonSizer1.AddMany(
                 [
-                    (wx.StaticText(self.panel, -1, label + ":"), 0, wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL,),
+                    (
+                        wx.StaticText(self.panel, -1, label + ":"),
+                        0,
+                        wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL,
+                    ),
                     (b, 0, wx.LEFT | wx.RIGHT, 5),
                 ]
             )
-        section1Sizer.Add(buttonSizer1, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP | wx.ALIGN_LEFT, 10)
+        section1Sizer.Add(
+            buttonSizer1, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP | wx.ALIGN_LEFT, 10
+        )
         section1Sizer.AddSpacer(110)
         buttonSizer2 = wx.FlexGridSizer(0, 2, 25, 5)
         for name, color, size, label in buttonData[2:4]:
@@ -2756,7 +2910,11 @@ class ColourEditor(wx.Frame):
             self.buttonRefs[b] = name
             buttonSizer2.AddMany(
                 [
-                    (wx.StaticText(self.panel, -1, label + ":"), 0, wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL,),
+                    (
+                        wx.StaticText(self.panel, -1, label + ":"),
+                        0,
+                        wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL,
+                    ),
                     (b, 0, wx.LEFT | wx.RIGHT, 5),
                 ]
             )
@@ -2772,7 +2930,12 @@ class ColourEditor(wx.Frame):
         faceLabel = wx.StaticText(self.panel, wx.ID_ANY, "Font Face:")
         faceBox.Add(faceLabel, 0, wx.ALL | wx.ALIGN_CENTER_VERTICAL, 5)
         self.facePopup = wx.ComboBox(
-            self.panel, wx.ID_ANY, STYLES["face"], size=(250, -1), choices=facelist, style=wx.CB_READONLY,
+            self.panel,
+            wx.ID_ANY,
+            STYLES["face"],
+            size=(250, -1),
+            choices=facelist,
+            style=wx.CB_READONLY,
         )
         faceBox.Add(self.facePopup, 1, wx.ALL | wx.EXPAND, 5)
         self.faceView = wx.StaticText(self.panel, wx.ID_ANY, STYLES["face"])
@@ -2786,7 +2949,10 @@ class ColourEditor(wx.Frame):
         mainSizer.Add(wx.StaticLine(self.panel), 0, wx.LEFT | wx.RIGHT | wx.EXPAND, 10)
 
         mainSizer.Add(
-            wx.StaticText(self.panel, wx.ID_ANY, label="Preview"), 0, wx.TOP | wx.CENTER, 10,
+            wx.StaticText(self.panel, wx.ID_ANY, label="Preview"),
+            0,
+            wx.TOP | wx.CENTER,
+            10,
         )
         self.editorPreview = EditorPreview(self.panel, wx.ID_ANY, size=(400, 200))
         mainSizer.Add(self.editorPreview, 0, wx.ALL | wx.EXPAND, 10)
@@ -2873,7 +3039,9 @@ class ColourEditor(wx.Frame):
 
 class SearchProjectPanel(scrolled.ScrolledPanel):
     def __init__(self, parent, root, dict, size):
-        scrolled.ScrolledPanel.__init__(self, parent, wx.ID_ANY, pos=(0, 0), size=size, style=wx.SUNKEN_BORDER)
+        scrolled.ScrolledPanel.__init__(
+            self, parent, wx.ID_ANY, pos=(0, 0), size=size, style=wx.SUNKEN_BORDER
+        )
         self.root = root
         self.dict = dict
         self.files = sorted(self.dict.keys())
@@ -2893,7 +3061,10 @@ class SearchProjectPanel(scrolled.ScrolledPanel):
             mainSizer.Add(box, 1, wx.LEFT | wx.RIGHT | wx.EXPAND, 10)
             for i in range(len(self.dict[file][0])):
                 box2 = wx.BoxSizer(wx.HORIZONTAL)
-                label = "    line %d : %s" % (self.dict[file][0][i], self.dict[file][1][i],)
+                label = "    line %d : %s" % (
+                    self.dict[file][0][i],
+                    self.dict[file][1][i],
+                )
                 fileText = wx.StaticText(self, wx.ID_ANY, label=label, size=(-1, textY))
                 box2.Add(fileText, 1, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, off)
                 mainSizer.Add(box2, 1, wx.LEFT | wx.RIGHT | wx.EXPAND, 10)
@@ -2933,7 +3104,11 @@ class SearchProjectFrame(wx.Frame):
 class SnippetTree(wx.Panel):
     def __init__(self, parent, size):
         wx.Panel.__init__(
-            self, parent, -1, size=size, style=wx.WANTS_CHARS | wx.SUNKEN_BORDER | wx.EXPAND,
+            self,
+            parent,
+            -1,
+            size=size,
+            style=wx.WANTS_CHARS | wx.SUNKEN_BORDER | wx.EXPAND,
         )
         self.SetMinSize((100, -1))
 
@@ -2950,10 +3125,16 @@ class SnippetTree(wx.Panel):
         self.toolbar.SetToolBitmapSize(tsize)
 
         self.toolbar.AddTool(
-            SNIPPET_ADD_FOLDER_ID, "Add Category", folder_add_bmp, shortHelp="Add a New Category",
+            SNIPPET_ADD_FOLDER_ID,
+            "Add Category",
+            folder_add_bmp,
+            shortHelp="Add a New Category",
         )
         self.toolbar.AddTool(
-            SNIPPET_DEL_FILE_ID, "Delete", file_add_bmp, shortHelp="Delete Snippet or Category",
+            SNIPPET_DEL_FILE_ID,
+            "Delete",
+            file_add_bmp,
+            shortHelp="Delete Snippet or Category",
         )
 
         self.toolbar.EnableTool(SNIPPET_DEL_FILE_ID, False)
@@ -2966,11 +3147,17 @@ class SnippetTree(wx.Panel):
         self.sizer.Add(toolbarbox, 0, wx.EXPAND)
 
         self.tree = wx.TreeCtrl(
-            self, -1, (0, 26), size, wx.TR_DEFAULT_STYLE | wx.TR_HIDE_ROOT | wx.SUNKEN_BORDER | wx.EXPAND,
+            self,
+            -1,
+            (0, 26),
+            size,
+            wx.TR_DEFAULT_STYLE | wx.TR_HIDE_ROOT | wx.SUNKEN_BORDER | wx.EXPAND,
         )
 
         if wx.Platform == "__WXMAC__":
-            self.tree.SetFont(wx.Font(11, wx.ROMAN, wx.NORMAL, wx.NORMAL, False, snip_faces["face"]))
+            self.tree.SetFont(
+                wx.Font(11, wx.ROMAN, wx.NORMAL, wx.NORMAL, False, snip_faces["face"])
+            )
         else:
             self.tree.SetFont(wx.Font(8, wx.ROMAN, wx.NORMAL, wx.NORMAL, False, snip_faces["face"]))
 
@@ -2980,7 +3167,9 @@ class SnippetTree(wx.Panel):
         isz = (12, 12)
         self.il = wx.ImageList(isz[0], isz[1])
         self.fldridx = self.il.Add(wx.ArtProvider.GetBitmap(wx.ART_FOLDER, wx.ART_OTHER, isz))
-        self.fldropenidx = self.il.Add(wx.ArtProvider.GetBitmap(wx.ART_FILE_OPEN, wx.ART_OTHER, isz))
+        self.fldropenidx = self.il.Add(
+            wx.ArtProvider.GetBitmap(wx.ART_FILE_OPEN, wx.ART_OTHER, isz)
+        )
         self.fileidx = self.il.Add(wx.ArtProvider.GetBitmap(wx.ART_NORMAL_FILE, wx.ART_OTHER, isz))
 
         self.tree.SetImageList(self.il)
@@ -2995,7 +3184,9 @@ class SnippetTree(wx.Panel):
 
     def load(self):
         categories = [
-            d for d in os.listdir(SNIPPETS_PATH) if os.path.isdir(os.path.join(SNIPPETS_PATH, d)) and d[0] != "."
+            d
+            for d in os.listdir(SNIPPETS_PATH)
+            if os.path.isdir(os.path.join(SNIPPETS_PATH, d)) and d[0] != "."
         ]
         for category in categories:
             child = self.tree.AppendItem(self.root, category, self.fldridx, self.fldropenidx, None)
@@ -3088,7 +3279,12 @@ class SnippetTree(wx.Panel):
 
 class SnippetEditor(stc.StyledTextCtrl):
     def __init__(
-        self, parent, id=-1, pos=wx.DefaultPosition, size=wx.DefaultSize, style=wx.SUNKEN_BORDER,
+        self,
+        parent,
+        id=-1,
+        pos=wx.DefaultPosition,
+        size=wx.DefaultSize,
+        style=wx.SUNKEN_BORDER,
     ):
         stc.StyledTextCtrl.__init__(self, parent, id, pos, size, style)
         _ed_set_style(self)
@@ -3185,7 +3381,9 @@ class SnippetFrame(wx.Frame):
             self.snippet_name = name
             self.category_name = category
             with codecs.open(
-                os.path.join(ensureNFD(SNIPPETS_PATH), self.category_name, self.snippet_name), "r", encoding="utf-8",
+                os.path.join(ensureNFD(SNIPPETS_PATH), self.category_name, self.snippet_name),
+                "r",
+                encoding="utf-8",
             ) as f:
                 text = f.read()
             spos = text.find("=")
@@ -3199,7 +3397,11 @@ class SnippetFrame(wx.Frame):
 
     def onSave(self, evt):
         dlg = wx.SingleChoiceDialog(
-            self, "Choose the Snippet Category", "Snippet Category", SNIPPETS_CATEGORIES, wx.OK,
+            self,
+            "Choose the Snippet Category",
+            "Snippet Category",
+            SNIPPETS_CATEGORIES,
+            wx.OK,
         )
         dlg.SetSize((250, 300))
         dlg.CenterOnParent()
@@ -3207,7 +3409,9 @@ class SnippetFrame(wx.Frame):
             category = dlg.GetStringSelection()
         dlg.Destroy()
 
-        dlg = wx.TextEntryDialog(self, "Enter the Snippet's name:", "Save Snippet", self.snippet_name)
+        dlg = wx.TextEntryDialog(
+            self, "Enter the Snippet's name:", "Save Snippet", self.snippet_name
+        )
         dlg.CenterOnParent()
         if dlg.ShowModal() == wx.ID_OK:
             name = dlg.GetValue()
@@ -3218,7 +3422,9 @@ class SnippetFrame(wx.Frame):
                 if short == "Type your shortcut...":
                     short = ""
                 dic = {"shortcut": short, "value": self.entry.GetText()}
-                with codecs.open(os.path.join(SNIPPETS_PATH, category, name), "w", encoding="utf-8") as f:
+                with codecs.open(
+                    os.path.join(SNIPPETS_PATH, category, name), "w", encoding="utf-8"
+                ) as f:
                     f.write("snippet = %s" % pprint.pformat(dic))
                 self.snippet_tree.addItem(name, category)
                 self.parent.reloadSnippetMenu()
@@ -3277,7 +3483,11 @@ class FileSelectorCombo(ComboCtrl):
         dc.SetPen(wx.Pen("#444444"))
         dc.DrawPolygon([wx.Point(4, h // 2 - 2), wx.Point(w // 2, 2), wx.Point(w - 4, h // 2 - 2)])
         dc.DrawPolygon(
-            [wx.Point(4, h // 2 + 2), wx.Point(w // 2, h - 2), wx.Point(w - 4, h // 2 + 2),]
+            [
+                wx.Point(4, h // 2 + 2),
+                wx.Point(w // 2, h - 2),
+                wx.Point(w - 4, h // 2 + 2),
+            ]
         )
         del dc
 
@@ -3296,7 +3506,12 @@ class TreeCtrlComboPopup(ComboPopup):
 
     def Create(self, parent):
         self.tree = wx.TreeCtrl(
-            parent, style=wx.TR_HIDE_ROOT | wx.TR_HAS_BUTTONS | wx.TR_SINGLE | wx.TR_LINES_AT_ROOT | wx.SIMPLE_BORDER,
+            parent,
+            style=wx.TR_HIDE_ROOT
+            | wx.TR_HAS_BUTTONS
+            | wx.TR_SINGLE
+            | wx.TR_LINES_AT_ROOT
+            | wx.SIMPLE_BORDER,
         )
         font, psize = self.tree.GetFont(), self.tree.GetFont().GetPointSize()
         if PLATFORM == "darwin":
@@ -3383,7 +3598,13 @@ class TreeCtrlComboPopup(ComboPopup):
 
 class MainFrame(wx.Frame):
     def __init__(
-        self, parent, ID, title, pos=wx.DefaultPosition, size=wx.DefaultSize, style=wx.DEFAULT_FRAME_STYLE,
+        self,
+        parent,
+        ID,
+        title,
+        pos=wx.DefaultPosition,
+        size=wx.DefaultSize,
+        style=wx.DEFAULT_FRAME_STYLE,
     ):
         wx.Frame.__init__(self, parent, ID, title, pos, size, style)
 
@@ -3399,7 +3620,9 @@ class MainFrame(wx.Frame):
         # aEntry = wx.AcceleratorEntry(accel_ctrl|wx.ACCEL_SHIFT, wx.WXK_UP, 602)
         # "\t%s" % aEntry.ToString()
 
-        self.snippet_frame = SnippetFrame(self, title="Snippet Editor", pos=(25, 25), size=(700, 450))
+        self.snippet_frame = SnippetFrame(
+            self, title="Snippet Editor", pos=(25, 25), size=(700, 450)
+        )
         self.style_frame = ColourEditor(self, title="Style Editor", pos=(100, 100), size=(500, 550))
         self.style_frame.setCurrentStyle(PREF_STYLE)
         self.keyCommandsFrame = KeyCommandsFrame(self)
@@ -3428,7 +3651,10 @@ class MainFrame(wx.Frame):
             self.submenu1.Append(key, "%s Template" % name)
         menu1.AppendSubMenu(self.submenu1, "New From Template")
         self.Bind(
-            wx.EVT_MENU, self.newFromTemplate, id=min(TEMPLATE_NAMES.keys()), id2=max(TEMPLATE_NAMES.keys()),
+            wx.EVT_MENU,
+            self.newFromTemplate,
+            id=min(TEMPLATE_NAMES.keys()),
+            id2=max(TEMPLATE_NAMES.keys()),
         )
         menu1.Append(wx.ID_OPEN, "Open\tCtrl+O")
         self.Bind(wx.EVT_MENU, self.open, id=wx.ID_OPEN)
@@ -3579,7 +3805,9 @@ class MainFrame(wx.Frame):
         self.menu3.AppendSeparator()
         self.backServerItem = self.menu3.Append(304, "Start Pyo Background Server")
         self.Bind(wx.EVT_MENU, self.startStopBackgroundServer, id=304)
-        self.sendToServerItem = self.menu3.Append(305, "Send Line/Selection to Pyo Background Server\tCtrl+.")
+        self.sendToServerItem = self.menu3.Append(
+            305, "Send Line/Selection to Pyo Background Server\tCtrl+."
+        )
         self.sendToServerItem.Enable(False)
         self.Bind(wx.EVT_MENU, self.sendSelectionToBackgroundServer, id=305)
         self.menuBar.Append(self.menu3, "Process")
@@ -3660,7 +3888,10 @@ class MainFrame(wx.Frame):
                 [
                     exp
                     for exp in os.listdir(os.path.join(EXAMPLE_PATH, folder.lower()))
-                    if exp != "__pycache__" and exp != "__init__.py" and exp[0] != "." and not exp.endswith("pyc")
+                    if exp != "__pycache__"
+                    and exp != "__init__.py"
+                    and exp[0] != "."
+                    and not exp.endswith("pyc")
                 ]
             ):
                 exmenu.Append(ID_EXAMPLE, ex)
@@ -3689,7 +3920,9 @@ class MainFrame(wx.Frame):
         self.menuBar.Append(windowMenu, "&Window")
 
         helpmenu = wx.Menu()
-        helpItem = helpmenu.Append(wx.ID_ABOUT, "&About %s %s" % (APP_NAME, APP_VERSION), "wxPython RULES!!!")
+        helpItem = helpmenu.Append(
+            wx.ID_ABOUT, "&About %s %s" % (APP_NAME, APP_VERSION), "wxPython RULES!!!"
+        )
         self.Bind(wx.EVT_MENU, self.onHelpAbout, helpItem)
         aEntry = wx.AcceleratorEntry(wx.ACCEL_NORMAL, wx.WXK_HELP, 10001)
         helpmenu.Append(999, "Show Editor Key Commands\t%s" % aEntry.ToString())
@@ -3714,7 +3947,7 @@ class MainFrame(wx.Frame):
             cch = -1
         elif PLATFORM.startswith("linux"):
             ststyle = wx.TE_PROCESS_ENTER | wx.SIMPLE_BORDER
-            sth = self.status.GetSize()[1] - 1 # 18
+            sth = self.status.GetSize()[1] - 1  # 18
             cch = self.status.GetSize()[1] - 2  # 19
         elif PLATFORM == "win32":
             ststyle = wx.TE_PROCESS_ENTER | wx.SIMPLE_BORDER
@@ -3738,7 +3971,10 @@ class MainFrame(wx.Frame):
 
         if INSTALLATION_ERROR_MESSAGE != "":
             report = wx.MessageDialog(
-                self, INSTALLATION_ERROR_MESSAGE, "Installation Report", wx.OK | wx.ICON_INFORMATION | wx.STAY_ON_TOP,
+                self,
+                INSTALLATION_ERROR_MESSAGE,
+                "Installation Report",
+                wx.OK | wx.ICON_INFORMATION | wx.STAY_ON_TOP,
             )
             report.ShowModal()
             report.Destroy()
@@ -3824,7 +4060,9 @@ class MainFrame(wx.Frame):
             submenu = wx.Menu(title=cat)
             files = [f for f in os.listdir(os.path.join(SNIPPETS_PATH, cat))]
             for file in files:
-                with codecs.open(os.path.join(SNIPPETS_PATH, cat, file), "r", encoding="utf-8") as f:
+                with codecs.open(
+                    os.path.join(SNIPPETS_PATH, cat, file), "r", encoding="utf-8"
+                ) as f:
                     text = f.read()
                 spos = text.find("=")
                 dictext = text[spos + 1 :]
@@ -3889,14 +4127,24 @@ class MainFrame(wx.Frame):
 
     def saveListPaste(self, evt):
         if self.pastingList != []:
-            dlg = wx.FileDialog(self, message="Save file as ...", defaultDir=os.path.expanduser("~"), style=wx.FD_SAVE,)
+            dlg = wx.FileDialog(
+                self,
+                message="Save file as ...",
+                defaultDir=os.path.expanduser("~"),
+                style=wx.FD_SAVE,
+            )
             if dlg.ShowModal() == wx.ID_OK:
                 path = ensureNFD(dlg.GetPath())
                 with open(path, "w") as f:
                     f.write(str(self.pastingList))
 
     def loadListPaste(self, evt):
-        dlg = wx.FileDialog(self, message="Choose a file", defaultDir=os.path.expanduser("~"), style=wx.FD_OPEN,)
+        dlg = wx.FileDialog(
+            self,
+            message="Choose a file",
+            defaultDir=os.path.expanduser("~"),
+            style=wx.FD_OPEN,
+        )
         if dlg.ShowModal() == wx.ID_OK:
             path = dlg.GetPath()
             self.pastingList = []
@@ -4116,7 +4364,11 @@ class MainFrame(wx.Frame):
             ok = True
         else:
             dlg = wx.SingleChoiceDialog(
-                self, "Choose a project folder...", "Search in project files", choices, wx.CHOICEDLG_STYLE,
+                self,
+                "Choose a project folder...",
+                "Search in project files",
+                choices,
+                wx.CHOICEDLG_STYLE,
             )
             if dlg.ShowModal() == wx.ID_OK:
                 root = dlg.GetStringSelection()
@@ -4173,7 +4425,9 @@ class MainFrame(wx.Frame):
                                         p2, post = len(line), ""
                                     else:
                                         post = " ..."
-                                    result[filepath][1].append(pre + line[p1:p2].strip().replace("\n", "") + post)
+                                    result[filepath][1].append(
+                                        pre + line[p1:p2].strip().replace("\n", "") + post
+                                    )
                 except:
                     pass
         del busy
@@ -4209,7 +4463,11 @@ class MainFrame(wx.Frame):
         item = menu.FindItemById(id)
         name = item.GetItemLabelText()
         category = item.GetMenu().GetTitle()
-        with codecs.open(os.path.join(ensureNFD(SNIPPETS_PATH), category, name), "r", encoding="utf-8",) as f:
+        with codecs.open(
+            os.path.join(ensureNFD(SNIPPETS_PATH), category, name),
+            "r",
+            encoding="utf-8",
+        ) as f:
             text = f.read()
         spos = text.find("=")
         dictext = text[spos + 1 :]
@@ -4294,13 +4552,19 @@ class MainFrame(wx.Frame):
             if self.panel.project.IsShownOnScreen():
                 return
             if not self.panel.splitter.IsSplit():
-                self.panel.splitter.SplitVertically(self.panel.left_splitter, self.panel.right_splitter, 220)
+                self.panel.splitter.SplitVertically(
+                    self.panel.left_splitter, self.panel.right_splitter, 220
+                )
                 h = self.panel.GetSize()[1]
-                self.panel.left_splitter.SplitHorizontally(self.panel.project, self.panel.markers, h * 3 // 4)
+                self.panel.left_splitter.SplitHorizontally(
+                    self.panel.project, self.panel.markers, h * 3 // 4
+                )
                 self.panel.left_splitter.Unsplit(self.panel.markers)
             else:
                 h = self.panel.GetSize()[1]
-                self.panel.left_splitter.SplitHorizontally(self.panel.project, self.panel.markers, h * 3 // 4)
+                self.panel.left_splitter.SplitHorizontally(
+                    self.panel.project, self.panel.markers, h * 3 // 4
+                )
         else:
             if self.panel.markers.IsShown():
                 self.panel.left_splitter.Unsplit(self.panel.project)
@@ -4314,13 +4578,19 @@ class MainFrame(wx.Frame):
             if self.panel.markers.IsShownOnScreen():
                 return
             if not self.panel.splitter.IsSplit():
-                self.panel.splitter.SplitVertically(self.panel.left_splitter, self.panel.right_splitter, 220)
+                self.panel.splitter.SplitVertically(
+                    self.panel.left_splitter, self.panel.right_splitter, 220
+                )
                 h = self.panel.GetSize()[1]
-                self.panel.left_splitter.SplitHorizontally(self.panel.project, self.panel.markers, h * 3 // 4)
+                self.panel.left_splitter.SplitHorizontally(
+                    self.panel.project, self.panel.markers, h * 3 // 4
+                )
                 self.panel.left_splitter.Unsplit(self.panel.project)
             else:
                 h = self.panel.GetSize()[1]
-                self.panel.left_splitter.SplitHorizontally(self.panel.project, self.panel.markers, h * 3 // 4)
+                self.panel.left_splitter.SplitHorizontally(
+                    self.panel.project, self.panel.markers, h * 3 // 4
+                )
         else:
             if self.panel.project.IsShown():
                 self.panel.left_splitter.Unsplit(self.panel.markers)
@@ -4334,7 +4604,9 @@ class MainFrame(wx.Frame):
             if self.panel.outputlog.IsShownOnScreen():
                 return
             h = self.panel.GetSize()[1]
-            self.panel.right_splitter.SplitHorizontally(self.panel.editorPanel, self.panel.outputlog, h * 4 // 5 - h)
+            self.panel.right_splitter.SplitHorizontally(
+                self.panel.editorPanel, self.panel.outputlog, h * 4 // 5 - h
+            )
         else:
             if not self.panel.outputlog.IsShownOnScreen():
                 return
@@ -4402,7 +4674,11 @@ class MainFrame(wx.Frame):
     def openWithEncoding(self, event):
         ok = False
         dlg = wx.SingleChoiceDialog(
-            self, "Choose the encoding:", "Encoding", sorted(ENCODING_DICT.keys()), wx.CHOICEDLG_STYLE,
+            self,
+            "Choose the encoding:",
+            "Encoding",
+            sorted(ENCODING_DICT.keys()),
+            wx.CHOICEDLG_STYLE,
         )
         dlg.SetSize((-1, 370))
         if dlg.ShowModal() == wx.ID_OK:
@@ -4423,9 +4699,11 @@ class MainFrame(wx.Frame):
         self.panel.addPage(ensureNFD(path))
 
     def openTutorial(self, event):
-        filename = {998: "Tutorial_01_RingMod.py", 997: "Tutorial_02_Flanger.py", 996: "Tutorial_03_TriTable.py",}[
-            event.GetId()
-        ]
+        filename = {
+            998: "Tutorial_01_RingMod.py",
+            997: "Tutorial_02_Flanger.py",
+            996: "Tutorial_03_TriTable.py",
+        }[event.GetId()]
         filedir = os.path.dirname(os.path.abspath(__file__))
         self.panel.addPage(os.path.join(filedir, filename))
 
@@ -4761,8 +5039,10 @@ class MainFrame(wx.Frame):
         info = AboutDialogInfo()
         info.Name = APP_NAME
         info.Version = APP_VERSION
-        info.Copyright = u"(C) 2022 Olivier Belanger"
-        info.Description = "E-Pyo is a text editor especially configured to edit pyo audio programs.\n\n"
+        info.Copyright = "(C) 2022 Olivier Belanger"
+        info.Description = (
+            "E-Pyo is a text editor especially configured to edit pyo audio programs.\n\n"
+        )
         AboutBox(info)
 
     def OnClose(self, event):
@@ -4813,7 +5093,9 @@ class MainFrame(wx.Frame):
             pre_frame.Show()
         else:
             wx.MessageBox(
-                "Failed to create print preview", "Print Error", style=wx.ICON_ERROR | wx.OK,
+                "Failed to create print preview",
+                "Print Error",
+                style=wx.ICON_ERROR | wx.OK,
             )
 
     def OnPrint(self, evt):
@@ -4829,7 +5111,7 @@ class MainFrame(wx.Frame):
             self.print_data = wx.PrintData(data.GetPrintData())
         elif printer.GetLastError() == wx.PRINTER_ERROR:
             wx.MessageBox(
-                "There was an error when printing.\n" "Check that your printer is properly connected.",
+                "There was an error when printing.\nCheck that your printer is properly connected.",
                 "Printer Error",
                 style=wx.ICON_ERROR | wx.OK,
             )
@@ -4848,13 +5130,19 @@ class MainPanel(wx.Panel):
         self.splitter = wx.SplitterWindow(self, -1, style=wx.SP_LIVE_UPDATE | wx.SP_3DSASH)
         self.splitter.SetMinimumPaneSize(175)
 
-        self.left_splitter = wx.SplitterWindow(self.splitter, -1, style=wx.SP_LIVE_UPDATE | wx.SP_3DSASH)
-        self.right_splitter = wx.SplitterWindow(self.splitter, -1, style=wx.SP_LIVE_UPDATE | wx.SP_3DSASH)
+        self.left_splitter = wx.SplitterWindow(
+            self.splitter, -1, style=wx.SP_LIVE_UPDATE | wx.SP_3DSASH
+        )
+        self.right_splitter = wx.SplitterWindow(
+            self.splitter, -1, style=wx.SP_LIVE_UPDATE | wx.SP_3DSASH
+        )
 
         self.project = ProjectTree(self.left_splitter, self, (-1, -1))
         self.markers = MarkersPanel(self.left_splitter, self, (-1, -1))
 
-        self.editorPanel = MultiSplitterWindow(self.right_splitter, style=wx.SP_LIVE_UPDATE | wx.SP_3DSASH)
+        self.editorPanel = MultiSplitterWindow(
+            self.right_splitter, style=wx.SP_LIVE_UPDATE | wx.SP_3DSASH
+        )
 
         self.notebook = FNB.FlatNotebook(self.editorPanel, size=(-1, -1))
         self.notebook.SetAGWWindowStyleFlag(
@@ -4866,12 +5154,8 @@ class MainPanel(wx.Panel):
         )
         gradientFromCol = wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW)
         gradientToCol = wx.Colour(gradientFromCol)
-        gradientToCol.ChangeLightness(ialpha = 80)
-        self.notebook.SetGradientColours(
-            gradientFromCol,
-            gradientToCol,
-            gradientFromCol
-        )
+        gradientToCol.ChangeLightness(ialpha=80)
+        self.notebook.SetGradientColours(gradientFromCol, gradientToCol, gradientFromCol)
         self.editorPanel.AppendWindow(self.notebook)
         self.notebooks = [self.notebook]
         self.addNewPage()
@@ -4879,7 +5163,9 @@ class MainPanel(wx.Panel):
         self.outputlog = OutputLogPanel(self.right_splitter, self, size=(-1, 150))
 
         self.right_splitter.SplitHorizontally(
-            self.editorPanel, self.outputlog, (self.GetSize()[1] * 4 // 5) - self.GetSize()[1],
+            self.editorPanel,
+            self.outputlog,
+            (self.GetSize()[1] * 4 // 5) - self.GetSize()[1],
         )
 
         self.splitter.SplitVertically(self.left_splitter, self.right_splitter, 200)
@@ -4903,12 +5189,8 @@ class MainPanel(wx.Panel):
         )
         gradientFromCol = wx.SystemSettings.GetColour(wx.SYS_COLOUR_WINDOW)
         gradientToCol = wx.Colour(gradientFromCol)
-        gradientToCol.ChangeLightness(ialpha = 80)
-        notebook.SetGradientColours(
-            gradientFromCol,
-            gradientToCol,
-            gradientFromCol
-        )
+        gradientToCol.ChangeLightness(ialpha=80)
+        notebook.SetGradientColours(gradientFromCol, gradientToCol, gradientFromCol)
         self.notebooks.append(notebook)
         self.editorPanel.AppendWindow(notebook)
         self.notebook = notebook
@@ -4947,7 +5229,13 @@ class MainPanel(wx.Panel):
     def addNewPage(self):
         title = "Untitled-%i.py" % self.new_inc
         self.new_inc += 1
-        editor = Editor(self.notebook, -1, size=(0, -1), setTitle=self.SetTitle, getTitle=self.GetTitle,)
+        editor = Editor(
+            self.notebook,
+            -1,
+            size=(0, -1),
+            setTitle=self.SetTitle,
+            getTitle=self.GetTitle,
+        )
         editor.setPath(title)
         editor.setStyle()
         self.notebook.AddPage(editor, title, True)
@@ -4955,7 +5243,13 @@ class MainPanel(wx.Panel):
         self.editor.Bind(wx.EVT_SET_FOCUS, self.onSetFocus)
 
     def addPage(self, file, encoding=None):
-        editor = Editor(self.notebook, -1, size=(0, -1), setTitle=self.SetTitle, getTitle=self.GetTitle,)
+        editor = Editor(
+            self.notebook,
+            -1,
+            size=(0, -1),
+            setTitle=self.SetTitle,
+            getTitle=self.GetTitle,
+        )
         label = os.path.split(file)[1]
         self.notebook.AddPage(editor, label, True)
         text = ""
@@ -5202,9 +5496,17 @@ class Editor(stc.StyledTextCtrl):
     def setStyle(self):
         def buildStyle(forekey, backkey=None, smallsize=False):
             if smallsize:
-                st = "face:%s,fore:%s,size:%s" % (STYLES["face"], STYLES[forekey]["colour"], STYLES["size2"],)
+                st = "face:%s,fore:%s,size:%s" % (
+                    STYLES["face"],
+                    STYLES[forekey]["colour"],
+                    STYLES["size2"],
+                )
             else:
-                st = "face:%s,fore:%s,size:%s" % (STYLES["face"], STYLES[forekey]["colour"], STYLES["size"],)
+                st = "face:%s,fore:%s,size:%s" % (
+                    STYLES["face"],
+                    STYLES[forekey]["colour"],
+                    STYLES["size"],
+                )
             if backkey:
                 st += ",back:%s" % STYLES[backkey]["colour"]
             if "bold" in STYLES[forekey]:
@@ -5220,7 +5522,10 @@ class Editor(stc.StyledTextCtrl):
         self.StyleClearAll()  # Reset all to be like the default
 
         self.MarkerDefine(
-            0, stc.STC_MARK_SHORTARROW, STYLES["markerbg"]["colour"], STYLES["markerbg"]["colour"],
+            0,
+            stc.STC_MARK_SHORTARROW,
+            STYLES["markerbg"]["colour"],
+            STYLES["markerbg"]["colour"],
         )
         self.MarkerDefine(
             stc.STC_MARKNUM_FOLDEROPEN,
@@ -5229,10 +5534,16 @@ class Editor(stc.StyledTextCtrl):
             STYLES["markerbg"]["colour"],
         )
         self.MarkerDefine(
-            stc.STC_MARKNUM_FOLDER, stc.STC_MARK_BOXPLUS, STYLES["markerfg"]["colour"], STYLES["markerbg"]["colour"],
+            stc.STC_MARKNUM_FOLDER,
+            stc.STC_MARK_BOXPLUS,
+            STYLES["markerfg"]["colour"],
+            STYLES["markerbg"]["colour"],
         )
         self.MarkerDefine(
-            stc.STC_MARKNUM_FOLDERSUB, stc.STC_MARK_VLINE, STYLES["markerfg"]["colour"], STYLES["markerbg"]["colour"],
+            stc.STC_MARKNUM_FOLDERSUB,
+            stc.STC_MARK_VLINE,
+            STYLES["markerfg"]["colour"],
+            STYLES["markerbg"]["colour"],
         )
         self.MarkerDefine(
             stc.STC_MARKNUM_FOLDERTAIL,
@@ -5241,7 +5552,10 @@ class Editor(stc.StyledTextCtrl):
             STYLES["markerbg"]["colour"],
         )
         self.MarkerDefine(
-            stc.STC_MARKNUM_FOLDEREND, stc.STC_MARK_ARROW, STYLES["markerfg"]["colour"], STYLES["markerbg"]["colour"],
+            stc.STC_MARKNUM_FOLDEREND,
+            stc.STC_MARK_ARROW,
+            STYLES["markerfg"]["colour"],
+            STYLES["markerbg"]["colour"],
         )
         self.MarkerDefine(
             stc.STC_MARKNUM_FOLDEROPENMID,
@@ -5561,7 +5875,9 @@ class Editor(stc.StyledTextCtrl):
 
     def OnShowFindReplace(self):
         self.data = wx.FindReplaceData()
-        dlg = wx.FindReplaceDialog(self, self.data, "Find & Replace", wx.FR_REPLACEDIALOG | wx.FR_NOUPDOWN)
+        dlg = wx.FindReplaceDialog(
+            self, self.data, "Find & Replace", wx.FR_REPLACEDIALOG | wx.FR_NOUPDOWN
+        )
         dlg.Bind(wx.EVT_FIND, self.OnFind)
         dlg.Bind(wx.EVT_FIND_NEXT, self.OnFind)
         dlg.Bind(wx.EVT_FIND_REPLACE, self.OnFind)
@@ -5684,7 +6000,10 @@ class Editor(stc.StyledTextCtrl):
             else:
                 f = self.path
             dlg = wx.MessageDialog(
-                None, "file " + f + " has been modified. Do you want to save?", "Warning!", wx.YES | wx.NO | wx.CANCEL,
+                None,
+                "file " + f + " has been modified. Do you want to save?",
+                "Warning!",
+                wx.YES | wx.NO | wx.CANCEL,
             )
             but = dlg.ShowModal()
             if but == wx.ID_YES:
@@ -5724,7 +6043,10 @@ class Editor(stc.StyledTextCtrl):
             else:
                 f = os.path.split(self.path)[1]
             dlg = wx.MessageDialog(
-                None, "file " + f + " has been modified. Do you want to save?", "Warning!", wx.YES | wx.NO,
+                None,
+                "file " + f + " has been modified. Do you want to save?",
+                "Warning!",
+                wx.YES | wx.NO,
             )
             if dlg.ShowModal() == wx.ID_YES:
                 dlg.Destroy()
@@ -6084,7 +6406,13 @@ class Editor(stc.StyledTextCtrl):
                 for i, word in enumerate(list):
                     if type(getattr(obj, word)) == MethodType:
                         args, varargs, varkw, defaults = inspect.getargspec(getattr(obj, word))
-                        args = inspect.formatargspec(args, varargs, varkw, defaults, formatvalue=removeExtraDecimals,)
+                        args = inspect.formatargspec(
+                            args,
+                            varargs,
+                            varkw,
+                            defaults,
+                            formatvalue=removeExtraDecimals,
+                        )
                         args = args.replace("self, ", "").replace("self", "")
                         list[i] = word + args
                 list = "/".join(list)
@@ -6124,7 +6452,9 @@ class Editor(stc.StyledTextCtrl):
                 currentword = self.getWordUnderCaret()
                 if chr(charat).isalpha() or charat == ord("_"):
                     lst = [
-                        word for word in self.auto_comp_cpp_list if word.startswith(currentword) and currentword != word
+                        word
+                        for word in self.auto_comp_cpp_list
+                        if word.startswith(currentword) and currentword != word
                     ]
                 else:
                     lst = []
@@ -6493,7 +6823,10 @@ class Editor(stc.StyledTextCtrl):
         lineNum = 0
         while lineNum < lineCount:
             level = self.GetFoldLevel(lineNum)
-            if level & stc.STC_FOLDLEVELHEADERFLAG and (level & stc.STC_FOLDLEVELNUMBERMASK) == stc.STC_FOLDLEVELBASE:
+            if (
+                level & stc.STC_FOLDLEVELHEADERFLAG
+                and (level & stc.STC_FOLDLEVELNUMBERMASK) == stc.STC_FOLDLEVELBASE
+            ):
                 lastChild = self.GetLastChild(lineNum, -1)
                 self.SetFoldExpanded(lineNum, False)
                 if lastChild > lineNum:
@@ -6505,7 +6838,10 @@ class Editor(stc.StyledTextCtrl):
         lineNum = 0
         while lineNum < lineCount:
             level = self.GetFoldLevel(lineNum)
-            if level & stc.STC_FOLDLEVELHEADERFLAG and (level & stc.STC_FOLDLEVELNUMBERMASK) == stc.STC_FOLDLEVELBASE:
+            if (
+                level & stc.STC_FOLDLEVELHEADERFLAG
+                and (level & stc.STC_FOLDLEVELNUMBERMASK) == stc.STC_FOLDLEVELBASE
+            ):
                 self.SetFoldExpanded(lineNum, True)
                 lineNum = self.Expand(lineNum, True)
                 lineNum = lineNum - 1
@@ -6522,7 +6858,10 @@ class Editor(stc.StyledTextCtrl):
         lineNum = 0
         while lineNum < lineCount:
             level = self.GetFoldLevel(lineNum)
-            if level & stc.STC_FOLDLEVELHEADERFLAG and (level & stc.STC_FOLDLEVELNUMBERMASK) == stc.STC_FOLDLEVELBASE:
+            if (
+                level & stc.STC_FOLDLEVELHEADERFLAG
+                and (level & stc.STC_FOLDLEVELNUMBERMASK) == stc.STC_FOLDLEVELBASE
+            ):
                 if expanding:
                     self.SetFoldExpanded(lineNum, True)
                     lineNum = self.Expand(lineNum, True)
@@ -6538,7 +6877,10 @@ class Editor(stc.StyledTextCtrl):
         line = self.GetCurrentLine()
         while line >= 0:
             level = self.GetFoldLevel(line)
-            if level & stc.STC_FOLDLEVELHEADERFLAG and (level & stc.STC_FOLDLEVELNUMBERMASK) == stc.STC_FOLDLEVELBASE:
+            if (
+                level & stc.STC_FOLDLEVELHEADERFLAG
+                and (level & stc.STC_FOLDLEVELNUMBERMASK) == stc.STC_FOLDLEVELBASE
+            ):
                 self.ToggleFold(line)
                 self.GotoLine(line)
                 break
@@ -6580,7 +6922,12 @@ class Editor(stc.StyledTextCtrl):
 
 class SimpleEditor(stc.StyledTextCtrl):
     def __init__(
-        self, parent, ID=wx.ID_ANY, pos=wx.DefaultPosition, size=wx.DefaultSize, style=wx.NO_BORDER,
+        self,
+        parent,
+        ID=wx.ID_ANY,
+        pos=wx.DefaultPosition,
+        size=wx.DefaultSize,
+        style=wx.NO_BORDER,
     ):
         stc.StyledTextCtrl.__init__(self, parent, ID, pos, size, style)
 
@@ -6613,9 +6960,17 @@ class SimpleEditor(stc.StyledTextCtrl):
     def setStyle(self):
         def buildStyle(forekey, backkey=None, smallsize=False):
             if smallsize:
-                st = "face:%s,fore:%s,size:%s" % (STYLES["face"], STYLES[forekey]["colour"], STYLES["size2"],)
+                st = "face:%s,fore:%s,size:%s" % (
+                    STYLES["face"],
+                    STYLES[forekey]["colour"],
+                    STYLES["size2"],
+                )
             else:
-                st = "face:%s,fore:%s,size:%s" % (STYLES["face"], STYLES[forekey]["colour"], STYLES["size"],)
+                st = "face:%s,fore:%s,size:%s" % (
+                    STYLES["face"],
+                    STYLES[forekey]["colour"],
+                    STYLES["size"],
+                )
             if backkey:
                 st += ",back:%s" % STYLES[backkey]["colour"]
             if "bold" in STYLES[forekey]:
@@ -6642,7 +6997,12 @@ class SimpleEditor(stc.StyledTextCtrl):
 
 class OutputLogEditor(SimpleEditor):
     def __init__(
-        self, parent, ID=wx.ID_ANY, pos=wx.DefaultPosition, size=wx.DefaultSize, style=wx.NO_BORDER,
+        self,
+        parent,
+        ID=wx.ID_ANY,
+        pos=wx.DefaultPosition,
+        size=wx.DefaultSize,
+        style=wx.NO_BORDER,
     ):
         SimpleEditor.__init__(self, parent=parent, ID=ID, pos=pos, size=size, style=style)
 
@@ -6690,7 +7050,9 @@ class OutputLogPanel(wx.Panel):
         self.toolbar.AddControl(self.processPopup)
         if PLATFORM == "win32":
             self.toolbar.AddSeparator()
-        self.processKill = wx.Button(self.toolbar, -1, label="Kill", size=(40, self.processPopup.GetSize()[1]))
+        self.processKill = wx.Button(
+            self.toolbar, -1, label="Kill", size=(40, self.processPopup.GetSize()[1])
+        )
         self.processKill.SetFont(font)
         self.toolbar.AddControl(self.processKill)
         self.processKill.Bind(wx.EVT_BUTTON, self.killProcess)
@@ -6700,7 +7062,12 @@ class OutputLogPanel(wx.Panel):
         self.runningLabel.SetFont(font)
         self.toolbar.AddControl(self.runningLabel)
         self.toolbar.AddSeparator()
-        self.copyLog = wx.Button(self.toolbar, -1, label="Copy log", size=(70, self.processPopup.GetSize()[1]),)
+        self.copyLog = wx.Button(
+            self.toolbar,
+            -1,
+            label="Copy log",
+            size=(70, self.processPopup.GetSize()[1]),
+        )
         self.copyLog.SetFont(font)
         self.toolbar.AddControl(self.copyLog)
         self.copyLog.Bind(wx.EVT_BUTTON, self.onCopy)
@@ -6833,7 +7200,11 @@ class ProjectTree(wx.Panel):
 
     def __init__(self, parent, mainPanel, size):
         wx.Panel.__init__(
-            self, parent, -1, size=size, style=wx.WANTS_CHARS | wx.SUNKEN_BORDER | wx.EXPAND,
+            self,
+            parent,
+            -1,
+            size=size,
+            style=wx.WANTS_CHARS | wx.SUNKEN_BORDER | wx.EXPAND,
         )
         self.SetMinSize((150, -1))
         self.mainPanel = mainPanel
@@ -6857,12 +7228,20 @@ class ProjectTree(wx.Panel):
         self.toolbar.SetToolBitmapSize(tsize)
 
         self.toolbar.AddTool(TOOL_ADD_FILE_ID, "Add File", file_add_bmp, shortHelp="Add File")
-        self.toolbar.AddTool(TOOL_ADD_FOLDER_ID, "Add Folder", folder_add_bmp, shortHelp="Add Folder")
         self.toolbar.AddTool(
-            TOOL_DEL_FOLDER_ID, "Remove Folder", folder_del_bmp, shortHelp="Remove Folder",
+            TOOL_ADD_FOLDER_ID, "Add Folder", folder_add_bmp, shortHelp="Add Folder"
         )
         self.toolbar.AddTool(
-            TOOL_REFRESH_TREE_ID, "Refresh Tree", refresh_tree_bmp, shortHelp="Refresh Tree",
+            TOOL_DEL_FOLDER_ID,
+            "Remove Folder",
+            folder_del_bmp,
+            shortHelp="Remove Folder",
+        )
+        self.toolbar.AddTool(
+            TOOL_REFRESH_TREE_ID,
+            "Refresh Tree",
+            refresh_tree_bmp,
+            shortHelp="Refresh Tree",
         )
 
         self.toolbar.AddStretchableSpace()
@@ -7006,7 +7385,9 @@ class ProjectTree(wx.Panel):
             item = self.tree.AppendItem(treeItemId, "Untitled", self.fileidx, self.fileidx, None)
             self.edititem = item
         else:
-            item = self.tree.AppendItem(treeItemId, "Untitled", self.fldridx, self.fldropenidx, None)
+            item = self.tree.AppendItem(
+                treeItemId, "Untitled", self.fldridx, self.fldropenidx, None
+            )
             self.editfolder = item
         self.tree.SetItemData(item, packItemData(os.path.join(scope, "Untitled")))
         self.tree.SetItemTextColour(item, STYLES["default"]["colour"])
@@ -7135,7 +7516,9 @@ class ProjectTree(wx.Panel):
 
 class MarkersListScroll(scrolled.ScrolledPanel):
     def __init__(self, parent, id=-1, pos=(25, 25), size=(500, 400)):
-        scrolled.ScrolledPanel.__init__(self, parent, wx.ID_ANY, pos=(0, 0), size=size, style=wx.SUNKEN_BORDER)
+        scrolled.ScrolledPanel.__init__(
+            self, parent, wx.ID_ANY, pos=(0, 0), size=size, style=wx.SUNKEN_BORDER
+        )
         self.parent = parent
         self.SetBackgroundColour(STYLES["background"]["colour"])
         self.arrow_bit = catalog["left_arrow.png"].GetBitmap()
@@ -7165,7 +7548,11 @@ class MarkersListScroll(scrolled.ScrolledPanel):
             label = wx.StaticBitmap(self, wx.ID_ANY)
             label.SetBitmap(self.arrow_bit)
             self.box.Add(
-                label, 0, wx.LEFT | wx.ALIGN_CENTER_VERTICAL, 2, userData=(i, self.row_dict[i][0]),
+                label,
+                0,
+                wx.LEFT | wx.ALIGN_CENTER_VERTICAL,
+                2,
+                userData=(i, self.row_dict[i][0]),
             )
             line = wx.StaticText(self, wx.ID_ANY, label=str(self.row_dict[i][0] + 1))
             line.SetFont(self.font)
@@ -7173,7 +7560,11 @@ class MarkersListScroll(scrolled.ScrolledPanel):
             comment = wx.StaticText(self, wx.ID_ANY, label=self.row_dict[i][1])
             comment.SetFont(self.font)
             self.box.Add(
-                comment, 1, wx.EXPAND | wx.ALIGN_LEFT | wx.TOP, 3, userData=(i, self.row_dict[i][0]),
+                comment,
+                1,
+                wx.EXPAND | wx.ALIGN_LEFT | wx.TOP,
+                3,
+                userData=(i, self.row_dict[i][0]),
             )
             self.box.Layout()
             label.Bind(wx.EVT_LEFT_DOWN, self.OnLeftDown)
@@ -7204,7 +7595,9 @@ class MarkersListScroll(scrolled.ScrolledPanel):
                     editor.GotoLine(l1)
                     halfNumLinesOnScreen = editor.LinesOnScreen() // 2
                     editor.ScrollToLine(l1 - halfNumLinesOnScreen)
-                    editor.SetSelection(editor.PositionFromLine(l1), editor.PositionFromLine(l2 + 1))
+                    editor.SetSelection(
+                        editor.PositionFromLine(l1), editor.PositionFromLine(l2 + 1)
+                    )
                 break
         self.setColour()
 
@@ -7247,7 +7640,10 @@ class MarkersPanel(wx.Panel):
         self.toolbar.SetToolBitmapSize(tsize)
 
         self.toolbar.AddTool(
-            TOOL_DELETE_ALL_MARKERS_ID, "Delete All Markers", delete_all_markers, shortHelp="Delete All Markers",
+            TOOL_DELETE_ALL_MARKERS_ID,
+            "Delete All Markers",
+            delete_all_markers,
+            shortHelp="Delete All Markers",
         )
 
         self.toolbar.AddStretchableSpace()
@@ -7440,14 +7836,24 @@ class PreferencesDialog(wx.Dialog):
         self.SetClientSize(self.GetBestSize())
 
     def setExecutable(self, evt):
-        dlg = wx.FileDialog(self, "Choose your python executable", os.path.expanduser("~"), style=wx.FD_OPEN,)
+        dlg = wx.FileDialog(
+            self,
+            "Choose your python executable",
+            os.path.expanduser("~"),
+            style=wx.FD_OPEN,
+        )
         if dlg.ShowModal() == wx.ID_OK:
             path = dlg.GetPath()
             self.entry_exe.SetValue(path)
         dlg.Destroy()
 
     def setResourcesFolder(self, evt):
-        dlg = wx.DirDialog(self, "Choose your resources folder", os.path.expanduser("~"), style=wx.FD_OPEN,)
+        dlg = wx.DirDialog(
+            self,
+            "Choose your resources folder",
+            os.path.expanduser("~"),
+            style=wx.FD_OPEN,
+        )
         if dlg.ShowModal() == wx.ID_OK:
             path = dlg.GetPath()
             self.entry_res.SetValue(path)
@@ -7463,7 +7869,13 @@ class PreferencesDialog(wx.Dialog):
         self.server_args.SetValue(BACKGROUND_SERVER_DEFAULT_ARGS)
 
     def writePrefs(self):
-        global ALLOWED_EXT, WHICH_PYTHON, RESOURCES_PATH, SNIPPETS_PATH, STYLES_PATH, BACKGROUND_SERVER_ARGS
+        global \
+            ALLOWED_EXT, \
+            WHICH_PYTHON, \
+            RESOURCES_PATH, \
+            SNIPPETS_PATH, \
+            STYLES_PATH, \
+            BACKGROUND_SERVER_ARGS
 
         which_python = self.entry_exe.GetValue()
         if os.path.isfile(which_python) and "python" in which_python:
@@ -7481,11 +7893,14 @@ class PreferencesDialog(wx.Dialog):
                 for rep in SNIPPETS_CATEGORIES:
                     if not os.path.isdir(os.path.join(SNIPPETS_PATH, rep)):
                         os.mkdir(os.path.join(SNIPPETS_PATH, rep))
-                    files = [f for f in os.listdir(os.path.join(old_snippets_path, rep)) if f[0] != "."]
+                    files = [
+                        f for f in os.listdir(os.path.join(old_snippets_path, rep)) if f[0] != "."
+                    ]
                     for file in files:
                         try:
                             shutil.copy(
-                                os.path.join(old_snippets_path, rep, file), os.path.join(SNIPPETS_PATH, rep),
+                                os.path.join(old_snippets_path, rep, file),
+                                os.path.join(SNIPPETS_PATH, rep),
                             )
                         except:
                             pass
@@ -7614,9 +8029,7 @@ class STCPrintout(wx.Printout):
         self.setHeaderFont()
 
     def OnPreparePrinting(self):
-        """Called once before a print job is started to set up any defaults.
-
-        """
+        """Called once before a print job is started to set up any defaults."""
         dc = self.GetDC()
         self._calculateScale(dc)
         self._calculatePageCount()
@@ -7688,8 +8101,12 @@ class STCPrintout(wx.Printout):
             print("lines per page: %d" % self.lines_pp)
             print("page_to_dc: %f" % page_to_dc)
 
-        self.x1 = dc.DeviceToLogicalXRel(float(self.top_left_margin[0]) / 25.4 * dc_pixels_per_inch_x)
-        self.y1 = dc.DeviceToLogicalXRel(float(self.top_left_margin[1]) / 25.4 * dc_pixels_per_inch_y)
+        self.x1 = dc.DeviceToLogicalXRel(
+            float(self.top_left_margin[0]) / 25.4 * dc_pixels_per_inch_x
+        )
+        self.y1 = dc.DeviceToLogicalXRel(
+            float(self.top_left_margin[1]) / 25.4 * dc_pixels_per_inch_y
+        )
         self.x2 = dc.DeviceToLogicalXRel(dw) - dc.DeviceToLogicalXRel(
             float(self.bottom_right_margin[0]) / 25.4 * dc_pixels_per_inch_x
         )
@@ -7837,9 +8254,7 @@ class STCPrintout(wx.Printout):
         return (1, self.page_count, 1, self.page_count)
 
     def HasPage(self, page):
-        """Returns True if the specified page is within the page range
-
-        """
+        """Returns True if the specified page is within the page range"""
         return page <= self.page_count
 
     def OnPrintPage(self, page):
@@ -7907,7 +8322,11 @@ class STCPrintout(wx.Printout):
         dc.DrawText(page_lbl, self.x2 - pg_lbl_w, self.y1 - pg_lbl_h - yoffset)
 
     def setHeaderFont(
-        self, point_size=10, family=wx.FONTFAMILY_SWISS, style=wx.FONTSTYLE_NORMAL, weight=wx.FONTWEIGHT_NORMAL,
+        self,
+        point_size=10,
+        family=wx.FONTFAMILY_SWISS,
+        style=wx.FONTSTYLE_NORMAL,
+        weight=wx.FONTWEIGHT_NORMAL,
     ):
         """Set the font to be used as the header font
 
@@ -7933,7 +8352,12 @@ class STCPrintout(wx.Printout):
         @returns: wx.Font instance
         """
         point_size = self.header_font_point_size
-        font = wx.Font(point_size, self.header_font_family, self.header_font_style, self.header_font_weight,)
+        font = wx.Font(
+            point_size,
+            self.header_font_family,
+            self.header_font_style,
+            self.header_font_weight,
+        )
         return font
 
     def _drawPageBorder(self, dc):

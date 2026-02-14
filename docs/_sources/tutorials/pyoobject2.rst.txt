@@ -447,5 +447,5 @@ Complete class definition and test
     if __name__ == "__main__":
         s = Server().boot()
         src = BrownNoise([.2,.2]).out()
-        fl = Flanger(src, depth=.9, lfofreq=.1, feedback=.5, mul=.5).out()
+        fl = Flanger(src, depth=0.9, lfofreq=0.1, feedback=0.5, mul=0.5).out()
         s.gui(locals())

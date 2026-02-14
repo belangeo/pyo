@@ -49,7 +49,7 @@ class Randi(PyoObject):
     >>> s.start()
     >>> freq = Randi(500, 3000, 4)
     >>> noze = Noise().mix(2)
-    >>> a = Biquad(noze, freq=freq, q=5, type=2, mul=.5).out()
+    >>> a = Biquad(noze, freq=freq, q=5, type=2, mul=0.5).out()
 
     """
 
@@ -61,7 +61,8 @@ class Randi(PyoObject):
         self._freq = freq
         min, max, freq, mul, add, lmax = convertArgsToLists(min, max, freq, mul, add)
         self._base_objs = [
-            Randi_base(wrap(min, i), wrap(max, i), wrap(freq, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+            Randi_base(wrap(min, i), wrap(max, i), wrap(freq, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
         ]
         self._init_play()
 
@@ -170,7 +171,7 @@ class Randh(PyoObject):
     >>> s.start()
     >>> freq = Randh(500, 3000, 4)
     >>> noze = Noise().mix(2)
-    >>> a = Biquad(noze, freq=freq, q=5, type=2, mul=.5).out()
+    >>> a = Biquad(noze, freq=freq, q=5, type=2, mul=0.5).out()
 
     """
 
@@ -182,7 +183,8 @@ class Randh(PyoObject):
         self._freq = freq
         min, max, freq, mul, add, lmax = convertArgsToLists(min, max, freq, mul, add)
         self._base_objs = [
-            Randh_base(wrap(min, i), wrap(max, i), wrap(freq, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+            Randh_base(wrap(min, i), wrap(max, i), wrap(freq, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
         ]
         self._init_play()
 
@@ -289,7 +291,7 @@ class Choice(PyoObject):
     >>> s.start()
     >>> freqs = midiToHz([60,62,64,65,67,69,71,72])
     >>> rnd = Choice(choice=freqs, freq=[3,4])
-    >>> a = SineLoop(rnd, feedback=0.05, mul=.2).out()
+    >>> a = SineLoop(rnd, feedback=0.05, mul=0.2).out()
 
     """
 
@@ -300,12 +302,15 @@ class Choice(PyoObject):
         self._freq = freq
         freq, mul, add, lmax = convertArgsToLists(freq, mul, add)
         if type(choice[0]) != list:
-            self._base_objs = [Choice_base(choice, wrap(freq, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
+            self._base_objs = [
+                Choice_base(choice, wrap(freq, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+            ]
         else:
             choicelen = len(choice)
             lmax = max(choicelen, lmax)
             self._base_objs = [
-                Choice_base(wrap(choice, i), wrap(freq, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+                Choice_base(wrap(choice, i), wrap(freq, i), wrap(mul, i), wrap(add, i))
+                for i in range(lmax)
             ]
         self._init_play()
 
@@ -385,7 +390,7 @@ class RandInt(PyoObject):
     >>> s.start()
     >>> freq = RandInt(max=10, freq=5, mul=100, add=500)
     >>> jit = Randi(min=0.99, max=1.01, freq=[2.33,3.41])
-    >>> a = SineLoop(freq*jit, feedback=0.03, mul=.2).out()
+    >>> a = SineLoop(freq*jit, feedback=0.03, mul=0.2).out()
 
     """
 
@@ -395,7 +400,10 @@ class RandInt(PyoObject):
         self._max = max
         self._freq = freq
         max, freq, mul, add, lmax = convertArgsToLists(max, freq, mul, add)
-        self._base_objs = [RandInt_base(wrap(max, i), wrap(freq, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
+        self._base_objs = [
+            RandInt_base(wrap(max, i), wrap(freq, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
+        ]
         self._init_play()
 
     def setMax(self, x):
@@ -476,7 +484,7 @@ class RandDur(PyoObject):
     >>> s.start()
     >>> dur = RandDur(min=[.05,0.1], max=[.4,.5])
     >>> trig = Change(dur)
-    >>> amp = TrigEnv(trig, table=HannTable(), dur=dur, mul=.2)
+    >>> amp = TrigEnv(trig, table=HannTable(), dur=dur, mul=0.2)
     >>> freqs = midiToHz([60,63,67,70,72])
     >>> freq = TrigChoice(trig, choice=freqs)
     >>> a = LFO(freq=freq, type=2, mul=amp).out()
@@ -489,7 +497,10 @@ class RandDur(PyoObject):
         self._min = min
         self._max = max
         min, max, mul, add, lmax = convertArgsToLists(min, max, mul, add)
-        self._base_objs = [RandDur_base(wrap(min, i), wrap(max, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
+        self._base_objs = [
+            RandDur_base(wrap(min, i), wrap(max, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
+        ]
         self._init_play()
 
     def setMin(self, x):
@@ -635,7 +646,7 @@ class Xnoise(PyoObject):
     >>> lfo = Phasor(.1, 0, .5, .15)
     >>> freq = Xnoise(dist=12, freq=8, x1=1, x2=lfo, mul=1000, add=500)
     >>> jit = Randi(min=0.99, max=1.01, freq=[2.33,3.41])
-    >>> a = SineLoop(freq*jit, feedback=0.03, mul=.2).out()
+    >>> a = SineLoop(freq*jit, feedback=0.03, mul=0.2).out()
 
     """
 
@@ -651,7 +662,9 @@ class Xnoise(PyoObject):
             if type(t) in [bytes, str]:
                 dist[i] = XNOISE_DICT.get(t, 0)
         self._base_objs = [
-            Xnoise_base(wrap(dist, i), wrap(freq, i), wrap(x1, i), wrap(x2, i), wrap(mul, i), wrap(add, i))
+            Xnoise_base(
+                wrap(dist, i), wrap(freq, i), wrap(x1, i), wrap(x2, i), wrap(mul, i), wrap(add, i)
+            )
             for i in range(lmax)
         ]
         self._init_play()
@@ -863,7 +876,7 @@ class XnoiseMidi(PyoObject):
     >>> rnd = XnoiseMidi('loopseg', freq=8, x1=1, x2=l, scale=0, mrange=(60,96))
     >>> freq = Snap(rnd, choice=[0, 2, 3, 5, 7, 8, 11], scale=1)
     >>> jit = Randi(min=0.99, max=1.01, freq=[2.33,3.41])
-    >>> a = SineLoop(freq*jit, feedback=0.03, mul=.2).out()
+    >>> a = SineLoop(freq*jit, feedback=0.03, mul=0.2).out()
 
     """
 
@@ -1143,7 +1156,7 @@ class XnoiseDur(PyoObject):
     >>> s.start()
     >>> dur = XnoiseDur(dist="expon_min", min=[.05,0.1], max=[.4,.5], x1=3)
     >>> trig = Change(dur)
-    >>> amp = TrigEnv(trig, table=HannTable(), dur=dur, mul=.2)
+    >>> amp = TrigEnv(trig, table=HannTable(), dur=dur, mul=0.2)
     >>> freqs = midiToHz([60,63,67,70,72])
     >>> freq = TrigChoice(trig, choice=freqs)
     >>> a = LFO(freq=freq, type=2, mul=amp).out()
@@ -1158,13 +1171,21 @@ class XnoiseDur(PyoObject):
         self._max = max
         self._x1 = x1
         self._x2 = x2
-        dist, min, max, x1, x2, mul, add, lmax = convertArgsToLists(dist, min, max, x1, x2, mul, add)
+        dist, min, max, x1, x2, mul, add, lmax = convertArgsToLists(
+            dist, min, max, x1, x2, mul, add
+        )
         for i, t in enumerate(dist):
             if type(t) in [bytes, str]:
                 dist[i] = XNOISE_DICT.get(t, 0)
         self._base_objs = [
             XnoiseDur_base(
-                wrap(dist, i), wrap(min, i), wrap(max, i), wrap(x1, i), wrap(x2, i), wrap(mul, i), wrap(add, i)
+                wrap(dist, i),
+                wrap(min, i),
+                wrap(max, i),
+                wrap(x1, i),
+                wrap(x2, i),
+                wrap(mul, i),
+                wrap(add, i),
             )
             for i in range(lmax)
         ]
@@ -1333,7 +1354,7 @@ class Urn(PyoObject):
     >>> s.start()
     >>> mid = Urn(max=12, freq=10, add=60)
     >>> fr = MToF(mid)
-    >>> sigL = SineLoop(freq=fr, feedback=.08, mul=0.3).out()
+    >>> sigL = SineLoop(freq=fr, feedback=0.08, mul=0.3).out()
     >>> amp = TrigExpseg(mid["trig"], [(0,0),(.01,.25),(1,0)])
     >>> sigR = SineLoop(midiToHz(84), feedback=0.05, mul=amp).out(1)
 
@@ -1345,7 +1366,9 @@ class Urn(PyoObject):
         self._max = max
         self._freq = freq
         max, freq, mul, add, lmax = convertArgsToLists(max, freq, mul, add)
-        self._base_objs = [Urn_base(wrap(max, i), wrap(freq, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
+        self._base_objs = [
+            Urn_base(wrap(max, i), wrap(freq, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+        ]
         self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])
         self._init_play()
 
@@ -1457,7 +1480,8 @@ class LogiMap(PyoObject):
         self._freq = freq
         chaos, freq, init, mul, add, lmax = convertArgsToLists(chaos, freq, init, mul, add)
         self._base_objs = [
-            LogiMap_base(wrap(chaos, i), wrap(freq, i), wrap(init, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+            LogiMap_base(wrap(chaos, i), wrap(freq, i), wrap(init, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
         ]
         self._init_play()
 

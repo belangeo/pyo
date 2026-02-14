@@ -127,7 +127,7 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; sf = SfPlayer(SNDS_PATH + &quot;/transparent.aif&quot;, loop=True, mul=.4).out()</span>
+<span class="sd">    &gt;&gt;&gt; sf = SfPlayer(SNDS_PATH + &quot;/transparent.aif&quot;, loop=True, mul=0.4).out()</span>
 <span class="sd">    &gt;&gt;&gt; fol = Follower(sf, freq=30)</span>
 <span class="sd">    &gt;&gt;&gt; n = Noise(mul=fol).out(1)</span>
 
@@ -245,8 +245,8 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; sf = SfPlayer(SNDS_PATH + &quot;/transparent.aif&quot;, loop=True, mul=.4).out()</span>
-<span class="sd">    &gt;&gt;&gt; fol2 = Follower2(sf, risetime=0.002, falltime=.1, mul=.5)</span>
+<span class="sd">    &gt;&gt;&gt; sf = SfPlayer(SNDS_PATH + &quot;/transparent.aif&quot;, loop=True, mul=0.4).out()</span>
+<span class="sd">    &gt;&gt;&gt; fol2 = Follower2(sf, risetime=0.002, falltime=0.1, mul=0.5)</span>
 <span class="sd">    &gt;&gt;&gt; n = Noise(fol2).out(1)</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -388,8 +388,8 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; a = SfPlayer(SNDS_PATH + &quot;/transparent.aif&quot;, loop=True, mul=.4).out()</span>
-<span class="sd">    &gt;&gt;&gt; b = ZCross(a, thresh=.02)</span>
+<span class="sd">    &gt;&gt;&gt; a = SfPlayer(SNDS_PATH + &quot;/transparent.aif&quot;, loop=True, mul=0.4).out()</span>
+<span class="sd">    &gt;&gt;&gt; b = ZCross(a, thresh=0.02)</span>
 <span class="sd">    &gt;&gt;&gt; n = Noise(b).out(1)</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -520,7 +520,7 @@
 <span class="sd">    &gt;&gt;&gt; s = Server(duplex=1).boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; lfo = Randh(min=100, max=500, freq=3)</span>
-<span class="sd">    &gt;&gt;&gt; src = SineLoop(freq=lfo, feedback=0.1, mul=.3).out()</span>
+<span class="sd">    &gt;&gt;&gt; src = SineLoop(freq=lfo, feedback=0.1, mul=0.3).out()</span>
 <span class="sd">    &gt;&gt;&gt; pit = Yin(src, tolerance=0.2, winsize=1024)</span>
 <span class="sd">    &gt;&gt;&gt; freq = Tone(pit, freq=10)</span>
 <span class="sd">    &gt;&gt;&gt; # fifth above</span>
@@ -743,7 +743,7 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; a = SfPlayer(SNDS_PATH + &quot;/transparent.aif&quot;, loop=True, mul=.4).out()</span>
+<span class="sd">    &gt;&gt;&gt; a = SfPlayer(SNDS_PATH + &quot;/transparent.aif&quot;, loop=True, mul=0.4).out()</span>
 <span class="sd">    &gt;&gt;&gt; b = Centroid(a, 1024)</span>
 <span class="sd">    &gt;&gt;&gt; c = Port(b, 0.05, 0.05)</span>
 <span class="sd">    &gt;&gt;&gt; d = ButBP(Noise(0.2), freq=c, q=5).out(1)</span>
@@ -1996,7 +1996,7 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; sf = SfPlayer(SNDS_PATH + &quot;/transparent.aif&quot;, loop=True, mul=.4).out()</span>
+<span class="sd">    &gt;&gt;&gt; sf = SfPlayer(SNDS_PATH + &quot;/transparent.aif&quot;, loop=True, mul=0.4).out()</span>
 <span class="sd">    &gt;&gt;&gt; amp = PeakAmp(sf)</span>
 <span class="sd">    &gt;&gt;&gt; n = Noise(mul=Port(amp)).out(1)</span>
 
@@ -2162,7 +2162,7 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; sf = SfPlayer(SNDS_PATH + &quot;/transparent.aif&quot;, loop=True, mul=.4).out()</span>
+<span class="sd">    &gt;&gt;&gt; sf = SfPlayer(SNDS_PATH + &quot;/transparent.aif&quot;, loop=True, mul=0.4).out()</span>
 <span class="sd">    &gt;&gt;&gt; amp = RMS(sf)</span>
 <span class="sd">    &gt;&gt;&gt; n = Noise(mul=Port(amp)).out(1)</span>
 

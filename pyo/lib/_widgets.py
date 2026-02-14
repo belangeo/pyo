@@ -58,6 +58,7 @@ PYO_USE_TK = False
 if not PYO_USE_WX:
     try:
         import tkinter as tk
+
         PYO_USE_TK = True
     except:
         PYO_USE_TK = False
@@ -353,7 +354,9 @@ def createDataGraphWindow(obj, yrange, title, wxnoserver=False):
             DATAGRAPHWINDOWS.append([obj, yrange, title])
 
 
-def createViewTableWindow(samples, title="Table waveform", wxnoserver=False, tableclass=None, object=None):
+def createViewTableWindow(
+    samples, title="Table waveform", wxnoserver=False, tableclass=None, object=None
+):
     "Creates a table view window (from a .view() method."
     if not PYO_USE_WX:
         createRootWindow()
@@ -372,7 +375,9 @@ def createViewTableWindow(samples, title="Table waveform", wxnoserver=False, tab
             TABLEWINDOWS.append([samples, tableclass, title, object])
 
 
-def createSndViewTableWindow(obj, title="Table waveform", wxnoserver=False, tableclass=None, mouse_callback=None):
+def createSndViewTableWindow(
+    obj, title="Table waveform", wxnoserver=False, tableclass=None, mouse_callback=None
+):
     "Creates a snd table view window (from a .view() method."
     if not PYO_USE_WX:
         createRootWindow()
@@ -557,7 +562,10 @@ def createServerGUI(
         f.SetTitle(title)
         f.SetPosition((30, 30))
         f.Show()
-        X, Y = (wx.SystemSettings.GetMetric(wx.SYS_SCREEN_X) - 50, wx.SystemSettings.GetMetric(wx.SYS_SCREEN_Y) - 50)
+        X, Y = (
+            wx.SystemSettings.GetMetric(wx.SYS_SCREEN_X) - 50,
+            wx.SystemSettings.GetMetric(wx.SYS_SCREEN_Y) - 50,
+        )
         if sys.platform.startswith("linux"):
             MAX_X, NEXT_Y = f.GetSize()[0] + 30, f.GetSize()[1] + 55
         else:

@@ -9,8 +9,8 @@ User variables are created with the keyword `var`:
 
 The variable name must begin with a `#`.
 
-They are computed only at initialization, but can be changed from the 
-python script with method calls (`varname` is a string and `value` is a 
+They are computed only at initialization, but can be changed from the
+python script with method calls (`varname` is a string and `value` is a
 float)::
 
     obj.setVar(varname, value)
@@ -20,6 +20,7 @@ the frequency and the feedback are controlled from the python side with
 method calls.
 
 """
+
 from pyo import *
 
 s = Server().boot()

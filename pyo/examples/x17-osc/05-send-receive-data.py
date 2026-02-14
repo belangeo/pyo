@@ -3,7 +3,7 @@
 
 OscDataSend and OscDataReceive are objects that should be used to
 send and receive Open Sound Control messages when message type is
-not simple float or when the user want to process values before 
+not simple float or when the user want to process values before
 sending using them to control an audio process.
 
 **OscDataSend** sends messages in the form of a list containing elements
@@ -14,6 +14,7 @@ for the various available types.
 followed by a tuple containing every values of the data message.
 
 """
+
 import random
 from pyo import *
 
@@ -25,6 +26,7 @@ freqs = SigTo([100, 200, 300, 400], time=2)
 rezon = Resonx(source.mix(2), freq=freqs, q=2, stages=2).out()
 
 # ----- Receiver -----
+
 
 # Handle all messages coming from addresses starting with "/data/"
 def getDataMessage(address, *args):

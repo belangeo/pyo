@@ -5,6 +5,7 @@ control and the visualization of audio signals. WxPython must be installed
 under the current Python distribution to access these classes.
 
 """
+
 from ._widgets import PYO_USE_WX
 
 if not PYO_USE_WX:
@@ -284,7 +285,9 @@ else:
 
         """
 
-        def __init__(self, parent, nchnls=2, pos=(0, 0), size=(200, 11), orient=wx.HORIZONTAL, style=0):
+        def __init__(
+            self, parent, nchnls=2, pos=(0, 0), size=(200, 11), orient=wx.HORIZONTAL, style=0
+        ):
             super(PyoGuiVuMeter, self).__init__(parent, size, nchnls, orient, pos, style)
 
         def setNchnls(self, nchnls):
@@ -374,7 +377,19 @@ else:
             style=0,
         ):
             super(PyoGuiGrapher, self).__init__(
-                parent, xlen, yrange, init, mode, exp, inverse, tension, bias, self._outFunction, pos, size, style
+                parent,
+                xlen,
+                yrange,
+                init,
+                mode,
+                exp,
+                inverse,
+                tension,
+                bias,
+                self._outFunction,
+                pos,
+                size,
+                style,
             )
 
         def _outFunction(self, value):
@@ -566,7 +581,9 @@ else:
 
         """
 
-        def __init__(self, parent, xlen=16, yrange=(0, 1), init=None, pos=(0, 0), size=(300, 200), style=0):
+        def __init__(
+            self, parent, xlen=16, yrange=(0, 1), init=None, pos=(0, 0), size=(300, 200), style=0
+        ):
             if init is None:
                 init = [yrange[0]] * xlen
             else:
@@ -574,7 +591,9 @@ else:
                     init += [yrange[0]] * (xlen - len(init))
                 elif len(init) > xlen:
                     init = init[:xlen]
-            super(PyoGuiMultiSlider, self).__init__(parent, init, yrange, self._outFunction, pos, size, style)
+            super(PyoGuiMultiSlider, self).__init__(
+                parent, init, yrange, self._outFunction, pos, size, style
+            )
 
         def _outFunction(self, value):
             evt = PyoGuiMultiSliderEvent(value=value, id=self.GetId(), object=self)
@@ -661,9 +680,19 @@ else:
         """
 
         def __init__(
-            self, parent, lowfreq=0, highfreq=22050, fscaling=0, mscaling=0, pos=(0, 0), size=(300, 200), style=0
+            self,
+            parent,
+            lowfreq=0,
+            highfreq=22050,
+            fscaling=0,
+            mscaling=0,
+            pos=(0, 0),
+            size=(300, 200),
+            style=0,
         ):
-            super(PyoGuiSpectrum, self).__init__(parent, 1, lowfreq, highfreq, fscaling, mscaling, pos, size, style)
+            super(PyoGuiSpectrum, self).__init__(
+                parent, 1, lowfreq, highfreq, fscaling, mscaling, pos, size, style
+            )
 
         def update(self, points):
             """
@@ -934,7 +963,9 @@ else:
             wx.Panel.__init__(self, parent, pos=pos, size=size, style=style)
             box = wx.BoxSizer(wx.VERTICAL)
             self._curzoom = (0.0, 1.0)
-            self.sndview = SndViewTablePanel(self, None, self._position_callback, self._select_callback)
+            self.sndview = SndViewTablePanel(
+                self, None, self._position_callback, self._select_callback
+            )
             box.Add(self.sndview, 1, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 5)
             self.zoom = HRangeSlider(
                 self,
@@ -1061,7 +1092,9 @@ else:
         """
 
         def __init__(self, parent, poly=64, pos=(0, 0), size=(600, 100), style=0):
-            super(PyoGuiKeyboard, self).__init__(parent, wx.ID_ANY, pos, size, poly, self._outFunction, style)
+            super(PyoGuiKeyboard, self).__init__(
+                parent, wx.ID_ANY, pos, size, poly, self._outFunction, style
+            )
 
         def _outFunction(self, value):
             evt = PyoGuiKeyboardEvent(value=value, id=self.GetId(), object=self)

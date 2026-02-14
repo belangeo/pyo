@@ -85,7 +85,7 @@ if os.path.isdir(dest_example_dir):
 os.mkdir("source/examples")
 with open("source/examples/index.rst", "w") as f:
     f.write(
-"""
+        """
 Examples
 ================
 
@@ -162,7 +162,9 @@ for dir in folders:
 os.system("sphinx-build -a -E -j 4 -b %s ./source %s" % (build_format, build_folder))
 
 if build_format == "latex":
-    os.system("cd build_latex; pdflatex -interaction nonstopmode Pyo;  pdflatex -interaction nonstopmode Pyo")
+    os.system(
+        "cd build_latex; pdflatex -interaction nonstopmode Pyo;  pdflatex -interaction nonstopmode Pyo"
+    )
 
 if build_format == "html":
     os.system("cp -r build_html/* ../docs/")

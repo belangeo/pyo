@@ -111,8 +111,8 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; a = Noise(mul=.5).mix(2)</span>
-<span class="sd">    &gt;&gt;&gt; b = Fader(fadein=.5, fadeout=1, dur=5).play()</span>
+<span class="sd">    &gt;&gt;&gt; a = Noise(mul=0.5).mix(2)</span>
+<span class="sd">    &gt;&gt;&gt; b = Fader(fadein=0.5, fadeout=1, dur=5).play()</span>
 <span class="sd">    &gt;&gt;&gt; c = Biquad(a, freq=500, q=2, mul=b).out()</span>
 <span class="sd">    &gt;&gt;&gt; dump = Clean_objects(6, a, b, c)</span>
 <span class="sd">    &gt;&gt;&gt; dump.start()</span>
@@ -170,9 +170,9 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; a = SfPlayer(SNDS_PATH + &#39;/transparent.aif&#39;, loop=True, mul=.3).out()</span>
+<span class="sd">    &gt;&gt;&gt; a = SfPlayer(SNDS_PATH + &#39;/transparent.aif&#39;, loop=True, mul=0.3).out()</span>
 <span class="sd">    &gt;&gt;&gt; b = Follower(a)</span>
-<span class="sd">    &gt;&gt;&gt; p = Print(b, method=0, interval=.1, message=&quot;RMS&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; p = Print(b, method=0, interval=0.1, message=&quot;RMS&quot;)</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -343,7 +343,7 @@
 <span class="sd">    &gt;&gt;&gt; wav = SquareTable()</span>
 <span class="sd">    &gt;&gt;&gt; env = CosTable([(0,0), (100,1), (500,.3), (8191,0)])</span>
 <span class="sd">    &gt;&gt;&gt; met = Metro(.125, 8).play()</span>
-<span class="sd">    &gt;&gt;&gt; amp = TrigEnv(met, table=env, mul=.2)</span>
+<span class="sd">    &gt;&gt;&gt; amp = TrigEnv(met, table=env, mul=0.2)</span>
 <span class="sd">    &gt;&gt;&gt; pit = TrigXnoiseMidi(met, dist=4, x1=20, mrange=(48,84))</span>
 <span class="sd">    &gt;&gt;&gt; hertz = Snap(pit, choice=[0,2,3,5,7,8,10], scale=1)</span>
 <span class="sd">    &gt;&gt;&gt; a = Osc(table=wav, freq=hertz, phase=0, mul=amp).out()</span>
@@ -479,9 +479,9 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; sf = SfPlayer(SNDS_PATH + &#39;/accord.aif&#39;, speed=[.99,1], loop=True, mul=.3)</span>
-<span class="sd">    &gt;&gt;&gt; sf2 = SfPlayer(SNDS_PATH + &#39;/transparent.aif&#39;, speed=[.99,1], loop=True, mul=.3)</span>
-<span class="sd">    &gt;&gt;&gt; lfo = Osc(table=SquareTable(20), freq=5, mul=.5, add=.5)</span>
+<span class="sd">    &gt;&gt;&gt; sf = SfPlayer(SNDS_PATH + &#39;/accord.aif&#39;, speed=[.99,1], loop=True, mul=0.3)</span>
+<span class="sd">    &gt;&gt;&gt; sf2 = SfPlayer(SNDS_PATH + &#39;/transparent.aif&#39;, speed=[.99,1], loop=True, mul=0.3)</span>
+<span class="sd">    &gt;&gt;&gt; lfo = Osc(table=SquareTable(20), freq=5, mul=0.5, add=0.5)</span>
 <span class="sd">    &gt;&gt;&gt; a = Interp(sf, sf2, lfo).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -621,7 +621,7 @@
 <span class="sd">    &gt;&gt;&gt; a = Noise(500,1000)</span>
 <span class="sd">    &gt;&gt;&gt; b = Sine([3,4])</span>
 <span class="sd">    &gt;&gt;&gt; c = SampHold(input=a, controlsig=b, value=0)</span>
-<span class="sd">    &gt;&gt;&gt; d = Sine(c, mul=.2).out()</span>
+<span class="sd">    &gt;&gt;&gt; d = Sine(c, mul=0.2).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -798,7 +798,7 @@
 <span class="sd">    &gt;&gt;&gt; from random import uniform</span>
 <span class="sd">    &gt;&gt;&gt; import os</span>
 <span class="sd">    &gt;&gt;&gt; t = HarmTable([1, 0, 0, .2, 0, 0, 0, .1, 0, 0, .05])</span>
-<span class="sd">    &gt;&gt;&gt; amp = Fader(fadein=.05, fadeout=2, dur=4, mul=.05).play()</span>
+<span class="sd">    &gt;&gt;&gt; amp = Fader(fadein=0.05, fadeout=2, dur=4, mul=0.05).play()</span>
 <span class="sd">    &gt;&gt;&gt; osc = Osc(t, freq=[uniform(350,360) for i in range(10)], mul=amp).out()</span>
 <span class="sd">    &gt;&gt;&gt; home = os.path.expanduser(&#39;~&#39;)</span>
 <span class="sd">    &gt;&gt;&gt; # Records an audio file called &quot;example_synth.aif&quot; in the home folder</span>
@@ -893,7 +893,7 @@
 <span class="sd">    &gt;&gt;&gt; amp = Linseg([(0,0),(2,1),(4,0)], loop=True).play()</span>
 <span class="sd">    &gt;&gt;&gt; a = Sine(freq=[800,1000], mul=0.01*amp)</span>
 <span class="sd">    &gt;&gt;&gt; den = Denorm(a)</span>
-<span class="sd">    &gt;&gt;&gt; rev = Freeverb(den, size=.9).out()</span>
+<span class="sd">    &gt;&gt;&gt; rev = Freeverb(den, size=0.9).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -994,7 +994,7 @@
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; rnds = Randi(freq=[1,2], min=200, max=400)</span>
-<span class="sd">    &gt;&gt;&gt; sines = SineLoop(freq=rnds, feedback=.05, mul=.2).out()</span>
+<span class="sd">    &gt;&gt;&gt; sines = SineLoop(freq=rnds, feedback=0.05, mul=0.2).out()</span>
 <span class="sd">    &gt;&gt;&gt; home = os.path.expanduser(&#39;~&#39;)</span>
 <span class="sd">    &gt;&gt;&gt; rec = ControlRec(rnds, home+&quot;/test&quot;, rate=100, dur=4).play()</span>
 <span class="sd">    &gt;&gt;&gt; # call rec.write() to save &quot;test_000&quot; and &quot;test_001&quot; in the home directory.</span>
@@ -1078,7 +1078,7 @@
 
 <span class="sd">        &gt;&gt;&gt; rnds = ControlRead(home+&quot;/freq_auto&quot;, loop=True)</span>
 <span class="sd">        &gt;&gt;&gt; t = SndTable(SNDS_PATH+&quot;/transparent.aif&quot;)</span>
-<span class="sd">        &gt;&gt;&gt; loop = TrigEnv(rnds[&quot;trig&quot;], t, dur=[.2,.3,.4,.5], mul=.5).out()</span>
+<span class="sd">        &gt;&gt;&gt; loop = TrigEnv(rnds[&quot;trig&quot;], t, dur=[.2,.3,.4,.5], mul=0.5).out()</span>
 
 <span class="sd">        The out() method is bypassed. ControlRead&#39;s signal can not be sent to</span>
 <span class="sd">        audio outs.</span>
@@ -1090,7 +1090,7 @@
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; rnds = ControlRead(SNDS_PATH+&quot;/ControlRead_example_test&quot;, rate=100, loop=True)</span>
-<span class="sd">    &gt;&gt;&gt; sines = SineLoop(freq=rnds, feedback=.05, mul=.15).out()</span>
+<span class="sd">    &gt;&gt;&gt; sines = SineLoop(freq=rnds, feedback=0.05, mul=0.15).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -1325,7 +1325,7 @@
 
 <span class="sd">        &gt;&gt;&gt; notes = NoteinRead(home+&quot;/notes_rec&quot;, loop=True)</span>
 <span class="sd">        &gt;&gt;&gt; t = SndTable(SNDS_PATH+&quot;/transparent.aif&quot;)</span>
-<span class="sd">        &gt;&gt;&gt; loop = TrigEnv(notes[&quot;trig&quot;], t, dur=[.2,.3,.4,.5], mul=.25).out()</span>
+<span class="sd">        &gt;&gt;&gt; loop = TrigEnv(notes[&quot;trig&quot;], t, dur=[.2,.3,.4,.5], mul=0.25).out()</span>
 
 <span class="sd">        The out() method is bypassed. NoteinRead&#39;s signal can not be sent to</span>
 <span class="sd">        audio outs.</span>
@@ -1337,9 +1337,9 @@
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; notes = NoteinRead(SNDS_PATH+&quot;/NoteinRead_example_test&quot;, loop=True)</span>
-<span class="sd">    &gt;&gt;&gt; amps = Port(notes[&#39;velocity&#39;], 0.001, 0.45, mul=.3)</span>
+<span class="sd">    &gt;&gt;&gt; amps = Port(notes[&#39;velocity&#39;], 0.001, 0.45, mul=0.3)</span>
 <span class="sd">    &gt;&gt;&gt; # pitches are saved in MIDI values in NoteinRead_example_test</span>
-<span class="sd">    &gt;&gt;&gt; sines = SineLoop(freq=MToF(notes[&#39;pitch&#39;]), feedback=.05, mul=amps).out()</span>
+<span class="sd">    &gt;&gt;&gt; sines = SineLoop(freq=MToF(notes[&#39;pitch&#39;]), feedback=0.05, mul=amps).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -1467,7 +1467,7 @@
 <span class="sd">    &gt;&gt;&gt; # amplitude modulation 6 dB around -18 dB</span>
 <span class="sd">    &gt;&gt;&gt; db = Sine(freq=1, phase=[0,.5], mul=6, add=-18)</span>
 <span class="sd">    &gt;&gt;&gt; amp = DBToA(db)</span>
-<span class="sd">    &gt;&gt;&gt; b = SineLoop(freq=[350,400], feedback=.1, mul=amp).out()</span>
+<span class="sd">    &gt;&gt;&gt; b = SineLoop(freq=[350,400], feedback=0.1, mul=amp).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -1530,7 +1530,7 @@
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; # amplitude modulation of a notch around 1000 Hz, from -120 db to 0dB</span>
-<span class="sd">    &gt;&gt;&gt; amp = Sine([1,1.5], mul=.5, add=.5)</span>
+<span class="sd">    &gt;&gt;&gt; amp = Sine([1,1.5], mul=0.5, add=0.5)</span>
 <span class="sd">    &gt;&gt;&gt; db = AToDB(amp)</span>
 <span class="sd">    &gt;&gt;&gt; a = PinkNoise(.2)</span>
 <span class="sd">    &gt;&gt;&gt; b = EQ(a, freq=1000, q=2, boost=db).out()</span>
@@ -1607,11 +1607,11 @@
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; met = Metro(.125, poly=2).play()</span>
-<span class="sd">    &gt;&gt;&gt; rnd = TrigRand(met, min=0, max=1, port=.005)</span>
+<span class="sd">    &gt;&gt;&gt; rnd = TrigRand(met, min=0, max=1, port=0.005)</span>
 <span class="sd">    &gt;&gt;&gt; omlf = Sine(.5, mul=700, add=1000)</span>
 <span class="sd">    &gt;&gt;&gt; fr = Scale(rnd, inmin=0, inmax=1, outmin=250, outmax=omlf, exp=1)</span>
-<span class="sd">    &gt;&gt;&gt; amp = TrigEnv(met, table=HannTable(), dur=.25, mul=.2)</span>
-<span class="sd">    &gt;&gt;&gt; out = SineLoop(fr, feedback=.07, mul=amp).out()</span>
+<span class="sd">    &gt;&gt;&gt; amp = TrigEnv(met, table=HannTable(), dur=0.25, mul=0.2)</span>
+<span class="sd">    &gt;&gt;&gt; out = SineLoop(fr, feedback=0.07, mul=amp).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -1842,7 +1842,7 @@
 <span class="sd">    &gt;&gt;&gt; met = Metro(.125, poly=2).play()</span>
 <span class="sd">    &gt;&gt;&gt; cts = TrigRandInt(met, max=12, mul=100)</span>
 <span class="sd">    &gt;&gt;&gt; trans = CentsToTranspo(cts)</span>
-<span class="sd">    &gt;&gt;&gt; sf = SfPlayer(SNDS_PATH+&quot;/transparent.aif&quot;, loop=True, speed=trans, mul=.25).out()</span>
+<span class="sd">    &gt;&gt;&gt; sf = SfPlayer(SNDS_PATH+&quot;/transparent.aif&quot;, loop=True, speed=trans, mul=0.25).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -1905,7 +1905,7 @@
 <span class="sd">    &gt;&gt;&gt; met = Metro(.125, poly=2).play()</span>
 <span class="sd">    &gt;&gt;&gt; trans = TrigChoice(met, choice=[.25,.5,.5,.75,1,1.25,1.5])</span>
 <span class="sd">    &gt;&gt;&gt; semi = TranspoToCents(trans, mul=0.01)</span>
-<span class="sd">    &gt;&gt;&gt; sf = SfPlayer(SNDS_PATH+&quot;/transparent.aif&quot;, loop=True, mul=.3).out()</span>
+<span class="sd">    &gt;&gt;&gt; sf = SfPlayer(SNDS_PATH+&quot;/transparent.aif&quot;, loop=True, mul=0.3).out()</span>
 <span class="sd">    &gt;&gt;&gt; harm = Harmonizer(sf, transpo=semi).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1968,9 +1968,9 @@
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; met = Metro(.125, poly=2).play()</span>
-<span class="sd">    &gt;&gt;&gt; mid = TrigChoice(met, choice=[60, 63, 67, 70], port=.005)</span>
+<span class="sd">    &gt;&gt;&gt; mid = TrigChoice(met, choice=[60, 63, 67, 70], port=0.005)</span>
 <span class="sd">    &gt;&gt;&gt; hz = MToF(mid)</span>
-<span class="sd">    &gt;&gt;&gt; syn = SineLoop(freq=hz, feedback=.07, mul=.2).out()</span>
+<span class="sd">    &gt;&gt;&gt; syn = SineLoop(freq=hz, feedback=0.07, mul=0.2).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -2104,8 +2104,8 @@
 <span class="sd">    &gt;&gt;&gt; tsnd = SndTable(SNDS_PATH+&quot;/accord.aif&quot;)</span>
 <span class="sd">    &gt;&gt;&gt; tenv = CosTable([(0,0), (100,1), (1000,.5), (8192,0)])</span>
 <span class="sd">    &gt;&gt;&gt; met = Metro(.125, poly=2).play()</span>
-<span class="sd">    &gt;&gt;&gt; amp = TrigEnv(met, table=tenv, dur=.25, mul=.7)</span>
-<span class="sd">    &gt;&gt;&gt; mid = TrigChoice(met, choice=[43, 45, 60, 63], port=.0025)</span>
+<span class="sd">    &gt;&gt;&gt; amp = TrigEnv(met, table=tenv, dur=0.25, mul=0.7)</span>
+<span class="sd">    &gt;&gt;&gt; mid = TrigChoice(met, choice=[43, 45, 60, 63], port=0.0025)</span>
 <span class="sd">    &gt;&gt;&gt; sp = MToT(mid)</span>
 <span class="sd">    &gt;&gt;&gt; snd = Osc(tsnd, freq=tsnd.getRate()/sp, mul=amp).out()</span>
 
@@ -2203,9 +2203,9 @@
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; ph = Phasor(freq=[7,8])</span>
-<span class="sd">    &gt;&gt;&gt; tr = Between(ph, min=0, max=.25)</span>
-<span class="sd">    &gt;&gt;&gt; amp = Port(tr, risetime=0.002, falltime=0.002, mul=.2)</span>
-<span class="sd">    &gt;&gt;&gt; a = SineLoop(freq=[245,250], feedback=.1, mul=amp).out()</span>
+<span class="sd">    &gt;&gt;&gt; tr = Between(ph, min=0, max=0.25)</span>
+<span class="sd">    &gt;&gt;&gt; amp = Port(tr, risetime=0.002, falltime=0.002, mul=0.2)</span>
+<span class="sd">    &gt;&gt;&gt; a = SineLoop(freq=[245,250], feedback=0.1, mul=amp).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -2341,9 +2341,9 @@
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; ph = Phasor([3,4])</span>
-<span class="sd">    &gt;&gt;&gt; lf = Sine(.2, mul=.5, add=.5)</span>
+<span class="sd">    &gt;&gt;&gt; lf = Sine(.2, mul=0.5, add=0.5)</span>
 <span class="sd">    &gt;&gt;&gt; th = TrackHold(lf, ph &gt; 0.5, 1, mul=500, add=300)</span>
-<span class="sd">    &gt;&gt;&gt; a = Sine(th, mul=.3).out()</span>
+<span class="sd">    &gt;&gt;&gt; a = Sine(th, mul=0.3).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 

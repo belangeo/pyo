@@ -115,7 +115,7 @@
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; # Square wave up to 9th harmonic</span>
 <span class="sd">    &gt;&gt;&gt; t = HarmTable([1,0,.33,0,.2,0,.143,0,.111])</span>
-<span class="sd">    &gt;&gt;&gt; a = Osc(table=t, freq=[199,200], mul=.2).out()</span>
+<span class="sd">    &gt;&gt;&gt; a = Osc(table=t, freq=[199,200], mul=0.2).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -236,7 +236,7 @@
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; t = SawTable(order=12).normalize()</span>
-<span class="sd">    &gt;&gt;&gt; a = Osc(table=t, freq=[199,200], mul=.2).out()</span>
+<span class="sd">    &gt;&gt;&gt; a = Osc(table=t, freq=[199,200], mul=0.2).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -298,7 +298,7 @@
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; t = SquareTable(order=15).normalize()</span>
-<span class="sd">    &gt;&gt;&gt; a = Osc(table=t, freq=[199,200], mul=.2).out()</span>
+<span class="sd">    &gt;&gt;&gt; a = Osc(table=t, freq=[199,200], mul=0.2).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -370,7 +370,7 @@
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; t = TriangleTable(order=15).normalize()</span>
-<span class="sd">    &gt;&gt;&gt; a = Osc(table=t, freq=[199,200], mul=.2).out()</span>
+<span class="sd">    &gt;&gt;&gt; a = Osc(table=t, freq=[199,200], mul=0.2).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -449,7 +449,7 @@
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; t = ChebyTable([1,0,.33,0,.2,0,.143,0,.111])</span>
-<span class="sd">    &gt;&gt;&gt; lfo = Sine(freq=.25, mul=0.45, add=0.5)</span>
+<span class="sd">    &gt;&gt;&gt; lfo = Sine(freq=0.25, mul=0.45, add=0.5)</span>
 <span class="sd">    &gt;&gt;&gt; a = Sine(freq=[200,201], mul=lfo)</span>
 <span class="sd">    &gt;&gt;&gt; b = Lookup(table=t, index=a, mul=1-lfo).out()</span>
 
@@ -584,7 +584,7 @@
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; # Hanning envelope</span>
 <span class="sd">    &gt;&gt;&gt; t = HannTable()</span>
-<span class="sd">    &gt;&gt;&gt; a = Osc(table=t, freq=2, mul=.2)</span>
+<span class="sd">    &gt;&gt;&gt; a = Osc(table=t, freq=2, mul=0.2)</span>
 <span class="sd">    &gt;&gt;&gt; b = Sine(freq=[299,300], mul=a).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -617,7 +617,7 @@
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; t = SincTable(freq=math.pi*6, windowed=True)</span>
-<span class="sd">    &gt;&gt;&gt; a = Osc(t, freq=[199,200], mul=.2).out()</span>
+<span class="sd">    &gt;&gt;&gt; a = Osc(t, freq=[199,200], mul=0.2).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -712,7 +712,7 @@
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; # Triangular envelope</span>
 <span class="sd">    &gt;&gt;&gt; t = WinTable(type=3)</span>
-<span class="sd">    &gt;&gt;&gt; a = Osc(table=t, freq=2, mul=.2)</span>
+<span class="sd">    &gt;&gt;&gt; a = Osc(table=t, freq=2, mul=0.2)</span>
 <span class="sd">    &gt;&gt;&gt; b = SineLoop(freq=[199,200], feedback=0.05, mul=a).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -772,7 +772,7 @@
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; # Parabola envelope</span>
 <span class="sd">    &gt;&gt;&gt; t = ParaTable()</span>
-<span class="sd">    &gt;&gt;&gt; a = Osc(table=t, freq=2, mul=.2)</span>
+<span class="sd">    &gt;&gt;&gt; a = Osc(table=t, freq=2, mul=0.2)</span>
 <span class="sd">    &gt;&gt;&gt; b = SineLoop(freq=[299,300], feedback=0.05, mul=a).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -811,7 +811,7 @@
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; # Sharp attack envelope</span>
 <span class="sd">    &gt;&gt;&gt; t = LinTable([(0,0), (100,1), (1000,.25), (8191,0)])</span>
-<span class="sd">    &gt;&gt;&gt; a = Osc(table=t, freq=2, mul=.25)</span>
+<span class="sd">    &gt;&gt;&gt; a = Osc(table=t, freq=2, mul=0.25)</span>
 <span class="sd">    &gt;&gt;&gt; b = SineLoop(freq=[299,300], feedback=0.05, mul=a).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -963,7 +963,7 @@
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; t = LogTable([(0,0), (4095,1), (8192,0)])</span>
-<span class="sd">    &gt;&gt;&gt; a = Osc(table=t, freq=2, mul=.25)</span>
+<span class="sd">    &gt;&gt;&gt; a = Osc(table=t, freq=2, mul=0.25)</span>
 <span class="sd">    &gt;&gt;&gt; b = SineLoop(freq=[599,600], feedback=0.05, mul=a).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1115,7 +1115,7 @@
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; t = CosLogTable([(0,0), (4095,1), (8192,0)])</span>
-<span class="sd">    &gt;&gt;&gt; a = Osc(table=t, freq=2, mul=.25)</span>
+<span class="sd">    &gt;&gt;&gt; a = Osc(table=t, freq=2, mul=0.25)</span>
 <span class="sd">    &gt;&gt;&gt; b = SineLoop(freq=[599,600], feedback=0.05, mul=a).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1266,7 +1266,7 @@
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; # Sharp attack envelope</span>
 <span class="sd">    &gt;&gt;&gt; t = CosTable([(0,0), (100,1), (1000,.25), (8191,0)])</span>
-<span class="sd">    &gt;&gt;&gt; a = Osc(table=t, freq=2, mul=.25)</span>
+<span class="sd">    &gt;&gt;&gt; a = Osc(table=t, freq=2, mul=0.25)</span>
 <span class="sd">    &gt;&gt;&gt; b = SineLoop(freq=[299,300], feedback=0.05, mul=a).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1433,7 +1433,7 @@
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; t = CurveTable([(0,0),(2048,.5),(4096,.2),(6144,.5),(8192,0)], 0, 20)</span>
 <span class="sd">    &gt;&gt;&gt; t.normalize()</span>
-<span class="sd">    &gt;&gt;&gt; a = Osc(table=t, freq=2, mul=.25)</span>
+<span class="sd">    &gt;&gt;&gt; a = Osc(table=t, freq=2, mul=0.25)</span>
 <span class="sd">    &gt;&gt;&gt; b = SineLoop(freq=[299,300], feedback=0.05, mul=a).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1650,7 +1650,7 @@
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; t = ExpTable([(0,0),(4096,1),(8192,0)], exp=5, inverse=True)</span>
-<span class="sd">    &gt;&gt;&gt; a = Osc(table=t, freq=2, mul=.3)</span>
+<span class="sd">    &gt;&gt;&gt; a = Osc(table=t, freq=2, mul=0.3)</span>
 <span class="sd">    &gt;&gt;&gt; b = Sine(freq=[299,300], mul=a).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1865,7 +1865,7 @@
 <span class="sd">    &gt;&gt;&gt; snd_path = SNDS_PATH + &#39;/transparent.aif&#39;</span>
 <span class="sd">    &gt;&gt;&gt; t = SndTable(snd_path)</span>
 <span class="sd">    &gt;&gt;&gt; freq = t.getRate()</span>
-<span class="sd">    &gt;&gt;&gt; a = Osc(table=t, freq=[freq, freq*.995], mul=.3).out()</span>
+<span class="sd">    &gt;&gt;&gt; a = Osc(table=t, freq=[freq, freq*.995], mul=0.3).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -2493,7 +2493,7 @@
 <span class="sd">    &gt;&gt;&gt; tab = DataTable(size=10, init=notes)</span>
 <span class="sd">    &gt;&gt;&gt; ind = RandInt(10, 8)</span>
 <span class="sd">    &gt;&gt;&gt; pit = TableIndex(tab, ind)</span>
-<span class="sd">    &gt;&gt;&gt; a = SineLoop(freq=[pit,pit*0.99], feedback = 0.07, mul=.2).out()</span>
+<span class="sd">    &gt;&gt;&gt; a = SineLoop(freq=[pit,pit*0.99], feedback = 0.07, mul=0.2).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -2711,7 +2711,7 @@
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; t = PartialTable([(1,1), (2.37, 0.5), (4.55, 0.3)]).normalize()</span>
 <span class="sd">    &gt;&gt;&gt; # Play with fundamentals 199 and 200 Hz</span>
-<span class="sd">    &gt;&gt;&gt; a = Osc(table=t, freq=[1.99,2], mul=.2).out()</span>
+<span class="sd">    &gt;&gt;&gt; a = Osc(table=t, freq=[1.99,2], mul=0.2).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 

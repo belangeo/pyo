@@ -6,6 +6,7 @@ can be used to find the address used by a specific device or the
 range of values sent on a given address.
 
 """
+
 from pyo import *
 
 # Set the port number.
@@ -14,6 +15,7 @@ port = 9002
 s = Server().boot().start()
 
 print("Play with your OSC interface...")
+
 
 # Function called whenever OscDataReceive receives an input.
 def printInputMessage(address, *args):

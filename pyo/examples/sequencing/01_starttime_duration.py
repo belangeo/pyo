@@ -5,6 +5,7 @@ Show how to use `dur` and `delay` parameters of play() and out()
 methods to sequence events over time.
 
 """
+
 from pyo import *
 import random
 
@@ -26,7 +27,9 @@ snds = [
 ]
 tabs = SndTable(snds)
 fade2 = Fader(0.05, 10, dur2, mul=0.7).play(dur=dur2, delay=start2)
-b = Beat(time=0.125, w1=[90, 30, 30, 20], w2=[30, 90, 50, 40], w3=[0, 30, 30, 40], poly=1).play(dur=dur2, delay=start2)
+b = Beat(time=0.125, w1=[90, 30, 30, 20], w2=[30, 90, 50, 40], w3=[0, 30, 30, 40], poly=1).play(
+    dur=dur2, delay=start2
+)
 out = TrigEnv(b, tabs, b["dur"], mul=b["amp"] * fade2).out(dur=dur2, delay=start2)
 
 start3 = 45

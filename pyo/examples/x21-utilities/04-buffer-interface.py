@@ -1,8 +1,8 @@
 """
-04-buffer-interface.py - Sharing a table with a numpy array using the buffer protocol 
+04-buffer-interface.py - Sharing a table with a numpy array using the buffer protocol
 
 This example shows two things:
-    
+
 1. How to share memory from a PyoTableObject to a numpy array with the
    `getBuffer()` method of the PyoTableObject. Numpy functions can then
    be used to modify the table's content without copying every samples.
@@ -16,6 +16,7 @@ This example shows two things:
     The numpy module **must** be installed for this example to work.
 
 """
+
 from pyo import *
 import numpy as np
 

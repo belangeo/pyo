@@ -8,6 +8,7 @@ from a signal containing abrupt changes. The rising and falling
 coefficients are controlled in seconds.
 
 """
+
 from pyo import *
 
 s = Server().boot()

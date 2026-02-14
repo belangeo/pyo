@@ -5,7 +5,7 @@ The Expr object implements a tiny functional programming language
 that can be used to write synthesis or signal processing algorithms.
 
 The language uses prefix notation (also known as "Polish notation")
-to express audio algorithms. In prefix notation, Operators are written 
+to express audio algorithms. In prefix notation, Operators are written
 before their operands, between braces. To add two number together, we
 will write:
 
@@ -24,12 +24,12 @@ And so on, it's how we build our algorithm. To generate a sine wave, we do:
 .. code-block:: scheme
 
     (sin (* twopi (~ 440)))
- 
+
 The `~` operator generates a ramp from 0 to 1 at a frequency given to its first
 argument.
 
 If the object generates only one channel output (the default), the last expression
-in the script is the output signal. Otherwise, output signals must be created with 
+in the script is the output signal. Otherwise, output signals must be created with
 the `out` function (we will cover this topic in a later example).
 
 For the detail of all available functions, see the prefix expression
@@ -41,6 +41,7 @@ Here is a program that use the Expr object, with its own editor, to generate two
 sine waves with frequency and gain control.
 
 """
+
 from pyo import *
 
 s = Server().boot()

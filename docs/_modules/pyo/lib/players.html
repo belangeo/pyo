@@ -158,7 +158,7 @@
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; snd = SNDS_PATH + &quot;/transparent.aif&quot;</span>
-<span class="sd">    &gt;&gt;&gt; sf = SfPlayer(snd, speed=[.75,.8], loop=True, mul=.3).out()</span>
+<span class="sd">    &gt;&gt;&gt; sf = SfPlayer(snd, speed=[.75,.8], loop=True, mul=0.3).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -431,7 +431,7 @@
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; sound = SNDS_PATH + &quot;/transparent.aif&quot;</span>
-<span class="sd">    &gt;&gt;&gt; sf = SfMarkerShuffler(sound, speed=[1,1], mul=.3).out()</span>
+<span class="sd">    &gt;&gt;&gt; sf = SfMarkerShuffler(sound, speed=[1,1], mul=0.3).out()</span>
 <span class="sd">    &gt;&gt;&gt; sf.setRandomType(&quot;expon_min&quot;, 0.6)</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -636,7 +636,7 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; a = SfMarkerLooper(SNDS_PATH + &#39;/transparent.aif&#39;, speed=[.999,1], mul=.3).out()</span>
+<span class="sd">    &gt;&gt;&gt; a = SfMarkerLooper(SNDS_PATH + &#39;/transparent.aif&#39;, speed=[.999,1], mul=0.3).out()</span>
 <span class="sd">    &gt;&gt;&gt; rnd = RandInt(len(a.getMarkers()), 2)</span>
 <span class="sd">    &gt;&gt;&gt; a.mark = rnd</span>
 

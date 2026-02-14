@@ -4,6 +4,7 @@
 Audio control with LFOs.
 
 """
+
 from pyo import *
 
 s = Server(duplex=0).boot()

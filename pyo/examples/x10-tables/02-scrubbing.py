@@ -16,6 +16,7 @@ from pyo import *
 
 s = Server().boot()
 
+
 # The callback given to the SndTable.view() method.
 def mouse(mpos):
     print("X = %.2f, Y = %.2f" % tuple(mpos))

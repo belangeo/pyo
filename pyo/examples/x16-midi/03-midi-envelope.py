@@ -13,6 +13,7 @@ The second part is a pair of oscillators slightly out-of-tune raising smoothly
 after a half-second delay. This gradually introduces beating into the sound.
 
 """
+
 from pyo import *
 
 s = Server()
@@ -27,7 +28,9 @@ notes.keyboard()
 env1 = MidiAdsr(notes["velocity"], attack=0.005, decay=0.1, sustain=0.7, release=0.5, mul=0.1)
 
 # MIDI-triggered DADSR envelope (a classic ADSR with an adjustable pre-delay).
-env2 = MidiDelAdsr(notes["velocity"], delay=0.5, attack=1, decay=0.5, sustain=0.5, release=0.5, mul=0.1)
+env2 = MidiDelAdsr(
+    notes["velocity"], delay=0.5, attack=1, decay=0.5, sustain=0.5, release=0.5, mul=0.1
+)
 
 # Root frequency appears instantly.
 sig1 = RCOsc(freq=notes["pitch"], sharp=0.5, mul=env1).mix().mix(2).out()

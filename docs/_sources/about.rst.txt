@@ -2,8 +2,8 @@ About pyo
 =================
 
 Pyo is a Python module written in C to help digital signal processing script 
-creation. It provides a complete set of classes to build audio softwares, 
-compose algorithmic musics or simply explore audio processing with a simple, 
+creation. It provides a complete set of classes to build audio software, 
+compose algorithmic music or simply explore audio processing with a simple, 
 mature and powerful programming language.
 
 Pyo contains 
@@ -14,7 +14,7 @@ in the pyo module offer primitives, like mathematical operations on audio
 signals, basic signal processing (filters, delays, synthesis generators, etc.), 
 but also complex algorithms to create sound granulation and other creative 
 audio manipulations. pyo supports the OSC protocol (Open Sound Control) to ease 
-communications between softwares, and the MIDI protocol for generating sound 
+communications between software, and the MIDI protocol for generating sound 
 events and controlling process parameters. pyo allows the creation of 
 sophisticated signal processing chains with all the benefits of a mature and 
 widely used general programming language. 

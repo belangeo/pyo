@@ -25,7 +25,7 @@ Pre-Processing on music text
 - We can break a long line into multiple short lines with the backslash ( \ ).
 
 - The symbol equal ( = ), preceded by a variable name in UPPER CASE, creates a
-  macro. The remaining part of the line is the macro body. Anywhere the 
+  macro. The remaining part of the line is the macro body. Anywhere the
   pre-processor finds the variable name in the music, it will be replaced by the
   macro's body.
 
@@ -73,7 +73,7 @@ Realtime Processing of the music
 
 - The letter `v`, followed by a number between 0 and 100, sets the volume for the following
   notes. If the letter `v` is followed by the symbol `+`, the volume increases by one. If
-  followed by the symbol `-`, the volume decreases by one. If a number follows the symbol 
+  followed by the symbol `-`, the volume decreases by one. If a number follows the symbol
   `+` or `-`, the volume increases or decreases by the given amount.
 
 - The symbol #, followed by a number indicates the voice number for the line. This should be
@@ -230,7 +230,10 @@ class MMLParser:
             for macro in sorted(macros, key=len, reverse=True):
                 pos = new.find(macro)
                 while pos != -1:
-                    if new[pos - 1] in MACRO_DELIMITERS and new[pos + len(macro)] in MACRO_DELIMITERS:
+                    if (
+                        new[pos - 1] in MACRO_DELIMITERS
+                        and new[pos + len(macro)] in MACRO_DELIMITERS
+                    ):
                         new = new[:pos] + macros[macro] + new[pos + len(macro) :]
                     pos = new.find(macro, pos + len(macro))
         return new
@@ -431,16 +434,44 @@ class MML(PyoObject):
         for i in range(voices):
             if self._sequences[i] is not None:
                 self._base_players[i].setSequence(self._sequences[i])
-        self._base_objs = [MML_base(wrap(self._base_players, j), i) for j in range(voices) for i in range(poly)]
-        self._fre_objs = [
-            MMLFreqStream_base(wrap(self._base_players, j), i) for j in range(voices) for i in range(poly)
+        self._base_objs = [
+            MML_base(wrap(self._base_players, j), i) for j in range(voices) for i in range(poly)
         ]
-        self._amp_objs = [MMLAmpStream_base(wrap(self._base_players, j), i) for j in range(voices) for i in range(poly)]
-        self._dur_objs = [MMLDurStream_base(wrap(self._base_players, j), i) for j in range(voices) for i in range(poly)]
-        self._end_objs = [MMLEndStream_base(wrap(self._base_players, j), i) for j in range(voices) for i in range(poly)]
-        self._x_objs = [MMLXStream_base(wrap(self._base_players, j), i) for j in range(voices) for i in range(poly)]
-        self._y_objs = [MMLYStream_base(wrap(self._base_players, j), i) for j in range(voices) for i in range(poly)]
-        self._z_objs = [MMLZStream_base(wrap(self._base_players, j), i) for j in range(voices) for i in range(poly)]
+        self._fre_objs = [
+            MMLFreqStream_base(wrap(self._base_players, j), i)
+            for j in range(voices)
+            for i in range(poly)
+        ]
+        self._amp_objs = [
+            MMLAmpStream_base(wrap(self._base_players, j), i)
+            for j in range(voices)
+            for i in range(poly)
+        ]
+        self._dur_objs = [
+            MMLDurStream_base(wrap(self._base_players, j), i)
+            for j in range(voices)
+            for i in range(poly)
+        ]
+        self._end_objs = [
+            MMLEndStream_base(wrap(self._base_players, j), i)
+            for j in range(voices)
+            for i in range(poly)
+        ]
+        self._x_objs = [
+            MMLXStream_base(wrap(self._base_players, j), i)
+            for j in range(voices)
+            for i in range(poly)
+        ]
+        self._y_objs = [
+            MMLYStream_base(wrap(self._base_players, j), i)
+            for j in range(voices)
+            for i in range(poly)
+        ]
+        self._z_objs = [
+            MMLZStream_base(wrap(self._base_players, j), i)
+            for j in range(voices)
+            for i in range(poly)
+        ]
 
     def __getitem__(self, i):
         if i == "freq":
@@ -508,7 +539,9 @@ class MML(PyoObject):
         if not all:
             return self.__getitem__(identifier)[0]._getStream().getValue()
         else:
-            return [obj._getStream().getValue() for obj in self.__getitem__(identifier).getBaseObjects()]
+            return [
+                obj._getStream().getValue() for obj in self.__getitem__(identifier).getBaseObjects()
+            ]
 
     def setMusic(self, x):
         """
@@ -575,13 +608,27 @@ class MML(PyoObject):
 
     def play(self, dur=0, delay=0):
         dur, delay, lmax = convertArgsToLists(dur, delay)
-        self._fre_objs = [obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._fre_objs)]
-        self._amp_objs = [obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._amp_objs)]
-        self._dur_objs = [obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._dur_objs)]
-        self._end_objs = [obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._end_objs)]
-        self._x_objs = [obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._x_objs)]
-        self._y_objs = [obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._y_objs)]
-        self._z_objs = [obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._z_objs)]
+        self._fre_objs = [
+            obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._fre_objs)
+        ]
+        self._amp_objs = [
+            obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._amp_objs)
+        ]
+        self._dur_objs = [
+            obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._dur_objs)
+        ]
+        self._end_objs = [
+            obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._end_objs)
+        ]
+        self._x_objs = [
+            obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._x_objs)
+        ]
+        self._y_objs = [
+            obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._y_objs)
+        ]
+        self._z_objs = [
+            obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._z_objs)
+        ]
         return PyoObject.play(self, dur, delay)
 
     def stop(self, wait=0):

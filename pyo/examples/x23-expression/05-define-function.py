@@ -15,6 +15,7 @@ The following example defines two functions, a simple oscillator and a
 frequency modulation function using the former one.
 
 """
+
 from pyo import *
 
 s = Server().boot()

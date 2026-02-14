@@ -2,13 +2,14 @@
 04-ping-pong-delay.py - Stereo ping-pong delay.
 
 A stereo ping-pong delay is when you use two delays, one hard left and the
-other hard right, and the delays alternate. 
+other hard right, and the delays alternate.
 
 This example illustrates how we can pass the signal of a first object to
 the input of a second even if the first object does not exist yet when the
 second is created.
- 
+
 """
+
 from pyo import *
 import random
 

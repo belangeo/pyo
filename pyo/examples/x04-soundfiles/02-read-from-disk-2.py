@@ -12,6 +12,7 @@ syntax :
 variable_name["trig"]
 
 """
+
 from pyo import *
 import random
 
@@ -25,6 +26,7 @@ sounds = ["alum1.wav", "alum2.wav", "alum3.wav", "alum4.wav"]
 sfL = SfPlayer(folder + sounds[0], speed=1, mul=0.5).out()
 sfR = SfPlayer(folder + sounds[0], speed=1, mul=0.5).out(1)
 
+
 # Function to choose a new sound and a new speed for the left player
 def newL():
     sfL.path = folder + sounds[random.randint(0, 3)]
@@ -34,6 +36,7 @@ def newL():
 
 # The "end-of-file" signal triggers the function "newL"
 tfL = TrigFunc(sfL["trig"], newL)
+
 
 # Function to choose a new sound and a new speed for the right player
 def newR():

@@ -9,12 +9,13 @@ according to the result of a condition. The syntax is:
     (if (condition) (then) (else))
 
 The example below uses two conditional statements. The first one
-adjusts the duty cycle of a pulse-width-modulation waveform and 
+adjusts the duty cycle of a pulse-width-modulation waveform and
 the second one split the positive and negative parts of the wave.
 A slider, controlling a user variable, sets the gain of the
-negative part. 
+negative part.
 
 """
+
 from pyo import *
 
 s = Server().boot()

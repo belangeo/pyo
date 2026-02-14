@@ -15,12 +15,13 @@ signature must be::
 
 The EventInstrument is responsible for the creation of the envelope, accessible
 through the variable self.env, and also for clearing its resources when it's done
-playing. 
+playing.
 
-All arguments given to the Events object can be retrieved in our instrument with 
+All arguments given to the Events object can be retrieved in our instrument with
 the syntax self.argument_name (ex.: self.freq).
 
 """
+
 from pyo import *
 
 s = Server().boot()

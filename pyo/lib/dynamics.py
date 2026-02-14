@@ -3,7 +3,6 @@ Objects to modify the dynamic range and sample quality of audio signals.
 
 """
 
-
 """
 Copyright 2009-2015 Olivier Belanger
 
@@ -50,9 +49,9 @@ class Clip(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> a = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True)
-    >>> lfoup = Sine(freq=.25, mul=.48, add=.5)
+    >>> lfoup = Sine(freq=0.25, mul=0.48, add=0.5)
     >>> lfodown = 0 - lfoup
-    >>> c = Clip(a, min=lfodown, max=lfoup, mul=.4).mix(2).out()
+    >>> c = Clip(a, min=lfodown, max=lfoup, mul=0.4).mix(2).out()
 
     """
 
@@ -65,7 +64,8 @@ class Clip(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, min, max, mul, add, lmax = convertArgsToLists(self._in_fader, min, max, mul, add)
         self._base_objs = [
-            Clip_base(wrap(in_fader, i), wrap(min, i), wrap(max, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+            Clip_base(wrap(in_fader, i), wrap(min, i), wrap(max, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
         ]
         self._init_play()
 
@@ -180,10 +180,10 @@ class Mirror(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> a = Sine(freq=[300,301])
-    >>> lfmin = Sine(freq=1.5, mul=.25, add=-0.75)
-    >>> lfmax = Sine(freq=2, mul=.25, add=0.75)
+    >>> lfmin = Sine(freq=1.5, mul=0.25, add=-0.75)
+    >>> lfmax = Sine(freq=2, mul=0.25, add=0.75)
     >>> b = Mirror(a, min=lfmin, max=lfmax)
-    >>> c = Tone(b, freq=2500, mul=.15).out()
+    >>> c = Tone(b, freq=2500, mul=0.15).out()
 
     """
 
@@ -196,7 +196,8 @@ class Mirror(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, min, max, mul, add, lmax = convertArgsToLists(self._in_fader, min, max, mul, add)
         self._base_objs = [
-            Mirror_base(wrap(in_fader, i), wrap(min, i), wrap(max, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+            Mirror_base(wrap(in_fader, i), wrap(min, i), wrap(max, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
         ]
         self._init_play()
 
@@ -309,10 +310,10 @@ class Degrade(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> t = SquareTable()
-    >>> a = Osc(table=t, freq=[100,101], mul=.5)
-    >>> lfo = Sine(freq=.2, mul=6, add=8)
-    >>> lfo2 = Sine(freq=.25, mul=.45, add=.55)
-    >>> b = Degrade(a, bitdepth=lfo, srscale=lfo2, mul=.3).out()
+    >>> a = Osc(table=t, freq=[100,101], mul=0.5)
+    >>> lfo = Sine(freq=0.2, mul=6, add=8)
+    >>> lfo2 = Sine(freq=0.25, mul=0.45, add=0.55)
+    >>> b = Degrade(a, bitdepth=lfo, srscale=lfo2, mul=0.3).out()
 
     """
 
@@ -323,9 +324,13 @@ class Degrade(PyoObject):
         self._bitdepth = bitdepth
         self._srscale = srscale
         self._in_fader = InputFader(input)
-        in_fader, bitdepth, srscale, mul, add, lmax = convertArgsToLists(self._in_fader, bitdepth, srscale, mul, add)
+        in_fader, bitdepth, srscale, mul, add, lmax = convertArgsToLists(
+            self._in_fader, bitdepth, srscale, mul, add
+        )
         self._base_objs = [
-            Degrade_base(wrap(in_fader, i), wrap(bitdepth, i), wrap(srscale, i), wrap(mul, i), wrap(add, i))
+            Degrade_base(
+                wrap(in_fader, i), wrap(bitdepth, i), wrap(srscale, i), wrap(mul, i), wrap(add, i)
+            )
             for i in range(lmax)
         ]
         self._init_play()
@@ -462,7 +467,7 @@ class Compress(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> a = SfPlayer(SNDS_PATH + '/transparent.aif', loop=True)
-    >>> b = Compress(a, thresh=-24, ratio=6, risetime=.01, falltime=.2, knee=0.5).mix(2).out()
+    >>> b = Compress(a, thresh=-24, ratio=6, risetime=0.01, falltime=0.2, knee=0.5).mix(2).out()
 
     """
 
@@ -480,7 +485,18 @@ class Compress(PyoObject):
         add=0,
     ):
         pyoArgsAssert(
-            self, "oOOOOnnbOO", input, thresh, ratio, risetime, falltime, lookahead, knee, outputAmp, mul, add
+            self,
+            "oOOOOnnbOO",
+            input,
+            thresh,
+            ratio,
+            risetime,
+            falltime,
+            lookahead,
+            knee,
+            outputAmp,
+            mul,
+            add,
         )
         PyoObject.__init__(self, mul, add)
         self._input = input
@@ -491,8 +507,19 @@ class Compress(PyoObject):
         self._lookahead = lookahead
         self._knee = knee
         self._in_fader = InputFader(input)
-        in_fader, thresh, ratio, risetime, falltime, lookahead, knee, outputAmp, mul, add, lmax = convertArgsToLists(
-            self._in_fader, thresh, ratio, risetime, falltime, lookahead, knee, outputAmp, mul, add
+        in_fader, thresh, ratio, risetime, falltime, lookahead, knee, outputAmp, mul, add, lmax = (
+            convertArgsToLists(
+                self._in_fader,
+                thresh,
+                ratio,
+                risetime,
+                falltime,
+                lookahead,
+                knee,
+                outputAmp,
+                mul,
+                add,
+            )
         )
         self._base_objs = [
             Compress_base(
@@ -735,12 +762,24 @@ class Gate(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> sf = SfPlayer(SNDS_PATH + '/transparent.aif', speed=[1,.5], loop=True)
-    >>> gt = Gate(sf, thresh=-24, risetime=0.005, falltime=0.01, lookahead=5, mul=.4).out()
+    >>> gt = Gate(sf, thresh=-24, risetime=0.005, falltime=0.01, lookahead=5, mul=0.4).out()
 
     """
 
-    def __init__(self, input, thresh=-70, risetime=0.01, falltime=0.05, lookahead=5.0, outputAmp=False, mul=1, add=0):
-        pyoArgsAssert(self, "oOOOnbOO", input, thresh, risetime, falltime, lookahead, outputAmp, mul, add)
+    def __init__(
+        self,
+        input,
+        thresh=-70,
+        risetime=0.01,
+        falltime=0.05,
+        lookahead=5.0,
+        outputAmp=False,
+        mul=1,
+        add=0,
+    ):
+        pyoArgsAssert(
+            self, "oOOOnbOO", input, thresh, risetime, falltime, lookahead, outputAmp, mul, add
+        )
         PyoObject.__init__(self, mul, add)
         self._input = input
         self._thresh = thresh
@@ -748,8 +787,10 @@ class Gate(PyoObject):
         self._falltime = falltime
         self._lookahead = lookahead
         self._in_fader = InputFader(input)
-        in_fader, thresh, risetime, falltime, lookahead, outputAmp, mul, add, lmax = convertArgsToLists(
-            self._in_fader, thresh, risetime, falltime, lookahead, outputAmp, mul, add
+        in_fader, thresh, risetime, falltime, lookahead, outputAmp, mul, add, lmax = (
+            convertArgsToLists(
+                self._in_fader, thresh, risetime, falltime, lookahead, outputAmp, mul, add
+            )
         )
         self._base_objs = [
             Gate_base(
@@ -917,8 +958,8 @@ class Balance(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> sf = SfPlayer(SNDS_PATH + '/accord.aif', speed=[.99,1], loop=True, mul=.3)
-    >>> comp = SfPlayer(SNDS_PATH + '/transparent.aif', speed=[.99,1], loop=True, mul=.3)
+    >>> sf = SfPlayer(SNDS_PATH + '/accord.aif', speed=[.99,1], loop=True, mul=0.3)
+    >>> comp = SfPlayer(SNDS_PATH + '/transparent.aif', speed=[.99,1], loop=True, mul=0.3)
     >>> out = Balance(sf, comp, freq=10).out()
 
     """
@@ -931,9 +972,13 @@ class Balance(PyoObject):
         self._freq = freq
         self._in_fader = InputFader(input)
         self._in_fader2 = InputFader(input2)
-        in_fader, in_fader2, freq, mul, add, lmax = convertArgsToLists(self._in_fader, self._in_fader2, freq, mul, add)
+        in_fader, in_fader2, freq, mul, add, lmax = convertArgsToLists(
+            self._in_fader, self._in_fader2, freq, mul, add
+        )
         self._base_objs = [
-            Balance_base(wrap(in_fader, i), wrap(in_fader2, i), wrap(freq, i), wrap(mul, i), wrap(add, i))
+            Balance_base(
+                wrap(in_fader, i), wrap(in_fader2, i), wrap(freq, i), wrap(mul, i), wrap(add, i)
+            )
             for i in range(lmax)
         ]
         self._init_play()
@@ -1042,7 +1087,7 @@ class Min(PyoObject):
     >>> # Triangle wave
     >>> a = Phasor([249,250])
     >>> b = Min(a, comp=a*-1+1, mul=4, add=-1)
-    >>> c = Tone(b, freq=1500, mul=.5).out()
+    >>> c = Tone(b, freq=1500, mul=0.5).out()
 
     """
 
@@ -1053,7 +1098,10 @@ class Min(PyoObject):
         self._comp = comp
         self._in_fader = InputFader(input)
         in_fader, comp, mul, add, lmax = convertArgsToLists(self._in_fader, comp, mul, add)
-        self._base_objs = [Min_base(wrap(in_fader, i), wrap(comp, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
+        self._base_objs = [
+            Min_base(wrap(in_fader, i), wrap(comp, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
+        ]
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -1129,7 +1177,7 @@ class Max(PyoObject):
     >>> # Assimetrical clipping
     >>> a = Phasor(500, mul=2, add=-1)
     >>> b = Max(a, comp=-0.3)
-    >>> c = Tone(b, freq=1500, mul=.5).out()
+    >>> c = Tone(b, freq=1500, mul=0.5).out()
 
     """
 
@@ -1140,7 +1188,10 @@ class Max(PyoObject):
         self._comp = comp
         self._in_fader = InputFader(input)
         in_fader, comp, mul, add, lmax = convertArgsToLists(self._in_fader, comp, mul, add)
-        self._base_objs = [Max_base(wrap(in_fader, i), wrap(comp, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
+        self._base_objs = [
+            Max_base(wrap(in_fader, i), wrap(comp, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
+        ]
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -1271,7 +1322,18 @@ class Expand(PyoObject):
         add=0,
     ):
         pyoArgsAssert(
-            self, "oOOOOOnbOO", input, downthresh, upthresh, ratio, risetime, falltime, lookahead, outputAmp, mul, add
+            self,
+            "oOOOOOnbOO",
+            input,
+            downthresh,
+            upthresh,
+            ratio,
+            risetime,
+            falltime,
+            lookahead,
+            outputAmp,
+            mul,
+            add,
         )
         PyoObject.__init__(self, mul, add)
         self._input = input
@@ -1295,7 +1357,16 @@ class Expand(PyoObject):
             add,
             lmax,
         ) = convertArgsToLists(
-            self._in_fader, downthresh, upthresh, ratio, risetime, falltime, lookahead, outputAmp, mul, add
+            self._in_fader,
+            downthresh,
+            upthresh,
+            ratio,
+            risetime,
+            falltime,
+            lookahead,
+            outputAmp,
+            mul,
+            add,
         )
         self._base_objs = [
             Expand_base(

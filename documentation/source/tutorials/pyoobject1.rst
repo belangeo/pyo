@@ -1,18 +1,18 @@
 Creating a custom PyoObject - RingMod
 =====================================================
 
-There are few steps we need to take care of in order to create a class with all 
-of the PyoObject behaviors.
+There are a few steps we need to take care of in order to create a class with all 
+of the `PyoObject` behaviors.
 
 Things to consider:
 
-- The parent class must be PyoObject, that means the PyoObject's __init__ method must be called inside the object's __init__ method to properly initialize PyoObject's basic attributes.
-- When a PyoObject receives another PyoObject, it looks for a list of objects called "self._base_objs". This list must contain the C implementation of the audio objects generating the output sound of the process. 
-- Adding "mul" and "add" arguments (they act on objects in self._base_objs).
-- All PyoObjects support "list expansion".
-- All PyoObjects with sound in input support cross-fading between old and new sources.
+- The parent class must be `PyoObject`, which means the `PyoObject`'s `__init__` method must be called inside the object's `__init__` method to properly initialize `PyoObject`'s basic attributes.
+- When a `PyoObject` receives another `PyoObject`, it looks for a list of objects called ``self._base_objs``. This list must contain the C implementation of the audio objects generating the output sound of the process. 
+- Adding ``"mul"`` and ``"add"`` arguments (they act on objects in ``self._base_objs``).
+- All `PyoObject`s support "list expansion".
+- All `PyoObject`s with sound as input support cross-fading between old and new sources.
 - We will probably want to override the play(), out() and stop() methods.
-- There is an attribute for any function that modify a parameter.
+- There is an attribute for any function that modifies a parameter.
 - We should override the ctrl() method to allow a GUI to control parameters.
 
 In this tutorial, we will define a RingMod object with this definition:
@@ -30,10 +30,10 @@ First of all, we need to import the pyo module
 Step 1 - Declaring the class
 ------------------------------
 
-We will create a new class called RingMod with PyoObject as its parent class. 
-Another good habit is to put a __doc__ string at the beginning of our classes. 
+We will create a new class called `RingMod` with `PyoObject` as its parent class. 
+Another good habit is to put a `__doc__` string at the beginning of our classes. 
 Doing so will allow other users to retrieve the object's documentation with the 
-standard python help() function.
+standard Python `help()` function.
 
 .. code-block:: python
 
@@ -57,8 +57,8 @@ standard python help() function.
 
         >>> s = Server().boot()
         >>> s.start()
-        >>> src = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=.3)
-        >>> lfo = Sine(.25, phase=[0,.5], mul=.5, add=.5)
+        >>> src = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=0.3)
+        >>> lfo = Sine(.25, phase=[0,.5], mul=0.5, add=0.5)
         >>> ring = RingMod(src, freq=[800,1000], mul=lfo).out()
 
         """
@@ -66,25 +66,25 @@ standard python help() function.
 Step 2 - The __init__ method
 -------------------------------
 
-This is the place where we have to take care of some of pyo's generic behaviours. 
-The most important thing to remember is that when a PyoObject receives another 
-PyoObject in input, it looks for an attribute called self._base_objs. This attribute 
+This is the place where we have to take care of some of Pyo's generic behaviors. 
+The most important thing to remember is that when a `PyoObject` receives another 
+`PyoObject` as input, it looks for an attribute called ``self._base_objs``. This attribute 
 is a list of the object's base classes and is considered the audio output signal 
-of the object (the Sine object uses internally an object called Sine_base). The 
-getBaseObjects() method returns the list of base classes for a given PyoObject. We 
-will call the getBaseObjects() method on the objects generating the output signal of 
-our process. .play(), .out(), .stop() and .mix() methods act on this list.
+of the object (the `Sine` object uses internally an object called `Sine_base`). The 
+`getBaseObjects()` method returns the list of base classes for a given `PyoObject`. We 
+will call the `getBaseObjects()` method on the objects generating the output signal of 
+our process. `.play()`, `.out()`, `.stop()`, and `.mix()` methods act on this list.
 
-We also need to add two arguments to the definition of the object: "mul" and "add". 
-The attributes "self._mul" and "self._add" are handled by the parent class and are 
-automatically applied to the objects stored in the list "self._base_objs".
+We also need to add two arguments to the definition of the object: ``"mul"`` and ``"add"``. 
+The attributes ``self._mul`` and ``self._add`` are handled by the parent class and are 
+automatically applied to the objects stored in the list ``self._base_objs``.
 
 Finally, we have to consider the "multi-channel expansion" feature, allowing lists given as 
 arguments to create multiple instances of our object and managing multiple audio streams. 
-Two functions help us to accomplish this:
+Two functions help us accomplish this:
 
-`convertArgsToLists(*args)` : Return arguments converted to lists and the maximum list size.
-wrap(list,i) : Return value at position "i" in "list" with wrap around len(list).
+``convertArgsToLists(*args)`` : Return arguments converted to lists and the maximum list size.
+``wrap(list,i)`` : Return value at position ``i`` in ``list`` with wrap around ``len(list)``.
 
 .. code-block:: python
 
@@ -170,13 +170,12 @@ real current state when we call the dump() method.
 Step 4 - The ctrl() method
 -----------------------------
 
-The ctrl() method of a PyoObject is used to pop-up a GUI to control the parameters 
-of the object. The initialization of sliders is done with a list of SLMap objects 
+The `ctrl()` method of a `PyoObject` is used to pop-up a GUI to control the parameters 
+of the object. The initialization of sliders is done with a list of `SLMap` objects 
 where we can set the range of the slider, the type of scaling, the name of the 
-attribute linked to the slider and the initial value. We will define a default 
-"self._map_list" that will be used if the user doesn't provide one to the parameter
-"map_list". If the object doesn't have any parameter to control with a GUI, this
-
+attribute linked to the slider, and the initial value. We will define a default 
+``self._map_list`` that will be used if the user doesn't provide one to the parameter 
+``map_list``. If the object doesn't have any parameter to control with a GUI, this
 .. code-block:: python
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
@@ -187,12 +186,12 @@ attribute linked to the slider and the initial value. We will define a default
 Step 5 - Overriding the .play(), .stop() and .out() methods
 -------------------------------------------------------------
 
-Finally, we might want to override .play(), .stop() and .out() methods to be sure all 
-our internal PyoObjects are consequently managed instead of only objects in self._base_obj, 
-as it is in built-in objects. To handle properly the process for self._base_objs, we still 
-need to call the method that belongs to PyoObject. We return the returned value (self) of 
+Finally, we might want to override `.play()`, `.stop()`, and `.out()` methods to be sure all 
+our internal `PyoObject`s are consequently managed instead of only objects in 
+`self._base_obj`, as it is in built-in objects. To handle properly the process for self._base_objs, we still 
+need to call the method that belongs to `PyoObject`. We return the returned value (`self`) of 
 these methods in order to possibly append the method to the object's creation. See the 
-definition of these methods in the PyoObject man page to understand the meaning of arguments.
+definition of these methods in the `PyoObject` man page to understand the meaning of arguments.
 
 .. code-block:: python
 
@@ -208,7 +207,7 @@ definition of these methods in the PyoObject man page to understand the meaning 
         self._mod.play(dur, delay)
         return PyoObject.out(self, chnl, inc, dur, delay)
 
-Here we are, we've just created our first custom pyo object!
+Here we are, we've just created our first custom Pyo object!
 
 Complete class definition and test
 ----------------------------------------
@@ -237,8 +236,8 @@ Complete class definition and test
 
         >>> s = Server().boot()
         >>> s.start()
-        >>> src = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=.3)
-        >>> lfo = Sine(.25, phase=[0,.5], mul=.5, add=.5)
+        >>> src = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=0.3)
+        >>> lfo = Sine(.25, phase=[0,.5], mul=0.5, add=0.5)
         >>> ring = RingMod(src, freq=[800,1000], mul=lfo).out()
 
         """
@@ -316,9 +315,9 @@ Complete class definition and test
     # Run the script to test the RingMod object.
     if __name__ == "__main__":
         s = Server().boot()
-        src = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=.3)
-        lfo = Sine(.25, phase=[0,.5], mul=.5, add=.5)
+        src = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=0.3)
+        lfo = Sine(.25, phase=[0,.5], mul=0.5, add=0.5)
         ring = RingMod(src, freq=[800,1000], mul=lfo).out()
-        s.gui(locals())
+        `s.gui(locals())`
 
 

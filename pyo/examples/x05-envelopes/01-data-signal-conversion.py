@@ -11,6 +11,7 @@ The Sig object converts a number to an audio stream.
 The PyoObject.get() method extracts a float from an audio stream.
 
 """
+
 from pyo import *
 
 s = Server().boot()

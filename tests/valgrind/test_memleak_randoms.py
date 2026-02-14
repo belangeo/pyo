@@ -1,5 +1,5 @@
 # Run this file in valgrind with:
-#   PYTHONMALLOC=malloc valgrind --tool=memcheck --leak-check=yes --show-leak-kinds=definite --track-origins=yes --num-callers=12 --suppressions=valgrind-python.supp python3 test_memleak_randoms.py 
+#   PYTHONMALLOC=malloc valgrind --tool=memcheck --leak-check=yes --show-leak-kinds=definite --track-origins=yes --num-callers=12 --suppressions=valgrind-python.supp python3 test_memleak_randoms.py
 # There should not be any definitely lost bytes.
 
 from pyo import *
@@ -16,8 +16,8 @@ b.min = Sig(0.5)
 b.max = Sig(0.7)
 b.freq = Sig(0.5)
 
-l1 = [1.1,2.2,3.3,4.4,5.5]
-l2 = [1.2,2.3,3.4,4.5,5.6]
+l1 = [1.1, 2.2, 3.3, 4.4, 5.5]
+l2 = [1.2, 2.3, 3.4, 4.5, 5.6]
 
 c = Choice(l1)
 c.choice = l2
@@ -53,7 +53,7 @@ h.x2 = Sig(0.7)
 h.dist = 10
 
 i = Urn()
-i.max = (75)
+i.max = 75
 i.freq = Sig(0.5)
 
 j = LogiMap()

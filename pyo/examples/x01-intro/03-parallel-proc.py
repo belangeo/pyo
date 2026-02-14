@@ -11,6 +11,7 @@ to the out() method of each object that should send its samples to the
 output.
 
 """
+
 from pyo import *
 
 s = Server().boot()

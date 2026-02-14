@@ -132,7 +132,7 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; a = Noise(mul=.7)</span>
+<span class="sd">    &gt;&gt;&gt; a = Noise(mul=0.7)</span>
 <span class="sd">    &gt;&gt;&gt; lfo = Sine(freq=[.2, .25], mul=1000, add=1500)</span>
 <span class="sd">    &gt;&gt;&gt; f = Biquad(a, freq=lfo, q=5, type=2).out()</span>
 
@@ -315,7 +315,7 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; a = Noise(mul=.7)</span>
+<span class="sd">    &gt;&gt;&gt; a = Noise(mul=0.7)</span>
 <span class="sd">    &gt;&gt;&gt; lfo = Sine(freq=[.2, .25], mul=1000, add=1500)</span>
 <span class="sd">    &gt;&gt;&gt; f = Biquadx(a, freq=lfo, q=5, type=2).out()</span>
 
@@ -536,8 +536,8 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; a = Noise(mul=.7)</span>
-<span class="sd">    &gt;&gt;&gt; lf = Sine([1.5, 2], mul=.07, add=-1.9)</span>
+<span class="sd">    &gt;&gt;&gt; a = Noise(mul=0.7)</span>
+<span class="sd">    &gt;&gt;&gt; lf = Sine([1.5, 2], mul=0.07, add=-1.9)</span>
 <span class="sd">    &gt;&gt;&gt; f = Biquada(a, 0.005066, 0.010132, 0.005066, 1.070997, lf, 0.929003).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -824,7 +824,7 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; amp = Fader(1, 1, mul=.15).play()</span>
+<span class="sd">    &gt;&gt;&gt; amp = Fader(1, 1, mul=0.15).play()</span>
 <span class="sd">    &gt;&gt;&gt; src = PinkNoise(amp)</span>
 <span class="sd">    &gt;&gt;&gt; fr = Sine(.2, 0, 500, 1500)</span>
 <span class="sd">    &gt;&gt;&gt; boo = Sine([4, 4], 0, 6)</span>
@@ -1024,7 +1024,7 @@
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; n = Noise(.3)</span>
-<span class="sd">    &gt;&gt;&gt; lf = Sine(freq=.2, mul=800, add=1000)</span>
+<span class="sd">    &gt;&gt;&gt; lf = Sine(freq=0.2, mul=800, add=1000)</span>
 <span class="sd">    &gt;&gt;&gt; f = Tone(n, lf).mix(2).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1121,7 +1121,7 @@
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; n = Noise(.3)</span>
-<span class="sd">    &gt;&gt;&gt; lf = Sine(freq=.2, mul=5000, add=6000)</span>
+<span class="sd">    &gt;&gt;&gt; lf = Sine(freq=0.2, mul=5000, add=6000)</span>
 <span class="sd">    &gt;&gt;&gt; f = Atone(n, lf).mix(2).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1229,8 +1229,8 @@
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; from random import uniform</span>
 <span class="sd">    &gt;&gt;&gt; x = Sig(value=500)</span>
-<span class="sd">    &gt;&gt;&gt; p = Port(x, risetime=.1, falltime=1)</span>
-<span class="sd">    &gt;&gt;&gt; a = Sine(freq=[p, p*1.01], mul=.2).out()</span>
+<span class="sd">    &gt;&gt;&gt; p = Port(x, risetime=0.1, falltime=1)</span>
+<span class="sd">    &gt;&gt;&gt; a = Sine(freq=[p, p*1.01], mul=0.2).out()</span>
 <span class="sd">    &gt;&gt;&gt; def new_freq():</span>
 <span class="sd">    ...     x.value = uniform(400, 800)</span>
 <span class="sd">    &gt;&gt;&gt; pat = Pattern(function=new_freq, time=1).play()</span>
@@ -1365,7 +1365,7 @@
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; n = Noise(.01)</span>
-<span class="sd">    &gt;&gt;&gt; w = Delay(n, delay=[0.02, 0.01], feedback=.995, mul=.5)</span>
+<span class="sd">    &gt;&gt;&gt; w = Delay(n, delay=[0.02, 0.01], feedback=0.995, mul=0.5)</span>
 <span class="sd">    &gt;&gt;&gt; f = DCBlock(w).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1445,7 +1445,7 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; lfos = Sine(freq=[.3,.4,.5,.6,.7,.8], mul=.5, add=.5)</span>
+<span class="sd">    &gt;&gt;&gt; lfos = Sine(freq=[.3,.4,.5,.6,.7,.8], mul=0.5, add=0.5)</span>
 <span class="sd">    &gt;&gt;&gt; n = PinkNoise(.5)</span>
 <span class="sd">    &gt;&gt;&gt; a = BandSplit(n, num=6, min=250, max=4000, q=5, mul=lfos).out()</span>
 
@@ -1570,7 +1570,7 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; lfos = Sine(freq=[.3,.4,.5,.6], mul=.5, add=.5)</span>
+<span class="sd">    &gt;&gt;&gt; lfos = Sine(freq=[.3,.4,.5,.6], mul=0.5, add=0.5)</span>
 <span class="sd">    &gt;&gt;&gt; n = PinkNoise(.3)</span>
 <span class="sd">    &gt;&gt;&gt; a = FourBand(n, freq1=250, freq2=1000, freq3=2500, mul=lfos).out()</span>
 
@@ -1749,7 +1749,7 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; lfos = Sine(freq=[.1,.2,.3,.4,.5,.6,.7,.8], mul=.5, add=.5)</span>
+<span class="sd">    &gt;&gt;&gt; lfos = Sine(freq=[.1,.2,.3,.4,.5,.6,.7,.8], mul=0.5, add=0.5)</span>
 <span class="sd">    &gt;&gt;&gt; n = PinkNoise(.3)</span>
 <span class="sd">    &gt;&gt;&gt; a = MultiBand(n, num=8, mul=lfos).out()</span>
 
@@ -2135,11 +2135,11 @@
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; # 3 STAGES PHASER</span>
 <span class="sd">    &gt;&gt;&gt; a = BrownNoise(.025).mix(2).out()</span>
-<span class="sd">    &gt;&gt;&gt; blfo = Sine(freq=.1, mul=250, add=500)</span>
+<span class="sd">    &gt;&gt;&gt; blfo = Sine(freq=0.1, mul=250, add=500)</span>
 <span class="sd">    &gt;&gt;&gt; b = Allpass2(a, freq=blfo, bw=125).out()</span>
-<span class="sd">    &gt;&gt;&gt; clfo = Sine(freq=.14, mul=500, add=1000)</span>
+<span class="sd">    &gt;&gt;&gt; clfo = Sine(freq=0.14, mul=500, add=1000)</span>
 <span class="sd">    &gt;&gt;&gt; c = Allpass2(b, freq=clfo, bw=350).out()</span>
-<span class="sd">    &gt;&gt;&gt; dlfo = Sine(freq=.17, mul=1000, add=2500)</span>
+<span class="sd">    &gt;&gt;&gt; dlfo = Sine(freq=0.17, mul=1000, add=2500)</span>
 <span class="sd">    &gt;&gt;&gt; d = Allpass2(c, freq=dlfo, bw=800).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -2280,11 +2280,11 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; fade = Fader(fadein=.1, mul=.07).play()</span>
+<span class="sd">    &gt;&gt;&gt; fade = Fader(fadein=0.1, mul=0.07).play()</span>
 <span class="sd">    &gt;&gt;&gt; a = Noise(fade).mix(2).out()</span>
 <span class="sd">    &gt;&gt;&gt; lf1 = Sine(freq=[.1, .15], mul=100, add=250)</span>
-<span class="sd">    &gt;&gt;&gt; lf2 = Sine(freq=[.18, .15], mul=.4, add=1.5)</span>
-<span class="sd">    &gt;&gt;&gt; b = Phaser(a, freq=lf1, spread=lf2, q=1, num=20, mul=.5).out(0)</span>
+<span class="sd">    &gt;&gt;&gt; lf2 = Sine(freq=[.18, .15], mul=0.4, add=1.5)</span>
+<span class="sd">    &gt;&gt;&gt; b = Phaser(a, freq=lf1, spread=lf2, q=1, num=20, mul=0.5).out(0)</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -2998,7 +2998,7 @@
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; nz = Noise(.05)</span>
-<span class="sd">    &gt;&gt;&gt; a = Sine([300, 400], mul=.25, add=nz)</span>
+<span class="sd">    &gt;&gt;&gt; a = Sine([300, 400], mul=0.25, add=nz)</span>
 <span class="sd">    &gt;&gt;&gt; b = IRAverage(a, order=128).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -3292,7 +3292,7 @@
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; nz = Noise(.7)</span>
-<span class="sd">    &gt;&gt;&gt; lf = Sine(freq=[.2, .25], mul=.125, add=.5)</span>
+<span class="sd">    &gt;&gt;&gt; lf = Sine(freq=[.2, .25], mul=0.125, add=0.5)</span>
 <span class="sd">    &gt;&gt;&gt; b = IRFM(nz, carrier=3500, ratio=lf, index=3, order=256).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -3655,7 +3655,7 @@
 <span class="sd">    is always copied at the end of the order list so we can create a glitch-free loop of</span>
 <span class="sd">    filter types with a Phasor given as `type` argument. Ex.:</span>
 
-<span class="sd">        &gt;&gt;&gt; lfo = Phasor(freq=.5, mul=3)</span>
+<span class="sd">        &gt;&gt;&gt; lfo = Phasor(freq=0.5, mul=3)</span>
 <span class="sd">        &gt;&gt;&gt; svf2 = SVF2(Noise(.25), freq=2500, q=2, shelf=-6, type=lfo).out()</span>
 <span class="sd">        &gt;&gt;&gt; svf2.order = [2, 1, 0] # highpass -&gt; bandpass -&gt; lowpass -&gt; highpass</span>
 
@@ -4043,7 +4043,7 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; a = Noise(mul=.7)</span>
+<span class="sd">    &gt;&gt;&gt; a = Noise(mul=0.7)</span>
 <span class="sd">    &gt;&gt;&gt; lfo = Sine(freq=[.2, .25], mul=1000, add=1500)</span>
 <span class="sd">    &gt;&gt;&gt; f = Reson(a, freq=lfo, q=5).out()</span>
 
@@ -4184,7 +4184,7 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; a = Noise(mul=.7)</span>
+<span class="sd">    &gt;&gt;&gt; a = Noise(mul=0.7)</span>
 <span class="sd">    &gt;&gt;&gt; lfo = Sine(freq=[.2, .25], mul=1000, add=1500)</span>
 <span class="sd">    &gt;&gt;&gt; f = Resonx(a, freq=lfo, q=5).out()</span>
 
@@ -4345,7 +4345,7 @@
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; n = Noise(.3)</span>
-<span class="sd">    &gt;&gt;&gt; lf = Sine(freq=.2, mul=800, add=1000)</span>
+<span class="sd">    &gt;&gt;&gt; lf = Sine(freq=0.2, mul=800, add=1000)</span>
 <span class="sd">    &gt;&gt;&gt; f = ButLP(n, lf).mix(2).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -4448,7 +4448,7 @@
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; n = Noise(.2)</span>
-<span class="sd">    &gt;&gt;&gt; lf = Sine(freq=.2, mul=1500, add=2500)</span>
+<span class="sd">    &gt;&gt;&gt; lf = Sine(freq=0.2, mul=1500, add=2500)</span>
 <span class="sd">    &gt;&gt;&gt; f = ButHP(n, lf).mix(2).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -4553,7 +4553,7 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; a = Noise(mul=.7)</span>
+<span class="sd">    &gt;&gt;&gt; a = Noise(mul=0.7)</span>
 <span class="sd">    &gt;&gt;&gt; lfo = Sine(freq=[.2, .25], mul=1000, add=1500)</span>
 <span class="sd">    &gt;&gt;&gt; f = ButBP(a, freq=lfo, q=5).out()</span>
 
@@ -4687,7 +4687,7 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; a = Noise(mul=.2)</span>
+<span class="sd">    &gt;&gt;&gt; a = Noise(mul=0.2)</span>
 <span class="sd">    &gt;&gt;&gt; lfo = Sine(freq=[.2, .25], mul=1000, add=1500)</span>
 <span class="sd">    &gt;&gt;&gt; f = ButBR(a, freq=lfo, q=1).out()</span>
 

@@ -63,6 +63,7 @@ PYO_EVENT_FILTER_SCALE = 1107
 PYO_EVENT_FILTER_RESCALE = 1108
 PYO_EVENT_FILTER_IFTRUE = 1109
 
+
 # Utility functions
 ###################
 def degreeToMidiNote(value):
@@ -213,9 +214,13 @@ class EventInstrument(object):
         if self.envelope is not None:
             self.env = TableRead(self.envelope, 1.0 / self.dur, mul=self.amp).play()
         elif self.decay is not None:
-            self.env = Adsr(self.attack, self.decay, self.sustain, self.release, dur=self.dur, mul=self.amp).play()
+            self.env = Adsr(
+                self.attack, self.decay, self.sustain, self.release, dur=self.dur, mul=self.amp
+            ).play()
         else:
-            self.env = Fader(fadein=self.attack, fadeout=self.release, dur=self.dur, mul=self.amp).play()
+            self.env = Fader(
+                fadein=self.attack, fadeout=self.release, dur=self.dur, mul=self.amp
+            ).play()
 
         self.clearWhenDone = CallAfter(self.clear, time=0)
         self.clearWhenDone.play(delay=self.dur + self.tail, dur=0.25)
@@ -605,7 +610,9 @@ class EventGenerator:
                         del self.master.getCurrentDict()[self.generator.getKey()]
                 except:
                     pass
-            value = getValueFromAttribute(self.master, self.generator.getKey(), self.master.getCurrentDict())
+            value = getValueFromAttribute(
+                self.master, self.generator.getKey(), self.master.getCurrentDict()
+            )
         else:
             self.generator.setMaster(self.master)
             value = self.generator.next()
@@ -846,7 +853,7 @@ class EventDummy(EventGenerator):
             elif self.type == PYO_EVENT_OPERATOR_DIV:
                 return v1 / v2
             elif self.type == PYO_EVENT_OPERATOR_POW:
-                return v1 ** v2
+                return v1**v2
             elif self.type == PYO_EVENT_OPERATOR_MOD:
                 return v1 % v2
             elif self.type == PYO_EVENT_OPERATOR_FLR:
@@ -983,7 +990,9 @@ class EventKey(EventGenerator):
         if self.externalMaster is None:
             return getValueFromAttribute(self.master, self.getKey(), self.master.getCurrentDict())
         else:
-            return getValueFromAttribute(self.externalMaster, self.getKey(), self.externalMaster.getCurrentDict())
+            return getValueFromAttribute(
+                self.externalMaster, self.getKey(), self.externalMaster.getCurrentDict()
+            )
 
 
 ###################
@@ -1093,7 +1102,16 @@ class EventSlide(EventGenerator):
 
     """
 
-    def __init__(self, values, segment, step, startpos=0, wraparound=True, occurrences=inf, stopEventsWhenDone=True):
+    def __init__(
+        self,
+        values,
+        segment,
+        step,
+        startpos=0,
+        wraparound=True,
+        occurrences=inf,
+        stopEventsWhenDone=True,
+    ):
         EventGenerator.__init__(self)
         self.values = self._inspect_values(values)
         self.occurrences = self._inspect_occurrences(occurrences)
@@ -1616,7 +1634,16 @@ class EventNoise(EventGenerator):
                 self.c3 = self.c3 * 0.86650 + rnd * 0.3104856
                 self.c4 = self.c4 * 0.55000 + rnd * 0.5329522
                 self.c5 = self.c5 * -0.7616 - rnd * 0.0168980
-                val = self.c0 + self.c1 + self.c2 + self.c3 + self.c4 + self.c5 + self.c6 + rnd * 0.5362
+                val = (
+                    self.c0
+                    + self.c1
+                    + self.c2
+                    + self.c3
+                    + self.c4
+                    + self.c5
+                    + self.c6
+                    + rnd * 0.5362
+                )
                 self.c6 = rnd * 0.115926
                 return self._checkValueTypeAndIncrementCount(val * 0.2)
             else:
@@ -1970,7 +1997,7 @@ class Events(dict):
         self["atend"] = None
 
         self.instanceId = 0
-        self.maxInstanceId = 2 ** 31
+        self.maxInstanceId = 2**31
 
         # Add user-supplied arguments as dict attributes.
         for item in args.items():
@@ -1983,7 +2010,7 @@ class Events(dict):
         self.output = Sig([0] * self["outs"])
 
     def events(self):
-        """ Return a copy of this Events object. """
+        """Return a copy of this Events object."""
         evts = Events()
         for attr in list(self):
             try:
@@ -2100,7 +2127,19 @@ class Events(dict):
         ending = False
 
         # Process event's every other attributes.
-        proscribe = ["dur", "beat", "instr", "bpm", "outs", "midinote", "degree", "db", "midivel", "atend", "signal"]
+        proscribe = [
+            "dur",
+            "beat",
+            "instr",
+            "bpm",
+            "outs",
+            "midinote",
+            "degree",
+            "db",
+            "midivel",
+            "atend",
+            "signal",
+        ]
         for arg in [k for k in self.keys() if k not in proscribe]:
             if arg == "freq":
                 transpo = getValueFromAttribute(self, "transpo", self.currentDict, valueIfNone=0)
@@ -2178,10 +2217,14 @@ class Events(dict):
             self.instanceId = 0
 
     def _remove(self, instanceId):
-        """ Removes an instrument instance from the active list. """
+        """Removes an instrument instance from the active list."""
         if instanceId in self.actives:
             del self.actives[instanceId]
         if self["signal"] is not None:
             self.output.value = sum(
-                [getattr(instr, self["signal"]) for instr in self.actives.values() if hasattr(instr, self["signal"])]
+                [
+                    getattr(instr, self["signal"])
+                    for instr in self.actives.values()
+                    if hasattr(instr, self["signal"])
+                ]
             )

@@ -28,7 +28,14 @@ for j in range(olaps):
     for i in range(num):
         index = i + offset
         trrnds.append(TrigChoice(cl[index], choice=[0.5, 0.75, 1, 1.25, 1.5, 2]))
-        trtabs.append(TrigEnv(cl[index], table=tabs[i], dur=1.0 / tabs[i].getRate() * trrnds[index], interp=4,))
+        trtabs.append(
+            TrigEnv(
+                cl[index],
+                table=tabs[i],
+                dur=1.0 / tabs[i].getRate() * trrnds[index],
+                interp=4,
+            )
+        )
 
 mix = Mix(trtabs, voices=2)
 out = Freeverb(mix, size=0.9, damp=0.95, bal=0.1, mul=0.3).out()

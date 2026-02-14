@@ -1687,7 +1687,7 @@
 <span class="sd">        will automatically triggers the `play` method of the Fader</span>
 <span class="sd">        object given as `mul` argument.</span>
 
-<span class="sd">        &gt;&gt;&gt; a = RCOsc(freq=150, mul=Fader(1, 1, mul=.3)).out()</span>
+<span class="sd">        &gt;&gt;&gt; a = RCOsc(freq=150, mul=Fader(1, 1, mul=0.3)).out()</span>
 
 <span class="sd">        With setAutoStartChildren(True), a call to the `stop` method</span>
 <span class="sd">        will also propagate to audio objects given as arguments. The</span>
@@ -1701,7 +1701,7 @@
 <span class="sd">        argument starts its fadeout immediately.</span>
 
 <span class="sd">        &gt;&gt;&gt; freq = Linseg([(0,500),(1, 750),(2, 500)], loop=True)</span>
-<span class="sd">        &gt;&gt;&gt; a = Sine(freq=freq, mul=Fader(1, 1, mul=.2)).out()</span>
+<span class="sd">        &gt;&gt;&gt; a = Sine(freq=freq, mul=Fader(1, 1, mul=0.2)).out()</span>
 
 <span class="sd">        Sometime, we still want the process assigned to a `mul` attribute</span>
 <span class="sd">        to wait before stopping its process. See the next case. The</span>

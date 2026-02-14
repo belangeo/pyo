@@ -6,9 +6,10 @@ This example adds three continuous MIDI controllers to the previous one
 `transpo` argument, which multiply the pitches from the Notein object.
 The second is a continuous controller used to change the cutoff frequency
 (`hfdamp` argument) of the lowpass filter. The last one sets the speed
-(`lfofreq` argument) of the moving notch oscillations in the spectrum. 
+(`lfofreq` argument) of the moving notch oscillations in the spectrum.
 
 """
+
 from pyo import *
 from random import random
 
@@ -23,7 +24,14 @@ class Synth:
 
         # Handle pitch and velocity (Notein outputs normalized amplitude (0 -> 1)).
         self.pit = self.note["pitch"] * self.transpo
-        self.amp = MidiAdsr(self.note["velocity"], attack=0.001, decay=0.1, sustain=0.7, release=1, mul=0.1,)
+        self.amp = MidiAdsr(
+            self.note["velocity"],
+            attack=0.001,
+            decay=0.1,
+            sustain=0.7,
+            release=1,
+            mul=0.1,
+        )
 
         # Anti-aliased stereo square waves, mixed from 10 streams to 1 stream
         # to avoid channel alternation on new notes.

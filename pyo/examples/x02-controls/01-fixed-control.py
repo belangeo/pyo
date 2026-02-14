@@ -5,6 +5,7 @@ Audio objects behavior can be controlled by passing
 value to their arguments at initialization time.
 
 """
+
 from pyo import *
 
 s = Server().boot()

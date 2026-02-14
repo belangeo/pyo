@@ -33,6 +33,7 @@ from ._maps import *
 from ._widgets import createGraphWindow
 from ._widgets import createNoteinKeyboardWindow
 
+
 ######################################################################
 ### MIDI
 ######################################################################
@@ -67,9 +68,9 @@ class Midictl(PyoObject):
     >>> s.start()
     >>> m = Midictl(ctlnumber=[107,102], minscale=250, maxscale=1000)
     >>> p = Port(m, .02)
-    >>> a = Sine(freq=p, mul=.3).out()
-    >>> a1 = Sine(freq=p*1.25, mul=.3).out()
-    >>> a2 = Sine(freq=p*1.5, mul=.3).out()
+    >>> a = Sine(freq=p, mul=0.3).out()
+    >>> a1 = Sine(freq=p*1.25, mul=0.3).out()
+    >>> a2 = Sine(freq=p*1.5, mul=0.3).out()
 
     """
 
@@ -179,7 +180,9 @@ class Midictl(PyoObject):
         Deprecated method. If needed, use Port or SigTo to interpolate between values.
 
         """
-        print("setInterpolation() is deprecated. If needed, use Port or SigTo to interpolate between values.")
+        print(
+            "setInterpolation() is deprecated. If needed, use Port or SigTo to interpolate between values."
+        )
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [
@@ -513,7 +516,7 @@ class Notein(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> notes = Notein(poly=10, scale=1, mul=.5)
+    >>> notes = Notein(poly=10, scale=1, mul=0.5)
     >>> p = Port(notes['velocity'], .001, .5)
     >>> b = Sine(freq=notes['pitch'], mul=p).out()
     >>> c = Sine(freq=notes['pitch'] * 0.997, mul=p).out()
@@ -537,12 +540,16 @@ class Notein(PyoObject):
         self._firstvelocity = 1
         self._lastvelocity = 127
         mul, add, lmax = convertArgsToLists(mul, add)
-        self._base_handler = MidiNote_base(self._poly, self._scale, self._first, self._last, self._channel)
+        self._base_handler = MidiNote_base(
+            self._poly, self._scale, self._first, self._last, self._channel
+        )
         self._base_objs = []
         self._trig_objs = []
         for i in range(lmax * poly):
             self._base_objs.append(Notein_base(self._base_handler, i, 0, 1, 0))
-            self._base_objs.append(Notein_base(self._base_handler, i, 1, wrap(mul, i), wrap(add, i)))
+            self._base_objs.append(
+                Notein_base(self._base_handler, i, 1, wrap(mul, i), wrap(add, i))
+            )
             self._trig_objs.append(NoteinTrig_base(self._base_handler, i, 0, 1, 0))
             self._trig_objs.append(NoteinTrig_base(self._base_handler, i, 1, 1, 0))
         self._init_play()
@@ -552,13 +559,17 @@ class Notein(PyoObject):
             self._pitch_dummy.append(Dummy([self._base_objs[i * 2] for i in range(self._poly)]))
             return self._pitch_dummy[-1]
         elif str == "velocity":
-            self._velocity_dummy.append(Dummy([self._base_objs[i * 2 + 1] for i in range(self._poly)]))
+            self._velocity_dummy.append(
+                Dummy([self._base_objs[i * 2 + 1] for i in range(self._poly)])
+            )
             return self._velocity_dummy[-1]
         elif str == "trigon":
             self._trigon_dummy.append(Dummy([self._trig_objs[i * 2] for i in range(self._poly)]))
             return self._trigon_dummy[-1]
         elif str == "trigoff":
-            self._trigoff_dummy.append(Dummy([self._trig_objs[i * 2 + 1] for i in range(self._poly)]))
+            self._trigoff_dummy.append(
+                Dummy([self._trig_objs[i * 2 + 1] for i in range(self._poly)])
+            )
             return self._trigoff_dummy[-1]
 
     def setScale(self, x):
@@ -736,7 +747,9 @@ class Notein(PyoObject):
         if not all:
             return self.__getitem__(identifier)[0]._getStream().getValue()
         else:
-            return [obj._getStream().getValue() for obj in self.__getitem__(identifier).getBaseObjects()]
+            return [
+                obj._getStream().getValue() for obj in self.__getitem__(identifier).getBaseObjects()
+            ]
 
     def play(self, dur=0, delay=0):
         self._base_handler.play(dur, delay)
@@ -883,7 +896,7 @@ class Bendin(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> notes = Notein(poly=10, scale=1, mul=.5)
+    >>> notes = Notein(poly=10, scale=1, mul=0.5)
     >>> bend = Bendin(brange=2, scale=1)
     >>> p = Port(notes['velocity'], .001, .5)
     >>> b = Sine(freq=notes['pitch'] * bend, mul=p).out()
@@ -898,9 +911,13 @@ class Bendin(PyoObject):
         self._brange = brange
         self._scale = scale
         self._channel = channel
-        brange, scale, channel, mul, add, lmax = convertArgsToLists(brange, scale, channel, mul, add)
+        brange, scale, channel, mul, add, lmax = convertArgsToLists(
+            brange, scale, channel, mul, add
+        )
         self._base_objs = [
-            Bendin_base(wrap(brange, i), wrap(scale, i), wrap(channel, i), wrap(mul, i), wrap(add, i))
+            Bendin_base(
+                wrap(brange, i), wrap(scale, i), wrap(channel, i), wrap(mul, i), wrap(add, i)
+            )
             for i in range(lmax)
         ]
         self._init_play()
@@ -958,7 +975,9 @@ class Bendin(PyoObject):
         Deprecated method. If needed, use Port or SigTo to interpolate between values.
 
         """
-        print("setInterpolation() is deprecated. If needed, use Port or SigTo to interpolate between values.")
+        print(
+            "setInterpolation() is deprecated. If needed, use Port or SigTo to interpolate between values."
+        )
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [
@@ -1023,7 +1042,7 @@ class Touchin(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> notes = Notein(poly=10, scale=1, mul=.5)
+    >>> notes = Notein(poly=10, scale=1, mul=0.5)
     >>> touch = Touchin(minscale=1, maxscale=2, init=1)
     >>> p = Port(notes['velocity'], .001, .5)
     >>> b = Sine(freq=notes['pitch'] * touch, mul=p).out()
@@ -1043,7 +1062,12 @@ class Touchin(PyoObject):
         )
         self._base_objs = [
             Touchin_base(
-                wrap(minscale, i), wrap(maxscale, i), wrap(init, i), wrap(channel, i), wrap(mul, i), wrap(add, i)
+                wrap(minscale, i),
+                wrap(maxscale, i),
+                wrap(init, i),
+                wrap(channel, i),
+                wrap(mul, i),
+                wrap(add, i),
             )
             for i in range(lmax)
         ]
@@ -1102,7 +1126,9 @@ class Touchin(PyoObject):
         Deprecated method. If needed, use Port or SigTo to interpolate between values.
 
         """
-        print("setInterpolation() is deprecated. If needed, use Port or SigTo to interpolate between values.")
+        print(
+            "setInterpolation() is deprecated. If needed, use Port or SigTo to interpolate between values."
+        )
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [
@@ -1158,7 +1184,7 @@ class Programin(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> notes = Notein(poly=10, scale=1, mul=.5)
+    >>> notes = Notein(poly=10, scale=1, mul=0.5)
     >>> pchg = Programin(mul=1./12, add=1)
     >>> p = Port(notes['velocity'], .001, .5)
     >>> b = Sine(freq=notes['pitch'] * pchg, mul=p).out()
@@ -1172,7 +1198,9 @@ class Programin(PyoObject):
         PyoObject.__init__(self, mul, add)
         self._channel = channel
         channel, mul, add, lmax = convertArgsToLists(channel, mul, add)
-        self._base_objs = [Programin_base(wrap(channel, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
+        self._base_objs = [
+            Programin_base(wrap(channel, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+        ]
         self._init_play()
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
@@ -1246,9 +1274,9 @@ class MidiAdsr(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> mid = Notein(scale=1)
-    >>> env = MidiAdsr(mid['velocity'], attack=.005, decay=.1, sustain=.4, release=1)
-    >>> a = SineLoop(freq=mid['pitch'], feedback=.1, mul=env).out()
-    >>> b = SineLoop(freq=mid['pitch']*1.005, feedback=.1, mul=env).out(1)
+    >>> env = MidiAdsr(mid['velocity'], attack=0.005, decay=0.1, sustain=0.4, release=1)
+    >>> a = SineLoop(freq=mid['pitch'], feedback=0.1, mul=env).out()
+    >>> b = SineLoop(freq=mid['pitch']*1.005, feedback=0.1, mul=env).out(1)
 
     """
 
@@ -1476,13 +1504,15 @@ class MidiDelAdsr(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> mid = Notein(scale=1)
-    >>> env = MidiDelAdsr(mid['velocity'], delay=.25, attack=.005, decay=.1, sustain=.4, release=1)
-    >>> a = SineLoop(freq=mid['pitch'], feedback=.1, mul=env).out()
-    >>> b = SineLoop(freq=mid['pitch']*1.005, feedback=.1, mul=env).out(1)
+    >>> env = MidiDelAdsr(mid['velocity'], delay=0.25, attack=0.005, decay=0.1, sustain=0.4, release=1)
+    >>> a = SineLoop(freq=mid['pitch'], feedback=0.1, mul=env).out()
+    >>> b = SineLoop(freq=mid['pitch']*1.005, feedback=0.1, mul=env).out(1)
 
     """
 
-    def __init__(self, input, delay=0, attack=0.01, decay=0.05, sustain=0.7, release=0.1, mul=1, add=0):
+    def __init__(
+        self, input, delay=0, attack=0.01, decay=0.05, sustain=0.7, release=0.1, mul=1, add=0
+    ):
         pyoArgsAssert(self, "onnnnnOO", input, delay, attack, decay, sustain, release, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
@@ -1810,8 +1840,8 @@ class MidiLinseg(PyoObject):
     >>> mid = Notein(scale=1)
     >>> env = [(0,0), (0.1,1), (0.2,0.5), (0.4,0.7), (0.5,0.3), (1,1), (2,0)]
     >>> env = MidiLinseg(mid['velocity'], env, hold=4)
-    >>> a = SineLoop(freq=mid['pitch'], feedback=.1, mul=env).out()
-    >>> b = SineLoop(freq=mid['pitch']*1.005, feedback=.1, mul=env).out(1)
+    >>> a = SineLoop(freq=mid['pitch'], feedback=0.1, mul=env).out()
+    >>> b = SineLoop(freq=mid['pitch']*1.005, feedback=0.1, mul=env).out(1)
 
     """
 
@@ -1824,7 +1854,8 @@ class MidiLinseg(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, hold, mul, add, lmax = convertArgsToLists(self._in_fader, hold, mul, add)
         self._base_objs = [
-            MidiLinseg_base(wrap(in_fader, i), list, wrap(hold, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+            MidiLinseg_base(wrap(in_fader, i), list, wrap(hold, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
         ]
         self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])
         self._init_play()

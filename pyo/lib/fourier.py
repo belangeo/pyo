@@ -117,7 +117,9 @@ class FFT(PyoObject):
         for j in range(overlaps):
             for i in range(lmax):
                 hopsize = wrap(size, i) * j // overlaps
-                self._base_players.append(FFTMain_base(wrap(in_fader, i), wrap(size, i), hopsize, wrap(wintype, i)))
+                self._base_players.append(
+                    FFTMain_base(wrap(in_fader, i), wrap(size, i), hopsize, wrap(wintype, i))
+                )
         self._real_objs = []
         self._imag_objs = []
         self._bin_objs = []
@@ -166,7 +168,9 @@ class FFT(PyoObject):
         if not all:
             return self.__getitem__(identifier)[0]._getStream().getValue()
         else:
-            return [obj._getStream().getValue() for obj in self.__getitem__(identifier).getBaseObjects()]
+            return [
+                obj._getStream().getValue() for obj in self.__getitem__(identifier).getBaseObjects()
+            ]
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -188,10 +192,18 @@ class FFT(PyoObject):
         dur, delay, lmax = convertArgsToLists(dur, delay)
         self._autoplay(dur, delay)
         self._in_fader.play(dur, delay)
-        self._base_players = [obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._base_players)]
-        self._real_objs = [obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._real_objs)]
-        self._imag_objs = [obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._imag_objs)]
-        self._bin_objs = [obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._bin_objs)]
+        self._base_players = [
+            obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._base_players)
+        ]
+        self._real_objs = [
+            obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._real_objs)
+        ]
+        self._imag_objs = [
+            obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._imag_objs)
+        ]
+        self._bin_objs = [
+            obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._bin_objs)
+        ]
         return self
 
     def stop(self, wait=0):
@@ -506,8 +518,8 @@ class CarToPol(PyoObject):
         with IFFT, before being sent to output.
 
     >>> s = Server().boot()
-    >>> snd1 = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=.7).mix(2)
-    >>> snd2 = FM(carrier=[75,100,125,150], ratio=[.499,.5,.501,.502], index=20, mul=.1).mix(2)
+    >>> snd1 = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=0.7).mix(2)
+    >>> snd2 = FM(carrier=[75,100,125,150], ratio=[.499,.5,.501,.502], index=20, mul=0.1).mix(2)
     >>> fin1 = FFT(snd1, size=1024, overlaps=4)
     >>> fin2 = FFT(snd2, size=1024, overlaps=4)
     >>> # get magnitudes and phases of input sounds
@@ -532,11 +544,17 @@ class CarToPol(PyoObject):
         self._inimag = inimag
         self._in_fader = InputFader(inreal)
         self._in_fader2 = InputFader(inimag)
-        in_fader, in_fader2, mul, add, lmax = convertArgsToLists(self._in_fader, self._in_fader2, mul, add)
+        in_fader, in_fader2, mul, add, lmax = convertArgsToLists(
+            self._in_fader, self._in_fader2, mul, add
+        )
         self._base_objs = []
         for i in range(lmax):
-            self._base_objs.append(CarToPol_base(wrap(in_fader, i), wrap(in_fader2, i), 0, wrap(mul, i), wrap(add, i)))
-            self._base_objs.append(CarToPol_base(wrap(in_fader, i), wrap(in_fader2, i), 1, wrap(mul, i), wrap(add, i)))
+            self._base_objs.append(
+                CarToPol_base(wrap(in_fader, i), wrap(in_fader2, i), 0, wrap(mul, i), wrap(add, i))
+            )
+            self._base_objs.append(
+                CarToPol_base(wrap(in_fader, i), wrap(in_fader2, i), 1, wrap(mul, i), wrap(add, i))
+            )
         self._init_play()
 
     def __len__(self):
@@ -544,10 +562,14 @@ class CarToPol(PyoObject):
 
     def __getitem__(self, str):
         if str == "mag":
-            self._mag_dummy.append(Dummy([obj for i, obj in enumerate(self._base_objs) if i % 2 == 0]))
+            self._mag_dummy.append(
+                Dummy([obj for i, obj in enumerate(self._base_objs) if i % 2 == 0])
+            )
             return self._mag_dummy[-1]
         if str == "ang":
-            self._ang_dummy.append(Dummy([obj for i, obj in enumerate(self._base_objs) if i % 2 == 1]))
+            self._ang_dummy.append(
+                Dummy([obj for i, obj in enumerate(self._base_objs) if i % 2 == 1])
+            )
             return self._ang_dummy[-1]
 
     def get(self, identifier="mag", all=False):
@@ -574,7 +596,9 @@ class CarToPol(PyoObject):
         if not all:
             return self.__getitem__(identifier)[0]._getStream().getValue()
         else:
-            return [obj._getStream().getValue() for obj in self.__getitem__(identifier).getBaseObjects()]
+            return [
+                obj._getStream().getValue() for obj in self.__getitem__(identifier).getBaseObjects()
+            ]
 
     def setInReal(self, x, fadetime=0.05):
         """
@@ -659,8 +683,8 @@ class PolToCar(PyoObject):
         with IFFT, before being sent to output.
 
     >>> s = Server().boot()
-    >>> snd1 = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=.7).mix(2)
-    >>> snd2 = FM(carrier=[75,100,125,150], ratio=[.499,.5,.501,.502], index=20, mul=.1).mix(2)
+    >>> snd1 = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=0.7).mix(2)
+    >>> snd2 = FM(carrier=[75,100,125,150], ratio=[.499,.5,.501,.502], index=20, mul=0.1).mix(2)
     >>> fin1 = FFT(snd1, size=1024, overlaps=4)
     >>> fin2 = FFT(snd2, size=1024, overlaps=4)
     >>> # get magnitudes and phases of input sounds
@@ -685,11 +709,17 @@ class PolToCar(PyoObject):
         self._inang = inang
         self._in_fader = InputFader(inmag)
         self._in_fader2 = InputFader(inang)
-        in_fader, in_fader2, mul, add, lmax = convertArgsToLists(self._in_fader, self._in_fader2, mul, add)
+        in_fader, in_fader2, mul, add, lmax = convertArgsToLists(
+            self._in_fader, self._in_fader2, mul, add
+        )
         self._base_objs = []
         for i in range(lmax):
-            self._base_objs.append(PolToCar_base(wrap(in_fader, i), wrap(in_fader2, i), 0, wrap(mul, i), wrap(add, i)))
-            self._base_objs.append(PolToCar_base(wrap(in_fader, i), wrap(in_fader2, i), 1, wrap(mul, i), wrap(add, i)))
+            self._base_objs.append(
+                PolToCar_base(wrap(in_fader, i), wrap(in_fader2, i), 0, wrap(mul, i), wrap(add, i))
+            )
+            self._base_objs.append(
+                PolToCar_base(wrap(in_fader, i), wrap(in_fader2, i), 1, wrap(mul, i), wrap(add, i))
+            )
         self._init_play()
 
     def __len__(self):
@@ -697,10 +727,14 @@ class PolToCar(PyoObject):
 
     def __getitem__(self, str):
         if str == "real":
-            self._real_dummy.append(Dummy([obj for i, obj in enumerate(self._base_objs) if i % 2 == 0]))
+            self._real_dummy.append(
+                Dummy([obj for i, obj in enumerate(self._base_objs) if i % 2 == 0])
+            )
             return self._real_dummy[-1]
         if str == "imag":
-            self._imag_dummy.append(Dummy([obj for i, obj in enumerate(self._base_objs) if i % 2 == 1]))
+            self._imag_dummy.append(
+                Dummy([obj for i, obj in enumerate(self._base_objs) if i % 2 == 1])
+            )
             return self._imag_dummy[-1]
 
     def get(self, identifier="real", all=False):
@@ -727,7 +761,9 @@ class PolToCar(PyoObject):
         if not all:
             return self.__getitem__(identifier)[0]._getStream().getValue()
         else:
-            return [obj._getStream().getValue() for obj in self.__getitem__(identifier).getBaseObjects()]
+            return [
+                obj._getStream().getValue() for obj in self.__getitem__(identifier).getBaseObjects()
+            ]
 
     def setInMag(self, x, fadetime=0.05):
         """
@@ -817,7 +853,7 @@ class FrameDelta(PyoObject):
     >>> snd = SNDS_PATH + '/transparent.aif'
     >>> size, hop = 1024, 256
     >>> nframes = int(sndinfo(snd)[0] / size) + 1
-    >>> a = SfPlayer(snd, mul=.3)
+    >>> a = SfPlayer(snd, mul=0.3)
     >>> m_mag = [NewMatrix(width=size, height=nframes) for i in range(4)]
     >>> m_pha = [NewMatrix(width=size, height=nframes) for i in range(4)]
     >>> fin = FFT(a, size=size, overlaps=4)
@@ -825,8 +861,8 @@ class FrameDelta(PyoObject):
     >>> delta = FrameDelta(pol["ang"], framesize=size, overlaps=4)
     >>> m_mag_rec = MatrixRec(pol["mag"], m_mag, 0, [i*hop for i in range(4)]).play()
     >>> m_pha_rec = MatrixRec(delta, m_pha, 0, [i*hop for i in range(4)]).play()
-    >>> m_mag_read = MatrixPointer(m_mag, fin["bin"]/size, Sine(freq=0.25, mul=.5, add=.5))
-    >>> m_pha_read = MatrixPointer(m_pha, fin["bin"]/size, Sine(freq=0.25, mul=.5, add=.5))
+    >>> m_mag_read = MatrixPointer(m_mag, fin["bin"]/size, Sine(freq=0.25, mul=0.5, add=0.5))
+    >>> m_pha_read = MatrixPointer(m_pha, fin["bin"]/size, Sine(freq=0.25, mul=0.5, add=0.5))
     >>> accum = FrameAccum(m_pha_read, framesize=size, overlaps=4)
     >>> car = PolToCar(m_mag_read, accum)
     >>> fout = IFFT(car["real"], car["imag"], size=size, overlaps=4).mix(1).out()
@@ -851,13 +887,17 @@ class FrameDelta(PyoObject):
             for i in range(len(self._in_fader)):
                 if (i % num_of_mains) == j:
                     objs_list.append(self._in_fader[i])
-            self._base_players.append(FrameDeltaMain_base(objs_list, wrap(framesize, j), wrap(overlaps, j)))
+            self._base_players.append(
+                FrameDeltaMain_base(objs_list, wrap(framesize, j), wrap(overlaps, j))
+            )
         self._base_objs = []
         for i in range(lmax):
             base_player = i % num_of_mains
             overlap = i // num_of_mains
             self._base_objs.append(
-                FrameDelta_base(self._base_players[base_player], overlap, wrap(mul, i), wrap(add, i))
+                FrameDelta_base(
+                    self._base_players[base_player], overlap, wrap(mul, i), wrap(add, i)
+                )
             )
         self._init_play()
 
@@ -951,7 +991,7 @@ class FrameAccum(PyoObject):
     >>> snd = SNDS_PATH + '/transparent.aif'
     >>> size, hop = 1024, 256
     >>> nframes = int(sndinfo(snd)[0] / size) + 1
-    >>> a = SfPlayer(snd, mul=.3)
+    >>> a = SfPlayer(snd, mul=0.3)
     >>> m_mag = [NewMatrix(width=size, height=nframes) for i in range(4)]
     >>> m_pha = [NewMatrix(width=size, height=nframes) for i in range(4)]
     >>> fin = FFT(a, size=size, overlaps=4)
@@ -959,8 +999,8 @@ class FrameAccum(PyoObject):
     >>> delta = FrameDelta(pol["ang"], framesize=size, overlaps=4)
     >>> m_mag_rec = MatrixRec(pol["mag"], m_mag, 0, [i*hop for i in range(4)]).play()
     >>> m_pha_rec = MatrixRec(delta, m_pha, 0, [i*hop for i in range(4)]).play()
-    >>> m_mag_read = MatrixPointer(m_mag, fin["bin"]/size, Sine(freq=0.25, mul=.5, add=.5))
-    >>> m_pha_read = MatrixPointer(m_pha, fin["bin"]/size, Sine(freq=0.25, mul=.5, add=.5))
+    >>> m_mag_read = MatrixPointer(m_mag, fin["bin"]/size, Sine(freq=0.25, mul=0.5, add=0.5))
+    >>> m_pha_read = MatrixPointer(m_pha, fin["bin"]/size, Sine(freq=0.25, mul=0.5, add=0.5))
     >>> accum = FrameAccum(m_pha_read, framesize=size, overlaps=4)
     >>> car = PolToCar(m_mag_read, accum)
     >>> fout = IFFT(car["real"], car["imag"], size=size, overlaps=4).mix(1).out()
@@ -985,13 +1025,17 @@ class FrameAccum(PyoObject):
             for i in range(len(self._in_fader)):
                 if (i % num_of_mains) == j:
                     objs_list.append(self._in_fader[i])
-            self._base_players.append(FrameAccumMain_base(objs_list, wrap(framesize, j), wrap(overlaps, j)))
+            self._base_players.append(
+                FrameAccumMain_base(objs_list, wrap(framesize, j), wrap(overlaps, j))
+            )
         self._base_objs = []
         for i in range(lmax):
             base_player = i % num_of_mains
             overlap = i // num_of_mains
             self._base_objs.append(
-                FrameAccum_base(self._base_players[base_player], overlap, wrap(mul, i), wrap(add, i))
+                FrameAccum_base(
+                    self._base_players[base_player], overlap, wrap(mul, i), wrap(add, i)
+                )
             )
         self._init_play()
 
@@ -1087,10 +1131,10 @@ class Vectral(PyoObject):
     >>> s = Server().boot()
     >>> snd = SNDS_PATH + '/accord.aif'
     >>> size, olaps = 1024, 4
-    >>> snd = SfPlayer(snd, speed=[.75,.8], loop=True, mul=.3)
+    >>> snd = SfPlayer(snd, speed=[.75,.8], loop=True, mul=0.3)
     >>> fin = FFT(snd, size=size, overlaps=olaps)
     >>> pol = CarToPol(fin["real"], fin["imag"])
-    >>> vec = Vectral(pol["mag"], framesize=size, overlaps=olaps, down=.2, damp=.6)
+    >>> vec = Vectral(pol["mag"], framesize=size, overlaps=olaps, down=0.2, damp=0.6)
     >>> car = PolToCar(vec, pol["ang"])
     >>> fout = IFFT(car["real"], car["imag"], size=size, overlaps=olaps).mix(2).out()
     >>> s.start()
@@ -1119,14 +1163,21 @@ class Vectral(PyoObject):
                     objs_list.append(self._in_fader[i])
             self._base_players.append(
                 VectralMain_base(
-                    objs_list, wrap(framesize, j), wrap(overlaps, j), wrap(up, j), wrap(down, j), wrap(damp, j)
+                    objs_list,
+                    wrap(framesize, j),
+                    wrap(overlaps, j),
+                    wrap(up, j),
+                    wrap(down, j),
+                    wrap(damp, j),
                 )
             )
         self._base_objs = []
         for i in range(lmax):
             base_player = i % num_of_mains
             overlap = i // num_of_mains
-            self._base_objs.append(Vectral_base(self._base_players[base_player], overlap, wrap(mul, i), wrap(add, i)))
+            self._base_objs.append(
+                Vectral_base(self._base_players[base_player], overlap, wrap(mul, i), wrap(add, i))
+            )
         self._init_play()
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
@@ -1303,7 +1354,15 @@ class CvlVerb(PyoObject):
 
     """
 
-    def __init__(self, input, impulse=SNDS_PATH + "/IRMediumHallStereo.wav", bal=0.25, size=1024, mul=1, add=0):
+    def __init__(
+        self,
+        input,
+        impulse=SNDS_PATH + "/IRMediumHallStereo.wav",
+        bal=0.25,
+        size=1024,
+        mul=1,
+        add=0,
+    ):
         pyoArgsAssert(self, "osOiOO", input, impulse, bal, size, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
@@ -1311,7 +1370,9 @@ class CvlVerb(PyoObject):
         self._bal = bal
         self._size = size
         self._in_fader = InputFader(input)
-        in_fader, bal, size, mul, add, lmax = convertArgsToLists(self._in_fader, bal, size, mul, add)
+        in_fader, bal, size, mul, add, lmax = convertArgsToLists(
+            self._in_fader, bal, size, mul, add
+        )
         impulse, lmax2 = convertArgsToLists(impulse)
         self._base_objs = []
         for file in impulse:

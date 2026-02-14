@@ -11,8 +11,8 @@ Welcome to the pyo 1.0.6 documentation
    :align: center
 
 Pyo is a Python module written in C to help digital signal processing script 
-creation. It provides a complete set of classes to build audio softwares, 
-compose algorithmic musics or simply explore audio processing with a simple, 
+creation. It provides a complete set of classes to build audio software, 
+compose algorithmic music or simply explore audio processing with a simple, 
 mature and powerful programming language.
 
 Parts of the documentation

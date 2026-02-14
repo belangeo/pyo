@@ -10,6 +10,7 @@ For the playback, we use a Pointer object, which is a table reader with
 control on the pointer position (normalized between 0 and 1).
 
 """
+
 from pyo import *
 import random
 

@@ -7,6 +7,7 @@ from pyo import *
 # To automate audio output validation, every random has to be properly
 # seeded for the examples to be deterministic.
 
+
 def play_example(cls, dur=5, toprint=True, double=False):
     """
     Execute the documentation example of the object given as an argument.
@@ -49,7 +50,7 @@ def play_example(cls, dur=5, toprint=True, double=False):
         if store:
             if line.strip() == "":
                 store = False
-            elif 's.start()' in line:
+            elif "s.start()" in line:
                 pass
             else:
                 lines.append(line)

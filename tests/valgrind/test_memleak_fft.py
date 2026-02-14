@@ -1,8 +1,9 @@
 # Run this file in valgrind with:
-#   PYTHONMALLOC=malloc valgrind --tool=memcheck --leak-check=yes --show-leak-kinds=definite --track-origins=yes --num-callers=12 --suppressions=valgrind-python.supp python3 test_memleak_fft.py 
+#   PYTHONMALLOC=malloc valgrind --tool=memcheck --leak-check=yes --show-leak-kinds=definite --track-origins=yes --num-callers=12 --suppressions=valgrind-python.supp python3 test_memleak_fft.py
 # There should not be any definitely lost bytes.
 
 import os
+
 os.environ["PYO_GUI_WX"] = "0"
 
 from pyo import *
@@ -25,8 +26,8 @@ c.input = a["mag"]
 c.framesize = 512
 c.framesize = 2048
 
-d = FrameAccum(Sig([0,0,0,0]))
-d.setInput(Sig([1,1,1,1]))
+d = FrameAccum(Sig([0, 0, 0, 0]))
+d.setInput(Sig([1, 1, 1, 1]))
 d.framesize = 512
 d.framesize = 2048
 
@@ -38,10 +39,14 @@ e.up = Sig(0.9)
 e.down = Sig(0.6)
 e.damp = Sig(0.99)
 
+
 def callback(x):
     pass
+
+
 def callback2(x):
     pass
+
 
 f = Spectrum(i1, function=callback)
 f.size = 512

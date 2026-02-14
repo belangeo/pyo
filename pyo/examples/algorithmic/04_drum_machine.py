@@ -4,6 +4,7 @@
 Algoritmic rhythm machine...
 
 """
+
 from pyo import *
 
 # Set this constant to True to loop over preset bank

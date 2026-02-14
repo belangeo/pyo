@@ -3,6 +3,7 @@ Demo script for showing how GUI classes from pyo can be used to build
 audio programs with graphical interface.
 
 """
+
 import wx, time, random
 from pyo import *
 
@@ -91,7 +92,9 @@ class MyFrame(wx.Frame):
 
     def createFreqSlider(self):
         sizer = wx.BoxSizer(wx.VERTICAL)
-        label = wx.StaticText(self.panel, -1, "PyoGuiControlSlider: filter's center frequency (log scale)")
+        label = wx.StaticText(
+            self.panel, -1, "PyoGuiControlSlider: filter's center frequency (log scale)"
+        )
         sizer.Add(label, 0, wx.CENTER | wx.ALL, 5)
         self.freq = PyoGuiControlSlider(
             parent=self.panel,
@@ -130,7 +133,12 @@ class MyFrame(wx.Frame):
         )
         self.amp.Bind(EVT_PYO_GUI_CONTROL_SLIDER, self.changeGain)
         self.meter = PyoGuiVuMeter(
-            parent=self.panel, nchnls=NCHNLS, pos=(0, 0), size=(5 * NCHNLS, 200), orient=wx.VERTICAL, style=0,
+            parent=self.panel,
+            nchnls=NCHNLS,
+            pos=(0, 0),
+            size=(5 * NCHNLS, 200),
+            orient=wx.VERTICAL,
+            style=0,
         )
         self.meter.setNchnls(8)
         # Register the VuMeter in the Server object.
@@ -172,7 +180,12 @@ class MyFrame(wx.Frame):
         label = wx.StaticText(self.panel, -1, "PyoGuiMultiSlider: Step Sequencer")
         sizer.Add(label, 0, wx.CENTER | wx.ALL, 5)
         self.steps = PyoGuiMultiSlider(
-            parent=self.panel, xlen=16, yrange=(0, 1), init=[1, 0, 0, 0] * 4, size=(300, 100), style=0,
+            parent=self.panel,
+            xlen=16,
+            yrange=(0, 1),
+            init=[1, 0, 0, 0] * 4,
+            size=(300, 100),
+            style=0,
         )
         self.steps.setYrange((0, 2))
         self.steps.setValues([random.uniform(0, 2) for i in range(16)])
@@ -185,7 +198,13 @@ class MyFrame(wx.Frame):
         label = wx.StaticText(self.panel, -1, "PyoGuiSpectrum: Frequency display")
         sizer.Add(label, 0, wx.CENTER | wx.ALL, 5)
         self.spectrum = PyoGuiSpectrum(
-            parent=self.panel, lowfreq=0, highfreq=22050, fscaling=1, mscaling=1, size=(300, 150), style=0,
+            parent=self.panel,
+            lowfreq=0,
+            highfreq=22050,
+            fscaling=1,
+            mscaling=1,
+            size=(300, 150),
+            style=0,
         )
         self.spectrum.setAnalyzer(sp)
         sizer.Add(self.spectrum, 1, wx.ALL | wx.EXPAND, 5)

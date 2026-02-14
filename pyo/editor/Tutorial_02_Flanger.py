@@ -1,17 +1,17 @@
 """
 Tutorial on creating a custom PyoObject.
 
-There are few steps we need to take care of in order to create a class with all 
+There are few steps we need to take care of in order to create a class with all
 of the PyoObject behaviors.
 
 Things to consider:
 
 - The parent class must be PyoObject, that means the PyoObject's __init__ method
-    must be called inside the object's __init__ method to properly initialize 
+    must be called inside the object's __init__ method to properly initialize
     PyoObject's basic attributes.
-- When a PyoObject receives another PyoObject, it looks for a list of objects 
-    called "self._base_objs". This list must contain the C implementation of 
-    the audio objects generating the output sound of the process. 
+- When a PyoObject receives another PyoObject, it looks for a list of objects
+    called "self._base_objs". This list must contain the C implementation of
+    the audio objects generating the output sound of the process.
 - Adding "mul" and "add" arguments (they act on objects in self._base_objs).
 - All PyoObjects support "list expansion".
 - All PyoObjects with sound in input support cross-fading between old and new sources.
@@ -24,6 +24,7 @@ In this tutorial, we will define a Flanger object with this definition:
 Flanger(input, depth=0.75, lfofreq=0.2, feedback=0.25, mul=1, add=0)
 
 """
+
 from pyo import *
 
 # Step 1 - Declaring the class
@@ -38,14 +39,14 @@ class Flanger(PyoObject):
     """
     Flanging effect.
 
-    A flanging is an audio effect produced by mixing two identical signals together, 
-    with one signal delayed by a small and gradually changing period, usually smaller 
-    than 20 milliseconds. This produces a swept comb filter effect: peaks and notches 
-    are produced in the resultant frequency spectrum, related to each other in a linear 
-    harmonic series. Varying the time delay causes these to sweep up and down the 
+    A flanging is an audio effect produced by mixing two identical signals together,
+    with one signal delayed by a small and gradually changing period, usually smaller
+    than 20 milliseconds. This produces a swept comb filter effect: peaks and notches
+    are produced in the resultant frequency spectrum, related to each other in a linear
+    harmonic series. Varying the time delay causes these to sweep up and down the
     frequency spectrum.
-    
-    
+
+
     :Parent: :py:class:`PyoObject`
 
     :Args:
@@ -53,13 +54,13 @@ class Flanger(PyoObject):
         input : PyoObject
             Input signal to process.
         depth : float or PyoObject, optional
-            Amplitude of the delay line modulation, between 0 and 1. 
+            Amplitude of the delay line modulation, between 0 and 1.
             Defaults to 0.75.
         lfofreq : float or PyoObject, optional
-            Frequency of the delay line modulation, in Hertz. 
+            Frequency of the delay line modulation, in Hertz.
             Defaults to 0.2.
         feedback : float or PyoObject, optional
-            Amount of output signal reinjected into the delay line. 
+            Amount of output signal reinjected into the delay line.
             Defaults to 0.25.
 
     >>> s = Server().boot()

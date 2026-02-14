@@ -12,6 +12,7 @@ If `chnls` is 2 and a single audio stream is given to an input, the signal
 will be duplicated to fill the two channels of the voice.
 
 """
+
 from pyo import *
 import random
 
@@ -42,6 +43,7 @@ mm.setAmp(vin=1, vout=2, amp=0.25)
 # Dictionaries used to print assignment messages.
 inputs = {0: "low", 1: "mid", 2: "hig"}
 outputs = {0: "Octave below", 1: "Fifth below", 2: "Second above"}
+
 
 # Dynamic assignation of inputs to outputs with random amplitude.
 def assign():

@@ -128,8 +128,8 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server(nchnls=2).boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; a = Noise(mul=.2)</span>
-<span class="sd">    &gt;&gt;&gt; lfo = Sine(freq=1, mul=.5, add=.5)</span>
+<span class="sd">    &gt;&gt;&gt; a = Noise(mul=0.2)</span>
+<span class="sd">    &gt;&gt;&gt; lfo = Sine(freq=1, mul=0.5, add=0.5)</span>
 <span class="sd">    &gt;&gt;&gt; p = Pan(a, outs=2, pan=lfo).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -272,8 +272,8 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server(nchnls=2).boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; a = Noise(mul=.2)</span>
-<span class="sd">    &gt;&gt;&gt; lfo = Sine(freq=1, mul=.5, add=.5)</span>
+<span class="sd">    &gt;&gt;&gt; a = Noise(mul=0.2)</span>
+<span class="sd">    &gt;&gt;&gt; lfo = Sine(freq=1, mul=0.5, add=0.5)</span>
 <span class="sd">    &gt;&gt;&gt; p = SPan(a, outs=2, pan=lfo).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -384,12 +384,12 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server(nchnls=2).boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; a = SfPlayer(SNDS_PATH + &quot;/transparent.aif&quot;, speed=[.999,1], loop=True, mul=.3)</span>
-<span class="sd">    &gt;&gt;&gt; lf = Sine(freq=.25, mul=1, add=1)</span>
+<span class="sd">    &gt;&gt;&gt; a = SfPlayer(SNDS_PATH + &quot;/transparent.aif&quot;, speed=[.999,1], loop=True, mul=0.3)</span>
+<span class="sd">    &gt;&gt;&gt; lf = Sine(freq=0.25, mul=1, add=1)</span>
 <span class="sd">    &gt;&gt;&gt; b = Switch(a, outs=6, voice=lf)</span>
-<span class="sd">    &gt;&gt;&gt; c = WGVerb(b[0:2], feedback=.8).out()</span>
-<span class="sd">    &gt;&gt;&gt; d = Disto(b[2:4], drive=.9, mul=.1).out()</span>
-<span class="sd">    &gt;&gt;&gt; e = Delay(b[4:6], delay=.2, feedback=.6).out()</span>
+<span class="sd">    &gt;&gt;&gt; c = WGVerb(b[0:2], feedback=0.8).out()</span>
+<span class="sd">    &gt;&gt;&gt; d = Disto(b[2:4], drive=0.9, mul=0.1).out()</span>
+<span class="sd">    &gt;&gt;&gt; e = Delay(b[4:6], delay=0.2, feedback=0.6).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -493,10 +493,10 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; a = SfPlayer(SNDS_PATH + &quot;/transparent.aif&quot;, speed=[.999,1], loop=True, mul=.3)</span>
-<span class="sd">    &gt;&gt;&gt; b = Noise(mul=.1)</span>
-<span class="sd">    &gt;&gt;&gt; c = SfPlayer(SNDS_PATH + &quot;/accord.aif&quot;, speed=[.999,1], loop=True, mul=.5)</span>
-<span class="sd">    &gt;&gt;&gt; lf = Sine(freq=.1, add=1)</span>
+<span class="sd">    &gt;&gt;&gt; a = SfPlayer(SNDS_PATH + &quot;/transparent.aif&quot;, speed=[.999,1], loop=True, mul=0.3)</span>
+<span class="sd">    &gt;&gt;&gt; b = Noise(mul=0.1)</span>
+<span class="sd">    &gt;&gt;&gt; c = SfPlayer(SNDS_PATH + &quot;/accord.aif&quot;, speed=[.999,1], loop=True, mul=0.5)</span>
+<span class="sd">    &gt;&gt;&gt; lf = Sine(freq=0.1, add=1)</span>
 <span class="sd">    &gt;&gt;&gt; d = Selector(inputs=[a,b,c], voice=lf).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -652,12 +652,12 @@
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; env = CosTable([(0,0),(100,1),(500,.5),(8192,0)])</span>
-<span class="sd">    &gt;&gt;&gt; delta = RandDur(min=.05, max=.1)</span>
+<span class="sd">    &gt;&gt;&gt; delta = RandDur(min=0.05, max=0.1)</span>
 <span class="sd">    &gt;&gt;&gt; vm = VoiceManager(Change(delta))</span>
 <span class="sd">    &gt;&gt;&gt; sel = Select(vm, value=[0,1,2,3])</span>
 <span class="sd">    &gt;&gt;&gt; pit = TrigChoice(sel, choice=[midiToHz(x) for x in [60,63,67,70,72]])</span>
-<span class="sd">    &gt;&gt;&gt; amp = TrigEnv(sel, table=env, dur=.5, mul=.25)</span>
-<span class="sd">    &gt;&gt;&gt; synth1 = SineLoop(pit, feedback=.07, mul=amp).out()</span>
+<span class="sd">    &gt;&gt;&gt; amp = TrigEnv(sel, table=env, dur=0.5, mul=0.25)</span>
+<span class="sd">    &gt;&gt;&gt; synth1 = SineLoop(pit, feedback=0.07, mul=amp).out()</span>
 <span class="sd">    &gt;&gt;&gt; vm.setTriggers(amp[&quot;trig&quot;])</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -784,12 +784,12 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; a = SfPlayer(SNDS_PATH+&quot;/transparent.aif&quot;, loop=True, mul=.2)</span>
-<span class="sd">    &gt;&gt;&gt; b = FM(carrier=200, ratio=[.5013,.4998], index=6, mul=.2)</span>
-<span class="sd">    &gt;&gt;&gt; mm = Mixer(outs=3, chnls=2, time=.025)</span>
-<span class="sd">    &gt;&gt;&gt; fx1 = Disto(mm[0], drive=.9, slope=.9, mul=.1).out()</span>
-<span class="sd">    &gt;&gt;&gt; fx2 = Freeverb(mm[1], size=.8, damp=.8, mul=.5).out()</span>
-<span class="sd">    &gt;&gt;&gt; fx3 = Harmonizer(mm[2], transpo=1, feedback=.75, mul=.5).out()</span>
+<span class="sd">    &gt;&gt;&gt; a = SfPlayer(SNDS_PATH+&quot;/transparent.aif&quot;, loop=True, mul=0.2)</span>
+<span class="sd">    &gt;&gt;&gt; b = FM(carrier=200, ratio=[.5013,.4998], index=6, mul=0.2)</span>
+<span class="sd">    &gt;&gt;&gt; mm = Mixer(outs=3, chnls=2, time=0.025)</span>
+<span class="sd">    &gt;&gt;&gt; fx1 = Disto(mm[0], drive=0.9, slope=0.9, mul=0.1).out()</span>
+<span class="sd">    &gt;&gt;&gt; fx2 = Freeverb(mm[1], size=0.8, damp=0.8, mul=0.5).out()</span>
+<span class="sd">    &gt;&gt;&gt; fx3 = Harmonizer(mm[2], transpo=1, feedback=0.75, mul=0.5).out()</span>
 <span class="sd">    &gt;&gt;&gt; mm.addInput(0, a)</span>
 <span class="sd">    &gt;&gt;&gt; mm.addInput(1, b)</span>
 <span class="sd">    &gt;&gt;&gt; mm.setAmp(0,0,.5)</span>

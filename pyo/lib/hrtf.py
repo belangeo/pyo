@@ -97308,15 +97308,21 @@ class HRTF(PyoObject):
         self._azimuth = azimuth
         self._elevation = elevation
         self._in_fader = InputFader(input)
-        in_fader, azimuth, elevation, mul, add, lmax = convertArgsToLists(self._in_fader, azimuth, elevation, mul, add)
+        in_fader, azimuth, elevation, mul, add, lmax = convertArgsToLists(
+            self._in_fader, azimuth, elevation, mul, add
+        )
         self._base_players = [
-            HRTFSpatter_base(wrap(in_fader, i), self._hrtfdata._data, wrap(azimuth, i), wrap(elevation, i))
+            HRTFSpatter_base(
+                wrap(in_fader, i), self._hrtfdata._data, wrap(azimuth, i), wrap(elevation, i)
+            )
             for i in range(lmax)
         ]
         self._base_objs = []
         for i in range(lmax):
             for j in range(2):
-                self._base_objs.append(HRTF_base(wrap(self._base_players, i), j, wrap(mul, i), wrap(add, i)))
+                self._base_objs.append(
+                    HRTF_base(wrap(self._base_players, i), j, wrap(mul, i), wrap(add, i))
+                )
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -97463,13 +97469,21 @@ class Binaural(PyoObject):
             self._in_fader, azimuth, elevation, azispan, elespan, mul, add
         )
         self._base_players = [
-            Binauraler_base(wrap(in_fader, i), wrap(azimuth, i), wrap(elevation, i), wrap(azispan, i), wrap(elespan, i))
+            Binauraler_base(
+                wrap(in_fader, i),
+                wrap(azimuth, i),
+                wrap(elevation, i),
+                wrap(azispan, i),
+                wrap(elespan, i),
+            )
             for i in range(lmax)
         ]
         self._base_objs = []
         for i in range(lmax):
             for j in range(2):
-                self._base_objs.append(Binaural_base(wrap(self._base_players, i), j, wrap(mul, i), wrap(add, i)))
+                self._base_objs.append(
+                    Binaural_base(wrap(self._base_players, i), j, wrap(mul, i), wrap(add, i))
+                )
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):

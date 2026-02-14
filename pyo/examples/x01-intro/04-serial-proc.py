@@ -9,6 +9,7 @@ to process.
 Note the input variable given to each Harmonizer.
 
 """
+
 from pyo import *
 
 s = Server().boot()

@@ -14,6 +14,7 @@ objects.remove("Compare")
 
 obj_dict = {}
 
+
 def filter_doc(doc):
     p1 = doc.find(":Args:")
     if p1 != -1:
@@ -30,6 +31,7 @@ def filter_doc(doc):
     doc = doc[:count]
     return doc
 
+
 for obj in objects:
     doc = filter_doc(eval(obj).__doc__)
     lines = doc.splitlines()
@@ -45,9 +47,9 @@ for obj in objects:
         if "float or PyoObject" in line:
             line = line.strip()
             att = line[0 : line.find(":")]  # attribute name
-            pos1 = args.find(att+"=") + len(att+"=")
+            pos1 = args.find(att + "=") + len(att + "=")
             pos2 = args.find(",", pos1)
-            obj_dict[obj]["attributes"][att] = eval(args[pos1 : pos2])  # attribute default value
+            obj_dict[obj]["attributes"][att] = eval(args[pos1:pos2])  # attribute default value
         if "optional" in line and mandatory_end == 0:
             mandatory_end = i
 
@@ -62,8 +64,8 @@ for obj in objects:
     if not obj_dict[obj]["attributes"] or not obj_dict[obj]["mandatory"]:
         del obj_dict[obj]
 
-#print(obj_dict)
-#print(len(obj_dict))
+# print(obj_dict)
+# print(len(obj_dict))
 
 # For each object in obj_dict, launch as many tests as there are combinations of audio/floats attributes.
 
@@ -75,7 +77,7 @@ dummys = {
     "list of floats or list of lists of floats": "[0, 0]",
     "string": "SNDS_PATH+'/transparent.aif'",
     "PyoTableObject": "SndTable(SNDS_PATH+'/transparent.aif')",
-    "PyoPVObject": "PVAnal(Sig(0))"
+    "PyoPVObject": "PVAnal(Sig(0))",
 }
 
 server = Server(audio="manual")

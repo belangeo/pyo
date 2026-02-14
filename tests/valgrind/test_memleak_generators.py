@@ -1,5 +1,5 @@
 # Run this file in valgrind with:
-#   PYTHONMALLOC=malloc valgrind --tool=memcheck --leak-check=yes --show-leak-kinds=definite --track-origins=yes --num-callers=12 --suppressions=valgrind-python.supp python3 test_memleak_generators.py 
+#   PYTHONMALLOC=malloc valgrind --tool=memcheck --leak-check=yes --show-leak-kinds=definite --track-origins=yes --num-callers=12 --suppressions=valgrind-python.supp python3 test_memleak_generators.py
 # There should not be any definitely lost bytes.
 
 from pyo import *
@@ -23,7 +23,9 @@ i2 = Sig(0)
 t1 = NewTable(2)
 t2 = NewTable(2)
 
-e = OscBank(t1, freq=100, spread=1, slope=0.9, frndf=1, frnda=0, arndf=1, arnda=0, num=24, fjit=False)
+e = OscBank(
+    t1, freq=100, spread=1, slope=0.9, frndf=1, frnda=0, arndf=1, arnda=0, num=24, fjit=False
+)
 e.table = t2
 e.freq = Sig(50.5)
 e.spread = Sig(0.5)

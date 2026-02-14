@@ -10,6 +10,7 @@ talking and 0 when it is silent. This signal is finally used to change the ampli
 of the music whenever the voice is talking.
 
 """
+
 from pyo import *
 
 s = Server().boot()

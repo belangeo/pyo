@@ -15,6 +15,7 @@ can be used to remove DC component from an audio signal.
 The next example will present bandpass filters.
 
 """
+
 from pyo import *
 
 s = Server().boot()

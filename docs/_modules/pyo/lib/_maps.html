@@ -264,7 +264,7 @@
 <span class="sd">    &gt;&gt;&gt; slmapfreq = SLMap(20., 2000., &#39;log&#39;, &#39;freq&#39;, ifs)</span>
 <span class="sd">    &gt;&gt;&gt; slmapfeed = SLMap(0, 0.25, &#39;lin&#39;, &#39;feedback&#39;, 0)</span>
 <span class="sd">    &gt;&gt;&gt; maps = [slmapfreq, slmapfeed, SLMapMul(.1)]</span>
-<span class="sd">    &gt;&gt;&gt; a = SineLoop(freq=ifs, mul=.1).out()</span>
+<span class="sd">    &gt;&gt;&gt; a = SineLoop(freq=ifs, mul=0.1).out()</span>
 <span class="sd">    &gt;&gt;&gt; a.ctrl(maps)</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>

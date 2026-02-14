@@ -90,7 +90,7 @@ class SfPlayer(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> snd = SNDS_PATH + "/transparent.aif"
-    >>> sf = SfPlayer(snd, speed=[.75,.8], loop=True, mul=.3).out()
+    >>> sf = SfPlayer(snd, speed=[.75,.8], loop=True, mul=0.3).out()
 
     """
 
@@ -109,14 +109,22 @@ class SfPlayer(PyoObject):
         self._base_objs = []
         _trig_objs_tmp = []
         for i in range(lmax):
-            _snd_size, _dur, _snd_sr, _snd_chnls, _format, _type = sndinfo(path[0], raise_on_failure=True)
+            _snd_size, _dur, _snd_sr, _snd_chnls, _format, _type = sndinfo(
+                path[0], raise_on_failure=True
+            )
             self._base_players.append(
                 SfPlayer_base(
-                    stringencode(wrap(path, i)), wrap(speed, i), wrap(loop, i), wrap(offset, i), wrap(interp, i)
+                    stringencode(wrap(path, i)),
+                    wrap(speed, i),
+                    wrap(loop, i),
+                    wrap(offset, i),
+                    wrap(interp, i),
                 )
             )
             for j in range(_snd_chnls):
-                self._base_objs.append(SfPlay_base(self._base_players[-1], j, wrap(mul, i), wrap(add, i)))
+                self._base_objs.append(
+                    SfPlay_base(self._base_players[-1], j, wrap(mul, i), wrap(add, i))
+                )
                 _trig_objs_tmp.append(TriggerDummy_base(self._base_players[-1]))
         self._trig_objs = Dummy(_trig_objs_tmp)
         self._init_play()
@@ -339,7 +347,7 @@ class SfMarkerShuffler(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> sound = SNDS_PATH + "/transparent.aif"
-    >>> sf = SfMarkerShuffler(sound, speed=[1,1], mul=.3).out()
+    >>> sf = SfMarkerShuffler(sound, speed=[1,1], mul=0.3).out()
     >>> sf.setRandomType("expon_min", 0.6)
 
     """
@@ -352,7 +360,9 @@ class SfMarkerShuffler(PyoObject):
         path, speed, interp, mul, add, lmax = convertArgsToLists(path, speed, interp, mul, add)
         self._base_players = []
         self._base_objs = []
-        self._snd_size, self._dur, self._snd_sr, self._snd_chnls, _format, _type = sndinfo(path[0], raise_on_failure=True)
+        self._snd_size, self._dur, self._snd_sr, self._snd_chnls, _format, _type = sndinfo(
+            path[0], raise_on_failure=True
+        )
         for i in range(lmax):
             self._base_players.append(
                 SfMarkerShuffler_base(stringencode(wrap(path, i)), wrap(speed, i), wrap(interp, i))
@@ -360,7 +370,9 @@ class SfMarkerShuffler(PyoObject):
         for i in range(lmax * self._snd_chnls):
             j = i // self._snd_chnls
             self._base_objs.append(
-                SfMarkerShuffle_base(wrap(self._base_players, j), i % self._snd_chnls, wrap(mul, j), wrap(add, j))
+                SfMarkerShuffle_base(
+                    wrap(self._base_players, j), i % self._snd_chnls, wrap(mul, j), wrap(add, j)
+                )
             )
         self._init_play()
 
@@ -526,7 +538,7 @@ class SfMarkerLooper(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = SfMarkerLooper(SNDS_PATH + '/transparent.aif', speed=[.999,1], mul=.3).out()
+    >>> a = SfMarkerLooper(SNDS_PATH + '/transparent.aif', speed=[.999,1], mul=0.3).out()
     >>> rnd = RandInt(len(a.getMarkers()), 2)
     >>> a.mark = rnd
 
@@ -538,10 +550,14 @@ class SfMarkerLooper(PyoObject):
         self._speed = speed
         self._mark = mark
         self._interp = interp
-        path, speed, mark, interp, mul, add, lmax = convertArgsToLists(path, speed, mark, interp, mul, add)
+        path, speed, mark, interp, mul, add, lmax = convertArgsToLists(
+            path, speed, mark, interp, mul, add
+        )
         self._base_players = []
         self._base_objs = []
-        self._snd_size, self._dur, self._snd_sr, self._snd_chnls, _format, _type = sndinfo(path[0], raise_on_failure=True)
+        self._snd_size, self._dur, self._snd_sr, self._snd_chnls, _format, _type = sndinfo(
+            path[0], raise_on_failure=True
+        )
         for i in range(lmax):
             self._base_players.append(
                 SfMarkerLooper_base(
@@ -551,7 +567,9 @@ class SfMarkerLooper(PyoObject):
         for i in range(lmax * self._snd_chnls):
             j = i // self._snd_chnls
             self._base_objs.append(
-                SfMarkerLoop_base(wrap(self._base_players, j), i % self._snd_chnls, wrap(mul, j), wrap(add, j))
+                SfMarkerLoop_base(
+                    wrap(self._base_players, j), i % self._snd_chnls, wrap(mul, j), wrap(add, j)
+                )
             )
         self._init_play()
 

@@ -4,7 +4,7 @@
 This program gives an example of how to build an algorithm with python/pyo and
 then send MIDI events from the Server to a connected MIDI synthesizer (physical
 or virtual).
- 
+
 Available MIDI output methods (see the Server documentation for the details):
 
 - afterout(pitch, velocity, channel=0, timestamp=0)
@@ -17,6 +17,7 @@ Available MIDI output methods (see the Server documentation for the details):
 - sysexout(msg, timestamp=0)
 
 """
+
 import random
 from pyo import *
 

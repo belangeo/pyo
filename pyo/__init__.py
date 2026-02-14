@@ -17,10 +17,13 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
+
 import os
 import sys
 
-if sys.platform.startswith("linux") and os.path.isdir("{}{}".format(os.path.dirname(__file__), ".libs")):
+if sys.platform.startswith("linux") and os.path.isdir(
+    "{}{}".format(os.path.dirname(__file__), ".libs")
+):
     from . import _linux_wheel_fix_symlinks
 
 from .lib._maps import *
@@ -219,7 +222,18 @@ OBJECTS_TREE = {
             ),
             "controls": sorted(["Fader", "Sig", "SigTo", "Adsr", "Linseg", "Expseg"]),
             "dynamics": sorted(
-                ["Clip", "Compress", "Degrade", "Mirror", "Wrap", "Gate", "Balance", "Min", "Max", "Expand",]
+                [
+                    "Clip",
+                    "Compress",
+                    "Degrade",
+                    "Mirror",
+                    "Wrap",
+                    "Gate",
+                    "Balance",
+                    "Min",
+                    "Max",
+                    "Expand",
+                ]
             ),
             "effects": sorted(
                 [
@@ -312,8 +326,27 @@ OBJECTS_TREE = {
                     "MidiLinseg",
                 ]
             ),
-            "opensndctrl": sorted(["OscReceive", "OscSend", "OscDataSend", "OscDataReceive", "OscListReceive",]),
-            "pan": sorted(["Pan", "SPan", "Switch", "Selector", "Mixer", "VoiceManager", "HRTF", "Binaural",]),
+            "opensndctrl": sorted(
+                [
+                    "OscReceive",
+                    "OscSend",
+                    "OscDataSend",
+                    "OscDataReceive",
+                    "OscListReceive",
+                ]
+            ),
+            "pan": sorted(
+                [
+                    "Pan",
+                    "SPan",
+                    "Switch",
+                    "Selector",
+                    "Mixer",
+                    "VoiceManager",
+                    "HRTF",
+                    "Binaural",
+                ]
+            ),
             "pattern": sorted(["Pattern", "Score", "CallAfter"]),
             "randoms": sorted(
                 [
@@ -418,7 +451,17 @@ OBJECTS_TREE = {
             "expression": sorted(["Expr"]),
             "mmlmusic": sorted(["MML"]),
             "fourier": sorted(
-                ["FFT", "IFFT", "CarToPol", "PolToCar", "IFFTMatrix", "FrameDelta", "FrameAccum", "Vectral", "CvlVerb",]
+                [
+                    "FFT",
+                    "IFFT",
+                    "CarToPol",
+                    "PolToCar",
+                    "IFFTMatrix",
+                    "FrameDelta",
+                    "FrameAccum",
+                    "Vectral",
+                    "CvlVerb",
+                ]
             ),
             "events": sorted(
                 [
@@ -443,7 +486,9 @@ OBJECTS_TREE = {
             ),
         },
     },
-    "Map": {"SLMap": sorted(["SLMapFreq", "SLMapMul", "SLMapPhase", "SLMapQ", "SLMapDur", "SLMapPan"])},
+    "Map": {
+        "SLMap": sorted(["SLMapFreq", "SLMapMul", "SLMapPhase", "SLMapQ", "SLMapDur", "SLMapPan"])
+    },
     "Server": [],
     "MidiListener": [],
     "MidiDispatcher": [],
@@ -497,10 +542,25 @@ def getPyoKeywords():
             for val in tree[k1]:
                 _list.append(val)
     _list.extend(
-        ["PyoObjectBase", "PyoObject", "PyoTableObject", "PyoMatrixObject", "PyoPVObject",]
+        [
+            "PyoObjectBase",
+            "PyoObject",
+            "PyoTableObject",
+            "PyoMatrixObject",
+            "PyoPVObject",
+        ]
     )
     _list.extend(
-        ["Server", "Map", "SLMap", "MidiListener", "MidiDispatcher", "OscListener", "Stream", "TableStream",]
+        [
+            "Server",
+            "Map",
+            "SLMap",
+            "MidiListener",
+            "MidiDispatcher",
+            "OscListener",
+            "Stream",
+            "TableStream",
+        ]
     )
     return _list
 
@@ -520,7 +580,11 @@ def getPyoExamples(fullpath=False):
     """
     folder = "examples"
     filedir = os.path.dirname(os.path.abspath(__file__))
-    subfolders = [f for f in os.listdir(os.path.join(filedir, folder)) if not f.startswith("__") and not f == "snds"]
+    subfolders = [
+        f
+        for f in os.listdir(os.path.join(filedir, folder))
+        if not f.startswith("__") and not f == "snds"
+    ]
     examples = {}
     for subfolder in sorted(subfolders):
         path = os.path.join(filedir, folder, subfolder)

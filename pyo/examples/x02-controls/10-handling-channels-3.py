@@ -6,6 +6,7 @@ number by inc and wrap around the global number of channels.
 Then, the list of streams is scrambled.
 
 """
+
 from pyo import *
 
 # Creates a Server with 8 channels

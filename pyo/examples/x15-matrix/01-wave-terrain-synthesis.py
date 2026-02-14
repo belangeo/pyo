@@ -12,10 +12,12 @@ phase. It is then scanned with sine waves assigned to x and y positions in
 the 2D table.
 
 """
+
 from pyo import *
 import random, math
 
 s = Server(duplex=0).boot()
+
 
 # Function to generate the terrain in a matrix.
 def terrain(size=256, freq=1, phase=16):
@@ -23,10 +25,9 @@ def terrain(size=256, freq=1, phase=16):
     xfreq = 2 * math.pi * freq
     for j in range(size):
         ph = math.sin(j / float(phase))
-        mat.append(
-            [math.sin(xfreq * (i / float(size)) + ph) for i in range(size)]
-        )
+        mat.append([math.sin(xfreq * (i / float(size)) + ph) for i in range(size)])
     return mat
+
 
 # Size of a square matrix.
 SIZE = 512

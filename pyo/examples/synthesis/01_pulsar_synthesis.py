@@ -4,6 +4,7 @@
 Hand-written pulsar synthesis.
 
 """
+
 from pyo import *
 import random
 

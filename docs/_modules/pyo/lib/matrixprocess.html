@@ -281,7 +281,7 @@
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; env = CosTable([(0,0), (300,1), (1000,.4), (8191,0)])</span>
 <span class="sd">    &gt;&gt;&gt; matrix = NewMatrix(8192, 8)</span>
-<span class="sd">    &gt;&gt;&gt; src = SfPlayer(SNDS_PATH+&#39;/transparent.aif&#39;, loop=True, mul=.3)</span>
+<span class="sd">    &gt;&gt;&gt; src = SfPlayer(SNDS_PATH+&#39;/transparent.aif&#39;, loop=True, mul=0.3)</span>
 <span class="sd">    &gt;&gt;&gt; m_rec = MatrixRecLoop(src, matrix)</span>
 <span class="sd">    &gt;&gt;&gt; period = 8192 / s.getSamplingRate()</span>
 <span class="sd">    &gt;&gt;&gt; metro = Metro(time=period/2, poly=2).play()</span>

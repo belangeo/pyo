@@ -15,6 +15,7 @@ For a simpler and more efficient process, see the Phase Vocoder
 implementation of the spectral delay: `PVDelay`.
 
 """
+
 from pyo import *
 
 s = Server(duplex=0).boot()
@@ -31,17 +32,19 @@ size = 1024
 olaps = 4
 
 # Number of audio streams per FFT object.
-num_streams = olaps * chnls 
+num_streams = olaps * chnls
 
 # The source to delay.
 src = SfPlayer(snd, loop=True, mul=0.15)
-# Delays the original sound to take account for the delay implied by the FFTs. 
+# Delays the original sound to take account for the delay implied by the FFTs.
 delsrc = Delay(src, delay=size / s.getSamplingRate() * 2).out()
+
 
 # Utility function to duplicates bin regions and delays to match
 # the number of audio streams per FFT object (overlaps * channels).
 def duplicate(lst, how_many):
     return [x for x in lst for i in range(how_many)]
+
 
 # Frequency ranges, in bin numbers (0 to Nyquist), for the 6 frequency bands.
 binmin = duplicate([3, 10, 20, 27, 55, 100], num_streams)

@@ -37,9 +37,11 @@ from contextlib import redirect_stdout
 
 import builtins
 
+
 def tobytes(strng, encoding="utf-8"):
     "Convert unicode string to bytes."
     return bytes(strng, encoding=encoding)
+
 
 if hasattr(builtins, "pyo_use_double"):
     from .._pyo64 import *
@@ -73,7 +75,18 @@ XNOISE_DICT = {
     "walker": 11,
     "loopseg": 12,
 }
-FILE_FORMATS = {"wav": 0, "wave": 0, "aif": 1, "aiff": 1, "au": 2, "": 3, "sd2": 4, "flac": 5, "caf": 6, "ogg": 7}
+FILE_FORMATS = {
+    "wav": 0,
+    "wave": 0,
+    "aif": 1,
+    "aiff": 1,
+    "au": 2,
+    "": 3,
+    "sd2": 4,
+    "flac": 5,
+    "caf": 6,
+    "ogg": 7,
+}
 FUNCTIONS_INIT_LINES = {
     "pa_count_host_apis": "pa_count_host_apis()",
     "pa_list_host_apis": "pa_list_host_apis()",
@@ -634,7 +647,7 @@ def class_args(cls):
     """
     Returns the signature of a pyo class or function.
 
-    This function takes a class or a function reference as input and returns 
+    This function takes a class or a function reference as input and returns
     its signature with the default values.
 
     If the operation can't succeed, the function silently fails and returns
@@ -660,6 +673,7 @@ def class_args(cls):
                 return FUNCTIONS_INIT_LINES[name]
         except:
             return ""
+
 
 def beatToDur(beat, bpm=120):
     """
@@ -889,9 +903,13 @@ class PyoObjectBase(object):
         self._allow_auto_start = True
         self._linked_objects = []
         if not serverCreated():
-            raise PyoServerStateException("You must create and boot a Server before creating any audio object.")
+            raise PyoServerStateException(
+                "You must create and boot a Server before creating any audio object."
+            )
         if not serverBooted():
-            raise PyoServerStateException("The Server must be booted before creating any audio object.")
+            raise PyoServerStateException(
+                "The Server must be booted before creating any audio object."
+            )
 
     def dump(self):
         """
@@ -988,7 +1006,7 @@ class PyoObjectBase(object):
         >>> tab = NewTable(length=2, chnls=1)
         >>> rec = TableRec(Sine(500), tab, .01)
         >>> amp = TrigVal(rec["trig"], 0.5)
-        >>> osc = Osc(tab, tab.getRate(), mul=Fader(1, 1, mul=.2))
+        >>> osc = Osc(tab, tab.getRate(), mul=Fader(1, 1, mul=0.2))
         >>> # "osc" can't know for sure that "rec" should be linked
         >>> # to this dsp chain, so we add it manually.
         >>> osc.addLinkedObject(rec)
@@ -1113,7 +1131,9 @@ class PyoObjectBase(object):
 
     def _autostop(self, wait=0):
         if self.getServer().getAutoStartChildren():
-            children = [(getattr(self, at), at) for at in dir(self)] + [(obj, "") for obj in self._linked_objects]
+            children = [(getattr(self, at), at) for at in dir(self)] + [
+                (obj, "") for obj in self._linked_objects
+            ]
             for tup in children:
                 if isAudioObject(tup[0]):
                     if not hasattr(tup[0], "_allow_auto_start"):
@@ -1231,21 +1251,29 @@ class PyoObject(PyoObjectBase):
     def __add__(self, x):
         x, lmax = convertArgsToLists(x)
         if self.__len__() >= lmax:
-            _add_dummy = ArithmeticDummy([obj + wrap(x, i // self._op_duplicate) for i, obj in enumerate(self._base_objs)])
+            _add_dummy = ArithmeticDummy(
+                [obj + wrap(x, i // self._op_duplicate) for i, obj in enumerate(self._base_objs)]
+            )
         else:
             if isinstance(x, PyoObject):
                 _add_dummy = x + self
             else:
-                _add_dummy = ArithmeticDummy([wrap(self._base_objs, i) + obj for i, obj in enumerate(x)])
+                _add_dummy = ArithmeticDummy(
+                    [wrap(self._base_objs, i) + obj for i, obj in enumerate(x)]
+                )
         self._keep_trace.append(_add_dummy)
         return _add_dummy
 
     def __radd__(self, x):
         x, lmax = convertArgsToLists(x)
         if self.__len__() >= lmax:
-            _add_dummy = ArithmeticDummy([obj + wrap(x, i // self._op_duplicate) for i, obj in enumerate(self._base_objs)])
+            _add_dummy = ArithmeticDummy(
+                [obj + wrap(x, i // self._op_duplicate) for i, obj in enumerate(self._base_objs)]
+            )
         else:
-            _add_dummy = ArithmeticDummy([wrap(self._base_objs, i) + obj for i, obj in enumerate(x)])
+            _add_dummy = ArithmeticDummy(
+                [wrap(self._base_objs, i) + obj for i, obj in enumerate(x)]
+            )
         self._keep_trace.append(_add_dummy)
         return _add_dummy
 
@@ -1256,21 +1284,31 @@ class PyoObject(PyoObjectBase):
     def __sub__(self, x):
         x, lmax = convertArgsToLists(x)
         if self.__len__() >= lmax:
-            _add_dummy = ArithmeticDummy([obj - wrap(x, i // self._op_duplicate) for i, obj in enumerate(self._base_objs)])
+            _add_dummy = ArithmeticDummy(
+                [obj - wrap(x, i // self._op_duplicate) for i, obj in enumerate(self._base_objs)]
+            )
         else:
             if isinstance(x, PyoObject):
-                _add_dummy = ArithmeticDummy([wrap(self._base_objs, i) - wrap(x, i) for i in range(lmax)])
+                _add_dummy = ArithmeticDummy(
+                    [wrap(self._base_objs, i) - wrap(x, i) for i in range(lmax)]
+                )
             else:
-                _add_dummy = ArithmeticDummy([wrap(self._base_objs, i) - obj for i, obj in enumerate(x)])
+                _add_dummy = ArithmeticDummy(
+                    [wrap(self._base_objs, i) - obj for i, obj in enumerate(x)]
+                )
         self._keep_trace.append(_add_dummy)
         return _add_dummy
 
     def __rsub__(self, x):
         x, lmax = convertArgsToLists(x)
         if self.__len__() >= lmax:
-            _add_dummy = ArithmeticDummy([wrap(x, i // self._op_duplicate) - obj for i, obj in enumerate(self._base_objs)])
+            _add_dummy = ArithmeticDummy(
+                [wrap(x, i // self._op_duplicate) - obj for i, obj in enumerate(self._base_objs)]
+            )
         else:
-            _add_dummy = ArithmeticDummy([obj - wrap(self._base_objs, i) for i, obj in enumerate(x)])
+            _add_dummy = ArithmeticDummy(
+                [obj - wrap(self._base_objs, i) for i, obj in enumerate(x)]
+            )
         self._keep_trace.append(_add_dummy)
         return _add_dummy
 
@@ -1281,21 +1319,31 @@ class PyoObject(PyoObjectBase):
     def __mul__(self, x):
         x, lmax = convertArgsToLists(x)
         if self.__len__() >= lmax:
-            _mul_dummy = ArithmeticDummy([obj * wrap(x, i // self._op_duplicate) for i, obj in enumerate(self._base_objs)])
+            _mul_dummy = ArithmeticDummy(
+                [obj * wrap(x, i // self._op_duplicate) for i, obj in enumerate(self._base_objs)]
+            )
         else:
             if isinstance(x, PyoObject):
-                _mul_dummy = x * self ### RecursionError: maximum recursion depth exceeded while calling a Python object
+                _mul_dummy = (
+                    x * self
+                )  ### RecursionError: maximum recursion depth exceeded while calling a Python object
             else:
-                _mul_dummy = ArithmeticDummy([wrap(self._base_objs, i) * obj for i, obj in enumerate(x)])
+                _mul_dummy = ArithmeticDummy(
+                    [wrap(self._base_objs, i) * obj for i, obj in enumerate(x)]
+                )
         self._keep_trace.append(_mul_dummy)
         return _mul_dummy
 
     def __rmul__(self, x):
         x, lmax = convertArgsToLists(x)
         if self.__len__() >= lmax:
-            _mul_dummy = ArithmeticDummy([obj * wrap(x, i // self._op_duplicate) for i, obj in enumerate(self._base_objs)])
+            _mul_dummy = ArithmeticDummy(
+                [obj * wrap(x, i // self._op_duplicate) for i, obj in enumerate(self._base_objs)]
+            )
         else:
-            _mul_dummy = ArithmeticDummy([wrap(self._base_objs, i) * obj for i, obj in enumerate(x)])
+            _mul_dummy = ArithmeticDummy(
+                [wrap(self._base_objs, i) * obj for i, obj in enumerate(x)]
+            )
         self._keep_trace.append(_mul_dummy)
         return _mul_dummy
 
@@ -1315,21 +1363,31 @@ class PyoObject(PyoObjectBase):
     def __div__(self, x):
         x, lmax = convertArgsToLists(x)
         if self.__len__() >= lmax:
-            _mul_dummy = ArithmeticDummy([obj / wrap(x, i // self._op_duplicate) for i, obj in enumerate(self._base_objs)])
+            _mul_dummy = ArithmeticDummy(
+                [obj / wrap(x, i // self._op_duplicate) for i, obj in enumerate(self._base_objs)]
+            )
         else:
             if isinstance(x, PyoObject):
-                _mul_dummy = ArithmeticDummy([wrap(self._base_objs, i) / wrap(x, i) for i in range(lmax)])
+                _mul_dummy = ArithmeticDummy(
+                    [wrap(self._base_objs, i) / wrap(x, i) for i in range(lmax)]
+                )
             else:
-                _mul_dummy = ArithmeticDummy([wrap(self._base_objs, i) / obj for i, obj in enumerate(x)])
+                _mul_dummy = ArithmeticDummy(
+                    [wrap(self._base_objs, i) / obj for i, obj in enumerate(x)]
+                )
         self._keep_trace.append(_mul_dummy)
         return _mul_dummy
 
     def __rdiv__(self, x):
         x, lmax = convertArgsToLists(x)
         if self.__len__() >= lmax:
-            _mul_dummy = ArithmeticDummy([wrap(x, i // self._op_duplicate) / obj for i, obj in enumerate(self._base_objs)])
+            _mul_dummy = ArithmeticDummy(
+                [wrap(x, i // self._op_duplicate) / obj for i, obj in enumerate(self._base_objs)]
+            )
         else:
-            _mul_dummy = ArithmeticDummy([obj / wrap(self._base_objs, i) for i, obj in enumerate(x)])
+            _mul_dummy = ArithmeticDummy(
+                [obj / wrap(self._base_objs, i) for i, obj in enumerate(x)]
+            )
         self._keep_trace.append(_mul_dummy)
         return _mul_dummy
 
@@ -1574,15 +1632,29 @@ class PyoObject(PyoObjectBase):
                 self._in_fader2.play(durtmp, min(delay))
 
         if isinstance(chnl, list):
-            [obj.out(wrap(chnl, i), wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._base_objs)]
+            [
+                obj.out(wrap(chnl, i), wrap(dur, i), wrap(delay, i))
+                for i, obj in enumerate(self._base_objs)
+            ]
         else:
             if chnl < 0:
-                [obj.out(i * inc, wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(listscramble(self._base_objs))]
+                [
+                    obj.out(i * inc, wrap(dur, i), wrap(delay, i))
+                    for i, obj in enumerate(listscramble(self._base_objs))
+                ]
                 # prevent normal order to happen.
-                while [obj._getStream().getOutputChannel() for obj in self._base_objs] == list(range(len(self._base_objs))):
-                    [obj.out(i * inc, wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(listscramble(self._base_objs))]
+                while [obj._getStream().getOutputChannel() for obj in self._base_objs] == list(
+                    range(len(self._base_objs))
+                ):
+                    [
+                        obj.out(i * inc, wrap(dur, i), wrap(delay, i))
+                        for i, obj in enumerate(listscramble(self._base_objs))
+                    ]
             else:
-                [obj.out(chnl + i * inc, wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._base_objs)]
+                [
+                    obj.out(chnl + i * inc, wrap(dur, i), wrap(delay, i))
+                    for i, obj in enumerate(self._base_objs)
+                ]
         return self
 
     def stop(self, wait=0):
@@ -2958,12 +3030,12 @@ class Mix(PyoObject):
         >>> b = Mix(a)
 
         The `mul` and `add` arguments are relative to the number of voices,
-        ie. if `len(mul)` is bigger than `voices`, last mul values will simply 
+        ie. if `len(mul)` is bigger than `voices`, last mul values will simply
         be ignored, even if the number of input streams to mix is higher.
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = Sine([random.uniform(400,600) for i in range(50)], mul=.02)
+    >>> a = Sine([random.uniform(400,600) for i in range(50)], mul=0.02)
     >>> b = Mix(a, voices=2).out()
     >>> print(len(a))
     50
@@ -3039,9 +3111,9 @@ class Dummy(PyoObject):
     >>> s.start()
     >>> m = Metro(time=0.25).play()
     >>> p = TrigChoice(m, choice=[midiToHz(n) for n in [60,62,65,67,69]])
-    >>> a = SineLoop(p, feedback=.05, mul=.1).mix(2).out()
-    >>> b = SineLoop(p*1.253, feedback=.05, mul=.06).mix(2).out()
-    >>> c = SineLoop(p*1.497, feedback=.05, mul=.03).mix(2).out()
+    >>> a = SineLoop(p, feedback=0.05, mul=0.1).mix(2).out()
+    >>> b = SineLoop(p*1.253, feedback=0.05, mul=0.06).mix(2).out()
+    >>> c = SineLoop(p*1.497, feedback=0.05, mul=0.03).mix(2).out()
 
     """
 
@@ -3055,6 +3127,7 @@ class Dummy(PyoObject):
             else:
                 tmp_list.append(x)
         self._base_objs = tmp_list
+
 
 class ArithmeticDummy(PyoObject):
     def __init__(self, objs_list):
@@ -3075,6 +3148,7 @@ class ArithmeticDummy(PyoObject):
         except:
             pass
 
+
 class InputFader(PyoObject):
     """
     Audio streams crossfader.
@@ -3092,8 +3166,8 @@ class InputFader(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = SineLoop([449,450], feedback=0.05, mul=.2)
-    >>> b = SineLoop([650,651], feedback=0.05, mul=.2)
+    >>> a = SineLoop([449,450], feedback=0.05, mul=0.2)
+    >>> b = SineLoop([650,651], feedback=0.05, mul=0.2)
     >>> c = InputFader(a).out()
     >>> # to created a crossfade, assign a new audio input:
     >>> c.setInput(b, fadetime=5)
@@ -3151,8 +3225,8 @@ class Sig(PyoObject):
     >>> s.start()
     >>> fr = Sig(value=400)
     >>> p = Port(fr, risetime=0.001, falltime=0.001)
-    >>> a = SineLoop(freq=p, feedback=0.08, mul=.3).out()
-    >>> b = SineLoop(freq=p*1.005, feedback=0.08, mul=.3).out(1)
+    >>> a = SineLoop(freq=p, feedback=0.08, mul=0.3).out()
+    >>> b = SineLoop(freq=p*1.005, feedback=0.08, mul=0.3).out(1)
     >>> def pick_new_freq():
     ...     fr.value = random.randrange(300,601,50)
     >>> pat = Pattern(function=pick_new_freq, time=0.5).play()
@@ -3164,7 +3238,9 @@ class Sig(PyoObject):
         PyoObject.__init__(self, mul, add)
         self._value = value
         value, mul, add, lmax = convertArgsToLists(value, mul, add)
-        self._base_objs = [Sig_base(wrap(value, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
+        self._base_objs = [
+            Sig_base(wrap(value, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+        ]
         self._init_play()
 
     def setValue(self, x):
@@ -3233,7 +3309,7 @@ class VarPort(PyoObject):
     ...     print(arg)
     ...
     >>> fr = VarPort(value=500, time=2, init=250, function=callback, arg="YEP!")
-    >>> a = SineLoop(freq=[fr,fr*1.01], feedback=0.05, mul=.2).out()
+    >>> a = SineLoop(freq=[fr,fr*1.01], feedback=0.05, mul=0.2).out()
 
     """
 
@@ -3350,7 +3426,7 @@ class Pow(PyoObject):
     >>> s.start()
     >>> # Exponential amplitude envelope
     >>> a = LFO(freq=1, type=3, mul=0.5, add=0.5)
-    >>> b = Pow(Clip(a, 0, 1), 4, mul=.3)
+    >>> b = Pow(Clip(a, 0, 1), 4, mul=0.3)
     >>> c = SineLoop(freq=[300,301], feedback=0.05, mul=b).out()
 
     """
@@ -3362,7 +3438,8 @@ class Pow(PyoObject):
         self._exponent = exponent
         base, exponent, mul, add, lmax = convertArgsToLists(base, exponent, mul, add)
         self._base_objs = [
-            M_Pow_base(wrap(base, i), wrap(exponent, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+            M_Pow_base(wrap(base, i), wrap(exponent, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
         ]
         self._init_play()
 
@@ -3449,10 +3526,10 @@ class Wrap(PyoObject):
     >>> lff = Sine(.5, mul=3, add=4)
     >>> ph1 = Phasor(lff)
     >>> ph2 = Wrap(ph1+0.5, min=0, max=1)
-    >>> amp1 = Pointer(env, ph1, mul=.25)
-    >>> amp2 = Pointer(env, ph2, mul=.25)
-    >>> a = SineLoop(250, feedback=.1, mul=amp1).out()
-    >>> b = SineLoop(300, feedback=.1, mul=amp2).out(1)
+    >>> amp1 = Pointer(env, ph1, mul=0.25)
+    >>> amp2 = Pointer(env, ph2, mul=0.25)
+    >>> a = SineLoop(250, feedback=0.1, mul=amp1).out()
+    >>> b = SineLoop(300, feedback=0.1, mul=amp2).out(1)
 
     """
 
@@ -3465,7 +3542,8 @@ class Wrap(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, min, max, mul, add, lmax = convertArgsToLists(self._in_fader, min, max, mul, add)
         self._base_objs = [
-            Wrap_base(wrap(in_fader, i), wrap(min, i), wrap(max, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+            Wrap_base(wrap(in_fader, i), wrap(min, i), wrap(max, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
         ]
         self._init_play()
 
@@ -3573,8 +3651,8 @@ class Compare(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = SineLoop(freq=[199,200], feedback=.1, mul=.2)
-    >>> b = SineLoop(freq=[149,150], feedback=.1, mul=.2)
+    >>> a = SineLoop(freq=[199,200], feedback=0.1, mul=0.2)
+    >>> b = SineLoop(freq=[149,150], feedback=0.1, mul=0.2)
     >>> ph = Phasor(freq=1)
     >>> ch = Compare(input=ph, comp=0.5, mode="<=")
     >>> out = Selector(inputs=[a,b], voice=Port(ch)).out()
@@ -3589,9 +3667,17 @@ class Compare(PyoObject):
         self._mode = mode
         self._in_fader = InputFader(input)
         self.comp_dict = {"<": 0, "<=": 1, ">": 2, ">=": 3, "==": 4, "!=": 5}
-        in_fader, comp, mode, mul, add, lmax = convertArgsToLists(self._in_fader, comp, mode, mul, add)
+        in_fader, comp, mode, mul, add, lmax = convertArgsToLists(
+            self._in_fader, comp, mode, mul, add
+        )
         self._base_objs = [
-            Compare_base(wrap(in_fader, i), wrap(comp, i), self.comp_dict[wrap(mode, i)], wrap(mul, i), wrap(add, i))
+            Compare_base(
+                wrap(in_fader, i),
+                wrap(comp, i),
+                self.comp_dict[wrap(mode, i)],
+                wrap(mul, i),
+                wrap(add, i),
+            )
             for i in range(lmax)
         ]
         self._init_play()

@@ -12,6 +12,6 @@ It can be used to perform very high fidelity time scaling, pitch transposition, 
 
 Although the following examples are built by hand with raw FFT objects, for educational purposes, most of these
 processes (and more) are implemented, with greater efficiency, with the Phase Vocoder algorithm. You should
-really take a look at the different PV object's examples in the documentation. 
+really take a look at the different PV object's examples in the documentation.
 
 """

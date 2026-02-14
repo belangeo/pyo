@@ -5,6 +5,7 @@ This example shows how to use the Notein object to control audio
 processes with events received from a MIDI keyboard (virtual or not).
 
 """
+
 from pyo import *
 
 s = Server()
@@ -47,6 +48,7 @@ outR = sigR.mix(1).out(1)
 
 # Notein["trigon"] sends a trigger when a voice receive a noteon.
 # Notein["trigoff"] sends a trigger when a voice receive a noteoff.
+
 
 # These functions are called when Notein receives a MIDI note event.
 def noteon(voice):

@@ -24,7 +24,7 @@ Creating a custom PyoTableObject - TriangleTable
         >>> s = Server().boot()
         >>> s.start()
         >>> t = TriTable(order=15).normalize()
-        >>> a = Osc(table=t, freq=[199,200], mul=.2).out()
+        >>> a = Osc(table=t, freq=[199,200], mul=0.2).out()
 
         """
         def __init__(self, order=10, size=8192):
@@ -73,6 +73,6 @@ Creating a custom PyoTableObject - TriangleTable
         t = TriTable(10, 8192)
         t.normalize()
         t.view()
-        a = Osc(t, 500, mul=.3).out()
+        a = Osc(t, 500, mul=0.3).out()
         s.gui(locals())
 

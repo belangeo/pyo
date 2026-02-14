@@ -133,7 +133,7 @@
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; t = HarmTable([1,0,.33,0,.2,0,.143,0,.111])</span>
-<span class="sd">    &gt;&gt;&gt; a = Osc(table=t, freq=[250,251], mul=.2).out()</span>
+<span class="sd">    &gt;&gt;&gt; a = Osc(table=t, freq=[250,251], mul=0.2).out()</span>
 <span class="sd">    &gt;&gt;&gt; def pat():</span>
 <span class="sd">    ...     f = random.randrange(200, 401, 25)</span>
 <span class="sd">    ...     a.freq = [f, f+1]</span>
@@ -309,7 +309,7 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; a = SineLoop(freq=[200,300,400,500], feedback=0.05, mul=.1).out()</span>
+<span class="sd">    &gt;&gt;&gt; a = SineLoop(freq=[200,300,400,500], feedback=0.05, mul=0.1).out()</span>
 <span class="sd">    &gt;&gt;&gt; def event_0():</span>
 <span class="sd">    ...     a.freq=[200,300,400,500]</span>
 <span class="sd">    &gt;&gt;&gt; def event_1():</span>
@@ -418,7 +418,7 @@
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; # Start an oscillator with a frequency of 250 Hz.</span>
-<span class="sd">    &gt;&gt;&gt; syn = SineLoop(freq=[250,251], feedback=.07, mul=.2).out()</span>
+<span class="sd">    &gt;&gt;&gt; syn = SineLoop(freq=[250,251], feedback=0.07, mul=0.2).out()</span>
 <span class="sd">    &gt;&gt;&gt; def callback(arg):</span>
 <span class="sd">    ...     # Change the oscillator&#39;s frequency to 300 Hz after 2 seconds.</span>
 <span class="sd">    ...     # Convert the tuple back to a list.</span>

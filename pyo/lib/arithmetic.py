@@ -44,7 +44,7 @@ class Sin(PyoObject):
     >>> s.start()
     >>> import math
     >>> a = Phasor(500, mul=math.pi*2)
-    >>> b = Sin(a, mul=.3).mix(2).out()
+    >>> b = Sin(a, mul=0.3).mix(2).out()
 
     """
 
@@ -54,7 +54,9 @@ class Sin(PyoObject):
         self._input = input
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
-        self._base_objs = [M_Sin_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
+        self._base_objs = [
+            M_Sin_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+        ]
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -100,7 +102,7 @@ class Cos(PyoObject):
     >>> s.start()
     >>> import math
     >>> a = Phasor(500, mul=math.pi*2)
-    >>> b = Cos(a, mul=.3).mix(2).out()
+    >>> b = Cos(a, mul=0.3).mix(2).out()
 
     """
 
@@ -110,7 +112,9 @@ class Cos(PyoObject):
         self._input = input
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
-        self._base_objs = [M_Cos_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
+        self._base_objs = [
+            M_Cos_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+        ]
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -156,7 +160,7 @@ class Tan(PyoObject):
     >>> s.start()
     >>> # Tangent panning function
     >>> import math
-    >>> src = Sine(mul=.3)
+    >>> src = Sine(mul=0.3)
     >>> a = Phasor(freq=1, mul=90, add=-45)
     >>> b = Tan(Abs(a*math.pi/180))
     >>> b1 = 1.0 - b
@@ -173,7 +177,9 @@ class Tan(PyoObject):
         self._input = input
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
-        self._base_objs = [M_Tan_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
+        self._base_objs = [
+            M_Tan_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+        ]
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -230,7 +236,9 @@ class Abs(PyoObject):
         self._input = input
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
-        self._base_objs = [M_Abs_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
+        self._base_objs = [
+            M_Abs_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+        ]
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -275,7 +283,7 @@ class Sqrt(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> # Equal-power panning function
-    >>> src = Sine(mul=.3)
+    >>> src = Sine(mul=0.3)
     >>> a = Abs(Phasor(freq=1, mul=2, add=-1))
     >>> left = Sqrt(1.0 - a)
     >>> right = Sqrt(a)
@@ -292,7 +300,9 @@ class Sqrt(PyoObject):
         self._input = input
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
-        self._base_objs = [M_Sqrt_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
+        self._base_objs = [
+            M_Sqrt_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+        ]
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -350,7 +360,9 @@ class Log(PyoObject):
         self._input = input
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
-        self._base_objs = [M_Log_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
+        self._base_objs = [
+            M_Log_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+        ]
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -408,7 +420,9 @@ class Log2(PyoObject):
         self._input = input
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
-        self._base_objs = [M_Log2_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
+        self._base_objs = [
+            M_Log2_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+        ]
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -466,7 +480,9 @@ class Log10(PyoObject):
         self._input = input
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
-        self._base_objs = [M_Log10_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
+        self._base_objs = [
+            M_Log10_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+        ]
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -516,9 +532,9 @@ class Atan2(PyoObject):
     >>> s.start()
     >>> # Simple distortion
     >>> a = Sine(freq=[200,200.3])
-    >>> lf = Sine(freq=1, mul=.2, add=.2)
+    >>> lf = Sine(freq=1, mul=0.2, add=0.2)
     >>> dist = Atan2(a, lf)
-    >>> lp = Tone(dist, freq=2000, mul=.1).out()
+    >>> lp = Tone(dist, freq=2000, mul=0.1).out()
 
     """
 
@@ -528,7 +544,9 @@ class Atan2(PyoObject):
         self._b = b
         self._a = a
         b, a, mul, add, lmax = convertArgsToLists(b, a, mul, add)
-        self._base_objs = [M_Atan2_base(wrap(b, i), wrap(a, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
+        self._base_objs = [
+            M_Atan2_base(wrap(b, i), wrap(a, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+        ]
         self._init_play()
 
     def setB(self, x):
@@ -599,7 +617,7 @@ class Floor(PyoObject):
     >>> # Clipping frequencies
     >>> sweep = Phasor(freq=[1,.67], mul=4)
     >>> flo = Floor(sweep, mul=50, add=200)
-    >>> a = SineLoop(freq=flo, feedback=.1, mul=.3).out()
+    >>> a = SineLoop(freq=flo, feedback=0.1, mul=0.3).out()
 
     """
 
@@ -609,7 +627,9 @@ class Floor(PyoObject):
         self._input = input
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
-        self._base_objs = [M_Floor_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
+        self._base_objs = [
+            M_Floor_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+        ]
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -657,7 +677,7 @@ class Ceil(PyoObject):
     >>> # Clipping frequencies
     >>> sweep = Phasor(freq=[1,.67], mul=4)
     >>> flo = Ceil(sweep, mul=50, add=200)
-    >>> a = SineLoop(freq=flo, feedback=.1, mul=.3).out()
+    >>> a = SineLoop(freq=flo, feedback=0.1, mul=0.3).out()
 
     """
 
@@ -667,7 +687,9 @@ class Ceil(PyoObject):
         self._input = input
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
-        self._base_objs = [M_Ceil_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
+        self._base_objs = [
+            M_Ceil_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+        ]
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -715,7 +737,7 @@ class Round(PyoObject):
     >>> # Clipping frequencies
     >>> sweep = Phasor(freq=[1,.67], mul=4)
     >>> flo = Round(sweep, mul=50, add=200)
-    >>> a = SineLoop(freq=flo, feedback=.1, mul=.3).out()
+    >>> a = SineLoop(freq=flo, feedback=0.1, mul=0.3).out()
 
     """
 
@@ -725,7 +747,9 @@ class Round(PyoObject):
         self._input = input
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
-        self._base_objs = [M_Round_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
+        self._base_objs = [
+            M_Round_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+        ]
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -781,7 +805,9 @@ class Tanh(PyoObject):
         self._input = input
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
-        self._base_objs = [M_Tanh_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
+        self._base_objs = [
+            M_Tanh_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+        ]
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -827,7 +853,7 @@ class Exp(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> a = Sine(freq=200)
-    >>> lf = Sine(freq=.5, mul=5, add=6)
+    >>> lf = Sine(freq=0.5, mul=5, add=6)
     >>> # Tanh style distortion
     >>> t = Exp(2 * a * lf)
     >>> th = (t - 1) / (t + 1)
@@ -841,7 +867,9 @@ class Exp(PyoObject):
         self._input = input
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
-        self._base_objs = [M_Exp_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
+        self._base_objs = [
+            M_Exp_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+        ]
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -897,7 +925,9 @@ class Div(PyoObject):
         self._a = a
         self._b = b
         a, b, mul, add, lmax = convertArgsToLists(a, b, mul, add)
-        self._base_objs = [M_Div_base(wrap(a, i), wrap(b, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
+        self._base_objs = [
+            M_Div_base(wrap(a, i), wrap(b, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+        ]
         self._init_play()
 
     def setA(self, x):
@@ -977,7 +1007,9 @@ class Sub(PyoObject):
         self._a = a
         self._b = b
         a, b, mul, add, lmax = convertArgsToLists(a, b, mul, add)
-        self._base_objs = [M_Sub_base(wrap(a, i), wrap(b, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
+        self._base_objs = [
+            M_Sub_base(wrap(a, i), wrap(b, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+        ]
         self._init_play()
 
     def setA(self, x):

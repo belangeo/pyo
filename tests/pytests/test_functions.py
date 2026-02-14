@@ -3,8 +3,8 @@ import math
 import pytest
 from pyo import *
 
-class TestInitFunctions:
 
+class TestInitFunctions:
     def test_getPyoKeywords(self):
         kwds = getPyoKeywords()
         assert type(kwds) is list
@@ -19,16 +19,16 @@ class TestInitFunctions:
             for f in examples[cat]:
                 assert os.path.isfile(f)
 
-        root = os.path.split(os.path.split(examples['x01-intro'][0])[0])[0]
+        root = os.path.split(os.path.split(examples["x01-intro"][0])[0])[0]
 
         examples = getPyoExamples()
         for cat in examples:
             for f in examples[cat]:
                 assert os.path.isfile(os.path.join(root, cat, f))
 
+
 @pytest.mark.usefixtures("audio_server")
 class TestSoundfileFunctions:
-
     def test_sndinfo(self):
         path = os.path.join(SNDS_PATH, "transparent.aif")
         info = sndinfo(path)
@@ -36,8 +36,8 @@ class TestSoundfileFunctions:
         assert round(info[1], 5) == 0.67748  # duration in sec
         assert info[2] == 44100.0  # sampling rate
         assert info[3] == 1  # number of channels
-        assert info[4] == 'AIFF'  # file format
-        assert info[5] == '16 bit int'  # sample type
+        assert info[4] == "AIFF"  # file format
+        assert info[5] == "16 bit int"  # sample type
 
     def test_savefile(self):
         path = os.path.join(os.path.expanduser("~"), "temporary_soundfile.wav")
@@ -52,8 +52,8 @@ class TestSoundfileFunctions:
         assert round(info[1], 5) == 1.0  # duration in sec
         assert info[2] == 44100.0  # sampling rate
         assert info[3] == 1  # number of channels
-        assert info[4] == 'WAVE'  # file format
-        assert info[5] == '32 bit float'  # sample type
+        assert info[4] == "WAVE"  # file format
+        assert info[5] == "32 bit float"  # sample type
 
         # reload the sound and compare with the original waveform.
         table = SndTable(path)
@@ -89,17 +89,17 @@ class TestSoundfileFunctions:
 
         os.remove(outpath)
 
+
 @pytest.mark.usefixtures("audio_server")
 class TestResamplingFunctions:
-
     def test_upsamp(self):
-        home = os.path.expanduser('~')
+        home = os.path.expanduser("~")
         path = os.path.join(SNDS_PATH, "transparent.aif")
         nsamps = sndinfo(path)[0]
         sr = sndinfo(path)[2]
 
         # upsample a signal 3 times
-        upfile = os.path.join(home, 'trans_upsamp_3.aif')
+        upfile = os.path.join(home, "trans_upsamp_3.aif")
         upsamp(path, upfile, 3, 256)
         info = sndinfo(upfile)
         assert info[2] == (sr * 3)
@@ -108,13 +108,13 @@ class TestResamplingFunctions:
         os.remove(upfile)
 
     def test_downsamp(self):
-        home = os.path.expanduser('~')
+        home = os.path.expanduser("~")
         path = os.path.join(SNDS_PATH, "transparent.aif")
         nsamps = sndinfo(path)[0]
         sr = sndinfo(path)[2]
 
         # downsample the upsampled signal 4 times
-        downfile = os.path.join(home, 'trans_downsamp_4.aif')
+        downfile = os.path.join(home, "trans_downsamp_4.aif")
         downsamp(path, downfile, 4, 256)
         info = sndinfo(downfile)
         assert info[2] == (sr / 4)
@@ -122,9 +122,9 @@ class TestResamplingFunctions:
 
         os.remove(downfile)
 
+
 @pytest.mark.usefixtures("audio_server")
 class TestConversionFunctions:
-
     def test_midiToHz(self):
         # test with a number as arg
         in_num = 48
@@ -243,7 +243,7 @@ class TestConversionFunctions:
 
     def test_linToCosCurve(self):
         n = 512
-        l = [(0,0), (0.5, 1), (1,0)]
+        l = [(0, 0), (0.5, 1), (1, 0)]
         pts = linToCosCurve(l, yrange=[0, 1], totaldur=1, points=n)
         for i in range(512):
             v = -0.5 * math.cos(2 * math.pi * i / n) + 0.5
@@ -251,10 +251,13 @@ class TestConversionFunctions:
 
         log10ymin = math.log10(0.001)
         log10ymax = math.log10(1.0)
-        l = [(0,0.001), (0.5, 1), (1,0.001)]
+        l = [(0, 0.001), (0.5, 1), (1, 0.001)]
         pts = linToCosCurve(l, yrange=[0.001, 1], totaldur=1, points=n, log=True)
         for i in range(512):
-            v = pow(10, (-0.5 * math.cos(2 * math.pi * i / n) + 0.5) * (log10ymax - log10ymin) + log10ymin)
+            v = pow(
+                10,
+                (-0.5 * math.cos(2 * math.pi * i / n) + 0.5) * (log10ymax - log10ymin) + log10ymin,
+            )
             assert math.isclose(pts[i][1], v, abs_tol=0.000001)
 
     def test_rescale(self):
@@ -267,11 +270,14 @@ class TestConversionFunctions:
         log10ymin = math.log10(0.001)
         log10ymax = math.log10(1.0)
         out_num = rescale(in_num, xmin=-1.0, xmax=1.0, ymin=0.001, ymax=1.0, xlog=False, ylog=True)
-        assert math.isclose(out_num, pow(10, 0.5 * (log10ymax - log10ymin) + log10ymin), abs_tol=0.000001)
+        assert math.isclose(
+            out_num, pow(10, 0.5 * (log10ymax - log10ymin) + log10ymin), abs_tol=0.000001
+        )
 
         # How to test xlog=True ?
 
         # test with a list as arg
+
 
 #    def test_floatmap(self):
 #        pass
@@ -282,8 +288,8 @@ class TestConversionFunctions:
 #    def test_reducePoints(self):
 #        pass
 
-class TestServerQueriesFunctions:
 
+class TestServerQueriesFunctions:
     def test_serverCreated(self):
         assert serverCreated() == False
         s = Server()

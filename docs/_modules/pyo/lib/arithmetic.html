@@ -112,7 +112,7 @@
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; import math</span>
 <span class="sd">    &gt;&gt;&gt; a = Phasor(500, mul=math.pi*2)</span>
-<span class="sd">    &gt;&gt;&gt; b = Sin(a, mul=.3).mix(2).out()</span>
+<span class="sd">    &gt;&gt;&gt; b = Sin(a, mul=0.3).mix(2).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -174,7 +174,7 @@
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; import math</span>
 <span class="sd">    &gt;&gt;&gt; a = Phasor(500, mul=math.pi*2)</span>
-<span class="sd">    &gt;&gt;&gt; b = Cos(a, mul=.3).mix(2).out()</span>
+<span class="sd">    &gt;&gt;&gt; b = Cos(a, mul=0.3).mix(2).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -236,7 +236,7 @@
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; # Tangent panning function</span>
 <span class="sd">    &gt;&gt;&gt; import math</span>
-<span class="sd">    &gt;&gt;&gt; src = Sine(mul=.3)</span>
+<span class="sd">    &gt;&gt;&gt; src = Sine(mul=0.3)</span>
 <span class="sd">    &gt;&gt;&gt; a = Phasor(freq=1, mul=90, add=-45)</span>
 <span class="sd">    &gt;&gt;&gt; b = Tan(Abs(a*math.pi/180))</span>
 <span class="sd">    &gt;&gt;&gt; b1 = 1.0 - b</span>
@@ -367,7 +367,7 @@
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; # Equal-power panning function</span>
-<span class="sd">    &gt;&gt;&gt; src = Sine(mul=.3)</span>
+<span class="sd">    &gt;&gt;&gt; src = Sine(mul=0.3)</span>
 <span class="sd">    &gt;&gt;&gt; a = Abs(Phasor(freq=1, mul=2, add=-1))</span>
 <span class="sd">    &gt;&gt;&gt; left = Sqrt(1.0 - a)</span>
 <span class="sd">    &gt;&gt;&gt; right = Sqrt(a)</span>
@@ -632,9 +632,9 @@
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; # Simple distortion</span>
 <span class="sd">    &gt;&gt;&gt; a = Sine(freq=[200,200.3])</span>
-<span class="sd">    &gt;&gt;&gt; lf = Sine(freq=1, mul=.2, add=.2)</span>
+<span class="sd">    &gt;&gt;&gt; lf = Sine(freq=1, mul=0.2, add=0.2)</span>
 <span class="sd">    &gt;&gt;&gt; dist = Atan2(a, lf)</span>
-<span class="sd">    &gt;&gt;&gt; lp = Tone(dist, freq=2000, mul=.1).out()</span>
+<span class="sd">    &gt;&gt;&gt; lp = Tone(dist, freq=2000, mul=0.1).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -724,7 +724,7 @@
 <span class="sd">    &gt;&gt;&gt; # Clipping frequencies</span>
 <span class="sd">    &gt;&gt;&gt; sweep = Phasor(freq=[1,.67], mul=4)</span>
 <span class="sd">    &gt;&gt;&gt; flo = Floor(sweep, mul=50, add=200)</span>
-<span class="sd">    &gt;&gt;&gt; a = SineLoop(freq=flo, feedback=.1, mul=.3).out()</span>
+<span class="sd">    &gt;&gt;&gt; a = SineLoop(freq=flo, feedback=0.1, mul=0.3).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -788,7 +788,7 @@
 <span class="sd">    &gt;&gt;&gt; # Clipping frequencies</span>
 <span class="sd">    &gt;&gt;&gt; sweep = Phasor(freq=[1,.67], mul=4)</span>
 <span class="sd">    &gt;&gt;&gt; flo = Ceil(sweep, mul=50, add=200)</span>
-<span class="sd">    &gt;&gt;&gt; a = SineLoop(freq=flo, feedback=.1, mul=.3).out()</span>
+<span class="sd">    &gt;&gt;&gt; a = SineLoop(freq=flo, feedback=0.1, mul=0.3).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -852,7 +852,7 @@
 <span class="sd">    &gt;&gt;&gt; # Clipping frequencies</span>
 <span class="sd">    &gt;&gt;&gt; sweep = Phasor(freq=[1,.67], mul=4)</span>
 <span class="sd">    &gt;&gt;&gt; flo = Round(sweep, mul=50, add=200)</span>
-<span class="sd">    &gt;&gt;&gt; a = SineLoop(freq=flo, feedback=.1, mul=.3).out()</span>
+<span class="sd">    &gt;&gt;&gt; a = SineLoop(freq=flo, feedback=0.1, mul=0.3).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -976,7 +976,7 @@
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; a = Sine(freq=200)</span>
-<span class="sd">    &gt;&gt;&gt; lf = Sine(freq=.5, mul=5, add=6)</span>
+<span class="sd">    &gt;&gt;&gt; lf = Sine(freq=0.5, mul=5, add=6)</span>
 <span class="sd">    &gt;&gt;&gt; # Tanh style distortion</span>
 <span class="sd">    &gt;&gt;&gt; t = Exp(2 * a * lf)</span>
 <span class="sd">    &gt;&gt;&gt; th = (t - 1) / (t + 1)</span>

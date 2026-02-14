@@ -1,5 +1,5 @@
 # Run this file in valgrind with:
-#   PYTHONMALLOC=malloc valgrind --tool=memcheck --leak-check=yes --show-leak-kinds=definite --track-origins=yes --num-callers=12 --suppressions=valgrind-python.supp python3 test_memleak_PyoPVObject.py 
+#   PYTHONMALLOC=malloc valgrind --tool=memcheck --leak-check=yes --show-leak-kinds=definite --track-origins=yes --num-callers=12 --suppressions=valgrind-python.supp python3 test_memleak_PyoPVObject.py
 # There should not be any definitely lost bytes.
 
 from pyo import *
@@ -8,10 +8,14 @@ s = Server(audio="manual").boot().start()
 
 a = Sig(1)
 
+
 def callback(magn, freq):
     pass
+
+
 def callback2(magn, freq):
     pass
+
 
 pva = PVAnal(a, callback=callback)
 

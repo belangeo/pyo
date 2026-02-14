@@ -11,6 +11,7 @@ object. This example loads a sound file and reads it in loop.
 We will see some more evolved processes later...
 
 """
+
 from pyo import *
 
 s = Server().boot()

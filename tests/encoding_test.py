@@ -31,7 +31,8 @@ path2 = os.path.join("bébêtte", "savefileFromTable.aif")
 t = SndTable(path1)
 savefileFromTable(table=t, path=path2, fileformat=1, sampletype=1)
 print(
-    "SavefileFromTable record:", os.path.isfile(os.path.join("bébêtte", "savefileFromTable.aif")),
+    "SavefileFromTable record:",
+    os.path.isfile(os.path.join("bébêtte", "savefileFromTable.aif")),
 )
 
 ##### UPSAMP/DOWNSAMP ######
@@ -72,10 +73,12 @@ cv = CvlVerb(tabplay, impl, size=1024, bal=0.7).out()
 recfile = os.path.join("bébêtte", "recfile.wav")
 rec = Record(cv, recfile, chnls=2, fileformat=0, sampletype=0, buffering=4, quality=0.40)
 
+
 def reccallback():
     global rec
     rec.stop()
     del rec
+
 
 after = CallAfter(reccallback, 4)
 

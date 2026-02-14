@@ -135,9 +135,9 @@
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; m = Midictl(ctlnumber=[107,102], minscale=250, maxscale=1000)</span>
 <span class="sd">    &gt;&gt;&gt; p = Port(m, .02)</span>
-<span class="sd">    &gt;&gt;&gt; a = Sine(freq=p, mul=.3).out()</span>
-<span class="sd">    &gt;&gt;&gt; a1 = Sine(freq=p*1.25, mul=.3).out()</span>
-<span class="sd">    &gt;&gt;&gt; a2 = Sine(freq=p*1.5, mul=.3).out()</span>
+<span class="sd">    &gt;&gt;&gt; a = Sine(freq=p, mul=0.3).out()</span>
+<span class="sd">    &gt;&gt;&gt; a1 = Sine(freq=p*1.25, mul=0.3).out()</span>
+<span class="sd">    &gt;&gt;&gt; a2 = Sine(freq=p*1.5, mul=0.3).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -662,7 +662,7 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; notes = Notein(poly=10, scale=1, mul=.5)</span>
+<span class="sd">    &gt;&gt;&gt; notes = Notein(poly=10, scale=1, mul=0.5)</span>
 <span class="sd">    &gt;&gt;&gt; p = Port(notes[&#39;velocity&#39;], .001, .5)</span>
 <span class="sd">    &gt;&gt;&gt; b = Sine(freq=notes[&#39;pitch&#39;], mul=p).out()</span>
 <span class="sd">    &gt;&gt;&gt; c = Sine(freq=notes[&#39;pitch&#39;] * 0.997, mul=p).out()</span>
@@ -1080,7 +1080,7 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; notes = Notein(poly=10, scale=1, mul=.5)</span>
+<span class="sd">    &gt;&gt;&gt; notes = Notein(poly=10, scale=1, mul=0.5)</span>
 <span class="sd">    &gt;&gt;&gt; bend = Bendin(brange=2, scale=1)</span>
 <span class="sd">    &gt;&gt;&gt; p = Port(notes[&#39;velocity&#39;], .001, .5)</span>
 <span class="sd">    &gt;&gt;&gt; b = Sine(freq=notes[&#39;pitch&#39;] * bend, mul=p).out()</span>
@@ -1241,7 +1241,7 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; notes = Notein(poly=10, scale=1, mul=.5)</span>
+<span class="sd">    &gt;&gt;&gt; notes = Notein(poly=10, scale=1, mul=0.5)</span>
 <span class="sd">    &gt;&gt;&gt; touch = Touchin(minscale=1, maxscale=2, init=1)</span>
 <span class="sd">    &gt;&gt;&gt; p = Port(notes[&#39;velocity&#39;], .001, .5)</span>
 <span class="sd">    &gt;&gt;&gt; b = Sine(freq=notes[&#39;pitch&#39;] * touch, mul=p).out()</span>
@@ -1397,7 +1397,7 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; notes = Notein(poly=10, scale=1, mul=.5)</span>
+<span class="sd">    &gt;&gt;&gt; notes = Notein(poly=10, scale=1, mul=0.5)</span>
 <span class="sd">    &gt;&gt;&gt; pchg = Programin(mul=1./12, add=1)</span>
 <span class="sd">    &gt;&gt;&gt; p = Port(notes[&#39;velocity&#39;], .001, .5)</span>
 <span class="sd">    &gt;&gt;&gt; b = Sine(freq=notes[&#39;pitch&#39;] * pchg, mul=p).out()</span>
@@ -1497,9 +1497,9 @@
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; mid = Notein(scale=1)</span>
-<span class="sd">    &gt;&gt;&gt; env = MidiAdsr(mid[&#39;velocity&#39;], attack=.005, decay=.1, sustain=.4, release=1)</span>
-<span class="sd">    &gt;&gt;&gt; a = SineLoop(freq=mid[&#39;pitch&#39;], feedback=.1, mul=env).out()</span>
-<span class="sd">    &gt;&gt;&gt; b = SineLoop(freq=mid[&#39;pitch&#39;]*1.005, feedback=.1, mul=env).out(1)</span>
+<span class="sd">    &gt;&gt;&gt; env = MidiAdsr(mid[&#39;velocity&#39;], attack=0.005, decay=0.1, sustain=0.4, release=1)</span>
+<span class="sd">    &gt;&gt;&gt; a = SineLoop(freq=mid[&#39;pitch&#39;], feedback=0.1, mul=env).out()</span>
+<span class="sd">    &gt;&gt;&gt; b = SineLoop(freq=mid[&#39;pitch&#39;]*1.005, feedback=0.1, mul=env).out(1)</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -1754,9 +1754,9 @@
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; mid = Notein(scale=1)</span>
-<span class="sd">    &gt;&gt;&gt; env = MidiDelAdsr(mid[&#39;velocity&#39;], delay=.25, attack=.005, decay=.1, sustain=.4, release=1)</span>
-<span class="sd">    &gt;&gt;&gt; a = SineLoop(freq=mid[&#39;pitch&#39;], feedback=.1, mul=env).out()</span>
-<span class="sd">    &gt;&gt;&gt; b = SineLoop(freq=mid[&#39;pitch&#39;]*1.005, feedback=.1, mul=env).out(1)</span>
+<span class="sd">    &gt;&gt;&gt; env = MidiDelAdsr(mid[&#39;velocity&#39;], delay=0.25, attack=0.005, decay=0.1, sustain=0.4, release=1)</span>
+<span class="sd">    &gt;&gt;&gt; a = SineLoop(freq=mid[&#39;pitch&#39;], feedback=0.1, mul=env).out()</span>
+<span class="sd">    &gt;&gt;&gt; b = SineLoop(freq=mid[&#39;pitch&#39;]*1.005, feedback=0.1, mul=env).out(1)</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -2139,8 +2139,8 @@
 <span class="sd">    &gt;&gt;&gt; mid = Notein(scale=1)</span>
 <span class="sd">    &gt;&gt;&gt; env = [(0,0), (0.1,1), (0.2,0.5), (0.4,0.7), (0.5,0.3), (1,1), (2,0)]</span>
 <span class="sd">    &gt;&gt;&gt; env = MidiLinseg(mid[&#39;velocity&#39;], env, hold=4)</span>
-<span class="sd">    &gt;&gt;&gt; a = SineLoop(freq=mid[&#39;pitch&#39;], feedback=.1, mul=env).out()</span>
-<span class="sd">    &gt;&gt;&gt; b = SineLoop(freq=mid[&#39;pitch&#39;]*1.005, feedback=.1, mul=env).out(1)</span>
+<span class="sd">    &gt;&gt;&gt; a = SineLoop(freq=mid[&#39;pitch&#39;], feedback=0.1, mul=env).out()</span>
+<span class="sd">    &gt;&gt;&gt; b = SineLoop(freq=mid[&#39;pitch&#39;]*1.005, feedback=0.1, mul=env).out(1)</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 

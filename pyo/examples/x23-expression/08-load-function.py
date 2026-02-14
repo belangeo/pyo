@@ -9,7 +9,7 @@ as desired. The syntax is:
 .. code-block:: scheme
 
     (load path/to/the/file)
- 
+
 The content of the file will be inserted where the load function
 is called and all functions defined inside the file will then be
 accessible. The path can be absolute or relative to the current
@@ -26,6 +26,7 @@ See the content of those files for the function implementations.
 .. _generators.expr: https://github.com/belangeo/pyo/blob/master/pyo/examples/23-expression/generators.expr
 
 """
+
 from pyo import *
 
 s = Server().boot()

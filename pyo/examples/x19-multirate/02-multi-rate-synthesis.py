@@ -3,9 +3,9 @@
 
 In numerical audio computing, it is sometimes useful to be able to process
 a signal with much more timing precision than what the usual sampling rates
-offer. A typical case is when the synthesis algorithm generates aliasing in 
-the output signal. The solution is to increase the sampling rate, so the 
-Nyquist frequency, and to use anti-aliasing filters when converting from one 
+offer. A typical case is when the synthesis algorithm generates aliasing in
+the output signal. The solution is to increase the sampling rate, so the
+Nyquist frequency, and to use anti-aliasing filters when converting from one
 rate to another.
 
 Pyo allows to compute chunks of code at different sampling rates than the
@@ -34,9 +34,11 @@ choose the quality of the interpolation/decimation filter used to resample the
 signal.
 
 """
+
 from pyo import *
 
 s = Server().boot()
+
 
 # We create a new class for our up sampled Frequency modulation synthesis. We
 # use only the modulation index as parameter in order to simplify the code.
@@ -53,7 +55,7 @@ class UpSampFM:
         filtmode: int, optional
             The interpolation/decimation mode. See Resample's man page
             for details.
-        
+
     """
 
     def __init__(self, fmindex=20, upfactor=8, filtmode=32):

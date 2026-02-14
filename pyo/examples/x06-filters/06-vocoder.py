@@ -13,6 +13,7 @@ of the Vocoder object to show the range of sound effects
 the user can get with a vocoder.
 
 """
+
 from pyo import *
 from random import random
 

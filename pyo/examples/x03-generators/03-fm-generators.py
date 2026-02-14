@@ -15,6 +15,7 @@ Note what happened in the controller window when we give a
 list of floats to an object's argument.
 
 """
+
 from pyo import *
 
 s = Server().boot()

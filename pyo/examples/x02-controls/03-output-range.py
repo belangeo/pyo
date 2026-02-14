@@ -20,6 +20,7 @@ according to the desired `min` and `max` output values. It
 assumes that the generated signal is in the range -1 to 1.
 
 """
+
 from pyo import *
 
 s = Server().boot().start()

@@ -17,7 +17,7 @@ Where:
       multiple streams).
     - `port` is the portamento time in seconds.
     - `callback` is a function to call when the ramp is done.
-    
+
 """
 
 from pyo import *

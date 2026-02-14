@@ -1,5 +1,6 @@
 import math
 
+
 class BaseStart(object):
     "Base class for context manager to start and stop the audio server automatically."
 
@@ -23,6 +24,7 @@ class BaseStart(object):
     def advanceOneBuf(self):
         self._audio_server.process()
 
+
 class Start(BaseStart):
     "Context manager to start and stop the audio server automatically."
 
@@ -33,7 +35,7 @@ class Start(BaseStart):
 class StartAndAdvance(BaseStart):
     """
     Context manager to start and stop the audio server automatically.
-    
+
     Advance `adv_time` seconds just after entering the context.
 
     """
@@ -52,7 +54,7 @@ class StartAndAdvance(BaseStart):
 class StartAndAdvanceOneBuf(BaseStart):
     """
     Context manager to start and stop the audio server automatically.
-    
+
     Advance one buffer size just after entering the context.
 
     """

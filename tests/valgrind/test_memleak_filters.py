@@ -1,5 +1,5 @@
 # Run this file in valgrind with:
-#   PYTHONMALLOC=malloc valgrind --tool=memcheck --leak-check=yes --show-leak-kinds=definite --track-origins=yes --num-callers=12 --suppressions=valgrind-python.supp python3 test_memleak_fft.py 
+#   PYTHONMALLOC=malloc valgrind --tool=memcheck --leak-check=yes --show-leak-kinds=definite --track-origins=yes --num-callers=12 --suppressions=valgrind-python.supp python3 test_memleak_fft.py
 # There should not be any definitely lost bytes.
 
 from pyo import *
@@ -94,7 +94,7 @@ n.freq = Sig(1000)
 n.q = Sig(0.5)
 n.shelf = Sig(-3.5)
 n.type = Sig(1)
-n.setOrder([9,8,7,6,5,4,3,2,1,0])
+n.setOrder([9, 8, 7, 6, 5, 4, 3, 2, 1, 0])
 
 o = Average(i1)
 o.input = i2

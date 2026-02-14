@@ -4,6 +4,7 @@
 3 oscillators FM synthesis class.
 
 """
+
 from pyo import *
 import math
 

@@ -6,6 +6,7 @@ coming from another program (run the next example, *03-send-streams.py*,
 to get values coming in).
 
 """
+
 from pyo import *
 
 s = Server().boot()

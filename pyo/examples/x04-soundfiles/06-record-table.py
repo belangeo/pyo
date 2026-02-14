@@ -11,6 +11,7 @@ The TableRec object starts a new recording (records until the table
 is full) every time its method `play()` is called.
 
 """
+
 from pyo import *
 import os
 

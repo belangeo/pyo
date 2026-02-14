@@ -17,11 +17,13 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
+
 from ._core import *
 from ._maps import *
 from ._widgets import createGraphWindow, createDataGraphWindow, createSndViewTableWindow
 from math import pi
 import copy
+
 
 ######################################################################
 ### Tables
@@ -47,7 +49,7 @@ class HarmTable(PyoTableObject):
     >>> s.start()
     >>> # Square wave up to 9th harmonic
     >>> t = HarmTable([1,0,.33,0,.2,0,.143,0,.111])
-    >>> a = Osc(table=t, freq=[199,200], mul=.2).out()
+    >>> a = Osc(table=t, freq=[199,200], mul=0.2).out()
 
     """
 
@@ -156,7 +158,7 @@ class SawTable(PyoTableObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> t = SawTable(order=12).normalize()
-    >>> a = Osc(table=t, freq=[199,200], mul=.2).out()
+    >>> a = Osc(table=t, freq=[199,200], mul=0.2).out()
 
     """
 
@@ -212,7 +214,7 @@ class SquareTable(PyoTableObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> t = SquareTable(order=15).normalize()
-    >>> a = Osc(table=t, freq=[199,200], mul=.2).out()
+    >>> a = Osc(table=t, freq=[199,200], mul=0.2).out()
 
     """
 
@@ -278,7 +280,7 @@ class TriangleTable(PyoTableObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> t = TriangleTable(order=15).normalize()
-    >>> a = Osc(table=t, freq=[199,200], mul=.2).out()
+    >>> a = Osc(table=t, freq=[199,200], mul=0.2).out()
 
     """
 
@@ -351,7 +353,7 @@ class ChebyTable(PyoTableObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> t = ChebyTable([1,0,.33,0,.2,0,.143,0,.111])
-    >>> lfo = Sine(freq=.25, mul=0.45, add=0.5)
+    >>> lfo = Sine(freq=0.25, mul=0.45, add=0.5)
     >>> a = Sine(freq=[200,201], mul=lfo)
     >>> b = Lookup(table=t, index=a, mul=1-lfo).out()
 
@@ -471,7 +473,7 @@ class HannTable(PyoTableObject):
     >>> s.start()
     >>> # Hanning envelope
     >>> t = HannTable()
-    >>> a = Osc(table=t, freq=2, mul=.2)
+    >>> a = Osc(table=t, freq=2, mul=0.2)
     >>> b = Sine(freq=[299,300], mul=a).out()
 
     """
@@ -501,7 +503,7 @@ class SincTable(PyoTableObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> t = SincTable(freq=math.pi*6, windowed=True)
-    >>> a = Osc(t, freq=[199,200], mul=.2).out()
+    >>> a = Osc(t, freq=[199,200], mul=0.2).out()
 
     """
 
@@ -587,7 +589,7 @@ class WinTable(PyoTableObject):
     >>> s.start()
     >>> # Triangular envelope
     >>> t = WinTable(type=3)
-    >>> a = Osc(table=t, freq=2, mul=.2)
+    >>> a = Osc(table=t, freq=2, mul=0.2)
     >>> b = SineLoop(freq=[199,200], feedback=0.05, mul=a).out()
 
     """
@@ -641,7 +643,7 @@ class ParaTable(PyoTableObject):
     >>> s.start()
     >>> # Parabola envelope
     >>> t = ParaTable()
-    >>> a = Osc(table=t, freq=2, mul=.2)
+    >>> a = Osc(table=t, freq=2, mul=0.2)
     >>> b = SineLoop(freq=[299,300], feedback=0.05, mul=a).out()
 
     """
@@ -677,7 +679,7 @@ class LinTable(PyoTableObject):
     >>> s.start()
     >>> # Sharp attack envelope
     >>> t = LinTable([(0,0), (100,1), (1000,.25), (8191,0)])
-    >>> a = Osc(table=t, freq=2, mul=.25)
+    >>> a = Osc(table=t, freq=2, mul=0.25)
     >>> b = SineLoop(freq=[299,300], feedback=0.05, mul=a).out()
 
     """
@@ -814,7 +816,7 @@ class LogTable(PyoTableObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> t = LogTable([(0,0), (4095,1), (8192,0)])
-    >>> a = Osc(table=t, freq=2, mul=.25)
+    >>> a = Osc(table=t, freq=2, mul=0.25)
     >>> b = SineLoop(freq=[599,600], feedback=0.05, mul=a).out()
 
     """
@@ -951,7 +953,7 @@ class CosLogTable(PyoTableObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> t = CosLogTable([(0,0), (4095,1), (8192,0)])
-    >>> a = Osc(table=t, freq=2, mul=.25)
+    >>> a = Osc(table=t, freq=2, mul=0.25)
     >>> b = SineLoop(freq=[599,600], feedback=0.05, mul=a).out()
 
     """
@@ -1087,7 +1089,7 @@ class CosTable(PyoTableObject):
     >>> s.start()
     >>> # Sharp attack envelope
     >>> t = CosTable([(0,0), (100,1), (1000,.25), (8191,0)])
-    >>> a = Osc(table=t, freq=2, mul=.25)
+    >>> a = Osc(table=t, freq=2, mul=0.25)
     >>> b = SineLoop(freq=[299,300], feedback=0.05, mul=a).out()
 
     """
@@ -1239,7 +1241,7 @@ class CurveTable(PyoTableObject):
     >>> s.start()
     >>> t = CurveTable([(0,0),(2048,.5),(4096,.2),(6144,.5),(8192,0)], 0, 20)
     >>> t.normalize()
-    >>> a = Osc(table=t, freq=2, mul=.25)
+    >>> a = Osc(table=t, freq=2, mul=0.25)
     >>> b = SineLoop(freq=[299,300], feedback=0.05, mul=a).out()
 
     """
@@ -1435,7 +1437,7 @@ class ExpTable(PyoTableObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> t = ExpTable([(0,0),(4096,1),(8192,0)], exp=5, inverse=True)
-    >>> a = Osc(table=t, freq=2, mul=.3)
+    >>> a = Osc(table=t, freq=2, mul=0.3)
     >>> b = Sine(freq=[299,300], mul=a).out()
 
     """
@@ -1629,7 +1631,7 @@ class SndTable(PyoTableObject):
     >>> snd_path = SNDS_PATH + '/transparent.aif'
     >>> t = SndTable(snd_path)
     >>> freq = t.getRate()
-    >>> a = Osc(table=t, freq=[freq, freq*.995], mul=.3).out()
+    >>> a = Osc(table=t, freq=[freq, freq*.995], mul=0.3).out()
 
     """
 
@@ -1650,10 +1652,15 @@ class SndTable(PyoTableObject):
                 _size, _dur, _snd_sr, _snd_chnls, _format, _type = sndinfo(p, raise_on_failure=True)
                 if chnl is None:
                     if stop is None:
-                        self._base_objs.extend([SndTable_base(stringencode(p), i, start) for i in range(_snd_chnls)])
+                        self._base_objs.extend(
+                            [SndTable_base(stringencode(p), i, start) for i in range(_snd_chnls)]
+                        )
                     else:
                         self._base_objs.extend(
-                            [SndTable_base(stringencode(p), i, start, stop) for i in range(_snd_chnls)]
+                            [
+                                SndTable_base(stringencode(p), i, start, stop)
+                                for i in range(_snd_chnls)
+                            ]
                         )
                 else:
                     if stop is None:
@@ -1705,7 +1712,10 @@ class SndTable(PyoTableObject):
             self._size = _size
             self._dur = _dur
             if stop is None:
-                [obj.setSound(stringencode(path), (i % _snd_chnls), start) for i, obj in enumerate(self._base_objs)]
+                [
+                    obj.setSound(stringencode(path), (i % _snd_chnls), start)
+                    for i, obj in enumerate(self._base_objs)
+                ]
             else:
                 [
                     obj.setSound(stringencode(path), (i % _snd_chnls), start, stop)
@@ -2010,7 +2020,7 @@ class NewTable(PyoTableObject):
             lst += [0] * (self._size - len(lst))
             print("Warning: NewTable data length < size... padded with 0s.")
         elif len(lst) > self._size:
-            lst = lst[:self._size]
+            lst = lst[: self._size]
             print("Warning: NewTable data length > size... truncated to size.")
         return lst
 
@@ -2206,7 +2216,7 @@ class DataTable(PyoTableObject):
     >>> tab = DataTable(size=10, init=notes)
     >>> ind = RandInt(10, 8)
     >>> pit = TableIndex(tab, ind)
-    >>> a = SineLoop(freq=[pit,pit*0.99], feedback = 0.07, mul=.2).out()
+    >>> a = SineLoop(freq=[pit,pit*0.99], feedback = 0.07, mul=0.2).out()
 
     """
 
@@ -2220,7 +2230,9 @@ class DataTable(PyoTableObject):
         else:
             if type(init[0]) != list:
                 init = [init]
-            self._base_objs = [DataTable_base(size, self._check_data_size(wrap(init, i))) for i in range(chnls)]
+            self._base_objs = [
+                DataTable_base(size, self._check_data_size(wrap(init, i))) for i in range(chnls)
+            ]
 
     def _check_data_size(self, lst):
         # Validate that the data passed to the object has the same size as self._size.
@@ -2228,7 +2240,7 @@ class DataTable(PyoTableObject):
             lst += [0] * (self._size - len(lst))
             print("Warning: DataTable data length < size... padded with 0s.")
         elif len(lst) > self._size:
-            lst = lst[:self._size]
+            lst = lst[: self._size]
             print("Warning: DataTable data length > size... truncated to size.")
         return lst
 
@@ -2409,7 +2421,7 @@ class PartialTable(PyoTableObject):
     >>> s.start()
     >>> t = PartialTable([(1,1), (2.37, 0.5), (4.55, 0.3)]).normalize()
     >>> # Play with fundamentals 199 and 200 Hz
-    >>> a = Osc(table=t, freq=[1.99,2], mul=.2).out()
+    >>> a = Osc(table=t, freq=[1.99,2], mul=0.2).out()
 
     """
 

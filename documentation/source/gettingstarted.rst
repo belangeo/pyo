@@ -1,14 +1,14 @@
 Getting started
 =================================
 
-Here is quick introduction to Pyo. It assumes you already know Python and 
-basics about OOP (Object-Oriented Programming).
+Here is a quick introduction to Pyo. It assumes you already know Python and 
+basics of OOP (Object-Oriented Programming).
 
 The Pyo Server and GUI
 -----------------------
 
 The first thing you need to do to use Pyo is import the pyo python module and 
-boot the server. This audio server will open audio and midi interfaces and 
+boot the server. This audio server will open audio and MIDI interfaces and 
 will be ready to send to them the audio and MIDI produced by other pyo objects. 
 You then need to make some sound:
 
@@ -25,7 +25,7 @@ Sine object, and store it in variable a, after calling its out method. The
 Sine class defines a Sine wave oscillator. The out method from this class 
 connects the output of the oscillator to the server audio outputs. I have 
 set the mul attribute of the Sine object to make sure you don't blow your 
-ears when you play this, as the default amplitude multiplier is 1, i.e. a 
+ears when you play this, as the default amplitude multiplier is 1, i.e., a 
 sine wave at the maximum amplitude before clipping! (But I'll talk about 
 attributes later...) You can stop the server with:
 
@@ -125,7 +125,7 @@ You can create an envelope for a sine wave like this:
 
     from pyo import *
     s = Server().boot()
-    f = Adsr(attack=.01, decay=.2, sustain=.5, release=.1, dur=5, mul=.5)
+    f = Adsr(attack=0.01, decay=0.2, sustain=0.5, release=0.1, dur=5, mul=0.5)
     a = Sine(mul=f).out()
     f.play()
     s.gui(locals())
@@ -133,7 +133,7 @@ You can create an envelope for a sine wave like this:
 Class examples
 ----------------
 
-All Classes in Pyo come with an example which shows how it can be used. To 
+All classes in Pyo come with an example that shows how they can be used. To 
 execute the example you can do:
 
 >>> from pyo import *

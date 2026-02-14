@@ -3,14 +3,15 @@
 
 The Score object takes in input an audio stream containing integers
 and any time the integer changes, it calls a function with a generic
-name to which the integer is added. This allows the user to build a 
+name to which the integer is added. This allows the user to build a
 sequence of functions and to control how and when each one is called.
 
 This example uses a metronome and a counter to generate a stream of
 integers at a specific rate. The called functions change the oscillator
-frequencies to produce a chords sequence. 
+frequencies to produce a chords sequence.
 
 """
+
 from pyo import *
 
 s = Server().boot()

@@ -21,6 +21,7 @@ Some methods let change the behavior of the loop:
     If True, the crossfade duration (`xfade` attribute) is set in seconds.
 
 """
+
 from pyo import *
 
 s = Server().boot()

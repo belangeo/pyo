@@ -117,7 +117,7 @@
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; freq = Randi(500, 3000, 4)</span>
 <span class="sd">    &gt;&gt;&gt; noze = Noise().mix(2)</span>
-<span class="sd">    &gt;&gt;&gt; a = Biquad(noze, freq=freq, q=5, type=2, mul=.5).out()</span>
+<span class="sd">    &gt;&gt;&gt; a = Biquad(noze, freq=freq, q=5, type=2, mul=0.5).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -253,7 +253,7 @@
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; freq = Randh(500, 3000, 4)</span>
 <span class="sd">    &gt;&gt;&gt; noze = Noise().mix(2)</span>
-<span class="sd">    &gt;&gt;&gt; a = Biquad(noze, freq=freq, q=5, type=2, mul=.5).out()</span>
+<span class="sd">    &gt;&gt;&gt; a = Biquad(noze, freq=freq, q=5, type=2, mul=0.5).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -387,7 +387,7 @@
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; freqs = midiToHz([60,62,64,65,67,69,71,72])</span>
 <span class="sd">    &gt;&gt;&gt; rnd = Choice(choice=freqs, freq=[3,4])</span>
-<span class="sd">    &gt;&gt;&gt; a = SineLoop(rnd, feedback=0.05, mul=.2).out()</span>
+<span class="sd">    &gt;&gt;&gt; a = SineLoop(rnd, feedback=0.05, mul=0.2).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -495,7 +495,7 @@
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; freq = RandInt(max=10, freq=5, mul=100, add=500)</span>
 <span class="sd">    &gt;&gt;&gt; jit = Randi(min=0.99, max=1.01, freq=[2.33,3.41])</span>
-<span class="sd">    &gt;&gt;&gt; a = SineLoop(freq*jit, feedback=0.03, mul=.2).out()</span>
+<span class="sd">    &gt;&gt;&gt; a = SineLoop(freq*jit, feedback=0.03, mul=0.2).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -598,7 +598,7 @@
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; dur = RandDur(min=[.05,0.1], max=[.4,.5])</span>
 <span class="sd">    &gt;&gt;&gt; trig = Change(dur)</span>
-<span class="sd">    &gt;&gt;&gt; amp = TrigEnv(trig, table=HannTable(), dur=dur, mul=.2)</span>
+<span class="sd">    &gt;&gt;&gt; amp = TrigEnv(trig, table=HannTable(), dur=dur, mul=0.2)</span>
 <span class="sd">    &gt;&gt;&gt; freqs = midiToHz([60,63,67,70,72])</span>
 <span class="sd">    &gt;&gt;&gt; freq = TrigChoice(trig, choice=freqs)</span>
 <span class="sd">    &gt;&gt;&gt; a = LFO(freq=freq, type=2, mul=amp).out()</span>
@@ -769,7 +769,7 @@
 <span class="sd">    &gt;&gt;&gt; lfo = Phasor(.1, 0, .5, .15)</span>
 <span class="sd">    &gt;&gt;&gt; freq = Xnoise(dist=12, freq=8, x1=1, x2=lfo, mul=1000, add=500)</span>
 <span class="sd">    &gt;&gt;&gt; jit = Randi(min=0.99, max=1.01, freq=[2.33,3.41])</span>
-<span class="sd">    &gt;&gt;&gt; a = SineLoop(freq*jit, feedback=0.03, mul=.2).out()</span>
+<span class="sd">    &gt;&gt;&gt; a = SineLoop(freq*jit, feedback=0.03, mul=0.2).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -1015,7 +1015,7 @@
 <span class="sd">    &gt;&gt;&gt; rnd = XnoiseMidi(&#39;loopseg&#39;, freq=8, x1=1, x2=l, scale=0, mrange=(60,96))</span>
 <span class="sd">    &gt;&gt;&gt; freq = Snap(rnd, choice=[0, 2, 3, 5, 7, 8, 11], scale=1)</span>
 <span class="sd">    &gt;&gt;&gt; jit = Randi(min=0.99, max=1.01, freq=[2.33,3.41])</span>
-<span class="sd">    &gt;&gt;&gt; a = SineLoop(freq*jit, feedback=0.03, mul=.2).out()</span>
+<span class="sd">    &gt;&gt;&gt; a = SineLoop(freq*jit, feedback=0.03, mul=0.2).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -1319,7 +1319,7 @@
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; dur = XnoiseDur(dist=&quot;expon_min&quot;, min=[.05,0.1], max=[.4,.5], x1=3)</span>
 <span class="sd">    &gt;&gt;&gt; trig = Change(dur)</span>
-<span class="sd">    &gt;&gt;&gt; amp = TrigEnv(trig, table=HannTable(), dur=dur, mul=.2)</span>
+<span class="sd">    &gt;&gt;&gt; amp = TrigEnv(trig, table=HannTable(), dur=dur, mul=0.2)</span>
 <span class="sd">    &gt;&gt;&gt; freqs = midiToHz([60,63,67,70,72])</span>
 <span class="sd">    &gt;&gt;&gt; freq = TrigChoice(trig, choice=freqs)</span>
 <span class="sd">    &gt;&gt;&gt; a = LFO(freq=freq, type=2, mul=amp).out()</span>
@@ -1530,7 +1530,7 @@
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; mid = Urn(max=12, freq=10, add=60)</span>
 <span class="sd">    &gt;&gt;&gt; fr = MToF(mid)</span>
-<span class="sd">    &gt;&gt;&gt; sigL = SineLoop(freq=fr, feedback=.08, mul=0.3).out()</span>
+<span class="sd">    &gt;&gt;&gt; sigL = SineLoop(freq=fr, feedback=0.08, mul=0.3).out()</span>
 <span class="sd">    &gt;&gt;&gt; amp = TrigExpseg(mid[&quot;trig&quot;], [(0,0),(.01,.25),(1,0)])</span>
 <span class="sd">    &gt;&gt;&gt; sigR = SineLoop(midiToHz(84), feedback=0.05, mul=amp).out(1)</span>
 

@@ -2,6 +2,7 @@
 Cos waveshaping synthesis.
 
 """
+
 from pyo import *
 import math
 
@@ -23,7 +24,39 @@ phiscl = Scale(phi, inmin=0, inmax=math.pi / 2, outmin=1, outmax=0.5)
 f = Linseg([(0, 0), (0.5, 0), (1, 1)], mul=amp).play()
 
 # Signal with lot of harmonics
-t = HarmTable([1, 0, 0, 0, 0, 0.33, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.2, 0, 0, 0, 0, 0, 0, 0, 0.143,])
+t = HarmTable(
+    [
+        1,
+        0,
+        0,
+        0,
+        0,
+        0.33,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.2,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0.143,
+    ]
+)
 a = OscBank(t, freq=frs, spread=0.0001, slope=1, num=24, fjit=True, mul=f)
 
 # Cos waveshaping

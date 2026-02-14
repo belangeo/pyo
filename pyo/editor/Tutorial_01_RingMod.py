@@ -1,17 +1,17 @@
 """
 Tutorial on creating a custom PyoObject.
 
-There are few steps we need to take care of in order to create a class with all 
+There are few steps we need to take care of in order to create a class with all
 of the PyoObject behaviors.
 
 Things to consider:
 
 - The parent class must be PyoObject, that means the PyoObject's __init__ method
-    must be called inside the object's __init__ method to properly initialize 
+    must be called inside the object's __init__ method to properly initialize
     PyoObject's basic attributes.
-- When a PyoObject receives another PyoObject, it looks for a list of objects 
-    called "self._base_objs". This list must contain the C implementation of 
-    the audio objects generating the output sound of the process. 
+- When a PyoObject receives another PyoObject, it looks for a list of objects
+    called "self._base_objs". This list must contain the C implementation of
+    the audio objects generating the output sound of the process.
 - Adding "mul" and "add" arguments (they act on objects in self._base_objs).
 - All PyoObjects support "list expansion".
 - All PyoObjects with sound in input support cross-fading between old and new sources.
@@ -24,6 +24,7 @@ In this tutorial, we will define a RingMod object with this definition:
 RingMod(input, freq=100, mul=1, add=0)
 
 """
+
 from pyo import *
 
 # Step 1 - Declaring the class
@@ -38,8 +39,8 @@ class RingMod(PyoObject):
     """
     Ring modulator.
 
-    Ring modulation is a signal-processing effect in electronics 
-    performed by multiplying two signals, where one is typically 
+    Ring modulation is a signal-processing effect in electronics
+    performed by multiplying two signals, where one is typically
     a sine-wave or another simple waveform.
 
     :Parent: :py:class:`PyoObject`
@@ -49,13 +50,13 @@ class RingMod(PyoObject):
         input : PyoObject
             Input signal to process.
         freq : float or PyoObject, optional
-            Frequency, in cycles per second, of the modulator. 
+            Frequency, in cycles per second, of the modulator.
             Defaults to 100.
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> src = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=.3)
-    >>> lfo = Sine(.25, phase=[0,.5], mul=.5, add=.5)
+    >>> src = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=0.3)
+    >>> lfo = Sine(.25, phase=[0,.5], mul=0.5, add=0.5)
     >>> ring = RingMod(src, freq=[800,1000], mul=lfo).out()
 
     """

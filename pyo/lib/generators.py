@@ -28,6 +28,7 @@ License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 from ._core import *
 from ._maps import *
 
+
 ######################################################################
 ### Sources
 ######################################################################
@@ -51,7 +52,7 @@ class Sine(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> sine = Sine(freq=[400,500], mul=.2).out()
+    >>> sine = Sine(freq=[400,500], mul=0.2).out()
 
     """
 
@@ -61,7 +62,10 @@ class Sine(PyoObject):
         self._freq = freq
         self._phase = phase
         freq, phase, mul, add, lmax = convertArgsToLists(freq, phase, mul, add)
-        self._base_objs = [Sine_base(wrap(freq, i), wrap(phase, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
+        self._base_objs = [
+            Sine_base(wrap(freq, i), wrap(phase, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
+        ]
         self._init_play()
 
     def setFreq(self, x):
@@ -166,9 +170,13 @@ class FastSine(PyoObject):
         self._freq = freq
         self._initphase = initphase
         self._quality = quality
-        freq, initphase, quality, mul, add, lmax = convertArgsToLists(freq, initphase, quality, mul, add)
+        freq, initphase, quality, mul, add, lmax = convertArgsToLists(
+            freq, initphase, quality, mul, add
+        )
         self._base_objs = [
-            FastSine_base(wrap(freq, i), wrap(initphase, i), wrap(quality, i), wrap(mul, i), wrap(add, i))
+            FastSine_base(
+                wrap(freq, i), wrap(initphase, i), wrap(quality, i), wrap(mul, i), wrap(add, i)
+            )
             for i in range(lmax)
         ]
         self._init_play()
@@ -261,7 +269,7 @@ class SineLoop(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> lfo = Sine(.25, 0, .1, .1)
-    >>> a = SineLoop(freq=[400,500], feedback=lfo, mul=.2).out()
+    >>> a = SineLoop(freq=[400,500], feedback=lfo, mul=0.2).out()
 
     """
 
@@ -272,7 +280,8 @@ class SineLoop(PyoObject):
         self._feedback = feedback
         freq, feedback, mul, add, lmax = convertArgsToLists(freq, feedback, mul, add)
         self._base_objs = [
-            SineLoop_base(wrap(freq, i), wrap(feedback, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+            SineLoop_base(wrap(freq, i), wrap(feedback, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
         ]
         self._init_play()
 
@@ -307,7 +316,11 @@ class SineLoop(PyoObject):
         [obj.setFeedback(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapFreq(self._freq), SLMap(0, 1, "lin", "feedback", self._feedback), SLMapMul(self._mul)]
+        self._map_list = [
+            SLMapFreq(self._freq),
+            SLMap(0, 1, "lin", "feedback", self._feedback),
+            SLMapMul(self._mul),
+        ]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
@@ -352,7 +365,7 @@ class Phasor(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> f = Phasor(freq=[1, 1.5], mul=1000, add=500)
-    >>> sine = Sine(freq=f, mul=.2).out()
+    >>> sine = Sine(freq=f, mul=0.2).out()
 
     """
 
@@ -362,7 +375,10 @@ class Phasor(PyoObject):
         self._freq = freq
         self._phase = phase
         freq, phase, mul, add, lmax = convertArgsToLists(freq, phase, mul, add)
-        self._base_objs = [Phasor_base(wrap(freq, i), wrap(phase, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
+        self._base_objs = [
+            Phasor_base(wrap(freq, i), wrap(phase, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
+        ]
         self._init_play()
 
     def setFreq(self, x):
@@ -442,8 +458,8 @@ class Input(PyoObject):
 
     >>> s = Server(duplex=1).boot()
     >>> s.start()
-    >>> a = Input(chnl=0, mul=.7)
-    >>> b = Delay(a, delay=.25, feedback=.5, mul=.5).out()
+    >>> a = Input(chnl=0, mul=0.7)
+    >>> b = Delay(a, delay=0.25, feedback=0.5, mul=0.5).out()
 
     """
 
@@ -452,7 +468,9 @@ class Input(PyoObject):
         PyoObject.__init__(self, mul, add)
         self._chnl = chnl
         chnl, mul, add, lmax = convertArgsToLists(chnl, mul, add)
-        self._base_objs = [Input_base(wrap(chnl, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
+        self._base_objs = [
+            Input_base(wrap(chnl, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+        ]
         self._init_play()
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
@@ -591,7 +609,7 @@ class FM(PyoObject):
     >>> ind = LinTable([(0,3), (20,40), (300,10), (1000,5), (8191,3)])
     >>> m = Metro(4).play()
     >>> tr = TrigEnv(m, table=ind, dur=4)
-    >>> f = FM(carrier=[251,250], ratio=[.2498,.2503], index=tr, mul=.2).out()
+    >>> f = FM(carrier=[251,250], ratio=[.2498,.2503], index=tr, mul=0.2).out()
 
     """
 
@@ -603,7 +621,8 @@ class FM(PyoObject):
         self._index = index
         carrier, ratio, index, mul, add, lmax = convertArgsToLists(carrier, ratio, index, mul, add)
         self._base_objs = [
-            Fm_base(wrap(carrier, i), wrap(ratio, i), wrap(index, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+            Fm_base(wrap(carrier, i), wrap(ratio, i), wrap(index, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
         ]
         self._init_play()
 
@@ -721,7 +740,7 @@ class CrossFM(PyoObject):
     >>> ind = LinTable([(0,20), (200,5), (1000,2), (8191,1)])
     >>> m = Metro(4).play()
     >>> tr = TrigEnv(m, table=ind, dur=4)
-    >>> f = CrossFM(carrier=[250.5,250], ratio=[.2499,.2502], ind1=tr, ind2=tr, mul=.2).out()
+    >>> f = CrossFM(carrier=[250.5,250], ratio=[.2499,.2502], ind1=tr, ind2=tr, mul=0.2).out()
 
     """
 
@@ -732,9 +751,18 @@ class CrossFM(PyoObject):
         self._ratio = ratio
         self._ind1 = ind1
         self._ind2 = ind2
-        carrier, ratio, ind1, ind2, mul, add, lmax = convertArgsToLists(carrier, ratio, ind1, ind2, mul, add)
+        carrier, ratio, ind1, ind2, mul, add, lmax = convertArgsToLists(
+            carrier, ratio, ind1, ind2, mul, add
+        )
         self._base_objs = [
-            CrossFm_base(wrap(carrier, i), wrap(ratio, i), wrap(ind1, i), wrap(ind2, i), wrap(mul, i), wrap(add, i))
+            CrossFm_base(
+                wrap(carrier, i),
+                wrap(ratio, i),
+                wrap(ind1, i),
+                wrap(ind2, i),
+                wrap(mul, i),
+                wrap(add, i),
+            )
             for i in range(lmax)
         ]
         self._init_play()
@@ -864,9 +892,9 @@ class Blit(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> lfo = Sine(freq=4, mul=.02, add=1)
-    >>> lf2 = Sine(freq=.25, mul=10, add=30)
-    >>> a = Blit(freq=[100, 99.7]*lfo, harms=lf2, mul=.3).out()
+    >>> lfo = Sine(freq=4, mul=0.02, add=1)
+    >>> lf2 = Sine(freq=0.25, mul=10, add=30)
+    >>> a = Blit(freq=[100, 99.7]*lfo, harms=lf2, mul=0.3).out()
 
     """
 
@@ -876,7 +904,10 @@ class Blit(PyoObject):
         self._freq = freq
         self._harms = harms
         freq, harms, mul, add, lmax = convertArgsToLists(freq, harms, mul, add)
-        self._base_objs = [Blit_base(wrap(freq, i), wrap(harms, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
+        self._base_objs = [
+            Blit_base(wrap(freq, i), wrap(harms, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
+        ]
         self._init_play()
 
     def setFreq(self, x):
@@ -970,7 +1001,7 @@ class Rossler(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = Rossler(pitch=.003, stereo=True, mul=.2, add=.2)
+    >>> a = Rossler(pitch=0.003, stereo=True, mul=0.2, add=0.2)
     >>> b = Rossler(pitch=[.5,.48], mul=a).out()
 
     """
@@ -985,9 +1016,13 @@ class Rossler(PyoObject):
         self._base_objs = []
         self._alt_objs = []
         for i in range(lmax):
-            self._base_objs.append(Rossler_base(wrap(pitch, i), wrap(chaos, i), wrap(mul, i), wrap(add, i)))
+            self._base_objs.append(
+                Rossler_base(wrap(pitch, i), wrap(chaos, i), wrap(mul, i), wrap(add, i))
+            )
             if self._stereo:
-                self._base_objs.append(RosslerAlt_base(self._base_objs[-1], wrap(mul, i), wrap(add, i)))
+                self._base_objs.append(
+                    RosslerAlt_base(self._base_objs[-1], wrap(mul, i), wrap(add, i))
+                )
         self._init_play()
 
     def setPitch(self, x):
@@ -1087,7 +1122,7 @@ class Lorenz(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = Lorenz(pitch=.003, stereo=True, mul=.2, add=.2)
+    >>> a = Lorenz(pitch=0.003, stereo=True, mul=0.2, add=0.2)
     >>> b = Lorenz(pitch=[.4,.38], mul=a).out()
 
     """
@@ -1102,9 +1137,13 @@ class Lorenz(PyoObject):
         self._base_objs = []
         self._alt_objs = []
         for i in range(lmax):
-            self._base_objs.append(Lorenz_base(wrap(pitch, i), wrap(chaos, i), wrap(mul, i), wrap(add, i)))
+            self._base_objs.append(
+                Lorenz_base(wrap(pitch, i), wrap(chaos, i), wrap(mul, i), wrap(add, i))
+            )
             if self._stereo:
-                self._base_objs.append(LorenzAlt_base(self._base_objs[-1], wrap(mul, i), wrap(add, i)))
+                self._base_objs.append(
+                    LorenzAlt_base(self._base_objs[-1], wrap(mul, i), wrap(add, i))
+                )
         self._init_play()
 
     def setPitch(self, x):
@@ -1204,7 +1243,7 @@ class ChenLee(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = ChenLee(pitch=.001, chaos=0.2, stereo=True, mul=.5, add=.5)
+    >>> a = ChenLee(pitch=0.001, chaos=0.2, stereo=True, mul=0.5, add=0.5)
     >>> b = ChenLee(pitch=1, chaos=a, mul=0.5).out()
 
     """
@@ -1219,9 +1258,13 @@ class ChenLee(PyoObject):
         self._base_objs = []
         self._alt_objs = []
         for i in range(lmax):
-            self._base_objs.append(ChenLee_base(wrap(pitch, i), wrap(chaos, i), wrap(mul, i), wrap(add, i)))
+            self._base_objs.append(
+                ChenLee_base(wrap(pitch, i), wrap(chaos, i), wrap(mul, i), wrap(add, i))
+            )
             if self._stereo:
-                self._base_objs.append(ChenLeeAlt_base(self._base_objs[-1], wrap(mul, i), wrap(add, i)))
+                self._base_objs.append(
+                    ChenLeeAlt_base(self._base_objs[-1], wrap(mul, i), wrap(add, i))
+                )
         self._init_play()
 
     def setPitch(self, x):
@@ -1315,9 +1358,9 @@ class LFO(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> lf = Sine([.31,.34], mul=15, add=20)
-    >>> lf2 = LFO([.43,.41], sharp=.7, type=2, mul=.4, add=.4)
+    >>> lf2 = LFO([.43,.41], sharp=0.7, type=2, mul=0.4, add=0.4)
     >>> a = LFO(freq=lf, sharp=lf2, type=7, mul=100, add=300)
-    >>> b = SineLoop(freq=a, feedback=0.12, mul=.2).out()
+    >>> b = SineLoop(freq=a, feedback=0.12, mul=0.2).out()
 
     """
 
@@ -1329,7 +1372,8 @@ class LFO(PyoObject):
         self._type = type
         freq, sharp, type, mul, add, lmax = convertArgsToLists(freq, sharp, type, mul, add)
         self._base_objs = [
-            LFO_base(wrap(freq, i), wrap(sharp, i), wrap(type, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+            LFO_base(wrap(freq, i), wrap(sharp, i), wrap(type, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
         ]
         self._init_play()
 
@@ -1470,7 +1514,7 @@ class SumOsc(PyoObject):
     >>> ind = LinTable([(0,.3), (20,.85), (300,.7), (1000,.5), (8191,.3)])
     >>> m = Metro(4).play()
     >>> tr = TrigEnv(m, table=ind, dur=4)
-    >>> f = SumOsc(freq=[301,300], ratio=[.2498,.2503], index=tr, mul=.2).out()
+    >>> f = SumOsc(freq=[301,300], ratio=[.2498,.2503], index=tr, mul=0.2).out()
 
     """
 
@@ -1482,7 +1526,8 @@ class SumOsc(PyoObject):
         self._index = index
         freq, ratio, index, mul, add, lmax = convertArgsToLists(freq, ratio, index, mul, add)
         self._base_objs = [
-            SumOsc_base(wrap(freq, i), wrap(ratio, i), wrap(index, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+            SumOsc_base(wrap(freq, i), wrap(ratio, i), wrap(index, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
         ]
         self._init_play()
 
@@ -1599,7 +1644,7 @@ class SuperSaw(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> lfd = Sine([.4,.3], mul=.2, add=.5)
+    >>> lfd = Sine([.4,.3], mul=0.2, add=0.5)
     >>> a = SuperSaw(freq=[49,50], detune=lfd, bal=0.7, mul=0.2).out()
 
     """
@@ -1612,7 +1657,8 @@ class SuperSaw(PyoObject):
         self._bal = bal
         freq, detune, bal, mul, add, lmax = convertArgsToLists(freq, detune, bal, mul, add)
         self._base_objs = [
-            SuperSaw_base(wrap(freq, i), wrap(detune, i), wrap(bal, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+            SuperSaw_base(wrap(freq, i), wrap(detune, i), wrap(bal, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
         ]
         self._init_play()
 
@@ -1722,8 +1768,8 @@ class RCOsc(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> fr = RCOsc(freq=[.48,.5], sharp=.2, mul=300, add=600)
-    >>> a = RCOsc(freq=fr, sharp=.1, mul=.2).out()
+    >>> fr = RCOsc(freq=[.48,.5], sharp=0.2, mul=300, add=600)
+    >>> a = RCOsc(freq=fr, sharp=0.1, mul=0.2).out()
 
     """
 
@@ -1733,7 +1779,10 @@ class RCOsc(PyoObject):
         self._freq = freq
         self._sharp = sharp
         freq, sharp, mul, add, lmax = convertArgsToLists(freq, sharp, mul, add)
-        self._base_objs = [RCOsc_base(wrap(freq, i), wrap(sharp, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
+        self._base_objs = [
+            RCOsc_base(wrap(freq, i), wrap(sharp, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
+        ]
         self._init_play()
 
     def setFreq(self, x):
@@ -1774,7 +1823,11 @@ class RCOsc(PyoObject):
         [obj.reset() for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapFreq(self._freq), SLMap(0, 1, "lin", "sharp", self._sharp), SLMapMul(self._mul)]
+        self._map_list = [
+            SLMapFreq(self._freq),
+            SLMap(0, 1, "lin", "sharp", self._sharp),
+            SLMapMul(self._mul),
+        ]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property

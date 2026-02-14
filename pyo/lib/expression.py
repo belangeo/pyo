@@ -335,6 +335,7 @@ from ._core import *
 from ._maps import *
 from ._widgets import createExprEditorWindow
 
+
 class Expr(PyoObject):
     """
     Prefix audio expression evaluator.
@@ -426,7 +427,11 @@ class Expr(PyoObject):
     def setVar(self, varname, value):
         pyoArgsAssert(self, "sn", varname, value)
         varname, value, lmax = convertArgsToLists(varname, value)
-        [obj.setVar(wrap(varname, j), wrap(value, j)) for i, obj in enumerate(self._base_players) for j in range(lmax)]
+        [
+            obj.setVar(wrap(varname, j), wrap(value, j))
+            for i, obj in enumerate(self._base_players)
+            for j in range(lmax)
+        ]
 
     def _get_matching_bracket_pos(self, x, p1):
         count = 1
@@ -596,7 +601,7 @@ class Expr(PyoObject):
             if p2 == -1:
                 raise Exception("Mismatched brackets in function body.")
             p2 += 1
-            funcbody = x[p1+1:p2-1]
+            funcbody = x[p1 + 1 : p2 - 1]
             # get end of the definition
             while x[p2] in " \t\n":
                 p2 += 1

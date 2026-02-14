@@ -40,13 +40,16 @@ from ._maps import *
 
 def assertOSCSupport(obj):
     if not withOSC():
-        raise Exception("Pyo built without OSC support! '%s' objects is not available." % obj.__class__.__name__)
+        raise Exception(
+            "Pyo built without OSC support! '%s' objects is not available." % obj.__class__.__name__
+        )
 
 
 ### TODO - Know bugs:
 ### OscListReceive.setValue(address, value) make the program segfault on quit (python 2.7 and 3.5).
 ### OscSend/OscReceive don't work with unicode on python 2.7 (ok on python 3.5)
 ###
+
 
 ######################################################################
 ### Open Sound Control
@@ -55,7 +58,7 @@ class OscSend(PyoObject):
     """
     Sends values over a network via the Open Sound Control protocol.
 
-    Uses the OSC protocol to share values to other softwares or other
+    Uses the OSC protocol to share values to other software or other
     computers. Only the first value of each input buffer size will be
     sent on the OSC port.
 
@@ -95,9 +98,12 @@ class OscSend(PyoObject):
         PyoObject.__init__(self)
         self._input = input
         self._in_fader = InputFader(input)
-        in_fader, port, address, host, lmax = convertArgsToLists(self._in_fader, port, address, host)
+        in_fader, port, address, host, lmax = convertArgsToLists(
+            self._in_fader, port, address, host
+        )
         self._base_objs = [
-            OscSend_base(wrap(in_fader, i), wrap(port, i), wrap(address, i), wrap(host, i)) for i in range(lmax)
+            OscSend_base(wrap(in_fader, i), wrap(port, i), wrap(address, i), wrap(host, i))
+            for i in range(lmax)
         ]
         self._init_play()
 
@@ -154,7 +160,7 @@ class OscReceive(PyoObject):
     """
     Receives values over a network via the Open Sound Control protocol.
 
-    Uses the OSC protocol to receive values from other softwares or
+    Uses the OSC protocol to receive values from other software or
     other computers. Get a value at the beginning of each buffer size
     and fill its buffer with it.
 
@@ -199,7 +205,8 @@ class OscReceive(PyoObject):
         self._address = address
         self._mainReceiver = OscReceiver_base(port, address)
         self._base_objs = [
-            OscReceive_base(self._mainReceiver, wrap(address, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+            OscReceive_base(self._mainReceiver, wrap(address, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
         ]
         self._init_play()
 
@@ -239,7 +246,9 @@ class OscReceive(PyoObject):
             if p not in self._address:
                 self._mainReceiver.addAddress(p)
                 self._address.append(p)
-                self._base_objs.append(OscReceive_base(self._mainReceiver, p, wrap(mul, i), wrap(add, i)))
+                self._base_objs.append(
+                    OscReceive_base(self._mainReceiver, p, wrap(mul, i), wrap(add, i))
+                )
                 self._base_objs[-1].play()
 
     def delAddress(self, path):
@@ -345,7 +354,7 @@ class OscDataSend(PyoObject):
     """
     Sends data values over a network via the Open Sound Control protocol.
 
-    Uses the OSC protocol to share values to other softwares or other
+    Uses the OSC protocol to share values to other software or other
     computers. Values are sent on the form of a list containing `types`
     elements.
 
@@ -414,7 +423,8 @@ class OscDataSend(PyoObject):
         PyoObject.__init__(self)
         types, port, address, host, lmax = convertArgsToLists(types, port, address, host)
         self._base_objs = [
-            OscDataSend_base(wrap(types, i), wrap(port, i), wrap(address, i), wrap(host, i)) for i in range(lmax)
+            OscDataSend_base(wrap(types, i), wrap(port, i), wrap(address, i), wrap(host, i))
+            for i in range(lmax)
         ]
         self._addresses = {}
         for i, adr in enumerate(address):
@@ -473,7 +483,10 @@ class OscDataSend(PyoObject):
         """
         pyoArgsAssert(self, "siss", types, port, address, host)
         types, port, address, host, lmax = convertArgsToLists(types, port, address, host)
-        objs = [OscDataSend_base(wrap(types, i), wrap(port, i), wrap(address, i), wrap(host, i)) for i in range(lmax)]
+        objs = [
+            OscDataSend_base(wrap(types, i), wrap(port, i), wrap(address, i), wrap(host, i))
+            for i in range(lmax)
+        ]
         self._base_objs.extend(objs)
         for i, adr in enumerate(address):
             self._addresses[adr] = objs[i]
@@ -523,7 +536,7 @@ class OscDataReceive(PyoObject):
     """
     Receives data values over a network via the Open Sound Control protocol.
 
-    Uses the OSC protocol to receive data values from other softwares or
+    Uses the OSC protocol to receive data values from other software or
     other computers. When a message is received, the function given at the
     argument `function` is called with the current address destination in
     argument followed by a tuple of values.
@@ -646,7 +659,7 @@ class OscListReceive(PyoObject):
     Receives list of values over a network via the Open Sound Control protocol.
 
     Uses the OSC protocol to receive list of floating-point values from other
-    softwares or other computers. The list are converted into audio streams.
+    software or other computers. The list are converted into audio streams.
     Get values at the beginning of each buffer size and fill buffers with them.
 
     :Parent: :py:class:`PyoObject`
@@ -804,7 +817,9 @@ class OscListReceive(PyoObject):
                 if len(val) == self._num:
                     self._mainReceiver.setValue(p, val)
                 else:
-                    print("Error: OscListReceive.setValue, value must be of the same length as the `num` attribute.")
+                    print(
+                        "Error: OscListReceive.setValue, value must be of the same length as the `num` attribute."
+                    )
             else:
                 print('Error: OscListReceive.setValue, Illegal address "%s"' % p)
 
@@ -832,12 +847,17 @@ class OscListReceive(PyoObject):
         """
         if not all:
             first = self._address.index(identifier) * self._num
-            return [obj._getStream().getValue() for obj in self._base_objs[first : first + self._num]]
+            return [
+                obj._getStream().getValue() for obj in self._base_objs[first : first + self._num]
+            ]
         else:
             outlist = []
             for add in self._address:
                 first = self._address.index(add) * self._num
-                l = [obj._getStream().getValue() for obj in self._base_objs[first : first + self._num]]
+                l = [
+                    obj._getStream().getValue()
+                    for obj in self._base_objs[first : first + self._num]
+                ]
                 outlist.append(l)
             return outlist
 

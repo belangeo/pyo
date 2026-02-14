@@ -1,16 +1,15 @@
 # Pyo - Python DSP module #
 
-pyo is a Python module written in C to help digital signal processing script 
-creation.
+pyo is a Python module written in C to facilitate the creation of digital signal processing scripts.
 
 pyo is a Python module containing classes for a wide variety of audio signal 
-processing types. With pyo, user will be able to include signal processing 
+processing types. With pyo, users will be able to include signal processing 
 chains directly in Python scripts or projects, and to manipulate them in real 
-time through the interpreter. Tools in pyo module offer primitives, like 
-mathematical operations on audio signal, basic signal processing (filters, 
+time through the interpreter. Tools in the pyo module offers primitives, like 
+mathematical operations on audio signals, basic signal processing (filters, 
 delays, synthesis generators, etc.), but also complex algorithms to create 
-sound granulation and others creative audio manipulations. pyo supports OSC 
-protocol (Open Sound Control), to ease communications between softwares, and 
+sound granulation and other creative audio manipulations. pyo supports OSC 
+protocol (Open Sound Control), to ease communications between software, and 
 MIDI protocol, for generating sound events and controlling process parameters. 
 pyo allows creation of sophisticated signal processing chains with all the 
 benefits of a mature, and widely used, general programming language.
@@ -89,8 +88,8 @@ Granulate an audio buffer:
 >>> snd = SndTable("path/to/your/sound.aif")
 >>> env = HannTable()
 >>> pos = Phasor(freq=snd.getRate()*.25, mul=snd.getSize())
->>> dur = Noise(mul=.001, add=.1)
->>> g = Granulator(snd, env, [1, 1.001], pos, dur, 24, mul=.1).out()
+>>> dur = Noise(mul=0.001, add=0.1)
+>>> g = Granulator(snd, env, [1, 1.001], pos, dur, 24, mul=0.1).out()
 ```
 
 Generate melodies:
@@ -101,7 +100,7 @@ Generate melodies:
 >>> wav = SquareTable()
 >>> env = CosTable([(0,0), (100,1), (500,.3), (8191,0)])
 >>> met = Metro(.125, 12).play()
->>> amp = TrigEnv(met, table=env, mul=.1)
+>>> amp = TrigEnv(met, table=env, mul=0.1)
 >>> pit = TrigXnoiseMidi(met, dist='loopseg', x1=20, scale=1, mrange=(48,84))
 >>> out = Osc(table=wav, freq=pit, mul=amp).out()
 ```
@@ -110,7 +109,7 @@ Generate melodies:
 
 This project is developed by Olivier Bélanger on his free time to provide a 
 fully integrated Python dsp module for sound exploration and music composition. 
-If you feel this project is useful to you and want to support it and it's 
+If you feel this project is useful to you and want to support it and its 
 future development please consider donating money. I only ask for a small 
 donation, but of course I appreciate any amount.
 

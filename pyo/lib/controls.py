@@ -34,6 +34,7 @@ from ._core import *
 from ._maps import *
 from ._widgets import createGraphWindow
 
+
 ######################################################################
 ### Controls
 ######################################################################
@@ -80,7 +81,7 @@ class Fader(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> f = Fader(fadein=0.5, fadeout=0.5, dur=2, mul=.5)
+    >>> f = Fader(fadein=0.5, fadeout=0.5, dur=2, mul=0.5)
     >>> a = BrownNoise(mul=f).mix(2).out()
     >>> def repeat():
     ...     f.play()
@@ -97,7 +98,8 @@ class Fader(PyoObject):
         self._exp = 1.0
         fadein, fadeout, dur, mul, add, lmax = convertArgsToLists(fadein, fadeout, dur, mul, add)
         self._base_objs = [
-            Fader_base(wrap(fadein, i), wrap(fadeout, i), wrap(dur, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+            Fader_base(wrap(fadein, i), wrap(fadeout, i), wrap(dur, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
         ]
         self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])
 
@@ -278,7 +280,7 @@ class Adsr(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> f = Adsr(attack=.01, decay=.2, sustain=.5, release=.1, dur=2, mul=.5)
+    >>> f = Adsr(attack=0.01, decay=0.2, sustain=0.5, release=0.1, dur=2, mul=0.5)
     >>> a = BrownNoise(mul=f).mix(2).out()
     >>> def repeat():
     ...     f.play()
@@ -523,7 +525,7 @@ class Linseg(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> l = Linseg([(0,500),(.03,1000),(.1,700),(1,500),(2,500)], loop=True)
-    >>> a = Sine(freq=l, mul=.3).mix(2).out()
+    >>> a = Sine(freq=l, mul=0.3).mix(2).out()
     >>> # then call:
     >>> l.play()
 
@@ -537,14 +539,22 @@ class Linseg(PyoObject):
         initToFirstVal, loop, mul, add, lmax = convertArgsToLists(initToFirstVal, loop, mul, add)
         if type(list[0]) != list:
             self._base_objs = [
-                Linseg_base(list, wrap(loop, i), wrap(initToFirstVal, i), wrap(mul, i), wrap(add, i))
+                Linseg_base(
+                    list, wrap(loop, i), wrap(initToFirstVal, i), wrap(mul, i), wrap(add, i)
+                )
                 for i in range(lmax)
             ]
         else:
             listlen = len(list)
             lmax = max(listlen, lmax)
             self._base_objs = [
-                Linseg_base(wrap(list, i), wrap(loop, i), wrap(initToFirstVal, i), wrap(mul, i), wrap(add, i))
+                Linseg_base(
+                    wrap(list, i),
+                    wrap(loop, i),
+                    wrap(initToFirstVal, i),
+                    wrap(mul, i),
+                    wrap(add, i),
+                )
                 for i in range(lmax)
             ]
 
@@ -712,7 +722,7 @@ class Expseg(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> l = Expseg([(0,500),(.03,1000),(.1,700),(1,500),(2,500)], loop=True)
-    >>> a = Sine(freq=l, mul=.3).mix(2).out()
+    >>> a = Sine(freq=l, mul=0.3).mix(2).out()
     >>> # then call:
     >>> l.play()
 
@@ -959,8 +969,8 @@ class SigTo(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> fr = SigTo(value=200, time=0.5, init=200)
-    >>> a = SineLoop(freq=fr, feedback=0.08, mul=.3).out()
-    >>> b = SineLoop(freq=fr*1.005, feedback=0.08, mul=.3).out(1)
+    >>> a = SineLoop(freq=fr, feedback=0.08, mul=0.3).out()
+    >>> b = SineLoop(freq=fr*1.005, feedback=0.08, mul=0.3).out(1)
     >>> def pick_new_freq():
     ...     fr.value = random.randrange(200,501,50)
     >>> pat = Pattern(function=pick_new_freq, time=1).play()
@@ -974,7 +984,8 @@ class SigTo(PyoObject):
         self._time = time
         value, time, init, mul, add, lmax = convertArgsToLists(value, time, init, mul, add)
         self._base_objs = [
-            SigTo_base(wrap(value, i), wrap(time, i), wrap(init, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+            SigTo_base(wrap(value, i), wrap(time, i), wrap(init, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
         ]
         self._init_play()
 

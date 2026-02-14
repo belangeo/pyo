@@ -6,6 +6,7 @@ object is very easy to use. You just give it the function name, the
 time to wait before making the call and an optional argument.
 
 """
+
 from pyo import *
 
 s = Server().boot()
@@ -14,6 +15,7 @@ s = Server().boot()
 amp = Fader(fadein=0.005, fadeout=0.05, mul=0.2).play()
 osc = SineLoop(freq=[0, 0, 0, 0], feedback=0.05, mul=amp)
 rev = WGVerb(osc.mix(2), feedback=0.8, cutoff=4000, bal=0.2).out()
+
 
 # A function to change the oscillator's frequencies and start the envelope.
 def set_osc_freqs(notes):

@@ -16,6 +16,7 @@ For a simpler and more efficient process, see the Phase Vocoder implementations
 of the spectral stretching: `PVBuffer`, `PVBufLoops`, and `PVBufTabLoops`.
 
 """
+
 from pyo import *
 
 s = Server(duplex=0).boot()
@@ -37,9 +38,9 @@ wintype = 7
 
 # Retrieve information about the soundfile
 info = sndinfo(snd)
-# The number of channels 
+# The number of channels
 chnls = info[3]
-# How many analysis frames to cover the entire sound duration. 
+# How many analysis frames to cover the entire sound duration.
 nframes = info[0] // size
 
 # Reads the soundfile once.
@@ -55,11 +56,13 @@ fin = FFT(a, size=size, overlaps=olaps, wintype=wintype)
 
 # Cartesian to polar conversion.
 pol = CarToPol(fin["real"], fin["imag"])
-# The delta of phases between successive analysis frame. 
+# The delta of phases between successive analysis frame.
 delta = FrameDelta(pol["ang"], framesize=size, overlaps=olaps)
 
 # Record the magnitude frames.
-m_mag_rec = MatrixRec(pol["mag"], m_mag, 0, [i * hop for i in range(olaps) for j in range(chnls)]).play()
+m_mag_rec = MatrixRec(
+    pol["mag"], m_mag, 0, [i * hop for i in range(olaps) for j in range(chnls)]
+).play()
 # Record the phase delta frames.
 m_pha_rec = MatrixRec(delta, m_pha, 0, [i * hop for i in range(olaps) for j in range(chnls)]).play()
 
@@ -81,6 +84,11 @@ accum = FrameAccum(m_pha_smo, framesize=size, overlaps=olaps)
 car = PolToCar(m_mag_smo, accum)
 
 # Converts the new real and imag parts into a time domain signal.
-fout = IFFT(car["real"], car["imag"], size=size, overlaps=olaps, wintype=wintype).mix(chnls).mix(2).out()
+fout = (
+    IFFT(car["real"], car["imag"], size=size, overlaps=olaps, wintype=wintype)
+    .mix(chnls)
+    .mix(2)
+    .out()
+)
 
 s.gui(locals())

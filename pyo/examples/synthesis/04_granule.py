@@ -2,6 +2,7 @@
 Hand-written granulation module.
 
 """
+
 from pyo import *
 
 s = Server(duplex=0).boot()

@@ -11,14 +11,15 @@ sequences of functions calls.
 
 Pyo offers three objects for calling function:
 
-- Pattern: Periodically calls a Python function. 
-- Score: Calls functions by increasing a preformatted name. 
+- Pattern: Periodically calls a Python function.
+- Score: Calls functions by increasing a preformatted name.
 - CallAfter: Calls a Python function after a given time.
 
-This example shows the usage of the Pattern object to create a 
+This example shows the usage of the Pattern object to create a
 sequence of audio events.
 
 """
+
 from pyo import *
 import random
 

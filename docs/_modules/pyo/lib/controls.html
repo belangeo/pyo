@@ -148,7 +148,7 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; f = Fader(fadein=0.5, fadeout=0.5, dur=2, mul=.5)</span>
+<span class="sd">    &gt;&gt;&gt; f = Fader(fadein=0.5, fadeout=0.5, dur=2, mul=0.5)</span>
 <span class="sd">    &gt;&gt;&gt; a = BrownNoise(mul=f).mix(2).out()</span>
 <span class="sd">    &gt;&gt;&gt; def repeat():</span>
 <span class="sd">    ...     f.play()</span>
@@ -370,7 +370,7 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; f = Adsr(attack=.01, decay=.2, sustain=.5, release=.1, dur=2, mul=.5)</span>
+<span class="sd">    &gt;&gt;&gt; f = Adsr(attack=0.01, decay=0.2, sustain=0.5, release=0.1, dur=2, mul=0.5)</span>
 <span class="sd">    &gt;&gt;&gt; a = BrownNoise(mul=f).mix(2).out()</span>
 <span class="sd">    &gt;&gt;&gt; def repeat():</span>
 <span class="sd">    ...     f.play()</span>
@@ -645,7 +645,7 @@
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; l = Linseg([(0,500),(.03,1000),(.1,700),(1,500),(2,500)], loop=True)</span>
-<span class="sd">    &gt;&gt;&gt; a = Sine(freq=l, mul=.3).mix(2).out()</span>
+<span class="sd">    &gt;&gt;&gt; a = Sine(freq=l, mul=0.3).mix(2).out()</span>
 <span class="sd">    &gt;&gt;&gt; # then call:</span>
 <span class="sd">    &gt;&gt;&gt; l.play()</span>
 
@@ -858,7 +858,7 @@
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; l = Expseg([(0,500),(.03,1000),(.1,700),(1,500),(2,500)], loop=True)</span>
-<span class="sd">    &gt;&gt;&gt; a = Sine(freq=l, mul=.3).mix(2).out()</span>
+<span class="sd">    &gt;&gt;&gt; a = Sine(freq=l, mul=0.3).mix(2).out()</span>
 <span class="sd">    &gt;&gt;&gt; # then call:</span>
 <span class="sd">    &gt;&gt;&gt; l.play()</span>
 
@@ -1135,8 +1135,8 @@
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; fr = SigTo(value=200, time=0.5, init=200)</span>
-<span class="sd">    &gt;&gt;&gt; a = SineLoop(freq=fr, feedback=0.08, mul=.3).out()</span>
-<span class="sd">    &gt;&gt;&gt; b = SineLoop(freq=fr*1.005, feedback=0.08, mul=.3).out(1)</span>
+<span class="sd">    &gt;&gt;&gt; a = SineLoop(freq=fr, feedback=0.08, mul=0.3).out()</span>
+<span class="sd">    &gt;&gt;&gt; b = SineLoop(freq=fr*1.005, feedback=0.08, mul=0.3).out(1)</span>
 <span class="sd">    &gt;&gt;&gt; def pick_new_freq():</span>
 <span class="sd">    ...     fr.value = random.randrange(200,501,50)</span>
 <span class="sd">    &gt;&gt;&gt; pat = Pattern(function=pick_new_freq, time=1).play()</span>

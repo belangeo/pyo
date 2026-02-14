@@ -1873,7 +1873,7 @@
 
 2013-01-11 belangeo <belangeo@gmail.com>
 
-    * Added new object: RCOsc. Waveform aproximation of a RC circuit.
+    * Added new object: RCOsc. Waveform approximation of a RC circuit.
     - rev 1063
 
 2013-01-07 belangeo <belangeo@gmail.com>
@@ -2138,7 +2138,7 @@
 
 2011-12-07 belangeo <belangeo@gmail.com>
 
-    * Added new object: Biquada. Biquadratric filter controlled with filter's coefficients.
+    * Added new object: Biquada. Biquadratic filter controlled with filter's coefficients.
     - rev 793
 
 2011-12-05 belangeo <belangeo@gmail.com>
@@ -2544,7 +2544,7 @@
 
 2010-09-23 belangeo <belangeo@gmail.com>
 
-    * Added new objet : Percent
+    * Added new object : Percent
     - rev 434
 
 2010-09-21 belangeo <belangeo@gmail.com>

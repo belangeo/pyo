@@ -4,16 +4,17 @@
 from pyo.lib._core import *
 from pyo.lib._maps import *
 
+
 # Objects generating vectors of samples must inherit from PyoObject.
 # Always provide a __doc__ string with the syntax below.
 class Gain(PyoObject):
     """
     Adjusts the gain of an input signal according to a value in decibels.
- 
+
     Parentclass: PyoObject
-   
+
     Parameters:
-    
+
     input : PyoObject
         Input signal to process.
     db : float or PyoObject, optional
@@ -29,9 +30,9 @@ class Gain(PyoObject):
 
     input : PyoObject. Input signal to process.
     db : float or PyoObject. Gain in decibels.
-    
+
     Examples:
-    
+
     >>> s = Server().boot()
     >>> s.start()
     >>> a = SineLoop([249,250], feedback=0.07)
@@ -51,13 +52,16 @@ class Gain(PyoObject):
         # Converts every arguments to lists (for multi-channel expansion).
         in_fader, db, mul, add, lmax = convertArgsToLists(self._in_fader, db, mul, add)
         # self._base_objs contains the list of XXX_base objects. Use "wrap" function to prevent "out of range" errors.
-        self._base_objs = [Gain_base(wrap(in_fader, i), wrap(db, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
+        self._base_objs = [
+            Gain_base(wrap(in_fader, i), wrap(db, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
+        ]
 
     # # setInput uses the "setInput" method of InputFader to set the crossfade time.
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
-        
+
         Parameters:
 
         x : PyoObject
@@ -74,7 +78,7 @@ class Gain(PyoObject):
     def setDB(self, x):
         """
         Replace the `db` attribute.
-        
+
         Parameters:
 
         x : float or PyoObject

@@ -3,10 +3,11 @@
 
 This program does not generate any sound. All it does is to produce
 audio streams that are then send on an open port as OSC messages in
-order to control a granulation process created in the example 
+order to control a granulation process created in the example
 *02-receive-streams.py*.
 
 """
+
 from pyo import *
 
 s = Server().boot()

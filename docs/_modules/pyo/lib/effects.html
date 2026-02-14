@@ -136,8 +136,8 @@
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; a = SfPlayer(SNDS_PATH + &quot;/transparent.aif&quot;, loop=True)</span>
-<span class="sd">    &gt;&gt;&gt; lfo = Sine(freq=[.2,.25], mul=.5, add=.5)</span>
-<span class="sd">    &gt;&gt;&gt; d = Disto(a, drive=lfo, slope=.8, mul=.15).out()</span>
+<span class="sd">    &gt;&gt;&gt; lfo = Sine(freq=[.2,.25], mul=0.5, add=0.5)</span>
+<span class="sd">    &gt;&gt;&gt; d = Disto(a, drive=lfo, slope=0.8, mul=0.15).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -284,8 +284,8 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; a = SfPlayer(SNDS_PATH + &quot;/transparent.aif&quot;, loop=True, mul=.3).mix(2).out()</span>
-<span class="sd">    &gt;&gt;&gt; d = Delay(a, delay=[.15,.2], feedback=.5, mul=.4).out()</span>
+<span class="sd">    &gt;&gt;&gt; a = SfPlayer(SNDS_PATH + &quot;/transparent.aif&quot;, loop=True, mul=0.3).mix(2).out()</span>
+<span class="sd">    &gt;&gt;&gt; d = Delay(a, delay=[.15,.2], feedback=0.5, mul=0.4).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -440,7 +440,7 @@
 <span class="sd">    &gt;&gt;&gt; srPeriod = 1. / s.getSamplingRate()</span>
 <span class="sd">    &gt;&gt;&gt; dlys = [srPeriod * i * 5 for i in range(1, 7)]</span>
 <span class="sd">    &gt;&gt;&gt; a = SfPlayer(SNDS_PATH + &quot;/transparent.aif&quot;, loop=True)</span>
-<span class="sd">    &gt;&gt;&gt; d = SDelay(a, delay=dlys, mul=.1).out(1)</span>
+<span class="sd">    &gt;&gt;&gt; d = SDelay(a, delay=dlys, mul=0.1).out(1)</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -564,8 +564,8 @@
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; sf = SfPlayer(SNDS_PATH + &#39;/transparent.aif&#39;, speed=[.98,1.02], loop=True)</span>
-<span class="sd">    &gt;&gt;&gt; gt = Gate(sf, thresh=-24, risetime=0.005, falltime=0.01, lookahead=5, mul=.2)</span>
-<span class="sd">    &gt;&gt;&gt; w = Waveguide(gt, freq=[60,120.17,180.31,240.53], dur=20, minfreq=20, mul=.4).out()</span>
+<span class="sd">    &gt;&gt;&gt; gt = Gate(sf, thresh=-24, risetime=0.005, falltime=0.01, lookahead=5, mul=0.2)</span>
+<span class="sd">    &gt;&gt;&gt; w = Waveguide(gt, freq=[60,120.17,180.31,240.53], dur=20, minfreq=20, mul=0.4).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -719,10 +719,10 @@
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; sf = SfPlayer(SNDS_PATH + &#39;/transparent.aif&#39;, speed=[.98,1.02], loop=True)</span>
-<span class="sd">    &gt;&gt;&gt; gt = Gate(sf, thresh=-24, risetime=0.005, falltime=0.01, lookahead=5, mul=.2)</span>
-<span class="sd">    &gt;&gt;&gt; rnd = Randi(min=.5, max=1.0, freq=[.13,.22,.155,.171])</span>
-<span class="sd">    &gt;&gt;&gt; rnd2 = Randi(min=.95, max=1.05, freq=[.145,.2002,.1055,.071])</span>
-<span class="sd">    &gt;&gt;&gt; fx = AllpassWG(gt, freq=rnd2*[74.87,75,75.07,75.21], feed=1, detune=rnd, mul=.15).out()</span>
+<span class="sd">    &gt;&gt;&gt; gt = Gate(sf, thresh=-24, risetime=0.005, falltime=0.01, lookahead=5, mul=0.2)</span>
+<span class="sd">    &gt;&gt;&gt; rnd = Randi(min=0.5, max=1.0, freq=[.13,.22,.155,.171])</span>
+<span class="sd">    &gt;&gt;&gt; rnd2 = Randi(min=0.95, max=1.05, freq=[.145,.2002,.1055,.071])</span>
+<span class="sd">    &gt;&gt;&gt; fx = AllpassWG(gt, freq=rnd2*[74.87,75,75.07,75.21], feed=1, detune=rnd, mul=0.15).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -918,8 +918,8 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; a = SfPlayer(SNDS_PATH + &quot;/transparent.aif&quot;, loop=True, mul=.4)</span>
-<span class="sd">    &gt;&gt;&gt; b = Freeverb(a, size=[.79,.8], damp=.9, bal=.3).out()</span>
+<span class="sd">    &gt;&gt;&gt; a = SfPlayer(SNDS_PATH + &quot;/transparent.aif&quot;, loop=True, mul=0.4)</span>
+<span class="sd">    &gt;&gt;&gt; b = Freeverb(a, size=[.79,.8], damp=0.9, bal=0.3).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -1112,8 +1112,8 @@
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; snd = SNDS_PATH + &#39;/transparent.aif&#39;</span>
-<span class="sd">    &gt;&gt;&gt; sf = SfPlayer(snd, speed=[.999,1], loop=True, mul=.25).out()</span>
-<span class="sd">    &gt;&gt;&gt; a = Convolve(sf, SndTable(SNDS_PATH+&#39;/accord.aif&#39;), size=512, mul=.2).out()</span>
+<span class="sd">    &gt;&gt;&gt; sf = SfPlayer(snd, speed=[.999,1], loop=True, mul=0.25).out()</span>
+<span class="sd">    &gt;&gt;&gt; a = Convolve(sf, SndTable(SNDS_PATH+&#39;/accord.aif&#39;), size=512, mul=0.2).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -1224,7 +1224,7 @@
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; a = SfPlayer(SNDS_PATH + &quot;/transparent.aif&quot;, loop=True)</span>
-<span class="sd">    &gt;&gt;&gt; d = WGVerb(a, feedback=[.74,.75], cutoff=5000, bal=.25, mul=.3).out()</span>
+<span class="sd">    &gt;&gt;&gt; d = WGVerb(a, feedback=[.74,.75], cutoff=5000, bal=0.25, mul=0.3).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -1404,7 +1404,7 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; sf = SfPlayer(SNDS_PATH + &#39;/transparent.aif&#39;, loop=True, mul=.5)</span>
+<span class="sd">    &gt;&gt;&gt; sf = SfPlayer(SNDS_PATH + &#39;/transparent.aif&#39;, loop=True, mul=0.5)</span>
 <span class="sd">    &gt;&gt;&gt; chor = Chorus(sf, depth=[1.5,1.6], feedback=0.5, bal=0.5).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1582,7 +1582,7 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; sf = SfPlayer(SNDS_PATH + &#39;/transparent.aif&#39;, loop=True, mul=.3).out()</span>
+<span class="sd">    &gt;&gt;&gt; sf = SfPlayer(SNDS_PATH + &#39;/transparent.aif&#39;, loop=True, mul=0.3).out()</span>
 <span class="sd">    &gt;&gt;&gt; harm = Harmonizer(sf, transpo=-5, winsize=0.05).out(1)</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -2329,11 +2329,11 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; a = SineLoop(freq=300, feedback=.1, mul=.3)</span>
-<span class="sd">    &gt;&gt;&gt; lf1 = Sine(freq=.04, mul=10)</span>
-<span class="sd">    &gt;&gt;&gt; lf2 = Sine(freq=.05, mul=10)</span>
-<span class="sd">    &gt;&gt;&gt; b = FreqShift(a, shift=lf1, mul=.5).out()</span>
-<span class="sd">    &gt;&gt;&gt; c = FreqShift(a, shift=lf2, mul=.5).out(1)</span>
+<span class="sd">    &gt;&gt;&gt; a = SineLoop(freq=300, feedback=0.1, mul=0.3)</span>
+<span class="sd">    &gt;&gt;&gt; lf1 = Sine(freq=0.04, mul=10)</span>
+<span class="sd">    &gt;&gt;&gt; lf2 = Sine(freq=0.05, mul=10)</span>
+<span class="sd">    &gt;&gt;&gt; b = FreqShift(a, shift=lf1, mul=0.5).out()</span>
+<span class="sd">    &gt;&gt;&gt; c = FreqShift(a, shift=lf2, mul=0.5).out(1)</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 

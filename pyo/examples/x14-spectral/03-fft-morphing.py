@@ -14,6 +14,7 @@ For a simpler and more efficient process, see the Phase Vocoder
 implementation of the spectral morphing: `PVMorph`.
 
 """
+
 from pyo import *
 
 s = Server(duplex=0).boot()
@@ -46,10 +47,12 @@ car = PolToCar(mag, pha)
 # Converts the new real and imag parts into a time domain signal.
 fout = IFFT(car["real"], car["imag"], size=size, overlaps=olaps).mix(2).out()
 
+
 # Change of FFT size must be done on all FFT and IFFT objects at the same time!
 def setSize(x):
     fin1.size = size
     fin2.size = size
     fout.size = size
+
 
 s.gui(locals())

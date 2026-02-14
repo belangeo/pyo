@@ -23,6 +23,7 @@ like this:
 >>> compressed = sf * cmp
 
 """
+
 from pyo import *
 
 s = Server().boot()

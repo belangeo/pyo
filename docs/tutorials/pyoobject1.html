@@ -113,8 +113,8 @@ standard python help() function.</p>
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; src = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=.3)</span>
-<span class="sd">    &gt;&gt;&gt; lfo = Sine(.25, phase=[0,.5], mul=.5, add=.5)</span>
+<span class="sd">    &gt;&gt;&gt; src = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=0.3)</span>
+<span class="sd">    &gt;&gt;&gt; lfo = Sine(.25, phase=[0,.5], mul=0.5, add=0.5)</span>
 <span class="sd">    &gt;&gt;&gt; ring = RingMod(src, freq=[800,1000], mul=lfo).out()</span>
 
 <span class="sd">    """</span>
@@ -280,8 +280,8 @@ definition of these methods in the PyoObject man page to understand the meaning 
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; src = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=.3)</span>
-<span class="sd">    &gt;&gt;&gt; lfo = Sine(.25, phase=[0,.5], mul=.5, add=.5)</span>
+<span class="sd">    &gt;&gt;&gt; src = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=0.3)</span>
+<span class="sd">    &gt;&gt;&gt; lfo = Sine(.25, phase=[0,.5], mul=0.5, add=0.5)</span>
 <span class="sd">    &gt;&gt;&gt; ring = RingMod(src, freq=[800,1000], mul=lfo).out()</span>
 
 <span class="sd">    """</span>

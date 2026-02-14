@@ -14,6 +14,7 @@ For a simpler and more efficient process, see the Phase Vocoder
 implementations of the spectral cross synthesis: `PVCross` and `PVMult`.
 
 """
+
 from pyo import *
 
 s = Server(duplex=0).boot()
@@ -41,10 +42,12 @@ imag = fin2["imag"] * mag
 # Converts the new real and imag parts into a time domain signal.
 fout = IFFT(real, imag, size=size, overlaps=olaps).mix(2).out()
 
+
 # Change of FFT size must be done on all FFT and IFFT objects at the same time!
 def setSize(x):
     fin1.size = x
     fin2.size = x
     fout.size = x
+
 
 s.gui(locals())

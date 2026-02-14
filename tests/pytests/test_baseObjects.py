@@ -9,7 +9,6 @@ from pyo import *
 
 
 class TestPyoBaseObject_ServerNotCreated:
-
     def test_PyoObjectBase_server_not_created_exception(self):
         with pytest.raises(PyoServerStateException):
             a = Sine()
@@ -17,7 +16,6 @@ class TestPyoBaseObject_ServerNotCreated:
 
 @pytest.mark.usefixtures("audio_server")
 class TestPyoBaseObject:
-
     def test_PyoObjectBase_server_not_booted_exception(self, audio_server):
         audio_server.shutdown()
         with pytest.raises(PyoServerStateException):
@@ -39,7 +37,7 @@ class TestPyoBaseObject:
         for i, obj in enumerate(a):
             assert obj == a.getBaseObjects()[i]
         # dir() returns the list of attributes
-        assert sorted(dir(a)) == sorted(['freq', 'phase', 'mul', 'add'])
+        assert sorted(dir(a)) == sorted(["freq", "phase", "mul", "add"])
         # dump() returns info about the object's state
         assert "Number of audio streams: 4" in a.dump()
         assert "freq: [100, 110, 120, 130]" in a.dump()
@@ -57,9 +55,9 @@ class TestPyoBaseObject:
         assert a._use_wait_time_on_stop
 
         tab = NewTable(length=2, chnls=1)
-        rec = TableRec(Sine(500), tab, .01)
+        rec = TableRec(Sine(500), tab, 0.01)
         amp = TrigVal(rec["trig"], 0.5)
-        osc = Osc(tab, tab.getRate(), mul=Fader(1, 1, mul=.2))
+        osc = Osc(tab, tab.getRate(), mul=Fader(1, 1, mul=0.2))
         # "osc" can't know for sure that "rec" should be linked
         # to this dsp chain, so we add it manually.
         assert osc._linked_objects == []
@@ -89,9 +87,9 @@ class TestPyoBaseObject:
         a = Sine()
         assert str(a) == "< Instance of Sine class >"
 
+
 @pytest.mark.usefixtures("audio_server")
 class TestPyoObject:
-
     def test_isAudioObject(self):
         a = Sine()
         assert isAudioObject(a)
@@ -212,7 +210,7 @@ class TestPyoObject:
             assert i_sub.get() == 0
             assert i_mul.get() == 2
             assert i_div.get() == 0.5
-    
+
     def test_aritmetic_with_audio_object_list(self, audio_server):
         a = Sig(1)
         b = Sig([0.5, 2])
@@ -246,8 +244,8 @@ class TestPyoObject:
     def test_other_aritmetic_with_number(self, audio_server):
         a = Sig(2)
 
-        m_exp = a ** 2
-        m_rexp = 2 ** a
+        m_exp = a**2
+        m_rexp = 2**a
         m_mod = a % 2
         m_neg = -a
 
@@ -261,7 +259,7 @@ class TestPyoObject:
         a = Sig(2)
         b = Sig(2)
 
-        m_exp = a ** b
+        m_exp = a**b
         m_mod = a % b
 
         with StartAndAdvanceOneBuf(audio_server):
@@ -434,7 +432,7 @@ class TestPyoObject:
             assert a.isPlaying() == False
 
     def test_mix(self):
-        a = Sine([1,2,3,4,5,6,7,8])
+        a = Sine([1, 2, 3, 4, 5, 6, 7, 8])
         assert len(a) == 8
         b = a.mix(2)
         assert len(b) == 2
@@ -444,7 +442,7 @@ class TestPyoObject:
         b = a.mix(8)
         assert len(b) == 8
 
-        a = Sine([1,2])
+        a = Sine([1, 2])
         assert len(a) == 2
         b = a.mix(5)
         assert len(b) == 5
@@ -452,7 +450,7 @@ class TestPyoObject:
         assert len(c) == 3
 
     def test_mix_2(self, audio_server):
-        a = Sig([1,1])
+        a = Sig([1, 1])
         b = a.mix()
         assert len(b) == 1
 
@@ -480,7 +478,7 @@ class TestPyoObject:
         func = mock.Mock()
 
         a = Sine()
-        self.set_b = Sine(mul=[1,1,1,1])
+        self.set_b = Sine(mul=[1, 1, 1, 1])
         a.set(attr="freq", value=500, port=0.3, callback=None)
         self.set_b.set(attr="mul", value=[0, 0.25, 0.5, 0.75], port=0.3, callback=func)
 
@@ -492,7 +490,7 @@ class TestPyoObject:
     def test_set_interupt(self, audio_server):
         func = mock.Mock()
 
-        self.set_b = Sine(mul=[1,1,1,1])
+        self.set_b = Sine(mul=[1, 1, 1, 1])
         self.set_b.set(attr="mul", value=[0, 0.25, 0.5, 0.75], port=0.5, callback=func)
 
         with StartAndAdvance(audio_server, adv_time=0.25) as cxt:
@@ -537,7 +535,7 @@ class TestPyoObject:
         a = Sig(0)
         b = Sig(0)
         c = Sig(0)
-        c.setMul(a*b)
+        c.setMul(a * b)
         del a, b, c
         assert audio_server.getNumberOfStreams() == 0
 
@@ -546,18 +544,18 @@ class TestPyoObject:
         b = Sig(0)
         c = Sig(0)
         d = Sig(0)
-        d.setMul(a+b+c)
+        d.setMul(a + b + c)
         del a, b, c, d
         assert audio_server.getNumberOfStreams() == 0
 
     def test_number_of_streams_sub_streams(self, audio_server):
-        t = CosTable([(0,0), (100,1), (500,.3), (8191,0)])
-        beat = Beat(time=.125, taps=16, w1=[90,80], w2=50, w3=35, poly=1).play()
+        t = CosTable([(0, 0), (100, 1), (500, 0.3), (8191, 0)])
+        beat = Beat(time=0.125, taps=16, w1=[90, 80], w2=50, w3=35, poly=1).play()
         trmid = TrigXnoiseMidi(beat, dist=12, mrange=(60, 96))
-        trhz = Snap(trmid, choice=[0,2,3,5,7,8,10], scale=1)
-        tr2 = TrigEnv(beat, table=t, dur=beat['dur'], mul=beat['amp'])
-        tf = TrigFunc(beat["end"], lambda : True)
-        a = Sine(freq=trhz, mul=tr2*0.3)
+        trhz = Snap(trmid, choice=[0, 2, 3, 5, 7, 8, 10], scale=1)
+        tr2 = TrigEnv(beat, table=t, dur=beat["dur"], mul=beat["amp"])
+        tf = TrigFunc(beat["end"], lambda: True)
+        a = Sine(freq=trhz, mul=tr2 * 0.3)
         del a, tf, tr2, trhz, trmid, beat, t
         assert audio_server.getNumberOfStreams() == 0
 
@@ -566,7 +564,7 @@ class TestPyoObject:
         olaps = 4
         num = olaps * 2  # number of streams for ffts
 
-        src = Sine(freq=[100,110], mul=0.15)
+        src = Sine(freq=[100, 110], mul=0.15)
         delsrc = Delay(src, delay=size / audio_server.getSamplingRate() * 2).out()
 
         # duplicates bin regions and delays to match the number of channels * overlaps
@@ -598,9 +596,9 @@ class TestPyoObject:
 
         assert audio_server.getNumberOfStreams() == 0
 
+
 @pytest.mark.usefixtures("audio_server")
 class TestPyoTableObject:
-
     def test_isTableObject(self):
         a = Sine()
         assert not isTableObject(a)
@@ -688,7 +686,7 @@ class TestPyoTableObject:
         t = DataTable(size=10, chnls=1, init=list(range(10)))
 
         arr = numpy.asarray(t.getBuffer())
-        arr[:] = arr[::-1] # reverse the array in-place
+        arr[:] = arr[::-1]  # reverse the array in-place
 
         # compare the table content with a reversed list
         for i, v in enumerate(range(9, -1, -1)):
@@ -709,16 +707,16 @@ class TestPyoTableObject:
     def test_setSize2(self):
         dummy = Sig(0)
         samplerate = dummy.getServer().getSamplingRate()
-        t = NewTable(10 / samplerate, init=[1]*10)
+        t = NewTable(10 / samplerate, init=[1] * 10)
         t.setSize(16)
-        assert t.getTable() == [1]*10 + [0]*6
+        assert t.getTable() == [1] * 10 + [0] * 6
 
     def test_setLength(self):
         dummy = Sig(0)
         samplerate = dummy.getServer().getSamplingRate()
-        t = NewTable(8 / samplerate, init=[1]*8)
+        t = NewTable(8 / samplerate, init=[1] * 8)
         t.setLength(2048 / samplerate)
-        assert t.getTable() == [1]*8 + [0]*2040
+        assert t.getTable() == [1] * 8 + [0] * 2040
 
     def test_getSize(self):
         t = SndTable(SNDS_PATH + "/IRMediumHallStereo.wav")
@@ -791,7 +789,7 @@ class TestPyoTableObject:
             assert t.get(i) == 0
 
     # TO BE IMPLEMENTED
-    #def test_removeDC(self):
+    # def test_removeDC(self):
 
     def test_reverse(self):
         t = DataTable(size=10, chnls=1, init=list(range(10)))
@@ -831,7 +829,7 @@ class TestPyoTableObject:
         assert t.getTable() == [-0.5, -0.25, 0.25, 0.5]
 
     # TO BE IMPLEMENTED
-    #def test_lowpass(self):
+    # def test_lowpass(self):
 
     def test_fadein(self, audio_server):
         dur = 4 / audio_server.getSamplingRate()
@@ -1016,13 +1014,13 @@ class TestPyoTableObject:
         assert t1.getTable() == t2.getTable()
 
     def test_copy_sndtable_mono(self):
-        t1 = SndTable(SNDS_PATH+"/transparent.aif")
+        t1 = SndTable(SNDS_PATH + "/transparent.aif")
         t2 = t1.copy()
         assert t1 != t2
         assert t1.getTable(all=True) == t2.getTable(all=True)
 
     def test_copy_sndtable_stereo(self):
-        t1 = SndTable([SNDS_PATH+"/transparent.aif", SNDS_PATH+"/transparent.aif"])
+        t1 = SndTable([SNDS_PATH + "/transparent.aif", SNDS_PATH + "/transparent.aif"])
         t2 = t1.copy()
         assert t1 != t2
         assert t1.getTable(all=True) == t2.getTable(all=True)
@@ -1033,9 +1031,9 @@ class TestPyoTableObject:
         t.size = 512
         assert t.size == 512
 
+
 @pytest.mark.usefixtures("audio_server")
 class TestPyoMatrixObject:
-
     def test_isMatrixObject(self):
         a = Sine()
         assert not isMatrixObject(a)
@@ -1045,7 +1043,7 @@ class TestPyoMatrixObject:
     def test_write(self, audio_server):
         path = os.path.join(os.path.expanduser("~"), "temporary_file.txt")
 
-        m = NewMatrix(width=4, height=2, init=[[1,2,3,4],[5,6,7,8]])
+        m = NewMatrix(width=4, height=2, init=[[1, 2, 3, 4], [5, 6, 7, 8]])
         m.write(path)
 
         with open(path, "r") as f:
@@ -1053,8 +1051,8 @@ class TestPyoMatrixObject:
 
         assert len(values) == 2
         assert len(values[0]) == 4
-        for j, sub in enumerate(values): # rows
-            for i, val in enumerate(sub): # columns
+        for j, sub in enumerate(values):  # rows
+            for i, val in enumerate(sub):  # columns
                 assert math.isclose(float(values[j][i]), m.get(i, j), abs_tol=0.0000001)
 
         os.remove(path)
@@ -1087,13 +1085,13 @@ class TestPyoMatrixObject:
         os.remove(path)
 
     def test_getSize(self):
-        m = NewMatrix(width=4, height=2, init=[[1,2,3,4],[5,6,7,8]])
+        m = NewMatrix(width=4, height=2, init=[[1, 2, 3, 4], [5, 6, 7, 8]])
         assert m.getSize() == (4, 2)
 
     def test_normalize(self):
         width, height = 4, 2
-        source = [[0.25, -0.25, 0.5, 0.25], [0. , 0.125, -0.125, -0.5]]
-        expect = [[0.5, -0.5, 1, 0.5], [0. , 0.25, -0.25, -1]]
+        source = [[0.25, -0.25, 0.5, 0.25], [0.0, 0.125, -0.125, -0.5]]
+        expect = [[0.5, -0.5, 1, 0.5], [0.0, 0.25, -0.25, -1]]
         m = NewMatrix(width=width, height=height, init=source)
         m.normalize(level=1)
 
@@ -1102,28 +1100,27 @@ class TestPyoMatrixObject:
                 assert m.get(i, j) == expect[j][i]
 
     # TO BE IMPLEMENTED
-    #def test_blur(self):
+    # def test_blur(self):
 
     # TO BE IMPLEMENTED
-    #def test_boost(self):
+    # def test_boost(self):
 
     def test_put(self):
-        m = NewMatrix(width=4, height=2, init=[[1,2,3,4],[5,6,7,8]])
+        m = NewMatrix(width=4, height=2, init=[[1, 2, 3, 4], [5, 6, 7, 8]])
         m.put(value=10, x=2, y=1)
         assert m.get(x=2, y=1) == 10
 
     def test_get(self):
-        m = NewMatrix(width=4, height=2, init=[[1,2,3,4],[5,6,7,8]])
+        m = NewMatrix(width=4, height=2, init=[[1, 2, 3, 4], [5, 6, 7, 8]])
         assert m.get(x=2, y=1) == 7
 
     def test_getInterpolated(self):
-        m = NewMatrix(width=4, height=2, init=[[1,2,3,4],[5,6,7,8]])
+        m = NewMatrix(width=4, height=2, init=[[1, 2, 3, 4], [5, 6, 7, 8]])
         assert m.getInterpolated(x=0.625, y=0.25) == 5.5
 
 
 @pytest.mark.usefixtures("audio_server")
 class TestPyoPVObject:
-
     def test_isPVObject(self):
         a = Sine()
         assert not isPVObject(a)
@@ -1195,7 +1192,6 @@ class TestPyoPVObject:
 
 @pytest.mark.usefixtures("audio_server")
 class TestMix:
-
     def test_init_one_to_many(self):
         a = Sine()
         b = Mix(a, voices=2)
@@ -1235,7 +1231,6 @@ class TestMix:
 
 @pytest.mark.usefixtures("audio_server")
 class TestDummy:
-
     def test_dummy(self, audio_server):
         a = Sig(1)
         b = Sig(2)
@@ -1249,7 +1244,6 @@ class TestDummy:
 
 @pytest.mark.usefixtures("audio_server")
 class TestInputFader:
-
     def test_setInput(self, audio_server):
         a = InputFader(Sig(1))
 
@@ -1272,7 +1266,6 @@ class TestInputFader:
 
 @pytest.mark.usefixtures("audio_server")
 class TestSig:
-
     def test_setValue(self, audio_server):
         a = Sig(0)
         a.setValue(1)
@@ -1287,7 +1280,6 @@ class TestSig:
 
 @pytest.mark.usefixtures("audio_server")
 class TestVarPort:
-
     def test_setValue(self, audio_server):
         a = VarPort(value=1, time=0.5, init=0)
 
@@ -1330,7 +1322,6 @@ class TestVarPort:
 
 @pytest.mark.usefixtures("audio_server")
 class TestPow:
-
     def test_setBase(self, audio_server):
         a1 = 2
         a2 = Sig(2)
@@ -1360,5 +1351,6 @@ class TestPow:
             cxt.advanceOneBuf()
             assert p.exponent.value == 16
             assert p.get() == 65536
+
 
 # Can I define proto to automatically test attribute setter and getter and combination of `a` and `i` attributes ?

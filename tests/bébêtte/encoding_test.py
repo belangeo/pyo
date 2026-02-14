@@ -40,7 +40,8 @@ path2 = os.path.join("bébêtte", "savefileFromTable.aif")
 t = SndTable(path1)
 savefileFromTable(table=t, path=path2, fileformat=1, sampletype=1)
 print(
-    "SavefileFromTable record:", os.path.isfile(os.path.join("bébêtte", "savefileFromTable.aif")),
+    "SavefileFromTable record:",
+    os.path.isfile(os.path.join("bébêtte", "savefileFromTable.aif")),
 )
 
 ##### UPSAMP/DOWNSAMP ######

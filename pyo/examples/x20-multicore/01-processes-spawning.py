@@ -1,5 +1,5 @@
 """
-01-processes-spawning.py - Simple processes spawning, no synchronization. 
+01-processes-spawning.py - Simple processes spawning, no synchronization.
 
 Need at least 4 cores to be really effective.
 
@@ -7,6 +7,7 @@ Usage:
     python3 -i 01-processes-spawning.py
 
 """
+
 import sys, time, random, multiprocessing
 from pyo import *
 

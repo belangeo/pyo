@@ -17,8 +17,10 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
+
 from ._core import *
 from ._maps import *
+
 
 ######################################################################
 ### Matrix
@@ -56,7 +58,7 @@ class NewMatrix(PyoMatrixObject):
     >>> lfh = Sine([.15,.16], 0, .124, .25)
     >>> w = Sine(100, 0, lfw, .5)
     >>> h = Sine(10.5, 0, lfh, .5)
-    >>> c = MatrixPointer(mm, w, h, mul=.2).out()
+    >>> c = MatrixPointer(mm, w, h, mul=0.2).out()
 
     """
 

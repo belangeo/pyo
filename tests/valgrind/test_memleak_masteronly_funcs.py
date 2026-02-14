@@ -1,8 +1,9 @@
 # Run this file in valgrind with:
-#   PYTHONMALLOC=malloc valgrind --tool=memcheck --leak-check=yes --show-leak-kinds=definite --track-origins=yes --num-callers=12 --suppressions=valgrind-python.supp python3 test_memleak_masteronly_funcs.py 
+#   PYTHONMALLOC=malloc valgrind --tool=memcheck --leak-check=yes --show-leak-kinds=definite --track-origins=yes --num-callers=12 --suppressions=valgrind-python.supp python3 test_memleak_masteronly_funcs.py
 # There should not be any definitely lost bytes.
 
 import os
+
 os.environ["PYO_GUI_WX"] = "0"
 
 from pyo import *
@@ -10,7 +11,14 @@ from pyo import *
 infos = sndinfo("../../pyo/lib/snds/transparent.aif")
 print(infos)
 
-savefile(samples=[0.0]*44100, path="savefile_test.wav", sr=44100, channels=1, fileformat=0, sampletype=0)
+savefile(
+    samples=[0.0] * 44100,
+    path="savefile_test.wav",
+    sr=44100,
+    channels=1,
+    fileformat=0,
+    sampletype=0,
+)
 print(sndinfo("savefile_test.wav"))
 
 upsamp("savefile_test.wav", "savefile_test_up.wav")

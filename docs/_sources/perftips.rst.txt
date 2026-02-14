@@ -65,7 +65,7 @@ sine wave computations to multiple processors.
             self.server.boot().start()
 
             freqs = [uniform(400,800) for i in range(self.num_of_sines)]
-            self.oscs = SineLoop(freq=freqs, feedback=0.1, mul=.005).out()
+            self.oscs = SineLoop(freq=freqs, feedback=0.1, mul=0.005).out()
 
             # Keeps the process alive...
             while not self._terminated:
@@ -281,7 +281,7 @@ the same noise for multiple denormalizations:
     n = Noise(1e-24) # low-level noise for denormals
 
     src = SfPlayer(SNDS_PATH+"/transparent.aif")
-    dly = Delay(src+n, delay=.1, feedback=0.8, mul=0.2).out()
+    dly = Delay(src+n, delay=0.1, feedback=0.8, mul=0.2).out()
     rev = WGVerb(src+n).out()
 
 Use a PyoObject when available
@@ -444,7 +444,7 @@ Here is a non-exhaustive list of the most CPU intensive objects of the library.
 - Table Processing
     - Granulator
     - Granule
-    - Particule
+    - Particle
     - OscBank
 - Utilities
     - Resample

@@ -1,5 +1,5 @@
 # Run this file in valgrind with:
-#   PYTHONMALLOC=malloc valgrind --tool=memcheck --leak-check=yes --show-leak-kinds=definite --track-origins=yes --num-callers=12 --suppressions=valgrind-python.supp python3 test_memleak_effects.py 
+#   PYTHONMALLOC=malloc valgrind --tool=memcheck --leak-check=yes --show-leak-kinds=definite --track-origins=yes --num-callers=12 --suppressions=valgrind-python.supp python3 test_memleak_effects.py
 # There should not be any definitely lost bytes.
 
 from pyo import *
@@ -41,8 +41,8 @@ e.ratio = Sig(3.5)
 e.risetime = Sig(0.01)
 e.falltime = Sig(0.15)
 
-t1 = DataTable(10, init=[-1,1,-1,1,-1,1,-1,1,-1,1])
-t2 = DataTable(10, init=[1,-1,1,-1,1,-1,1,-1,1,-1])
+t1 = DataTable(10, init=[-1, 1, -1, 1, -1, 1, -1, 1, -1, 1])
+t2 = DataTable(10, init=[1, -1, 1, -1, 1, -1, 1, -1, 1, -1])
 
 f = Convolve(i1, t1, 10)
 f.setInput(i2)

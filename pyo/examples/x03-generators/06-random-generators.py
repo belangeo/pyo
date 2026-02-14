@@ -11,6 +11,7 @@ We will come back to random generators when we will talk about musical
 algorithms.
 
 """
+
 from pyo import *
 
 s = Server().boot()

@@ -11,7 +11,7 @@ with the current value of all streams managed by the object. If False (the
 default), te value of the first audio stream will be returned as a float::
 
     lfos = Sine(freq=[.1,.2,.4,.3], mul=100, add=500)
-    synth = SineLoop(freq=lfos, feedback=.07, mul=.05).out()
+    synth = SineLoop(freq=lfos, feedback=0.07, mul=0.05).out()
 
     def print_val():
         # Print all four frequencies assigned to SineLoop's freq argument

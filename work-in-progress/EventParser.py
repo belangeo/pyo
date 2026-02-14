@@ -6,11 +6,11 @@ Score format:
 Class_name => starttime duration *args **kwargs
 
 Class_name {class reference}: The name of the class which should play the event,
-starttime {float}: Start time of the event, in seconds. 
+starttime {float}: Start time of the event, in seconds.
 duration {float}: Start time of the event, in seconds.
 *args {list of floats}: user-defined arguments (optional).
 **kwargs {dictionary}: user-defined keyword arguments (optional).
- 
+
 """
 # Notes:
 # We should be able to define an event using multiple lines.

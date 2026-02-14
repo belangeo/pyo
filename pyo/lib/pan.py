@@ -60,8 +60,8 @@ class Pan(PyoObject):
 
     >>> s = Server(nchnls=2).boot()
     >>> s.start()
-    >>> a = Noise(mul=.2)
-    >>> lfo = Sine(freq=1, mul=.5, add=.5)
+    >>> a = Noise(mul=0.2)
+    >>> lfo = Sine(freq=1, mul=0.5, add=0.5)
     >>> p = Pan(a, outs=2, pan=lfo).out()
 
     """
@@ -74,12 +74,18 @@ class Pan(PyoObject):
         self._outs = outs
         self._spread = spread
         self._in_fader = InputFader(input)
-        in_fader, pan, spread, mul, add, lmax = convertArgsToLists(self._in_fader, pan, spread, mul, add)
-        self._base_players = [Panner_base(wrap(in_fader, i), outs, wrap(pan, i), wrap(spread, i)) for i in range(lmax)]
+        in_fader, pan, spread, mul, add, lmax = convertArgsToLists(
+            self._in_fader, pan, spread, mul, add
+        )
+        self._base_players = [
+            Panner_base(wrap(in_fader, i), outs, wrap(pan, i), wrap(spread, i)) for i in range(lmax)
+        ]
         self._base_objs = []
         for i in range(lmax):
             for j in range(outs):
-                self._base_objs.append(Pan_base(wrap(self._base_players, i), j, wrap(mul, i), wrap(add, i)))
+                self._base_objs.append(
+                    Pan_base(wrap(self._base_players, i), j, wrap(mul, i), wrap(add, i))
+                )
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -129,7 +135,11 @@ class Pan(PyoObject):
         [obj.setSpread(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapPan(self._pan), SLMap(0.0, 1.0, "lin", "spread", self._spread), SLMapMul(self._mul)]
+        self._map_list = [
+            SLMapPan(self._pan),
+            SLMap(0.0, 1.0, "lin", "spread", self._spread),
+            SLMapMul(self._mul),
+        ]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
@@ -189,8 +199,8 @@ class SPan(PyoObject):
 
     >>> s = Server(nchnls=2).boot()
     >>> s.start()
-    >>> a = Noise(mul=.2)
-    >>> lfo = Sine(freq=1, mul=.5, add=.5)
+    >>> a = Noise(mul=0.2)
+    >>> lfo = Sine(freq=1, mul=0.5, add=0.5)
     >>> p = SPan(a, outs=2, pan=lfo).out()
 
     """
@@ -203,11 +213,15 @@ class SPan(PyoObject):
         self._pan = pan
         self._in_fader = InputFader(input)
         in_fader, pan, mul, add, lmax = convertArgsToLists(self._in_fader, pan, mul, add)
-        self._base_players = [SPanner_base(wrap(in_fader, i), outs, wrap(pan, i)) for i in range(lmax)]
+        self._base_players = [
+            SPanner_base(wrap(in_fader, i), outs, wrap(pan, i)) for i in range(lmax)
+        ]
         self._base_objs = []
         for i in range(lmax):
             for j in range(outs):
-                self._base_objs.append(SPan_base(wrap(self._base_players, i), j, wrap(mul, i), wrap(add, i)))
+                self._base_objs.append(
+                    SPan_base(wrap(self._base_players, i), j, wrap(mul, i), wrap(add, i))
+                )
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -289,12 +303,12 @@ class Switch(PyoObject):
 
     >>> s = Server(nchnls=2).boot()
     >>> s.start()
-    >>> a = SfPlayer(SNDS_PATH + "/transparent.aif", speed=[.999,1], loop=True, mul=.3)
-    >>> lf = Sine(freq=.25, mul=1, add=1)
+    >>> a = SfPlayer(SNDS_PATH + "/transparent.aif", speed=[.999,1], loop=True, mul=0.3)
+    >>> lf = Sine(freq=0.25, mul=1, add=1)
     >>> b = Switch(a, outs=6, voice=lf)
-    >>> c = WGVerb(b[0:2], feedback=.8).out()
-    >>> d = Disto(b[2:4], drive=.9, mul=.1).out()
-    >>> e = Delay(b[4:6], delay=.2, feedback=.6).out()
+    >>> c = WGVerb(b[0:2], feedback=0.8).out()
+    >>> d = Disto(b[2:4], drive=0.9, mul=0.1).out()
+    >>> e = Delay(b[4:6], delay=0.2, feedback=0.6).out()
 
     """
 
@@ -306,11 +320,15 @@ class Switch(PyoObject):
         self._voice = voice
         self._in_fader = InputFader(input)
         in_fader, voice, mul, add, lmax = convertArgsToLists(self._in_fader, voice, mul, add)
-        self._base_players = [Switcher_base(wrap(in_fader, i), outs, wrap(voice, i)) for i in range(lmax)]
+        self._base_players = [
+            Switcher_base(wrap(in_fader, i), outs, wrap(voice, i)) for i in range(lmax)
+        ]
         self._base_objs = []
         for j in range(outs):
             for i in range(lmax):
-                self._base_objs.append(Switch_base(wrap(self._base_players, i), j, wrap(mul, i), wrap(add, i)))
+                self._base_objs.append(
+                    Switch_base(wrap(self._base_players, i), j, wrap(mul, i), wrap(add, i))
+                )
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -345,7 +363,10 @@ class Switch(PyoObject):
         [obj.setVoice(wrap(x, i)) for i, obj in enumerate(self._base_players)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0, self._outs - 1, "lin", "voice", self._voice), SLMapMul(self._mul)]
+        self._map_list = [
+            SLMap(0, self._outs - 1, "lin", "voice", self._voice),
+            SLMapMul(self._mul),
+        ]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
@@ -386,10 +407,10 @@ class Selector(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = SfPlayer(SNDS_PATH + "/transparent.aif", speed=[.999,1], loop=True, mul=.3)
-    >>> b = Noise(mul=.1)
-    >>> c = SfPlayer(SNDS_PATH + "/accord.aif", speed=[.999,1], loop=True, mul=.5)
-    >>> lf = Sine(freq=.1, add=1)
+    >>> a = SfPlayer(SNDS_PATH + "/transparent.aif", speed=[.999,1], loop=True, mul=0.3)
+    >>> b = Noise(mul=0.1)
+    >>> c = SfPlayer(SNDS_PATH + "/accord.aif", speed=[.999,1], loop=True, mul=0.5)
+    >>> lf = Sine(freq=0.1, add=1)
     >>> d = Selector(inputs=[a,b,c], voice=lf).out()
 
     """
@@ -417,7 +438,9 @@ class Selector(PyoObject):
                         choice.append(obj[j % len(obj)])
                     except:
                         choice.append(obj)
-                self._base_objs.append(Selector_base(choice, wrap(voice, i), wrap(mul, i), wrap(add, i)))
+                self._base_objs.append(
+                    Selector_base(choice, wrap(voice, i), wrap(mul, i), wrap(add, i))
+                )
         self._init_play()
 
     def setInputs(self, x):
@@ -477,7 +500,10 @@ class Selector(PyoObject):
         [obj.setMode(x) for obj in self._base_objs]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0, len(self._inputs) - 1, "lin", "voice", self._voice), SLMapMul(self._mul)]
+        self._map_list = [
+            SLMap(0, len(self._inputs) - 1, "lin", "voice", self._voice),
+            SLMapMul(self._mul),
+        ]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
@@ -530,12 +556,12 @@ class VoiceManager(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> env = CosTable([(0,0),(100,1),(500,.5),(8192,0)])
-    >>> delta = RandDur(min=.05, max=.1)
+    >>> delta = RandDur(min=0.05, max=0.1)
     >>> vm = VoiceManager(Change(delta))
     >>> sel = Select(vm, value=[0,1,2,3])
     >>> pit = TrigChoice(sel, choice=[midiToHz(x) for x in [60,63,67,70,72]])
-    >>> amp = TrigEnv(sel, table=env, dur=.5, mul=.25)
-    >>> synth1 = SineLoop(pit, feedback=.07, mul=amp).out()
+    >>> amp = TrigEnv(sel, table=env, dur=0.5, mul=0.25)
+    >>> synth1 = SineLoop(pit, feedback=0.07, mul=amp).out()
     >>> vm.setTriggers(amp["trig"])
 
     """
@@ -560,7 +586,8 @@ class VoiceManager(PyoObject):
         else:
             t_streams = None
         self._base_objs = [
-            VoiceManager_base(wrap(in_fader, i), t_streams, wrap(mul, i), wrap(add, i)) for i in range(lmax)
+            VoiceManager_base(wrap(in_fader, i), t_streams, wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
         ]
         self._init_play()
 
@@ -653,12 +680,12 @@ class Mixer(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=.2)
-    >>> b = FM(carrier=200, ratio=[.5013,.4998], index=6, mul=.2)
-    >>> mm = Mixer(outs=3, chnls=2, time=.025)
-    >>> fx1 = Disto(mm[0], drive=.9, slope=.9, mul=.1).out()
-    >>> fx2 = Freeverb(mm[1], size=.8, damp=.8, mul=.5).out()
-    >>> fx3 = Harmonizer(mm[2], transpo=1, feedback=.75, mul=.5).out()
+    >>> a = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=0.2)
+    >>> b = FM(carrier=200, ratio=[.5013,.4998], index=6, mul=0.2)
+    >>> mm = Mixer(outs=3, chnls=2, time=0.025)
+    >>> fx1 = Disto(mm[0], drive=0.9, slope=0.9, mul=0.1).out()
+    >>> fx2 = Freeverb(mm[1], size=0.8, damp=0.8, mul=0.5).out()
+    >>> fx3 = Harmonizer(mm[2], transpo=1, feedback=0.75, mul=0.5).out()
     >>> mm.addInput(0, a)
     >>> mm.addInput(1, b)
     >>> mm.setAmp(0,0,.5)
@@ -794,7 +821,10 @@ class Mixer(PyoObject):
         return list(self._inputs.keys())
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0, 10, "lin", "time", self._time, dataOnly=True), SLMapMul(self._mul)]
+        self._map_list = [
+            SLMap(0, 10, "lin", "time", self._time, dataOnly=True),
+            SLMapMul(self._mul),
+        ]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property

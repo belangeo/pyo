@@ -1121,7 +1121,7 @@
 <span class="sd">        &gt;&gt;&gt; tab = NewTable(length=2, chnls=1)</span>
 <span class="sd">        &gt;&gt;&gt; rec = TableRec(Sine(500), tab, .01)</span>
 <span class="sd">        &gt;&gt;&gt; amp = TrigVal(rec[&quot;trig&quot;], 0.5)</span>
-<span class="sd">        &gt;&gt;&gt; osc = Osc(tab, tab.getRate(), mul=Fader(1, 1, mul=.2))</span>
+<span class="sd">        &gt;&gt;&gt; osc = Osc(tab, tab.getRate(), mul=Fader(1, 1, mul=0.2))</span>
 <span class="sd">        &gt;&gt;&gt; # &quot;osc&quot; can&#39;t know for sure that &quot;rec&quot; should be linked</span>
 <span class="sd">        &gt;&gt;&gt; # to this dsp chain, so we add it manually.</span>
 <span class="sd">        &gt;&gt;&gt; osc.addLinkedObject(rec)</span>
@@ -3304,7 +3304,7 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; a = Sine([random.uniform(400,600) for i in range(50)], mul=.02)</span>
+<span class="sd">    &gt;&gt;&gt; a = Sine([random.uniform(400,600) for i in range(50)], mul=0.02)</span>
 <span class="sd">    &gt;&gt;&gt; b = Mix(a, voices=2).out()</span>
 <span class="sd">    &gt;&gt;&gt; print(len(a))</span>
 <span class="sd">    50</span>
@@ -3383,9 +3383,9 @@
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; m = Metro(time=0.25).play()</span>
 <span class="sd">    &gt;&gt;&gt; p = TrigChoice(m, choice=[midiToHz(n) for n in [60,62,65,67,69]])</span>
-<span class="sd">    &gt;&gt;&gt; a = SineLoop(p, feedback=.05, mul=.1).mix(2).out()</span>
-<span class="sd">    &gt;&gt;&gt; b = SineLoop(p*1.253, feedback=.05, mul=.06).mix(2).out()</span>
-<span class="sd">    &gt;&gt;&gt; c = SineLoop(p*1.497, feedback=.05, mul=.03).mix(2).out()</span>
+<span class="sd">    &gt;&gt;&gt; a = SineLoop(p, feedback=0.05, mul=0.1).mix(2).out()</span>
+<span class="sd">    &gt;&gt;&gt; b = SineLoop(p*1.253, feedback=0.05, mul=0.06).mix(2).out()</span>
+<span class="sd">    &gt;&gt;&gt; c = SineLoop(p*1.497, feedback=0.05, mul=0.03).mix(2).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -3439,8 +3439,8 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; a = SineLoop([449,450], feedback=0.05, mul=.2)</span>
-<span class="sd">    &gt;&gt;&gt; b = SineLoop([650,651], feedback=0.05, mul=.2)</span>
+<span class="sd">    &gt;&gt;&gt; a = SineLoop([449,450], feedback=0.05, mul=0.2)</span>
+<span class="sd">    &gt;&gt;&gt; b = SineLoop([650,651], feedback=0.05, mul=0.2)</span>
 <span class="sd">    &gt;&gt;&gt; c = InputFader(a).out()</span>
 <span class="sd">    &gt;&gt;&gt; # to created a crossfade, assign a new audio input:</span>
 <span class="sd">    &gt;&gt;&gt; c.setInput(b, fadetime=5)</span>
@@ -3504,8 +3504,8 @@
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; fr = Sig(value=400)</span>
 <span class="sd">    &gt;&gt;&gt; p = Port(fr, risetime=0.001, falltime=0.001)</span>
-<span class="sd">    &gt;&gt;&gt; a = SineLoop(freq=p, feedback=0.08, mul=.3).out()</span>
-<span class="sd">    &gt;&gt;&gt; b = SineLoop(freq=p*1.005, feedback=0.08, mul=.3).out(1)</span>
+<span class="sd">    &gt;&gt;&gt; a = SineLoop(freq=p, feedback=0.08, mul=0.3).out()</span>
+<span class="sd">    &gt;&gt;&gt; b = SineLoop(freq=p*1.005, feedback=0.08, mul=0.3).out(1)</span>
 <span class="sd">    &gt;&gt;&gt; def pick_new_freq():</span>
 <span class="sd">    ...     fr.value = random.randrange(300,601,50)</span>
 <span class="sd">    &gt;&gt;&gt; pat = Pattern(function=pick_new_freq, time=0.5).play()</span>
@@ -3595,7 +3595,7 @@
 <span class="sd">    ...     print(arg)</span>
 <span class="sd">    ...</span>
 <span class="sd">    &gt;&gt;&gt; fr = VarPort(value=500, time=2, init=250, function=callback, arg=&quot;YEP!&quot;)</span>
-<span class="sd">    &gt;&gt;&gt; a = SineLoop(freq=[fr,fr*1.01], feedback=0.05, mul=.2).out()</span>
+<span class="sd">    &gt;&gt;&gt; a = SineLoop(freq=[fr,fr*1.01], feedback=0.05, mul=0.2).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -3724,7 +3724,7 @@
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; # Exponential amplitude envelope</span>
 <span class="sd">    &gt;&gt;&gt; a = LFO(freq=1, type=3, mul=0.5, add=0.5)</span>
-<span class="sd">    &gt;&gt;&gt; b = Pow(Clip(a, 0, 1), 4, mul=.3)</span>
+<span class="sd">    &gt;&gt;&gt; b = Pow(Clip(a, 0, 1), 4, mul=0.3)</span>
 <span class="sd">    &gt;&gt;&gt; c = SineLoop(freq=[300,301], feedback=0.05, mul=b).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -3832,10 +3832,10 @@
 <span class="sd">    &gt;&gt;&gt; lff = Sine(.5, mul=3, add=4)</span>
 <span class="sd">    &gt;&gt;&gt; ph1 = Phasor(lff)</span>
 <span class="sd">    &gt;&gt;&gt; ph2 = Wrap(ph1+0.5, min=0, max=1)</span>
-<span class="sd">    &gt;&gt;&gt; amp1 = Pointer(env, ph1, mul=.25)</span>
-<span class="sd">    &gt;&gt;&gt; amp2 = Pointer(env, ph2, mul=.25)</span>
-<span class="sd">    &gt;&gt;&gt; a = SineLoop(250, feedback=.1, mul=amp1).out()</span>
-<span class="sd">    &gt;&gt;&gt; b = SineLoop(300, feedback=.1, mul=amp2).out(1)</span>
+<span class="sd">    &gt;&gt;&gt; amp1 = Pointer(env, ph1, mul=0.25)</span>
+<span class="sd">    &gt;&gt;&gt; amp2 = Pointer(env, ph2, mul=0.25)</span>
+<span class="sd">    &gt;&gt;&gt; a = SineLoop(250, feedback=0.1, mul=amp1).out()</span>
+<span class="sd">    &gt;&gt;&gt; b = SineLoop(300, feedback=0.1, mul=amp2).out(1)</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -3971,8 +3971,8 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; a = SineLoop(freq=[199,200], feedback=.1, mul=.2)</span>
-<span class="sd">    &gt;&gt;&gt; b = SineLoop(freq=[149,150], feedback=.1, mul=.2)</span>
+<span class="sd">    &gt;&gt;&gt; a = SineLoop(freq=[199,200], feedback=0.1, mul=0.2)</span>
+<span class="sd">    &gt;&gt;&gt; b = SineLoop(freq=[149,150], feedback=0.1, mul=0.2)</span>
 <span class="sd">    &gt;&gt;&gt; ph = Phasor(freq=1)</span>
 <span class="sd">    &gt;&gt;&gt; ch = Compare(input=ph, comp=0.5, mode=&quot;&lt;=&quot;)</span>
 <span class="sd">    &gt;&gt;&gt; out = Selector(inputs=[a,b], voice=Port(ch)).out()</span>

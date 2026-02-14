@@ -7,6 +7,7 @@ of four bandpass filters with a high Q can be used as a efficient resonator
 on the signal.
 
 """
+
 from pyo import *
 
 s = Server().boot()

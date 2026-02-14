@@ -6,8 +6,9 @@ curve that varies over time.
 
 Note: Rewriting a large table can produce glitches in the audio output. Usually,
 for this kind of processes, we want to keep the table size relatively small.
- 
+
 """
+
 from pyo import *
 
 s = Server().boot()

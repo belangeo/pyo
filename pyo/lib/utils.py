@@ -43,8 +43,8 @@ class Clean_objects(threading.Thread):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = Noise(mul=.5).mix(2)
-    >>> b = Fader(fadein=.5, fadeout=1, dur=5).play()
+    >>> a = Noise(mul=0.5).mix(2)
+    >>> b = Fader(fadein=0.5, fadeout=1, dur=5).play()
     >>> c = Biquad(a, freq=500, q=2, mul=b).out()
     >>> dump = Clean_objects(6, a, b, c)
     >>> dump.start()
@@ -96,9 +96,9 @@ class Print(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = SfPlayer(SNDS_PATH + '/transparent.aif', loop=True, mul=.3).out()
+    >>> a = SfPlayer(SNDS_PATH + '/transparent.aif', loop=True, mul=0.3).out()
     >>> b = Follower(a)
-    >>> p = Print(b, method=0, interval=.1, message="RMS")
+    >>> p = Print(b, method=0, interval=0.1, message="RMS")
 
     """
 
@@ -110,9 +110,12 @@ class Print(PyoObject):
         self._interval = interval
         self._message = message
         self._in_fader = InputFader(input)
-        in_fader, method, interval, message, lmax = convertArgsToLists(self._in_fader, method, interval, message)
+        in_fader, method, interval, message, lmax = convertArgsToLists(
+            self._in_fader, method, interval, message
+        )
         self._base_objs = [
-            Print_base(wrap(in_fader, i), wrap(method, i), wrap(interval, i), wrap(message, i)) for i in range(lmax)
+            Print_base(wrap(in_fader, i), wrap(method, i), wrap(interval, i), wrap(message, i))
+            for i in range(lmax)
         ]
         self._init_play()
 
@@ -251,7 +254,7 @@ class Snap(PyoObject):
     >>> wav = SquareTable()
     >>> env = CosTable([(0,0), (100,1), (500,.3), (8191,0)])
     >>> met = Metro(.125, 8).play()
-    >>> amp = TrigEnv(met, table=env, mul=.2)
+    >>> amp = TrigEnv(met, table=env, mul=0.2)
     >>> pit = TrigXnoiseMidi(met, dist=4, x1=20, mrange=(48,84))
     >>> hertz = Snap(pit, choice=[0,2,3,5,7,8,10], scale=1)
     >>> a = Osc(table=wav, freq=hertz, phase=0, mul=amp).out()
@@ -268,13 +271,16 @@ class Snap(PyoObject):
         in_fader, scale, mul, add, lmax = convertArgsToLists(self._in_fader, scale, mul, add)
         if type(choice[0]) != list:
             self._base_objs = [
-                Snap_base(wrap(in_fader, i), choice, wrap(scale, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+                Snap_base(wrap(in_fader, i), choice, wrap(scale, i), wrap(mul, i), wrap(add, i))
+                for i in range(lmax)
             ]
         else:
             choicelen = len(choice)
             lmax = max(choicelen, lmax)
             self._base_objs = [
-                Snap_base(wrap(in_fader, i), wrap(choice, i), wrap(scale, i), wrap(mul, i), wrap(add, i))
+                Snap_base(
+                    wrap(in_fader, i), wrap(choice, i), wrap(scale, i), wrap(mul, i), wrap(add, i)
+                )
                 for i in range(lmax)
             ]
         self._init_play()
@@ -375,9 +381,9 @@ class Interp(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> sf = SfPlayer(SNDS_PATH + '/accord.aif', speed=[.99,1], loop=True, mul=.3)
-    >>> sf2 = SfPlayer(SNDS_PATH + '/transparent.aif', speed=[.99,1], loop=True, mul=.3)
-    >>> lfo = Osc(table=SquareTable(20), freq=5, mul=.5, add=.5)
+    >>> sf = SfPlayer(SNDS_PATH + '/accord.aif', speed=[.99,1], loop=True, mul=0.3)
+    >>> sf2 = SfPlayer(SNDS_PATH + '/transparent.aif', speed=[.99,1], loop=True, mul=0.3)
+    >>> lfo = Osc(table=SquareTable(20), freq=5, mul=0.5, add=0.5)
     >>> a = Interp(sf, sf2, lfo).out()
 
     """
@@ -394,7 +400,9 @@ class Interp(PyoObject):
             self._in_fader, self._in_fader2, interp, mul, add
         )
         self._base_objs = [
-            Interp_base(wrap(in_fader, i), wrap(in_fader2, i), wrap(interp, i), wrap(mul, i), wrap(add, i))
+            Interp_base(
+                wrap(in_fader, i), wrap(in_fader2, i), wrap(interp, i), wrap(mul, i), wrap(add, i)
+            )
             for i in range(lmax)
         ]
         self._init_play()
@@ -502,7 +510,7 @@ class SampHold(PyoObject):
     >>> a = Noise(500,1000)
     >>> b = Sine([3,4])
     >>> c = SampHold(input=a, controlsig=b, value=0)
-    >>> d = Sine(c, mul=.2).out()
+    >>> d = Sine(c, mul=0.2).out()
 
     """
 
@@ -518,7 +526,9 @@ class SampHold(PyoObject):
             self._in_fader, self._in_fader2, value, mul, add
         )
         self._base_objs = [
-            SampHold_base(wrap(in_fader, i), wrap(in_fader2, i), wrap(value, i), wrap(mul, i), wrap(add, i))
+            SampHold_base(
+                wrap(in_fader, i), wrap(in_fader2, i), wrap(value, i), wrap(mul, i), wrap(add, i)
+            )
             for i in range(lmax)
         ]
         self._init_play()
@@ -667,7 +677,7 @@ class Record(PyoObject):
     >>> from random import uniform
     >>> import os
     >>> t = HarmTable([1, 0, 0, .2, 0, 0, 0, .1, 0, 0, .05])
-    >>> amp = Fader(fadein=.05, fadeout=2, dur=4, mul=.05).play()
+    >>> amp = Fader(fadein=0.05, fadeout=2, dur=4, mul=0.05).play()
     >>> osc = Osc(t, freq=[uniform(350,360) for i in range(10)], mul=amp).out()
     >>> home = os.path.expanduser('~')
     >>> # Records an audio file called "example_synth.aif" in the home folder
@@ -677,8 +687,12 @@ class Record(PyoObject):
 
     """
 
-    def __init__(self, input, filename, chnls=2, fileformat=0, sampletype=0, buffering=4, quality=0.4):
-        pyoArgsAssert(self, "oSIIIIN", input, filename, chnls, fileformat, sampletype, buffering, quality)
+    def __init__(
+        self, input, filename, chnls=2, fileformat=0, sampletype=0, buffering=4, quality=0.4
+    ):
+        pyoArgsAssert(
+            self, "oSIIIIN", input, filename, chnls, fileformat, sampletype, buffering, quality
+        )
         PyoObject.__init__(self)
         self._input = input
         self._in_fader = InputFader(input)
@@ -753,7 +767,7 @@ class Denorm(PyoObject):
     >>> amp = Linseg([(0,0),(2,1),(4,0)], loop=True).play()
     >>> a = Sine(freq=[800,1000], mul=0.01*amp)
     >>> den = Denorm(a)
-    >>> rev = Freeverb(den, size=.9).out()
+    >>> rev = Freeverb(den, size=0.9).out()
 
     """
 
@@ -763,7 +777,9 @@ class Denorm(PyoObject):
         self._input = input
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
-        self._base_objs = [Denorm_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
+        self._base_objs = [
+            Denorm_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+        ]
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -848,7 +864,7 @@ class ControlRec(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> rnds = Randi(freq=[1,2], min=200, max=400)
-    >>> sines = SineLoop(freq=rnds, feedback=.05, mul=.2).out()
+    >>> sines = SineLoop(freq=rnds, feedback=0.05, mul=0.2).out()
     >>> home = os.path.expanduser('~')
     >>> rec = ControlRec(rnds, home+"/test", rate=100, dur=4).play()
     >>> # call rec.write() to save "test_000" and "test_001" in the home directory.
@@ -923,7 +939,7 @@ class ControlRead(PyoObject):
 
         >>> rnds = ControlRead(home+"/freq_auto", loop=True)
         >>> t = SndTable(SNDS_PATH+"/transparent.aif")
-        >>> loop = TrigEnv(rnds["trig"], t, dur=[.2,.3,.4,.5], mul=.5).out()
+        >>> loop = TrigEnv(rnds["trig"], t, dur=[.2,.3,.4,.5], mul=0.5).out()
 
         The out() method is bypassed. ControlRead's signal can not be sent to
         audio outs.
@@ -935,7 +951,7 @@ class ControlRead(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> rnds = ControlRead(SNDS_PATH+"/ControlRead_example_test", rate=100, loop=True)
-    >>> sines = SineLoop(freq=rnds, feedback=.05, mul=.15).out()
+    >>> sines = SineLoop(freq=rnds, feedback=0.05, mul=0.15).out()
 
     """
 
@@ -955,7 +971,9 @@ class ControlRead(PyoObject):
             f = open(path, "r")
             values = [float(l.split()[1]) for l in f.readlines() if l.strip() != ""]
             f.close()
-            self._base_objs.append(ControlRead_base(values, rate, loop, interp, wrap(mul, i), wrap(add, i)))
+            self._base_objs.append(
+                ControlRead_base(values, rate, loop, interp, wrap(mul, i), wrap(add, i))
+            )
         self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])
         self._init_play()
 
@@ -1102,7 +1120,9 @@ class NoteinRec(PyoObject):
         self._in_pitch = self._input["pitch"]
         self.in_velocity = self._input["velocity"]
         in_pitch, in_velocity, lmax = convertArgsToLists(self._in_pitch, self.in_velocity)
-        self._base_objs = [NoteinRec_base(wrap(in_pitch, i), wrap(in_velocity, i)) for i in range(lmax)]
+        self._base_objs = [
+            NoteinRec_base(wrap(in_pitch, i), wrap(in_velocity, i)) for i in range(lmax)
+        ]
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
@@ -1146,7 +1166,7 @@ class NoteinRead(PyoObject):
 
         >>> notes = NoteinRead(home+"/notes_rec", loop=True)
         >>> t = SndTable(SNDS_PATH+"/transparent.aif")
-        >>> loop = TrigEnv(notes["trig"], t, dur=[.2,.3,.4,.5], mul=.25).out()
+        >>> loop = TrigEnv(notes["trig"], t, dur=[.2,.3,.4,.5], mul=0.25).out()
 
         The out() method is bypassed. NoteinRead's signal can not be sent to
         audio outs.
@@ -1158,9 +1178,9 @@ class NoteinRead(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> notes = NoteinRead(SNDS_PATH+"/NoteinRead_example_test", loop=True)
-    >>> amps = Port(notes['velocity'], 0.001, 0.45, mul=.3)
+    >>> amps = Port(notes['velocity'], 0.001, 0.45, mul=0.3)
     >>> # pitches are saved in MIDI values in NoteinRead_example_test
-    >>> sines = SineLoop(freq=MToF(notes['pitch']), feedback=.05, mul=amps).out()
+    >>> sines = SineLoop(freq=MToF(notes['pitch']), feedback=0.05, mul=amps).out()
 
     """
 
@@ -1186,7 +1206,9 @@ class NoteinRead(PyoObject):
             amps = [float(v[2]) for v in vals]
             f.close()
             self._base_objs.append(NoteinRead_base(pitches, timestamps, loop))
-            self._base_objs.append(NoteinRead_base(amps, timestamps, loop, wrap(mul, i), wrap(add, i)))
+            self._base_objs.append(
+                NoteinRead_base(amps, timestamps, loop, wrap(mul, i), wrap(add, i))
+            )
             _trig_objs_tmp.append(TriggerDummy_base(self._base_objs[-1]))
         self._trig_objs = Dummy(_trig_objs_tmp)
         self._init_play()
@@ -1198,7 +1220,9 @@ class NoteinRead(PyoObject):
             self._pitch_dummy.append(Dummy([self._base_objs[i * 2] for i in range(self._poly)]))
             return self._pitch_dummy[-1]
         if str == "velocity":
-            self._velocity_dummy.append(Dummy([self._base_objs[i * 2 + 1] for i in range(self._poly)]))
+            self._velocity_dummy.append(
+                Dummy([self._base_objs[i * 2 + 1] for i in range(self._poly)])
+            )
             return self._velocity_dummy[-1]
 
     def get(self, identifier="pitch", all=False):
@@ -1226,7 +1250,9 @@ class NoteinRead(PyoObject):
         if not all:
             return self.__getitem__(identifier)[0]._getStream().getValue()
         else:
-            return [obj._getStream().getValue() for obj in self.__getitem__(identifier).getBaseObjects()]
+            return [
+                obj._getStream().getValue() for obj in self.__getitem__(identifier).getBaseObjects()
+            ]
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
@@ -1276,7 +1302,7 @@ class DBToA(PyoObject):
     >>> # amplitude modulation 6 dB around -18 dB
     >>> db = Sine(freq=1, phase=[0,.5], mul=6, add=-18)
     >>> amp = DBToA(db)
-    >>> b = SineLoop(freq=[350,400], feedback=.1, mul=amp).out()
+    >>> b = SineLoop(freq=[350,400], feedback=0.1, mul=amp).out()
 
     """
 
@@ -1286,7 +1312,9 @@ class DBToA(PyoObject):
         self._input = input
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
-        self._base_objs = [DBToA_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
+        self._base_objs = [
+            DBToA_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+        ]
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -1333,7 +1361,7 @@ class AToDB(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> # amplitude modulation of a notch around 1000 Hz, from -120 db to 0dB
-    >>> amp = Sine([1,1.5], mul=.5, add=.5)
+    >>> amp = Sine([1,1.5], mul=0.5, add=0.5)
     >>> db = AToDB(amp)
     >>> a = PinkNoise(.2)
     >>> b = EQ(a, freq=1000, q=2, boost=db).out()
@@ -1346,7 +1374,9 @@ class AToDB(PyoObject):
         self._input = input
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
-        self._base_objs = [AToDB_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
+        self._base_objs = [
+            AToDB_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+        ]
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -1404,11 +1434,11 @@ class Scale(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> met = Metro(.125, poly=2).play()
-    >>> rnd = TrigRand(met, min=0, max=1, port=.005)
+    >>> rnd = TrigRand(met, min=0, max=1, port=0.005)
     >>> omlf = Sine(.5, mul=700, add=1000)
     >>> fr = Scale(rnd, inmin=0, inmax=1, outmin=250, outmax=omlf, exp=1)
-    >>> amp = TrigEnv(met, table=HannTable(), dur=.25, mul=.2)
-    >>> out = SineLoop(fr, feedback=.07, mul=amp).out()
+    >>> amp = TrigEnv(met, table=HannTable(), dur=0.25, mul=0.2)
+    >>> out = SineLoop(fr, feedback=0.07, mul=amp).out()
 
     """
 
@@ -1615,7 +1645,7 @@ class CentsToTranspo(PyoObject):
     >>> met = Metro(.125, poly=2).play()
     >>> cts = TrigRandInt(met, max=12, mul=100)
     >>> trans = CentsToTranspo(cts)
-    >>> sf = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, speed=trans, mul=.25).out()
+    >>> sf = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, speed=trans, mul=0.25).out()
 
     """
 
@@ -1625,7 +1655,9 @@ class CentsToTranspo(PyoObject):
         self._input = input
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
-        self._base_objs = [CentsToTranspo_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
+        self._base_objs = [
+            CentsToTranspo_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+        ]
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -1672,7 +1704,7 @@ class TranspoToCents(PyoObject):
     >>> met = Metro(.125, poly=2).play()
     >>> trans = TrigChoice(met, choice=[.25,.5,.5,.75,1,1.25,1.5])
     >>> semi = TranspoToCents(trans, mul=0.01)
-    >>> sf = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=.3).out()
+    >>> sf = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=0.3).out()
     >>> harm = Harmonizer(sf, transpo=semi).out()
 
     """
@@ -1683,7 +1715,9 @@ class TranspoToCents(PyoObject):
         self._input = input
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
-        self._base_objs = [TranspoToCents_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
+        self._base_objs = [
+            TranspoToCents_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+        ]
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -1729,9 +1763,9 @@ class MToF(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> met = Metro(.125, poly=2).play()
-    >>> mid = TrigChoice(met, choice=[60, 63, 67, 70], port=.005)
+    >>> mid = TrigChoice(met, choice=[60, 63, 67, 70], port=0.005)
     >>> hz = MToF(mid)
-    >>> syn = SineLoop(freq=hz, feedback=.07, mul=.2).out()
+    >>> syn = SineLoop(freq=hz, feedback=0.07, mul=0.2).out()
 
     """
 
@@ -1741,7 +1775,9 @@ class MToF(PyoObject):
         self._input = input
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
-        self._base_objs = [MToF_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
+        self._base_objs = [
+            MToF_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+        ]
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -1802,7 +1838,9 @@ class FToM(PyoObject):
         self._input = input
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
-        self._base_objs = [FToM_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
+        self._base_objs = [
+            FToM_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+        ]
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -1853,8 +1891,8 @@ class MToT(PyoObject):
     >>> tsnd = SndTable(SNDS_PATH+"/accord.aif")
     >>> tenv = CosTable([(0,0), (100,1), (1000,.5), (8192,0)])
     >>> met = Metro(.125, poly=2).play()
-    >>> amp = TrigEnv(met, table=tenv, dur=.25, mul=.7)
-    >>> mid = TrigChoice(met, choice=[43, 45, 60, 63], port=.0025)
+    >>> amp = TrigEnv(met, table=tenv, dur=0.25, mul=0.7)
+    >>> mid = TrigChoice(met, choice=[43, 45, 60, 63], port=0.0025)
     >>> sp = MToT(mid)
     >>> snd = Osc(tsnd, freq=tsnd.getRate()/sp, mul=amp).out()
 
@@ -1866,9 +1904,12 @@ class MToT(PyoObject):
         self._input = input
         self._centralkey = centralkey
         self._in_fader = InputFader(input)
-        in_fader, centralkey, mul, add, lmax = convertArgsToLists(self._in_fader, centralkey, mul, add)
+        in_fader, centralkey, mul, add, lmax = convertArgsToLists(
+            self._in_fader, centralkey, mul, add
+        )
         self._base_objs = [
-            MToT_base(wrap(in_fader, i), wrap(centralkey, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+            MToT_base(wrap(in_fader, i), wrap(centralkey, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
         ]
         self._init_play()
 
@@ -1943,9 +1984,9 @@ class Between(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> ph = Phasor(freq=[7,8])
-    >>> tr = Between(ph, min=0, max=.25)
-    >>> amp = Port(tr, risetime=0.002, falltime=0.002, mul=.2)
-    >>> a = SineLoop(freq=[245,250], feedback=.1, mul=amp).out()
+    >>> tr = Between(ph, min=0, max=0.25)
+    >>> amp = Port(tr, risetime=0.002, falltime=0.002, mul=0.2)
+    >>> a = SineLoop(freq=[245,250], feedback=0.1, mul=amp).out()
 
     """
 
@@ -1958,7 +1999,8 @@ class Between(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, min, max, mul, add, lmax = convertArgsToLists(self._in_fader, min, max, mul, add)
         self._base_objs = [
-            Between_base(wrap(in_fader, i), wrap(min, i), wrap(max, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+            Between_base(wrap(in_fader, i), wrap(min, i), wrap(max, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
         ]
         self._init_play()
 
@@ -2066,9 +2108,9 @@ class TrackHold(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> ph = Phasor([3,4])
-    >>> lf = Sine(.2, mul=.5, add=.5)
+    >>> lf = Sine(.2, mul=0.5, add=0.5)
     >>> th = TrackHold(lf, ph > 0.5, 1, mul=500, add=300)
-    >>> a = Sine(th, mul=.3).out()
+    >>> a = Sine(th, mul=0.3).out()
 
     """
 
@@ -2084,7 +2126,9 @@ class TrackHold(PyoObject):
             self._in_fader, self._in_fader2, value, mul, add
         )
         self._base_objs = [
-            TrackHold_base(wrap(in_fader, i), wrap(in_fader2, i), wrap(value, i), wrap(mul, i), wrap(add, i))
+            TrackHold_base(
+                wrap(in_fader, i), wrap(in_fader2, i), wrap(value, i), wrap(mul, i), wrap(add, i)
+            )
             for i in range(lmax)
         ]
         self._init_play()
@@ -2225,7 +2269,8 @@ class Resample(PyoObject):
         self._mode = mode
         _input, mode, mul, add, lmax = convertArgsToLists(input, mode, mul, add)
         self._base_objs = [
-            Resample_base(wrap(_input, i), wrap(mode, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+            Resample_base(wrap(_input, i), wrap(mode, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
         ]
         self._init_play()
 

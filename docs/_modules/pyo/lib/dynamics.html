@@ -118,9 +118,9 @@
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; a = SfPlayer(SNDS_PATH + &quot;/transparent.aif&quot;, loop=True)</span>
-<span class="sd">    &gt;&gt;&gt; lfoup = Sine(freq=.25, mul=.48, add=.5)</span>
+<span class="sd">    &gt;&gt;&gt; lfoup = Sine(freq=0.25, mul=0.48, add=0.5)</span>
 <span class="sd">    &gt;&gt;&gt; lfodown = 0 - lfoup</span>
-<span class="sd">    &gt;&gt;&gt; c = Clip(a, min=lfodown, max=lfoup, mul=.4).mix(2).out()</span>
+<span class="sd">    &gt;&gt;&gt; c = Clip(a, min=lfodown, max=lfoup, mul=0.4).mix(2).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -263,10 +263,10 @@
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; a = Sine(freq=[300,301])</span>
-<span class="sd">    &gt;&gt;&gt; lfmin = Sine(freq=1.5, mul=.25, add=-0.75)</span>
-<span class="sd">    &gt;&gt;&gt; lfmax = Sine(freq=2, mul=.25, add=0.75)</span>
+<span class="sd">    &gt;&gt;&gt; lfmin = Sine(freq=1.5, mul=0.25, add=-0.75)</span>
+<span class="sd">    &gt;&gt;&gt; lfmax = Sine(freq=2, mul=0.25, add=0.75)</span>
 <span class="sd">    &gt;&gt;&gt; b = Mirror(a, min=lfmin, max=lfmax)</span>
-<span class="sd">    &gt;&gt;&gt; c = Tone(b, freq=2500, mul=.15).out()</span>
+<span class="sd">    &gt;&gt;&gt; c = Tone(b, freq=2500, mul=0.15).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -407,10 +407,10 @@
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; t = SquareTable()</span>
-<span class="sd">    &gt;&gt;&gt; a = Osc(table=t, freq=[100,101], mul=.5)</span>
-<span class="sd">    &gt;&gt;&gt; lfo = Sine(freq=.2, mul=6, add=8)</span>
-<span class="sd">    &gt;&gt;&gt; lfo2 = Sine(freq=.25, mul=.45, add=.55)</span>
-<span class="sd">    &gt;&gt;&gt; b = Degrade(a, bitdepth=lfo, srscale=lfo2, mul=.3).out()</span>
+<span class="sd">    &gt;&gt;&gt; a = Osc(table=t, freq=[100,101], mul=0.5)</span>
+<span class="sd">    &gt;&gt;&gt; lfo = Sine(freq=0.2, mul=6, add=8)</span>
+<span class="sd">    &gt;&gt;&gt; lfo2 = Sine(freq=0.25, mul=0.45, add=0.55)</span>
+<span class="sd">    &gt;&gt;&gt; b = Degrade(a, bitdepth=lfo, srscale=lfo2, mul=0.3).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -575,7 +575,7 @@
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; a = SfPlayer(SNDS_PATH + &#39;/transparent.aif&#39;, loop=True)</span>
-<span class="sd">    &gt;&gt;&gt; b = Compress(a, thresh=-24, ratio=6, risetime=.01, falltime=.2, knee=0.5).mix(2).out()</span>
+<span class="sd">    &gt;&gt;&gt; b = Compress(a, thresh=-24, ratio=6, risetime=0.01, falltime=0.2, knee=0.5).mix(2).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -875,7 +875,7 @@
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; sf = SfPlayer(SNDS_PATH + &#39;/transparent.aif&#39;, speed=[1,.5], loop=True)</span>
-<span class="sd">    &gt;&gt;&gt; gt = Gate(sf, thresh=-24, risetime=0.005, falltime=0.01, lookahead=5, mul=.4).out()</span>
+<span class="sd">    &gt;&gt;&gt; gt = Gate(sf, thresh=-24, risetime=0.005, falltime=0.01, lookahead=5, mul=0.4).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -1078,8 +1078,8 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; sf = SfPlayer(SNDS_PATH + &#39;/accord.aif&#39;, speed=[.99,1], loop=True, mul=.3)</span>
-<span class="sd">    &gt;&gt;&gt; comp = SfPlayer(SNDS_PATH + &#39;/transparent.aif&#39;, speed=[.99,1], loop=True, mul=.3)</span>
+<span class="sd">    &gt;&gt;&gt; sf = SfPlayer(SNDS_PATH + &#39;/accord.aif&#39;, speed=[.99,1], loop=True, mul=0.3)</span>
+<span class="sd">    &gt;&gt;&gt; comp = SfPlayer(SNDS_PATH + &#39;/transparent.aif&#39;, speed=[.99,1], loop=True, mul=0.3)</span>
 <span class="sd">    &gt;&gt;&gt; out = Balance(sf, comp, freq=10).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1218,7 +1218,7 @@
 <span class="sd">    &gt;&gt;&gt; # Triangle wave</span>
 <span class="sd">    &gt;&gt;&gt; a = Phasor([249,250])</span>
 <span class="sd">    &gt;&gt;&gt; b = Min(a, comp=a*-1+1, mul=4, add=-1)</span>
-<span class="sd">    &gt;&gt;&gt; c = Tone(b, freq=1500, mul=.5).out()</span>
+<span class="sd">    &gt;&gt;&gt; c = Tone(b, freq=1500, mul=0.5).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -1317,7 +1317,7 @@
 <span class="sd">    &gt;&gt;&gt; # Assimetrical clipping</span>
 <span class="sd">    &gt;&gt;&gt; a = Phasor(500, mul=2, add=-1)</span>
 <span class="sd">    &gt;&gt;&gt; b = Max(a, comp=-0.3)</span>
-<span class="sd">    &gt;&gt;&gt; c = Tone(b, freq=1500, mul=.5).out()</span>
+<span class="sd">    &gt;&gt;&gt; c = Tone(b, freq=1500, mul=0.5).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 

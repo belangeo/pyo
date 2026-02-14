@@ -4,6 +4,7 @@
 Calling Python function from an audio stream with the Score object.
 
 """
+
 from pyo import *
 import random
 
@@ -31,14 +32,18 @@ def event_0():
 
 def event_1():
     print("playing looped oscillator")
-    bsyn.freq = [random.choice(list(range(50, 501, 50))) * random.uniform(0.99, 1.01) for i in range(2)]
+    bsyn.freq = [
+        random.choice(list(range(50, 501, 50))) * random.uniform(0.99, 1.01) for i in range(2)
+    ]
     bsyn.feedback = random.uniform(0.01, 0.1)
     bamp.play()
 
 
 def event_2():
     print("playing frequency modulation")
-    csyn.carrier = [random.choice([50, 100, 150, 200, 250]) * random.uniform(0.99, 1.01) for i in range(2)]
+    csyn.carrier = [
+        random.choice([50, 100, 150, 200, 250]) * random.uniform(0.99, 1.01) for i in range(2)
+    ]
     csyn.ratio = [random.choice([0.1251, 0.249, 0.502, 0.7501, 1.003]) for i in range(2)]
     camp.play()
 

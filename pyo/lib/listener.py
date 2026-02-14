@@ -195,9 +195,13 @@ class MidiDispatcher(threading.Thread):
                 `getDeviceInfos()` to retrieve device indexes.
 
         """
-        status, data1, data2, timestamp, device, lmax = convertArgsToLists(status, data1, data2, timestamp, device)
+        status, data1, data2, timestamp, device, lmax = convertArgsToLists(
+            status, data1, data2, timestamp, device
+        )
         [
-            self._dispatcher.send(wrap(status, i), wrap(data1, i), wrap(data2, i), wrap(timestamp, i), wrap(device, i))
+            self._dispatcher.send(
+                wrap(status, i), wrap(data1, i), wrap(data2, i), wrap(timestamp, i), wrap(device, i)
+            )
             for i in range(lmax)
         ]
 
@@ -224,7 +228,10 @@ class MidiDispatcher(threading.Thread):
 
         """
         msg, timestamp, device, lmax = convertArgsToLists(msg, timestamp, device)
-        [self._dispatcher.sendx(wrap(msg, i), wrap(timestamp, i), wrap(device, i)) for i in range(lmax)]
+        [
+            self._dispatcher.sendx(wrap(msg, i), wrap(timestamp, i), wrap(device, i))
+            for i in range(lmax)
+        ]
 
     def getDeviceInfos(self):
         """

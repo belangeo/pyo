@@ -7,7 +7,7 @@ as generators for EventGenerator's arguments). So, wherever a float or
 an EventGenerator is possible, a PyoObject is too.
 
 Considering the wide range of audio signal possibilities pyo is offering,
-it is worthy to explore these combinations! 
+it is worthy to explore these combinations!
 
 """
 
@@ -29,7 +29,11 @@ segment1 = RandInt(max=6, freq=0.5)
 step1 = RandInt(max=6, freq=0.75, add=-3)
 
 e1 = Events(
-    midinote=EventSlide(scl, segment1, step1), beat=1 / 4.0, db=[-12, -18, -18], envelope=env, durmul=durmul1,
+    midinote=EventSlide(scl, segment1, step1),
+    beat=1 / 4.0,
+    db=[-12, -18, -18],
+    envelope=env,
+    durmul=durmul1,
 ).play()
 
 # Out-of-phase LFO on the duration multiplier.

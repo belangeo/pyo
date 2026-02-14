@@ -6,6 +6,7 @@ On Windows, run the uninstaller that comes with pyo to remove all its components
 is located in the python root directory (ex.: C:\Python27) and named 'unins000.exe'.
 
 """
+
 import sys, os, shutil
 
 PLATFORM = sys.platform

@@ -18,6 +18,7 @@ for the first signal can be omitted, `$x[0]` is the same as `$x0[0]`.
 Complete example
 ----------------
 """
+
 from pyo import *
 
 s = Server().boot()

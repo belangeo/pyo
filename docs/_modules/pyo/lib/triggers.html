@@ -121,7 +121,7 @@
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; a = Trig()</span>
 <span class="sd">    &gt;&gt;&gt; env = HannTable()</span>
-<span class="sd">    &gt;&gt;&gt; tenv = TrigEnv(a, table=env, dur=5, mul=.3)</span>
+<span class="sd">    &gt;&gt;&gt; tenv = TrigEnv(a, table=env, dur=5, mul=0.3)</span>
 <span class="sd">    &gt;&gt;&gt; n = Noise(tenv).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -195,8 +195,8 @@
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; t = CosTable([(0,0), (50,1), (250,.3), (8191,0)])</span>
-<span class="sd">    &gt;&gt;&gt; met = Metro(time=.125, poly=2).play()</span>
-<span class="sd">    &gt;&gt;&gt; amp = TrigEnv(met, table=t, dur=.25, mul=.3)</span>
+<span class="sd">    &gt;&gt;&gt; met = Metro(time=0.125, poly=2).play()</span>
+<span class="sd">    &gt;&gt;&gt; amp = TrigEnv(met, table=t, dur=0.25, mul=0.3)</span>
 <span class="sd">    &gt;&gt;&gt; freq = TrigRand(met, min=400, max=1000)</span>
 <span class="sd">    &gt;&gt;&gt; a = Sine(freq=freq, mul=amp).out()</span>
 
@@ -319,9 +319,9 @@
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; env = CosTable([(0,0),(300,1),(1000,.3),(8191,0)])</span>
-<span class="sd">    &gt;&gt;&gt; seq = Seq(time=.125, seq=[2,1,1,2], poly=2).play()</span>
-<span class="sd">    &gt;&gt;&gt; tr = TrigRand(seq, min=250, max=500, port=.005)</span>
-<span class="sd">    &gt;&gt;&gt; amp = TrigEnv(seq, table=env, dur=.25, mul=.25)</span>
+<span class="sd">    &gt;&gt;&gt; seq = Seq(time=0.125, seq=[2,1,1,2], poly=2).play()</span>
+<span class="sd">    &gt;&gt;&gt; tr = TrigRand(seq, min=250, max=500, port=0.005)</span>
+<span class="sd">    &gt;&gt;&gt; amp = TrigEnv(seq, table=env, dur=0.25, mul=0.25)</span>
 <span class="sd">    &gt;&gt;&gt; a = SineLoop(tr, feedback=0.07, mul=amp).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -673,7 +673,7 @@
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; t = CosTable([(0,0), (100,1), (500,.3), (8191,0)])</span>
-<span class="sd">    &gt;&gt;&gt; beat = Beat(time=.125, taps=16, w1=[90,80], w2=50, w3=35, poly=1).play()</span>
+<span class="sd">    &gt;&gt;&gt; beat = Beat(time=0.125, taps=16, w1=[90,80], w2=50, w3=35, poly=1).play()</span>
 <span class="sd">    &gt;&gt;&gt; trmid = TrigXnoiseMidi(beat, dist=12, mrange=(60, 96))</span>
 <span class="sd">    &gt;&gt;&gt; trhz = Snap(trmid, choice=[0,2,3,5,7,8,10], scale=1)</span>
 <span class="sd">    &gt;&gt;&gt; tr2 = TrigEnv(beat, table=t, dur=beat[&#39;dur&#39;], mul=beat[&#39;amp&#39;])</span>
@@ -1134,7 +1134,7 @@
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; t = CosTable([(0,0), (50,1), (250,.3), (8191,0)])</span>
 <span class="sd">    &gt;&gt;&gt; met = Metro(.125, poly=2).play()</span>
-<span class="sd">    &gt;&gt;&gt; amp = TrigEnv(met, table=t, dur=.25, mul=.3)</span>
+<span class="sd">    &gt;&gt;&gt; amp = TrigEnv(met, table=t, dur=0.25, mul=0.3)</span>
 <span class="sd">    &gt;&gt;&gt; tr = TrigRandInt(met, max=10, mul=100, add=200)</span>
 <span class="sd">    &gt;&gt;&gt; a = Sine(tr, mul=amp).out()</span>
 
@@ -1252,7 +1252,7 @@
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; t = CosTable([(0,0), (50,1), (250,.3), (8191,0)])</span>
 <span class="sd">    &gt;&gt;&gt; met = Metro(.125, poly=2).play()</span>
-<span class="sd">    &gt;&gt;&gt; amp = TrigEnv(met, table=t, dur=.25, mul=.3)</span>
+<span class="sd">    &gt;&gt;&gt; amp = TrigEnv(met, table=t, dur=0.25, mul=0.3)</span>
 <span class="sd">    &gt;&gt;&gt; tr = TrigRand(met, 400, 600)</span>
 <span class="sd">    &gt;&gt;&gt; a = Sine(tr, mul=amp).out()</span>
 
@@ -1428,7 +1428,7 @@
 <span class="sd">    &gt;&gt;&gt; t = CosTable([(0,0), (50,1), (250,.3), (8191,0)])</span>
 <span class="sd">    &gt;&gt;&gt; met = Metro(.125, poly=2).play()</span>
 <span class="sd">    &gt;&gt;&gt; freq = TrigChoice(met, [300, 350, 400, 450, 500, 550])</span>
-<span class="sd">    &gt;&gt;&gt; amp = TrigEnv(met, table=t, dur=.25, mul=.3)</span>
+<span class="sd">    &gt;&gt;&gt; amp = TrigEnv(met, table=t, dur=0.25, mul=0.3)</span>
 <span class="sd">    &gt;&gt;&gt; a = Sine(freq=freq, mul=amp).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1573,7 +1573,7 @@
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
-<span class="sd">    &gt;&gt;&gt; f = Fader(fadein=.005, fadeout=.1, dur=.12, mul=.2)</span>
+<span class="sd">    &gt;&gt;&gt; f = Fader(fadein=0.005, fadeout=0.1, dur=0.12, mul=0.2)</span>
 <span class="sd">    &gt;&gt;&gt; a = SineLoop(midiToHz([60,60]), feedback=0.05, mul=f).out()</span>
 <span class="sd">    &gt;&gt;&gt; c = 0.0</span>
 <span class="sd">    &gt;&gt;&gt; def count():</span>
@@ -1739,7 +1739,7 @@
 <span class="sd">    &gt;&gt;&gt; env = HannTable()</span>
 <span class="sd">    &gt;&gt;&gt; m = Metro(.125, poly=2).play()</span>
 <span class="sd">    &gt;&gt;&gt; tr = TrigRand(m, 400, 600)</span>
-<span class="sd">    &gt;&gt;&gt; te = TrigEnv(m, table=env, dur=.25, mul=.2)</span>
+<span class="sd">    &gt;&gt;&gt; te = TrigEnv(m, table=env, dur=0.25, mul=0.2)</span>
 <span class="sd">    &gt;&gt;&gt; a = Sine(tr, mul=te).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1912,7 +1912,7 @@
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; m = Metro(time=1, poly=2).play()</span>
 <span class="sd">    &gt;&gt;&gt; pit = TrigLinseg(m, [(0,1000),(.1,1300),(.2,900),(.3,1000),(2,1000)])</span>
-<span class="sd">    &gt;&gt;&gt; a = Sine(pit, mul=.2).out()</span>
+<span class="sd">    &gt;&gt;&gt; a = Sine(pit, mul=0.2).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -2101,7 +2101,7 @@
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; m = Metro(time=0.5, poly=2).play()</span>
 <span class="sd">    &gt;&gt;&gt; pit = TrigExpseg(m, [(0,1000),(.25,1300),(.5,1000),(1,1000)])</span>
-<span class="sd">    &gt;&gt;&gt; a = Sine(pit, mul=.2).out()</span>
+<span class="sd">    &gt;&gt;&gt; a = Sine(pit, mul=0.2).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -2398,7 +2398,7 @@
 <span class="sd">    &gt;&gt;&gt; wav = SquareTable()</span>
 <span class="sd">    &gt;&gt;&gt; env = CosTable([(0,0), (100,1), (500,.3), (8191,0)])</span>
 <span class="sd">    &gt;&gt;&gt; met = Metro(.125, 12).play()</span>
-<span class="sd">    &gt;&gt;&gt; amp = TrigEnv(met, table=env, mul=.2)</span>
+<span class="sd">    &gt;&gt;&gt; amp = TrigEnv(met, table=env, mul=0.2)</span>
 <span class="sd">    &gt;&gt;&gt; pit = TrigXnoise(met, dist=4, x1=10, mul=1000, add=200)</span>
 <span class="sd">    &gt;&gt;&gt; a = Osc(table=wav, freq=pit, mul=amp).out()</span>
 
@@ -2647,7 +2647,7 @@
 <span class="sd">    &gt;&gt;&gt; wav = SquareTable()</span>
 <span class="sd">    &gt;&gt;&gt; env = CosTable([(0,0), (100,1), (500,.3), (8191,0)])</span>
 <span class="sd">    &gt;&gt;&gt; met = Metro(.125, 12).play()</span>
-<span class="sd">    &gt;&gt;&gt; amp = TrigEnv(met, table=env, mul=.2)</span>
+<span class="sd">    &gt;&gt;&gt; amp = TrigEnv(met, table=env, mul=0.2)</span>
 <span class="sd">    &gt;&gt;&gt; pit = TrigXnoiseMidi(met, dist=4, x1=10, scale=1, mrange=(48,84))</span>
 <span class="sd">    &gt;&gt;&gt; a = Osc(table=wav, freq=pit, mul=amp).out()</span>
 
@@ -2902,7 +2902,7 @@
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; m = Metro(.125).play()</span>
 <span class="sd">    &gt;&gt;&gt; c = Counter(m, min=3, max=8, dir=2, mul=100)</span>
-<span class="sd">    &gt;&gt;&gt; a = Sine(freq=c, mul=.2).mix(2).out()</span>
+<span class="sd">    &gt;&gt;&gt; a = Sine(freq=c, mul=0.2).mix(2).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -3102,7 +3102,7 @@
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; env = HannTable()</span>
 <span class="sd">    &gt;&gt;&gt; m = Metro(.125, poly=2).play()</span>
-<span class="sd">    &gt;&gt;&gt; te = TrigEnv(m, table=env, dur=.2, mul=.2)</span>
+<span class="sd">    &gt;&gt;&gt; te = TrigEnv(m, table=env, dur=0.2, mul=0.2)</span>
 <span class="sd">    &gt;&gt;&gt; c = Counter(m, min=0, max=4)</span>
 <span class="sd">    &gt;&gt;&gt; se = Select(c, 0)</span>
 <span class="sd">    &gt;&gt;&gt; tr = TrigRand(se, 400, 600)</span>
@@ -3215,8 +3215,8 @@
 <span class="sd">    &gt;&gt;&gt; t = CosTable([(0,0), (100,1), (500,.3), (8191,0)])</span>
 <span class="sd">    &gt;&gt;&gt; a = XnoiseMidi(dist=&quot;loopseg&quot;, freq=[2, 3], x1=1, scale=1, mrange=(60,73))</span>
 <span class="sd">    &gt;&gt;&gt; b = Change(a)</span>
-<span class="sd">    &gt;&gt;&gt; amp = TrigEnv(b, table=t, dur=[.5,.333], mul=.3)</span>
-<span class="sd">    &gt;&gt;&gt; out = SineLoop(freq=a, feedback=.05, mul=amp).out()</span>
+<span class="sd">    &gt;&gt;&gt; amp = TrigEnv(b, table=t, dur=[.5,.333], mul=0.3)</span>
+<span class="sd">    &gt;&gt;&gt; out = SineLoop(freq=a, feedback=0.05, mul=amp).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -3306,7 +3306,7 @@
 <span class="sd">    &gt;&gt;&gt; a = Phasor(1)</span>
 <span class="sd">    &gt;&gt;&gt; b = Thresh(a, threshold=[0.25, 0.5, 0.66], dir=0)</span>
 <span class="sd">    &gt;&gt;&gt; t = LinTable([(0,0), (50,1), (250,.3), (8191,0)])</span>
-<span class="sd">    &gt;&gt;&gt; env = TrigEnv(b, table=t, dur=.5, mul=.3)</span>
+<span class="sd">    &gt;&gt;&gt; env = TrigEnv(b, table=t, dur=0.5, mul=0.3)</span>
 <span class="sd">    &gt;&gt;&gt; sine = Sine(freq=[500,600,700], mul=env).out()</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -3442,9 +3442,9 @@
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; t = CosTable([(0,0), (50,1), (250,.3), (8191,0)])</span>
-<span class="sd">    &gt;&gt;&gt; met = Metro(time=.125, poly=2).play()</span>
+<span class="sd">    &gt;&gt;&gt; met = Metro(time=0.125, poly=2).play()</span>
 <span class="sd">    &gt;&gt;&gt; trig = Percent(met, percent=50)</span>
-<span class="sd">    &gt;&gt;&gt; amp = TrigEnv(trig, table=t, dur=.25, mul=.3)</span>
+<span class="sd">    &gt;&gt;&gt; amp = TrigEnv(trig, table=t, dur=0.25, mul=0.3)</span>
 <span class="sd">    &gt;&gt;&gt; fr = TrigRand(trig, min=400, max=1000)</span>
 <span class="sd">    &gt;&gt;&gt; freq = Port(fr, risetime=0.001, falltime=0.001)</span>
 <span class="sd">    &gt;&gt;&gt; a = Sine(freq=freq, mul=amp).out()</span>
@@ -3562,9 +3562,9 @@
 <span class="sd">    &gt;&gt;&gt; cl = Cloud(density=20, poly=2).play()</span>
 <span class="sd">    &gt;&gt;&gt; ti = Timer(cl, cl)</span>
 <span class="sd">    &gt;&gt;&gt; # Minimum waiting time before a new trig</span>
-<span class="sd">    &gt;&gt;&gt; cp = Compare(ti, comp=.05, mode=&quot;&gt;&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; cp = Compare(ti, comp=0.05, mode=&quot;&gt;&quot;)</span>
 <span class="sd">    &gt;&gt;&gt; trig = cl * cp</span>
-<span class="sd">    &gt;&gt;&gt; amp = TrigEnv(trig, table=HannTable(), dur=.05, mul=.25)</span>
+<span class="sd">    &gt;&gt;&gt; amp = TrigEnv(trig, table=HannTable(), dur=0.05, mul=0.25)</span>
 <span class="sd">    &gt;&gt;&gt; freq = TrigChoice(trig, choice=[100,150,200,250,300,350,400])</span>
 <span class="sd">    &gt;&gt;&gt; a = LFO(freq=freq, type=2, mul=amp).out()</span>
 
@@ -3677,8 +3677,8 @@
 <span class="sd">    &gt;&gt;&gt; l1 = [300, 350, 400, 450, 500, 550]</span>
 <span class="sd">    &gt;&gt;&gt; l2 = [300, 350, 450, 500, 550]</span>
 <span class="sd">    &gt;&gt;&gt; t = CosTable([(0,0), (50,1), (250,.3), (8191,0)])</span>
-<span class="sd">    &gt;&gt;&gt; met = Metro(time=.125, poly=2).play()</span>
-<span class="sd">    &gt;&gt;&gt; amp = TrigEnv(met, table=t, dur=.25, mul=.3)</span>
+<span class="sd">    &gt;&gt;&gt; met = Metro(time=0.125, poly=2).play()</span>
+<span class="sd">    &gt;&gt;&gt; amp = TrigEnv(met, table=t, dur=0.25, mul=0.3)</span>
 <span class="sd">    &gt;&gt;&gt; it = Iter(met, choice=[l1, l2])</span>
 <span class="sd">    &gt;&gt;&gt; si = Sine(freq=it, mul=amp).out()</span>
 
@@ -3977,7 +3977,7 @@
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; mid = Urn(max=4, freq=4, add=60)</span>
-<span class="sd">    &gt;&gt;&gt; sigL = SineLoop(freq=MToF(mid), feedback=.08, mul=0.3).out()</span>
+<span class="sd">    &gt;&gt;&gt; sigL = SineLoop(freq=MToF(mid), feedback=0.08, mul=0.3).out()</span>
 <span class="sd">    &gt;&gt;&gt; first = NextTrig(Change(mid), mid[&quot;trig&quot;])</span>
 <span class="sd">    &gt;&gt;&gt; amp = TrigExpseg(first, [(0,0),(.01,.25),(1,0)])</span>
 <span class="sd">    &gt;&gt;&gt; sigR = SineLoop(midiToHz(84), feedback=0.05, mul=amp).out(1)</span>
@@ -4086,7 +4086,7 @@
 <span class="sd">    ...     val.value = (val.value + 50) % 500 + 100</span>
 <span class="sd">    &gt;&gt;&gt; tr = Metro(1).play()</span>
 <span class="sd">    &gt;&gt;&gt; val = TrigVal(tr, value=250)</span>
-<span class="sd">    &gt;&gt;&gt; a = SineLoop(val, feedback=.1, mul=.3).out()</span>
+<span class="sd">    &gt;&gt;&gt; a = SineLoop(val, feedback=0.1, mul=0.3).out()</span>
 <span class="sd">    &gt;&gt;&gt; trfunc = TrigFunc(tr, newfreq)</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -4224,7 +4224,7 @@
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>
 <span class="sd">    &gt;&gt;&gt; t = CosTable([(0,0), (100,1), (500,.3), (8191,0)])</span>
-<span class="sd">    &gt;&gt;&gt; beat = Euclide(time=.125, taps=16, onsets=[8,7], poly=1).play()</span>
+<span class="sd">    &gt;&gt;&gt; beat = Euclide(time=0.125, taps=16, onsets=[8,7], poly=1).play()</span>
 <span class="sd">    &gt;&gt;&gt; trmid = TrigXnoiseMidi(beat, dist=12, mrange=(60, 96))</span>
 <span class="sd">    &gt;&gt;&gt; trhz = Snap(trmid, choice=[0,2,3,5,7,8,10], scale=1)</span>
 <span class="sd">    &gt;&gt;&gt; tr2 = TrigEnv(beat, table=t, dur=beat[&#39;dur&#39;], mul=beat[&#39;amp&#39;])</span>

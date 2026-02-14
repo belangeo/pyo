@@ -13,6 +13,7 @@ Other possibilities that will be covered later use random
 class objects or feature extraction from an audio signal.
 
 """
+
 from pyo import *
 
 s = Server().boot()

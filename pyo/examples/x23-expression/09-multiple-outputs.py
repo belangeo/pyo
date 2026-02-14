@@ -21,6 +21,7 @@ bracket syntax (obj[0] is the first channel, obj[1] the second,
 and so on...).
 
 """
+
 from pyo import *
 
 s = Server().boot()

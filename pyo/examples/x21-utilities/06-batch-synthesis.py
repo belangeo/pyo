@@ -5,6 +5,7 @@ This program demonstrates how to use pyo to do offline synthesis batch
 generation.
 
 """
+
 import os
 from pyo import *
 
@@ -35,7 +36,10 @@ for i in range(NUM):
 
     # Set recording parameters.
     s.recordOptions(
-        dur=dur + 0.1, filename=os.path.join(output_folder, "file_%02d.wav" % note), fileformat=0, sampletype=0,
+        dur=dur + 0.1,
+        filename=os.path.join(output_folder, "file_%02d.wav" % note),
+        fileformat=0,
+        sampletype=0,
     )
 
     # Synthesis, an exponential envelope modulating a slightly out-of-tune stereo oscillator.

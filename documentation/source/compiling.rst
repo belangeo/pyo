@@ -1,7 +1,7 @@
 Compiling pyo from sources
 ==========================
 
-Here is how you can compile pyo from sources on Linux and MacOS (if you are
+Here is how you can compile pyo from sources on Linux and macOS (if you are
 interested in the adventure of compiling pyo from sources on Windows, you can 
 take a look at my personal notes in `windows-10-64bit-build-routine.txt
 <https://github.com/belangeo/pyo/blob/master/scripts/win/windows-10-64bit-build-routine.txt>`_).
@@ -21,8 +21,8 @@ To compile pyo with all its features, you will need the following dependencies:
 - `liblo <http://liblo.sourceforge.net/>`_ (0.32+)
 - `git <https://git-scm.com/>`_ (if you want the latest sources)
 
-Please note that under MacOS you will need to install the 
-**Apple's developer tools** to compile pyo.
+Please note that under macOS you will need to install the 
+**Apple's Developer Tools** to compile pyo.
 
 Getting sources
 ---------------
@@ -55,13 +55,13 @@ And build the library:
 
     python -m build
 
-You can customize your compilation by giving some flags to the build frontend with `--config-setting`.
+You can customize your compilation by giving some flags to the build frontend with ``--config-setting``.
 You can add as many `--config-setting` as you need in your build command.
 
 .. code-block:: bash
 
     --config-setting="--build-option=<FLAG>"
-    # Exemple for building with --use-double on Windows
+    # Example for building with ``--use-double`` on Windows
     py -3.13 -m build --config-setting="--build-option=--use-double"
 
 .. _compilation-flags-label:
@@ -75,7 +75,7 @@ If you want to be able to use coreaudio (MacOS):
 
     --use-coreaudio
 
-If you want JACK support (Linux, MacOS): 
+If you want JACK support (Linux, macOS): 
 
 .. code-block:: bash
 
@@ -83,13 +83,13 @@ If you want JACK support (Linux, MacOS):
 
 If you want to be able to use a 64-bit pyo (All platforms, this is the sample
 resolution, not the architecture), this will build both single and double 
-precisions: 
+precision: 
 
 .. code-block:: bash
 
     --use-double
 
-If you want to disable most of messages printed to the console:
+If you want to disable most of the messages printed to the console:
 
 .. code-block:: bash
     
@@ -126,26 +126,25 @@ This will compile pyo without portaudio, portmidi and liblo support.
 Installation
 ---------------
 
-Once built, you can install the created wheel file in your python distribution with pip:
+Once built, you can install the created wheel file in your Python distribution with pip:
 
 .. code-block:: bash
 
     python -m pip install --user dist/<YOUR_WHEEL_FILE.whl>
 
-With the `--user` flag, pyo will be installed in the user's site-packages,
-otherwise pyo will be installed system-wide.
+With the ``--user`` flag, pyo will be installed in the user's site-packages; otherwise, pyo will be installed system-wide.
 
 Debian & Ubuntu (apt-get)
 -------------------------
 
-Under Debian & Ubuntu you can type the following commands to get pyo up and running.
+Under Debian & Ubuntu, you can type the following commands to get pyo up and running.
 
 For Python 3.9 and higher
 *************************
 
 .. code-block:: bash
 
-    # For python 3.11
+    # For Python 3.11
     sudo apt-get install libjack-jackd2-dev libportmidi-dev portaudio19-dev liblo-dev libsndfile-dev
     sudo apt-get install python3-dev python3-tk python3-pil.imagetk python3-pip
     python3 -m pip install build
@@ -154,9 +153,9 @@ For Python 3.9 and higher
     python3 -m build --config-setting="--build-option=--use-jack" --config-setting="--build-option=--use-double"
     python3 -m pip install dist/pyo-1.0.6-cp311-cp311-linux_x86_64.whl
 
-If you want to be able to use all of pyo's gui widgets, you will need wxPython Phoenix 4.2.0 or higher. 
+If you want to be able to use all of pyo's GUI widgets, you will need WxPython Phoenix 4.2.0 or higher. 
 
-- To install wxPython with pip on linux, follow the instructions on the wxPython's `downloads <https://wxpython.org/pages/downloads/>`_ page. 
+- To install WxPython with pip on Linux, follow the instructions on the WxPython's `downloads <https://wxpython.org/pages/downloads/>`_ page. 
 
 MacOS (Homebrew)
 ----------------
@@ -166,7 +165,7 @@ package manager.
 
 The first step is to install the official Python from `python.org <https://www.python.org/downloads/>`_.
 
-Second step, if you want to be able to use all of pyo's gui widgets, you will need wxPython Phoenix. Install with pip:
+Second step, if you want to be able to use all of pyo's GUI widgets, you will need WxPython Phoenix. Install with pip:
 
 .. code-block:: bash
 
@@ -174,7 +173,7 @@ Second step, if you want to be able to use all of pyo's gui widgets, you will ne
 
 The third step is to install `Homebrew <http://brew.sh/>`_.
 
-Finally, in a terminal window, install pyo's dependencies, clone and build pyo:
+Finally, in a terminal window, install pyo's dependencies, clone, and build pyo:
 
 .. code-block:: bash
 

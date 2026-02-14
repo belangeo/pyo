@@ -1,5 +1,5 @@
 # Run this file in valgrind with:
-#   PYTHONMALLOC=malloc valgrind --tool=memcheck --leak-check=yes --show-leak-kinds=definite --track-origins=yes --num-callers=12 --suppressions=valgrind-python.supp python3 test_memleak_analysis.py 
+#   PYTHONMALLOC=malloc valgrind --tool=memcheck --leak-check=yes --show-leak-kinds=definite --track-origins=yes --num-callers=12 --suppressions=valgrind-python.supp python3 test_memleak_analysis.py
 # There should not be any definitely lost bytes.
 
 from pyo import *
@@ -36,10 +36,14 @@ f.setDeltime(0.12)
 f.setMaxthresh(-12.5)
 f.setCutoff(2500)
 
+
 def callback(x):
     print(x)
+
+
 def callback2(x):
     print(x)
+
 
 g = PeakAmp(i1, function=callback)
 g.setInput(Sig(0.5))

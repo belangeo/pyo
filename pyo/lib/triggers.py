@@ -53,7 +53,7 @@ class Trig(PyoObject):
     >>> s.start()
     >>> a = Trig()
     >>> env = HannTable()
-    >>> tenv = TrigEnv(a, table=env, dur=5, mul=.3)
+    >>> tenv = TrigEnv(a, table=env, dur=5, mul=0.3)
     >>> n = Noise(tenv).out()
 
     """
@@ -109,8 +109,8 @@ class Metro(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> t = CosTable([(0,0), (50,1), (250,.3), (8191,0)])
-    >>> met = Metro(time=.125, poly=2).play()
-    >>> amp = TrigEnv(met, table=t, dur=.25, mul=.3)
+    >>> met = Metro(time=0.125, poly=2).play()
+    >>> amp = TrigEnv(met, table=t, dur=0.25, mul=0.3)
     >>> freq = TrigRand(met, min=400, max=1000)
     >>> a = Sine(freq=freq, mul=amp).out()
 
@@ -123,7 +123,9 @@ class Metro(PyoObject):
         self._poly = poly
         time, lmax = convertArgsToLists(time)
         self._base_objs = [
-            Metro_base(wrap(time, i) * poly, (float(j) / poly)) for i in range(lmax) for j in range(poly)
+            Metro_base(wrap(time, i) * poly, (float(j) / poly))
+            for i in range(lmax)
+            for j in range(poly)
         ]
 
     def setTime(self, x):
@@ -209,9 +211,9 @@ class Seq(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> env = CosTable([(0,0),(300,1),(1000,.3),(8191,0)])
-    >>> seq = Seq(time=.125, seq=[2,1,1,2], poly=2).play()
-    >>> tr = TrigRand(seq, min=250, max=500, port=.005)
-    >>> amp = TrigEnv(seq, table=env, dur=.25, mul=.25)
+    >>> seq = Seq(time=0.125, seq=[2,1,1,2], poly=2).play()
+    >>> tr = TrigRand(seq, min=250, max=500, port=0.005)
+    >>> amp = TrigEnv(seq, table=env, dur=0.25, mul=0.25)
     >>> a = SineLoop(tr, feedback=0.07, mul=amp).out()
 
     """
@@ -226,14 +228,19 @@ class Seq(PyoObject):
         self._speed = speed
         time, speed, lmax = convertArgsToLists(time, speed)
         if type(seq[0]) != list:
-            self._base_players = [Seqer_base(wrap(time, i), seq, poly, onlyonce, wrap(speed, i)) for i in range(lmax)]
+            self._base_players = [
+                Seqer_base(wrap(time, i), seq, poly, onlyonce, wrap(speed, i)) for i in range(lmax)
+            ]
         else:
             seqlen = len(seq)
             lmax = max(seqlen, lmax)
             self._base_players = [
-                Seqer_base(wrap(time, i), wrap(seq, i), poly, onlyonce, wrap(speed, i)) for i in range(lmax)
+                Seqer_base(wrap(time, i), wrap(seq, i), poly, onlyonce, wrap(speed, i))
+                for i in range(lmax)
             ]
-        self._base_objs = [Seq_base(wrap(self._base_players, j), i) for i in range(poly) for j in range(lmax)]
+        self._base_objs = [
+            Seq_base(wrap(self._base_players, j), i) for i in range(poly) for j in range(lmax)
+        ]
 
     def setTime(self, x):
         """
@@ -398,7 +405,9 @@ class Cloud(PyoObject):
         self._poly = poly
         density, lmax = convertArgsToLists(density)
         self._base_players = [Clouder_base(wrap(density, i), poly) for i in range(lmax)]
-        self._base_objs = [Cloud_base(wrap(self._base_players, j), i) for i in range(poly) for j in range(lmax)]
+        self._base_objs = [
+            Cloud_base(wrap(self._base_players, j), i) for i in range(poly) for j in range(lmax)
+        ]
 
     def setDensity(self, x):
         """
@@ -506,7 +515,7 @@ class Beat(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> t = CosTable([(0,0), (100,1), (500,.3), (8191,0)])
-    >>> beat = Beat(time=.125, taps=16, w1=[90,80], w2=50, w3=35, poly=1).play()
+    >>> beat = Beat(time=0.125, taps=16, w1=[90,80], w2=50, w3=35, poly=1).play()
     >>> trmid = TrigXnoiseMidi(beat, dist=12, mrange=(60, 96))
     >>> trhz = Snap(trmid, choice=[0,2,3,5,7,8,10], scale=1)
     >>> tr2 = TrigEnv(beat, table=t, dur=beat['dur'], mul=beat['amp'])
@@ -530,14 +539,34 @@ class Beat(PyoObject):
         self._onlyonce = onlyonce
         time, taps, w1, w2, w3, lmax = convertArgsToLists(time, taps, w1, w2, w3)
         self._base_players = [
-            Beater_base(wrap(time, i), wrap(taps, i), wrap(w1, i), wrap(w2, i), wrap(w3, i), poly, onlyonce)
+            Beater_base(
+                wrap(time, i), wrap(taps, i), wrap(w1, i), wrap(w2, i), wrap(w3, i), poly, onlyonce
+            )
             for i in range(lmax)
         ]
-        self._base_objs = [Beat_base(wrap(self._base_players, j), i) for i in range(poly) for j in range(lmax)]
-        self._tap_objs = [BeatTapStream_base(wrap(self._base_players, j), i) for i in range(poly) for j in range(lmax)]
-        self._amp_objs = [BeatAmpStream_base(wrap(self._base_players, j), i) for i in range(poly) for j in range(lmax)]
-        self._dur_objs = [BeatDurStream_base(wrap(self._base_players, j), i) for i in range(poly) for j in range(lmax)]
-        self._end_objs = [BeatEndStream_base(wrap(self._base_players, j), i) for i in range(poly) for j in range(lmax)]
+        self._base_objs = [
+            Beat_base(wrap(self._base_players, j), i) for i in range(poly) for j in range(lmax)
+        ]
+        self._tap_objs = [
+            BeatTapStream_base(wrap(self._base_players, j), i)
+            for i in range(poly)
+            for j in range(lmax)
+        ]
+        self._amp_objs = [
+            BeatAmpStream_base(wrap(self._base_players, j), i)
+            for i in range(poly)
+            for j in range(lmax)
+        ]
+        self._dur_objs = [
+            BeatDurStream_base(wrap(self._base_players, j), i)
+            for i in range(poly)
+            for j in range(lmax)
+        ]
+        self._end_objs = [
+            BeatEndStream_base(wrap(self._base_players, j), i)
+            for i in range(poly)
+            for j in range(lmax)
+        ]
 
     def __getitem__(self, i):
         if i == "tap":
@@ -584,7 +613,9 @@ class Beat(PyoObject):
         if not all:
             return self.__getitem__(identifier)[0]._getStream().getValue()
         else:
-            return [obj._getStream().getValue() for obj in self.__getitem__(identifier).getBaseObjects()]
+            return [
+                obj._getStream().getValue() for obj in self.__getitem__(identifier).getBaseObjects()
+            ]
 
     def reset(self):
         """
@@ -758,7 +789,10 @@ class Beat(PyoObject):
         if w3 is not None:
             self._w3 = w3
         w1, w2, w3, lmax = convertArgsToLists(w1, w2, w3)
-        [obj.setWeights(wrap(w1, i), wrap(w2, i), wrap(w3, i)) for i, obj in enumerate(self._base_players)]
+        [
+            obj.setWeights(wrap(w1, i), wrap(w2, i), wrap(w3, i))
+            for i, obj in enumerate(self._base_players)
+        ]
 
     def setOnlyonce(self, x):
         """
@@ -776,10 +810,18 @@ class Beat(PyoObject):
 
     def play(self, dur=0, delay=0):
         dur, delay, lmax = convertArgsToLists(dur, delay)
-        self._tap_objs = [obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._tap_objs)]
-        self._amp_objs = [obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._amp_objs)]
-        self._dur_objs = [obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._dur_objs)]
-        self._end_objs = [obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._end_objs)]
+        self._tap_objs = [
+            obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._tap_objs)
+        ]
+        self._amp_objs = [
+            obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._amp_objs)
+        ]
+        self._dur_objs = [
+            obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._dur_objs)
+        ]
+        self._end_objs = [
+            obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._end_objs)
+        ]
         return PyoObject.play(self, dur, delay)
 
     def stop(self, wait=0):
@@ -895,7 +937,7 @@ class TrigRandInt(PyoObject):
     >>> s.start()
     >>> t = CosTable([(0,0), (50,1), (250,.3), (8191,0)])
     >>> met = Metro(.125, poly=2).play()
-    >>> amp = TrigEnv(met, table=t, dur=.25, mul=.3)
+    >>> amp = TrigEnv(met, table=t, dur=0.25, mul=0.3)
     >>> tr = TrigRandInt(met, max=10, mul=100, add=200)
     >>> a = Sine(tr, mul=amp).out()
 
@@ -909,7 +951,8 @@ class TrigRandInt(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, max, mul, add, lmax = convertArgsToLists(self._in_fader, max, mul, add)
         self._base_objs = [
-            TrigRandInt_base(wrap(in_fader, i), wrap(max, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+            TrigRandInt_base(wrap(in_fader, i), wrap(max, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
         ]
         self._init_play()
 
@@ -998,7 +1041,7 @@ class TrigRand(PyoObject):
     >>> s.start()
     >>> t = CosTable([(0,0), (50,1), (250,.3), (8191,0)])
     >>> met = Metro(.125, poly=2).play()
-    >>> amp = TrigEnv(met, table=t, dur=.25, mul=.3)
+    >>> amp = TrigEnv(met, table=t, dur=0.25, mul=0.3)
     >>> tr = TrigRand(met, 400, 600)
     >>> a = Sine(tr, mul=amp).out()
 
@@ -1017,7 +1060,13 @@ class TrigRand(PyoObject):
         )
         self._base_objs = [
             TrigRand_base(
-                wrap(in_fader, i), wrap(min, i), wrap(max, i), wrap(port, i), wrap(init, i), wrap(mul, i), wrap(add, i)
+                wrap(in_fader, i),
+                wrap(min, i),
+                wrap(max, i),
+                wrap(port, i),
+                wrap(init, i),
+                wrap(mul, i),
+                wrap(add, i),
             )
             for i in range(lmax)
         ]
@@ -1156,7 +1205,7 @@ class TrigChoice(PyoObject):
     >>> t = CosTable([(0,0), (50,1), (250,.3), (8191,0)])
     >>> met = Metro(.125, poly=2).play()
     >>> freq = TrigChoice(met, [300, 350, 400, 450, 500, 550])
-    >>> amp = TrigEnv(met, table=t, dur=.25, mul=.3)
+    >>> amp = TrigEnv(met, table=t, dur=0.25, mul=0.3)
     >>> a = Sine(freq=freq, mul=amp).out()
 
     """
@@ -1168,10 +1217,19 @@ class TrigChoice(PyoObject):
         self._choice = choice
         self._port = port
         self._in_fader = InputFader(input)
-        in_fader, port, init, mul, add, lmax = convertArgsToLists(self._in_fader, port, init, mul, add)
+        in_fader, port, init, mul, add, lmax = convertArgsToLists(
+            self._in_fader, port, init, mul, add
+        )
         if type(choice[0]) != list:
             self._base_objs = [
-                TrigChoice_base(wrap(in_fader, i), choice, wrap(port, i), wrap(init, i), wrap(mul, i), wrap(add, i))
+                TrigChoice_base(
+                    wrap(in_fader, i),
+                    choice,
+                    wrap(port, i),
+                    wrap(init, i),
+                    wrap(mul, i),
+                    wrap(add, i),
+                )
                 for i in range(lmax)
             ]
         else:
@@ -1179,7 +1237,12 @@ class TrigChoice(PyoObject):
             lmax = max(choicelen, lmax)
             self._base_objs = [
                 TrigChoice_base(
-                    wrap(in_fader, i), wrap(choice, i), wrap(port, i), wrap(init, i), wrap(mul, i), wrap(add, i)
+                    wrap(in_fader, i),
+                    wrap(choice, i),
+                    wrap(port, i),
+                    wrap(init, i),
+                    wrap(mul, i),
+                    wrap(add, i),
                 )
                 for i in range(lmax)
             ]
@@ -1289,7 +1352,7 @@ class TrigFunc(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> f = Fader(fadein=.005, fadeout=.1, dur=.12, mul=.2)
+    >>> f = Fader(fadein=0.005, fadeout=0.1, dur=0.12, mul=0.2)
     >>> a = SineLoop(midiToHz([60,60]), feedback=0.05, mul=f).out()
     >>> c = 0.0
     >>> def count():
@@ -1313,7 +1376,8 @@ class TrigFunc(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, function, arg, lmax = convertArgsToLists(self._in_fader, function, arg)
         self._base_objs = [
-            TrigFunc_base(wrap(in_fader, i), WeakMethod(wrap(function, i)), wrap(arg, i)) for i in range(lmax)
+            TrigFunc_base(wrap(in_fader, i), WeakMethod(wrap(function, i)), wrap(arg, i))
+            for i in range(lmax)
         ]
         self._init_play()
 
@@ -1434,7 +1498,7 @@ class TrigEnv(PyoObject):
     >>> env = HannTable()
     >>> m = Metro(.125, poly=2).play()
     >>> tr = TrigRand(m, 400, 600)
-    >>> te = TrigEnv(m, table=env, dur=.25, mul=.2)
+    >>> te = TrigEnv(m, table=env, dur=0.25, mul=0.2)
     >>> a = Sine(tr, mul=te).out()
 
     """
@@ -1447,9 +1511,18 @@ class TrigEnv(PyoObject):
         self._dur = dur
         self._interp = interp
         self._in_fader = InputFader(input)
-        in_fader, table, dur, interp, mul, add, lmax = convertArgsToLists(self._in_fader, table, dur, interp, mul, add)
+        in_fader, table, dur, interp, mul, add, lmax = convertArgsToLists(
+            self._in_fader, table, dur, interp, mul, add
+        )
         self._base_objs = [
-            TrigEnv_base(wrap(in_fader, i), wrap(table, i), wrap(dur, i), wrap(interp, i), wrap(mul, i), wrap(add, i))
+            TrigEnv_base(
+                wrap(in_fader, i),
+                wrap(table, i),
+                wrap(dur, i),
+                wrap(interp, i),
+                wrap(mul, i),
+                wrap(add, i),
+            )
             for i in range(lmax)
         ]
         self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])
@@ -1589,7 +1662,7 @@ class TrigLinseg(PyoObject):
     >>> s.start()
     >>> m = Metro(time=1, poly=2).play()
     >>> pit = TrigLinseg(m, [(0,1000),(.1,1300),(.2,900),(.3,1000),(2,1000)])
-    >>> a = Sine(pit, mul=.2).out()
+    >>> a = Sine(pit, mul=0.2).out()
 
     """
 
@@ -1600,7 +1673,10 @@ class TrigLinseg(PyoObject):
         self._list = list
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
-        self._base_objs = [TrigLinseg_base(wrap(in_fader, i), list, wrap(mul, i), wrap(add, i)) for i in range(lmax)]
+        self._base_objs = [
+            TrigLinseg_base(wrap(in_fader, i), list, wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
+        ]
         self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])
         self._init_play()
 
@@ -1757,7 +1833,7 @@ class TrigExpseg(PyoObject):
     >>> s.start()
     >>> m = Metro(time=0.5, poly=2).play()
     >>> pit = TrigExpseg(m, [(0,1000),(.25,1300),(.5,1000),(1,1000)])
-    >>> a = Sine(pit, mul=.2).out()
+    >>> a = Sine(pit, mul=0.2).out()
 
     """
 
@@ -1769,9 +1845,13 @@ class TrigExpseg(PyoObject):
         self._exp = exp
         self._inverse = inverse
         self._in_fader = InputFader(input)
-        in_fader, exp, inverse, mul, add, lmax = convertArgsToLists(self._in_fader, exp, inverse, mul, add)
+        in_fader, exp, inverse, mul, add, lmax = convertArgsToLists(
+            self._in_fader, exp, inverse, mul, add
+        )
         self._base_objs = [
-            TrigExpseg_base(wrap(in_fader, i), list, wrap(exp, i), wrap(inverse, i), wrap(mul, i), wrap(add, i))
+            TrigExpseg_base(
+                wrap(in_fader, i), list, wrap(exp, i), wrap(inverse, i), wrap(mul, i), wrap(add, i)
+            )
             for i in range(lmax)
         ]
         self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])
@@ -2027,7 +2107,7 @@ class TrigXnoise(PyoObject):
     >>> wav = SquareTable()
     >>> env = CosTable([(0,0), (100,1), (500,.3), (8191,0)])
     >>> met = Metro(.125, 12).play()
-    >>> amp = TrigEnv(met, table=env, mul=.2)
+    >>> amp = TrigEnv(met, table=env, mul=0.2)
     >>> pit = TrigXnoise(met, dist=4, x1=10, mul=1000, add=200)
     >>> a = Osc(table=wav, freq=pit, mul=amp).out()
 
@@ -2041,12 +2121,21 @@ class TrigXnoise(PyoObject):
         self._x1 = x1
         self._x2 = x2
         self._in_fader = InputFader(input)
-        in_fader, dist, x1, x2, mul, add, lmax = convertArgsToLists(self._in_fader, dist, x1, x2, mul, add)
+        in_fader, dist, x1, x2, mul, add, lmax = convertArgsToLists(
+            self._in_fader, dist, x1, x2, mul, add
+        )
         for i, t in enumerate(dist):
             if type(t) in [bytes, str]:
                 dist[i] = XNOISE_DICT.get(t, 0)
         self._base_objs = [
-            TrigXnoise_base(wrap(in_fader, i), wrap(dist, i), wrap(x1, i), wrap(x2, i), wrap(mul, i), wrap(add, i))
+            TrigXnoise_base(
+                wrap(in_fader, i),
+                wrap(dist, i),
+                wrap(x1, i),
+                wrap(x2, i),
+                wrap(mul, i),
+                wrap(add, i),
+            )
             for i in range(lmax)
         ]
         self._init_play()
@@ -2258,7 +2347,7 @@ class TrigXnoiseMidi(PyoObject):
     >>> wav = SquareTable()
     >>> env = CosTable([(0,0), (100,1), (500,.3), (8191,0)])
     >>> met = Metro(.125, 12).play()
-    >>> amp = TrigEnv(met, table=env, mul=.2)
+    >>> amp = TrigEnv(met, table=env, mul=0.2)
     >>> pit = TrigXnoiseMidi(met, dist=4, x1=10, scale=1, mrange=(48,84))
     >>> a = Osc(table=wav, freq=pit, mul=amp).out()
 
@@ -2489,7 +2578,7 @@ class Counter(PyoObject):
     >>> s.start()
     >>> m = Metro(.125).play()
     >>> c = Counter(m, min=3, max=8, dir=2, mul=100)
-    >>> a = Sine(freq=c, mul=.2).mix(2).out()
+    >>> a = Sine(freq=c, mul=0.2).mix(2).out()
 
     """
 
@@ -2501,9 +2590,18 @@ class Counter(PyoObject):
         self._max = max
         self._dir = dir
         self._in_fader = InputFader(input)
-        in_fader, min, max, dir, mul, add, lmax = convertArgsToLists(self._in_fader, min, max, dir, mul, add)
+        in_fader, min, max, dir, mul, add, lmax = convertArgsToLists(
+            self._in_fader, min, max, dir, mul, add
+        )
         self._base_objs = [
-            Counter_base(wrap(in_fader, i), wrap(min, i), wrap(max, i), wrap(dir, i), wrap(mul, i), wrap(add, i))
+            Counter_base(
+                wrap(in_fader, i),
+                wrap(min, i),
+                wrap(max, i),
+                wrap(dir, i),
+                wrap(mul, i),
+                wrap(add, i),
+            )
             for i in range(lmax)
         ]
         self._init_play()
@@ -2665,7 +2763,7 @@ class Select(PyoObject):
     >>> s.start()
     >>> env = HannTable()
     >>> m = Metro(.125, poly=2).play()
-    >>> te = TrigEnv(m, table=env, dur=.2, mul=.2)
+    >>> te = TrigEnv(m, table=env, dur=0.2, mul=0.2)
     >>> c = Counter(m, min=0, max=4)
     >>> se = Select(c, 0)
     >>> tr = TrigRand(se, 400, 600)
@@ -2681,7 +2779,8 @@ class Select(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, value, mul, add, lmax = convertArgsToLists(self._in_fader, value, mul, add)
         self._base_objs = [
-            Select_base(wrap(in_fader, i), wrap(value, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+            Select_base(wrap(in_fader, i), wrap(value, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
         ]
         self._init_play()
 
@@ -2763,8 +2862,8 @@ class Change(PyoObject):
     >>> t = CosTable([(0,0), (100,1), (500,.3), (8191,0)])
     >>> a = XnoiseMidi(dist="loopseg", freq=[2, 3], x1=1, scale=1, mrange=(60,73))
     >>> b = Change(a)
-    >>> amp = TrigEnv(b, table=t, dur=[.5,.333], mul=.3)
-    >>> out = SineLoop(freq=a, feedback=.05, mul=amp).out()
+    >>> amp = TrigEnv(b, table=t, dur=[.5,.333], mul=0.3)
+    >>> out = SineLoop(freq=a, feedback=0.05, mul=amp).out()
 
     """
 
@@ -2774,7 +2873,9 @@ class Change(PyoObject):
         self._input = input
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
-        self._base_objs = [Change_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
+        self._base_objs = [
+            Change_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+        ]
         self._init_play()
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
@@ -2845,7 +2946,7 @@ class Thresh(PyoObject):
     >>> a = Phasor(1)
     >>> b = Thresh(a, threshold=[0.25, 0.5, 0.66], dir=0)
     >>> t = LinTable([(0,0), (50,1), (250,.3), (8191,0)])
-    >>> env = TrigEnv(b, table=t, dur=.5, mul=.3)
+    >>> env = TrigEnv(b, table=t, dur=0.5, mul=0.3)
     >>> sine = Sine(freq=[500,600,700], mul=env).out()
 
     """
@@ -2857,9 +2958,13 @@ class Thresh(PyoObject):
         self._threshold = threshold
         self._dir = dir
         self._in_fader = InputFader(input)
-        in_fader, threshold, dir, mul, add, lmax = convertArgsToLists(self._in_fader, threshold, dir, mul, add)
+        in_fader, threshold, dir, mul, add, lmax = convertArgsToLists(
+            self._in_fader, threshold, dir, mul, add
+        )
         self._base_objs = [
-            Thresh_base(wrap(in_fader, i), wrap(threshold, i), wrap(dir, i), wrap(mul, i), wrap(add, i))
+            Thresh_base(
+                wrap(in_fader, i), wrap(threshold, i), wrap(dir, i), wrap(mul, i), wrap(add, i)
+            )
             for i in range(lmax)
         ]
         self._init_play()
@@ -2966,9 +3071,9 @@ class Percent(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> t = CosTable([(0,0), (50,1), (250,.3), (8191,0)])
-    >>> met = Metro(time=.125, poly=2).play()
+    >>> met = Metro(time=0.125, poly=2).play()
     >>> trig = Percent(met, percent=50)
-    >>> amp = TrigEnv(trig, table=t, dur=.25, mul=.3)
+    >>> amp = TrigEnv(trig, table=t, dur=0.25, mul=0.3)
     >>> fr = TrigRand(trig, min=400, max=1000)
     >>> freq = Port(fr, risetime=0.001, falltime=0.001)
     >>> a = Sine(freq=freq, mul=amp).out()
@@ -2983,7 +3088,8 @@ class Percent(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, percent, mul, add, lmax = convertArgsToLists(self._in_fader, percent, mul, add)
         self._base_objs = [
-            Percent_base(wrap(in_fader, i), wrap(percent, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+            Percent_base(wrap(in_fader, i), wrap(percent, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
         ]
         self._init_play()
 
@@ -3071,9 +3177,9 @@ class Timer(PyoObject):
     >>> cl = Cloud(density=20, poly=2).play()
     >>> ti = Timer(cl, cl)
     >>> # Minimum waiting time before a new trig
-    >>> cp = Compare(ti, comp=.05, mode=">")
+    >>> cp = Compare(ti, comp=0.05, mode=">")
     >>> trig = cl * cp
-    >>> amp = TrigEnv(trig, table=HannTable(), dur=.05, mul=.25)
+    >>> amp = TrigEnv(trig, table=HannTable(), dur=0.05, mul=0.25)
     >>> freq = TrigChoice(trig, choice=[100,150,200,250,300,350,400])
     >>> a = LFO(freq=freq, type=2, mul=amp).out()
 
@@ -3086,9 +3192,12 @@ class Timer(PyoObject):
         self._input2 = input2
         self._in_fader = InputFader(input)
         self._in_fader2 = InputFader(input2)
-        in_fader, in_fader2, mul, add, lmax = convertArgsToLists(self._in_fader, self._in_fader2, mul, add)
+        in_fader, in_fader2, mul, add, lmax = convertArgsToLists(
+            self._in_fader, self._in_fader2, mul, add
+        )
         self._base_objs = [
-            Timer_base(wrap(in_fader, i), wrap(in_fader2, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+            Timer_base(wrap(in_fader, i), wrap(in_fader2, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
         ]
         self._init_play()
 
@@ -3177,8 +3286,8 @@ class Iter(PyoObject):
     >>> l1 = [300, 350, 400, 450, 500, 550]
     >>> l2 = [300, 350, 450, 500, 550]
     >>> t = CosTable([(0,0), (50,1), (250,.3), (8191,0)])
-    >>> met = Metro(time=.125, poly=2).play()
-    >>> amp = TrigEnv(met, table=t, dur=.25, mul=.3)
+    >>> met = Metro(time=0.125, poly=2).play()
+    >>> amp = TrigEnv(met, table=t, dur=0.25, mul=0.3)
     >>> it = Iter(met, choice=[l1, l2])
     >>> si = Sine(freq=it, mul=amp).out()
 
@@ -3194,13 +3303,15 @@ class Iter(PyoObject):
         x = self._flatten(choice)
         if type(x[0]) != list:
             self._base_objs = [
-                Iter_base(wrap(in_fader, i), x, wrap(init, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+                Iter_base(wrap(in_fader, i), x, wrap(init, i), wrap(mul, i), wrap(add, i))
+                for i in range(lmax)
             ]
         else:
             choicelen = len(x)
             lmax = max(choicelen, lmax)
             self._base_objs = [
-                Iter_base(wrap(in_fader, i), wrap(x, i), wrap(init, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+                Iter_base(wrap(in_fader, i), wrap(x, i), wrap(init, i), wrap(mul, i), wrap(add, i))
+                for i in range(lmax)
             ]
         self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])
         self._init_play()
@@ -3339,7 +3450,8 @@ class Count(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, min, max, mul, add, lmax = convertArgsToLists(self._in_fader, min, max, mul, add)
         self._base_objs = [
-            Count_base(wrap(in_fader, i), wrap(min, i), wrap(max, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+            Count_base(wrap(in_fader, i), wrap(min, i), wrap(max, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
         ]
         self._init_play()
 
@@ -3450,7 +3562,7 @@ class NextTrig(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> mid = Urn(max=4, freq=4, add=60)
-    >>> sigL = SineLoop(freq=MToF(mid), feedback=.08, mul=0.3).out()
+    >>> sigL = SineLoop(freq=MToF(mid), feedback=0.08, mul=0.3).out()
     >>> first = NextTrig(Change(mid), mid["trig"])
     >>> amp = TrigExpseg(first, [(0,0),(.01,.25),(1,0)])
     >>> sigR = SineLoop(midiToHz(84), feedback=0.05, mul=amp).out(1)
@@ -3464,9 +3576,12 @@ class NextTrig(PyoObject):
         self._input2 = input2
         self._in_fader = InputFader(input)
         self._in_fader2 = InputFader(input2)
-        in_fader, in_fader2, mul, add, lmax = convertArgsToLists(self._in_fader, self._in_fader2, mul, add)
+        in_fader, in_fader2, mul, add, lmax = convertArgsToLists(
+            self._in_fader, self._in_fader2, mul, add
+        )
         self._base_objs = [
-            NextTrig_base(wrap(in_fader, i), wrap(in_fader2, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+            NextTrig_base(wrap(in_fader, i), wrap(in_fader2, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
         ]
         self._init_play()
 
@@ -3550,7 +3665,7 @@ class TrigVal(PyoObject):
     ...     val.value = (val.value + 50) % 500 + 100
     >>> tr = Metro(1).play()
     >>> val = TrigVal(tr, value=250)
-    >>> a = SineLoop(val, feedback=.1, mul=.3).out()
+    >>> a = SineLoop(val, feedback=0.1, mul=0.3).out()
     >>> trfunc = TrigFunc(tr, newfreq)
 
     """
@@ -3561,9 +3676,13 @@ class TrigVal(PyoObject):
         self._input = input
         self._value = value
         self._in_fader = InputFader(input)
-        in_fader, value, init, mul, add, lmax = convertArgsToLists(self._in_fader, value, init, mul, add)
+        in_fader, value, init, mul, add, lmax = convertArgsToLists(
+            self._in_fader, value, init, mul, add
+        )
         self._base_objs = [
-            TrigVal_base(wrap(in_fader, i), wrap(value, i), wrap(init, i), wrap(mul, i), wrap(add, i))
+            TrigVal_base(
+                wrap(in_fader, i), wrap(value, i), wrap(init, i), wrap(mul, i), wrap(add, i)
+            )
             for i in range(lmax)
         ]
         self._init_play()
@@ -3673,7 +3792,7 @@ class Euclide(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> t = CosTable([(0,0), (100,1), (500,.3), (8191,0)])
-    >>> beat = Euclide(time=.125, taps=16, onsets=[8,7], poly=1).play()
+    >>> beat = Euclide(time=0.125, taps=16, onsets=[8,7], poly=1).play()
     >>> trmid = TrigXnoiseMidi(beat, dist=12, mrange=(60, 96))
     >>> trhz = Snap(trmid, choice=[0,2,3,5,7,8,10], scale=1)
     >>> tr2 = TrigEnv(beat, table=t, dur=beat['dur'], mul=beat['amp'])
@@ -3694,13 +3813,32 @@ class Euclide(PyoObject):
         self._poly = poly
         time, taps, onsets, lmax = convertArgsToLists(time, taps, onsets)
         self._base_players = [
-            Beater_base(wrap(time, i), wrap(taps, i), wrap([100] * lmax, i), poly) for i in range(lmax)
+            Beater_base(wrap(time, i), wrap(taps, i), wrap([100] * lmax, i), poly)
+            for i in range(lmax)
         ]
-        self._base_objs = [Beat_base(wrap(self._base_players, j), i) for i in range(poly) for j in range(lmax)]
-        self._tap_objs = [BeatTapStream_base(wrap(self._base_players, j), i) for i in range(poly) for j in range(lmax)]
-        self._amp_objs = [BeatAmpStream_base(wrap(self._base_players, j), i) for i in range(poly) for j in range(lmax)]
-        self._dur_objs = [BeatDurStream_base(wrap(self._base_players, j), i) for i in range(poly) for j in range(lmax)]
-        self._end_objs = [BeatEndStream_base(wrap(self._base_players, j), i) for i in range(poly) for j in range(lmax)]
+        self._base_objs = [
+            Beat_base(wrap(self._base_players, j), i) for i in range(poly) for j in range(lmax)
+        ]
+        self._tap_objs = [
+            BeatTapStream_base(wrap(self._base_players, j), i)
+            for i in range(poly)
+            for j in range(lmax)
+        ]
+        self._amp_objs = [
+            BeatAmpStream_base(wrap(self._base_players, j), i)
+            for i in range(poly)
+            for j in range(lmax)
+        ]
+        self._dur_objs = [
+            BeatDurStream_base(wrap(self._base_players, j), i)
+            for i in range(poly)
+            for j in range(lmax)
+        ]
+        self._end_objs = [
+            BeatEndStream_base(wrap(self._base_players, j), i)
+            for i in range(poly)
+            for j in range(lmax)
+        ]
         for i in range(lmax):
             preset = [wrap(taps, i)] + self.__generate__(wrap(onsets, i), wrap(taps, i))
             self._base_players[i].setPresets([preset])
@@ -3774,7 +3912,9 @@ class Euclide(PyoObject):
         if not all:
             return self.__getitem__(identifier)[0]._getStream().getValue()
         else:
-            return [obj._getStream().getValue() for obj in self.__getitem__(identifier).getBaseObjects()]
+            return [
+                obj._getStream().getValue() for obj in self.__getitem__(identifier).getBaseObjects()
+            ]
 
     def setTime(self, x):
         """
@@ -3836,10 +3976,18 @@ class Euclide(PyoObject):
 
     def play(self, dur=0, delay=0):
         dur, delay, lmax = convertArgsToLists(dur, delay)
-        self._tap_objs = [obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._tap_objs)]
-        self._amp_objs = [obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._amp_objs)]
-        self._dur_objs = [obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._dur_objs)]
-        self._end_objs = [obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._end_objs)]
+        self._tap_objs = [
+            obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._tap_objs)
+        ]
+        self._amp_objs = [
+            obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._amp_objs)
+        ]
+        self._dur_objs = [
+            obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._dur_objs)
+        ]
+        self._end_objs = [
+            obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._end_objs)
+        ]
         return PyoObject.play(self, dur, delay)
 
     def stop(self, wait=0):
@@ -3973,23 +4121,42 @@ class TrigBurst(PyoObject):
         self._ampfade = ampfade
         self._poly = poly
         self._in_fader = InputFader(input)
-        in_fader, time, count, expand, ampfade, lmax = convertArgsToLists(self._in_fader, time, count, expand, ampfade)
+        in_fader, time, count, expand, ampfade, lmax = convertArgsToLists(
+            self._in_fader, time, count, expand, ampfade
+        )
         self._base_players = [
-            TrigBurster_base(wrap(in_fader, i), wrap(time, i), wrap(count, i), wrap(expand, i), wrap(ampfade, i), poly)
+            TrigBurster_base(
+                wrap(in_fader, i),
+                wrap(time, i),
+                wrap(count, i),
+                wrap(expand, i),
+                wrap(ampfade, i),
+                poly,
+            )
             for i in range(lmax)
         ]
-        self._base_objs = [TrigBurst_base(wrap(self._base_players, j), i) for i in range(poly) for j in range(lmax)]
+        self._base_objs = [
+            TrigBurst_base(wrap(self._base_players, j), i) for i in range(poly) for j in range(lmax)
+        ]
         self._tap_objs = [
-            TrigBurstTapStream_base(wrap(self._base_players, j), i) for i in range(poly) for j in range(lmax)
+            TrigBurstTapStream_base(wrap(self._base_players, j), i)
+            for i in range(poly)
+            for j in range(lmax)
         ]
         self._amp_objs = [
-            TrigBurstAmpStream_base(wrap(self._base_players, j), i) for i in range(poly) for j in range(lmax)
+            TrigBurstAmpStream_base(wrap(self._base_players, j), i)
+            for i in range(poly)
+            for j in range(lmax)
         ]
         self._dur_objs = [
-            TrigBurstDurStream_base(wrap(self._base_players, j), i) for i in range(poly) for j in range(lmax)
+            TrigBurstDurStream_base(wrap(self._base_players, j), i)
+            for i in range(poly)
+            for j in range(lmax)
         ]
         self._end_objs = [
-            TrigBurstEndStream_base(wrap(self._base_players, j), i) for i in range(poly) for j in range(lmax)
+            TrigBurstEndStream_base(wrap(self._base_players, j), i)
+            for i in range(poly)
+            for j in range(lmax)
         ]
         self._init_play()
 
@@ -4038,7 +4205,9 @@ class TrigBurst(PyoObject):
         if not all:
             return self.__getitem__(identifier)[0]._getStream().getValue()
         else:
-            return [obj._getStream().getValue() for obj in self.__getitem__(identifier).getBaseObjects()]
+            return [
+                obj._getStream().getValue() for obj in self.__getitem__(identifier).getBaseObjects()
+            ]
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -4118,10 +4287,18 @@ class TrigBurst(PyoObject):
 
     def play(self, dur=0, delay=0):
         dur, delay, lmax = convertArgsToLists(dur, delay)
-        self._tap_objs = [obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._tap_objs)]
-        self._amp_objs = [obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._amp_objs)]
-        self._dur_objs = [obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._dur_objs)]
-        self._end_objs = [obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._end_objs)]
+        self._tap_objs = [
+            obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._tap_objs)
+        ]
+        self._amp_objs = [
+            obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._amp_objs)
+        ]
+        self._dur_objs = [
+            obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._dur_objs)
+        ]
+        self._end_objs = [
+            obj.play(wrap(dur, i), wrap(delay, i)) for i, obj in enumerate(self._end_objs)
+        ]
         return PyoObject.play(self, dur, delay)
 
     def stop(self, wait=0):

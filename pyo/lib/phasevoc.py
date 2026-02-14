@@ -107,7 +107,13 @@ class PVAnal(PyoPVObject):
             self._in_fader, size, overlaps, wintype, callback
         )
         self._base_objs = [
-            PVAnal_base(wrap(in_fader, i), wrap(size, i), wrap(overlaps, i), wrap(wintype, i), wrap(callback, i))
+            PVAnal_base(
+                wrap(in_fader, i),
+                wrap(size, i),
+                wrap(overlaps, i),
+                wrap(wintype, i),
+                wrap(callback, i),
+            )
             for i in range(lmax)
         ]
         self._init_play()
@@ -269,7 +275,8 @@ class PVSynth(PyoObject):
         self._wintype = wintype
         input, wintype, mul, add, lmax = convertArgsToLists(self._input, wintype, mul, add)
         self._base_objs = [
-            PVSynth_base(wrap(input, i), wrap(wintype, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+            PVSynth_base(wrap(input, i), wrap(wintype, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
         ]
         self._init_play()
 
@@ -375,7 +382,13 @@ class PVAddSynth(PyoObject):
         )
         self._base_objs = [
             PVAddSynth_base(
-                wrap(input, i), wrap(pitch, i), wrap(num, i), wrap(first, i), wrap(inc, i), wrap(mul, i), wrap(add, i)
+                wrap(input, i),
+                wrap(pitch, i),
+                wrap(num, i),
+                wrap(first, i),
+                wrap(inc, i),
+                wrap(mul, i),
+                wrap(add, i),
             )
             for i in range(lmax)
         ]
@@ -521,11 +534,11 @@ class PVTranspose(PyoPVObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> sf = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=.7)
+    >>> sf = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=0.7)
     >>> pva = PVAnal(sf, size=1024)
     >>> pvt = PVTranspose(pva, transpo=1.5)
     >>> pvs = PVSynth(pvt).out()
-    >>> dry = Delay(sf, delay=1024./s.getSamplingRate(), mul=.7).out(1)
+    >>> dry = Delay(sf, delay=1024./s.getSamplingRate(), mul=0.7).out(1)
 
     """
 
@@ -611,12 +624,12 @@ class PVVerb(PyoPVObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> sf = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=.5)
+    >>> sf = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=0.5)
     >>> pva = PVAnal(sf, size=2048)
     >>> pvg = PVGate(pva, thresh=-36, damp=0)
     >>> pvv = PVVerb(pvg, revtime=0.95, damp=0.95)
     >>> pvs = PVSynth(pvv).mix(2).out()
-    >>> dry = Delay(sf, delay=2048./s.getSamplingRate(), mul=.4).mix(2).out()
+    >>> dry = Delay(sf, delay=2048./s.getSamplingRate(), mul=0.4).mix(2).out()
 
     """
 
@@ -627,7 +640,9 @@ class PVVerb(PyoPVObject):
         self._revtime = revtime
         self._damp = damp
         input, revtime, damp, lmax = convertArgsToLists(self._input, revtime, damp)
-        self._base_objs = [PVVerb_base(wrap(input, i), wrap(revtime, i), wrap(damp, i)) for i in range(lmax)]
+        self._base_objs = [
+            PVVerb_base(wrap(input, i), wrap(revtime, i), wrap(damp, i)) for i in range(lmax)
+        ]
         self._init_play()
 
     def setInput(self, x):
@@ -676,7 +691,10 @@ class PVVerb(PyoPVObject):
         [obj.setDamp(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0, 1, "lin", "revtime", self._revtime), SLMap(0, 1, "lin", "damp", self._damp)]
+        self._map_list = [
+            SLMap(0, 1, "lin", "revtime", self._revtime),
+            SLMap(0, 1, "lin", "damp", self._damp),
+        ]
         PyoPVObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
@@ -730,7 +748,7 @@ class PVGate(PyoPVObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> sf = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=.5)
+    >>> sf = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=0.5)
     >>> pva = PVAnal(sf, size=2048)
     >>> pvg = PVGate(pva, thresh=-50, damp=0)
     >>> pvs = PVSynth(pvg).mix(2).out()
@@ -746,7 +764,8 @@ class PVGate(PyoPVObject):
         self._inverse = inverse
         input, thresh, damp, inverse, lmax = convertArgsToLists(self._input, thresh, damp, inverse)
         self._base_objs = [
-            PVGate_base(wrap(input, i), wrap(thresh, i), wrap(damp, i), wrap(inverse, i)) for i in range(lmax)
+            PVGate_base(wrap(input, i), wrap(thresh, i), wrap(damp, i), wrap(inverse, i))
+            for i in range(lmax)
         ]
         self._init_play()
 
@@ -811,7 +830,10 @@ class PVGate(PyoPVObject):
         [obj.setInverse(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(-120, 18, "lin", "thresh", self._thresh), SLMap(0, 2, "lin", "damp", self._damp)]
+        self._map_list = [
+            SLMap(-120, 18, "lin", "thresh", self._thresh),
+            SLMap(0, 2, "lin", "damp", self._damp),
+        ]
         PyoPVObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
@@ -884,8 +906,8 @@ class PVCross(PyoPVObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> sf = SineLoop(freq=[80,81], feedback=0.07, mul=.5)
-    >>> sf2 = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=.5)
+    >>> sf = SineLoop(freq=[80,81], feedback=0.07, mul=0.5)
+    >>> sf2 = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=0.5)
     >>> pva = PVAnal(sf)
     >>> pva2 = PVAnal(sf2)
     >>> pvc = PVCross(pva, pva2, fade=1)
@@ -906,7 +928,9 @@ class PVCross(PyoPVObject):
         self._input2 = input2
         self._fade = fade
         input, input2, fade, lmax = convertArgsToLists(self._input, self._input2, fade)
-        self._base_objs = [PVCross_base(wrap(input, i), wrap(input2, i), wrap(fade, i)) for i in range(lmax)]
+        self._base_objs = [
+            PVCross_base(wrap(input, i), wrap(input2, i), wrap(fade, i)) for i in range(lmax)
+        ]
         self._init_play()
 
     def setInput(self, x):
@@ -1012,8 +1036,8 @@ class PVMult(PyoPVObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> sf = FM(carrier=[100,150], ratio=[.999,.5005], index=20, mul=.4)
-    >>> sf2 = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=.5)
+    >>> sf = FM(carrier=[100,150], ratio=[.999,.5005], index=20, mul=0.4)
+    >>> sf2 = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=0.5)
     >>> pva = PVAnal(sf)
     >>> pva2 = PVAnal(sf2)
     >>> pvc = PVMult(pva, pva2)
@@ -1118,8 +1142,8 @@ class PVMorph(PyoPVObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> sf = SineLoop(freq=[100,101], feedback=0.12, mul=.5)
-    >>> sf2 = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=.5)
+    >>> sf = SineLoop(freq=[100,101], feedback=0.12, mul=0.5)
+    >>> sf2 = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=0.5)
     >>> pva = PVAnal(sf)
     >>> pva2 = PVAnal(sf2)
     >>> pvc = PVMorph(pva, pva2, fade=0.5)
@@ -1140,7 +1164,9 @@ class PVMorph(PyoPVObject):
         self._input2 = input2
         self._fade = fade
         input, input2, fade, lmax = convertArgsToLists(self._input, self._input2, fade)
-        self._base_objs = [PVMorph_base(wrap(input, i), wrap(input2, i), wrap(fade, i)) for i in range(lmax)]
+        self._base_objs = [
+            PVMorph_base(wrap(input, i), wrap(input2, i), wrap(fade, i)) for i in range(lmax)
+        ]
         self._init_play()
 
     def setInput(self, x):
@@ -1266,7 +1292,8 @@ class PVFilter(PyoPVObject):
         self._mode = mode
         input, table, gain, mode, lmax = convertArgsToLists(self._input, table, gain, mode)
         self._base_objs = [
-            PVFilter_base(wrap(input, i), wrap(table, i), wrap(gain, i), wrap(mode, i)) for i in range(lmax)
+            PVFilter_base(wrap(input, i), wrap(table, i), wrap(gain, i), wrap(mode, i))
+            for i in range(lmax)
         ]
         self._init_play()
 
@@ -1434,7 +1461,13 @@ class PVDelay(PyoPVObject):
             self._input, deltable, feedtable, maxdelay, mode
         )
         self._base_objs = [
-            PVDelay_base(wrap(input, i), wrap(deltable, i), wrap(feedtable, i), wrap(maxdelay, i), wrap(mode, i))
+            PVDelay_base(
+                wrap(input, i),
+                wrap(deltable, i),
+                wrap(feedtable, i),
+                wrap(maxdelay, i),
+                wrap(mode, i),
+            )
             for i in range(lmax)
         ]
         self._init_play()
@@ -1583,7 +1616,8 @@ class PVBuffer(PyoPVObject):
         self._length = length
         input, index, pitch, length, lmax = convertArgsToLists(self._input, index, pitch, length)
         self._base_objs = [
-            PVBuffer_base(wrap(input, i), wrap(index, i), wrap(pitch, i), wrap(length, i)) for i in range(lmax)
+            PVBuffer_base(wrap(input, i), wrap(index, i), wrap(pitch, i), wrap(length, i))
+            for i in range(lmax)
         ]
         self._init_play()
 
@@ -1706,7 +1740,7 @@ class PVShift(PyoPVObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> sf = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=.7)
+    >>> sf = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=0.7)
     >>> pva = PVAnal(sf, size=1024)
     >>> pvt = PVShift(pva, shift=500)
     >>> pvs = PVSynth(pvt).out()
@@ -1830,9 +1864,12 @@ class PVAmpMod(PyoPVObject):
         self._basefreq = basefreq
         self._spread = spread
         self._shape = shape
-        input, basefreq, spread, shape, lmax = convertArgsToLists(self._input, basefreq, spread, shape)
+        input, basefreq, spread, shape, lmax = convertArgsToLists(
+            self._input, basefreq, spread, shape
+        )
         self._base_objs = [
-            PVAmpMod_base(wrap(input, i), wrap(basefreq, i), wrap(spread, i), wrap(shape, i)) for i in range(lmax)
+            PVAmpMod_base(wrap(input, i), wrap(basefreq, i), wrap(spread, i), wrap(shape, i))
+            for i in range(lmax)
         ]
         self._init_play()
 
@@ -2014,9 +2051,13 @@ class PVFreqMod(PyoPVObject):
         self._spread = spread
         self._depth = depth
         self._shape = shape
-        input, basefreq, spread, depth, shape, lmax = convertArgsToLists(self._input, basefreq, spread, depth, shape)
+        input, basefreq, spread, depth, shape, lmax = convertArgsToLists(
+            self._input, basefreq, spread, depth, shape
+        )
         self._base_objs = [
-            PVFreqMod_base(wrap(input, i), wrap(basefreq, i), wrap(spread, i), wrap(depth, i), wrap(shape, i))
+            PVFreqMod_base(
+                wrap(input, i), wrap(basefreq, i), wrap(spread, i), wrap(depth, i), wrap(shape, i)
+            )
             for i in range(lmax)
         ]
         self._init_play()
@@ -2221,9 +2262,13 @@ class PVBufLoops(PyoPVObject):
         self._high = high
         self._mode = mode
         self._length = length
-        input, low, high, mode, length, lmax = convertArgsToLists(self._input, low, high, mode, length)
+        input, low, high, mode, length, lmax = convertArgsToLists(
+            self._input, low, high, mode, length
+        )
         self._base_objs = [
-            PVBufLoops_base(wrap(input, i), wrap(low, i), wrap(high, i), wrap(mode, i), wrap(length, i))
+            PVBufLoops_base(
+                wrap(input, i), wrap(low, i), wrap(high, i), wrap(mode, i), wrap(length, i)
+            )
             for i in range(lmax)
         ]
         self._init_play()
@@ -2296,7 +2341,10 @@ class PVBufLoops(PyoPVObject):
         [obj.reset() for obj in self._base_objs]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(-4, 4, "lin", "low", self._low), SLMap(-4, 4, "lin", "high", self._high)]
+        self._map_list = [
+            SLMap(-4, 4, "lin", "low", self._low),
+            SLMap(-4, 4, "lin", "high", self._high),
+        ]
         PyoPVObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
@@ -2380,7 +2428,9 @@ class PVBufTabLoops(PyoPVObject):
         self._speed = speed
         self._length = length
         input, speed, length, lmax = convertArgsToLists(self._input, speed, length)
-        self._base_objs = [PVBufTabLoops_base(wrap(input, i), wrap(speed, i), wrap(length, i)) for i in range(lmax)]
+        self._base_objs = [
+            PVBufTabLoops_base(wrap(input, i), wrap(speed, i), wrap(length, i)) for i in range(lmax)
+        ]
         self._init_play()
 
     def setInput(self, x):
@@ -2463,8 +2513,8 @@ class PVMix(PyoPVObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> sf = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=.5)
-    >>> sf2 = SfPlayer(SNDS_PATH+"/accord.aif", loop=True, mul=.5)
+    >>> sf = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=0.5)
+    >>> sf2 = SfPlayer(SNDS_PATH+"/accord.aif", loop=True, mul=0.5)
     >>> pva = PVAnal(sf)
     >>> pva2 = PVAnal(sf2)
     >>> pvm = PVMix(pva, pva2)

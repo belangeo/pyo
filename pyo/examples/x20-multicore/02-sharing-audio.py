@@ -5,6 +5,7 @@ Usage:
     python3 -i 02-sharing-audio.py
 
 """
+
 import sys, time, random, multiprocessing
 from pyo import *
 
@@ -34,7 +35,7 @@ class Proc(multiprocessing.Process):
         names = ["/f%02d" % i for i in range(nbands)]
 
         if self.create:  # 50 bands frequency splitter.
-            freq = [20 * 1.1487 ** i for i in range(nbands)]
+            freq = [20 * 1.1487**i for i in range(nbands)]
             amp = [pow(10, (i * -1) * 0.05) * 8 for i in range(nbands)]
             self.input = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True)
             self.filts = IRWinSinc(self.input, freq, freq, 3, 128, amp)

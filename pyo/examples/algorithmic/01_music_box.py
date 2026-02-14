@@ -19,7 +19,9 @@ freqs = [low_freqs, low_freqs, mid_freqs, mid_freqs, high_freqs]
 # -->
 chx = Choice(choice=freqs, freq=[1, 2, 3, 3, 4])
 port = Port(chx, risetime=0.001, falltime=0.001)
-sines = SineLoop(port, feedback=[0.06, 0.057, 0.033, 0.035, 0.016], mul=[0.15, 0.15, 0.1, 0.1, 0.06])
+sines = SineLoop(
+    port, feedback=[0.06, 0.057, 0.033, 0.035, 0.016], mul=[0.15, 0.15, 0.1, 0.1, 0.06]
+)
 pan = SPan(sines, pan=[0, 1, 0.2, 0.8, 0.5]).out()
 # <--
 

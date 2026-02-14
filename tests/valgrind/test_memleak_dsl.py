@@ -1,5 +1,5 @@
 # Run this file in valgrind with:
-#   PYTHONMALLOC=malloc valgrind --tool=memcheck --leak-check=yes --show-leak-kinds=definite --track-origins=yes --num-callers=12 --suppressions=valgrind-python.supp python3 test_memleak_dsl.py 
+#   PYTHONMALLOC=malloc valgrind --tool=memcheck --leak-check=yes --show-leak-kinds=definite --track-origins=yes --num-callers=12 --suppressions=valgrind-python.supp python3 test_memleak_dsl.py
 # There should not be any definitely lost bytes.
 
 ###
@@ -7,6 +7,7 @@
 ###
 
 import os
+
 os.environ["PYO_GUI_WX"] = "0"
 
 from pyo import *
@@ -106,12 +107,14 @@ e7 = """
 a7 = Expr(Sig(0), e7).out()
 
 # range method causes leaks...
-pit = Sine(0.1)#.range(200, 300)
-feed = Sine(0.5)#.range(0.3, 0.6)
+pit = Sine(0.1)  # .range(200, 300)
+feed = Sine(0.5)  # .range(0.3, 0.6)
+
 
 def change():
     "Sends new values to user variables in the expression."
     a7.setVar(["#pitch", "#feed"], [pit.get(), feed.get()])
+
 
 pat = Pattern(change, 0.001).play()
 
@@ -177,9 +180,9 @@ a10 = Expr(Sig(0), e10, outs=3, initout=1.0, mul=[0.044, 0.0328, 0.0]).out()
 song1 = "#0 t600 o12 v80 x0.5 y0.5 z0.5 c3 r5 ?[c e g b-]1 |: v?{40 70} x+0.01 y+0.01 z+0.01 v+20 o+2 t-2 d-2 r3 d+6 (c d e)5 v-20 x-0.01 y-0.01 z-0.01 :|12 z?{0.1 0.2}"
 
 mml1 = MML(song1, voices=1, loop=True, poly=1, updateAtEnd=False).play()
-env1 = CosTable([(0,0), (8,1), (1024,1), (8000, 1.0), (8191,0)])
-tr1 = TrigEnv(mml1, table=env1, dur=mml1['dur'], mul=mml1["amp"])
-osc1 = SineLoop(freq=mml1["freq"], feedback=mml1['x'], mul=tr1)
+env1 = CosTable([(0, 0), (8, 1), (1024, 1), (8000, 1.0), (8191, 0)])
+tr1 = TrigEnv(mml1, table=env1, dur=mml1["dur"], mul=mml1["amp"])
+osc1 = SineLoop(freq=mml1["freq"], feedback=mml1["x"], mul=tr1)
 
 s.process()
 s.process()

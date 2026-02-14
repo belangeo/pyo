@@ -616,8 +616,8 @@
 <span class="sd">        with IFFT, before being sent to output.</span>
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
-<span class="sd">    &gt;&gt;&gt; snd1 = SfPlayer(SNDS_PATH+&quot;/transparent.aif&quot;, loop=True, mul=.7).mix(2)</span>
-<span class="sd">    &gt;&gt;&gt; snd2 = FM(carrier=[75,100,125,150], ratio=[.499,.5,.501,.502], index=20, mul=.1).mix(2)</span>
+<span class="sd">    &gt;&gt;&gt; snd1 = SfPlayer(SNDS_PATH+&quot;/transparent.aif&quot;, loop=True, mul=0.7).mix(2)</span>
+<span class="sd">    &gt;&gt;&gt; snd2 = FM(carrier=[75,100,125,150], ratio=[.499,.5,.501,.502], index=20, mul=0.1).mix(2)</span>
 <span class="sd">    &gt;&gt;&gt; fin1 = FFT(snd1, size=1024, overlaps=4)</span>
 <span class="sd">    &gt;&gt;&gt; fin2 = FFT(snd2, size=1024, overlaps=4)</span>
 <span class="sd">    &gt;&gt;&gt; # get magnitudes and phases of input sounds</span>
@@ -781,8 +781,8 @@
 <span class="sd">        with IFFT, before being sent to output.</span>
 
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
-<span class="sd">    &gt;&gt;&gt; snd1 = SfPlayer(SNDS_PATH+&quot;/transparent.aif&quot;, loop=True, mul=.7).mix(2)</span>
-<span class="sd">    &gt;&gt;&gt; snd2 = FM(carrier=[75,100,125,150], ratio=[.499,.5,.501,.502], index=20, mul=.1).mix(2)</span>
+<span class="sd">    &gt;&gt;&gt; snd1 = SfPlayer(SNDS_PATH+&quot;/transparent.aif&quot;, loop=True, mul=0.7).mix(2)</span>
+<span class="sd">    &gt;&gt;&gt; snd2 = FM(carrier=[75,100,125,150], ratio=[.499,.5,.501,.502], index=20, mul=0.1).mix(2)</span>
 <span class="sd">    &gt;&gt;&gt; fin1 = FFT(snd1, size=1024, overlaps=4)</span>
 <span class="sd">    &gt;&gt;&gt; fin2 = FFT(snd2, size=1024, overlaps=4)</span>
 <span class="sd">    &gt;&gt;&gt; # get magnitudes and phases of input sounds</span>
@@ -951,7 +951,7 @@
 <span class="sd">    &gt;&gt;&gt; snd = SNDS_PATH + &#39;/transparent.aif&#39;</span>
 <span class="sd">    &gt;&gt;&gt; size, hop = 1024, 256</span>
 <span class="sd">    &gt;&gt;&gt; nframes = int(sndinfo(snd)[0] / size) + 1</span>
-<span class="sd">    &gt;&gt;&gt; a = SfPlayer(snd, mul=.3)</span>
+<span class="sd">    &gt;&gt;&gt; a = SfPlayer(snd, mul=0.3)</span>
 <span class="sd">    &gt;&gt;&gt; m_mag = [NewMatrix(width=size, height=nframes) for i in range(4)]</span>
 <span class="sd">    &gt;&gt;&gt; m_pha = [NewMatrix(width=size, height=nframes) for i in range(4)]</span>
 <span class="sd">    &gt;&gt;&gt; fin = FFT(a, size=size, overlaps=4)</span>
@@ -959,8 +959,8 @@
 <span class="sd">    &gt;&gt;&gt; delta = FrameDelta(pol[&quot;ang&quot;], framesize=size, overlaps=4)</span>
 <span class="sd">    &gt;&gt;&gt; m_mag_rec = MatrixRec(pol[&quot;mag&quot;], m_mag, 0, [i*hop for i in range(4)]).play()</span>
 <span class="sd">    &gt;&gt;&gt; m_pha_rec = MatrixRec(delta, m_pha, 0, [i*hop for i in range(4)]).play()</span>
-<span class="sd">    &gt;&gt;&gt; m_mag_read = MatrixPointer(m_mag, fin[&quot;bin&quot;]/size, Sine(freq=0.25, mul=.5, add=.5))</span>
-<span class="sd">    &gt;&gt;&gt; m_pha_read = MatrixPointer(m_pha, fin[&quot;bin&quot;]/size, Sine(freq=0.25, mul=.5, add=.5))</span>
+<span class="sd">    &gt;&gt;&gt; m_mag_read = MatrixPointer(m_mag, fin[&quot;bin&quot;]/size, Sine(freq=0.25, mul=0.5, add=0.5))</span>
+<span class="sd">    &gt;&gt;&gt; m_pha_read = MatrixPointer(m_pha, fin[&quot;bin&quot;]/size, Sine(freq=0.25, mul=0.5, add=0.5))</span>
 <span class="sd">    &gt;&gt;&gt; accum = FrameAccum(m_pha_read, framesize=size, overlaps=4)</span>
 <span class="sd">    &gt;&gt;&gt; car = PolToCar(m_mag_read, accum)</span>
 <span class="sd">    &gt;&gt;&gt; fout = IFFT(car[&quot;real&quot;], car[&quot;imag&quot;], size=size, overlaps=4).mix(1).out()</span>
@@ -1097,7 +1097,7 @@
 <span class="sd">    &gt;&gt;&gt; snd = SNDS_PATH + &#39;/transparent.aif&#39;</span>
 <span class="sd">    &gt;&gt;&gt; size, hop = 1024, 256</span>
 <span class="sd">    &gt;&gt;&gt; nframes = int(sndinfo(snd)[0] / size) + 1</span>
-<span class="sd">    &gt;&gt;&gt; a = SfPlayer(snd, mul=.3)</span>
+<span class="sd">    &gt;&gt;&gt; a = SfPlayer(snd, mul=0.3)</span>
 <span class="sd">    &gt;&gt;&gt; m_mag = [NewMatrix(width=size, height=nframes) for i in range(4)]</span>
 <span class="sd">    &gt;&gt;&gt; m_pha = [NewMatrix(width=size, height=nframes) for i in range(4)]</span>
 <span class="sd">    &gt;&gt;&gt; fin = FFT(a, size=size, overlaps=4)</span>
@@ -1105,8 +1105,8 @@
 <span class="sd">    &gt;&gt;&gt; delta = FrameDelta(pol[&quot;ang&quot;], framesize=size, overlaps=4)</span>
 <span class="sd">    &gt;&gt;&gt; m_mag_rec = MatrixRec(pol[&quot;mag&quot;], m_mag, 0, [i*hop for i in range(4)]).play()</span>
 <span class="sd">    &gt;&gt;&gt; m_pha_rec = MatrixRec(delta, m_pha, 0, [i*hop for i in range(4)]).play()</span>
-<span class="sd">    &gt;&gt;&gt; m_mag_read = MatrixPointer(m_mag, fin[&quot;bin&quot;]/size, Sine(freq=0.25, mul=.5, add=.5))</span>
-<span class="sd">    &gt;&gt;&gt; m_pha_read = MatrixPointer(m_pha, fin[&quot;bin&quot;]/size, Sine(freq=0.25, mul=.5, add=.5))</span>
+<span class="sd">    &gt;&gt;&gt; m_mag_read = MatrixPointer(m_mag, fin[&quot;bin&quot;]/size, Sine(freq=0.25, mul=0.5, add=0.5))</span>
+<span class="sd">    &gt;&gt;&gt; m_pha_read = MatrixPointer(m_pha, fin[&quot;bin&quot;]/size, Sine(freq=0.25, mul=0.5, add=0.5))</span>
 <span class="sd">    &gt;&gt;&gt; accum = FrameAccum(m_pha_read, framesize=size, overlaps=4)</span>
 <span class="sd">    &gt;&gt;&gt; car = PolToCar(m_mag_read, accum)</span>
 <span class="sd">    &gt;&gt;&gt; fout = IFFT(car[&quot;real&quot;], car[&quot;imag&quot;], size=size, overlaps=4).mix(1).out()</span>
@@ -1245,10 +1245,10 @@
 <span class="sd">    &gt;&gt;&gt; s = Server().boot()</span>
 <span class="sd">    &gt;&gt;&gt; snd = SNDS_PATH + &#39;/accord.aif&#39;</span>
 <span class="sd">    &gt;&gt;&gt; size, olaps = 1024, 4</span>
-<span class="sd">    &gt;&gt;&gt; snd = SfPlayer(snd, speed=[.75,.8], loop=True, mul=.3)</span>
+<span class="sd">    &gt;&gt;&gt; snd = SfPlayer(snd, speed=[.75,.8], loop=True, mul=0.3)</span>
 <span class="sd">    &gt;&gt;&gt; fin = FFT(snd, size=size, overlaps=olaps)</span>
 <span class="sd">    &gt;&gt;&gt; pol = CarToPol(fin[&quot;real&quot;], fin[&quot;imag&quot;])</span>
-<span class="sd">    &gt;&gt;&gt; vec = Vectral(pol[&quot;mag&quot;], framesize=size, overlaps=olaps, down=.2, damp=.6)</span>
+<span class="sd">    &gt;&gt;&gt; vec = Vectral(pol[&quot;mag&quot;], framesize=size, overlaps=olaps, down=0.2, damp=0.6)</span>
 <span class="sd">    &gt;&gt;&gt; car = PolToCar(vec, pol[&quot;ang&quot;])</span>
 <span class="sd">    &gt;&gt;&gt; fout = IFFT(car[&quot;real&quot;], car[&quot;imag&quot;], size=size, overlaps=olaps).mix(2).out()</span>
 <span class="sd">    &gt;&gt;&gt; s.start()</span>

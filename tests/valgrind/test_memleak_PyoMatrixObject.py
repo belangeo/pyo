@@ -1,5 +1,5 @@
 # Run this file in valgrind with:
-#   PYTHONMALLOC=malloc valgrind --tool=memcheck --leak-check=yes --show-leak-kinds=definite --track-origins=yes --num-callers=12 --suppressions=valgrind-python.supp python3 test_memleak_PyoMatrixObject.py 
+#   PYTHONMALLOC=malloc valgrind --tool=memcheck --leak-check=yes --show-leak-kinds=definite --track-origins=yes --num-callers=12 --suppressions=valgrind-python.supp python3 test_memleak_PyoMatrixObject.py
 # There should not be any definitely lost bytes.
 
 import os
@@ -7,10 +7,10 @@ from pyo import *
 
 s = Server(audio="manual").boot().start()
 
-m = NewMatrix(2, 2, [[1,2], [3,4]])
-m.write(os.path.join(os.getcwd(),"matrix_write_temp.txt"))
-m.read(os.path.join(os.getcwd(),"matrix_write_temp.txt"))
-os.remove(os.path.join(os.getcwd(),"matrix_write_temp.txt"))
+m = NewMatrix(2, 2, [[1, 2], [3, 4]])
+m.write(os.path.join(os.getcwd(), "matrix_write_temp.txt"))
+m.read(os.path.join(os.getcwd(), "matrix_write_temp.txt"))
+os.remove(os.path.join(os.getcwd(), "matrix_write_temp.txt"))
 m.getSize()
 m.normalize()
 m.blur()

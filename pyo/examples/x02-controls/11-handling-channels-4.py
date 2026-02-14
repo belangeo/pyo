@@ -5,6 +5,7 @@ If `chnl` is a list, successive values in the list will be assigned
 to successive streams.
 
 """
+
 from pyo import *
 
 # Creates a Server with 8 channels

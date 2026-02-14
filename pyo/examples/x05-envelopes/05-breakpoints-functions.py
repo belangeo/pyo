@@ -1,7 +1,7 @@
 """
 05-breakpoints-functions.py - Multi-segments envelopes.
 
-Linseg and Expseg objects draw a series of line segments between 
+Linseg and Expseg objects draw a series of line segments between
 specified break-points, either linear or exponential.
 
 These objects wait for play() call to start reading the envelope.
@@ -9,13 +9,14 @@ These objects wait for play() call to start reading the envelope.
 They have methods to set loop mode, call pause/play without reset,
 and replace the breakpoints.
 
-One can use the graph() method to open a graphical display of the current 
-envelope, edit it, and copy the points (in the list format) to the 
-clipboard (Menu "File" of the graph display => "Copy all Points ..."). 
-This makes it easier to explore and paste the result into the python 
+One can use the graph() method to open a graphical display of the current
+envelope, edit it, and copy the points (in the list format) to the
+clipboard (Menu "File" of the graph display => "Copy all Points ...").
+This makes it easier to explore and paste the result into the python
 script when happy with the envelope!
 
 """
+
 from pyo import *
 import random
 

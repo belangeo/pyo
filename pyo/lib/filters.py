@@ -64,7 +64,7 @@ class Biquad(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = Noise(mul=.7)
+    >>> a = Noise(mul=0.7)
     >>> lfo = Sine(freq=[.2, .25], mul=1000, add=1500)
     >>> f = Biquad(a, freq=lfo, q=5, type=2).out()
 
@@ -78,9 +78,18 @@ class Biquad(PyoObject):
         self._q = q
         self._type = type
         self._in_fader = InputFader(input)
-        in_fader, freq, q, type, mul, add, lmax = convertArgsToLists(self._in_fader, freq, q, type, mul, add)
+        in_fader, freq, q, type, mul, add, lmax = convertArgsToLists(
+            self._in_fader, freq, q, type, mul, add
+        )
         self._base_objs = [
-            Biquad_base(wrap(in_fader, i), wrap(freq, i), wrap(q, i), wrap(type, i), wrap(mul, i), wrap(add, i))
+            Biquad_base(
+                wrap(in_fader, i),
+                wrap(freq, i),
+                wrap(q, i),
+                wrap(type, i),
+                wrap(mul, i),
+                wrap(add, i),
+            )
             for i in range(lmax)
         ]
         self._init_play()
@@ -229,7 +238,7 @@ class Biquadx(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = Noise(mul=.7)
+    >>> a = Noise(mul=0.7)
     >>> lfo = Sine(freq=[.2, .25], mul=1000, add=1500)
     >>> f = Biquadx(a, freq=lfo, q=5, type=2).out()
 
@@ -249,7 +258,13 @@ class Biquadx(PyoObject):
         )
         self._base_objs = [
             Biquadx_base(
-                wrap(in_fader, i), wrap(freq, i), wrap(q, i), wrap(type, i), wrap(stages, i), wrap(mul, i), wrap(add, i)
+                wrap(in_fader, i),
+                wrap(freq, i),
+                wrap(q, i),
+                wrap(type, i),
+                wrap(stages, i),
+                wrap(mul, i),
+                wrap(add, i),
             )
             for i in range(lmax)
         ]
@@ -429,14 +444,23 @@ class Biquada(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = Noise(mul=.7)
-    >>> lf = Sine([1.5, 2], mul=.07, add=-1.9)
+    >>> a = Noise(mul=0.7)
+    >>> lf = Sine([1.5, 2], mul=0.07, add=-1.9)
     >>> f = Biquada(a, 0.005066, 0.010132, 0.005066, 1.070997, lf, 0.929003).out()
 
     """
 
     def __init__(
-        self, input, b0=0.005066, b1=0.010132, b2=0.005066, a0=1.070997, a1=-1.979735, a2=0.929003, mul=1, add=0
+        self,
+        input,
+        b0=0.005066,
+        b1=0.010132,
+        b2=0.005066,
+        a0=1.070997,
+        a1=-1.979735,
+        a2=0.929003,
+        mul=1,
+        add=0,
     ):
         pyoArgsAssert(self, "oOOOOOOOO", input, b0, b1, b2, a0, a1, a2, mul, add)
         PyoObject.__init__(self, mul, add)
@@ -687,7 +711,7 @@ class EQ(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> amp = Fader(1, 1, mul=.15).play()
+    >>> amp = Fader(1, 1, mul=0.15).play()
     >>> src = PinkNoise(amp)
     >>> fr = Sine(.2, 0, 500, 1500)
     >>> boo = Sine([4, 4], 0, 6)
@@ -709,7 +733,13 @@ class EQ(PyoObject):
         )
         self._base_objs = [
             EQ_base(
-                wrap(in_fader, i), wrap(freq, i), wrap(q, i), wrap(boost, i), wrap(type, i), wrap(mul, i), wrap(add, i)
+                wrap(in_fader, i),
+                wrap(freq, i),
+                wrap(q, i),
+                wrap(boost, i),
+                wrap(type, i),
+                wrap(mul, i),
+                wrap(add, i),
             )
             for i in range(lmax)
         ]
@@ -866,7 +896,7 @@ class Tone(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> n = Noise(.3)
-    >>> lf = Sine(freq=.2, mul=800, add=1000)
+    >>> lf = Sine(freq=0.2, mul=800, add=1000)
     >>> f = Tone(n, lf).mix(2).out()
 
     """
@@ -878,7 +908,10 @@ class Tone(PyoObject):
         self._freq = freq
         self._in_fader = InputFader(input)
         in_fader, freq, mul, add, lmax = convertArgsToLists(self._in_fader, freq, mul, add)
-        self._base_objs = [Tone_base(wrap(in_fader, i), wrap(freq, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
+        self._base_objs = [
+            Tone_base(wrap(in_fader, i), wrap(freq, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
+        ]
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -951,7 +984,7 @@ class Atone(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> n = Noise(.3)
-    >>> lf = Sine(freq=.2, mul=5000, add=6000)
+    >>> lf = Sine(freq=0.2, mul=5000, add=6000)
     >>> f = Atone(n, lf).mix(2).out()
 
     """
@@ -964,7 +997,8 @@ class Atone(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, freq, mul, add, lmax = convertArgsToLists(self._in_fader, freq, mul, add)
         self._base_objs = [
-            Atone_base(wrap(in_fader, i), wrap(freq, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+            Atone_base(wrap(in_fader, i), wrap(freq, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
         ]
         self._init_play()
 
@@ -1047,8 +1081,8 @@ class Port(PyoObject):
     >>> s.start()
     >>> from random import uniform
     >>> x = Sig(value=500)
-    >>> p = Port(x, risetime=.1, falltime=1)
-    >>> a = Sine(freq=[p, p*1.01], mul=.2).out()
+    >>> p = Port(x, risetime=0.1, falltime=1)
+    >>> a = Sine(freq=[p, p*1.01], mul=0.2).out()
     >>> def new_freq():
     ...     x.value = uniform(400, 800)
     >>> pat = Pattern(function=new_freq, time=1).play()
@@ -1067,7 +1101,12 @@ class Port(PyoObject):
         )
         self._base_objs = [
             Port_base(
-                wrap(in_fader, i), wrap(risetime, i), wrap(falltime, i), wrap(init, i), wrap(mul, i), wrap(add, i)
+                wrap(in_fader, i),
+                wrap(risetime, i),
+                wrap(falltime, i),
+                wrap(init, i),
+                wrap(mul, i),
+                wrap(add, i),
             )
             for i in range(lmax)
         ]
@@ -1168,7 +1207,7 @@ class DCBlock(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> n = Noise(.01)
-    >>> w = Delay(n, delay=[0.02, 0.01], feedback=.995, mul=.5)
+    >>> w = Delay(n, delay=[0.02, 0.01], feedback=0.995, mul=0.5)
     >>> f = DCBlock(w).out()
 
     """
@@ -1179,7 +1218,9 @@ class DCBlock(PyoObject):
         self._input = input
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
-        self._base_objs = [DCBlock_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)]
+        self._base_objs = [
+            DCBlock_base(wrap(in_fader, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+        ]
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -1242,7 +1283,7 @@ class BandSplit(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> lfos = Sine(freq=[.3,.4,.5,.6,.7,.8], mul=.5, add=.5)
+    >>> lfos = Sine(freq=[.3,.4,.5,.6,.7,.8], mul=0.5, add=0.5)
     >>> n = PinkNoise(.5)
     >>> a = BandSplit(n, num=6, min=250, max=4000, q=5, mul=lfos).out()
 
@@ -1260,11 +1301,15 @@ class BandSplit(PyoObject):
         in_fader, q, lmax = convertArgsToLists(self._in_fader, q)
         self._op_duplicate = lmax
         mul, add, lmax2 = convertArgsToLists(mul, add)
-        self._base_players = [BandSplitter_base(wrap(in_fader, i), num, min, max, wrap(q, i)) for i in range(lmax)]
+        self._base_players = [
+            BandSplitter_base(wrap(in_fader, i), num, min, max, wrap(q, i)) for i in range(lmax)
+        ]
         self._base_objs = []
         for j in range(num):
             for i in range(lmax):
-                self._base_objs.append(BandSplit_base(wrap(self._base_players, i), j, wrap(mul, j), wrap(add, j)))
+                self._base_objs.append(
+                    BandSplit_base(wrap(self._base_players, i), j, wrap(mul, j), wrap(add, j))
+                )
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -1355,7 +1400,7 @@ class FourBand(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> lfos = Sine(freq=[.3,.4,.5,.6], mul=.5, add=.5)
+    >>> lfos = Sine(freq=[.3,.4,.5,.6], mul=0.5, add=0.5)
     >>> n = PinkNoise(.3)
     >>> a = FourBand(n, freq1=250, freq2=1000, freq3=2500, mul=lfos).out()
 
@@ -1369,16 +1414,21 @@ class FourBand(PyoObject):
         self._freq2 = freq2
         self._freq3 = freq3
         self._in_fader = InputFader(input)
-        in_fader, freq1, freq2, freq3, lmax = convertArgsToLists(self._in_fader, freq1, freq2, freq3)
+        in_fader, freq1, freq2, freq3, lmax = convertArgsToLists(
+            self._in_fader, freq1, freq2, freq3
+        )
         self._op_duplicate = lmax
         mul, add, lmax2 = convertArgsToLists(mul, add)
         self._base_players = [
-            FourBandMain_base(wrap(in_fader, i), wrap(freq1, i), wrap(freq2, i), wrap(freq3, i)) for i in range(lmax)
+            FourBandMain_base(wrap(in_fader, i), wrap(freq1, i), wrap(freq2, i), wrap(freq3, i))
+            for i in range(lmax)
         ]
         self._base_objs = []
         for j in range(4):
             for i in range(lmax):
-                self._base_objs.append(FourBand_base(wrap(self._base_players, i), j, wrap(mul, j), wrap(add, j)))
+                self._base_objs.append(
+                    FourBand_base(wrap(self._base_players, i), j, wrap(mul, j), wrap(add, j))
+                )
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -1516,7 +1566,7 @@ class MultiBand(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> lfos = Sine(freq=[.1,.2,.3,.4,.5,.6,.7,.8], mul=.5, add=.5)
+    >>> lfos = Sine(freq=[.1,.2,.3,.4,.5,.6,.7,.8], mul=0.5, add=0.5)
     >>> n = PinkNoise(.3)
     >>> a = MultiBand(n, num=8, mul=lfos).out()
 
@@ -1535,7 +1585,9 @@ class MultiBand(PyoObject):
         self._base_objs = []
         for j in range(num):
             for i in range(lmax):
-                self._base_objs.append(MultiBand_base(wrap(self._base_players, i), j, wrap(mul, j), wrap(add, j)))
+                self._base_objs.append(
+                    MultiBand_base(wrap(self._base_players, i), j, wrap(mul, j), wrap(add, j))
+                )
         self._init_play()
 
     def setInput(self, x, fadetime=0.05):
@@ -1643,16 +1695,24 @@ class Hilbert(PyoObject):
         self._base_objs = []
         for i in range(lmax2):
             for j in range(lmax):
-                self._base_objs.append(Hilbert_base(wrap(self._base_players, j), 0, wrap(mul, i), wrap(add, i)))
-                self._base_objs.append(Hilbert_base(wrap(self._base_players, j), 1, wrap(mul, i), wrap(add, i)))
+                self._base_objs.append(
+                    Hilbert_base(wrap(self._base_players, j), 0, wrap(mul, i), wrap(add, i))
+                )
+                self._base_objs.append(
+                    Hilbert_base(wrap(self._base_players, j), 1, wrap(mul, i), wrap(add, i))
+                )
         self._init_play()
 
     def __getitem__(self, str):
         if str == "real":
-            self._real_dummy.append(Dummy([obj for i, obj in enumerate(self._base_objs) if (i % 2) == 0]))
+            self._real_dummy.append(
+                Dummy([obj for i, obj in enumerate(self._base_objs) if (i % 2) == 0])
+            )
             return self._real_dummy[-1]
         if str == "imag":
-            self._imag_dummy.append(Dummy([obj for i, obj in enumerate(self._base_objs) if (i % 2) == 1]))
+            self._imag_dummy.append(
+                Dummy([obj for i, obj in enumerate(self._base_objs) if (i % 2) == 1])
+            )
             return self._imag_dummy[-1]
 
     def get(self, identifier="real", all=False):
@@ -1679,7 +1739,9 @@ class Hilbert(PyoObject):
         if not all:
             return self.__getitem__(identifier)[0]._getStream().getValue()
         else:
-            return [obj._getStream().getValue() for obj in self.__getitem__(identifier).getBaseObjects()]
+            return [
+                obj._getStream().getValue() for obj in self.__getitem__(identifier).getBaseObjects()
+            ]
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -1758,7 +1820,12 @@ class Allpass(PyoObject):
         )
         self._base_objs = [
             Allpass_base(
-                wrap(in_fader, i), wrap(delay, i), wrap(feedback, i), wrap(maxdelay, i), wrap(mul, i), wrap(add, i)
+                wrap(in_fader, i),
+                wrap(delay, i),
+                wrap(feedback, i),
+                wrap(maxdelay, i),
+                wrap(mul, i),
+                wrap(add, i),
             )
             for i in range(lmax)
         ]
@@ -1869,11 +1936,11 @@ class Allpass2(PyoObject):
     >>> s.start()
     >>> # 3 STAGES PHASER
     >>> a = BrownNoise(.025).mix(2).out()
-    >>> blfo = Sine(freq=.1, mul=250, add=500)
+    >>> blfo = Sine(freq=0.1, mul=250, add=500)
     >>> b = Allpass2(a, freq=blfo, bw=125).out()
-    >>> clfo = Sine(freq=.14, mul=500, add=1000)
+    >>> clfo = Sine(freq=0.14, mul=500, add=1000)
     >>> c = Allpass2(b, freq=clfo, bw=350).out()
-    >>> dlfo = Sine(freq=.17, mul=1000, add=2500)
+    >>> dlfo = Sine(freq=0.17, mul=1000, add=2500)
     >>> d = Allpass2(c, freq=dlfo, bw=800).out()
 
     """
@@ -1939,7 +2006,11 @@ class Allpass2(PyoObject):
         [obj.setBw(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapFreq(self._freq), SLMap(10, 1000, "lin", "bw", self._bw), SLMapMul(self._mul)]
+        self._map_list = [
+            SLMapFreq(self._freq),
+            SLMap(10, 1000, "lin", "bw", self._bw),
+            SLMapMul(self._mul),
+        ]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
@@ -1999,11 +2070,11 @@ class Phaser(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> fade = Fader(fadein=.1, mul=.07).play()
+    >>> fade = Fader(fadein=0.1, mul=0.07).play()
     >>> a = Noise(fade).mix(2).out()
     >>> lf1 = Sine(freq=[.1, .15], mul=100, add=250)
-    >>> lf2 = Sine(freq=[.18, .15], mul=.4, add=1.5)
-    >>> b = Phaser(a, freq=lf1, spread=lf2, q=1, num=20, mul=.5).out(0)
+    >>> lf2 = Sine(freq=[.18, .15], mul=0.4, add=1.5)
+    >>> b = Phaser(a, freq=lf1, spread=lf2, q=1, num=20, mul=0.5).out(0)
 
     """
 
@@ -2221,7 +2292,9 @@ class Vocoder(PyoObject):
 
     """
 
-    def __init__(self, input, input2, freq=60, spread=1.25, q=20, slope=0.5, stages=24, mul=1, add=0):
+    def __init__(
+        self, input, input2, freq=60, spread=1.25, q=20, slope=0.5, stages=24, mul=1, add=0
+    ):
         pyoArgsAssert(self, "ooOOOOiOO", input, input2, freq, spread, q, slope, stages, mul, add)
         PyoObject.__init__(self, mul, add)
         self._input = input
@@ -2502,7 +2575,13 @@ class IRWinSinc(PyoObject):
         )
         self._base_objs = [
             IRWinSinc_base(
-                wrap(in_fader, i), wrap(freq, i), wrap(bw, i), wrap(type, i), wrap(order, i), wrap(mul, i), wrap(add, i)
+                wrap(in_fader, i),
+                wrap(freq, i),
+                wrap(bw, i),
+                wrap(type, i),
+                wrap(order, i),
+                wrap(mul, i),
+                wrap(add, i),
             )
             for i in range(lmax)
         ]
@@ -2651,7 +2730,7 @@ class IRAverage(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> nz = Noise(.05)
-    >>> a = Sine([300, 400], mul=.25, add=nz)
+    >>> a = Sine([300, 400], mul=0.25, add=nz)
     >>> b = IRAverage(a, order=128).out()
 
     """
@@ -2667,7 +2746,8 @@ class IRAverage(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, order, mul, add, lmax = convertArgsToLists(self._in_fader, order, mul, add)
         self._base_objs = [
-            IRAverage_base(wrap(in_fader, i), wrap(order, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+            IRAverage_base(wrap(in_fader, i), wrap(order, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
         ]
         self._init_play()
 
@@ -2764,7 +2844,13 @@ class IRPulse(PyoObject):
         )
         self._base_objs = [
             IRPulse_base(
-                wrap(in_fader, i), wrap(freq, i), wrap(bw, i), wrap(type, i), wrap(order, i), wrap(mul, i), wrap(add, i)
+                wrap(in_fader, i),
+                wrap(freq, i),
+                wrap(bw, i),
+                wrap(type, i),
+                wrap(order, i),
+                wrap(mul, i),
+                wrap(add, i),
             )
             for i in range(lmax)
         ]
@@ -2921,7 +3007,7 @@ class IRFM(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> nz = Noise(.7)
-    >>> lf = Sine(freq=[.2, .25], mul=.125, add=.5)
+    >>> lf = Sine(freq=[.2, .25], mul=0.125, add=0.5)
     >>> b = IRFM(nz, carrier=3500, ratio=lf, index=3, order=256).out()
 
     """
@@ -3105,9 +3191,18 @@ class SVF(PyoObject):
         self._q = q
         self._type = type
         self._in_fader = InputFader(input)
-        in_fader, freq, q, type, mul, add, lmax = convertArgsToLists(self._in_fader, freq, q, type, mul, add)
+        in_fader, freq, q, type, mul, add, lmax = convertArgsToLists(
+            self._in_fader, freq, q, type, mul, add
+        )
         self._base_objs = [
-            SVF_base(wrap(in_fader, i), wrap(freq, i), wrap(q, i), wrap(type, i), wrap(mul, i), wrap(add, i))
+            SVF_base(
+                wrap(in_fader, i),
+                wrap(freq, i),
+                wrap(q, i),
+                wrap(type, i),
+                wrap(mul, i),
+                wrap(add, i),
+            )
             for i in range(lmax)
         ]
         self._init_play()
@@ -3248,7 +3343,7 @@ class SVF2(PyoObject):
     is always copied at the end of the order list so we can create a glitch-free loop of
     filter types with a Phasor given as `type` argument. Ex.:
 
-        >>> lfo = Phasor(freq=.5, mul=3)
+        >>> lfo = Phasor(freq=0.5, mul=3)
         >>> svf2 = SVF2(Noise(.25), freq=2500, q=2, shelf=-6, type=lfo).out()
         >>> svf2.order = [2, 1, 0] # highpass -> bandpass -> lowpass -> highpass
 
@@ -3305,7 +3400,13 @@ class SVF2(PyoObject):
         )
         self._base_objs = [
             SVF2_base(
-                wrap(in_fader, i), wrap(freq, i), wrap(q, i), wrap(shelf, i), wrap(type, i), wrap(mul, i), wrap(add, i)
+                wrap(in_fader, i),
+                wrap(freq, i),
+                wrap(q, i),
+                wrap(shelf, i),
+                wrap(type, i),
+                wrap(mul, i),
+                wrap(add, i),
             )
             for i in range(lmax)
         ]
@@ -3518,7 +3619,8 @@ class Average(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, size, mul, add, lmax = convertArgsToLists(self._in_fader, size, mul, add)
         self._base_objs = [
-            Average_base(wrap(in_fader, i), wrap(size, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+            Average_base(wrap(in_fader, i), wrap(size, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
         ]
         self._init_play()
 
@@ -3554,7 +3656,10 @@ class Average(PyoObject):
         [obj.setSize(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(2, 256, "lin", "size", self._size, res="int", dataOnly=True), SLMapMul(self._mul)]
+        self._map_list = [
+            SLMap(2, 256, "lin", "size", self._size, res="int", dataOnly=True),
+            SLMapMul(self._mul),
+        ]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
@@ -3600,7 +3705,7 @@ class Reson(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = Noise(mul=.7)
+    >>> a = Noise(mul=0.7)
     >>> lfo = Sine(freq=[.2, .25], mul=1000, add=1500)
     >>> f = Reson(a, freq=lfo, q=5).out()
 
@@ -3615,7 +3720,8 @@ class Reson(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, freq, q, mul, add, lmax = convertArgsToLists(self._in_fader, freq, q, mul, add)
         self._base_objs = [
-            Reson_base(wrap(in_fader, i), wrap(freq, i), wrap(q, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+            Reson_base(wrap(in_fader, i), wrap(freq, i), wrap(q, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
         ]
         self._init_play()
 
@@ -3726,7 +3832,7 @@ class Resonx(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = Noise(mul=.7)
+    >>> a = Noise(mul=0.7)
     >>> lfo = Sine(freq=[.2, .25], mul=1000, add=1500)
     >>> f = Resonx(a, freq=lfo, q=5).out()
 
@@ -3740,9 +3846,18 @@ class Resonx(PyoObject):
         self._q = q
         self._stages = stages
         self._in_fader = InputFader(input)
-        in_fader, freq, q, stages, mul, add, lmax = convertArgsToLists(self._in_fader, freq, q, stages, mul, add)
+        in_fader, freq, q, stages, mul, add, lmax = convertArgsToLists(
+            self._in_fader, freq, q, stages, mul, add
+        )
         self._base_objs = [
-            Resonx_base(wrap(in_fader, i), wrap(freq, i), wrap(q, i), wrap(stages, i), wrap(mul, i), wrap(add, i))
+            Resonx_base(
+                wrap(in_fader, i),
+                wrap(freq, i),
+                wrap(q, i),
+                wrap(stages, i),
+                wrap(mul, i),
+                wrap(add, i),
+            )
             for i in range(lmax)
         ]
         self._init_play()
@@ -3869,7 +3984,7 @@ class ButLP(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> n = Noise(.3)
-    >>> lf = Sine(freq=.2, mul=800, add=1000)
+    >>> lf = Sine(freq=0.2, mul=800, add=1000)
     >>> f = ButLP(n, lf).mix(2).out()
 
     """
@@ -3882,7 +3997,8 @@ class ButLP(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, freq, mul, add, lmax = convertArgsToLists(self._in_fader, freq, mul, add)
         self._base_objs = [
-            ButLP_base(wrap(in_fader, i), wrap(freq, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+            ButLP_base(wrap(in_fader, i), wrap(freq, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
         ]
         self._init_play()
 
@@ -3960,7 +4076,7 @@ class ButHP(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> n = Noise(.2)
-    >>> lf = Sine(freq=.2, mul=1500, add=2500)
+    >>> lf = Sine(freq=0.2, mul=1500, add=2500)
     >>> f = ButHP(n, lf).mix(2).out()
 
     """
@@ -3973,7 +4089,8 @@ class ButHP(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, freq, mul, add, lmax = convertArgsToLists(self._in_fader, freq, mul, add)
         self._base_objs = [
-            ButHP_base(wrap(in_fader, i), wrap(freq, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+            ButHP_base(wrap(in_fader, i), wrap(freq, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
         ]
         self._init_play()
 
@@ -4053,7 +4170,7 @@ class ButBP(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = Noise(mul=.7)
+    >>> a = Noise(mul=0.7)
     >>> lfo = Sine(freq=[.2, .25], mul=1000, add=1500)
     >>> f = ButBP(a, freq=lfo, q=5).out()
 
@@ -4068,7 +4185,8 @@ class ButBP(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, freq, q, mul, add, lmax = convertArgsToLists(self._in_fader, freq, q, mul, add)
         self._base_objs = [
-            ButBP_base(wrap(in_fader, i), wrap(freq, i), wrap(q, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+            ButBP_base(wrap(in_fader, i), wrap(freq, i), wrap(q, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
         ]
         self._init_play()
 
@@ -4119,7 +4237,11 @@ class ButBP(PyoObject):
         [obj.setQ(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapFreq(self._freq), SLMap(1, 100, "log", "q", self._q), SLMapMul(self._mul)]
+        self._map_list = [
+            SLMapFreq(self._freq),
+            SLMap(1, 100, "log", "q", self._q),
+            SLMapMul(self._mul),
+        ]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
@@ -4172,7 +4294,7 @@ class ButBR(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = Noise(mul=.2)
+    >>> a = Noise(mul=0.2)
     >>> lfo = Sine(freq=[.2, .25], mul=1000, add=1500)
     >>> f = ButBR(a, freq=lfo, q=1).out()
 
@@ -4187,7 +4309,8 @@ class ButBR(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, freq, q, mul, add, lmax = convertArgsToLists(self._in_fader, freq, q, mul, add)
         self._base_objs = [
-            ButBR_base(wrap(in_fader, i), wrap(freq, i), wrap(q, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+            ButBR_base(wrap(in_fader, i), wrap(freq, i), wrap(q, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
         ]
         self._init_play()
 
@@ -4238,7 +4361,11 @@ class ButBR(PyoObject):
         [obj.setQ(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapFreq(self._freq), SLMap(1, 100, "log", "q", self._q), SLMapMul(self._mul)]
+        self._map_list = [
+            SLMapFreq(self._freq),
+            SLMap(1, 100, "log", "q", self._q),
+            SLMapMul(self._mul),
+        ]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
@@ -4304,9 +4431,12 @@ class MoogLP(PyoObject):
         self._freq = freq
         self._res = res
         self._in_fader = InputFader(input)
-        in_fader, freq, res, mul, add, lmax = convertArgsToLists(self._in_fader, freq, res, mul, add)
+        in_fader, freq, res, mul, add, lmax = convertArgsToLists(
+            self._in_fader, freq, res, mul, add
+        )
         self._base_objs = [
-            MoogLP_base(wrap(in_fader, i), wrap(freq, i), wrap(res, i), wrap(mul, i), wrap(add, i)) for i in range(lmax)
+            MoogLP_base(wrap(in_fader, i), wrap(freq, i), wrap(res, i), wrap(mul, i), wrap(add, i))
+            for i in range(lmax)
         ]
         self._init_play()
 
@@ -4357,7 +4487,11 @@ class MoogLP(PyoObject):
         [obj.setRes(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapFreq(self._freq), SLMap(0.0, 1.0, "lin", "res", self._res), SLMapMul(self._mul)]
+        self._map_list = [
+            SLMapFreq(self._freq),
+            SLMap(0.0, 1.0, "lin", "res", self._res),
+            SLMapMul(self._mul),
+        ]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
@@ -4424,9 +4558,13 @@ class ComplexRes(PyoObject):
         self._freq = freq
         self._decay = decay
         self._in_fader = InputFader(input)
-        in_fader, freq, decay, mul, add, lmax = convertArgsToLists(self._in_fader, freq, decay, mul, add)
+        in_fader, freq, decay, mul, add, lmax = convertArgsToLists(
+            self._in_fader, freq, decay, mul, add
+        )
         self._base_objs = [
-            ComplexRes_base(wrap(in_fader, i), wrap(freq, i), wrap(decay, i), wrap(mul, i), wrap(add, i))
+            ComplexRes_base(
+                wrap(in_fader, i), wrap(freq, i), wrap(decay, i), wrap(mul, i), wrap(add, i)
+            )
             for i in range(lmax)
         ]
         self._init_play()
@@ -4478,7 +4616,11 @@ class ComplexRes(PyoObject):
         [obj.setDecay(wrap(x, i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapFreq(self._freq), SLMap(0.0001, 10, "log", "decay", self._decay), SLMapMul(self._mul)]
+        self._map_list = [
+            SLMapFreq(self._freq),
+            SLMap(0.0001, 10, "log", "decay", self._decay),
+            SLMapMul(self._mul),
+        ]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property

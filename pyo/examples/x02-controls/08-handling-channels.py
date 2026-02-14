@@ -18,6 +18,7 @@ in order to save CPU cycles. Here, we down mix all streams to only two
 streams (to maintain the stereo) before processing the Chorus arguments.
 
 """
+
 from pyo import *
 
 s = Server().boot()

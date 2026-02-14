@@ -8,6 +8,7 @@ lists will be wrap-around to fill the holes.
 This feature is very useful to create complex sonorities.
 
 """
+
 from pyo import *
 
 s = Server().boot()

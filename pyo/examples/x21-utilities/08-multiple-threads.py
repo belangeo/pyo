@@ -6,6 +6,7 @@ subprocess module and sends parameters to its standard input to control
 the sound playback.
 
 """
+
 import os
 import sys
 import time
@@ -42,7 +43,10 @@ f.close()
 # Launch an interactive python (-i flag) in a subprocess and store a
 # reference to the standard input to pass message to the running process.
 pipe = subprocess.Popen(
-    ["%s -i %s" % (PYTHON_EXE, script_path)], shell=True, universal_newlines=True, stdin=subprocess.PIPE,
+    ["%s -i %s" % (PYTHON_EXE, script_path)],
+    shell=True,
+    universal_newlines=True,
+    stdin=subprocess.PIPE,
 ).stdin
 
 # Wait for the audio server to be ready.

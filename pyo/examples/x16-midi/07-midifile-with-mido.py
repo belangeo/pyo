@@ -5,6 +5,7 @@ This example shows how simple it is to play a MIDI file with mido and send the e
 to an audio synth build with pyo.
 
 """
+
 from pyo import *
 
 # Try to import MidiFile from the mido module. You can install mido with pip:

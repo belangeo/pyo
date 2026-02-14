@@ -5,7 +5,7 @@ So far, we've seen events that are independent of each other. They
 are not aware of the data produced by the others. Making these data
 available adds musical intelligence to our processes. There is two
 ways to share values with events. The first one is to read a value
-produced by the same Events object where we want to use it. The 
+produced by the same Events object where we want to use it. The
 second way is to read the data from a parameter of another Events
 object.
 

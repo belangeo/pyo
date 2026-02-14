@@ -65,7 +65,7 @@ class Pattern(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> t = HarmTable([1,0,.33,0,.2,0,.143,0,.111])
-    >>> a = Osc(table=t, freq=[250,251], mul=.2).out()
+    >>> a = Osc(table=t, freq=[250,251], mul=0.2).out()
     >>> def pat():
     ...     f = random.randrange(200, 401, 25)
     ...     a.freq = [f, f+1]
@@ -82,7 +82,8 @@ class Pattern(PyoObject):
         self._arg = arg
         function, time, arg, lmax = convertArgsToLists(function, time, arg)
         self._base_objs = [
-            Pattern_base(WeakMethod(wrap(function, i)), wrap(time, i), wrap(arg, i)) for i in range(lmax)
+            Pattern_base(WeakMethod(wrap(function, i)), wrap(time, i), wrap(arg, i))
+            for i in range(lmax)
         ]
 
     def setFunction(self, x):
@@ -211,7 +212,7 @@ class Score(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = SineLoop(freq=[200,300,400,500], feedback=0.05, mul=.1).out()
+    >>> a = SineLoop(freq=[200,300,400,500], feedback=0.05, mul=0.1).out()
     >>> def event_0():
     ...     a.freq=[200,300,400,500]
     >>> def event_1():
@@ -305,7 +306,7 @@ class CallAfter(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> # Start an oscillator with a frequency of 250 Hz.
-    >>> syn = SineLoop(freq=[250,251], feedback=.07, mul=.2).out()
+    >>> syn = SineLoop(freq=[250,251], feedback=0.07, mul=0.2).out()
     >>> def callback(arg):
     ...     # Change the oscillator's frequency to 300 Hz after 2 seconds.
     ...     # Convert the tuple back to a list.
@@ -323,7 +324,8 @@ class CallAfter(PyoObject):
         self._arg = arg
         function, time, arg, lmax = convertArgsToLists(function, time, arg)
         self._base_objs = [
-            CallAfter_base(WeakMethod(wrap(function, i)), wrap(time, i), wrap(arg, i)) for i in range(lmax)
+            CallAfter_base(WeakMethod(wrap(function, i)), wrap(time, i), wrap(arg, i))
+            for i in range(lmax)
         ]
         self._init_play()
 

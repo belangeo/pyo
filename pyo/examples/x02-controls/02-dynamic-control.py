@@ -7,6 +7,7 @@ To open the controller window, just call the ctrl() method on
 the object you want to control.
 
 """
+
 from pyo import *
 
 s = Server().boot()

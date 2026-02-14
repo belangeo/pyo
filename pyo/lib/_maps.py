@@ -18,7 +18,9 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
+
 from math import pow, log10
+
 
 ######################################################################
 ### Map -> rescale values from sliders
@@ -178,7 +180,7 @@ class SLMap(Map):
     >>> slmapfreq = SLMap(20., 2000., 'log', 'freq', ifs)
     >>> slmapfeed = SLMap(0, 0.25, 'lin', 'feedback', 0)
     >>> maps = [slmapfreq, slmapfeed, SLMapMul(.1)]
-    >>> a = SineLoop(freq=ifs, mul=.1).out()
+    >>> a = SineLoop(freq=ifs, mul=0.1).out()
     >>> a.ctrl(maps)
 
     """

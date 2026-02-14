@@ -13,6 +13,7 @@ The Adsr object (Attack/Decay/Sustain/Release) acts exactly like the Fader
 object, with a more flexible (and so common) kind of envelope.
 
 """
+
 from pyo import *
 import random
 
