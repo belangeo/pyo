@@ -23,6 +23,8 @@
 
 #include "m_pyo.h"
 #include "../JuceLibraryCode/JuceHeader.h"
+#include <vector>
+#include <string>
 
 typedef int callPtr(int);
 
@@ -47,8 +49,8 @@ class Pyo {
         **
         ** All arguments should be equal to the host audio settings.
         */
-        void setup(int nChannels, int bufferSize, int sampleRate);
-
+        void setup(int inChannels, int outChannels, int bufferSize, int sampleRate);
+		std::vector<std::string> getStdout();
         /*
         ** This function can be used to pass the DAW's bpm value to the 
         ** python interpreter. Changes the value of the BPM variable 
@@ -68,7 +70,7 @@ class Pyo {
         ** arguments:
         **   buffer : AudioBuffer<float>&, Juce's audio buffer object.
         */
-        void process(AudioSampleBuffer& buffer);
+        void process(juce::AudioBuffer<float>& buffer);
 
         /*
         ** Execute a python script "file" in the objectès thread's interpreter.
@@ -76,7 +78,7 @@ class Pyo {
         ** reboot or not.
         **
         ** arguments:
-        **   file : const char * or const String &,
+        **   file : const char * or const juce::String &,
         **             filename to execute as a python script. The file is first
         **             searched in the current working directory. If not found,
         **             the module will try to open it as an absolute path.
@@ -87,15 +89,15 @@ class Pyo {
         ** returns 0 (no error), 1 (failed to open the file) or 2 (bad code in file).
         */
         int loadfile(const char *file, int add);
-        int loadfile(const String &file, int add);
+        int loadfile(const juce::String &file, int add);
 
         /*
         ** Executes any raw valid python statement. With this function, one can
         ** dynamically creates and manipulates audio objects and algorithms.
         **
         ** arguments:
-        **   msg : const char * or const String &
-        **         pointer to a string containing the statement to execute.
+        **   msg : const char * or const juce::String &
+        **         pointer to a juce::String containing the statement to execute.
         **
         ** returns 0 (no error) or 1 (bad code in file).
         **
@@ -106,13 +108,13 @@ class Pyo {
         ** pyo.exec("b = SumOsc(freq=fr, ratio=0.499, index=0.4, mul=0.2).out()")
         */
         int exec(const char *msg);
-        int exec(const String &msg);
+        int exec(const juce::String &msg);
 
         /*
         ** Sends a numerical value to an existing Sig or SigTo object.
         **
         ** arguments:
-        **   name : const char * or const String &,
+        **   name : const char * or const juce::String &,
         **          variable name of the object.
         **   value : float, value to be assigned.
         **
@@ -127,13 +129,13 @@ class Pyo {
         ** pyo.value("freq", 880);
         */
         int value(const char *name, float value);
-        int value(const String &name, float value);
+        int value(const juce::String &name, float value);
 
         /*
         ** Sends an array of numerical values to an existing Sig or SigTo object.
         **
         ** arguments:
-        **   name : const char * or const String &,
+        **   name : const char * or const juce::String &,
         **          variable name of the object.
         **   value : float *, array of floats.
         **   len : int, number of elements in the array.
@@ -150,13 +152,13 @@ class Pyo {
         ** pyo.value("freq", frequencies, 4);
         */
         int value(const char *name, float *value, int len);
-        int value(const String &name, float *value, int len);
+        int value(const juce::String &name, float *value, int len);
 
         /*
         ** Sends a numerical value to a Pyo object's attribute.
         **
         ** arguments:
-        **   name : const char * or const String &,
+        **   name : const char * or const juce::String &,
         **          object name and attribute separated by a dot.
         **   value : float, value to be assigned.
         **
@@ -171,13 +173,13 @@ class Pyo {
         ** pyo.set("filter.freq", 2000);
         */
         int set(const char *name, float value);
-        int set(const String &name, float value);
+        int set(const juce::String &name, float value);
 
         /*
         ** Sends an array of numerical values to a Pyo object's attribute.
         **
         ** arguments:
-        **   name : const char * or const String &,
+        **   name : const char * or const juce::String &,
         **          object name and attribute separated by a dot.
         **   value : float *, array of floats.
         **   len : int, number of elements in the array.
@@ -194,7 +196,7 @@ class Pyo {
         ** pyo.set("filters.freq", frequencies, 4);
         */
         int set(const char *name, float *value, int len);
-        int set(const String &name, float *value, int len);
+        int set(const juce::String &name, float *value, int len);
 
         /*
         ** Sends a MIDI messges to the Server.
@@ -214,15 +216,17 @@ class Pyo {
         void clear();
 
     private:
-        int nChannels;
+        int inChannels;
+        int outChannels;
         int bufferSize;
         int sampleRate;
+		int debug;
         PyThreadState *interpreter;
         float *pyoInBuffer;
         float *pyoOutBuffer;
         callPtr *pyoCallback;
         int pyoId;
-        char pyoMsg[262144];
+		char pyoMsg[262144];
 };
 
 #endif  // PYOCLASS_H_INCLUDED

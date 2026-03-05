@@ -2,9 +2,14 @@ Introduction on how to use pyo inside an OpenFrameworks project.
 ================================================================ 
 
 To use pyo inside an OpenFrameworks project, first you need a 
-working install of pyo for python 2.7 on your system (will switch
-to python 3 as soon as possible). After installing pyo, you can 
+working install of pyo for python 3.13 on your system.
+After installing pyo, you can 
 move on and create an OpenFrameworks project.
+
+------------------------------------------------------------------------
+Before trying out your own project, you might want to try the pyoExample
+that comes with Pyo. Copy the pyoExample directory to OF_ROOT/app/myApps
+and make it.
 
 ------------------------------------------------------------------------
 Step 1 - Create a default project with the project generator. To avoid
@@ -15,10 +20,10 @@ default location (OF_ROOT/apps/myApps).
 Step 2 - Add pyo files to your project. You only need to copy 
 these files in your project's src folder:
 
-- from the folder pyo/embedded:
+- from the folder pyo/embedded or from pyo/embedded/openFrameworks/pyoExample:
 m_pyo.h
 
-- from the folder pyo/embedded/openframeworks:
+- from the folder pyo/embedded/openframeworks/pyoExample:
 PyoClass.cpp
 PyoClass.h
 
@@ -27,12 +32,13 @@ Step 3 - Make sure that your project includes flags for compiling
 and linking against Python. On Unix systems, you can set the Python 
 flags in the file config.make. Uncomment and complete these lines:
 
-PROJECT_LDFLAGS = `python-config --ldflags` # linker flags for Python
-PROJECT_CFLAGS = `python-config --cflags` # compiler flags for Python
+PROJECT_LDFLAGS = `python3-config --ldflags --embed` # linker flags for Python
+PROJECT_CFLAGS = `python3-config --cflags` # compiler flags for Python
 
 ------------------------------------------------------------------------
-Step 4 - Make a scripts folder at the root level of your project and 
-create a python file, named "stereoDelay.py", with these lines in it:
+Step 4 - Make a scripts folder in the bin/data directory of your project.
+If /bin/data doesn't exist, creat it.
+Create a python file, named "stereoDelay.py", with these lines in it:
 
 # Get the input sound and apply a stereo delay + reverb on it.
 st_input = Input([0,1])
@@ -48,8 +54,8 @@ Step 5 - Edit src/ofApp.h
 
 - Add audio in/out callbacks to the public attributes of the ofApp class:
 
-void audioIn(float * input, int bufferSize, int nChannels);
-void audioOut(float * input, int bufferSize, int nChannels);
+void audioIn(ofSoundBuffer & buffer)
+void audioOut(ofSoundBuffer & buffer)
 
 - Add an ofSoundStream object to the public attributes of the ofApp class:
 
@@ -70,9 +76,9 @@ void ofApp::setup(){
     int bufferSize = 256;
     int nChannels = 2;
     // initialize a pyo server
-    pyo.setup(nChannels, bufferSize, sampleRate);
+    pyo.setup(nChannels, nChannels, bufferSize, sampleRate);
     // load a python file
-    pyo.loadfile("../scripts/stereoDelay.py", 0);
+    pyo.loadfile("data/scripts/stereoDelay.py", 0);
     // initialize OpenFrameworks audio streaming channels 
     //soundStream.listDevices()     // Uncomment if you need to
     //soundStream.setDeviceID(1);   // change the audio device.
@@ -81,20 +87,22 @@ void ofApp::setup(){
 
 - Creates audio in/out functions:
 
-void ofApp::audioIn(float * input, int bufferSize, int nChannels){
+void ofApp::audioIn(ofSoundBuffer & buffer){
     // send audio samples to pyo
-    pyo.fillin(input);
+    pyo.fillin(&buffer[0]);
 }
 
-void ofApp::audioOut(float * output, int bufferSize, int nChannels){
+//--------------------------------------------------------------
+void ofApp::audioOut(ofSoundBuffer & buffer){
     // process and get new audio samples from pyo
-    pyo.process(output);
+	pyo.process(&buffer[0]);
 }
 
 ------------------------------------------------------------------------
 Step 7 - Compile your project. To compile, cd to your project folder and:
 
 # This line is for MacOS, you'll have to adapt it to your system!
+# On Linux you don't need to do anything.
 make && cp -r scripts bin/*.app/Contents/Resources
 
 ------------------------------------------------------------------------
@@ -108,6 +116,6 @@ with the pyo embedded processes, see documentation comments in the file
 PyoClass.cpp.
 
 
-(c) 2019 - belangeo
+(c) 2026 - belangeo
 
 
