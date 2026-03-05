@@ -94,8 +94,12 @@ Add a Pyo object to the public attributes of the *XXXAudioProcessor* class:
 ------------------------------------------------------------------------------
 Step 7 - Edit Source/PluginProcessor.cpp
 
-Add these lines to *XXXAudioProcessor::prepareToPlay* method:
+Add these lines to *XXXAudioProcessor::prepareToPlay* method
+(note that the first line is necessary, in contrast to other embedded projects,
+otherwise a PyFloat_Type error occurs and the plugin host will crash.
+Change Python version to the one you have installed or compiled Pyo for):
 
+	dlopen("libpython3.13.so.1.0", RTLD_LAZY | RTLD_GLOBAL);
     pyo.setup(getTotalNumInputChannels(), getTotalNumOutputChannels(), samplesPerBlock, sampleRate);
     pyo.exec(BinaryData::stereoDelay_py);
 
@@ -194,4 +198,4 @@ For a complete description of functions used to communicate with the pyo
 embedded processes, see documentation comments in the file PyoClass.cpp.
 
 
-(c) 2026 - belangeo
+(c) 2017 - belangeo

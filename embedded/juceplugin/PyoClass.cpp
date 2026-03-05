@@ -38,9 +38,6 @@ void Pyo::setup(int _inChannels, int _outChannels, int _bufferSize, int _sampleR
     bufferSize = _bufferSize;
     sampleRate = _sampleRate;
 
-	// necessary here otherwise an ImportError: undefined symbol: PyFloat_Type occurs
-	dlopen("libpython3.13.so.1.0", RTLD_LAZY | RTLD_GLOBAL);
-	
 	interpreter = pyo_new_interpreter(sampleRate, bufferSize, inChannels, outChannels);
 	pyoInBuffer = reinterpret_cast<float*>(pyo_get_input_buffer_address(interpreter));
     pyoOutBuffer = reinterpret_cast<float*>(pyo_get_output_buffer_address(interpreter));
