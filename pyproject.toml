@@ -50,8 +50,8 @@ Repository = "https://github.com/belangeo/pyo"
 Changelog = "https://github.com/belangeo/pyo/blob/master/ChangeLog"
 
 
-[tool.setuptools]
-packages = [
+[tool.setuptools.packages.find]
+include = [
     "pyo64",
     "pyo",
     "pyo.lib",
