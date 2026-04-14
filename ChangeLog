@@ -1,3 +1,11 @@
+2026-04-14 nebul2 <bs@ctoic.net>
+
+    * setup.py (macOS): Replaced hardcoded Homebrew Cellar versioned paths with
+      stable opt/ symlinks (e.g. /opt/homebrew/opt/portmidi instead of
+      /opt/homebrew/Cellar/portmidi/2.0.4_1). Build now succeeds against any
+      installed version of the dependencies without requiring manual CFLAGS/LDFLAGS.
+      Verified working on Python 3.14 (macOS arm64).
+
 2025-03-20 belangeo <belangeo@gmail.com>
 
     * Added 2D table (matrix) examples in the documentation.

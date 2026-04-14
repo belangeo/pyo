@@ -171,26 +171,26 @@ if sys.platform == "win32":
         libraries.append("sndfile")
 
 elif sys.platform == "darwin":
+    # package flags: (include, lib)
     pkgs_3rdpary = {
-        # package flags: (include, lib, version)
-        "flac": (False, True, "1.5.0"),
-        "liblo": (True, True, "0.32"),
-        "libogg": (False, True, "1.3.5"),
-        "libsndfile": (True, True, "1.2.2_1"),
-        "libvorbis": (False, True, "1.3.7"),
-        "opus": (False, True, "1.5.2"),
-        "portaudio": (True, True, "19.7.0"),
-        "portmidi": (True, True, "2.0.4_1"),
-        "lame": (False, True, "3.100"),
-        "mpg123": (False, True, "1.32.10"),
+        "flac": (False, True),
+        "liblo": (True, True),
+        "libogg": (False, True),
+        "libsndfile": (True, True),
+        "libvorbis": (False, True),
+        "opus": (False, True),
+        "portaudio": (True, True),
+        "portmidi": (True, True),
+        "lame": (False, True),
+        "mpg123": (False, True),
     }
 
     mac_arch = arch = platform.machine()
     if mac_arch == "arm64":
-        brew_default_root = "/opt/homebrew/Cellar"
+        brew_opt_root = "/opt/homebrew/opt"
     else:
-        brew_default_root = "/usr/local/Cellar"
-    brew_packages_root = os.environ.get("BREW_PACKAGES_ROOT", brew_default_root)
+        brew_opt_root = "/usr/local/opt"
+    brew_opt_root = os.environ.get("BREW_OPT_ROOT", brew_opt_root)
 
     include_dirs = ["include"]
     library_dirs = []
@@ -213,13 +213,14 @@ elif sys.platform == "darwin":
     if pyenv_library_dir and os.path.isdir(pyenv_library_dir):
         library_dirs.insert(0, pyenv_library_dir)
 
-    for pkg, req in pkgs_3rdpary.items():
-        pkg_dir = os.path.join(brew_packages_root, pkg, req[2])
-        if req[0]:
+    for pkg, (want_include, want_lib) in pkgs_3rdpary.items():
+        pkg_dir = os.path.join(brew_opt_root, pkg)
+        if not os.path.isdir(pkg_dir):
+            continue
+        if want_include:
             include_dirs.append(os.path.join(pkg_dir, "include"))
-        if req[1]:
+        if want_lib:
             library_dirs.append(os.path.join(pkg_dir, "lib"))
-
 else:
     pyenv_include_dir = None
     pyenv_library_dir = None
