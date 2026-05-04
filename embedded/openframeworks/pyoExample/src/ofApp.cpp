@@ -34,10 +34,10 @@ void ofApp::setup(){
     int err = pyo.loadfile("data/scripts/stereoDelay.py", 0);
 	if (err) {
 		if (err == 1) {
-			stderrStr << "could not load file";
+			stderrStr = "could not load file";
 		}
 		else {
-			stderrStr << pyo.getErrorMsg();
+			stderrStr = pyo.getErrorMsg();
 		}
 	}
     // initialize OpenFrameworks audio streaming channels
