@@ -2,9 +2,14 @@ Introduction on how to use pyo inside an OpenFrameworks project.
 ================================================================ 
 
 To use pyo inside an OpenFrameworks project, first you need a 
-working install of pyo for python 2.7 on your system (will switch
-to python 3 as soon as possible). After installing pyo, you can 
+working install of pyo for python 3 on your system.
+After installing pyo, you can 
 move on and create an OpenFrameworks project.
+
+------------------------------------------------------------------------
+This folder already includes an openFrameworks example which you can
+copy in OF/apps/myApps and compile it.
+Below are instructions for making your own project.
 
 ------------------------------------------------------------------------
 Step 1 - Create a default project with the project generator. To avoid
@@ -15,10 +20,9 @@ default location (OF_ROOT/apps/myApps).
 Step 2 - Add pyo files to your project. You only need to copy 
 these files in your project's src folder:
 
-- from the folder pyo/embedded:
+- from the folder pyo/embedded/openframeworks/pyoExample/srd
+(m_pyo.h is the same for all embedded projects, not only OF):
 m_pyo.h
-
-- from the folder pyo/embedded/openframeworks:
 PyoClass.cpp
 PyoClass.h
 
@@ -27,12 +31,13 @@ Step 3 - Make sure that your project includes flags for compiling
 and linking against Python. On Unix systems, you can set the Python 
 flags in the file config.make. Uncomment and complete these lines:
 
-PROJECT_LDFLAGS = `python-config --ldflags` # linker flags for Python
-PROJECT_CFLAGS = `python-config --cflags` # compiler flags for Python
+PROJECT_LDFLAGS = `python3-config --ldflags --embed` # linker flags for Python
+PROJECT_CFLAGS = `python3-config --cflags` # compiler flags for Python
 
 ------------------------------------------------------------------------
-Step 4 - Make a scripts folder at the root level of your project and 
-create a python file, named "stereoDelay.py", with these lines in it:
+Step 4 - Make a scripts folder in bin/data of your project's directory and 
+create a python file, named "stereoDelay.py", with these lines in it
+(if the bin/data/ directory doesn't exist, create it):
 
 # Get the input sound and apply a stereo delay + reverb on it.
 st_input = Input([0,1])
@@ -72,7 +77,7 @@ void ofApp::setup(){
     // initialize a pyo server
     pyo.setup(nChannels, bufferSize, sampleRate);
     // load a python file
-    pyo.loadfile("../scripts/stereoDelay.py", 0);
+    pyo.loadfile("data/scripts/stereoDelay.py", 0);
     // initialize OpenFrameworks audio streaming channels 
     //soundStream.listDevices()     // Uncomment if you need to
     //soundStream.setDeviceID(1);   // change the audio device.
@@ -81,14 +86,12 @@ void ofApp::setup(){
 
 - Creates audio in/out functions:
 
-void ofApp::audioIn(float * input, int bufferSize, int nChannels){
-    // send audio samples to pyo
-    pyo.fillin(input);
+void ofApp::audioIn(ofSoundBuffer & buffer){
+    pyo.fillin(&buffer[0]);
 }
 
-void ofApp::audioOut(float * output, int bufferSize, int nChannels){
-    // process and get new audio samples from pyo
-    pyo.process(output);
+void ofApp::audioOut(ofSoundBuffer & buffer){
+	pyo.process(&buffer[0]);
 }
 
 ------------------------------------------------------------------------
@@ -96,6 +99,9 @@ Step 7 - Compile your project. To compile, cd to your project folder and:
 
 # This line is for MacOS, you'll have to adapt it to your system!
 make && cp -r scripts bin/*.app/Contents/Resources
+
+# In Linux just run
+make
 
 ------------------------------------------------------------------------
 Here you go! You should be able to run your app created in the bin folder.
@@ -108,6 +114,6 @@ with the pyo embedded processes, see documentation comments in the file
 PyoClass.cpp.
 
 
-(c) 2019 - belangeo
+(c) 2026 - belangeo
 
 
