@@ -24,11 +24,13 @@
 #include <Python.h>
 #include "pyomodule.h"
 
+#define STREAM_CALLBACK(func) ((void (*)(void *))(func))
+
 typedef struct
 {
     PyObject_HEAD
     PyObject *streamobject;
-    void (*funcptr)();
+    void (*funcptr)(void *);
     int sid;
     int chnl;
     int bufsize;
@@ -50,7 +52,7 @@ extern int Stream_getStreamChnl(Stream *self);
 extern int Stream_getStreamToDac(Stream *self);
 extern MYFLT * Stream_getData(Stream *self);
 extern void Stream_setData(Stream * self, MYFLT *data);
-extern void Stream_setFunctionPtr(Stream *self, void *ptr);
+extern void Stream_setFunctionPtr(Stream *self, void (*ptr)(void *));
 extern void Stream_callFunction(Stream *self);
 extern void Stream_IncrementBufferCount(Stream *self);
 extern void Stream_IncrementDurationCount(Stream *self);

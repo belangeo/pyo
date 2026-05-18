@@ -52,39 +52,39 @@ Mix_setProcMode(Mix *self)
     switch (muladdmode)
     {
         case 0:
-            self->muladd_func_ptr = Mix_postprocessing_ii;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Mix_postprocessing_ii);
             break;
 
         case 1:
-            self->muladd_func_ptr = Mix_postprocessing_ai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Mix_postprocessing_ai);
             break;
 
         case 2:
-            self->muladd_func_ptr = Mix_postprocessing_revai;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Mix_postprocessing_revai);
             break;
 
         case 10:
-            self->muladd_func_ptr = Mix_postprocessing_ia;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Mix_postprocessing_ia);
             break;
 
         case 11:
-            self->muladd_func_ptr = Mix_postprocessing_aa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Mix_postprocessing_aa);
             break;
 
         case 12:
-            self->muladd_func_ptr = Mix_postprocessing_revaa;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Mix_postprocessing_revaa);
             break;
 
         case 20:
-            self->muladd_func_ptr = Mix_postprocessing_ireva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Mix_postprocessing_ireva);
             break;
 
         case 21:
-            self->muladd_func_ptr = Mix_postprocessing_areva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Mix_postprocessing_areva);
             break;
 
         case 22:
-            self->muladd_func_ptr = Mix_postprocessing_revareva;
+            self->muladd_func_ptr = PYO_AUDIO_CALLBACK(Mix_postprocessing_revareva);
             break;
     }
 }
@@ -158,7 +158,7 @@ Mix_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Mix_compute_next_data_frame);
-    self->mode_func_ptr = Mix_setProcMode;
+    self->mode_func_ptr = PYO_AUDIO_CALLBACK(Mix_setProcMode);
 
     static char *kwlist[] = {"input", "mul", "add", NULL};
 

@@ -6,7 +6,7 @@
         {
             "label": "Compile linux debug (single, jack)",
             "type": "shell",
-            "command": "${config:activate_venv}; ${config:build_linux_debug}; ${config:install_linux}",
+            "command": "${config:activate_venv}; ${config:build_linux_debug}; ${config:build_linux_wheel}; ${config:install_linux}",
             "problemMatcher": [],
             "options": {
                 "cwd": "${workspaceFolder}"
@@ -23,7 +23,7 @@
         {
             "label": "Compile linux (single, jack)",
             "type": "shell",
-            "command": "${config:activate_venv}; ${config:build_linux_single}; ${config:install_linux}",
+            "command": "${config:activate_venv}; ${config:build_linux_single}; ${config:build_linux_wheel}; ${config:install_linux}",
             "problemMatcher": [],
             "options": {
                 "cwd": "${workspaceFolder}"
@@ -40,7 +40,7 @@
         {
             "label": "Compile linux (double, jack)",
             "type": "shell",
-            "command": "${config:activate_venv}; ${config:build_linux_double}; ${config:install_linux}",
+            "command": "${config:activate_venv}; ${config:build_linux_double}; ${config:build_linux_wheel}; ${config:install_linux}",
             "problemMatcher": [],
             "options": {
                 "cwd": "${workspaceFolder}"

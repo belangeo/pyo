@@ -170,12 +170,13 @@ Exemples de scripts audio avec pyo
 18-synthesis
 ------------
 
-1. voltage-controlled-oscillator.py
-2. band-limited-oscillator.py
-3. complex-fm.py
-4. phase-aligned-formant.py
-5. split-sideband-synthesis.py
-6. bucket-brigade-device.py
+1. pulsar-synthesis.py
+2. complex-freq-mod.py
+3. voltage-controlled-oscillator.py
+4. band-limited-oscillator.py
+5. phase-aligned-formant.py
+6. split-sideband-synthesis.py
+7. bucket-brigade-device.py
 
 19-multirate
 ------------

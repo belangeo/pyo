@@ -875,7 +875,7 @@ typedef struct
     MYFLT *markers;
     int markers_size;
     MYFLT x;
-    MYFLT (*type_func_ptr)();
+    MYFLT (*type_func_ptr)(void *);
     MYFLT (*interp_func_ptr)(MYFLT *, T_SIZE_T, MYFLT, T_SIZE_T);
 } SfMarkerShuffler;
 
@@ -1356,7 +1356,7 @@ SfMarkerShuffler_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     (*self->mode_func_ptr)(self);
 
-    self->type_func_ptr = SfMarkerShuffler_uniform;
+    self->type_func_ptr = PYO_MYFLT_CALLBACK(SfMarkerShuffler_uniform);
 
     if (self->interp == 0)
         self->interp = 2;
@@ -1454,49 +1454,49 @@ SfMarkerShuffler_setRandomType(SfMarkerShuffler *self, PyObject *args, PyObject 
     switch (dist)
     {
         case 0:
-            self->type_func_ptr = SfMarkerShuffler_uniform;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(SfMarkerShuffler_uniform);
             break;
 
         case 1:
-            self->type_func_ptr = SfMarkerShuffler_linear_min;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(SfMarkerShuffler_linear_min);
             break;
 
         case 2:
-            self->type_func_ptr = SfMarkerShuffler_linear_max;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(SfMarkerShuffler_linear_max);
             break;
 
         case 3:
-            self->type_func_ptr = SfMarkerShuffler_triangle;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(SfMarkerShuffler_triangle);
             break;
 
         case 4:
-            self->type_func_ptr = SfMarkerShuffler_expon_min;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(SfMarkerShuffler_expon_min);
             self->x *= 10.0;
             break;
 
         case 5:
-            self->type_func_ptr = SfMarkerShuffler_expon_max;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(SfMarkerShuffler_expon_max);
             self->x *= 10.0;
             break;
 
         case 6:
-            self->type_func_ptr = SfMarkerShuffler_biexpon;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(SfMarkerShuffler_biexpon);
             self->x *= 10.0;
             break;
 
         case 7:
-            self->type_func_ptr = SfMarkerShuffler_cauchy;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(SfMarkerShuffler_cauchy);
             self->x *= 10.0;
             self->x = 10.0 - self->x;
             break;
 
         case 8:
-            self->type_func_ptr = SfMarkerShuffler_weibull;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(SfMarkerShuffler_weibull);
             self->x = self->x * 5.0 + 0.1;
             break;
 
         case 9:
-            self->type_func_ptr = SfMarkerShuffler_gaussian;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(SfMarkerShuffler_gaussian);
             self->x *= 10.0;
             self->x = 10.0 - self->x;
             break;

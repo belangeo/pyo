@@ -37,7 +37,7 @@ typedef struct
     Stream *freq_stream;
     PyObject *q;
     Stream *q_stream;
-    void (*coeffs_func_ptr)();
+    void (*coeffs_func_ptr)(void *);
     int init;
     int modebuffer[4]; // need at least 2 slots for mul & add
     int filtertype;
@@ -253,23 +253,23 @@ Biquad_setProcMode(Biquad *self)
     switch (self->filtertype)
     {
         case 0:
-            self->coeffs_func_ptr = Biquad_compute_coeffs_lp;
+            self->coeffs_func_ptr = PYO_AUDIO_CALLBACK(Biquad_compute_coeffs_lp);
             break;
 
         case 1:
-            self->coeffs_func_ptr = Biquad_compute_coeffs_hp;
+            self->coeffs_func_ptr = PYO_AUDIO_CALLBACK(Biquad_compute_coeffs_hp);
             break;
 
         case 2:
-            self->coeffs_func_ptr = Biquad_compute_coeffs_bp;
+            self->coeffs_func_ptr = PYO_AUDIO_CALLBACK(Biquad_compute_coeffs_bp);
             break;
 
         case 3:
-            self->coeffs_func_ptr = Biquad_compute_coeffs_bs;
+            self->coeffs_func_ptr = PYO_AUDIO_CALLBACK(Biquad_compute_coeffs_bs);
             break;
 
         case 4:
-            self->coeffs_func_ptr = Biquad_compute_coeffs_ap;
+            self->coeffs_func_ptr = PYO_AUDIO_CALLBACK(Biquad_compute_coeffs_ap);
             break;
     }
 
@@ -584,7 +584,7 @@ typedef struct
     Stream *freq_stream;
     PyObject *q;
     Stream *q_stream;
-    void (*coeffs_func_ptr)();
+    void (*coeffs_func_ptr)(void *);
     int init;
     int modebuffer[4]; // need at least 2 slots for mul & add
     int filtertype;
@@ -862,23 +862,23 @@ Biquadx_setProcMode(Biquadx *self)
     switch (self->filtertype)
     {
         case 0:
-            self->coeffs_func_ptr = Biquadx_compute_coeffs_lp;
+            self->coeffs_func_ptr = PYO_AUDIO_CALLBACK(Biquadx_compute_coeffs_lp);
             break;
 
         case 1:
-            self->coeffs_func_ptr = Biquadx_compute_coeffs_hp;
+            self->coeffs_func_ptr = PYO_AUDIO_CALLBACK(Biquadx_compute_coeffs_hp);
             break;
 
         case 2:
-            self->coeffs_func_ptr = Biquadx_compute_coeffs_bp;
+            self->coeffs_func_ptr = PYO_AUDIO_CALLBACK(Biquadx_compute_coeffs_bp);
             break;
 
         case 3:
-            self->coeffs_func_ptr = Biquadx_compute_coeffs_bs;
+            self->coeffs_func_ptr = PYO_AUDIO_CALLBACK(Biquadx_compute_coeffs_bs);
             break;
 
         case 4:
-            self->coeffs_func_ptr = Biquadx_compute_coeffs_ap;
+            self->coeffs_func_ptr = PYO_AUDIO_CALLBACK(Biquadx_compute_coeffs_ap);
             break;
     }
 
@@ -1619,7 +1619,7 @@ typedef struct
     Stream *q_stream;
     PyObject *boost;
     Stream *boost_stream;
-    void (*coeffs_func_ptr)();
+    void (*coeffs_func_ptr)(void *);
     int init;
     int modebuffer[5]; // need at least 2 slots for mul & add
     int filtertype;
@@ -1941,15 +1941,15 @@ EQ_setProcMode(EQ *self)
     switch (self->filtertype)
     {
         case 0:
-            self->coeffs_func_ptr = EQ_compute_coeffs_peak;
+            self->coeffs_func_ptr = PYO_AUDIO_CALLBACK(EQ_compute_coeffs_peak);
             break;
 
         case 1:
-            self->coeffs_func_ptr = EQ_compute_coeffs_lowshelf;
+            self->coeffs_func_ptr = PYO_AUDIO_CALLBACK(EQ_compute_coeffs_lowshelf);
             break;
 
         case 2:
-            self->coeffs_func_ptr = EQ_compute_coeffs_highshelf;
+            self->coeffs_func_ptr = PYO_AUDIO_CALLBACK(EQ_compute_coeffs_highshelf);
             break;
     }
 

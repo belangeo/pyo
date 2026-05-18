@@ -2770,7 +2770,7 @@ typedef struct
     PyObject *x2;
     Stream *x1_stream;
     Stream *x2_stream;
-    MYFLT (*type_func_ptr)();
+    MYFLT (*type_func_ptr)(void *);
     MYFLT xx1;
     MYFLT xx2;
     int type;
@@ -3144,55 +3144,55 @@ TrigXnoise_setRandomType(TrigXnoise *self)
     switch (self->type)
     {
         case 0:
-            self->type_func_ptr = TrigXnoise_uniform;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(TrigXnoise_uniform);
             break;
 
         case 1:
-            self->type_func_ptr = TrigXnoise_linear_min;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(TrigXnoise_linear_min);
             break;
 
         case 2:
-            self->type_func_ptr = TrigXnoise_linear_max;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(TrigXnoise_linear_max);
             break;
 
         case 3:
-            self->type_func_ptr = TrigXnoise_triangle;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(TrigXnoise_triangle);
             break;
 
         case 4:
-            self->type_func_ptr = TrigXnoise_expon_min;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(TrigXnoise_expon_min);
             break;
 
         case 5:
-            self->type_func_ptr = TrigXnoise_expon_max;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(TrigXnoise_expon_max);
             break;
 
         case 6:
-            self->type_func_ptr = TrigXnoise_biexpon;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(TrigXnoise_biexpon);
             break;
 
         case 7:
-            self->type_func_ptr = TrigXnoise_cauchy;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(TrigXnoise_cauchy);
             break;
 
         case 8:
-            self->type_func_ptr = TrigXnoise_weibull;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(TrigXnoise_weibull);
             break;
 
         case 9:
-            self->type_func_ptr = TrigXnoise_gaussian;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(TrigXnoise_gaussian);
             break;
 
         case 10:
-            self->type_func_ptr = TrigXnoise_poisson;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(TrigXnoise_poisson);
             break;
 
         case 11:
-            self->type_func_ptr = TrigXnoise_walker;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(TrigXnoise_walker);
             break;
 
         case 12:
-            self->type_func_ptr = TrigXnoise_loopseg;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(TrigXnoise_loopseg);
             break;
     }
 }
@@ -3533,7 +3533,7 @@ typedef struct
     PyObject *x2;
     Stream *x1_stream;
     Stream *x2_stream;
-    MYFLT (*type_func_ptr)();
+    MYFLT (*type_func_ptr)(void *);
     int scale; // 0 = Midi, 1 = frequency, 2 = transpo
     int range_min;
     int range_max;
@@ -3943,55 +3943,55 @@ TrigXnoiseMidi_setRandomType(TrigXnoiseMidi *self)
     switch (self->type)
     {
         case 0:
-            self->type_func_ptr = TrigXnoiseMidi_uniform;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(TrigXnoiseMidi_uniform);
             break;
 
         case 1:
-            self->type_func_ptr = TrigXnoiseMidi_linear_min;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(TrigXnoiseMidi_linear_min);
             break;
 
         case 2:
-            self->type_func_ptr = TrigXnoiseMidi_linear_max;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(TrigXnoiseMidi_linear_max);
             break;
 
         case 3:
-            self->type_func_ptr = TrigXnoiseMidi_triangle;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(TrigXnoiseMidi_triangle);
             break;
 
         case 4:
-            self->type_func_ptr = TrigXnoiseMidi_expon_min;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(TrigXnoiseMidi_expon_min);
             break;
 
         case 5:
-            self->type_func_ptr = TrigXnoiseMidi_expon_max;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(TrigXnoiseMidi_expon_max);
             break;
 
         case 6:
-            self->type_func_ptr = TrigXnoiseMidi_biexpon;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(TrigXnoiseMidi_biexpon);
             break;
 
         case 7:
-            self->type_func_ptr = TrigXnoiseMidi_cauchy;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(TrigXnoiseMidi_cauchy);
             break;
 
         case 8:
-            self->type_func_ptr = TrigXnoiseMidi_weibull;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(TrigXnoiseMidi_weibull);
             break;
 
         case 9:
-            self->type_func_ptr = TrigXnoiseMidi_gaussian;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(TrigXnoiseMidi_gaussian);
             break;
 
         case 10:
-            self->type_func_ptr = TrigXnoiseMidi_poisson;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(TrigXnoiseMidi_poisson);
             break;
 
         case 11:
-            self->type_func_ptr = TrigXnoiseMidi_walker;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(TrigXnoiseMidi_walker);
             break;
 
         case 12:
-            self->type_func_ptr = TrigXnoiseMidi_loopseg;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(TrigXnoiseMidi_loopseg);
             break;
     }
 }

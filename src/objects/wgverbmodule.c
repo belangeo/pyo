@@ -54,7 +54,7 @@ typedef struct
     Stream *cutoff_stream;
     PyObject *mix;
     Stream *mix_stream;
-    void (*mix_func_ptr)();
+    void (*mix_func_ptr)(void *);
     int modebuffer[5];
     MYFLT total_signal;
     MYFLT delays[8];
@@ -464,11 +464,11 @@ WGVerb_setProcMode(WGVerb *self)
     switch (mixmode)
     {
         case 0:
-            self->mix_func_ptr = WGVerb_mix_i;
+            self->mix_func_ptr = PYO_AUDIO_CALLBACK(WGVerb_mix_i);
             break;
 
         case 1:
-            self->mix_func_ptr = WGVerb_mix_a;
+            self->mix_func_ptr = PYO_AUDIO_CALLBACK(WGVerb_mix_a);
             break;
     }
 
@@ -816,7 +816,7 @@ typedef struct
     Stream *cutoff_stream;
     PyObject *mix;
     Stream *mix_stream;
-    void (*mix_func_ptr)();
+    void (*mix_func_ptr)(void *);
     int modebuffer[4];
     MYFLT firstRefGain;
     MYFLT total_signal[2];
@@ -1537,11 +1537,11 @@ STReverb_setProcMode(STReverb *self)
     switch (mixmode)
     {
         case 0:
-            self->mix_func_ptr = STReverb_mix_i;
+            self->mix_func_ptr = PYO_AUDIO_CALLBACK(STReverb_mix_i);
             break;
 
         case 1:
-            self->mix_func_ptr = STReverb_mix_a;
+            self->mix_func_ptr = PYO_AUDIO_CALLBACK(STReverb_mix_a);
             break;
     }
 }

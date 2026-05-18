@@ -2437,7 +2437,7 @@ typedef struct
     Stream *x1_stream;
     Stream *x2_stream;
     Stream *freq_stream;
-    MYFLT (*type_func_ptr)();
+    MYFLT (*type_func_ptr)(void *);
     MYFLT xx1;
     MYFLT xx2;
     int type;
@@ -2950,55 +2950,55 @@ Xnoise_setRandomType(Xnoise *self)
     switch (self->type)
     {
         case 0:
-            self->type_func_ptr = Xnoise_uniform;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(Xnoise_uniform);
             break;
 
         case 1:
-            self->type_func_ptr = Xnoise_linear_min;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(Xnoise_linear_min);
             break;
 
         case 2:
-            self->type_func_ptr = Xnoise_linear_max;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(Xnoise_linear_max);
             break;
 
         case 3:
-            self->type_func_ptr = Xnoise_triangle;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(Xnoise_triangle);
             break;
 
         case 4:
-            self->type_func_ptr = Xnoise_expon_min;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(Xnoise_expon_min);
             break;
 
         case 5:
-            self->type_func_ptr = Xnoise_expon_max;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(Xnoise_expon_max);
             break;
 
         case 6:
-            self->type_func_ptr = Xnoise_biexpon;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(Xnoise_biexpon);
             break;
 
         case 7:
-            self->type_func_ptr = Xnoise_cauchy;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(Xnoise_cauchy);
             break;
 
         case 8:
-            self->type_func_ptr = Xnoise_weibull;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(Xnoise_weibull);
             break;
 
         case 9:
-            self->type_func_ptr = Xnoise_gaussian;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(Xnoise_gaussian);
             break;
 
         case 10:
-            self->type_func_ptr = Xnoise_poisson;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(Xnoise_poisson);
             break;
 
         case 11:
-            self->type_func_ptr = Xnoise_walker;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(Xnoise_walker);
             break;
 
         case 12:
-            self->type_func_ptr = Xnoise_loopseg;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(Xnoise_loopseg);
             break;
     }
 }
@@ -3363,7 +3363,7 @@ typedef struct
     Stream *x1_stream;
     Stream *x2_stream;
     Stream *freq_stream;
-    MYFLT (*type_func_ptr)();
+    MYFLT (*type_func_ptr)(void *);
     int scale; // 0 = Midi, 1 = frequency, 2 = transpo
     MYFLT xx1;
     MYFLT xx2;
@@ -3913,55 +3913,55 @@ XnoiseMidi_setRandomType(XnoiseMidi *self)
     switch (self->type)
     {
         case 0:
-            self->type_func_ptr = XnoiseMidi_uniform;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(XnoiseMidi_uniform);
             break;
 
         case 1:
-            self->type_func_ptr = XnoiseMidi_linear_min;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(XnoiseMidi_linear_min);
             break;
 
         case 2:
-            self->type_func_ptr = XnoiseMidi_linear_max;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(XnoiseMidi_linear_max);
             break;
 
         case 3:
-            self->type_func_ptr = XnoiseMidi_triangle;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(XnoiseMidi_triangle);
             break;
 
         case 4:
-            self->type_func_ptr = XnoiseMidi_expon_min;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(XnoiseMidi_expon_min);
             break;
 
         case 5:
-            self->type_func_ptr = XnoiseMidi_expon_max;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(XnoiseMidi_expon_max);
             break;
 
         case 6:
-            self->type_func_ptr = XnoiseMidi_biexpon;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(XnoiseMidi_biexpon);
             break;
 
         case 7:
-            self->type_func_ptr = XnoiseMidi_cauchy;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(XnoiseMidi_cauchy);
             break;
 
         case 8:
-            self->type_func_ptr = XnoiseMidi_weibull;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(XnoiseMidi_weibull);
             break;
 
         case 9:
-            self->type_func_ptr = XnoiseMidi_gaussian;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(XnoiseMidi_gaussian);
             break;
 
         case 10:
-            self->type_func_ptr = XnoiseMidi_poisson;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(XnoiseMidi_poisson);
             break;
 
         case 11:
-            self->type_func_ptr = XnoiseMidi_walker;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(XnoiseMidi_walker);
             break;
 
         case 12:
-            self->type_func_ptr = XnoiseMidi_loopseg;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(XnoiseMidi_loopseg);
             break;
     }
 }
@@ -4379,7 +4379,7 @@ typedef struct
     Stream *x2_stream;
     Stream *min_stream;
     Stream *max_stream;
-    MYFLT (*type_func_ptr)();
+    MYFLT (*type_func_ptr)(void *);
     MYFLT xx1;
     MYFLT xx2;
     int type;
@@ -4728,55 +4728,55 @@ XnoiseDur_setRandomType(XnoiseDur *self)
     switch (self->type)
     {
         case 0:
-            self->type_func_ptr = XnoiseDur_uniform;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(XnoiseDur_uniform);
             break;
 
         case 1:
-            self->type_func_ptr = XnoiseDur_linear_min;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(XnoiseDur_linear_min);
             break;
 
         case 2:
-            self->type_func_ptr = XnoiseDur_linear_max;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(XnoiseDur_linear_max);
             break;
 
         case 3:
-            self->type_func_ptr = XnoiseDur_triangle;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(XnoiseDur_triangle);
             break;
 
         case 4:
-            self->type_func_ptr = XnoiseDur_expon_min;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(XnoiseDur_expon_min);
             break;
 
         case 5:
-            self->type_func_ptr = XnoiseDur_expon_max;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(XnoiseDur_expon_max);
             break;
 
         case 6:
-            self->type_func_ptr = XnoiseDur_biexpon;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(XnoiseDur_biexpon);
             break;
 
         case 7:
-            self->type_func_ptr = XnoiseDur_cauchy;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(XnoiseDur_cauchy);
             break;
 
         case 8:
-            self->type_func_ptr = XnoiseDur_weibull;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(XnoiseDur_weibull);
             break;
 
         case 9:
-            self->type_func_ptr = XnoiseDur_gaussian;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(XnoiseDur_gaussian);
             break;
 
         case 10:
-            self->type_func_ptr = XnoiseDur_poisson;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(XnoiseDur_poisson);
             break;
 
         case 11:
-            self->type_func_ptr = XnoiseDur_walker;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(XnoiseDur_walker);
             break;
 
         case 12:
-            self->type_func_ptr = XnoiseDur_loopseg;
+            self->type_func_ptr = PYO_MYFLT_CALLBACK(XnoiseDur_loopseg);
             break;
     }
 }

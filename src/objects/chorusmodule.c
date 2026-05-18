@@ -51,7 +51,7 @@ typedef struct
     Stream *depth_stream;
     PyObject *mix;
     Stream *mix_stream;
-    void (*mix_func_ptr)();
+    void (*mix_func_ptr)(void *);
     int modebuffer[5];
     MYFLT total_signal;
     MYFLT delays[8];
@@ -394,11 +394,11 @@ Chorus_setProcMode(Chorus *self)
     switch (mixmode)
     {
         case 0:
-            self->mix_func_ptr = Chorus_mix_i;
+            self->mix_func_ptr = PYO_AUDIO_CALLBACK(Chorus_mix_i);
             break;
 
         case 1:
-            self->mix_func_ptr = Chorus_mix_a;
+            self->mix_func_ptr = PYO_AUDIO_CALLBACK(Chorus_mix_a);
             break;
     }
 
