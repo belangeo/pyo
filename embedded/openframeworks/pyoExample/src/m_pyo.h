@@ -87,7 +87,7 @@ static void pyo_python_global_init(void)
 INLINE PyThreadState * pyo_new_interpreter(float sr, int bufsize, int ichnls, int ochnls) {
     char msg[128];
     PyThreadState *interp;
-
+	
 	pyo_python_global_init();
 
 	PyEval_AcquireThread(main_tstate);
@@ -112,7 +112,7 @@ INLINE PyThreadState * pyo_new_interpreter(float sr, int bufsize, int ichnls, in
     PyRun_SimpleString("_s_.boot()\n_s_.start()\n_s_.setServer()");
     PyRun_SimpleString("_server_id_ = _s_.getServerID()");
 
-    /*
+    /* 
     ** printf %p specifier behaves differently in Linux/MacOS and Windows.
     */
 
@@ -306,19 +306,17 @@ INLINE int pyo_get_server_id(PyThreadState *interp) {
 */
 INLINE void pyo_end_interpreter(PyThreadState *interp) {
     /* Clean up pyo's server. */
-	if (interp !=NULL) {
-		PyEval_AcquireThread(interp);
-    	PyRun_SimpleString("_s_.setServer()\n_s_.stop()\n_s_.shutdown()");
-    	PyEval_ReleaseThread(interp);
+    PyEval_AcquireThread(interp);
+    PyRun_SimpleString("_s_.setServer()\n_s_.stop()\n_s_.shutdown()");
+    PyEval_ReleaseThread(interp);
 
-		//PyGILState_STATE state = PyGILState_Ensure();
-    	PyGILState_Ensure();
+    //PyGILState_STATE state = PyGILState_Ensure();
+    PyGILState_Ensure();
 
-		Py_EndInterpreter(interp);
-	}
+    Py_EndInterpreter(interp);
 
 	/* decrement the sub-interpreter counter */
-	if (py_instance_count > 0) py_instance_count--;
+	py_instance_count--;
 	/* if we delete the last sub-interpreter and the global interpreter is active
 	 * finalize it all
 	**/
@@ -364,7 +362,7 @@ INLINE void pyo_set_server_params(PyThreadState *interp, float sr, int bufsize) 
 }
 
 /*
-** This function can be used to pass the DAW's bpm value to the
+** This function can be used to pass the DAW's bpm value to the 
 ** python interpreter. Changes the value of the BPM variable in
 ** the interpreter's global scope. (which defaults to 60).
 **
@@ -381,7 +379,7 @@ INLINE void pyo_set_bpm(PyThreadState *interp, double bpm) {
 }
 
 /*
-** Add a MIDI event in the pyo server processing chain. When used in
+** Add a MIDI event in the pyo server processing chain. When used in 
 ** an embedded framework, pyo can't open MIDI ports by itself. MIDI
 ** inputs must be handled by the host program and sent to pyo with
 ** the pyo_add_midi_event function.
@@ -469,7 +467,7 @@ INLINE int pyo_exec_code(char *msg, const char *filename, int debug)
 	else {
         PyObject *mainmod = PyImport_AddModule("__main__");  // borrowed
         PyObject *globals = PyModule_GetDict(mainmod);       // borrowed
-
+		
         PyObject *res = PyEval_EvalCode((PyObject *)codeObj, globals, globals);
         if (res == NULL) {
             if (debug) {
@@ -656,7 +654,7 @@ static PyObject* cstdout_write(PyObject *self, PyObject *args) {
     if (!PyArg_ParseTuple(args, "s", &s)) return NULL;
 
 	pyo_enqueue_stdout(s);
-
+   
    	Py_RETURN_NONE;
 }
 
