@@ -1,24 +1,20 @@
-# About emptyExample
+# About pyoExample
 
 ![Screenshot of emptyExample](emptyExample.png)
 
 ### Learning Objectives
 
-This example is the simplest possible openFrameworks app! It does nothing. 
+This example is a simple example that embeds Pyo into an openFrameworks project. 
 
-...Well, *almost* nothing. Although it may not be apparent, the emptyExample activates all of the default system states. (For example, it sets the default fill color to white; it just doesn't happen to draw anything with it.)
-
-The emptyExample is great for making sure that your openFrameworks development environment is compiling properly. It can also be useful as a "starter template" for making simple programs. 
-
-The emptyExample will help you understand what are the bare necessities of an openFrameworks program. In this regard, you can think of it as a "Hello World" for OF. 
+Check ofApp.cpp and ofApp.h to see how this works.
 
 
 ### Expected Behavior
 
 When launching this app, you should see a light-gray screen. 
 
-* There's no interaction. 
-* There's nothing to see. 
+* A sound loop should start playing. 
+* In the text entry you can type Python commands for the Python interpreter. 
 * That's it. 
 
 Instructions for using the app:
@@ -27,4 +23,4 @@ Instructions for using the app:
 
 ### Other classes used in this file
 
-This example uses no other classes.
+This example uses the PyoClass class.
