@@ -22,7 +22,7 @@ Pre-Processing on music text
 
 - A musical voice is represented by a single line of code.
 
-- We can break a long line into multiple short lines with the backslash ( \ ).
+- We can break a long line into multiple short lines with the backslash ( \\ ).
 
 - The symbol equal ( = ), preceded by a variable name in UPPER CASE, creates a
   macro. The remaining part of the line is the macro body. Anywhere the

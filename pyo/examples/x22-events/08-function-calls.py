@@ -5,7 +5,7 @@
 
     EventCall(function, *args, occurrences=inf, stopEventsWhenDone=True)
 
-EventCall calls a function, with any number of arguments (\*args) and uses
+EventCall calls a function, with any number of arguments (\\*args) and uses
 its return value for the given parameter. The example below use a function
 from the random module, *randrange*, with arguments and a user-defined
 function, without argument, to create a rising, then falling, amplitude curve.
