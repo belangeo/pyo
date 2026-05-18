@@ -19,9 +19,11 @@
  *                                                                        *
  *************************************************************************/
 #include "PyoClass.h"
+#include <iostream>
 
 Pyo::Pyo() {
     interpreter = nullptr;
+	debug = 0;
 }
 
 Pyo::~Pyo() {
@@ -30,65 +32,77 @@ Pyo::~Pyo() {
     }
 }
 
-void Pyo::setup(int _nChannels, int _bufferSize, int _sampleRate) {
-    nChannels = _nChannels;
+void Pyo::setup(int _inChannels, int _outChannels, int _bufferSize, int _sampleRate) {
+    inChannels = _inChannels;
+    outChannels = _outChannels;
     bufferSize = _bufferSize;
     sampleRate = _sampleRate;
-    interpreter = pyo_new_interpreter(sampleRate, bufferSize, nChannels);
-    pyoInBuffer = reinterpret_cast<float*>(pyo_get_input_buffer_address(interpreter));
+
+	interpreter = pyo_new_interpreter(sampleRate, bufferSize, inChannels, outChannels);
+	pyoInBuffer = reinterpret_cast<float*>(pyo_get_input_buffer_address(interpreter));
     pyoOutBuffer = reinterpret_cast<float*>(pyo_get_output_buffer_address(interpreter));
     pyoCallback = reinterpret_cast<callPtr*>(pyo_get_embedded_callback_address(interpreter));
     pyoId = pyo_get_server_id(interpreter);
-    pyo_set_server_params(interpreter, sampleRate, bufferSize);
+	pyo_set_server_params(interpreter, sampleRate, bufferSize);
+}
+
+std::vector<std::string> Pyo::getStdout() {
+    std::vector<std::string> out;
+    char *msg;
+    while (pyo_dequeue_stdout(&msg)) {
+		out.emplace_back(msg);   // copy into vector
+		free(msg);               // free allocated C buffer
+    }
+    return out;
 }
 
 void Pyo::setbpm(double bpm) {
     pyo_set_bpm(interpreter, bpm);
 }
 
-void Pyo::process(AudioBuffer<float>& buffer) {
-    for (int channel = 0; channel < nChannels; ++channel) {
+void Pyo::process(juce::AudioBuffer<float>& buffer) {
+    for (int channel = 0; channel < inChannels; ++channel) {
         float *channelData = buffer.getWritePointer(channel);
         for (int sample = 0; sample < bufferSize; sample++) {
-            pyoInBuffer[sample*nChannels+channel] = channelData[sample];
+            pyoInBuffer[sample*inChannels+channel] = channelData[sample];
         }
     }
     pyoCallback(pyoId);
-    for (int channel = 0; channel < nChannels; ++channel) {
+    for (int channel = 0; channel < outChannels; ++channel) {
         float *channelData = buffer.getWritePointer(channel);
         for (int sample = 0; sample < bufferSize; sample++) {
-            channelData[sample] = pyoOutBuffer[sample*nChannels+channel];
+            channelData[sample] = pyoOutBuffer[sample*outChannels+channel];
         }
     }
 }
 
 int Pyo::loadfile(const char *file, int add) {
-    return pyo_exec_file(interpreter, file, pyoMsg, add);
+    return pyo_exec_file(interpreter, file, pyoMsg, add, debug);
 }
 
-int Pyo::loadfile(const String &file, int add) {
-    return pyo_exec_file(interpreter, file.getCharPointer(), pyoMsg, add);
+int Pyo::loadfile(const juce::String &file, int add) {
+    return pyo_exec_file(interpreter, file.getCharPointer(), pyoMsg, add, debug);
 }
 
 int Pyo::exec(const char *_msg) {
     strcpy(pyoMsg, _msg);
-    return pyo_exec_statement(interpreter, pyoMsg, 0);
+    return pyo_exec_statement(interpreter, pyoMsg, debug);
 }
 
-int Pyo::exec(const String &_msg) {
+int Pyo::exec(const juce::String &_msg) {
     strcpy(pyoMsg, _msg.getCharPointer());
-    return pyo_exec_statement(interpreter, pyoMsg, 0);
+    return pyo_exec_statement(interpreter, pyoMsg, debug);
 }
 
 int Pyo::value(const char *name, float value) {
     sprintf(pyoMsg, "%s.value=%f", name, value);
-    return pyo_exec_statement(interpreter, pyoMsg, 0);
+    return pyo_exec_statement(interpreter, pyoMsg, debug);
 }
 
-int Pyo::value(const String &name, float value) {
+int Pyo::value(const juce::String &name, float value) {
     const char * _name = name.getCharPointer();
     sprintf(pyoMsg, "%s.value=%f", _name, value);
-    return pyo_exec_statement(interpreter, pyoMsg, 0);
+    return pyo_exec_statement(interpreter, pyoMsg, debug);
 }
 
 int Pyo::value(const char *name, float *value, int len) {
@@ -99,10 +113,10 @@ int Pyo::value(const char *name, float *value, int len) {
         strcat(pyoMsg, fchar);
     }
     strcat(pyoMsg, "]");
-    return pyo_exec_statement(interpreter, pyoMsg, 0);
+    return pyo_exec_statement(interpreter, pyoMsg, debug);
 }
 
-int Pyo::value(const String &name, float *value, int len) {
+int Pyo::value(const juce::String &name, float *value, int len) {
     char fchar[32];
     const char * _name = name.getCharPointer();
     sprintf(pyoMsg, "%s.value=[", _name);
@@ -111,18 +125,18 @@ int Pyo::value(const String &name, float *value, int len) {
         strcat(pyoMsg, fchar);
     }
     strcat(pyoMsg, "]");
-    return pyo_exec_statement(interpreter, pyoMsg, 0);
+    return pyo_exec_statement(interpreter, pyoMsg, debug);
 }
 
 int Pyo::set(const char *name, float value) {
     sprintf(pyoMsg, "%s=%f", name, value);
-    return pyo_exec_statement(interpreter, pyoMsg, 0);
+    return pyo_exec_statement(interpreter, pyoMsg, debug);
 }
 
-int Pyo::set(const String &name, float value) {
+int Pyo::set(const juce::String &name, float value) {
     const char * _name = name.getCharPointer();
     sprintf(pyoMsg, "%s=%f", _name, value);
-    return pyo_exec_statement(interpreter, pyoMsg, 0);
+    return pyo_exec_statement(interpreter, pyoMsg, debug);
 }
 
 int Pyo::set(const char *name, float *value, int len) {
@@ -133,10 +147,10 @@ int Pyo::set(const char *name, float *value, int len) {
         strcat(pyoMsg, fchar);
     }
     strcat(pyoMsg, "]");
-    return pyo_exec_statement(interpreter, pyoMsg, 0);
+    return pyo_exec_statement(interpreter, pyoMsg, debug);
 }
 
-int Pyo::set(const String &name, float *value, int len) {
+int Pyo::set(const juce::String &name, float *value, int len) {
     char fchar[32];
     const char * _name = name.getCharPointer();
     sprintf(pyoMsg, "%s=[", _name);
@@ -145,7 +159,7 @@ int Pyo::set(const String &name, float *value, int len) {
         strcat(pyoMsg, fchar);
     }
     strcat(pyoMsg, "]");
-    return pyo_exec_statement(interpreter, pyoMsg, 0);
+    return pyo_exec_statement(interpreter, pyoMsg, debug);
 }
 
 void Pyo::midi(int status, int data1, int data2) {

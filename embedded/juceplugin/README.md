@@ -27,11 +27,11 @@ these in the specific fields:
 
 Extra linker flags :
 
-    `python-config --ldflags`
+    `python3-config --ldflags --embed` -rdynamic
 
 Extra compiler flags :
 
-    `python-config --cflags`
+    `python3-config --cflags`
 
 On MacOS, the default compiler in Xcode is LLVM and it will complain about 
 python-config command. All you have to do is to run these two commands (without
@@ -94,9 +94,13 @@ Add a Pyo object to the public attributes of the *XXXAudioProcessor* class:
 ------------------------------------------------------------------------------
 Step 7 - Edit Source/PluginProcessor.cpp
 
-Add these lines to *XXXAudioProcessor::prepareToPlay* method:
+Add these lines to *XXXAudioProcessor::prepareToPlay* method
+(note that the first line is necessary, in contrast to other embedded projects,
+otherwise a PyFloat_Type error occurs and the plugin host will crash.
+Change Python version to the one you have installed or compiled Pyo for):
 
-    pyo.setup(getTotalNumOutputChannels(), samplesPerBlock, sampleRate);
+	dlopen("libpython3.13.so.1.0", RTLD_LAZY | RTLD_GLOBAL);
+    pyo.setup(getTotalNumInputChannels(), getTotalNumOutputChannels(), samplesPerBlock, sampleRate);
     pyo.exec(BinaryData::stereoDelay_py);
 
 Replace the processing part of *XXXAudioProcessor::processBlock* method with this
@@ -104,7 +108,7 @@ line:
 
     pyo.process(buffer);
 
-The processing part is the code after this comment:
+The processing part is the code after this comment (the line above should not be included in the for loop):
 
     // This is the place where you'd normally do the guts of your plugin's
     // audio processing...
@@ -126,17 +130,17 @@ Step 8 - Edit Source/PluginEditor.h
 Add the inheritance to *Slider::Listener* to your *XXXAudioProcessorEditor*
 class definition:
 
-    class XXXAudioProcessorEditor  : public AudioProcessorEditor, 
-                                     private Slider::Listener
+    class XXXAudioProcessorEditor  : public juce::AudioProcessorEditor, 
+                                     private juce::Slider::Listener
  
 Add the default callback function in the public attributes of the class:
     
-    void sliderValueChanged(Slider* slider) override;
+    void sliderValueChanged(juce::Slider* slider) override;
 
 Create two sliders in the public attributes of the class:
     
-    Slider p1;
-    Slider p2;
+    juce::Slider p1;
+    juce::Slider p2;
 
 ------------------------------------------------------------------------------
 Step 9 - Edit Source/PluginEditor.cpp
@@ -146,9 +150,9 @@ Set the sliders properties in the editor constructor function named
 in the PluginEditor.cpp file). Add these lines at the end of the function:
     
     // these define the parameters of our slider object
-    p1.setSliderStyle(Slider::LinearBarVertical);
+    p1.setSliderStyle(juce::Slider::LinearBarVertical);
     p1.setRange(0.0, 1.0, 0.01);
-    p1.setTextBoxStyle(Slider::NoTextBox, false, 90, 0);
+    p1.setTextBoxStyle(juce::Slider::NoTextBox, false, 90, 0);
     p1.setPopupDisplayEnabled(true, true, this);
     p1.setTextValueSuffix(" Delay Time");
     p1.setValue(0.5);
@@ -156,9 +160,9 @@ in the PluginEditor.cpp file). Add these lines at the end of the function:
     // this function adds the slider to the editor
     addAndMakeVisible(&p1);
 
-    p2.setSliderStyle(Slider::LinearBarVertical);
+    p2.setSliderStyle(juce::Slider::LinearBarVertical);
     p2.setRange(0.0, 1.0, 0.01);
-    p2.setTextBoxStyle(Slider::NoTextBox, false, 90, 0);
+    p2.setTextBoxStyle(juce::Slider::NoTextBox, false, 90, 0);
     p2.setPopupDisplayEnabled(true, true, this);
     p2.setTextValueSuffix(" Delay Feedback");
     p2.setValue(0.5);
@@ -177,10 +181,10 @@ Step 10 - Connect the sliders to the audio process
 At the end of the file PluginEditor.cpp, create the slider's callback 
 function which will pass the values to the audio processing objects:
     
-    void XXXAudioProcessorEditor::sliderValueChanged (Slider* slider)
+    void XXXAudioProcessorEditor::sliderValueChanged (juce::Slider* slider)
     {
-        processor.pyo.value("dtime", p1.getValue());
-        processor.pyo.value("feed", p2.getValue());
+        audioProcessor.pyo.value("dtime", p1.getValue());
+        audioProcessor.pyo.value("feed", p2.getValue());
     }
 
 ------------------------------------------------------------------------------
