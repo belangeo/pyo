@@ -27,7 +27,6 @@ jobs:
       uses: lukka/run-vcpkg@v11
       with:
         vcpkgDirectory: '${{ runner.workspace }}/vcpkg'
-        vcpkgGitCommitId: 'master'
 
     - name: Install C/C++ dependencies with vcpkg
       run: |
