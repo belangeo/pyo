@@ -13,7 +13,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: ['3.9', '3.11', '3.13']
+        python-version: ['3.9', '3.11', '3.12', '3.13']
       fail-fast: false
 
     steps:
@@ -40,10 +40,61 @@ jobs:
       run: |
         brew install portaudio portmidi libsndfile liblo
 
+    - name: Install system dependencies (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        # Clone vcpkg
+        git clone https://github.com/Microsoft/vcpkg.git vcpkg-repo
+        cd vcpkg-repo
+        .\bootstrap-vcpkg.bat
+        
+        # Install required libraries
+        .\vcpkg install portaudio:x64-windows portmidi:x64-windows libsndfile:x64-windows liblo:x64-windows pthreads:x64-windows
+      shell: pwsh
+
     - name: Install Python dependencies
       run: |
-        python -m pip install --upgrade pip setuptools wheel
-        python -m pip install pyo pytest pytest-cov
+        python -m pip install --upgrade pip setuptools wheel build
+        python -m pip install pytest pytest-cov
+
+    - name: Patch setup.py for build paths (CI workaround)
+      run: |
+        python << 'EOF'
+        import os
+        import re
+        import platform
+        
+        setup_path = "setup.py"
+        
+        with open(setup_path, 'r') as f:
+            content = f.read()
+        
+        system = platform.system()
+        
+        if system == "Windows":
+            vcpkg_root = r"${{ github.workspace }}\vcpkg-repo"
+            pattern = r'vcpkg_root = os\.environ\.get\("VCPKG_ROOT", r"[^"]+"\)'
+            replacement = f'vcpkg_root = os.environ.get("VCPKG_ROOT", r"{vcpkg_root}")'
+            content = re.sub(pattern, replacement, content)
+            print("✓ Patched setup.py with VCPKG_ROOT for Windows")
+        elif system == "Darwin":
+            # Patch BREW_OPT_ROOT for macOS
+            pattern = r'brew_opt_root = os\.environ\.get\("BREW_OPT_ROOT", brew_opt_root\)'
+            replacement = 'brew_opt_root = os.environ.get("BREW_OPT_ROOT", brew_opt_root)  # Using system default'
+            content = re.sub(pattern, replacement, content)
+            print("✓ Patched setup.py for macOS")
+        else:
+            print("✓ No patch needed for Linux")
+        
+        with open(setup_path, 'w') as f:
+            f.write(content)
+        EOF
+
+    - name: Build pyo from source
+      env:
+        VCPKG_ROOT: ${{ github.workspace }}/vcpkg-repo
+      run: |
+        python -m build --wheel --config-setting="--build-option=--use-double"
 
     - name: Run pytest tests
       run: |

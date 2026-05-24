@@ -12,7 +12,7 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        python-version: ['3.11', '3.12', '3.13']
+        python-version: ['3.9', '3.11', '3.12', '3.13']
       fail-fast: false
 
     steps:
@@ -42,9 +42,33 @@ jobs:
         python -m pip install --upgrade pip setuptools wheel build numpy
         python -m pip install pytest pytest-cov
 
+    - name: Patch setup.py with vcpkg paths (CI workaround)
+      run: |
+        python << 'EOF'
+        import os
+        import re
+        
+        setup_path = "setup.py"
+        vcpkg_root = r"${{ github.workspace }}\vcpkg-repo"
+        
+        with open(setup_path, 'r') as f:
+            content = f.read()
+        
+        # Find the line with vcpkg_root = os.environ.get and replace the default
+        pattern = r'vcpkg_root = os\.environ\.get\("VCPKG_ROOT", r"[^"]+"\)'
+        replacement = f'vcpkg_root = os.environ.get("VCPKG_ROOT", r"{vcpkg_root}")'
+        content = re.sub(pattern, replacement, content)
+        
+        with open(setup_path, 'w') as f:
+            f.write(content)
+        
+        print("✓ Patched setup.py with VCPKG_ROOT")
+        EOF
+      shell: pwsh
+
     - name: Build pyo from source
       env:
-        VCPKG_ROOT: ${{ runner.workspace }}/vcpkg
+        VCPKG_ROOT: ${{ github.workspace }}/vcpkg-repo
       run: |
         python -m build --wheel --config-setting="--build-option=--use-double" 2>&1 | Tee-Object -FilePath build_log.txt
       shell: pwsh
