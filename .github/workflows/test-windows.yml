@@ -69,7 +69,7 @@ jobs:
     - name: Run pytest tests
       run: |
         cd tests/pytests
-        pytest -v --tb=short
+        pytest -v --tb=short --junit-xml=junit.xml
 
     - name: Upload build log on failure
       if: failure()
