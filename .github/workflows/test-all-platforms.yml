@@ -71,9 +71,10 @@ jobs:
         system = platform.system()
         
         if system == "Windows":
-            vcpkg_root = r"${{ github.workspace }}\vcpkg-repo"
+            vcpkg_root = "${{ github.workspace }}" + "\\vcpkg-repo"
             pattern = r'vcpkg_root = os\.environ\.get\("VCPKG_ROOT", r"[^"]+"\)'
-            replacement = f'vcpkg_root = os.environ.get("VCPKG_ROOT", r"{vcpkg_root}")'
+            # Use raw string and escape backslashes properly
+            replacement = 'vcpkg_root = os.environ.get("VCPKG_ROOT", r"' + vcpkg_root.replace('\\', '\\\\') + '")'
             content = re.sub(pattern, replacement, content)
             print("✓ Patched setup.py with VCPKG_ROOT for Windows")
         elif system == "Darwin":
