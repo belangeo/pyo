@@ -23,20 +23,30 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
-    - name: Install compiler and build tools
-      run: |
-        choco install mingw -y
-        refreshenv
-        pip install --upgrade pip setuptools wheel build numpy
+    - name: Install vcpkg
+      uses: lukka/run-vcpkg@v11
+      with:
+        vcpkgDirectory: '${{ runner.workspace }}/vcpkg'
+        vcpkgGitCommitId: 'master'
 
-    - name: Install optional dependencies
+    - name: Install C/C++ dependencies with vcpkg
       run: |
-        pip install pytest pytest-cov
+        cd ${{ runner.workspace }}/vcpkg
+        .\vcpkg install portaudio:x64-windows portmidi:x64-windows libsndfile:x64-windows liblo:x64-windows pthreads:x64-windows
+      shell: pwsh
+
+    - name: Install Python build dependencies
+      run: |
+        python -m pip install --upgrade pip setuptools wheel build numpy
+        python -m pip install pytest pytest-cov
 
     - name: Build pyo from source
-      continue-on-error: true
+      env:
+        VCPKG_ROOT: ${{ runner.workspace }}/vcpkg
       run: |
         python -m build --wheel --config-setting="--build-option=--use-double" 2>&1 | Tee-Object -FilePath build_log.txt
+      shell: pwsh
+      continue-on-error: true
 
     - name: Check build result
       run: |
@@ -47,6 +57,7 @@ jobs:
           Get-Content build_log.txt
           exit 1
         }
+      shell: pwsh
 
     - name: Install pyo from wheel
       run: |
@@ -54,20 +65,11 @@ jobs:
         python -m pip install $wheel.FullName
 
     - name: Run pytest tests
-      continue-on-error: true
       run: |
         cd tests/pytests
         pytest -v --tb=short
 
-    - name: Upload test results
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: pytest-results-${{ matrix.python-version }}
-        path: tests/pytests/.pytest_cache/
-        if-no-files-found: ignore
-
-    - name: Upload build log
+    - name: Upload build log on failure
       if: failure()
       uses: actions/upload-artifact@v4
       with:
