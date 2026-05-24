@@ -57,6 +57,14 @@ jobs:
         python -m pip install --upgrade pip setuptools wheel build
         python -m pip install pytest pytest-cov
 
+    - name: Set build environment variables
+      if: runner.os == 'Linux'
+      run: |
+        echo "CFLAGS=-I/usr/include -I/usr/local/include" >> $GITHUB_ENV
+        echo "LDFLAGS=-L/usr/lib -L/usr/local/lib" >> $GITHUB_ENV
+        echo "C_INCLUDE_PATH=/usr/include:/usr/local/include" >> $GITHUB_ENV
+        echo "LIBRARY_PATH=/usr/lib:/usr/local/lib" >> $GITHUB_ENV
+
     - name: Patch setup.py for build paths (CI workaround)
       run: |
         import os
@@ -84,7 +92,7 @@ jobs:
             content = re.sub(pattern, replacement, content)
             print("[OK] Patched setup.py for macOS")
         else:
-            print("[OK] No patch needed for Linux")
+            print("[OK] Linux - using environment variables")
         
         with open(setup_path, 'w') as f:
             f.write(content)
