@@ -23,19 +23,10 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
-    - name: Install build dependencies
+    - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip setuptools wheel build numpy
-        python -m pip install pytest pytest-cov
-
-    - name: Build pyo
-      run: |
-        python -m build --wheel --config-setting="--build-option=--use-double"
-
-    - name: Install pyo from wheel
-      run: |
-        $wheel = Get-ChildItem -Path "dist" -Filter "*.whl" | Select-Object -First 1
-        python -m pip install $wheel.FullName
+        python -m pip install --upgrade pip setuptools wheel
+        python -m pip install pyo pytest pytest-cov
 
     - name: Run pytest tests
       run: |
