@@ -79,22 +79,30 @@ jobs:
         system = platform.system()
         
         if system == "Windows":
-            # Use raw string to avoid escape sequence issues
             workspace = r"${{ github.workspace }}"
             vcpkg_root = workspace + r"\vcpkg-repo"
-            # Escape backslashes for use in regex replacement string
-            vcpkg_root_escaped = vcpkg_root.replace("\\", "\\\\")
+            # Use function-based replacement to avoid escape sequence issues
+            def replace_vcpkg(match):
+                return f'vcpkg_root = os.environ.get("VCPKG_ROOT", r"{vcpkg_root}")'
             pattern = r'vcpkg_root = os\.environ\.get\("VCPKG_ROOT", r"[^"]+"\)'
-            replacement = 'vcpkg_root = os.environ.get("VCPKG_ROOT", r"' + vcpkg_root_escaped + '")'
-            content = re.sub(pattern, replacement, content)
+            content = re.sub(pattern, replace_vcpkg, content)
             print("[OK] Patched setup.py with VCPKG_ROOT for Windows")
         elif system == "Darwin":
             pattern = r'brew_opt_root = os\.environ\.get\("BREW_OPT_ROOT", brew_opt_root\)'
             replacement = 'brew_opt_root = os.environ.get("BREW_OPT_ROOT", brew_opt_root)  # Using system default'
             content = re.sub(pattern, replacement, content)
             print("[OK] Patched setup.py for macOS")
-        else:
-            print("[OK] Linux - using environment variables")
+        else:  # Linux
+            # Add system paths to include_dirs for Linux builds
+            # Find the Linux section and inject include/lib paths
+            pattern = r'(elif sys\.platform == "linux":.*?\n\s+)(include_dirs = \["include"\])'
+            def add_linux_paths(match):
+                return match.group(1) + 'include_dirs = ["include", "/usr/include", "/usr/local/include"]'
+            if re.search(pattern, content, re.DOTALL):
+                content = re.sub(pattern, add_linux_paths, content, flags=re.DOTALL)
+                print("[OK] Patched setup.py with system paths for Linux")
+            else:
+                print("[OK] Linux section not found in setup.py")
         
         with open(setup_path, 'w') as f:
             f.write(content)

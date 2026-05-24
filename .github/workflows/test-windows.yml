@@ -47,8 +47,10 @@ jobs:
         $setupPath = "setup.py"
         $vcpkgRoot = "${{ github.workspace }}\vcpkg-repo"
         $content = Get-Content $setupPath -Raw
-        # PowerShell -replace handles backslashes correctly
-        $content = $content -replace 'vcpkg_root = os\.environ\.get\("VCPKG_ROOT", r"[^"]+"\)', ('vcpkg_root = os.environ.get("VCPKG_ROOT", r"' + $vcpkgRoot + '")')
+        # Use simple string replacement to avoid escape issues
+        $oldPattern = 'vcpkg_root = os.environ.get("VCPKG_ROOT", r"C:\Users\belan\git\vcpkg")'
+        $newPattern = 'vcpkg_root = os.environ.get("VCPKG_ROOT", r"' + $vcpkgRoot + '")'
+        $content = $content -replace [regex]::Escape($oldPattern), $newPattern
         Set-Content $setupPath $content
         Write-Host "[OK] Patched setup.py with VCPKG_ROOT"
       shell: pwsh
