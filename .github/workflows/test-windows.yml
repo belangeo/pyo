@@ -47,9 +47,10 @@ jobs:
         $setupPath = "setup.py"
         $vcpkgRoot = "${{ github.workspace }}\vcpkg-repo"
         $content = Get-Content $setupPath -Raw
-        $content = $content -replace 'vcpkg_root = os\.environ\.get\("VCPKG_ROOT", r"[^"]+"\)', "vcpkg_root = os.environ.get(`"VCPKG_ROOT`", r`"$vcpkgRoot`")"
+        # PowerShell -replace handles backslashes correctly
+        $content = $content -replace 'vcpkg_root = os\.environ\.get\("VCPKG_ROOT", r"[^"]+"\)', ('vcpkg_root = os.environ.get("VCPKG_ROOT", r"' + $vcpkgRoot + '")')
         Set-Content $setupPath $content
-        Write-Host "✓ Patched setup.py with VCPKG_ROOT"
+        Write-Host "[OK] Patched setup.py with VCPKG_ROOT"
       shell: pwsh
 
     - name: Build pyo from source

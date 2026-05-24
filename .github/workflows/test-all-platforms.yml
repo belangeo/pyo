@@ -82,8 +82,10 @@ jobs:
             # Use raw string to avoid escape sequence issues
             workspace = r"${{ github.workspace }}"
             vcpkg_root = workspace + r"\vcpkg-repo"
+            # Escape backslashes for use in regex replacement string
+            vcpkg_root_escaped = vcpkg_root.replace("\\", "\\\\")
             pattern = r'vcpkg_root = os\.environ\.get\("VCPKG_ROOT", r"[^"]+"\)'
-            replacement = 'vcpkg_root = os.environ.get("VCPKG_ROOT", r"' + vcpkg_root + '")'
+            replacement = 'vcpkg_root = os.environ.get("VCPKG_ROOT", r"' + vcpkg_root_escaped + '")'
             content = re.sub(pattern, replacement, content)
             print("[OK] Patched setup.py with VCPKG_ROOT for Windows")
         elif system == "Darwin":
