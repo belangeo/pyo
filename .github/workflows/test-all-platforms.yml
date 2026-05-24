@@ -48,22 +48,4 @@ jobs:
     - name: Run pytest tests
       run: |
         cd tests/pytests
-        pytest -v --tb=short --junit-xml=junit.xml --cov=pyo --cov-report=xml || true
-
-    - name: Upload coverage to Codecov
-      if: runner.os == 'Linux' && matrix.python-version == '3.11'
-      uses: codecov/codecov-action@v3
-      with:
-        file: ./tests/pytests/coverage.xml
-        flags: unittests
-        name: codecov-umbrella
-        fail_ci_if_error: false
-
-    - name: Create test report
-      if: always()
-      uses: dorny/test-reporter@v1
-      with:
-        name: Test Results - ${{ matrix.os }} - Python ${{ matrix.python-version }}
-        path: 'tests/pytests/junit.xml'
-        reporter: 'java-junit'
-        fail-on-error: false
+        pytest -v --tb=short || true
