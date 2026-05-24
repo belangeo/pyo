@@ -2,9 +2,9 @@ name: Cross-Platform CI/CD Tests
 
 on:
   push:
-    branches: [ master, main, develop ]
+    branches: [ master, main, develop, github-actions ]
   pull_request:
-    branches: [ master, main, develop ]
+    branches: [ master, main, develop, github-actions ]
   workflow_dispatch:
 
 jobs:
