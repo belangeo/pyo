@@ -44,26 +44,12 @@ jobs:
 
     - name: Patch setup.py with vcpkg paths (CI workaround)
       run: |
-        python << 'EOF'
-        import os
-        import re
-        
-        setup_path = "setup.py"
-        vcpkg_root = r"${{ github.workspace }}\vcpkg-repo"
-        
-        with open(setup_path, 'r') as f:
-            content = f.read()
-        
-        # Find the line with vcpkg_root = os.environ.get and replace the default
-        pattern = r'vcpkg_root = os\.environ\.get\("VCPKG_ROOT", r"[^"]+"\)'
-        replacement = f'vcpkg_root = os.environ.get("VCPKG_ROOT", r"{vcpkg_root}")'
-        content = re.sub(pattern, replacement, content)
-        
-        with open(setup_path, 'w') as f:
-            f.write(content)
-        
-        print("✓ Patched setup.py with VCPKG_ROOT")
-        EOF
+        $setupPath = "setup.py"
+        $vcpkgRoot = "${{ github.workspace }}\vcpkg-repo"
+        $content = Get-Content $setupPath -Raw
+        $content = $content -replace 'vcpkg_root = os\.environ\.get\("VCPKG_ROOT", r"[^"]+"\)', "vcpkg_root = os.environ.get(`"VCPKG_ROOT`", r`"$vcpkgRoot`")"
+        Set-Content $setupPath $content
+        Write-Host "✓ Patched setup.py with VCPKG_ROOT"
       shell: pwsh
 
     - name: Build pyo from source
