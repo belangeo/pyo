@@ -71,19 +71,20 @@ jobs:
         system = platform.system()
         
         if system == "Windows":
-            vcpkg_root = "${{ github.workspace }}" + "\\vcpkg-repo"
+            # Use raw string to avoid escape sequence issues
+            workspace = r"${{ github.workspace }}"
+            vcpkg_root = workspace + r"\vcpkg-repo"
             pattern = r'vcpkg_root = os\.environ\.get\("VCPKG_ROOT", r"[^"]+"\)'
-            # Use raw string and escape backslashes properly
-            replacement = 'vcpkg_root = os.environ.get("VCPKG_ROOT", r"' + vcpkg_root.replace('\\', '\\\\') + '")'
+            replacement = 'vcpkg_root = os.environ.get("VCPKG_ROOT", r"' + vcpkg_root + '")'
             content = re.sub(pattern, replacement, content)
-            print("✓ Patched setup.py with VCPKG_ROOT for Windows")
+            print("[OK] Patched setup.py with VCPKG_ROOT for Windows")
         elif system == "Darwin":
             pattern = r'brew_opt_root = os\.environ\.get\("BREW_OPT_ROOT", brew_opt_root\)'
             replacement = 'brew_opt_root = os.environ.get("BREW_OPT_ROOT", brew_opt_root)  # Using system default'
             content = re.sub(pattern, replacement, content)
-            print("✓ Patched setup.py for macOS")
+            print("[OK] Patched setup.py for macOS")
         else:
-            print("✓ No patch needed for Linux")
+            print("[OK] No patch needed for Linux")
         
         with open(setup_path, 'w') as f:
             f.write(content)
