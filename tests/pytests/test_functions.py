@@ -301,3 +301,18 @@ class TestServerQueriesFunctions:
         s.boot()
         assert serverBooted() == True
         s.shutdown()
+
+
+class TestServerContextManager:
+    def test_enter_returns_self(self):
+        server = Server(audio="manual")
+        assert server.__enter__() is server
+
+    def test_exit_cleans_server(self):
+        with Server(audio="manual") as s:
+            s.boot()
+            s.start()
+        
+        assert s.getIsStarted() == False
+        assert s.getIsBooted() == False
+

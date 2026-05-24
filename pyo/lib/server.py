@@ -200,6 +200,13 @@ class Server(object):
             if self._audio not in ["offline", "offline_nb", "embedded", "manual"]:
                 self._time.sleep(0.25)
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.__del__()
+        return False
+
     def reinit(
         self,
         sr=44100,
