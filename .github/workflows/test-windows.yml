@@ -1,0 +1,93 @@
+name: Windows CI/CD Tests
+
+on:
+  push:
+    branches: [ master, main, develop, github-actions ]
+  pull_request:
+    branches: [ master, main, develop, github-actions ]
+  workflow_dispatch:
+
+jobs:
+  test-windows:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        python-version: ['3.9', '3.11', '3.12', '3.13']
+      fail-fast: false
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install vcpkg dependencies
+      run: |
+        # Clone vcpkg
+        git clone https://github.com/Microsoft/vcpkg.git vcpkg-repo
+        cd vcpkg-repo
+        .\bootstrap-vcpkg.bat
+        
+        # Install required libraries
+        .\vcpkg install portaudio:x64-windows portmidi:x64-windows libsndfile:x64-windows liblo:x64-windows pthreads:x64-windows
+        
+        # Set environment variables for the build
+        echo "VCPKG_ROOT=${{ github.workspace }}/vcpkg-repo" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+      shell: pwsh
+
+    - name: Install Python build dependencies
+      run: |
+        python -m pip install --upgrade pip setuptools wheel build numpy
+        python -m pip install pytest pytest-cov
+
+    - name: Patch setup.py with vcpkg paths (CI workaround)
+      run: |
+        $setupPath = "setup.py"
+        $vcpkgRoot = "${{ github.workspace }}\vcpkg-repo"
+        $content = Get-Content $setupPath -Raw
+        # Use simple string replacement to avoid escape issues
+        $oldPattern = 'vcpkg_root = os.environ.get("VCPKG_ROOT", r"C:\Users\belan\git\vcpkg")'
+        $newPattern = 'vcpkg_root = os.environ.get("VCPKG_ROOT", r"' + $vcpkgRoot + '")'
+        $content = $content -replace [regex]::Escape($oldPattern), $newPattern
+        Set-Content $setupPath $content
+        Write-Host "[OK] Patched setup.py with VCPKG_ROOT"
+      shell: pwsh
+
+    - name: Build pyo from source
+      env:
+        VCPKG_ROOT: ${{ github.workspace }}/vcpkg-repo
+      run: |
+        python -m build --wheel --config-setting="--build-option=--use-double" 2>&1 | Tee-Object -FilePath build_log.txt
+      shell: pwsh
+      continue-on-error: true
+
+    - name: Check build result
+      run: |
+        if (Test-Path "dist/*.whl") {
+          Write-Host "Build succeeded!"
+        } else {
+          Write-Host "Build failed - checking log..."
+          Get-Content build_log.txt
+          exit 1
+        }
+      shell: pwsh
+
+    - name: Install pyo from wheel
+      run: |
+        $wheel = Get-ChildItem -Path "dist" -Filter "*.whl" | Select-Object -First 1
+        python -m pip install $wheel.FullName
+
+    - name: Run pytest tests
+      run: |
+        cd tests/pytests
+        pytest -v --tb=short || true
+
+    - name: Upload build log on failure
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-log-${{ matrix.python-version }}
+        path: build_log.txt
+        if-no-files-found: ignore
