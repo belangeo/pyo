@@ -29,10 +29,11 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y \
-          libportaudio-dev \
+          libjack-jackd2-dev \
           libportmidi-dev \
-          libsndfile1-dev \
+          portaudio19-dev \
           liblo-dev \
+          libsndfile-dev \
           build-essential
 
     - name: Install system dependencies (macOS)
