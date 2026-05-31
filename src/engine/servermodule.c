@@ -1669,7 +1669,10 @@ Server_boot(Server *self, PyObject *arg)
         Server_error(self, "\nServer not booted.\n");
     }
 
-    if (self->audio_be_type != PyoOffline && self->audio_be_type != PyoOfflineNB && self->audio_be_type != PyoEmbedded)
+    if (self->audio_be_type != PyoOffline &&
+        self->audio_be_type != PyoOfflineNB &&
+        self->audio_be_type != PyoEmbedded &&
+        self->audio_be_type != PyoManual)
     {
         switch (self->midi_be_type)
         {

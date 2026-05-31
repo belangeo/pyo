@@ -5,7 +5,8 @@ lib.name = pyo~
 class.sources = pyo~.c
 
 PKG_CONFIG := pkg-config
-PYTHON=python3
+# Try to use python3-embed if available (standard on modern Linux), fall back to python3
+PYTHON := $(shell $(PKG_CONFIG) --exists python3-embed && echo python3-embed || echo python3)
 
 PY_CFLAGS := $(shell $(PKG_CONFIG) --cflags $(PYTHON))
 PY_LIBS   := $(shell $(PKG_CONFIG) --libs $(PYTHON))

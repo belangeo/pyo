@@ -1,6 +1,7 @@
 {
     "pyo_version": "1.0.6",
     "activate_venv": "source .venv/bin/activate",
+    "build_linux_minimal": "python3 setup.py build_ext --inplace --minimal",
     "build_linux_debug": "python3 setup.py build_ext --inplace --use-jack --debug --fast-compile",
     "build_linux_single": "python3 setup.py build_ext --inplace --use-jack",
     "build_linux_double": "python3 setup.py build_ext --inplace --use-jack --use-double",
