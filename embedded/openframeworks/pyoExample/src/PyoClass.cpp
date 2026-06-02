@@ -27,7 +27,7 @@ void Pyo::setup(int _inChannels, int _outChannels, int _bufferSize, int _sampleR
     pyoInBuffer = reinterpret_cast<float*>(pyo_get_input_buffer_address(interpreter));
     pyoOutBuffer = reinterpret_cast<float*>(pyo_get_output_buffer_address(interpreter));
     pyoCallback = reinterpret_cast<callPtr*>(pyo_get_embedded_callback_address(interpreter));
-    pyoId = pyo_get_server_id(interpreter);
+    pyoId = reinterpret_cast<void *>(pyo_get_server_address(interpreter));
 	processing = false;
 }
 

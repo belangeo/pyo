@@ -110,7 +110,7 @@ INLINE PyThreadState * pyo_new_interpreter(float sr, int bufsize, int ichnls, in
     sprintf(msg, "_s_ = Server(sr=%f, nchnls=%d, buffersize=%d, duplex=1, ichnls=%d)", sr, ochnls, bufsize, ichnls);
     PyRun_SimpleString(msg);
     PyRun_SimpleString("_s_.boot()\n_s_.start()\n_s_.setServer()");
-    PyRun_SimpleString("_server_id_ = _s_.getServerID()");
+    PyRun_SimpleString("_server_addr_ = _s_.getServerAddr()");
 
     /* 
     ** printf %p specifier behaves differently in Linux/MacOS and Windows.
@@ -232,10 +232,10 @@ INLINE unsigned long long pyo_get_output_buffer_address_64(PyThreadState *interp
 **
 ** returns an "unsigned long" that should be recast to a void pointer.
 **
-** The callback should be called with the server id (int) as argument.
+** The callback should be called with the server address (void *) as argument.
 **
 ** Prototype:
-** void (*callback)(int);
+** int (*callback)(void *);
 */
 INLINE unsigned long pyo_get_embedded_callback_address(PyThreadState *interp) {
     PyObject *module, *obj;
@@ -260,10 +260,10 @@ INLINE unsigned long pyo_get_embedded_callback_address(PyThreadState *interp) {
 **
 ** returns an "unsigned long long" that should be recast to a void pointer.
 **
-** The callback should be called with the server id (int) as argument.
+** The callback should be called with the server address (void *) as argument.
 **
 ** Prototype:
-** void (*callback)(int);
+** int (*callback)(void *);
 */
 INLINE unsigned long long pyo_get_embedded_callback_address_64(PyThreadState *interp) {
     PyObject *module, *obj;
@@ -279,23 +279,25 @@ INLINE unsigned long long pyo_get_embedded_callback_address_64(PyThreadState *in
 }
 
 /*
-** Returns the pyo server id of this thread, as an integer.
-** The id must be pass as argument to the callback function.
+** Returns the pyo server address of this thread, as an unsigned long.
+** The address must be passed as argument to the callback function.
 **
 ** arguments:
 **  interp : pointer, pointer to the targeted Python thread state.
 **
-** returns an integer.
+** returns an unsigned long.
 */
-INLINE int pyo_get_server_id(PyThreadState *interp) {
+INLINE unsigned long pyo_get_server_address(PyThreadState *interp) {
     PyObject *module, *obj;
-    int id;
+    const char *address;
+    unsigned long uadd;
     PyEval_AcquireThread(interp);
     module = PyImport_AddModule("__main__");
-    obj = PyObject_GetAttrString(module, "_server_id_");
-    id = PyLong_AsLong(obj);
+    obj = PyObject_GetAttrString(module, "_server_addr_");
+    address = PyUnicode_AsUTF8(obj);
+    uadd = strtoul(address, NULL, 0);
     PyEval_ReleaseThread(interp);
-    return id;
+    return uadd;
 }
 
 /*

@@ -21,11 +21,11 @@ typedef struct _pyo_tilde {
     t_sample **out;
 	t_outlet *stdout;
 	t_atom *stdout_vec;
-    int id;                 /* pyo server id */
+    void *server;           /* pyo server address */
     float *inbuf;           /* pyo input buffer */
     float *outbuf;          /* pyo output buffer */
     char *msg;              /* preallocated string to construct message for pyo */
-    void (*callback)(int);  /* pointer to pyo embedded server callback */
+    int (*callback)(void *);  /* pointer to pyo embedded server callback */
     PyThreadState *interp;  /* Python thread state linked to this sub interpreter */
 } t_pyo_tilde;
 
@@ -40,7 +40,7 @@ t_int *pyo_tilde_perform(t_int *w) {
             x->inbuf[i*x->ichnls+j] = in[j][i];
         }
     }
-    (*x->callback)(x->id);
+    (*x->callback)(x->server);
     for (i=0; i<n; i++) {
         for (j=0; j<x->ochnls; j++) {
             out[j][i] = x->outbuf[i*x->ochnls+j];
@@ -434,7 +434,7 @@ static void *pyo_tilde_new(t_symbol *s, int argc, t_atom *argv) {
     x->inbuf = (float *)pyo_get_input_buffer_address(x->interp);
     x->outbuf = (float *)pyo_get_output_buffer_address(x->interp);
     x->callback = (void *)pyo_get_embedded_callback_address(x->interp);
-    x->id = pyo_get_server_id(x->interp);
+    x->server = (void *)pyo_get_server_address(x->interp);
 
 	/* dump the first stdout note about wdPython */
 	pyo_tilde_get_stdout(x);

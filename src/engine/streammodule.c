@@ -23,14 +23,6 @@
 #include "pyomodule.h"
 #include "streammodule.h"
 
-int stream_id = 1;
-
-int
-Stream_getNewStreamId()
-{
-    return stream_id++;
-}
-
 static int
 Stream_traverse(Stream *self, visitproc visit, void *arg)
 {

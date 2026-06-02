@@ -2066,8 +2066,9 @@ static PyMethodDef pyo_functions[] =
     {NULL, NULL, 0, NULL},
 };
 
-// TODO: Pyo likely has a bunch of state stored in global variables right now, they should ideally be stored
-// in an interpreter specific struct as described in https://docs.python.org/3/howto/cporting.html
+static struct PyModuleDef pyo_moduledef;
+static const char *pyo_state_module_key = LIB_BASE_NAME "._module";
+
 static int
 module_add_object(PyObject *module, const char *name, PyTypeObject *type)
 {
@@ -2082,9 +2083,59 @@ module_add_object(PyObject *module, const char *name, PyTypeObject *type)
     return res;
 }
 
+PyoModuleState *
+PyoState_Get(void)
+{
+    PyInterpreterState *interp = PyInterpreterState_Get();
+    PyObject *interp_dict = PyInterpreterState_GetDict(interp);
+    PyObject *module;
+
+    if (interp_dict == NULL)
+        return NULL;
+
+    module = PyDict_GetItemString(interp_dict, pyo_state_module_key);
+
+    if (module == NULL)
+        return NULL;
+
+    return (PyoModuleState *)PyModule_GetState(module);
+}
+
+void
+PyoState_Init(PyoModuleState *state)
+{
+    int i;
+
+    if (state == NULL)
+        return;
+
+    state->current_server_id = 0;
+    state->rand_seed = 1u;
+
+    for (i = 0; i < MAX_NBR_SERVER; i++)
+        state->servers[i] = NULL;
+
+    for (i = 0; i < PYO_NUM_RND_OBJS; i++)
+        state->rnd_objs_count[i] = 0;
+}
+
 static int
 pyo_exec(PyObject *m)
 {
+    PyInterpreterState *interp;
+    PyObject *interp_dict;
+
+    PyoState_Init((PyoModuleState *)PyModule_GetState(m));
+
+    interp = PyInterpreterState_Get();
+    interp_dict = PyInterpreterState_GetDict(interp);
+
+    if (interp_dict == NULL)
+        return -1;
+
+    if (PyDict_SetItemString(interp_dict, pyo_state_module_key, m) < 0)
+        return -1;
+
     if (module_add_object(m, "Server_base", &ServerType) < 0)
         return -1;
 #ifdef USE_PORTMIDI
@@ -2781,8 +2832,7 @@ static PyModuleDef_Slot pyo_module_slots[] =
 {
     {Py_mod_exec, pyo_exec},
 #if PY_VERSION_HEX >= 0x030c00f0  // Python 3.12+
-    // signal that this module does not supports multiple sub-interpreters
-    {Py_mod_multiple_interpreters, Py_MOD_MULTIPLE_INTERPRETERS_NOT_SUPPORTED},
+    {Py_mod_multiple_interpreters, Py_MOD_MULTIPLE_INTERPRETERS_SUPPORTED},
 #endif
 #if PY_VERSION_HEX >= 0x030d00f0  // Python 3.13+
     // signal that this module does not supports running without an active GIL
@@ -2796,7 +2846,7 @@ static struct PyModuleDef pyo_moduledef =
     PyModuleDef_HEAD_INIT,
     .m_name = LIB_BASE_NAME,
     .m_doc = "Python digital signal processing module.",
-    .m_size = 0,
+    .m_size = sizeof(PyoModuleState),
     .m_methods = pyo_functions,
     .m_slots = pyo_module_slots,
 };

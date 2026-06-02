@@ -16,5 +16,5 @@ ldlibs += $(PY_LIBS)
 
 datafiles = pyo-help.pd README.md
 
-PDLIBBUILDER_DIR=../pd-lib-builder/
+PDLIBBUILDER_DIR=../../3rdParty/pd-lib-builder/
 include $(PDLIBBUILDER_DIR)/Makefile.pdlibbuilder 

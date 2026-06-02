@@ -90,34 +90,48 @@ void pm_makenote(Server *self, int pit, int vel, int dur, int chan) {};
 long pm_get_current_time() { return 0; };
 #endif
 
-/** Array of Server objects. **/
-/******************************/
-
-#define MAX_NBR_SERVER 256
-
-static Server *my_server[MAX_NBR_SERVER];
-static int serverID = 0;
-
 /* Function called by any new pyo object to get a pointer to the current server. */
-PyObject * PyServer_get_server() { return (PyObject *)my_server[serverID]; }; // TODO: INCREF should be done here.
+PyObject *
+PyServer_get_server()
+{
+    PyoModuleState *state = PyoState_Get();
+
+    if (state == NULL)
+        return NULL;
+
+    if (state->current_server_id < 0 || state->current_server_id >= MAX_NBR_SERVER)
+        return NULL;
+
+    // Returns a borrowed reference
+    return (PyObject *)state->servers[state->current_server_id];
+}
 
 /** Random generator and object seeds. **/
 /****************************************/
 
-#define num_rnd_objs 29
-
-int rnd_objs_count[num_rnd_objs] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-int rnd_objs_mult[num_rnd_objs] = {1993, 1997, 1999, 2003, 2011, 2017, 2027, 2029, 2039, 2053, 2063, 2069,
-                                   2081, 2083, 2087, 2089, 2099, 2111, 2113, 2129, 2131, 2137, 2141, 2143,
-                                   2153, 2161, 2179, 2203, 2207
-                                  };
+static const int rnd_objs_mult[PYO_NUM_RND_OBJS] = {1993, 1997, 1999, 2003, 2011, 2017, 2027, 2029, 2039, 2053, 2063, 2069,
+                                                    2081, 2083, 2087, 2089, 2099, 2111, 2113, 2129, 2131, 2137, 2141, 2143,
+                                                    2153, 2161, 2179, 2203, 2207
+                                                   };
 
 /* Linear congruential pseudo-random generator. */
-static unsigned int PYO_RAND_SEED = 1u;
 unsigned int pyorand()
 {
-    PYO_RAND_SEED = (PYO_RAND_SEED * 1664525 + 1013904223) % PYO_RAND_MAX;
-    return PYO_RAND_SEED;
+    PyoModuleState *state = PyoState_Get();
+
+    if (state == NULL)
+        return 1u;
+
+    state->rand_seed = (state->rand_seed * 1664525 + 1013904223) % PYO_RAND_MAX;
+    return state->rand_seed;
+}
+
+/** Stream IDs **/
+/****************/
+int
+Server_getNewStreamId(Server *self)
+{
+    return self->next_stream_id++;
 }
 
 /** Logging levels. **/
@@ -324,7 +338,11 @@ Server_embedded_i_start(Server *self)
 int
 Server_embedded_i_startIdx(int idx)
 {
-    Server_embedded_i_start(my_server[idx]);
+    PyoModuleState *state = PyoState_Get();
+
+    if (state != NULL && idx >= 0 && idx < MAX_NBR_SERVER && state->servers[idx] != NULL)
+        Server_embedded_i_start(state->servers[idx]);
+
     return 0;
 }
 
@@ -357,7 +375,11 @@ Server_embedded_ni_start(Server *self)
 int
 Server_embedded_ni_startIdx(int idx)
 {
-    Server_embedded_ni_start(my_server[idx]);
+    PyoModuleState *state = PyoState_Get();
+
+    if (state != NULL && idx >= 0 && idx < MAX_NBR_SERVER && state->servers[idx] != NULL)
+        Server_embedded_ni_start(state->servers[idx]);
+
     return 0;
 }
 
@@ -663,7 +685,9 @@ Server_dealloc(Server* self)
     if (self->withGUI == 1)
         PyMem_RawFree(self->lastRms);
 
-    my_server[self->thisServerID] = NULL;
+    PyoModuleState *state = PyoState_Get();
+    if (state != NULL && self->thisServerID >= 0 && self->thisServerID < MAX_NBR_SERVER)
+        state->servers[self->thisServerID] = NULL;
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -690,16 +714,25 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         return Py_False;
     }
 
-    /* find the first free serverID */
-    for (serverID = 0; serverID < MAX_NBR_SERVER; serverID++)
+    int server_id = 0;
+    PyoModuleState *state = PyoState_Get();
+
+    if (state == NULL)
     {
-        if (my_server[serverID] == NULL)
+        PyErr_SetString(PyExc_RuntimeError, "pyo module state is unavailable.");
+        return NULL;
+    }
+
+    /* find the first free serverID */
+    for (server_id = 0; server_id < MAX_NBR_SERVER; server_id++)
+    {
+        if (state->servers[server_id] == NULL)
         {
             break;
         }
     }
 
-    if(serverID == MAX_NBR_SERVER)
+    if (server_id == MAX_NBR_SERVER)
     {
         PyErr_SetString(PyExc_RuntimeError, "You are already using the maximum number of server allowed!\n");
         Py_RETURN_NONE;
@@ -763,9 +796,10 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->globalSeed = 0;
     self->autoStartChildren = 0;
     self->CALLBACK = NULL;
-    self->thisServerID = serverID;
-    Py_XDECREF(my_server[serverID]);
-    my_server[serverID] = (Server *)self;
+    self->thisServerID = server_id;
+    state->current_server_id = server_id;
+    Py_XDECREF(state->servers[server_id]);
+    state->servers[server_id] = (Server *)self;
     return (PyObject *)self;
 }
 
@@ -1276,7 +1310,12 @@ Server_generateSeed(Server *self, int oid)
 {
     unsigned int curseed, count, mult, ltime;
 
-    count = ++rnd_objs_count[oid];
+    PyoModuleState *state = PyoState_Get();
+
+    if (state == NULL || oid < 0 || oid >= PYO_NUM_RND_OBJS)
+        return -1;
+
+    count = ++state->rnd_objs_count[oid];
     mult = rnd_objs_mult[oid];
 
     if (self->globalSeed > 0)
@@ -1289,7 +1328,7 @@ Server_generateSeed(Server *self, int oid)
         curseed = (ltime * ltime + count * mult) % PYO_RAND_MAX;
     }
 
-    PYO_RAND_SEED = curseed;
+    state->rand_seed = curseed;
 
     return 0;
 }
@@ -1440,9 +1479,16 @@ Server_shutdown(Server *self)
         Server_stop((Server *)self);
     }
 
-    for (i = 0; i < num_rnd_objs; i++)
     {
-        rnd_objs_count[i] = 0;
+        PyoModuleState *state = PyoState_Get();
+        if (state != NULL)
+        {
+            for (i = 0; i < PYO_NUM_RND_OBJS; i++)
+            {
+                state->rnd_objs_count[i] = 0;
+            }
+            state->rand_seed = 1u;
+        }
     }
 
     switch (self->midi_be_type)
@@ -1511,6 +1557,7 @@ Server_shutdown(Server *self)
     }
 
     self->stream_count = 0;
+    self->next_stream_id = 1;
 
     if (self->audio_be_type != PyoEmbedded)
     {
@@ -1533,6 +1580,7 @@ Server_boot(Server *self, PyObject *arg)
 
     self->server_started = 0;
     self->stream_count = 0;
+    self->next_stream_id = 1;
     self->elapsedSamples = 0;
 
     int needNewBuffer = 0;
@@ -2037,7 +2085,7 @@ Server_removeStream(Server *self, int id)
         s = PyGILState_Ensure();
     }
 
-    if (my_server[self->thisServerID] != NULL && PySequence_Size(self->streams) != -1)
+    if (PySequence_Size(self->streams) != -1)
     {
         for (i = 0; i < self->stream_count; i++)
         {
@@ -2516,8 +2564,16 @@ Server_getStreams(Server *self)
 static PyObject *
 Server_setServer(Server *self)
 {
-    serverID = self->thisServerID;
-    return PyLong_FromLong(serverID);
+    PyoModuleState *state = PyoState_Get();
+
+    if (state == NULL)
+    {
+        PyErr_SetString(PyExc_RuntimeError, "pyo module state is unavailable.");
+        return NULL;
+    }
+
+    state->current_server_id = self->thisServerID;
+    return PyLong_FromLong(state->current_server_id);
 }
 
 
@@ -2548,14 +2604,19 @@ static PyObject *
 Server_getServerAddr(Server *self)
 {
     char address[32];
-    sprintf(address, "%p", &my_server[self->thisServerID]);
+    sprintf(address, "%p", self);
     return PyUnicode_FromString(address);
 }
 
 void
 Server_getThisServer(int id, Server *server)
 {
-    server = my_server[id];
+    PyoModuleState *state = PyoState_Get();
+
+    if (state != NULL && id >= 0 && id < MAX_NBR_SERVER)
+        server = state->servers[id];
+    else
+        server = NULL;
 }
 
 /*
@@ -2572,7 +2633,7 @@ static PyObject *
 Server_getEmbedICallbackAddr(Server *self)
 {
     char address[32];
-    sprintf(address, "%p", &Server_embedded_i_startIdx);
+    sprintf(address, "%p", &Server_embedded_i_start);
     return PyUnicode_FromString(address);
 }
 
