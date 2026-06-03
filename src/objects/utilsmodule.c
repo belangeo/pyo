@@ -4470,7 +4470,7 @@ PyTypeObject TranspoToCentsType =
 static MYFLT
 Midi_clip(MYFLT x)
 {
-    static MYFLT max = 256.0;
+    static const MYFLT max = 256.0;
     return x > max ? max : x < -max ? -max : x;
 }
 
