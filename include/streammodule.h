@@ -42,7 +42,6 @@ typedef struct
     MYFLT *data;
 } Stream;
 
-extern int Stream_getNewStreamId();
 extern PyObject * Stream_getStreamObject(Stream *self);
 extern int Stream_getStreamId(Stream *self);
 extern int Stream_getStreamActive(Stream *self);

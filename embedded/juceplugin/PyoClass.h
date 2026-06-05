@@ -26,7 +26,7 @@
 #include <vector>
 #include <string>
 
-typedef int callPtr(int);
+typedef int callPtr(void *);
 
 class Pyo {
     public:
@@ -225,7 +225,7 @@ class Pyo {
         float *pyoInBuffer;
         float *pyoOutBuffer;
         callPtr *pyoCallback;
-        int pyoId;
+        void *pyoId;
 		char pyoMsg[262144];
 };
 

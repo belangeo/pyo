@@ -28,6 +28,22 @@
 
 #define PYO_VERSION "1.0.6"
 
+#define MAX_NBR_SERVER 256
+#define PYO_NUM_RND_OBJS 29
+
+typedef struct Server Server;
+
+typedef struct
+{
+    Server *servers[MAX_NBR_SERVER];
+    int current_server_id;
+    int rnd_objs_count[PYO_NUM_RND_OBJS];
+    unsigned int rand_seed;
+} PyoModuleState;
+
+PyoModuleState * PyoState_Get(void);
+void PyoState_Init(PyoModuleState *state);
+
 typedef Py_ssize_t T_SIZE_T;
 
 #ifndef __MYFLT_DEF
@@ -751,7 +767,7 @@ extern PyTypeObject MMLZStreamType;
         self->data[i] = 0.0; \
     MAKE_NEW_STREAM(self->stream, &StreamType, NULL); \
     Stream_setStreamObject(self->stream, (PyObject *)self); \
-    Stream_setStreamId(self->stream, Stream_getNewStreamId()); \
+    Stream_setStreamId(self->stream, Server_getNewStreamId(self->server)); \
     Stream_setBufferSize(self->stream, self->bufsize); \
     Stream_setData(self->stream, self->data); \
     Py_INCREF(self->stream);

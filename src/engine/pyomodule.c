@@ -2066,31 +2066,790 @@ static PyMethodDef pyo_functions[] =
     {NULL, NULL, 0, NULL},
 };
 
-// TODO: Pyo likely has a bunch of state stored in global variables right now, they should ideally be stored
-// in an interpreter specific struct as described in https://docs.python.org/3/howto/cporting.html
-static struct PyModuleDef pyo_moduledef =
-{
-    PyModuleDef_HEAD_INIT,
-    LIB_BASE_NAME,/* m_name */
-    "Python digital signal processing module.",/* m_doc */
-    0,/* m_size */
-    pyo_functions,/* m_methods */
-    NULL,/* m_reload */
-    NULL,/* m_traverse */
-    NULL,/* m_clear */
-    NULL,/* m_free */
-};
+static struct PyModuleDef pyo_moduledef;
+static const char *pyo_state_module_key = LIB_BASE_NAME "._module";
 
-static PyObject *
+static int
 module_add_object(PyObject *module, const char *name, PyTypeObject *type)
 {
     if (PyType_Ready(type) < 0)
-        Py_RETURN_NONE;
+        return -1;
 
-    Py_INCREF(type);
-    PyModule_AddObject(module, name, (PyObject *)type);
-    Py_RETURN_NONE;
+    PyObject *type_obj = (PyObject *)type;
+
+    int res = PyModule_AddObjectRef(module, name, type_obj);
+    Py_XDECREF(type_obj);
+
+    return res;
 }
+
+PyoModuleState *
+PyoState_Get(void)
+{
+    PyInterpreterState *interp = PyInterpreterState_Get();
+    PyObject *interp_dict = PyInterpreterState_GetDict(interp);
+    PyObject *module;
+
+    if (interp_dict == NULL)
+        return NULL;
+
+    module = PyDict_GetItemString(interp_dict, pyo_state_module_key);
+
+    if (module == NULL)
+        return NULL;
+
+    return (PyoModuleState *)PyModule_GetState(module);
+}
+
+void
+PyoState_Init(PyoModuleState *state)
+{
+    int i;
+
+    if (state == NULL)
+        return;
+
+    state->current_server_id = 0;
+    state->rand_seed = 1u;
+
+    for (i = 0; i < MAX_NBR_SERVER; i++)
+        state->servers[i] = NULL;
+
+    for (i = 0; i < PYO_NUM_RND_OBJS; i++)
+        state->rnd_objs_count[i] = 0;
+}
+
+static int
+pyo_exec(PyObject *m)
+{
+    PyInterpreterState *interp;
+    PyObject *interp_dict;
+
+    PyoState_Init((PyoModuleState *)PyModule_GetState(m));
+
+    interp = PyInterpreterState_Get();
+    interp_dict = PyInterpreterState_GetDict(interp);
+
+    if (interp_dict == NULL)
+        return -1;
+
+    if (PyDict_SetItemString(interp_dict, pyo_state_module_key, m) < 0)
+        return -1;
+
+    if (module_add_object(m, "Server_base", &ServerType) < 0)
+        return -1;
+#ifdef USE_PORTMIDI
+    if (module_add_object(m, "MidiListener_base", &MidiListenerType) < 0)
+        return -1;
+    if (module_add_object(m, "MidiDispatcher_base", &MidiDispatcherType) < 0)
+        return -1;
+#endif
+#ifdef USE_OSC
+    if (module_add_object(m, "OscListener_base", &OscListenerType) < 0)
+        return -1;
+    if (module_add_object(m, "OscSend_base", &OscSendType) < 0)
+        return -1;
+    if (module_add_object(m, "OscDataSend_base", &OscDataSendType) < 0)
+        return -1;
+    if (module_add_object(m, "OscReceive_base", &OscReceiveType) < 0)
+        return -1;
+    if (module_add_object(m, "OscReceiver_base", &OscReceiverType) < 0)
+        return -1;
+    if (module_add_object(m, "OscListReceive_base", &OscListReceiveType) < 0)
+        return -1;
+    if (module_add_object(m, "OscListReceiver_base", &OscListReceiverType) < 0)
+        return -1;
+    if (module_add_object(m, "OscDataReceive_base", &OscDataReceiveType) < 0)
+        return -1;
+#endif
+    if (module_add_object(m, "Stream", &StreamType) < 0)
+        return -1;
+    if (module_add_object(m, "TriggerStream", &TriggerStreamType) < 0)
+        return -1;
+    if (module_add_object(m, "PVStream", &PVStreamType) < 0)
+        return -1;
+    if (module_add_object(m, "Dummy_base", &DummyType) < 0)
+        return -1;
+    if (module_add_object(m, "TriggerDummy_base", &TriggerDummyType) < 0)
+        return -1;
+    if (module_add_object(m, "TableStream", &TableStreamType) < 0)
+        return -1;
+    if (module_add_object(m, "MatrixStream", &MatrixStreamType) < 0)
+        return -1;
+    if (module_add_object(m, "Record_base", &RecordType) < 0)
+        return -1;
+    if (module_add_object(m, "ControlRec_base", &ControlRecType) < 0)
+        return -1;
+    if (module_add_object(m, "ControlRead_base", &ControlReadType) < 0)
+        return -1;
+    if (module_add_object(m, "NoteinRec_base", &NoteinRecType) < 0)
+        return -1;
+    if (module_add_object(m, "NoteinRead_base", &NoteinReadType) < 0)
+        return -1;
+    if (module_add_object(m, "Compare_base", &CompareType) < 0)
+        return -1;
+    if (module_add_object(m, "Mix_base", &MixType) < 0)
+        return -1;
+    if (module_add_object(m, "Sig_base", &SigType) < 0)
+        return -1;
+    if (module_add_object(m, "SigTo_base", &SigToType) < 0)
+        return -1;
+    if (module_add_object(m, "VarPort_base", &VarPortType) < 0)
+        return -1;
+    if (module_add_object(m, "InputFader_base", &InputFaderType) < 0)
+        return -1;
+    if (module_add_object(m, "Adsr_base", &AdsrType) < 0)
+        return -1;
+    if (module_add_object(m, "Linseg_base", &LinsegType) < 0)
+        return -1;
+    if (module_add_object(m, "Expseg_base", &ExpsegType) < 0)
+        return -1;
+    if (module_add_object(m, "HarmTable_base", &HarmTableType) < 0)
+        return -1;
+    if (module_add_object(m, "ChebyTable_base", &ChebyTableType) < 0)
+        return -1;
+    if (module_add_object(m, "HannTable_base", &HannTableType) < 0)
+        return -1;
+    if (module_add_object(m, "SincTable_base", &SincTableType) < 0)
+        return -1;
+    if (module_add_object(m, "WinTable_base", &WinTableType) < 0)
+        return -1;
+    if (module_add_object(m, "ParaTable_base", &ParaTableType) < 0)
+        return -1;
+    if (module_add_object(m, "LinTable_base", &LinTableType) < 0)
+        return -1;
+    if (module_add_object(m, "LogTable_base", &LogTableType) < 0)
+        return -1;
+    if (module_add_object(m, "CosLogTable_base", &CosLogTableType) < 0)
+        return -1;
+    if (module_add_object(m, "CosTable_base", &CosTableType) < 0)
+        return -1;
+    if (module_add_object(m, "CurveTable_base", &CurveTableType) < 0)
+        return -1;
+    if (module_add_object(m, "ExpTable_base", &ExpTableType) < 0)
+        return -1;
+    if (module_add_object(m, "SndTable_base", &SndTableType) < 0)
+        return -1;
+    if (module_add_object(m, "DataTable_base", &DataTableType) < 0)
+        return -1;
+    if (module_add_object(m, "NewTable_base", &NewTableType) < 0)
+        return -1;
+    if (module_add_object(m, "TableRec_base", &TableRecType) < 0)
+        return -1;
+    if (module_add_object(m, "TableRecTimeStream_base", &TableRecTimeStreamType) < 0)
+        return -1;
+    if (module_add_object(m, "TableMorph_base", &TableMorphType) < 0)
+        return -1;
+    if (module_add_object(m, "TrigTableRec_base", &TrigTableRecType) < 0)
+        return -1;
+    if (module_add_object(m, "TrigTableRecTimeStream_base", &TrigTableRecTimeStreamType) < 0)
+        return -1;
+    if (module_add_object(m, "TableWrite_base", &TableWriteType) < 0)
+        return -1;
+    if (module_add_object(m, "TablePut_base", &TablePutType) < 0)
+        return -1;
+    if (module_add_object(m, "NewMatrix_base", &NewMatrixType) < 0)
+        return -1;
+    if (module_add_object(m, "MatrixPointer_base", &MatrixPointerType) < 0)
+        return -1;
+    if (module_add_object(m, "MatrixRec_base", &MatrixRecType) < 0)
+        return -1;
+    if (module_add_object(m, "MatrixRecLoop_base", &MatrixRecLoopType) < 0)
+        return -1;
+    if (module_add_object(m, "MatrixMorph_base", &MatrixMorphType) < 0)
+        return -1;
+    if (module_add_object(m, "Input_base", &InputType) < 0)
+        return -1;
+    if (module_add_object(m, "Trig_base", &TrigType) < 0)
+        return -1;
+    if (module_add_object(m, "NextTrig_base", &NextTrigType) < 0)
+        return -1;
+    if (module_add_object(m, "Metro_base", &MetroType) < 0)
+        return -1;
+    if (module_add_object(m, "Seqer_base", &SeqerType) < 0)
+        return -1;
+    if (module_add_object(m, "Seq_base", &SeqType) < 0)
+        return -1;
+    if (module_add_object(m, "Clouder_base", &ClouderType) < 0)
+        return -1;
+    if (module_add_object(m, "Cloud_base", &CloudType) < 0)
+        return -1;
+    if (module_add_object(m, "Beater_base", &BeaterType) < 0)
+        return -1;
+    if (module_add_object(m, "Beat_base", &BeatType) < 0)
+        return -1;
+    if (module_add_object(m, "BeatTapStream_base", &BeatTapStreamType) < 0)
+        return -1;
+    if (module_add_object(m, "BeatAmpStream_base", &BeatAmpStreamType) < 0)
+        return -1;
+    if (module_add_object(m, "BeatDurStream_base", &BeatDurStreamType) < 0)
+        return -1;
+    if (module_add_object(m, "BeatEndStream_base", &BeatEndStreamType) < 0)
+        return -1;
+    if (module_add_object(m, "Fader_base", &FaderType) < 0)
+        return -1;
+    if (module_add_object(m, "Randi_base", &RandiType) < 0)
+        return -1;
+    if (module_add_object(m, "Randh_base", &RandhType) < 0)
+        return -1;
+    if (module_add_object(m, "Choice_base", &ChoiceType) < 0)
+        return -1;
+    if (module_add_object(m, "RandDur_base", &RandDurType) < 0)
+        return -1;
+    if (module_add_object(m, "Xnoise_base", &XnoiseType) < 0)
+        return -1;
+    if (module_add_object(m, "XnoiseMidi_base", &XnoiseMidiType) < 0)
+        return -1;
+    if (module_add_object(m, "XnoiseDur_base", &XnoiseDurType) < 0)
+        return -1;
+    if (module_add_object(m, "RandInt_base", &RandIntType) < 0)
+        return -1;
+    if (module_add_object(m, "Urn_base", &UrnType) < 0)
+        return -1;
+    if (module_add_object(m, "SfPlayer_base", &SfPlayerType) < 0)
+        return -1;
+    if (module_add_object(m, "SfPlay_base", &SfPlayType) < 0)
+        return -1;
+    if (module_add_object(m, "SfMarkerShuffler_base", &SfMarkerShufflerType) < 0)
+        return -1;
+    if (module_add_object(m, "SfMarkerShuffle_base", &SfMarkerShuffleType) < 0)
+        return -1;
+    if (module_add_object(m, "SfMarkerLooper_base", &SfMarkerLooperType) < 0)
+        return -1;
+    if (module_add_object(m, "SfMarkerLoop_base", &SfMarkerLoopType) < 0)
+        return -1;
+    if (module_add_object(m, "Osc_base", &OscType) < 0)
+        return -1;
+    if (module_add_object(m, "OscLoop_base", &OscLoopType) < 0)
+        return -1;
+    if (module_add_object(m, "OscTrig_base", &OscTrigType) < 0)
+        return -1;
+    if (module_add_object(m, "OscBank_base", &OscBankType) < 0)
+        return -1;
+    if (module_add_object(m, "SumOsc_base", &SumOscType) < 0)
+        return -1;
+    if (module_add_object(m, "TableRead_base", &TableReadType) < 0)
+        return -1;
+    if (module_add_object(m, "Pulsar_base", &PulsarType) < 0)
+        return -1;
+    if (module_add_object(m, "Sine_base", &SineType) < 0)
+        return -1;
+    if (module_add_object(m, "FastSine_base", &FastSineType) < 0)
+        return -1;
+    if (module_add_object(m, "SineLoop_base", &SineLoopType) < 0)
+        return -1;
+    if (module_add_object(m, "Fm_base", &FmType) < 0)
+        return -1;
+    if (module_add_object(m, "CrossFm_base", &CrossFmType) < 0)
+        return -1;
+    if (module_add_object(m, "LFO_base", &LFOType) < 0)
+        return -1;
+    if (module_add_object(m, "Blit_base", &BlitType) < 0)
+        return -1;
+    if (module_add_object(m, "Rossler_base", &RosslerType) < 0)
+        return -1;
+    if (module_add_object(m, "RosslerAlt_base", &RosslerAltType) < 0)
+        return -1;
+    if (module_add_object(m, "Lorenz_base", &LorenzType) < 0)
+        return -1;
+    if (module_add_object(m, "LorenzAlt_base", &LorenzAltType) < 0)
+        return -1;
+    if (module_add_object(m, "ChenLee_base", &ChenLeeType) < 0)
+        return -1;
+    if (module_add_object(m, "ChenLeeAlt_base", &ChenLeeAltType) < 0)
+        return -1;
+    if (module_add_object(m, "Phasor_base", &PhasorType) < 0)
+        return -1;
+    if (module_add_object(m, "SuperSaw_base", &SuperSawType) < 0)
+        return -1;
+    if (module_add_object(m, "Pointer_base", &PointerType) < 0)
+        return -1;
+    if (module_add_object(m, "TableIndex_base", &TableIndexType) < 0)
+        return -1;
+    if (module_add_object(m, "Lookup_base", &LookupType) < 0)
+        return -1;
+    if (module_add_object(m, "Noise_base", &NoiseType) < 0)
+        return -1;
+    if (module_add_object(m, "PinkNoise_base", &PinkNoiseType) < 0)
+        return -1;
+    if (module_add_object(m, "BrownNoise_base", &BrownNoiseType) < 0)
+        return -1;
+    if (module_add_object(m, "Biquad_base", &BiquadType) < 0)
+        return -1;
+    if (module_add_object(m, "Biquadx_base", &BiquadxType) < 0)
+        return -1;
+    if (module_add_object(m, "Biquada_base", &BiquadaType) < 0)
+        return -1;
+    if (module_add_object(m, "EQ_base", &EQType) < 0)
+        return -1;
+    if (module_add_object(m, "Tone_base", &ToneType) < 0)
+        return -1;
+    if (module_add_object(m, "Atone_base", &AtoneType) < 0)
+        return -1;
+    if (module_add_object(m, "DCBlock_base", &DCBlockType) < 0)
+        return -1;
+    if (module_add_object(m, "Allpass_base", &AllpassType) < 0)
+        return -1;
+    if (module_add_object(m, "Allpass2_base", &Allpass2Type) < 0)
+        return -1;
+    if (module_add_object(m, "Phaser_base", &PhaserType) < 0)
+        return -1;
+    if (module_add_object(m, "Vocoder_base", &VocoderType) < 0)
+        return -1;
+    if (module_add_object(m, "Port_base", &PortType) < 0)
+        return -1;
+    if (module_add_object(m, "Denorm_base", &DenormType) < 0)
+        return -1;
+    if (module_add_object(m, "Disto_base", &DistoType) < 0)
+        return -1;
+    if (module_add_object(m, "Clip_base", &ClipType) < 0)
+        return -1;
+    if (module_add_object(m, "Mirror_base", &MirrorType) < 0)
+        return -1;
+    if (module_add_object(m, "Wrap_base", &WrapType) < 0)
+        return -1;
+    if (module_add_object(m, "Between_base", &BetweenType) < 0)
+        return -1;
+    if (module_add_object(m, "Degrade_base", &DegradeType) < 0)
+        return -1;
+    if (module_add_object(m, "Compress_base", &CompressType) < 0)
+        return -1;
+    if (module_add_object(m, "Gate_base", &GateType) < 0)
+        return -1;
+    if (module_add_object(m, "Balance_base", &BalanceType) < 0)
+        return -1;
+    if (module_add_object(m, "Delay_base", &DelayType) < 0)
+        return -1;
+    if (module_add_object(m, "SDelay_base", &SDelayType) < 0)
+        return -1;
+    if (module_add_object(m, "Waveguide_base", &WaveguideType) < 0)
+        return -1;
+    if (module_add_object(m, "AllpassWG_base", &AllpassWGType) < 0)
+        return -1;
+    if (module_add_object(m, "Midictl_base", &MidictlType) < 0)
+        return -1;
+    if (module_add_object(m, "CtlScan_base", &CtlScanType) < 0)
+        return -1;
+    if (module_add_object(m, "CtlScan2_base", &CtlScan2Type) < 0)
+        return -1;
+    if (module_add_object(m, "MidiNote_base", &MidiNoteType) < 0)
+        return -1;
+    if (module_add_object(m, "Notein_base", &NoteinType) < 0)
+        return -1;
+    if (module_add_object(m, "NoteinTrig_base", &NoteinTrigType) < 0)
+        return -1;
+    if (module_add_object(m, "Bendin_base", &BendinType) < 0)
+        return -1;
+    if (module_add_object(m, "Touchin_base", &TouchinType) < 0)
+        return -1;
+    if (module_add_object(m, "Programin_base", &PrograminType) < 0)
+        return -1;
+    if (module_add_object(m, "MidiAdsr_base", &MidiAdsrType) < 0)
+        return -1;
+    if (module_add_object(m, "MidiDelAdsr_base", &MidiDelAdsrType) < 0)
+        return -1;
+    if (module_add_object(m, "TrigRand_base", &TrigRandType) < 0)
+        return -1;
+    if (module_add_object(m, "TrigRandInt_base", &TrigRandIntType) < 0)
+        return -1;
+    if (module_add_object(m, "TrigVal_base", &TrigValType) < 0)
+        return -1;
+    if (module_add_object(m, "TrigChoice_base", &TrigChoiceType) < 0)
+        return -1;
+    if (module_add_object(m, "Iter_base", &IterType) < 0)
+        return -1;
+    if (module_add_object(m, "TrigEnv_base", &TrigEnvType) < 0)
+        return -1;
+    if (module_add_object(m, "TrigLinseg_base", &TrigLinsegType) < 0)
+        return -1;
+    if (module_add_object(m, "TrigExpseg_base", &TrigExpsegType) < 0)
+        return -1;
+    if (module_add_object(m, "TrigFunc_base", &TrigFuncType) < 0)
+        return -1;
+    if (module_add_object(m, "TrigXnoise_base", &TrigXnoiseType) < 0)
+        return -1;
+    if (module_add_object(m, "TrigXnoiseMidi_base", &TrigXnoiseMidiType) < 0)
+        return -1;
+    if (module_add_object(m, "Pattern_base", &PatternType) < 0)
+        return -1;
+    if (module_add_object(m, "CallAfter_base", &CallAfterType) < 0)
+        return -1;
+    if (module_add_object(m, "BandSplitter_base", &BandSplitterType) < 0)
+        return -1;
+    if (module_add_object(m, "BandSplit_base", &BandSplitType) < 0)
+        return -1;
+    if (module_add_object(m, "FourBandMain_base", &FourBandMainType) < 0)
+        return -1;
+    if (module_add_object(m, "FourBand_base", &FourBandType) < 0)
+        return -1;
+    if (module_add_object(m, "HilbertMain_base", &HilbertMainType) < 0)
+        return -1;
+    if (module_add_object(m, "Hilbert_base", &HilbertType) < 0)
+        return -1;
+    if (module_add_object(m, "Follower_base", &FollowerType) < 0)
+        return -1;
+    if (module_add_object(m, "Follower2_base", &Follower2Type) < 0)
+        return -1;
+    if (module_add_object(m, "ZCross_base", &ZCrossType) < 0)
+        return -1;
+    if (module_add_object(m, "SPanner_base", &SPannerType) < 0)
+        return -1;
+    if (module_add_object(m, "Panner_base", &PannerType) < 0)
+        return -1;
+    if (module_add_object(m, "Pan_base", &PanType) < 0)
+        return -1;
+    if (module_add_object(m, "SPan_base", &SPanType) < 0)
+        return -1;
+    if (module_add_object(m, "Switcher_base", &SwitcherType) < 0)
+        return -1;
+    if (module_add_object(m, "Switch_base", &SwitchType) < 0)
+        return -1;
+    if (module_add_object(m, "Selector_base", &SelectorType) < 0)
+        return -1;
+    if (module_add_object(m, "VoiceManager_base", &VoiceManagerType) < 0)
+        return -1;
+    if (module_add_object(m, "Mixer_base", &MixerType) < 0)
+        return -1;
+    if (module_add_object(m, "MixerVoice_base", &MixerVoiceType) < 0)
+        return -1;
+    if (module_add_object(m, "Counter_base", &CounterType) < 0)
+        return -1;
+    if (module_add_object(m, "Count_base", &CountType) < 0)
+        return -1;
+    if (module_add_object(m, "Thresh_base", &ThreshType) < 0)
+        return -1;
+    if (module_add_object(m, "Percent_base", &PercentType) < 0)
+        return -1;
+    if (module_add_object(m, "Timer_base", &TimerType) < 0)
+        return -1;
+    if (module_add_object(m, "Select_base", &SelectType) < 0)
+        return -1;
+    if (module_add_object(m, "Change_base", &ChangeType) < 0)
+        return -1;
+    if (module_add_object(m, "Score_base", &ScoreType) < 0)
+        return -1;
+    if (module_add_object(m, "Freeverb_base", &FreeverbType) < 0)
+        return -1;
+    if (module_add_object(m, "WGVerb_base", &WGVerbType) < 0)
+        return -1;
+    if (module_add_object(m, "Chorus_base", &ChorusType) < 0)
+        return -1;
+    if (module_add_object(m, "Convolve_base", &ConvolveType) < 0)
+        return -1;
+    if (module_add_object(m, "IRWinSinc_base", &IRWinSincType) < 0)
+        return -1;
+    if (module_add_object(m, "IRPulse_base", &IRPulseType) < 0)
+        return -1;
+    if (module_add_object(m, "IRAverage_base", &IRAverageType) < 0)
+        return -1;
+    if (module_add_object(m, "IRFM_base", &IRFMType) < 0)
+        return -1;
+    if (module_add_object(m, "Granulator_base", &GranulatorType) < 0)
+        return -1;
+    if (module_add_object(m, "Looper_base", &LooperType) < 0)
+        return -1;
+    if (module_add_object(m, "LooperTimeStream_base", &LooperTimeStreamType) < 0)
+        return -1;
+    if (module_add_object(m, "Harmonizer_base", &HarmonizerType) < 0)
+        return -1;
+    if (module_add_object(m, "Print_base", &PrintType) < 0)
+        return -1;
+    if (module_add_object(m, "M_Sin_base", &M_SinType) < 0)
+        return -1;
+    if (module_add_object(m, "M_Cos_base", &M_CosType) < 0)
+        return -1;
+    if (module_add_object(m, "M_Tan_base", &M_TanType) < 0)
+        return -1;
+    if (module_add_object(m, "M_Abs_base", &M_AbsType) < 0)
+        return -1;
+    if (module_add_object(m, "M_Sqrt_base", &M_SqrtType) < 0)
+        return -1;
+    if (module_add_object(m, "M_Log_base", &M_LogType) < 0)
+        return -1;
+    if (module_add_object(m, "M_Log2_base", &M_Log2Type) < 0)
+        return -1;
+    if (module_add_object(m, "M_Log10_base", &M_Log10Type) < 0)
+        return -1;
+    if (module_add_object(m, "M_Pow_base", &M_PowType) < 0)
+        return -1;
+    if (module_add_object(m, "M_Atan2_base", &M_Atan2Type) < 0)
+        return -1;
+    if (module_add_object(m, "M_Floor_base", &M_FloorType) < 0)
+        return -1;
+    if (module_add_object(m, "M_Ceil_base", &M_CeilType) < 0)
+        return -1;
+    if (module_add_object(m, "M_Round_base", &M_RoundType) < 0)
+        return -1;
+    if (module_add_object(m, "M_Tanh_base", &M_TanhType) < 0)
+        return -1;
+    if (module_add_object(m, "M_Exp_base", &M_ExpType) < 0)
+        return -1;
+    if (module_add_object(m, "Snap_base", &SnapType) < 0)
+        return -1;
+    if (module_add_object(m, "Interp_base", &InterpType) < 0)
+        return -1;
+    if (module_add_object(m, "SampHold_base", &SampHoldType) < 0)
+        return -1;
+    if (module_add_object(m, "DBToA_base", &DBToAType) < 0)
+        return -1;
+    if (module_add_object(m, "AToDB_base", &AToDBType) < 0)
+        return -1;
+    if (module_add_object(m, "Scale_base", &ScaleType) < 0)
+        return -1;
+    if (module_add_object(m, "CentsToTranspo_base", &CentsToTranspoType) < 0)
+        return -1;
+    if (module_add_object(m, "TranspoToCents_base", &TranspoToCentsType) < 0)
+        return -1;
+    if (module_add_object(m, "MToF_base", &MToFType) < 0)
+        return -1;
+    if (module_add_object(m, "FToM_base", &FToMType) < 0)
+        return -1;
+    if (module_add_object(m, "MToT_base", &MToTType) < 0)
+        return -1;
+    if (module_add_object(m, "FFTMain_base", &FFTMainType) < 0)
+        return -1;
+    if (module_add_object(m, "FFT_base", &FFTType) < 0)
+        return -1;
+    if (module_add_object(m, "IFFT_base", &IFFTType) < 0)
+        return -1;
+    if (module_add_object(m, "IFFTMatrix_base", &IFFTMatrixType) < 0)
+        return -1;
+    if (module_add_object(m, "CarToPol_base", &CarToPolType) < 0)
+        return -1;
+    if (module_add_object(m, "PolToCar_base", &PolToCarType) < 0)
+        return -1;
+    if (module_add_object(m, "FrameDeltaMain_base", &FrameDeltaMainType) < 0)
+        return -1;
+    if (module_add_object(m, "FrameDelta_base", &FrameDeltaType) < 0)
+        return -1;
+    if (module_add_object(m, "FrameAccum_base", &FrameAccumType) < 0)
+        return -1;
+    if (module_add_object(m, "FrameAccumMain_base", &FrameAccumMainType) < 0)
+        return -1;
+    if (module_add_object(m, "VectralMain_base", &VectralMainType) < 0)
+        return -1;
+    if (module_add_object(m, "Vectral_base", &VectralType) < 0)
+        return -1;
+    if (module_add_object(m, "Min_base", &MinType) < 0)
+        return -1;
+    if (module_add_object(m, "Max_base", &MaxType) < 0)
+        return -1;
+    if (module_add_object(m, "Delay1_base", &Delay1Type) < 0)
+        return -1;
+    if (module_add_object(m, "RCOsc_base", &RCOscType) < 0)
+        return -1;
+    if (module_add_object(m, "Yin_base", &YinType) < 0)
+        return -1;
+    if (module_add_object(m, "SVF_base", &SVFType) < 0)
+        return -1;
+    if (module_add_object(m, "SVF2_base", &SVF2Type) < 0)
+        return -1;
+    if (module_add_object(m, "Average_base", &AverageType) < 0)
+        return -1;
+    if (module_add_object(m, "CvlVerb_base", &CvlVerbType) < 0)
+        return -1;
+    if (module_add_object(m, "Spectrum_base", &SpectrumType) < 0)
+        return -1;
+    if (module_add_object(m, "Reson_base", &ResonType) < 0)
+        return -1;
+    if (module_add_object(m, "Resonx_base", &ResonxType) < 0)
+        return -1;
+    if (module_add_object(m, "ButLP_base", &ButLPType) < 0)
+        return -1;
+    if (module_add_object(m, "ButHP_base", &ButHPType) < 0)
+        return -1;
+    if (module_add_object(m, "ButBP_base", &ButBPType) < 0)
+        return -1;
+    if (module_add_object(m, "ButBR_base", &ButBRType) < 0)
+        return -1;
+    if (module_add_object(m, "MoogLP_base", &MoogLPType) < 0)
+        return -1;
+    if (module_add_object(m, "PVAnal_base", &PVAnalType) < 0)
+        return -1;
+    if (module_add_object(m, "PVSynth_base", &PVSynthType) < 0)
+        return -1;
+    if (module_add_object(m, "PVTranspose_base", &PVTransposeType) < 0)
+        return -1;
+    if (module_add_object(m, "PVVerb_base", &PVVerbType) < 0)
+        return -1;
+    if (module_add_object(m, "PVGate_base", &PVGateType) < 0)
+        return -1;
+    if (module_add_object(m, "PVAddSynth_base", &PVAddSynthType) < 0)
+        return -1;
+    if (module_add_object(m, "PVCross_base", &PVCrossType) < 0)
+        return -1;
+    if (module_add_object(m, "PVMult_base", &PVMultType) < 0)
+        return -1;
+    if (module_add_object(m, "PVMorph_base", &PVMorphType) < 0)
+        return -1;
+    if (module_add_object(m, "PVFilter_base", &PVFilterType) < 0)
+        return -1;
+    if (module_add_object(m, "PVDelay_base", &PVDelayType) < 0)
+        return -1;
+    if (module_add_object(m, "PVBuffer_base", &PVBufferType) < 0)
+        return -1;
+    if (module_add_object(m, "PVShift_base", &PVShiftType) < 0)
+        return -1;
+    if (module_add_object(m, "PVAmpMod_base", &PVAmpModType) < 0)
+        return -1;
+    if (module_add_object(m, "PVFreqMod_base", &PVFreqModType) < 0)
+        return -1;
+    if (module_add_object(m, "PVBufLoops_base", &PVBufLoopsType) < 0)
+        return -1;
+    if (module_add_object(m, "PVBufTabLoops_base", &PVBufTabLoopsType) < 0)
+        return -1;
+    if (module_add_object(m, "PVMix_base", &PVMixType) < 0)
+        return -1;
+    if (module_add_object(m, "Granule_base", &GranuleType) < 0)
+        return -1;
+    if (module_add_object(m, "TableScale_base", &TableScaleType) < 0)
+        return -1;
+    if (module_add_object(m, "TrackHold_base", &TrackHoldType) < 0)
+        return -1;
+    if (module_add_object(m, "ComplexRes_base", &ComplexResType) < 0)
+        return -1;
+    if (module_add_object(m, "STReverb_base", &STReverbType) < 0)
+        return -1;
+    if (module_add_object(m, "STRev_base", &STRevType) < 0)
+        return -1;
+    if (module_add_object(m, "Pointer2_base", &Pointer2Type) < 0)
+        return -1;
+    if (module_add_object(m, "Centroid_base", &CentroidType) < 0)
+        return -1;
+    if (module_add_object(m, "AttackDetector_base", &AttackDetectorType) < 0)
+        return -1;
+    if (module_add_object(m, "SmoothDelay_base", &SmoothDelayType) < 0)
+        return -1;
+    if (module_add_object(m, "TrigBurster_base", &TrigBursterType) < 0)
+        return -1;
+    if (module_add_object(m, "TrigBurst_base", &TrigBurstType) < 0)
+        return -1;
+    if (module_add_object(m, "TrigBurstTapStream_base", &TrigBurstTapStreamType) < 0)
+        return -1;
+    if (module_add_object(m, "TrigBurstAmpStream_base", &TrigBurstAmpStreamType) < 0)
+        return -1;
+    if (module_add_object(m, "TrigBurstDurStream_base", &TrigBurstDurStreamType) < 0)
+        return -1;
+    if (module_add_object(m, "TrigBurstEndStream_base", &TrigBurstEndStreamType) < 0)
+        return -1;
+    if (module_add_object(m, "Scope_base", &ScopeType) < 0)
+        return -1;
+    if (module_add_object(m, "PeakAmp_base", &PeakAmpType) < 0)
+        return -1;
+    if (module_add_object(m, "MainParticle_base", &MainParticleType) < 0)
+        return -1;
+    if (module_add_object(m, "Particle_base", &ParticleType) < 0)
+        return -1;
+    if (module_add_object(m, "MainParticle2_base", &MainParticle2Type) < 0)
+        return -1;
+    if (module_add_object(m, "Particle2_base", &Particle2Type) < 0)
+        return -1;
+    if (module_add_object(m, "AtanTable_base", &AtanTableType) < 0)
+        return -1;
+    if (module_add_object(m, "RawMidi_base", &RawMidiType) < 0)
+        return -1;
+    if (module_add_object(m, "Resample_base", &ResampleType) < 0)
+        return -1;
+    if (module_add_object(m, "Exprer_base", &ExprerType) < 0)
+        return -1;
+    if (module_add_object(m, "Expr_base", &ExprType) < 0)
+        return -1;
+    if (module_add_object(m, "PadSynthTable_base", &PadSynthTableType) < 0)
+        return -1;
+    if (module_add_object(m, "LogiMap_base", &LogiMapType) < 0)
+        return -1;
+    if (module_add_object(m, "SharedTable_base", &SharedTableType) < 0)
+        return -1;
+    if (module_add_object(m, "TableFill_base", &TableFillType) < 0)
+        return -1;
+    if (module_add_object(m, "TableScan_base", &TableScanType) < 0)
+        return -1;
+    if (module_add_object(m, "HRTFData_base", &HRTFDataType) < 0)
+        return -1;
+    if (module_add_object(m, "HRTFSpatter_base", &HRTFSpatterType) < 0)
+        return -1;
+    if (module_add_object(m, "HRTF_base", &HRTFType) < 0)
+        return -1;
+    if (module_add_object(m, "Expand_base", &ExpandType) < 0)
+        return -1;
+    if (module_add_object(m, "RMS_base", &RMSType) < 0)
+        return -1;
+    if (module_add_object(m, "MidiLinseg_base", &MidiLinsegType) < 0)
+        return -1;
+    if (module_add_object(m, "MultiBandMain_base", &MultiBandMainType) < 0)
+        return -1;
+    if (module_add_object(m, "MultiBand_base", &MultiBandType) < 0)
+        return -1;
+    if (module_add_object(m, "M_Div_base", &M_DivType) < 0)
+        return -1;
+    if (module_add_object(m, "M_Sub_base", &M_SubType) < 0)
+        return -1;
+    if (module_add_object(m, "Binauraler_base", &BinauralerType) < 0)
+        return -1;
+    if (module_add_object(m, "Binaural_base", &BinauralType) < 0)
+        return -1;
+    if (module_add_object(m, "MMLMain_base", &MMLMainType) < 0)
+        return -1;
+    if (module_add_object(m, "MML_base", &MMLType) < 0)
+        return -1;
+    if (module_add_object(m, "MMLFreqStream_base", &MMLFreqStreamType) < 0)
+        return -1;
+    if (module_add_object(m, "MMLAmpStream_base", &MMLAmpStreamType) < 0)
+        return -1;
+    if (module_add_object(m, "MMLDurStream_base", &MMLDurStreamType) < 0)
+        return -1;
+    if (module_add_object(m, "MMLEndStream_base", &MMLEndStreamType) < 0)
+        return -1;
+    if (module_add_object(m, "MMLXStream_base", &MMLXStreamType) < 0)
+        return -1;
+    if (module_add_object(m, "MMLYStream_base", &MMLYStreamType) < 0)
+        return -1;
+    if (module_add_object(m, "MMLZStream_base", &MMLZStreamType) < 0)
+        return -1;
+
+    if (PyModule_AddStringConstant(m, "PYO_VERSION", PYO_VERSION) < 0)
+        return -1;
+#ifdef COMPILE_EXTERNALS
+    EXTERNAL_OBJECTS
+    if (PyModule_AddIntConstant(m, "WITH_EXTERNALS", 1) < 0)
+        return -1;
+#else
+    if (PyModule_AddIntConstant(m, "WITH_EXTERNALS", 0) < 0)
+        return -1;
+#endif
+#ifndef USE_DOUBLE
+    if (PyModule_AddIntConstant(m, "USE_DOUBLE", 0) < 0)
+        return -1;
+#else
+    if (PyModule_AddIntConstant(m, "USE_DOUBLE", 1) < 0)
+        return -1;
+#endif
+
+    return 0;
+}
+
+static PyModuleDef_Slot pyo_module_slots[] =
+{
+    {Py_mod_exec, pyo_exec},
+#if PY_VERSION_HEX >= 0x030c00f0  // Python 3.12+
+    {Py_mod_multiple_interpreters, Py_MOD_MULTIPLE_INTERPRETERS_SUPPORTED},
+#endif
+#if PY_VERSION_HEX >= 0x030d00f0  // Python 3.13+
+    // signal that this module does not supports running without an active GIL
+    {Py_mod_gil, Py_MOD_GIL_USED},
+#endif
+    {0, NULL}
+};
+
+static struct PyModuleDef pyo_moduledef =
+{
+    PyModuleDef_HEAD_INIT,
+    .m_name = LIB_BASE_NAME,
+    .m_doc = "Python digital signal processing module.",
+    .m_size = sizeof(PyoModuleState),
+    .m_methods = pyo_functions,
+    .m_slots = pyo_module_slots,
+};
 
 PyMODINIT_FUNC
 #ifndef USE_DOUBLE
@@ -2099,360 +2858,5 @@ PyInit__pyo(void)
 PyInit__pyo64(void)
 #endif
 {
-    PyObject *m;
-
-    m = PyModule_Create(&pyo_moduledef);
-
-    module_add_object(m, "Server_base", &ServerType);
-#ifdef USE_PORTMIDI
-    module_add_object(m, "MidiListener_base", &MidiListenerType);
-    module_add_object(m, "MidiDispatcher_base", &MidiDispatcherType);
-#endif
-#ifdef USE_OSC
-    module_add_object(m, "OscListener_base", &OscListenerType);
-    module_add_object(m, "OscSend_base", &OscSendType);
-    module_add_object(m, "OscDataSend_base", &OscDataSendType);
-    module_add_object(m, "OscReceive_base", &OscReceiveType);
-    module_add_object(m, "OscReceiver_base", &OscReceiverType);
-    module_add_object(m, "OscListReceive_base", &OscListReceiveType);
-    module_add_object(m, "OscListReceiver_base", &OscListReceiverType);
-    module_add_object(m, "OscDataReceive_base", &OscDataReceiveType);
-#endif
-    module_add_object(m, "Stream", &StreamType);
-    module_add_object(m, "TriggerStream", &TriggerStreamType);
-    module_add_object(m, "PVStream", &PVStreamType);
-    module_add_object(m, "Dummy_base", &DummyType);
-    module_add_object(m, "TriggerDummy_base", &TriggerDummyType);
-    module_add_object(m, "TableStream", &TableStreamType);
-    module_add_object(m, "MatrixStream", &MatrixStreamType);
-    module_add_object(m, "Record_base", &RecordType);
-    module_add_object(m, "ControlRec_base", &ControlRecType);
-    module_add_object(m, "ControlRead_base", &ControlReadType);
-    module_add_object(m, "NoteinRec_base", &NoteinRecType);
-    module_add_object(m, "NoteinRead_base", &NoteinReadType);
-    module_add_object(m, "Compare_base", &CompareType);
-    module_add_object(m, "Mix_base", &MixType);
-    module_add_object(m, "Sig_base", &SigType);
-    module_add_object(m, "SigTo_base", &SigToType);
-    module_add_object(m, "VarPort_base", &VarPortType);
-    module_add_object(m, "InputFader_base", &InputFaderType);
-    module_add_object(m, "Adsr_base", &AdsrType);
-    module_add_object(m, "Linseg_base", &LinsegType);
-    module_add_object(m, "Expseg_base", &ExpsegType);
-    module_add_object(m, "HarmTable_base", &HarmTableType);
-    module_add_object(m, "ChebyTable_base", &ChebyTableType);
-    module_add_object(m, "HannTable_base", &HannTableType);
-    module_add_object(m, "SincTable_base", &SincTableType);
-    module_add_object(m, "WinTable_base", &WinTableType);
-    module_add_object(m, "ParaTable_base", &ParaTableType);
-    module_add_object(m, "LinTable_base", &LinTableType);
-    module_add_object(m, "LogTable_base", &LogTableType);
-    module_add_object(m, "CosLogTable_base", &CosLogTableType);
-    module_add_object(m, "CosTable_base", &CosTableType);
-    module_add_object(m, "CurveTable_base", &CurveTableType);
-    module_add_object(m, "ExpTable_base", &ExpTableType);
-    module_add_object(m, "SndTable_base", &SndTableType);
-    module_add_object(m, "DataTable_base", &DataTableType);
-    module_add_object(m, "NewTable_base", &NewTableType);
-    module_add_object(m, "TableRec_base", &TableRecType);
-    module_add_object(m, "TableRecTimeStream_base", &TableRecTimeStreamType);
-    module_add_object(m, "TableMorph_base", &TableMorphType);
-    module_add_object(m, "TrigTableRec_base", &TrigTableRecType);
-    module_add_object(m, "TrigTableRecTimeStream_base", &TrigTableRecTimeStreamType);
-    module_add_object(m, "TableWrite_base", &TableWriteType);
-    module_add_object(m, "TablePut_base", &TablePutType);
-    module_add_object(m, "NewMatrix_base", &NewMatrixType);
-    module_add_object(m, "MatrixPointer_base", &MatrixPointerType);
-    module_add_object(m, "MatrixRec_base", &MatrixRecType);
-    module_add_object(m, "MatrixRecLoop_base", &MatrixRecLoopType);
-    module_add_object(m, "MatrixMorph_base", &MatrixMorphType);
-    module_add_object(m, "Input_base", &InputType);
-    module_add_object(m, "Trig_base", &TrigType);
-    module_add_object(m, "NextTrig_base", &NextTrigType);
-    module_add_object(m, "Metro_base", &MetroType);
-    module_add_object(m, "Seqer_base", &SeqerType);
-    module_add_object(m, "Seq_base", &SeqType);
-    module_add_object(m, "Clouder_base", &ClouderType);
-    module_add_object(m, "Cloud_base", &CloudType);
-    module_add_object(m, "Beater_base", &BeaterType);
-    module_add_object(m, "Beat_base", &BeatType);
-    module_add_object(m, "BeatTapStream_base", &BeatTapStreamType);
-    module_add_object(m, "BeatAmpStream_base", &BeatAmpStreamType);
-    module_add_object(m, "BeatDurStream_base", &BeatDurStreamType);
-    module_add_object(m, "BeatEndStream_base", &BeatEndStreamType);
-    module_add_object(m, "Fader_base", &FaderType);
-    module_add_object(m, "Randi_base", &RandiType);
-    module_add_object(m, "Randh_base", &RandhType);
-    module_add_object(m, "Choice_base", &ChoiceType);
-    module_add_object(m, "RandDur_base", &RandDurType);
-    module_add_object(m, "Xnoise_base", &XnoiseType);
-    module_add_object(m, "XnoiseMidi_base", &XnoiseMidiType);
-    module_add_object(m, "XnoiseDur_base", &XnoiseDurType);
-    module_add_object(m, "RandInt_base", &RandIntType);
-    module_add_object(m, "Urn_base", &UrnType);
-    module_add_object(m, "SfPlayer_base", &SfPlayerType);
-    module_add_object(m, "SfPlay_base", &SfPlayType);
-    module_add_object(m, "SfMarkerShuffler_base", &SfMarkerShufflerType);
-    module_add_object(m, "SfMarkerShuffle_base", &SfMarkerShuffleType);
-    module_add_object(m, "SfMarkerLooper_base", &SfMarkerLooperType);
-    module_add_object(m, "SfMarkerLoop_base", &SfMarkerLoopType);
-    module_add_object(m, "Osc_base", &OscType);
-    module_add_object(m, "OscLoop_base", &OscLoopType);
-    module_add_object(m, "OscTrig_base", &OscTrigType);
-    module_add_object(m, "OscBank_base", &OscBankType);
-    module_add_object(m, "SumOsc_base", &SumOscType);
-    module_add_object(m, "TableRead_base", &TableReadType);
-    module_add_object(m, "Pulsar_base", &PulsarType);
-    module_add_object(m, "Sine_base", &SineType);
-    module_add_object(m, "FastSine_base", &FastSineType);
-    module_add_object(m, "SineLoop_base", &SineLoopType);
-    module_add_object(m, "Fm_base", &FmType);
-    module_add_object(m, "CrossFm_base", &CrossFmType);
-    module_add_object(m, "LFO_base", &LFOType);
-    module_add_object(m, "Blit_base", &BlitType);
-    module_add_object(m, "Rossler_base", &RosslerType);
-    module_add_object(m, "RosslerAlt_base", &RosslerAltType);
-    module_add_object(m, "Lorenz_base", &LorenzType);
-    module_add_object(m, "LorenzAlt_base", &LorenzAltType);
-    module_add_object(m, "ChenLee_base", &ChenLeeType);
-    module_add_object(m, "ChenLeeAlt_base", &ChenLeeAltType);
-    module_add_object(m, "Phasor_base", &PhasorType);
-    module_add_object(m, "SuperSaw_base", &SuperSawType);
-    module_add_object(m, "Pointer_base", &PointerType);
-    module_add_object(m, "TableIndex_base", &TableIndexType);
-    module_add_object(m, "Lookup_base", &LookupType);
-    module_add_object(m, "Noise_base", &NoiseType);
-    module_add_object(m, "PinkNoise_base", &PinkNoiseType);
-    module_add_object(m, "BrownNoise_base", &BrownNoiseType);
-    module_add_object(m, "Biquad_base", &BiquadType);
-    module_add_object(m, "Biquadx_base", &BiquadxType);
-    module_add_object(m, "Biquada_base", &BiquadaType);
-    module_add_object(m, "EQ_base", &EQType);
-    module_add_object(m, "Tone_base", &ToneType);
-    module_add_object(m, "Atone_base", &AtoneType);
-    module_add_object(m, "DCBlock_base", &DCBlockType);
-    module_add_object(m, "Allpass_base", &AllpassType);
-    module_add_object(m, "Allpass2_base", &Allpass2Type);
-    module_add_object(m, "Phaser_base", &PhaserType);
-    module_add_object(m, "Vocoder_base", &VocoderType);
-    module_add_object(m, "Port_base", &PortType);
-    module_add_object(m, "Denorm_base", &DenormType);
-    module_add_object(m, "Disto_base", &DistoType);
-    module_add_object(m, "Clip_base", &ClipType);
-    module_add_object(m, "Mirror_base", &MirrorType);
-    module_add_object(m, "Wrap_base", &WrapType);
-    module_add_object(m, "Between_base", &BetweenType);
-    module_add_object(m, "Degrade_base", &DegradeType);
-    module_add_object(m, "Compress_base", &CompressType);
-    module_add_object(m, "Gate_base", &GateType);
-    module_add_object(m, "Balance_base", &BalanceType);
-    module_add_object(m, "Delay_base", &DelayType);
-    module_add_object(m, "SDelay_base", &SDelayType);
-    module_add_object(m, "Waveguide_base", &WaveguideType);
-    module_add_object(m, "AllpassWG_base", &AllpassWGType);
-    module_add_object(m, "Midictl_base", &MidictlType);
-    module_add_object(m, "CtlScan_base", &CtlScanType);
-    module_add_object(m, "CtlScan2_base", &CtlScan2Type);
-    module_add_object(m, "MidiNote_base", &MidiNoteType);
-    module_add_object(m, "Notein_base", &NoteinType);
-    module_add_object(m, "NoteinTrig_base", &NoteinTrigType);
-    module_add_object(m, "Bendin_base", &BendinType);
-    module_add_object(m, "Touchin_base", &TouchinType);
-    module_add_object(m, "Programin_base", &PrograminType);
-    module_add_object(m, "MidiAdsr_base", &MidiAdsrType);
-    module_add_object(m, "MidiDelAdsr_base", &MidiDelAdsrType);
-    module_add_object(m, "TrigRand_base", &TrigRandType);
-    module_add_object(m, "TrigRandInt_base", &TrigRandIntType);
-    module_add_object(m, "TrigVal_base", &TrigValType);
-    module_add_object(m, "TrigChoice_base", &TrigChoiceType);
-    module_add_object(m, "Iter_base", &IterType);
-    module_add_object(m, "TrigEnv_base", &TrigEnvType);
-    module_add_object(m, "TrigLinseg_base", &TrigLinsegType);
-    module_add_object(m, "TrigExpseg_base", &TrigExpsegType);
-    module_add_object(m, "TrigFunc_base", &TrigFuncType);
-    module_add_object(m, "TrigXnoise_base", &TrigXnoiseType);
-    module_add_object(m, "TrigXnoiseMidi_base", &TrigXnoiseMidiType);
-    module_add_object(m, "Pattern_base", &PatternType);
-    module_add_object(m, "CallAfter_base", &CallAfterType);
-    module_add_object(m, "BandSplitter_base", &BandSplitterType);
-    module_add_object(m, "BandSplit_base", &BandSplitType);
-    module_add_object(m, "FourBandMain_base", &FourBandMainType);
-    module_add_object(m, "FourBand_base", &FourBandType);
-    module_add_object(m, "HilbertMain_base", &HilbertMainType);
-    module_add_object(m, "Hilbert_base", &HilbertType);
-    module_add_object(m, "Follower_base", &FollowerType);
-    module_add_object(m, "Follower2_base", &Follower2Type);
-    module_add_object(m, "ZCross_base", &ZCrossType);
-    module_add_object(m, "SPanner_base", &SPannerType);
-    module_add_object(m, "Panner_base", &PannerType);
-    module_add_object(m, "Pan_base", &PanType);
-    module_add_object(m, "SPan_base", &SPanType);
-    module_add_object(m, "Switcher_base", &SwitcherType);
-    module_add_object(m, "Switch_base", &SwitchType);
-    module_add_object(m, "Selector_base", &SelectorType);
-    module_add_object(m, "VoiceManager_base", &VoiceManagerType);
-    module_add_object(m, "Mixer_base", &MixerType);
-    module_add_object(m, "MixerVoice_base", &MixerVoiceType);
-    module_add_object(m, "Counter_base", &CounterType);
-    module_add_object(m, "Count_base", &CountType);
-    module_add_object(m, "Thresh_base", &ThreshType);
-    module_add_object(m, "Percent_base", &PercentType);
-    module_add_object(m, "Timer_base", &TimerType);
-    module_add_object(m, "Select_base", &SelectType);
-    module_add_object(m, "Change_base", &ChangeType);
-    module_add_object(m, "Score_base", &ScoreType);
-    module_add_object(m, "Freeverb_base", &FreeverbType);
-    module_add_object(m, "WGVerb_base", &WGVerbType);
-    module_add_object(m, "Chorus_base", &ChorusType);
-    module_add_object(m, "Convolve_base", &ConvolveType);
-    module_add_object(m, "IRWinSinc_base", &IRWinSincType);
-    module_add_object(m, "IRPulse_base", &IRPulseType);
-    module_add_object(m, "IRAverage_base", &IRAverageType);
-    module_add_object(m, "IRFM_base", &IRFMType);
-    module_add_object(m, "Granulator_base", &GranulatorType);
-    module_add_object(m, "Looper_base", &LooperType);
-    module_add_object(m, "LooperTimeStream_base", &LooperTimeStreamType);
-    module_add_object(m, "Harmonizer_base", &HarmonizerType);
-    module_add_object(m, "Print_base", &PrintType);
-    module_add_object(m, "M_Sin_base", &M_SinType);
-    module_add_object(m, "M_Cos_base", &M_CosType);
-    module_add_object(m, "M_Tan_base", &M_TanType);
-    module_add_object(m, "M_Abs_base", &M_AbsType);
-    module_add_object(m, "M_Sqrt_base", &M_SqrtType);
-    module_add_object(m, "M_Log_base", &M_LogType);
-    module_add_object(m, "M_Log2_base", &M_Log2Type);
-    module_add_object(m, "M_Log10_base", &M_Log10Type);
-    module_add_object(m, "M_Pow_base", &M_PowType);
-    module_add_object(m, "M_Atan2_base", &M_Atan2Type);
-    module_add_object(m, "M_Floor_base", &M_FloorType);
-    module_add_object(m, "M_Ceil_base", &M_CeilType);
-    module_add_object(m, "M_Round_base", &M_RoundType);
-    module_add_object(m, "M_Tanh_base", &M_TanhType);
-    module_add_object(m, "M_Exp_base", &M_ExpType);
-    module_add_object(m, "Snap_base", &SnapType);
-    module_add_object(m, "Interp_base", &InterpType);
-    module_add_object(m, "SampHold_base", &SampHoldType);
-    module_add_object(m, "DBToA_base", &DBToAType);
-    module_add_object(m, "AToDB_base", &AToDBType);
-    module_add_object(m, "Scale_base", &ScaleType);
-    module_add_object(m, "CentsToTranspo_base", &CentsToTranspoType);
-    module_add_object(m, "TranspoToCents_base", &TranspoToCentsType);
-    module_add_object(m, "MToF_base", &MToFType);
-    module_add_object(m, "FToM_base", &FToMType);
-    module_add_object(m, "MToT_base", &MToTType);
-    module_add_object(m, "FFTMain_base", &FFTMainType);
-    module_add_object(m, "FFT_base", &FFTType);
-    module_add_object(m, "IFFT_base", &IFFTType);
-    module_add_object(m, "IFFTMatrix_base", &IFFTMatrixType);
-    module_add_object(m, "CarToPol_base", &CarToPolType);
-    module_add_object(m, "PolToCar_base", &PolToCarType);
-    module_add_object(m, "FrameDeltaMain_base", &FrameDeltaMainType);
-    module_add_object(m, "FrameDelta_base", &FrameDeltaType);
-    module_add_object(m, "FrameAccum_base", &FrameAccumType);
-    module_add_object(m, "FrameAccumMain_base", &FrameAccumMainType);
-    module_add_object(m, "VectralMain_base", &VectralMainType);
-    module_add_object(m, "Vectral_base", &VectralType);
-    module_add_object(m, "Min_base", &MinType);
-    module_add_object(m, "Max_base", &MaxType);
-    module_add_object(m, "Delay1_base", &Delay1Type);
-    module_add_object(m, "RCOsc_base", &RCOscType);
-    module_add_object(m, "Yin_base", &YinType);
-    module_add_object(m, "SVF_base", &SVFType);
-    module_add_object(m, "SVF2_base", &SVF2Type);
-    module_add_object(m, "Average_base", &AverageType);
-    module_add_object(m, "CvlVerb_base", &CvlVerbType);
-    module_add_object(m, "Spectrum_base", &SpectrumType);
-    module_add_object(m, "Reson_base", &ResonType);
-    module_add_object(m, "Resonx_base", &ResonxType);
-    module_add_object(m, "ButLP_base", &ButLPType);
-    module_add_object(m, "ButHP_base", &ButHPType);
-    module_add_object(m, "ButBP_base", &ButBPType);
-    module_add_object(m, "ButBR_base", &ButBRType);
-    module_add_object(m, "MoogLP_base", &MoogLPType);
-    module_add_object(m, "PVAnal_base", &PVAnalType);
-    module_add_object(m, "PVSynth_base", &PVSynthType);
-    module_add_object(m, "PVTranspose_base", &PVTransposeType);
-    module_add_object(m, "PVVerb_base", &PVVerbType);
-    module_add_object(m, "PVGate_base", &PVGateType);
-    module_add_object(m, "PVAddSynth_base", &PVAddSynthType);
-    module_add_object(m, "PVCross_base", &PVCrossType);
-    module_add_object(m, "PVMult_base", &PVMultType);
-    module_add_object(m, "PVMorph_base", &PVMorphType);
-    module_add_object(m, "PVFilter_base", &PVFilterType);
-    module_add_object(m, "PVDelay_base", &PVDelayType);
-    module_add_object(m, "PVBuffer_base", &PVBufferType);
-    module_add_object(m, "PVShift_base", &PVShiftType);
-    module_add_object(m, "PVAmpMod_base", &PVAmpModType);
-    module_add_object(m, "PVFreqMod_base", &PVFreqModType);
-    module_add_object(m, "PVBufLoops_base", &PVBufLoopsType);
-    module_add_object(m, "PVBufTabLoops_base", &PVBufTabLoopsType);
-    module_add_object(m, "PVMix_base", &PVMixType);
-    module_add_object(m, "Granule_base", &GranuleType);
-    module_add_object(m, "TableScale_base", &TableScaleType);
-    module_add_object(m, "TrackHold_base", &TrackHoldType);
-    module_add_object(m, "ComplexRes_base", &ComplexResType);
-    module_add_object(m, "STReverb_base", &STReverbType);
-    module_add_object(m, "STRev_base", &STRevType);
-    module_add_object(m, "Pointer2_base", &Pointer2Type);
-    module_add_object(m, "Centroid_base", &CentroidType);
-    module_add_object(m, "AttackDetector_base", &AttackDetectorType);
-    module_add_object(m, "SmoothDelay_base", &SmoothDelayType);
-    module_add_object(m, "TrigBurster_base", &TrigBursterType);
-    module_add_object(m, "TrigBurst_base", &TrigBurstType);
-    module_add_object(m, "TrigBurstTapStream_base", &TrigBurstTapStreamType);
-    module_add_object(m, "TrigBurstAmpStream_base", &TrigBurstAmpStreamType);
-    module_add_object(m, "TrigBurstDurStream_base", &TrigBurstDurStreamType);
-    module_add_object(m, "TrigBurstEndStream_base", &TrigBurstEndStreamType);
-    module_add_object(m, "Scope_base", &ScopeType);
-    module_add_object(m, "PeakAmp_base", &PeakAmpType);
-    module_add_object(m, "MainParticle_base", &MainParticleType);
-    module_add_object(m, "Particle_base", &ParticleType);
-    module_add_object(m, "MainParticle2_base", &MainParticle2Type);
-    module_add_object(m, "Particle2_base", &Particle2Type);
-    module_add_object(m, "AtanTable_base", &AtanTableType);
-    module_add_object(m, "RawMidi_base", &RawMidiType);
-    module_add_object(m, "Resample_base", &ResampleType);
-    module_add_object(m, "Exprer_base", &ExprerType);
-    module_add_object(m, "Expr_base", &ExprType);
-    module_add_object(m, "PadSynthTable_base", &PadSynthTableType);
-    module_add_object(m, "LogiMap_base", &LogiMapType);
-    module_add_object(m, "SharedTable_base", &SharedTableType);
-    module_add_object(m, "TableFill_base", &TableFillType);
-    module_add_object(m, "TableScan_base", &TableScanType);
-    module_add_object(m, "HRTFData_base", &HRTFDataType);
-    module_add_object(m, "HRTFSpatter_base", &HRTFSpatterType);
-    module_add_object(m, "HRTF_base", &HRTFType);
-    module_add_object(m, "Expand_base", &ExpandType);
-    module_add_object(m, "RMS_base", &RMSType);
-    module_add_object(m, "MidiLinseg_base", &MidiLinsegType);
-    module_add_object(m, "MultiBandMain_base", &MultiBandMainType);
-    module_add_object(m, "MultiBand_base", &MultiBandType);
-    module_add_object(m, "M_Div_base", &M_DivType);
-    module_add_object(m, "M_Sub_base", &M_SubType);
-    module_add_object(m, "Binauraler_base", &BinauralerType);
-    module_add_object(m, "Binaural_base", &BinauralType);
-    module_add_object(m, "MMLMain_base", &MMLMainType);
-    module_add_object(m, "MML_base", &MMLType);
-    module_add_object(m, "MMLFreqStream_base", &MMLFreqStreamType);
-    module_add_object(m, "MMLAmpStream_base", &MMLAmpStreamType);
-    module_add_object(m, "MMLDurStream_base", &MMLDurStreamType);
-    module_add_object(m, "MMLEndStream_base", &MMLEndStreamType);
-    module_add_object(m, "MMLXStream_base", &MMLXStreamType);
-    module_add_object(m, "MMLYStream_base", &MMLYStreamType);
-    module_add_object(m, "MMLZStream_base", &MMLZStreamType);
-
-    PyModule_AddStringConstant(m, "PYO_VERSION", PYO_VERSION);
-#ifdef COMPILE_EXTERNALS
-    EXTERNAL_OBJECTS
-    PyModule_AddIntConstant(m, "WITH_EXTERNALS", 1);
-#else
-    PyModule_AddIntConstant(m, "WITH_EXTERNALS", 0);
-#endif
-#ifndef USE_DOUBLE
-    PyModule_AddIntConstant(m, "USE_DOUBLE", 0);
-#else
-    PyModule_AddIntConstant(m, "USE_DOUBLE", 1);
-#endif
-
-    return m;
+    return PyModuleDef_Init(&pyo_moduledef);
 }

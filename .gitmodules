@@ -1,0 +1,3 @@
+[submodule "3rdParty/pd-lib-builder"]
+	path = 3rdParty/pd-lib-builder
+	url = https://github.com/pure-data/pd-lib-builder.git
