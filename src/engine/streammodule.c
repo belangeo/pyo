@@ -102,6 +102,14 @@ void Stream_setFunctionPtr(Stream *self, void (*ptr)(void *))
 void Stream_callFunction(Stream *self)
 {
     (*self->funcptr)(self->streamobject);
+
+    // Some stream implementations still call Python APIs internally.
+    // In debug Python builds, leaving an exception pending here can
+    // trip assertions in the next unrelated Python API call.
+    if (PyErr_Occurred())
+    {
+        PyErr_Print();
+    }
 }
 
 void Stream_IncrementBufferCount(Stream *self)
@@ -122,6 +130,10 @@ void Stream_IncrementDurationCount(Stream *self)
     if (self->bufferCount >= self->duration)
     {
         PyObject_CallMethod((PyObject *)Stream_getStreamObject(self), "stop", NULL);
+        if (PyErr_Occurred())
+        {
+            PyErr_Print();
+        }
         self->duration = self->bufferCount = 0;
     }
 }

@@ -233,6 +233,8 @@ NewMatrix_dealloc(NewMatrix* self)
 {
     int i;
 
+    PyObject_GC_UnTrack(self);
+
     for (i = 0; i < (self->height + 1); i++)
     {
         PyMem_RawFree(self->data[i]);

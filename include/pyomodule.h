@@ -694,6 +694,7 @@ extern PyTypeObject MMLZStreamType;
     } \
 
 #define pyo_DEALLOC \
+    PyObject_GC_UnTrack(self); \
     if (self->server != NULL && self->stream != NULL) \
         Server_removeStream((Server *)self->server, Stream_getStreamId(self->stream)); \
     PyMem_RawFree(self->data); \

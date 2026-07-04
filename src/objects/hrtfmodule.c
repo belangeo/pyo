@@ -64,6 +64,8 @@ HRTFData_dealloc(HRTFData* self)
 {
     int i, j;
 
+    PyObject_GC_UnTrack(self);
+
     for (i = 0; i < 14; i++)
     {
         int howmany = self->files_per_folder[i] * 2 - 1;

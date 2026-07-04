@@ -249,6 +249,7 @@ HarmTable_clear(HarmTable *self)
 static void
 HarmTable_dealloc(HarmTable* self)
 {
+    PyObject_GC_UnTrack(self);
     PyMem_RawFree(self->data);
     HarmTable_clear(self);
     Py_TYPE(self->tablestream)->tp_free((PyObject*)self->tablestream);
@@ -574,6 +575,7 @@ ChebyTable_clear(ChebyTable *self)
 static void
 ChebyTable_dealloc(ChebyTable* self)
 {
+    PyObject_GC_UnTrack(self);
     PyMem_RawFree(self->data);
     ChebyTable_clear(self);
     Py_TYPE(self->tablestream)->tp_free((PyObject*)self->tablestream);
@@ -918,6 +920,7 @@ HannTable_clear(HannTable *self)
 static void
 HannTable_dealloc(HannTable* self)
 {
+    PyObject_GC_UnTrack(self);
     PyMem_RawFree(self->data);
     HannTable_clear(self);
     Py_TYPE(self->tablestream)->tp_free((PyObject*)self->tablestream);
@@ -1153,6 +1156,7 @@ SincTable_clear(SincTable *self)
 static void
 SincTable_dealloc(SincTable* self)
 {
+    PyObject_GC_UnTrack(self);
     PyMem_RawFree(self->data);
     SincTable_clear(self);
     Py_TYPE(self->tablestream)->tp_free((PyObject*)self->tablestream);
@@ -1389,6 +1393,7 @@ WinTable_clear(WinTable *self)
 static void
 WinTable_dealloc(WinTable* self)
 {
+    PyObject_GC_UnTrack(self);
     PyMem_RawFree(self->data);
     WinTable_clear(self);
     Py_TYPE(self->tablestream)->tp_free((PyObject*)self->tablestream);
@@ -1627,6 +1632,7 @@ ParaTable_clear(ParaTable *self)
 static void
 ParaTable_dealloc(ParaTable* self)
 {
+    PyObject_GC_UnTrack(self);
     PyMem_RawFree(self->data);
     ParaTable_clear(self);
     Py_TYPE(self->tablestream)->tp_free((PyObject*)self->tablestream);
@@ -1888,6 +1894,7 @@ LinTable_clear(LinTable *self)
 static void
 LinTable_dealloc(LinTable* self)
 {
+    PyObject_GC_UnTrack(self);
     PyMem_RawFree(self->data);
     LinTable_clear(self);
     Py_TYPE(self->tablestream)->tp_free((PyObject*)self->tablestream);
@@ -2229,6 +2236,7 @@ LogTable_clear(LogTable *self)
 static void
 LogTable_dealloc(LogTable* self)
 {
+    PyObject_GC_UnTrack(self);
     PyMem_RawFree(self->data);
     LogTable_clear(self);
     Py_TYPE(self->tablestream)->tp_free((PyObject*)self->tablestream);
@@ -2538,6 +2546,7 @@ CosTable_clear(CosTable *self)
 static void
 CosTable_dealloc(CosTable* self)
 {
+    PyObject_GC_UnTrack(self);
     PyMem_RawFree(self->data);
     CosTable_clear(self);
     Py_TYPE(self->tablestream)->tp_free((PyObject*)self->tablestream);
@@ -2880,6 +2889,7 @@ CosLogTable_clear(CosLogTable *self)
 static void
 CosLogTable_dealloc(CosLogTable* self)
 {
+    PyObject_GC_UnTrack(self);
     PyMem_RawFree(self->data);
     CosLogTable_clear(self);
     Py_TYPE(self->tablestream)->tp_free((PyObject*)self->tablestream);
@@ -3213,6 +3223,7 @@ CurveTable_clear(CurveTable *self)
 static void
 CurveTable_dealloc(CurveTable* self)
 {
+    PyObject_GC_UnTrack(self);
     PyMem_RawFree(self->data);
     CurveTable_clear(self);
     Py_TYPE(self->tablestream)->tp_free((PyObject*)self->tablestream);
@@ -3594,6 +3605,7 @@ ExpTable_clear(ExpTable *self)
 static void
 ExpTable_dealloc(ExpTable* self)
 {
+    PyObject_GC_UnTrack(self);
     PyMem_RawFree(self->data);
     ExpTable_clear(self);
     Py_TYPE(self->tablestream)->tp_free((PyObject*)self->tablestream);
@@ -4341,6 +4353,7 @@ SndTable_clear(SndTable *self)
 static void
 SndTable_dealloc(SndTable* self)
 {
+    PyObject_GC_UnTrack(self);
     PyMem_RawFree(self->data);
     SndTable_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
@@ -4814,6 +4827,7 @@ NewTable_clear(NewTable *self)
 static void
 NewTable_dealloc(NewTable* self)
 {
+    PyObject_GC_UnTrack(self);
     PyMem_RawFree(self->data);
     NewTable_clear(self);
     Py_TYPE(self->tablestream)->tp_free((PyObject*)self->tablestream);
@@ -5252,6 +5266,7 @@ DataTable_clear(DataTable *self)
 static void
 DataTable_dealloc(DataTable* self)
 {
+    PyObject_GC_UnTrack(self);
     PyMem_RawFree(self->data);
     DataTable_clear(self);
     Py_TYPE(self->tablestream)->tp_free((PyObject*)self->tablestream);
@@ -5469,6 +5484,7 @@ AtanTable_clear(AtanTable *self)
 static void
 AtanTable_dealloc(AtanTable* self)
 {
+    PyObject_GC_UnTrack(self);
     PyMem_RawFree(self->data);
     AtanTable_clear(self);
     Py_TYPE(self->tablestream)->tp_free((PyObject*)self->tablestream);
@@ -5798,6 +5814,8 @@ static void
 PadSynthTable_dealloc(PadSynthTable* self)
 {
     int i;
+
+    PyObject_GC_UnTrack(self);
 
     for (i = 0; i < 4; i++)
     {
@@ -8035,6 +8053,7 @@ SharedTable_clear(SharedTable *self)
 static void
 SharedTable_dealloc(SharedTable* self)
 {
+    PyObject_GC_UnTrack(self);
 #if !defined(_WIN32) && !defined(_WIN64)
     close(self->fd);
 
